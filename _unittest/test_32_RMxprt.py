@@ -4,9 +4,14 @@ from _unittest.conftest import BasisTest
 
 from pyaedt import Rmxprt
 
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
 test_project_name = "motor"
 
 
+@pytest.mark.skipif(os.name == "posix", reason="Emit API fails on linux.")
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)

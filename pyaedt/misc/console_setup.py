@@ -25,6 +25,7 @@ except ImportError:
 pyaedt.settings.use_grpc_api = False
 from pyaedt import Desktop
 from pyaedt.generic.general_methods import active_sessions
+from pyaedt.generic.general_methods import is_windows
 
 aedt_process_id = int(sys.argv[1])
 version = sys.argv[2]
@@ -75,7 +76,7 @@ if port:
         close_on_exit=False,
         student_version=student_version,
     )
-elif os.name != "posix":
+elif is_windows:
     desktop = Desktop(
         specified_version=version,
         aedt_process_id=aedt_process_id,

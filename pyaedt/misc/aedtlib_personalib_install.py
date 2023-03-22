@@ -7,13 +7,16 @@ import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import ParseError
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
-pyaedt_path = os.path.join(
-    current_dir,
-    "..",
+pyaedt_path = os.path.normpath(
+    os.path.join(
+        current_dir,
+        "..",
+    )
 )
-sys.path.append(os.path.join(pyaedt_path, ".."))
+sys.path.append(os.path.normpath(os.path.join(pyaedt_path, "..")))
 
-
+is_linux = os.name == "posix"
+is_windows = not is_linux
 pid = 0
 
 
@@ -28,9 +31,27 @@ def add_pyaedt_to_aedt(aedt_version, is_student_version=False, use_sys_lib=False
         if os.path.exists(pers1):
             d.logger.info("PersonalLib already mapped")
         else:
-            os.system('mklink /D "{}" "{}"'.format(pers1, pyaedt_path))
+            if is_windows:
+                os.system('mklink /D "{}" "{}"'.format(pers1, pyaedt_path))
+            else:
+                os.system('ln -s "{}" "{}"'.format(pyaedt_path, pers1))
 
         toolkits = ["Project"]
+        # Bug on Linux 23.1 and before where Project level toolkits don't show up. Thus copying to individual design
+        # toolkits.
+        if is_linux and aedt_version <= "2023.1":
+            toolkits = [
+                "2DExtractor",
+                "CircuitDesign",
+                "HFSS",
+                "HFSS-IE",
+                "HFSS3DLayoutDesign",
+                "Icepak",
+                "Maxwell2D",
+                "Maxwell3D",
+                "Q3DExtractor",
+                "Mechanical",
+            ]
 
         for product in toolkits:
             if use_sys_lib:
@@ -57,6 +78,14 @@ def add_pyaedt_to_aedt(aedt_version, is_student_version=False, use_sys_lib=False
 def install_toolkit(toolkit_dir, product, aedt_version):
     tool_dir = os.path.join(toolkit_dir, product, "PyAEDT")
     lib_dir = os.path.join(tool_dir, "Lib")
+    toolkit_rel_lib_dir = os.path.relpath(lib_dir, tool_dir)
+    # Bug on Linux 23.1 and before where Project level toolkits don't show up. Thus copying to individual design
+    # toolkits.
+    if is_linux and aedt_version <= "2023.1":
+        toolkit_rel_lib_dir = os.path.join("Lib", "PyAEDT")
+        lib_dir = os.path.join(toolkit_dir, toolkit_rel_lib_dir)
+        toolkit_rel_lib_dir = "../../" + toolkit_rel_lib_dir
+        tool_dir = os.path.join(toolkit_dir, product, "PyAEDT")
     os.makedirs(lib_dir, exist_ok=True)
     os.makedirs(tool_dir, exist_ok=True)
     files_to_copy = ["Console", "Run_PyAEDT_Script", "Jupyter"]
@@ -68,8 +97,8 @@ def install_toolkit(toolkit_dir, product, aedt_version):
         version_agnostic = True
     else:
         executable_version_agnostic = sys.executable
-    jupyter_executable = executable_version_agnostic.replace("python.exe", "jupyter.exe")
-    ipython_executable = executable_version_agnostic.replace("python.exe", "ipython.exe")
+    jupyter_executable = executable_version_agnostic.replace("python" + exe(), "jupyter" + exe())
+    ipython_executable = executable_version_agnostic.replace("python" + exe(), "ipython" + exe())
     for file_name in files_to_copy:
         with open(os.path.join(current_dir, file_name + ".py_build"), "r") as build_file:
             file_name_dest = file_name.replace("_", " ") + ".py"
@@ -77,7 +106,7 @@ def install_toolkit(toolkit_dir, product, aedt_version):
                 print("Building to " + os.path.join(tool_dir, file_name_dest))
                 build_file_data = build_file.read()
                 build_file_data = (
-                    build_file_data.replace("##TOOLKIT_REL_LIB_DIR##", os.path.relpath(lib_dir, tool_dir))
+                    build_file_data.replace("##TOOLKIT_REL_LIB_DIR##", toolkit_rel_lib_dir)
                     .replace("##PYTHON_EXE##", executable_version_agnostic)
                     .replace("##IPYTHON_EXE##", ipython_executable)
                     .replace("##JUPYTER_EXE##", jupyter_executable)
@@ -149,6 +178,12 @@ def write_pretty_xml(root, file_path):
 
     with open(file_path, "w") as f:
         f.write(xml_str)
+
+
+def exe():
+    if is_windows:
+        return ".exe"
+    return ""
 
 
 if __name__ == "__main__":

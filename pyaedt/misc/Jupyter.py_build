@@ -9,7 +9,8 @@ directory and launches it.
 import os
 import random
 import string
-if os.name == "posix":
+is_linux = os.name == "posix"
+if is_linux:
     import subprocessdotnet as subprocess
 else:
     import subprocess
@@ -40,7 +41,7 @@ with open(template, "r") as source:
                 "AEDTVERSION", oDesktop.GetVersion()[:6]
             )
             t.write(line)
-if os.name == "posix":
+if is_linux:
     command = ["{}".format(jupyter_exe), "lab", "{}".format(target)]
 else:
     command = ['"{}"'.format(jupyter_exe), "lab", '"{}"'.format(target)]

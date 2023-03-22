@@ -202,17 +202,57 @@ class Note(object):
 class Trace(object):
     """Provides trace management."""
 
-    def __init__(self, report_setup, trace_name):
+    def __init__(self, report_setup, aedt_name):
         self._oreport_setup = report_setup
-        self.trace_name = trace_name
+        self.aedt_name = aedt_name
+        self._name = None
         self.LINESTYLE = LineStyle()
         self.TRACETYPE = TraceType()
         self.SYMBOLSTYLE = SymbolStyle()
 
+    @property
+    def name(self):
+        """Trace name.
+
+        Returns
+        -------
+        str
+        """
+        report_name = self.aedt_name.split(":")[0]
+        traces_in_report = self._oreport_setup.GetReportTraceNames(report_name)
+        for trace in traces_in_report:
+            if trace + ":" in self.aedt_name:
+                self._name = trace
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        report_name = self.aedt_name.split(":")[0]
+        prop_name = report_name + ":" + self.name
+
+        self._oreport_setup.ChangeProperty(
+            [
+                "NAME:AllTabs",
+                [
+                    "NAME:Trace",
+                    ["NAME:PropServers", prop_name],
+                    ["NAME:ChangedProps", ["NAME:Specify Name", "Value:=", True]],
+                ],
+            ]
+        )
+        self._oreport_setup.ChangeProperty(
+            [
+                "NAME:AllTabs",
+                ["NAME:Trace", ["NAME:PropServers", prop_name], ["NAME:ChangedProps", ["NAME:Name", "Value:=", value]]],
+            ]
+        )
+        self.aedt_name.replace(self.name, value)
+        self._name = value
+
     @pyaedt_function_handler()
     def _change_property(self, props_value):
         self._oreport_setup.ChangeProperty(
-            ["NAME:AllTabs", ["NAME:Attributes", ["NAME:PropServers", self.trace_name], props_value]]
+            ["NAME:AllTabs", ["NAME:Attributes", ["NAME:PropServers", self.aedt_name], props_value]]
         )
         return True
 
@@ -448,7 +488,7 @@ class CommonReport(object):
     @pyaedt_function_handler()
     def _update_traces(self):
         for trace in self.traces:
-            trace_name = trace.trace_name.split(":")[1]
+            trace_name = trace.aedt_name.split(":")[1]
             if "expressions" in self.props and trace_name in self.props["expressions"]:
                 trace_val = self.props["expressions"][trace_name]
                 trace_style = _props_with_default(trace_val, "trace_style")

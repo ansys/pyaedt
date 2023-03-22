@@ -1040,7 +1040,11 @@ class Components(object):
             if componentDefinition.IsNull():
                 self._logger.error("Failed to create component definition {}".format(name))
                 return None
+            ind = 1
             for pin in pins:
+                if not pin.GetName():
+                    pin.SetName(str(ind))
+                ind += 1
                 componentDefinitionPin = self._edb.Definition.ComponentDefPin.Create(componentDefinition, pin.GetName())
                 if componentDefinitionPin.IsNull():
                     self._logger.error("Failed to create component definition pin {}-{}".format(name, pin.GetName()))

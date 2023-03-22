@@ -14,6 +14,8 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
+from pyaedt.generic.general_methods import is_linux
+
 test_subfolder = "T41"
 # Input Data and version for the test
 test_project_name = "Test_RadioBoard"
@@ -320,6 +322,13 @@ class TestClass(BasisTest, object):
     def test_15_edit_setup(self):
         setup_name = "RFBoardSetup2"
         setup2 = self.aedtapp.create_setup(setupname=setup_name)
+        assert not setup2.get_sweep()
+
+        sweep = setup2.add_sweep()
+        sweep1 = setup2.get_sweep(sweep.name)
+        assert sweep1 == sweep
+        sweep2 = setup2.get_sweep()
+        assert sweep2 == sweep1
         setup2.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"][
             "AdaptiveFrequency"
         ] = "1GHz"
@@ -487,7 +496,7 @@ class TestClass(BasisTest, object):
         assert os.path.exists(self.aedtapp.export_profile("RFBoardSetup3"))
         assert os.path.exists(self.aedtapp.export_mesh_stats("RFBoardSetup3"))
 
-    @pytest.mark.skipif(os.name == "posix", reason="To be investigated on linux.")
+    @pytest.mark.skipif(is_linux, reason="To be investigated on linux.")
     def test_19C_export_touchsthone(self):
         filename = os.path.join(self.aedtapp.working_directory, "touchstone.s2p")
         solution_name = "RFBoardSetup3"
@@ -607,7 +616,7 @@ class TestClass(BasisTest, object):
         output = self.aedtapp.export_3d_model()
         assert os.path.exists(output)
 
-    @pytest.mark.skipif(os.name == "posix", reason="Failing on linux")
+    @pytest.mark.skipif(is_linux, reason="Failing on linux")
     def test_36_import_gerber(self):
         gerber_file = self.local_scratch.copyfile(
             os.path.join(local_path, "example_models", "cad", "Gerber", "gerber1.zip")
@@ -652,7 +661,7 @@ class TestClass(BasisTest, object):
         assert p2.name == "poly_test_41_void"
         assert not self.aedtapp.modeler.create_polygon_void("Top", points2, "another_object", name="poly_43_void")
 
-    @pytest.mark.skipif(os.name == "posix", reason="Bug on linux")
+    @pytest.mark.skipif(is_linux, reason="Bug on linux")
     def test_90_set_differential_pairs(self):
         assert self.hfss3dl.set_differential_pair(
             positive_terminal="Port3",
@@ -666,7 +675,7 @@ class TestClass(BasisTest, object):
         )
         assert self.hfss3dl.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
 
-    @pytest.mark.skipif(os.name == "posix", reason="Bug on linux")
+    @pytest.mark.skipif(is_linux, reason="Bug on linux")
     def test_91_load_and_save_diff_pair_file(self):
         diff_def_file = os.path.join(local_path, "example_models", test_subfolder, "differential_pairs_definition.txt")
         diff_file = self.local_scratch.copyfile(diff_def_file)

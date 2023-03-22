@@ -1554,6 +1554,37 @@ class Setup3DLayout(CommonSetup):
             return sweep_n
         return False
 
+    @pyaedt_function_handler()
+    def get_sweep(self, sweepname=None):
+        """Return frequency sweep object of a given sweep.
+
+        Parameters
+        ----------
+        sweepname : str, optional
+            Name of the sweep. the default is ``None`` which returns the first sweep.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS3DLayout`
+
+        Examples
+        --------
+        >>> h3d = Hfss3dLayout()
+        >>> setup = h3d.get_setup('Pyaedt_setup')
+        >>> sweep = setup.get_sweep('Sweep1')
+        >>> sweep.add_subrange("LinearCount", 0, 10, 1, "Hz")
+        >>> sweep.add_subrange("LogScale", 10, 1E8, 100, "Hz")
+        """
+        if sweepname:
+            for sweep in self.sweeps:
+                if sweepname == sweep.name:
+                    return sweep
+        else:
+            if self.sweeps:
+                return self.sweeps[0]
+        return False
+
+    @pyaedt_function_handler()
     def import_from_json(self, file_path):
         """Import setup properties from a json file.
 
@@ -1997,6 +2028,36 @@ class SetupHFSS(Setup, object):
         sweep_n.create()
         self.sweeps.append(sweep_n)
         return sweep_n
+
+    @pyaedt_function_handler()
+    def get_sweep(self, sweepname=None):
+        """Return frequency sweep object of a given sweep.
+
+        Parameters
+        ----------
+        sweepname : str, optional
+            Name of the sweep. the default is ``None`` which returns the first sweep.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or :class:`pyaedt.modules.SolveSweeps.SweepMatrix`
+
+        Examples
+        --------
+        >>> hfss = Hfss()
+        >>> setup = hfss.get_setup('Pyaedt_setup')
+        >>> sweep = setup.get_sweep('Sweep1')
+        >>> sweep.add_subrange("LinearCount", 0, 10, 1, "Hz")
+        >>> sweep.add_subrange("LogScale", 10, 1E8, 100, "Hz")
+        """
+        if sweepname:
+            for sweep in self.sweeps:
+                if sweepname == sweep.name:
+                    return sweep
+        else:
+            if self.sweeps:
+                return self.sweeps[0]
+        return False
 
     @pyaedt_function_handler()
     def enable_adaptive_setup_single(self, freq=None, max_passes=None, max_delta_s=None):
