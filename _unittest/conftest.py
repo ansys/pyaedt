@@ -46,6 +46,7 @@ from pyaedt import Desktop
 from pyaedt import Edb
 from pyaedt import Hfss
 from pyaedt.generic.filesystem import Scratch
+from pyaedt.misc.misc import list_installed_ansysem
 
 test_project_name = "test_primitives"
 
@@ -54,6 +55,9 @@ from _unittest.launch_desktop_tests import run_desktop_tests
 
 # Initialize default desktop configuration
 default_version = "2023.1"
+if "ANSYSEM_ROOT".format(default_version[2:].replace(".", "")) not in list_installed_ansysem():
+    default_version = list_installed_ansysem()[0][12:].replace(".", "")
+    default_version = "20{}.{}".format(default_version[:2], default_version[-1])
 os.environ["ANSYSEM_FEATURE_SS544753_ICEPAK_VIRTUALMESHREGION_PARADIGM_ENABLE"] = "1"
 if inside_desktop and "oDesktop" in dir(sys.modules["__main__"]):
     default_version = sys.modules["__main__"].oDesktop.GetVersion()[0:6]
@@ -120,11 +124,12 @@ class BasisTest(object):
                 proj_list = []
             if oDesktop and not settings.non_graphical:
                 oDesktop.ClearMessages("", "", 3)
-            for proj in proj_list:
-                try:
-                    oDesktop.CloseProject(proj)
-                except:
-                    pass
+            if proj_list:
+                for proj in proj_list:
+                    try:
+                        oDesktop.CloseProject(proj)
+                    except:
+                        pass
             # self.aedtapps[0].release_desktop(False)
 
         logger.remove_all_project_file_logger()
@@ -213,10 +218,19 @@ def desktop_init():
     #         # release_desktop(close_projects=False, close_desktop=True)
     #     except:
     #         pass
-    desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
+    if os.name != "posix" or is_ironpython:
+        desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
     yield
-    desktop.release_desktop(True, True)
-    del desktop
+    if os.name != "posix" or is_ironpython:
+        desktop.release_desktop(True, True)
+        del desktop
+
+    else:
+        _main = sys.modules["__main__"]
+        try:
+            os.kill(_main.desktop_pid, 9)
+        except:
+            pass
     gc.collect()
     if config["test_desktops"]:
         run_desktop_tests()

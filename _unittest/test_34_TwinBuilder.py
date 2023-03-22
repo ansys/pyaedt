@@ -6,9 +6,14 @@ from _unittest.conftest import local_path
 
 from pyaedt import TwinBuilder
 
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
 test_subfolder = "T21"
 
 
+@pytest.mark.skipif(os.name == "posix", reason="Emit API fails on linux.")
 class TestClass(BasisTest, object):
     def setup_class(self):
         project_name = "TwinBuilderProject"

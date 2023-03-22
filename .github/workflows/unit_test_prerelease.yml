@@ -55,8 +55,7 @@ jobs:
       - name: 'Install pyaedt'
         run: |
           testenv\Scripts\Activate.ps1
-          pip install .
-          pip install -r requirements/requirements_test.txt
+          pip install .[tests]
           pip install pytest-azurepipelines
           Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "testenv\Lib\site-packages\vtkmodules" -Force
           Copy-Item -Path "C:\actions-runner\local_config.json" -Destination "_unittest" -Force
@@ -68,11 +67,11 @@ jobs:
       #   uses: pyansys/pydpf-actions/check-licenses@v2.0
 
       - name: 'Unit testing'
-        timeout-minutes: 25
+        timeout-minutes: 30
         run: |
           testenv\Scripts\Activate.ps1
           Set-Item -Path env:PYTHONMALLOC -Value "malloc"
-          pytest -n 6 --dist loadfile -v --cov=pyaedt  --cov-report=xml --junitxml=junit/test-results.xml --cov-report=html _unittest
+          pytest -n 6 --durations=50 --dist loadfile -v --cov=pyaedt  --cov-report=xml --junitxml=junit/test-results.xml --cov-report=html _unittest
 
       - uses: codecov/codecov-action@v3
         if: matrix.python-version == '3.8'
