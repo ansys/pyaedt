@@ -1479,7 +1479,7 @@ class Stackup(object):
         layers = OrderedDict()
         roughness_models = OrderedDict()
         for name, val in self.stackup_layers.items():
-            layer = {}
+            layer = dict()
             layer["Material"] = val.material
             layer["Name"] = val.name
             layer["Thickness"] = val.thickness
@@ -1519,6 +1519,12 @@ class Stackup(object):
                         "HallHuraySurfaceRatio": model.get_NoduleRadius().ToDouble(),
                         "NoduleRadius": model.get_SurfaceRatio().ToDouble(),
                     }
+
+        for name, val in self.non_stackup_layers.items():
+            layer = dict()
+            layer["Name"] = val.name
+            layer["Type"] = val.type
+            layers[name] = layer
 
         materials = {}
         for name, val in self._pedb.materials.materials.items():

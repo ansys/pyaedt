@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 from collections import OrderedDict
+import re
 import time
 
 from pyaedt import pyaedt_function_handler
@@ -1331,12 +1332,7 @@ class LayerEdbClass(object):
     @property
     def type(self):
         """Retrieve type of the layer."""
-        if self._edb_layer.GetLayerType() == self._edb.Cell.LayerType.SignalLayer:
-            return "signal"
-        elif self._edb_layer.GetLayerType() == self._edb.Cell.LayerType.DielectricLayer:
-            return "dielectric"
-        else:
-            return
+        return re.sub(r"Layer$", "", self._edb_layer.GetLayerType().ToString()).lower()
 
     @type.setter
     def type(self, new_type):
