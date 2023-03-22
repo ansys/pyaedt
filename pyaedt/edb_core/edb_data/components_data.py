@@ -960,4 +960,3 @@ class EDBComponent(object):
         )
         void.is_negative = True
         return True
-
