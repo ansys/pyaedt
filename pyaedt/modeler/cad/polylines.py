@@ -369,7 +369,10 @@ class Polyline(Object3d):
             p_out = []
             for ip in p_in:
                 v, u = decompose_variable_value(ip)
-                p_out.append(unit_converter(v, unit_system="Length", input_units=u, output_units=dest_unit))
+                if u == "":
+                    p_out.append(v)
+                else:
+                    p_out.append(unit_converter(v, unit_system="Length", input_units=u, output_units=dest_unit))
             return p_out
 
         segments = []
@@ -869,9 +872,14 @@ class Polyline(Object3d):
         except:  # pragma: no cover
             raise ValueError("Invalid segment ID {} is specified on polyline {}.".format(segment_id, self.name))
         else:
-            for i, sid in enumerate(segment_id):
-                sid -= i
-                i_start, i_end = self._get_point_slice_from_segment_id(sid)
+            segment_id.reverse()
+            for sid in segment_id:
+                if sid == len(self._segment_types) - 1:
+                    # removing the last segment, AEDT removes ALWAYS the last polyline point
+                    at_start = False
+                else:
+                    at_start = True
+                i_start, i_end = self._get_point_slice_from_segment_id(sid, at_start)
                 del self._positions[i_start:i_end]
                 del self._segment_types[sid]
         return True

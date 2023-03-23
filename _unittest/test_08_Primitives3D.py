@@ -191,7 +191,7 @@ class TestClass(BasisTest, object):
         tol = 1e-9
         assert GeometryOperators.v_norm(o.faces[0].center_from_aedt) - GeometryOperators.v_norm(o.faces[0].center) < tol
 
-    def test_11_get_object_name_from_edge(self):
+    def test_11a_get_object_name_from_edge(self):
         o = self.create_copper_box()
         edge = o.edges[0].id
         assert self.aedtapp.modeler.get_object_name_from_edge_id(edge) == o.name
@@ -202,12 +202,12 @@ class TestClass(BasisTest, object):
         assert len(o.name) == 16
         assert o.material_name == "vacuum"
 
-    def test_11a_get_faces_from_mat(self):
+    def test_11b_get_faces_from_mat(self):
         self.create_copper_box()
         faces = self.aedtapp.modeler.get_faces_from_materials("Copper")
         assert len(faces) >= 6
 
-    def test_11b_check_object_faces(self):
+    def test_11c_check_object_faces(self):
         o = self.create_copper_box()
         face_list = o.faces
         assert len(face_list) == 6
@@ -218,13 +218,13 @@ class TestClass(BasisTest, object):
         assert o.faces[0].move_with_vector([0, 0, 0.01])
         assert type(f.normal) is list
 
-    def test_11c_check_object_edges(self):
+    def test_11d_check_object_edges(self):
         o = self.create_copper_box(name="MyBox")
         e = o.edges[1]
         assert isinstance(e.midpoint, list) and len(e.midpoint) == 3
         assert isinstance(e.length, float) and e.length > 0
 
-    def test_11d_check_object_vertices(self):
+    def test_11e_check_object_vertices(self):
         o = self.create_copper_box(name="MyBox")
         assert len(o.vertices) == 8
         v = o.vertices[0]
@@ -531,14 +531,12 @@ class TestClass(BasisTest, object):
         cylinder = self.aedtapp.modeler.create_cylinder(cs_axis=1, position=[0, 0, 0], radius=10, height=10)
         if config["desktopVersion"] >= "2023.1":
             centers = [[0, 10, 0], [0, 0, 0], [0, 5, 10]]
-
         else:
             centers = [[0, 0, 0], [0, 10, 0], [0, 5, 0]]
-        assert all(
-            min([GeometryOperators.v_norm(GeometryOperators.v_sub(f.center, ref_center)) for ref_center in centers])
-            < 1e-10
-            for f in cylinder.faces
-        )
+
+        cyl_centers = [f.center for f in cylinder.faces]
+        for c0, c1 in zip(centers, cyl_centers):
+            assert GeometryOperators.points_distance(c0, c1) < 1e-10
 
     def test_37_get_edge_midpoint(self):
         polyline = self.aedtapp.modeler.create_polyline([[0, 0, 0], [10, 5, 3]])
@@ -596,7 +594,7 @@ class TestClass(BasisTest, object):
         plane = self.aedtapp.modeler.create_sheet_to_ground(box.name, rect.name, self.aedtapp.AxisDir.ZNeg)
         assert isinstance(plane, Object3d)
 
-    def test_41b_get_edges_for_circuit_port(self):
+    def test_41c_get_edges_for_circuit_port(self):
         udp = self.aedtapp.modeler.Position(0, 0, 8)
         plane = self.aedtapp.PLANE.XY
         o = self.aedtapp.modeler.create_rectangle(plane, udp, [3, 10], name="MyGND", matname="Copper")
@@ -842,15 +840,33 @@ class TestClass(BasisTest, object):
         modeler = self.aedtapp.modeler
         P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         P.remove_edges(edge_id=0)
+        assert P.points == [[0, 2, 3], [2, 1, 4]]
+        assert len(P.segment_types) == 1
         assert P.name in self.aedtapp.modeler.line_names
         P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4], [3, 1, 6]])
         P.remove_segments(segment_id=[0, 1])
+        assert P.points == [[2, 1, 4], [3, 1, 6]]
+        assert len(P.segment_types) == 1
+        assert P.name in self.aedtapp.modeler.line_names
+        P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4], [3, 1, 6]])
+        P.remove_segments(segment_id=1)
+        assert P.points == [[0, 1, 2], [2, 1, 4], [3, 1, 6]]
+        assert len(P.segment_types) == 2
+        assert P.name in self.aedtapp.modeler.line_names
+        P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4], [2, 2, 5], [3, 1, 6]])
+        P.remove_segments(segment_id=[1, 3])
+        assert P.points == [[0, 1, 2], [2, 1, 4], [2, 2, 5]]
+        assert len(P.segment_types) == 2
         assert P.name in self.aedtapp.modeler.line_names
         P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4], [3, 1, 6]])
         P.remove_segments(segment_id=[1, 2])
+        assert P.points == [[0, 1, 2], [0, 2, 3]]
+        assert len(P.segment_types) == 1
         assert P.name in self.aedtapp.modeler.line_names
         P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4], [3, 1, 6]])
         P.remove_segments(segment_id=2)
+        assert P.points == [[0, 1, 2], [0, 2, 3], [2, 1, 4]]
+        assert len(P.segment_types) == 2
         assert P.name in self.aedtapp.modeler.line_names
 
     def test_52_remove_edges_from_polyline_invalid(self):
@@ -863,7 +879,7 @@ class TestClass(BasisTest, object):
         P2 = P1.clone()
         assert P2.id != P1.id
 
-    def test_54_create_spiral_and_add_segments(self):
+    def test_54a_create_spiral_and_add_segments(self):
         save_model_units = self.aedtapp.modeler.model_units
         self.aedtapp.modeler.model_units = "um"
         innerRadius = 20
@@ -1041,6 +1057,7 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.modeler.object_names) == 1
 
     def test_64_create_3dcomponent(self):
+        self.aedtapp.solution_type = "Modal"
         for i in list(self.aedtapp.modeler.objects.keys()):
             self.aedtapp.modeler.objects[i].material_name = "copper"
         assert self.aedtapp.modeler.create_3dcomponent(self.component3d_file)
@@ -1094,7 +1111,7 @@ class TestClass(BasisTest, object):
         eq_xsection = self.aedtapp.modeler.create_equationbased_curve(x_t="_t", y_t="_t*2", xsection_type="Circle")
         assert eq_xsection.name in self.aedtapp.modeler.solid_names
 
-    def test_66_insert_3dcomponent(self):
+    def test_66a_insert_3dcomponent(self):
         self.aedtapp.solution_type = "Modal"
         self.aedtapp["l_dipole"] = "13.5cm"
         compfile = self.aedtapp.components3d["Dipole_Antenna_DM"]
@@ -1105,12 +1122,12 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(config["desktopVersion"] > "2022.2", reason="Method failing in version higher than 2022.2")
     @pytest.mark.skipif(config["use_grpc"] and config["desktopVersion"] < "2023.1", reason="Failing in grpc")
-    def test_66a_insert_encrypted_3dcomp(self):
+    def test_66b_insert_encrypted_3dcomp(self):
         assert not self.aedtapp.modeler.insert_3d_component(self.encrypted_cylinder)
         # assert not self.aedtapp.modeler.insert_3d_component(self.encrypted_cylinder, password="dfgdg")
         assert self.aedtapp.modeler.insert_3d_component(self.encrypted_cylinder, password="test")
 
-    def test_66b_group_components(self):
+    def test_66c_group_components(self):
         self.aedtapp["l_dipole"] = "13.5cm"
 
         compfile = self.aedtapp.components3d["Dipole_Antenna_DM"]
@@ -1123,7 +1140,7 @@ class TestClass(BasisTest, object):
             == "test_group"
         )
 
-    def test_66c_component_bounding_box(self):
+    def test_66d_component_bounding_box(self):
         my_udmPairs = []
         mypair = ["OuterRadius", "20.2mm"]
         my_udmPairs.append(mypair)
@@ -1285,6 +1302,7 @@ class TestClass(BasisTest, object):
         assert name not in self.aedtapp.modeler.planes
 
     def test_71_create_choke(self):
+        self.aedtapp.insert_design("Chokes")
         choke_file1 = os.path.join(
             local_path, "example_models", "choke_json_file", "choke_1winding_1Layer_Corrected.json"
         )
@@ -1446,6 +1464,7 @@ class TestClass(BasisTest, object):
         assert isinstance(winding_list[1], list)
 
     def test_76_check_value_type(self):
+        self.aedtapp.insert_design("other_tests")
         resolve1, boolean1 = self.aedtapp.modeler._check_value_type(2, float, True, "SUCCESS", "SUCCESS")
         resolve2, boolean2 = self.aedtapp.modeler._check_value_type(1, int, True, "SUCCESS", "SUCCESS")
         resolve3, boolean3 = self.aedtapp.modeler._check_value_type(1.1, float, False, "SUCCESS", "SUCCESS")

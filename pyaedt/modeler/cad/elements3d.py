@@ -579,11 +579,11 @@ class FacePrimitive(object):
         """Face center in model units.
 
         .. note::
-           It returns the face centroid if number of face vertex is >1.
-           It tries to get AEDT Face Center in case of single vertex face
-           and returns the vertex position otherwise. If the face has no
-           vertices, and it is not planar, the function returns the centroid
-           of the face edges.
+           It returns the face centroid if number of face vertices is >1.
+           For curved faces returns a point on the surface even if it is
+           not properly the center of mass.
+           It falls back to get AEDT Face Center if the efficient methods
+           fail.
 
         Returns
         -------
@@ -597,26 +597,25 @@ class FacePrimitive(object):
 
         """
         vtx = self.vertices
-        if len(vtx) > 1:
-            return GeometryOperators.get_polygon_centroid([pos.position for pos in vtx])
-        elif len(vtx) == 1:
-            centroid = [0, 0, 0]
-            eval_points = 4
-            for edge in self.edges:
-                centroid = GeometryOperators.v_sum(
-                    centroid,
-                    GeometryOperators.get_polygon_centroid(
+        try:
+            if len(vtx) > 1:
+                return GeometryOperators.get_polygon_centroid([pos.position for pos in vtx])
+            elif len(vtx) <= 1:
+                eval_points = 4
+                edge = self.edges[0]
+                centroid = GeometryOperators.get_polygon_centroid(
+                    [
                         [
-                            [
-                                float(i)
-                                for i in self.oeditor.GetEdgePositionAtNormalizedParameter(edge.id, pos / eval_points)
-                            ]
-                            for pos in range(0, eval_points, 1)
+                            float(i)
+                            for i in self.oeditor.GetEdgePositionAtNormalizedParameter(
+                                edge.id, float(pos) / eval_points
+                            )
                         ]
-                    ),
+                        for pos in range(0, eval_points)
+                    ]
                 )
-            return GeometryOperators.v_prod(1 / len(self.edges), centroid)
-        else:
+                return centroid
+        except:  # pragma: no cover
             return self.center_from_aedt
 
     @property
