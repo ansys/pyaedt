@@ -877,7 +877,7 @@ def _parse_value(v):
             try:
                 pv = float(v)
             except ValueError:
-                if isinstance(v, str) and v[0] == v[1] == "'":
+                if isinstance(v, str) and v[0] == v[-1] == "'":
                     pv = v[1:-1]
                 else:
                     pv = v
