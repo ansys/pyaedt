@@ -2871,7 +2871,7 @@ class GeometryModeler(Modeler, object):
         vArg2.append("ZComponent:="), vArg2.append(Zpos)
         vArg2.append("Numclones:="), vArg2.append(str(nclones))
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
-        added_objs = self.oeditor.DuplicateAlongLine(vArg1, vArg2, vArg3)
+        added_objs = _retry_ntimes(5, self.oeditor.DuplicateAlongLine, vArg1, vArg2, vArg3)
         self._duplicate_added_objects_tuple()
         if is_3d_comp:
             return self._duplicate_added_components_tuple()
@@ -3495,14 +3495,9 @@ class GeometryModeler(Modeler, object):
         >>> oEditor.Copy
         >>> oEditor.Paste
         """
-
-        szSelections = self.convert_to_selections(objid)
-        vArg1 = ["NAME:Selections", "Selections:=", szSelections]
-
-        self.oeditor.Copy(vArg1)
-        self.oeditor.Paste()
-        new_objects = self.add_new_objects()
-        return True, new_objects
+        return self.duplicate_along_line(
+            objid, [0, 0, 0], nclones=2, attachObject=False, is_3d_comp=False, duplicate_assignment=True
+        )
 
     @pyaedt_function_handler()
     def intersect(self, theList, keep_originals=False, **kwargs):

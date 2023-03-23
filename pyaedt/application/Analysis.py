@@ -302,7 +302,7 @@ class Analysis(Design, object):
             assert setup_name in setup_list, "Invalid setup name {}".format(setup_name)
             self._setup = setup_name
         else:
-            self._setup = setup_list[0]
+            raise AttributeError("No setup defined")
 
     @property
     def analysis_setup(self):

@@ -265,7 +265,7 @@ class TestClass(BasisTest, object):
         assert setup2.props["ViaNumSides"] == 12
 
     def test_05b_hfss3dlayout_existing_setup(self):
-        setup2 = self.hfss3dl_b.get_setup("My_HFSS_Setup_2")
+        setup2 = self.hfss3dl_a.get_setup("My_HFSS_Setup_2")
         export_path = os.path.join(self.local_scratch.path, "export_setup_properties.json")
         assert setup2.export_to_json(export_path)
         setup3 = self.hfss3dl_b.create_setup("My_HFSS_Setup_3")
