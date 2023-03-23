@@ -401,7 +401,7 @@ class Design(AedtObjects):
 
     @property
     def _aedt_version(self):
-        v = _retry_ntimes(10, self.odesktop.GetVersion)
+        v = self.odesktop.GetVersion()
         if v:
             return v[0:6]
         return
