@@ -2435,7 +2435,7 @@ class Edb(object):
         Dict[str, :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.HfssSimulationSetup`]
 
         """
-        return {i.name: i for i in self.setups if i.setup_type == "kHFSS"}
+        return {name: i for name, i in self.setups.items() if i.setup_type == "kHFSS"}
 
     @property
     def siwave_dc_setups(self):
@@ -2445,7 +2445,7 @@ class Edb(object):
         -------
         Dict[str, :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveDCSimulationSetup`]
         """
-        return {i.name: i for i in self.setups if i.setup_type == "kSIWave"}
+        return {name: i for name, i in self.setups.items() if i.setup_type == "kSIWave"}
 
     @property
     def siwave_ac_setups(self):
@@ -2455,7 +2455,7 @@ class Edb(object):
         -------
         Dict[str, :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveSYZSimulationSetup`]
         """
-        return {i.name: i for i in self.setups if i.setup_type == "kSIWaveDCIR"}
+        return {name: i for name, i in self.setups.items() if i.setup_type == "kSIWaveDCIR"}
 
     def create_hfss_setup(self, name=None):
         """Create a setup from a template.

@@ -210,17 +210,6 @@ new_thread = config["NewThread"]
 
 @pytest.fixture(scope="session", autouse=True)
 def desktop_init():
-    # _main = sys.modules["__main__"]
-    # yield
-    # if not is_ironpython:
-    #     try:
-    #         try:
-    #             os.kill(_main.desktop_pid, 9)
-    #         except:
-    #             pass
-    #         # release_desktop(close_projects=False, close_desktop=True)
-    #     except:
-    #         pass
     if is_windows or is_ironpython:
         desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
     yield

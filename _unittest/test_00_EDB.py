@@ -2212,7 +2212,7 @@ class TestClass(BasisTest, object):
         simconfig.solver_type = SolverType.SiwaveSYZ
         simconfig.mesh_freq = "40.25GHz"
         edbapp.build_simulation_project(simconfig)
-        assert edbapp.siwave_ac_setups[0].mesh_frequency == simconfig.mesh_freq
+        assert edbapp.siwave_ac_setups[simconfig.setup_name].mesh_frequency == simconfig.mesh_freq
 
     def test_134_create_port_between_pin_and_layer(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")

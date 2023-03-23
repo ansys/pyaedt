@@ -2803,12 +2803,11 @@ class GeometryModeler(Modeler, object):
             str(nclones),
         ]
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
-        _ = self.oeditor.DuplicateAroundAxis(vArg1, vArg2, vArg3)
-        if not create_new_objects:
-            return True, []
+        added_objs = self.oeditor.DuplicateAroundAxis(vArg1, vArg2, vArg3)
+        self._duplicate_added_objects_tuple()
         if is_3d_comp:
             return self._duplicate_added_components_tuple()
-        return self._duplicate_added_objects_tuple()
+        return True, list(added_objs)
 
     def _duplicate_added_objects_tuple(self):
         added_objects = self.add_new_objects()
