@@ -55,8 +55,20 @@ class Variable:
         pass
 
     def delete(self):
-        """Delete this variable."""
-        self._var_server.DeleteVariable(self.name)
+        """Delete this variable.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> edb = Edb()
+        >>> edb.variables.["new_variable"].delete()
+        """
+        return self._var_server.DeleteVariable(self.name)
 
 
 class Variables:

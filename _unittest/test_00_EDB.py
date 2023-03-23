@@ -1044,6 +1044,7 @@ class TestClass(BasisTest, object):
         assert self.edbapp.variables.variables["my_var_1"].description
         assert self.edbapp.variables.add("$my_project_var_1", 0.02)
         assert self.edbapp.variables["$my_project_var_1"]
+        assert self.edbapp.variables["$my_project_var_1"].delete()
         assert self.edbapp.variables.variables
         assert self.edbapp.variables.design_variables
         assert self.edbapp.variables.project_variables
