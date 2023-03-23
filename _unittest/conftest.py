@@ -52,7 +52,6 @@ from pyaedt.misc.misc import list_installed_ansysem
 test_project_name = "test_primitives"
 
 sys.path.append(local_path)
-from _unittest.launch_desktop_tests import run_desktop_tests
 
 # Initialize default desktop configuration
 default_version = "2023.1"
@@ -210,10 +209,12 @@ new_thread = config["NewThread"]
 
 @pytest.fixture(scope="session", autouse=True)
 def desktop_init():
+    _main = sys.modules["__main__"]
+
     if is_windows or is_ironpython:
         desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
+        _main.desktop_pid = desktop.odesktop.GetProcessID()
     yield
-    _main = sys.modules["__main__"]
     if is_ironpython:
         desktop.release_desktop(True, True)
         del desktop
@@ -222,8 +223,6 @@ def desktop_init():
     except:
         pass
     gc.collect()
-    if config["test_desktops"]:
-        run_desktop_tests()
 
 
 @pytest.fixture(scope="function", autouse=True)
