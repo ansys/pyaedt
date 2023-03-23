@@ -224,7 +224,7 @@ def desktop_init():
         desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
     yield
     _main = sys.modules["__main__"]
-    if os.name != "posix" or is_ironpython:
+    if is_ironpython:
         desktop.release_desktop(True, True)
         del desktop
     try:
