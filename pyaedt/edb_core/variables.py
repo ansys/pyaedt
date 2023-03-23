@@ -52,7 +52,6 @@ class Variable:
     def __init__(self, pedb, name):
         self._pedb = pedb
         self._name = name
-        pass
 
     def delete(self):
         """Delete this variable.
