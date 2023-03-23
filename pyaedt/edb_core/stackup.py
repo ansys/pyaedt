@@ -1565,37 +1565,10 @@ class Stackup(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        tree = ET.parse(file_path)
-        material_dict = {}
-        layer_dict = {}
-        non_stackup_layer_dict = dict()
-        roughness_dict = {}
-
-        root = tree.getroot()
-        stackup = root.find("Stackup")
-        for m in stackup.find("Materials").findall("Material"):
-            material = {}
-            for i in list(m):
-                material[i.tag] = list(i)[0].text
-            material_dict[m.attrib["Name"]] = material
-
-        layers = stackup.find("Layers")
-        unit = layers.attrib["LengthUnit"]
-        for l in layers.findall("Layer"):
-            name = l.attrib["Name"]
-            if l.attrib["Type"] not in ["conductor", "dielectric"]:
-                non_stackup_layer_dict[name] = l.attrib
-            else:
-                layer_dict[name] = l.attrib
-                layer_dict[name]["Thickness"] = layer_dict[name]["Thickness"] + unit
-                if layer_dict[name]["Type"] == "conductor":
-                    layer_dict[name]["Type"] = "signal"
-
-                if list(l):
-                    roughness_dict[name] = {i.tag: i.attrib for i in list(l)}
-
-        layer_dict = OrderedDict(reversed(list(layer_dict.items())))
-        return self._set(layer_dict, material_dict, roughness_dict, non_stackup_layer_dict)
+        new_layer_collection = self._pedb.edb.Cell.LayerCollection()
+        result = new_layer_collection.ImportFromControlFile(file_path)
+        if result:
+            return self._pedb._active_layout.SetLayerCollection(new_layer_collection)
 
     @pyaedt_function_handler
     def _export_xml(self, file_path):
