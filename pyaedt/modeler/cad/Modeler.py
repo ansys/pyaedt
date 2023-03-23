@@ -3495,9 +3495,12 @@ class GeometryModeler(Modeler, object):
         >>> oEditor.Copy
         >>> oEditor.Paste
         """
-        return self.duplicate_along_line(
-            objid, [0, 0, 0], nclones=2, attachObject=False, is_3d_comp=False, duplicate_assignment=True
-        )
+        szSelections = self.convert_to_selections(objid)
+        vArg1 = ["NAME:Selections", "Selections:=", szSelections]
+        _retry_ntimes(10, self.oeditor.Copy, vArg1)
+        _retry_ntimes(10, self.oeditor.Paste)
+        new_objects = self.add_new_objects()
+        return True, new_objects
 
     @pyaedt_function_handler()
     def intersect(self, theList, keep_originals=False, **kwargs):
