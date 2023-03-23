@@ -1365,7 +1365,7 @@ class Object3d(object):
 
         Returns
         -------
-        pyaedt.modeler.object3d.Object3d
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
            Object 3D object.
 
         References
@@ -1391,7 +1391,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             Retrieve the resulting 3D Object when succeeded.
 
         References
@@ -1444,7 +1444,7 @@ class Object3d(object):
 
         Returns
         -------
-        pyaedt.modeler.Object3d.Object3d, bool
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
             ``False`` when failed.
 
@@ -1461,27 +1461,27 @@ class Object3d(object):
     def rotate(self, cs_axis, angle=90.0, unit="deg"):
         """Rotate the selection.
 
-        Parameters
-        ----------
-        cs_axis
-            Coordinate system axis or the Application.CoordinateSystemAxis object.
-        angle : float, optional
-            Angle of rotation. The units, defined by ``unit``, can be either
-            degrees or radians. The default is ``90.0``.
-        unit : text, optional
-             Units for the angle. Options are ``"deg"`` or ``"rad"``.
-             The default is ``"deg"``.
+         Parameters
+         ----------
+         cs_axis
+             Coordinate system axis or the Application.CoordinateSystemAxis object.
+         angle : float, optional
+             Angle of rotation. The units, defined by ``unit``, can be either
+             degrees or radians. The default is ``90.0``.
+         unit : text, optional
+              Units for the angle. Options are ``"deg"`` or ``"rad"``.
+              The default is ``"deg"``.
 
-        Returns
-        -------
-        pyaedt.modeler.Object3d.Object3d, bool
-            3D object.
-            ``False`` when failed.
+         Returns
+         -------
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
+             3D object.
+             ``False`` when failed.
 
-        References
-        ----------
+         References
+         ----------
 
-        >>> oEditor.Rotate
+         >>> oEditor.Rotate
         """
         if self._primitives.modeler.rotate(self.id, cs_axis=cs_axis, angle=angle, unit=unit):
             return self
@@ -1501,7 +1501,7 @@ class Object3d(object):
 
         Returns
         -------
-        pyaedt.modeler.Object3d.Object3d, bool
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
             ``False`` when failed.
 
@@ -1529,7 +1529,7 @@ class Object3d(object):
 
         Returns
         -------
-        list
+        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             List of names of the newly added objects.
 
         References
@@ -1558,7 +1558,7 @@ class Object3d(object):
 
         Returns
         -------
-        list
+        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             List of names of the newly added objects.
 
         References
@@ -1579,7 +1579,7 @@ class Object3d(object):
 
         Returns
         -------
-        pyaedt.modeler.object3d.Object3d
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
 
         References
@@ -1642,7 +1642,7 @@ class Object3d(object):
 
         Returns
         -------
-        pyaedt.modeler.object3d.Object3d
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             Swept object.
 
         References
@@ -1671,7 +1671,7 @@ class Object3d(object):
 
         Returns
         -------
-        pyaedt.modeler.object3d.Object3d
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             Swept object.
 
         References
@@ -1698,7 +1698,7 @@ class Object3d(object):
 
         Returns
         -------
-        pyaedt.modeler.object3d.Object3d
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
 
         References
@@ -1716,7 +1716,7 @@ class Object3d(object):
 
         Returns
         -------
-        pyaedt.modeler.object3d.Object3d
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object that was added.
 
         References
@@ -1745,7 +1745,7 @@ class Object3d(object):
 
         Returns
         -------
-        pyaedt.modeler.object3d.Object3d
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             Modified 3D object following the subtraction.
 
         References

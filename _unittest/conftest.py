@@ -131,11 +131,13 @@ class BasisTest(object):
                     except:
                         pass
             # self.aedtapps[0].release_desktop(False)
-
-        logger.remove_all_project_file_logger()
-        shutil.rmtree(self.local_scratch.path, ignore_errors=True)
         del self.edbapps
         del self.aedtapps
+        try:
+            logger.remove_all_project_file_logger()
+            shutil.rmtree(self.local_scratch.path, ignore_errors=True)
+        except:
+            pass
 
     def add_app(self, project_name=None, design_name=None, solution_type=None, application=None, subfolder=""):
         if "oDesktop" not in dir(self._main):
@@ -221,16 +223,14 @@ def desktop_init():
     if os.name != "posix" or is_ironpython:
         desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
     yield
+    _main = sys.modules["__main__"]
     if os.name != "posix" or is_ironpython:
         desktop.release_desktop(True, True)
         del desktop
-
-    else:
-        _main = sys.modules["__main__"]
-        try:
-            os.kill(_main.desktop_pid, 9)
-        except:
-            pass
+    try:
+        os.kill(_main.desktop_pid, 9)
+    except:
+        pass
     gc.collect()
     if config["test_desktops"]:
         run_desktop_tests()
