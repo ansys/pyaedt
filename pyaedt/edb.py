@@ -742,6 +742,7 @@ class Edb(object):
 
     @property
     def variables(self):
+        """Variable Database."""
         if not self._variables and self.builder:
             self._variables = Variables(self)
         return self._variables
