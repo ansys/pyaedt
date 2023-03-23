@@ -916,7 +916,8 @@ class Design(AedtObjects):
                     "No project is defined. Project {} exists and has been read.".format(self._oproject.GetName())
                 )
         else:
-            if proj_name in self.odesktop.GetProjectList():
+            prj_list = self.odesktop.GetProjectList()
+            if prj_list and proj_name in list(prj_list):
                 self._oproject = self.odesktop.SetActiveProject(proj_name)
                 self._add_handler()
                 self.logger.info("Project %s set to active.", proj_name)

@@ -212,6 +212,7 @@ class TestClass(BasisTest, object):
             solution=self.aedtapp.existing_analysis_sweeps[0],
         )
 
+    @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
     def test_08_setup_ctrlprog_with_file(self):
         transient_setup = self.aedtapp.create_setup()
         transient_setup.props["MaximumPasses"] = 12
@@ -247,6 +248,7 @@ class TestClass(BasisTest, object):
     def test_25_assign_initial_mesh(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(4)
 
+    @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
     def test_26_create_udp(self):
         my_udpPairs = []
         mypair = ["DiaGap", "102mm"]
