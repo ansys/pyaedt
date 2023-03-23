@@ -297,6 +297,10 @@ class TestClass(BasisTest, object):
         assert self.edbapp.core_components.components["R1"].pins["1"].position
         assert self.edbapp.core_components.components["R1"].pins["1"].rotation
 
+    def test_021b_components(self):
+        comp = self.edbapp.core_components.components["U1A1"]
+        comp.create_clearance_on_component()
+
     def test_021_components_from_net(self):
         assert self.edbapp.core_components.get_components_from_nets("A0_N")
 
@@ -923,7 +927,12 @@ class TestClass(BasisTest, object):
             app_edb.close_edb()
 
     def test_089_create_rectangle(self):
-        assert self.edbapp.core_primitives.create_rectangle("TOP", "SIG1", ["0", "0"], ["2mm", "3mm"])
+        rect = self.edbapp.core_primitives.create_rectangle("TOP", "SIG1", ["0", "0"], ["2mm", "3mm"])
+        assert rect
+        rect.is_negative = True
+        assert rect.is_negative
+        rect.is_negative = False
+        assert not rect.is_negative
         assert self.edbapp.core_primitives.create_rectangle(
             "TOP",
             "SIG2",
@@ -1647,6 +1656,7 @@ class TestClass(BasisTest, object):
         assert edbapp.stackup.add_layer("new_layer")
         new_layer = edbapp.stackup["new_layer"]
         assert new_layer.is_stackup_layer
+        assert not new_layer.is_negative
         new_layer.name = "renamed_layer"
         assert new_layer.name == "renamed_layer"
         rename_layer = edbapp.stackup["renamed_layer"]
@@ -1693,6 +1703,12 @@ class TestClass(BasisTest, object):
         export_stackup_path = os.path.join(self.local_scratch.path, "export_galileo_stackup.csv")
         assert edbapp.stackup.export_stackup(export_stackup_path)
         assert os.path.exists(export_stackup_path)
+
+        assert edbapp.stackup.import_stackup(
+            os.path.join(local_path, "example_models", test_subfolder, "stackup_laminate.xml")
+        )
+        xml_export = os.path.join(self.local_scratch.path, "stackup.xml")
+        assert edbapp.stackup.export_stackup(xml_export)
         edbapp.close_edb()
 
     @pytest.mark.skipif(is_ironpython, reason="Requires Numpy")
@@ -2252,3 +2268,6 @@ class TestClass(BasisTest, object):
         assert not self.edbapp.design_options.suppress_pads
         self.edbapp.design_options.antipads_always_on = True
         assert self.edbapp.design_options.antipads_always_on
+
+    def test_138_pins(self):
+        assert len(self.edbapp.pins) > 0

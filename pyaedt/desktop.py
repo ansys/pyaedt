@@ -24,18 +24,15 @@ import traceback
 import warnings
 
 from pyaedt import is_ironpython
+from pyaedt import is_linux
+from pyaedt import is_windows
 from pyaedt import pyaedt_logger
 
-if os.name == "nt":
-    IsWindows = True
-else:
-    IsWindows = False
+if is_linux:
     os.environ["ANS_NODEPCHECK"] = str(1)
 
-if not IsWindows and is_ironpython:
+if is_linux and is_ironpython:
     import subprocessdotnet as subprocess
-
-
 else:
     import subprocess
 
@@ -58,7 +55,7 @@ modules = [tup[1] for tup in pkgutil.iter_modules()]
 
 if is_ironpython:
     _com = "ironpython"
-elif IsWindows and "pythonnet" in modules:  # pragma: no cover
+elif is_windows and "pythonnet" in modules:  # pragma: no cover
     _com = "pythonnet_v3"
 else:
     _com = "gprc_v3"
@@ -67,17 +64,31 @@ else:
 
 def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
     """Launch AEDT in LSF in GRPC mode."""
-    command = [
-        "bsub",
-        "-n",
-        str(settings.lsf_num_cores),
-        "-R",
-        '"rusage[mem={}]"'.format(settings.lsf_ram),
-        "-Is",
-        settings.lsf_aedt_command,
-        "-grpcsrv",
-        str(port),
-    ]
+    if settings.lsf_queue:
+        command = [
+            "bsub",
+            "-n",
+            str(settings.lsf_num_cores),
+            "-R",
+            '"rusage[mem={}]"'.format(settings.lsf_ram),
+            "-queue {}".format(settings.lsf_queue),
+            "-Is",
+            settings.lsf_aedt_command,
+            "-grpcsrv",
+            str(port),
+        ]
+    else:
+        command = [
+            "bsub",
+            "-n",
+            str(settings.lsf_num_cores),
+            "-R",
+            '"rusage[mem={}]"'.format(settings.lsf_ram),
+            "-Is",
+            settings.lsf_aedt_command,
+            "-grpcsrv",
+            str(port),
+        ]
     if non_graphical:
         command.append("-ng")
     print(command)
@@ -738,7 +749,7 @@ class Desktop(object):
 
         from pyaedt.generic.clr_module import _clr
 
-        if os.name == "posix":
+        if is_linux:
             raise Exception(
                 "PyAEDT supports COM initialization in Windows only. To use in Linux, upgrade to AEDT 2022 R2 or later."
             )
@@ -754,7 +765,7 @@ class Desktop(object):
         StandalonePyScriptWrapper = AnsoftCOMUtil.Ansoft.CoreCOMScripting.COM.StandalonePyScriptWrapper
         self.logger.info("Launching AEDT with module PythonNET.")
         processID = []
-        if IsWindows:
+        if is_windows:
             processID = com_active_sessions(version, student_version, non_graphical)
         if student_version and not processID:  # Opens an instance if processID is an empty list
             self._run_student()
@@ -764,7 +775,7 @@ class Desktop(object):
         else:
             StandalonePyScriptWrapper.CreateObject(version)
         processID2 = []
-        if IsWindows:
+        if is_windows:
             processID2 = com_active_sessions(version, student_version, non_graphical)
         proc = [i for i in processID2 if i not in processID]  # Looking for the "new" process
         if (
@@ -802,7 +813,7 @@ class Desktop(object):
         base_path = self._main.sDesktopinstallDirectory
         sys.path.insert(0, base_path)
         sys.path.insert(0, os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
-        if os.name == "posix":
+        if is_linux:
             if os.environ.get("LD_LIBRARY_PATH"):
                 os.environ["LD_LIBRARY_PATH"] = (
                     os.path.join(base_path, "defer") + os.pathsep + os.environ["LD_LIBRARY_PATH"]
@@ -849,7 +860,7 @@ class Desktop(object):
                             "Multiple AEDT gRPC sessions are found. Setting the active session on port %s", self.port
                         )
                 else:
-                    if os.name != "posix":  # pragma: no cover
+                    if is_windows:  # pragma: no cover
                         if com_active_sessions(
                             version=version, student_version=student_version, non_graphical=non_graphical
                         ):
@@ -872,7 +883,7 @@ class Desktop(object):
             self.logger.info("AEDT session is starting on gRPC port %s", self.port)
             new_aedt_session = True
 
-        if new_aedt_session and settings.use_lsf_scheduler and os.name == "posix":  # pragma: no cover
+        if new_aedt_session and settings.use_lsf_scheduler and is_linux:  # pragma: no cover
             out, self.machine = launch_aedt_in_lsf(non_graphical, self.port)
             if out:
                 ScriptEnv._doInitialize(version, None, False, non_graphical, self.machine, self.port)

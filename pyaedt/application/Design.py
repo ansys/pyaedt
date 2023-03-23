@@ -46,6 +46,7 @@ from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import is_project_locked
+from pyaedt.generic.general_methods import is_windows
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_csv
@@ -752,7 +753,7 @@ class Design(AedtObjects):
             toolkit_directory = self.results_directory
         elif not os.path.isdir(toolkit_directory):
             try:
-                os.mkdir(toolkit_directory)
+                os.makedirs(toolkit_directory)
             except FileNotFoundError:
                 toolkit_directory = self.results_directory
 
@@ -775,7 +776,7 @@ class Design(AedtObjects):
             settings.remote_rpc_session.filemanager.makedirs(working_directory)
         elif not os.path.isdir(working_directory):
             try:
-                os.mkdir(working_directory)
+                os.makedirs(working_directory)
             except FileNotFoundError:
                 working_directory = os.path.join(self.toolkit_directory, self.design_name + ".results")
         return working_directory
@@ -2741,7 +2742,7 @@ class Design(AedtObjects):
         if os.path.exists(directory):
             shutil.rmtree(directory, True)
             if not os.path.exists(directory):
-                os.mkdir(directory)
+                os.makedirs(directory)
         self.logger.info("Project Directory cleaned")
         return True
 
@@ -2829,6 +2830,8 @@ class Design(AedtObjects):
             return False
         if not name:
             name = self.project_name
+            if self.design_type == "HFSS 3D Layout Design":
+                self._close_edb()
         self.logger.info("Closing the AEDT Project {}".format(name))
         oproj = self.odesktop.SetActiveProject(name)
         proj_path = oproj.GetPath()
@@ -2899,12 +2902,12 @@ class Design(AedtObjects):
             try:
                 self.set_active_design(fallback_design)
             except:
-                if os.name != "posix":
+                if is_windows:
                     self._init_variables()
                 self._odesign = None
                 return False
         else:
-            if os.name != "posix":
+            if is_windows:
                 self._init_variables()
             self._odesign = None
         return True

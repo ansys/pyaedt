@@ -784,6 +784,7 @@ class UserDefinedComponent(object):
             Pyaedt object.
         """
         from pyaedt.generic.design_types import get_pyaedt_app
+        from pyaedt.generic.general_methods import is_linux
 
         project_list = [i for i in self._primitives._app.project_list]
 
@@ -800,9 +801,7 @@ class UserDefinedComponent(object):
             self._primitives._app.odesktop.SetActiveProject(new_project[0])
             project = self._primitives._app.odesktop.GetActiveProject()
             project_name = project.GetName()
-            import os
-
-            if os.name == "posix":
+            if is_linux:
                 design_name = project.GetDesigns()[0].GetName()
             else:
                 design_name = project.GetActiveDesign().GetName()

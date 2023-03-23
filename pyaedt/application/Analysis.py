@@ -15,6 +15,8 @@ import time
 import warnings
 
 from pyaedt import is_ironpython
+from pyaedt import is_linux
+from pyaedt import is_windows
 from pyaedt import settings
 from pyaedt.application.Design import Design
 from pyaedt.application.JobManager import update_hpc_option
@@ -45,7 +47,7 @@ from pyaedt.modules.SolveSetup import SetupMaxwell
 from pyaedt.modules.SolveSetup import SetupSBR
 from pyaedt.modules.SolveSweeps import SetupProps
 
-if os.name == "posix" and is_ironpython:
+if is_linux and is_ironpython:
     import subprocessdotnet as subprocess
 else:
     import subprocess
@@ -1877,17 +1879,17 @@ class Analysis(Design, object):
         if os.path.exists(queue_file_completed):
             os.unlink(queue_file_completed)
 
-        if os.name == "posix" and settings.use_lsf_scheduler:
-            options = ["-ng", "-BatchSolve", "-distributed", "-machinelist", '"numcores={}"'.format(num_cores), "-auto"]
-        elif num_tasks == -1:
+        if is_linux and settings.use_lsf_scheduler:
             options = [
                 "-ng",
                 "-BatchSolve",
-                "-ditributed",
                 "-machinelist",
-                '"numcores={}"'.format(num_cores),
-                "-auto" "-Monitor",
+                "list={}:{}:{}:90%:1".format(machine, num_tasks, num_cores),
+                "-Monitor",
             ]
+            if num_tasks == -1:
+                options.append("-distributed")
+                options.append("-auto")
         else:
             options = [
                 "-ng",
@@ -1902,17 +1904,32 @@ class Analysis(Design, object):
                     design_name, "Nominal" if setup_name in self.setup_names else "Optimetrics", setup_name
                 )
             )
-        if os.name == "posix" and not settings.use_lsf_scheduler:
+        if is_linux and not settings.use_lsf_scheduler:
             batch_run = [inst_dir + "/ansysedt"]
-        elif os.name == "posix" and settings.use_lsf_scheduler:  # pragma: no cover
-            batch_run = [
-                "bsub",
-                "-n",
-                num_tasks * num_cores,
-                "-R",
-                "rusage[mem={}]".format(settings.lsf_ram),
-                settings.lsf_aedt_command,
-            ]
+        elif is_linux and settings.use_lsf_scheduler:  # pragma: no cover
+            if settings.lsf_queue:
+                batch_run = [
+                    "bsub",
+                    "-n",
+                    str(num_cores),
+                    "-R",
+                    "span[ptile={}]".format(num_cores),
+                    "-R",
+                    "rusage[mem={}]".format(settings.lsf_ram),
+                    "-queue {}".format(settings.lsf_queue),
+                    settings.lsf_aedt_command,
+                ]
+            else:
+                batch_run = [
+                    "bsub",
+                    "-n",
+                    str(num_cores),
+                    "-R",
+                    "span[ptile={}]".format(num_cores),
+                    "-R",
+                    "rusage[mem={}]".format(settings.lsf_ram),
+                    settings.lsf_aedt_command,
+                ]
         else:
             batch_run = [inst_dir + "/ansysedt.exe"]
         batch_run.extend(options)
@@ -1923,7 +1940,7 @@ class Analysis(Design, object):
         dont have old .asol files etc
         """
         self.logger.info("Solving model in batch mode on " + machine)
-        if run_in_thread or settings.use_lsf_scheduler:
+        if run_in_thread and is_windows:
             DETACHED_PROCESS = 0x00000008
             subprocess.Popen(batch_run, creationflags=DETACHED_PROCESS)
             self.logger.info("Batch job launched.")
@@ -2368,3 +2385,22 @@ class Analysis(Design, object):
             return False
         self.logger.info("Property {} Changed correctly.".format(property_name))
         return True
+
+    @pyaedt_function_handler()
+    def number_with_units(self, value, units=None):
+        """Convert a number to a string with units. If value is a string, it's returned as is.
+
+        Parameters
+        ----------
+        value : float, int, str
+            Input  number or string.
+        units : optional
+            Units for formatting. The default is ``None`` which uses modeler units.
+
+        Returns
+        -------
+        str
+           String concatenating the value and unit.
+
+        """
+        return self.modeler._arg_with_dim(value, units)
