@@ -698,13 +698,14 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
             self._edb.simsetupdata.SIwave.SIWSimulationSettings
         ]()
         if edb_siwave_sim_setup:
-            self._edb_sim_setup_info = _get_edb_setup_info(edb_siwave_sim_setup, self._edb_sim_setup_info)
+            _get_edb_setup_info(edb_siwave_sim_setup, self._edb_sim_setup_info)
         else:
             if not name:
                 self._edb_sim_setup_info.Name = generate_unique_name("siwave")
             else:
                 self._edb_sim_setup_info.Name = name
             self._update_setup()
+        self.setup_type = "kSIWave"
         SiwaveAdvancedSettings.__init__(self, self)
 
     @property
@@ -935,7 +936,7 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
             self._edb.simsetupdata.SIwave.SIWDCIRSimulationSettings
         ]()
         if edb_siwave_sim_setup:
-            self._edb_sim_setup_info = _get_edb_setup_info(edb_siwave_sim_setup, self._edb_sim_setup_info)
+            _get_edb_setup_info(edb_siwave_sim_setup, self._edb_sim_setup_info)
 
         else:
             if not name:
@@ -943,6 +944,8 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
             else:
                 self._edb_sim_setup_info.Name = name
             self._update_setup()
+        self.setup_type = "kSIWaveDCIR"
+
         SiwaveDCAdvancedSettings.__init__(self, self)
 
     @property
