@@ -864,7 +864,7 @@ def _parse_value(v):
 
     """
     #  duck typing parse of the value 'v'
-    if v is None:
+    if v is None or v == "":
         pv = v
     elif v == "true":
         pv = True
@@ -877,7 +877,10 @@ def _parse_value(v):
             try:
                 pv = float(v)
             except ValueError:
-                pv = v
+                if isinstance(v, str) and v[0] == v[1] == "'":
+                    pv = v[1:-1]
+                else:
+                    pv = v
     return pv
 
 
