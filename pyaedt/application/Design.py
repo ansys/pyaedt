@@ -401,7 +401,10 @@ class Design(AedtObjects):
 
     @property
     def _aedt_version(self):
-        return _retry_ntimes(10, self.odesktop.GetVersion)[0:6]
+        v = _retry_ntimes(10, self.odesktop.GetVersion)
+        if v:
+            return v[0:6]
+        return
 
     @property
     def design_name(self):
@@ -739,19 +742,17 @@ class Design(AedtObjects):
             Full absolute path for the ``pyaedt`` directory for this project.
             If this directory does not exist, it is created.
         """
-
-        toolkit_directory = os.path.join(self.project_path, self.project_name.replace(" ", "_") + ".pyaedt")
+        if self.project_name:
+            name = self.project_name.replace(" ", "_")
+        else:
+            name = generate_unique_name("prj")
+        toolkit_directory = os.path.join(self.project_path, name + ".pyaedt")
         if settings.remote_rpc_session:
-            toolkit_directory = self.project_path + "/" + self.project_name.replace(" ", "_") + ".pyaedt"
+            toolkit_directory = self.project_path + "/" + name + ".pyaedt"
             try:
                 settings.remote_rpc_session.filemanager.makedirs(toolkit_directory)
             except:
-                toolkit_directory = (
-                    settings.remote_rpc_session.filemanager.temp_dir()
-                    + "/"
-                    + self.project_name.replace(" ", "_")
-                    + ".pyaedt"
-                )
+                toolkit_directory = settings.remote_rpc_session.filemanager.temp_dir() + "/" + name + ".pyaedt"
         elif settings.remote_api:
             toolkit_directory = self.results_directory
         elif not os.path.isdir(toolkit_directory):
@@ -773,17 +774,19 @@ class Design(AedtObjects):
              If this directory does not exist, it is created.
 
         """
-        working_directory = os.path.join(self.toolkit_directory, self.design_name.replace(" ", "_"))
+        if self.design_name:
+            name = self.design_name.replace(" ", "_")
+        else:
+            name = generate_unique_name("prj")
+        working_directory = os.path.join(self.toolkit_directory, name)
         if settings.remote_rpc_session:
-            working_directory = self.toolkit_directory + "/" + self.design_name.replace(" ", "_")
+            working_directory = self.toolkit_directory + "/" + name
             settings.remote_rpc_session.filemanager.makedirs(working_directory)
         elif not os.path.isdir(working_directory):
             try:
                 os.makedirs(working_directory)
             except FileNotFoundError:
-                working_directory = os.path.join(
-                    self.toolkit_directory, self.design_name.replace(" ", "_") + ".results"
-                )
+                working_directory = os.path.join(self.toolkit_directory, name + ".results")
         return working_directory
 
     @property

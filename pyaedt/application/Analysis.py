@@ -425,8 +425,10 @@ class Analysis(Design, object):
 
         >>> oModule.GetSetups
         """
-        setups = list(self.oanalysis.GetSetups())
-        return setups
+        setups = self.oanalysis.GetSetups()
+        if setups:
+            return list(setups)
+        return []
 
     @property
     def setup_names(self):
