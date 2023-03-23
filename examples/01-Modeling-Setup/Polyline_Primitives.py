@@ -297,7 +297,7 @@ P = prim3D.create_polyline(MDL_points, segment_type=MDL_segments, name="MDL_Poly
 # ------------
 # Save the project.
 
-project_dir = r"D:\ansysdev\temp"
+project_dir = r"C:\temp"
 project_name = "Polylines"
 project_file = os.path.join(project_dir, project_name + ".aedt")
 
