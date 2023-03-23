@@ -19,6 +19,7 @@ from pyaedt import Hfss3dLayout
 from pyaedt.application.aedt_objects import AedtObjects
 from pyaedt.application.design_solutions import model_names
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import settings
 
 test_subfolder = "T01"
@@ -244,7 +245,7 @@ class TestClass(BasisTest, object):
         props = self.aedtapp.get_components3d_vars("Dipole_Antenna_DM")
         assert len(props) == 3
 
-    @pytest.mark.skipif(os.name == "posix", reason="Not needed in Linux.")
+    @pytest.mark.skipif(is_linux, reason="Not needed in Linux.")
     def test_21_generate_temp_project_directory(self):
         proj_dir1 = self.aedtapp.generate_temp_project_directory("Example")
         assert os.path.exists(proj_dir1)
