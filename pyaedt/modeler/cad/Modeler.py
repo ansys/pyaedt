@@ -2803,11 +2803,12 @@ class GeometryModeler(Modeler, object):
             str(nclones),
         ]
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
-        added_objs = self.oeditor.DuplicateAroundAxis(vArg1, vArg2, vArg3)
-        self._duplicate_added_objects_tuple()
+        _ = self.oeditor.DuplicateAroundAxis(vArg1, vArg2, vArg3)
+        if not create_new_objects:
+            return True, []
         if is_3d_comp:
             return self._duplicate_added_components_tuple()
-        return True, list(added_objs)
+        return self._duplicate_added_objects_tuple()
 
     def _duplicate_added_objects_tuple(self):
         added_objects = self.add_new_objects()
@@ -2871,11 +2872,12 @@ class GeometryModeler(Modeler, object):
         vArg2.append("ZComponent:="), vArg2.append(Zpos)
         vArg2.append("Numclones:="), vArg2.append(str(nclones))
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
-        added_objs = _retry_ntimes(5, self.oeditor.DuplicateAlongLine, vArg1, vArg2, vArg3)
-        self._duplicate_added_objects_tuple()
+        _retry_ntimes(5, self.oeditor.DuplicateAlongLine, vArg1, vArg2, vArg3)
         if is_3d_comp:
             return self._duplicate_added_components_tuple()
-        return True, list(added_objs)
+        if attachObject:
+            return True, []
+        return self._duplicate_added_objects_tuple()
 
     @pyaedt_function_handler()
     def thicken_sheet(self, objid, thickness, bBothSides=False):
