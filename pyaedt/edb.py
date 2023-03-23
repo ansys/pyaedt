@@ -39,6 +39,7 @@ from pyaedt.edb_core.ipc2581.ipc2581 import Ipc2581
 from pyaedt.edb_core.materials import Materials
 from pyaedt.edb_core.padstack import EdbPadstacks
 from pyaedt.edb_core.stackup import Stackup
+from pyaedt.edb_core.variables import Variables
 from pyaedt.generic.clr_module import Convert
 from pyaedt.generic.clr_module import List
 from pyaedt.generic.clr_module import _clr
@@ -252,6 +253,7 @@ class Edb(object):
         self.simsetupdata = None
         self._setups = {}
         self._layout_instance = None
+        self._variables = None
         # time.sleep(2)
         # gc.collect()
 
@@ -267,6 +269,7 @@ class Edb(object):
         self._core_primitives = EdbLayout(self)
         self._stackup2 = Stackup(self)
         self._materials = Materials(self)
+        self._variables = Variables(self)
 
         self.logger.info("Objects Initialized")
 
@@ -736,6 +739,12 @@ class Edb(object):
         if not self._materials and self.builder:
             self._materials = Materials(self)
         return self._materials
+
+    @property
+    def variables(self):
+        if not self._variables and self.builder:
+            self._variables = Variables(self)
+        return self._variables
 
     @property
     def core_padstack(self):

@@ -1035,6 +1035,19 @@ class TestClass(BasisTest, object):
         else:
             assert not changed_variable_5
 
+    def test_097b_variables(self):
+        assert self.edbapp.variables.add("my_var_1", 0.01)
+        assert self.edbapp.variables.variables["my_var_1"].value == 0.01
+        assert self.edbapp.variables.variables["my_var_1"].value_str
+        assert not self.edbapp.variables.variables["my_var_1"].is_parameter
+        self.edbapp.variables.variables["my_var_1"].description = "This is variable description"
+        assert self.edbapp.variables.variables["my_var_1"].description
+        assert self.edbapp.variables.add("$my_project_var_1", 0.02)
+        assert self.edbapp.variables["$my_project_var_1"]
+        assert self.edbapp.variables.variables
+        assert self.edbapp.variables.design_variables
+        assert self.edbapp.variables.project_variables
+
     def test_098_etch_factor(self):
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
         added_layer = self.edbapp.core_stackup.stackup_layers.add_layer(layerName="added_layer", etchMap=1.1)
