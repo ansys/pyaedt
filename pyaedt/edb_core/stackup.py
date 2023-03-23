@@ -390,7 +390,7 @@ class Stackup(object):
     def _create_nonstackup_layer(self, layer_name, layer_type):
         if layer_type == "conducting":  # pragma: no cover
             _layer_type = self._pedb.edb.Cell.LayerType.ConductingLayer
-        elif layer_type == "air_lines":  # pragma: no cover
+        elif layer_type == "airlines":  # pragma: no cover
             _layer_type = self._pedb.edb.Cell.LayerType.AirlinesLayer
         elif layer_type == "error":  # pragma: no cover
             _layer_type = self._pedb.edb.Cell.LayerType.ErrorsLayer
@@ -402,9 +402,9 @@ class Stackup(object):
             _layer_type = self._pedb.edb.Cell.LayerType.AssemblyLayer
         elif layer_type == "silkscreen":  # pragma: no cover
             _layer_type = self._pedb.edb.Cell.LayerType.SilkscreenLayer
-        elif layer_type == "solder_mask":  # pragma: no cover
+        elif layer_type == "soldermask":  # pragma: no cover
             _layer_type = self._pedb.edb.Cell.LayerType.SolderMaskLayer
-        elif layer_type == "solder_paste":  # pragma: no cover
+        elif layer_type == "solderpaste":  # pragma: no cover
             _layer_type = self._pedb.edb.Cell.LayerType.SolderPasteLayer
         elif layer_type == "glue":  # pragma: no cover
             _layer_type = self._pedb.edb.Cell.LayerType.GlueLayer
@@ -412,10 +412,14 @@ class Stackup(object):
             _layer_type = self._pedb.edb.Cell.LayerType.WirebondLayer
         elif layer_type == "user":  # pragma: no cover
             _layer_type = self._pedb.edb.Cell.LayerType.UserLayer
-        elif layer_type == "hfss_region":  # pragma: no cover
+        elif layer_type == "siwavehfsssolverregions":  # pragma: no cover
             _layer_type = self._pedb.edb.Cell.LayerType.SIwaveHFSSSolverRegions
-        else:  # pragma: no cover
+        elif layer_type == "outline":  # pragma: no cover
             _layer_type = self._pedb.edb.Cell.LayerType.OutlineLayer
+        elif layer_type == "postprocessing":  # pragma: no cover
+            _layer_type = self._pedb.edb.Cell.LayerType.PostprocessingLayer
+        else:  # pragma: no cover
+            _layer_type = self._pedb.edb.Cell.LayerType.UndefinedLayerType
 
         return self._pedb.edb.Cell.Layer(layer_name, _layer_type)
 
@@ -1331,7 +1335,7 @@ class Stackup(object):
         return True
 
     @pyaedt_function_handler
-    def _set(self, layers=None, materials=None, roughness=None):
+    def _set(self, layers=None, materials=None, roughness=None, non_stackup_layers=None):
         """Update stackup information.
 
         Parameters
@@ -1466,6 +1470,14 @@ class Stackup(object):
                     layer.assign_roughness_model(
                         "groisse", groisse_roughness=attr[attr_name]["Roughness"], apply_on_surface=on_surface
                     )
+
+        if non_stackup_layers:
+            for name, val in non_stackup_layers.items():
+                if name in self.non_stackup_layers:
+                    continue
+                else:
+                    self.add_layer(name, layer_type=val["Type"])
+
         return True
 
     @pyaedt_function_handler
@@ -1479,7 +1491,7 @@ class Stackup(object):
         layers = OrderedDict()
         roughness_models = OrderedDict()
         for name, val in self.stackup_layers.items():
-            layer = {}
+            layer = dict()
             layer["Material"] = val.material
             layer["Name"] = val.name
             layer["Thickness"] = val.thickness
@@ -1520,6 +1532,13 @@ class Stackup(object):
                         "NoduleRadius": model.get_SurfaceRatio().ToDouble(),
                     }
 
+        non_stackup_layers = OrderedDict()
+        for name, val in self.non_stackup_layers.items():
+            layer = dict()
+            layer["Name"] = val.name
+            layer["Type"] = val.type
+            non_stackup_layers[name] = layer
+
         materials = {}
         for name, val in self._pedb.materials.materials.items():
             material = {}
@@ -1531,7 +1550,7 @@ class Stackup(object):
                 material["DielectricLossTangent"] = val.loss_tangent
             materials[name] = material
 
-        return layers, materials, roughness_models
+        return layers, materials, roughness_models, non_stackup_layers
 
     @pyaedt_function_handler
     def _import_xml(self, file_path):
@@ -1549,6 +1568,7 @@ class Stackup(object):
         tree = ET.parse(file_path)
         material_dict = {}
         layer_dict = {}
+        non_stackup_layer_dict = dict()
         roughness_dict = {}
 
         root = tree.getroot()
@@ -1563,10 +1583,8 @@ class Stackup(object):
         unit = layers.attrib["LengthUnit"]
         for l in layers.findall("Layer"):
             name = l.attrib["Name"]
-            if "Type" not in l.attrib:
-                continue
-            elif l.attrib["Type"] not in ["conductor", "dielectric"]:
-                continue
+            if l.attrib["Type"] not in ["conductor", "dielectric"]:
+                non_stackup_layer_dict[name] = l.attrib
             else:
                 layer_dict[name] = l.attrib
                 layer_dict[name]["Thickness"] = layer_dict[name]["Thickness"] + unit
@@ -1577,7 +1595,7 @@ class Stackup(object):
                     roughness_dict[name] = {i.tag: i.attrib for i in list(l)}
 
         layer_dict = OrderedDict(reversed(list(layer_dict.items())))
-        return self._set(layer_dict, material_dict, roughness_dict)
+        return self._set(layer_dict, material_dict, roughness_dict, non_stackup_layer_dict)
 
     @pyaedt_function_handler
     def _export_xml(self, file_path):
@@ -1592,7 +1610,7 @@ class Stackup(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        layers, materials, roughness = self._get()
+        layers, materials, roughness, non_stackup_layers = self._get()
 
         root = ET.Element("{http://www.ansys.com/control}Control", attrib={"schemaVersion": "1.0"})
 
@@ -1613,6 +1631,11 @@ class Stackup(object):
             val = {i: str(j) for i, j in val.items()}
             if val["Type"] == "signal":
                 val["Type"] = "conductor"
+            layer.attrib.update(val)
+
+        for lyr, val in non_stackup_layers.items():
+            layer = ET.SubElement(el_layers, "Layer")
+            val = {i: str(j) for i, j in val.items()}
             layer.attrib.update(val)
 
         for lyr, val in roughness.items():

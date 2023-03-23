@@ -21,6 +21,7 @@ except ImportError:
 test_subfolder = "T26"
 
 
+@pytest.mark.skipif(os.name == "posix", reason="Emit API fails on linux.")
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)

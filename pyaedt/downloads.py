@@ -6,6 +6,7 @@ import tempfile
 import zipfile
 
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import settings
 from pyaedt.misc import list_installed_ansysem
 
@@ -48,7 +49,7 @@ def _retrieve_file(url, filename, directory, destination=None):
     if not os.path.isdir(destination_dir):
         os.makedirs(destination_dir)
     # Perform download
-    if os.name == "posix":
+    if is_linux:
         command = "wget {} -O {}".format(url, local_path)
         os.system(command)
     elif is_ironpython:

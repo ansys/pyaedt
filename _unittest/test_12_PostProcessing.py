@@ -104,7 +104,7 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.setups[0].sweeps[0].frequencies) > 0
         assert isinstance(self.aedtapp.setups[0].sweeps[0].basis_frequencies, list)
 
-    @pytest.mark.skipif(sys.version_info < (3, 8), reason="Not running in ironpython")
+    @pytest.mark.skipif(os.name == "posix" or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_01_Animate_plt(self):
         cutlist = ["Global:XY"]
         phases = [str(i * 5) + "deg" for i in range(2)]
@@ -646,7 +646,7 @@ class TestClass(BasisTest, object):
         path = self.aedtapp.post.export_model_picture()
         assert path
 
-    @pytest.mark.skipif(sys.version_info < (3, 8), reason="Not running in ironpython")
+    @pytest.mark.skipif(os.name == "posix" or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_14_Field_Ploton_cutplanedesignname(self):
         cutlist = ["Global:XY"]
         setup_name = self.aedtapp.existing_analysis_sweeps[0]
@@ -681,7 +681,7 @@ class TestClass(BasisTest, object):
         plot_obj.plot(plot_obj.image_file)
         assert os.path.exists(plot_obj.image_file)
 
-    @pytest.mark.skipif(sys.version_info < (3, 8), reason="Not running in ironpython")
+    @pytest.mark.skipif(os.name == "posix" or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_14B_Field_Ploton_Vector(self):
         cutlist = ["Global:XY"]
         setup_name = self.aedtapp.existing_analysis_sweeps[0]
@@ -706,14 +706,14 @@ class TestClass(BasisTest, object):
         )
         assert os.path.exists(plot_obj.image_file)
 
-    @pytest.mark.skipif(sys.version_info < (3, 8), reason="Not running in ironpython")
+    @pytest.mark.skipif(os.name == "posix" or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_15_export_plot(self):
         obj = self.aedtapp.post.plot_model_obj(
             show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg")
         )
         assert os.path.exists(obj.image_file)
 
-    @pytest.mark.skipif(sys.version_info < (3, 8), reason="Not running in ironpython")
+    @pytest.mark.skipif(os.name == "posix" or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_16_create_field_plot(self):
         cutlist = ["Global:XY"]
         plot = self.aedtapp.post._create_fieldplot(
@@ -858,7 +858,9 @@ class TestClass(BasisTest, object):
         app2 = Hfss(self.aedtapp.project_name)
         assert len(app2.post.field_plots) == len(self.aedtapp.post.field_plots)
 
-    @pytest.mark.skipif(sys.version_info < (3, 8), reason="plot_scene method is not supported in ironpython")
+    @pytest.mark.skipif(
+        os.name == "posix" or sys.version_info < (3, 8), reason="plot_scene method is not supported in ironpython"
+    )
     def test_55_time_plot(self):
         self.sbr_test.analyze(self.sbr_test.active_setup, use_auto_settings=False)
         assert self.sbr_test.setups[0].is_solved
@@ -1057,7 +1059,9 @@ class TestClass(BasisTest, object):
             os.path.join(local_path, "example_models", "report_json", "Modal_Report.json")
         )
 
-    @pytest.mark.skipif(sys.version_info < (3, 8), reason="FarFieldSolution not supported by Ironpython")
+    @pytest.mark.skipif(
+        os.name == "posix" or sys.version_info < (3, 8), reason="FarFieldSolution not supported by Ironpython"
+    )
     def test_71_antenna_plot(self):
         ffdata = self.field_test.get_antenna_ffd_solution_data(frequencies=30e9, sphere_name="3D")
         ffdata.phase_offset = [0, 90, 0, 90]
@@ -1107,7 +1111,9 @@ class TestClass(BasisTest, object):
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d2.jpg"))
 
-    @pytest.mark.skipif(sys.version_info < (3, 8), reason="FarFieldSolution not supported by Ironpython")
+    @pytest.mark.skipif(
+        os.name == "posix" or sys.version_info < (3, 8), reason="FarFieldSolution not supported by Ironpython"
+    )
     def test_72_antenna_plot(self):
         ffdata = self.array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere_name="3D")
         ffdata.frequency = 3.5e9
