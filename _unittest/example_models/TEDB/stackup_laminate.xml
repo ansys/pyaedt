@@ -25,7 +25,7 @@
           <Double>0</Double>
         </DielectricLossTangent>
       </Material>
-      <Material Name="COPPER">
+      <Material Name="COPPER_new">
         <Conductivity>
           <Double>59590000</Double>
         </Conductivity>

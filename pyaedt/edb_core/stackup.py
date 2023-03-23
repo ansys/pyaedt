@@ -1351,25 +1351,7 @@ class Stackup(object):
 
         """
         if materials:
-            mat_keys = [i.lower() for i in self._pedb.materials.materials.keys()]
-            mat_keys_case = [i for i in self._pedb.materials.materials.keys()]
-            for name, attr in materials.items():
-                if not name.lower() in mat_keys:
-                    if "Conductivity" in attr:
-                        self._pedb.materials.add_conductor_material(name, attr["Conductivity"])
-                    else:
-                        self._pedb.materials.add_dielectric_material(
-                            name,
-                            attr["Permittivity"],
-                            attr["DielectricLossTangent"],
-                        )
-                else:
-                    local_material = self._pedb.materials[mat_keys_case[mat_keys.index(name.lower())]]
-                    if "Conductivity" in attr:
-                        local_material.conductivity = attr["Conductivity"]
-                    else:
-                        local_material.permittivity = attr["Permittivity"]
-                        local_material.loss_tanget = attr["DielectricLossTangent"]
+            self._add_materials_from_dictionary(materials)
 
         if layers:
             prev_layer = None
@@ -1552,6 +1534,29 @@ class Stackup(object):
 
         return layers, materials, roughness_models, non_stackup_layers
 
+    @pyaedt_function_handler()
+    def _add_materials_from_dictionary(self, material_dict):
+        mat_keys = [i.lower() for i in self._pedb.materials.materials.keys()]
+        mat_keys_case = [i for i in self._pedb.materials.materials.keys()]
+        for name, attr in material_dict.items():
+            if not name.lower() in mat_keys:
+                if "Conductivity" in attr:
+                    self._pedb.materials.add_conductor_material(name, attr["Conductivity"])
+                else:
+                    self._pedb.materials.add_dielectric_material(
+                        name,
+                        attr["Permittivity"],
+                        attr["DielectricLossTangent"],
+                    )
+            else:
+                local_material = self._pedb.materials[mat_keys_case[mat_keys.index(name.lower())]]
+                if "Conductivity" in attr:
+                    local_material.conductivity = attr["Conductivity"]
+                else:
+                    local_material.permittivity = attr["Permittivity"]
+                    local_material.loss_tanget = attr["DielectricLossTangent"]
+        return True
+
     @pyaedt_function_handler
     def _import_xml(self, file_path):
         """Read external xml file and update stackup.
@@ -1565,6 +1570,18 @@ class Stackup(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
+        tree = ET.parse(file_path)
+        material_dict = {}
+        root = tree.getroot()
+        stackup = root.find("Stackup")
+        for m in stackup.find("Materials").findall("Material"):
+            material = {}
+            for i in list(m):
+                material[i.tag] = list(i)[0].text
+            material_dict[m.attrib["Name"]] = material
+
+        self._add_materials_from_dictionary(material_dict)
+
         new_layer_collection = self._pedb.edb.Cell.LayerCollection()
         result = new_layer_collection.ImportFromControlFile(file_path)
         if result:
