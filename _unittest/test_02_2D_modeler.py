@@ -6,6 +6,7 @@ import sys
 from _unittest.conftest import BasisTest
 
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import isclose
 from pyaedt.maxwell import Maxwell2d
 
@@ -132,7 +133,7 @@ class TestClass(BasisTest, object):
         assert pg2.material_name == "copper"
         assert isclose(pg2.faces[0].area, 5.196152422706631)
 
-    @pytest.mark.skipif(os.name == "posix" or sys.version_info < (3, 8), reason="Not running in ironpython")
+    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_09_plot(self):
         self.aedtapp.modeler.create_regular_polygon([0, 0, 0], [0, 0, 2])
         self.aedtapp.modeler.create_regular_polygon(

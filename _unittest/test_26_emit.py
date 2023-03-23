@@ -9,6 +9,7 @@ from _unittest.conftest import is_ironpython
 from pyaedt import Emit
 from pyaedt.emit_core import EmitConstants as econsts
 from pyaedt.generic import constants as consts
+from pyaedt.generic.general_methods import is_linux
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitAntennaComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponents
@@ -21,7 +22,7 @@ except ImportError:
 test_subfolder = "T26"
 
 
-@pytest.mark.skipif(os.name == "posix", reason="Emit API fails on linux.")
+@pytest.mark.skipif(is_linux, reason="Emit API fails on linux.")
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
