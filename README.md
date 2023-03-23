@@ -188,7 +188,8 @@ On any Windows client machine:
 This module makes no commercial claim over Ansys whatsoever. `PyAEDT` extends the functionality of `AEDT` by adding an additional Python interface to `AEDT` without changing the core behavior or license of the original software. The use of the interactive control of `PyAEDT` requires a legally licensed local copy of `AEDT`. For more information about `AEDT`, visit the [AEDT page](https://www.ansys.com/products/electronics) on the `Ansys` website.
 
 <p align="right">
-  <a href="#readme-top">back to top</a>
+   <br> <a href="#readme-top">back to top
+   </a>
 </p>
 
 ## Indices and tables
