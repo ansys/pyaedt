@@ -14,19 +14,19 @@
 
 You can install `PyAEDT` on CPython 3.7 through 3.10 from PyPI:
 
-``` python
+```sh
   pip install pyaedt
 ```
 
 Install `PyAEDT` with all extra packages (matplotlib, numpy, pandas, pyvista):
 
-``` python
+```sh
   pip install pyaedt[all]
 ```
 
 You can also install PyAEDT from Conda-Forge:
 
-``` python
+```sh
   conda install -c conda-forge pyaedt
 ```
 `PyAEDT` is still compatible with Ironpython and can be still used in AEDT Framework.
@@ -186,6 +186,8 @@ On any Windows client machine:
 `PyAEDT` is licensed under the `MIT` license.
 
 This module makes no commercial claim over Ansys whatsoever. `PyAEDT` extends the functionality of `AEDT` by adding an additional Python interface to `AEDT` without changing the core behavior or license of the original software. The use of the interactive control of `PyAEDT` requires a legally licensed local copy of `AEDT`. For more information about `AEDT`, visit the [AEDT page](https://www.ansys.com/products/electronics) on the `Ansys` website.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Indices and tables
 
