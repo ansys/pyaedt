@@ -48,7 +48,7 @@ try:
         print("python.exe: " + python_exe)
         pyaedt_script = file_dialog.FileName
         print("pyaedt_script: " + str(pyaedt_script))
-        if os.name =="posix":
+        if is_linux:
             command = [
                 python_exe,
                 pyaedt_script,

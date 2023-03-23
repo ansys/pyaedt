@@ -7,6 +7,7 @@ from _unittest.conftest import local_path
 
 from pyaedt import Hfss
 from pyaedt import is_ironpython
+from pyaedt import is_linux
 
 try:
     import pytest  # noqa: F401
@@ -185,7 +186,7 @@ class TestClass(BasisTest, object):
         for part in parts_dict["parts"]:
             assert os.path.exists(parts_dict["parts"][part]["file_name"])
 
-    @pytest.mark.skipif(os.name == "posix" or sys.version_info < (3, 8), reason="Not supported.")
+    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not supported.")
     def test_13_link_array(self):
         self.array.setups[0].props["MaximumPasses"] = 1
         assert self.sbr_platform.create_sbr_linked_antenna(self.array, target_cs="antenna_CS", fieldtype="farfield")
@@ -243,7 +244,7 @@ class TestClass(BasisTest, object):
         assert vrt.update()
         assert vrt.delete()
 
-    @pytest.mark.skipif(os.name == "posix" or is_ironpython, reason="feature supported in Cpython")
+    @pytest.mark.skipif(is_linux or is_ironpython, reason="feature supported in Cpython")
     def test_16_read_hdm(self):
         self.aedtapp.insert_design("hdm")
         hdm_path = os.path.join(local_path, "example_models", test_subfolder, "freighter_rays.hdm")
