@@ -740,14 +740,17 @@ class Design(AedtObjects):
             If this directory does not exist, it is created.
         """
 
-        toolkit_directory = os.path.join(self.project_path, self.project_name + ".pyaedt")
+        toolkit_directory = os.path.join(self.project_path, self.project_name.replace(" ", "_") + ".pyaedt")
         if settings.remote_rpc_session:
-            toolkit_directory = self.project_path + "/" + self.project_name + ".pyaedt"
+            toolkit_directory = self.project_path + "/" + self.project_name.replace(" ", "_") + ".pyaedt"
             try:
                 settings.remote_rpc_session.filemanager.makedirs(toolkit_directory)
             except:
                 toolkit_directory = (
-                    settings.remote_rpc_session.filemanager.temp_dir() + "/" + self.project_name + ".pyaedt"
+                    settings.remote_rpc_session.filemanager.temp_dir()
+                    + "/"
+                    + self.project_name.replace(" ", "_")
+                    + ".pyaedt"
                 )
         elif settings.remote_api:
             toolkit_directory = self.results_directory
@@ -770,15 +773,17 @@ class Design(AedtObjects):
              If this directory does not exist, it is created.
 
         """
-        working_directory = os.path.join(self.toolkit_directory, self.design_name)
+        working_directory = os.path.join(self.toolkit_directory, self.design_name.replace(" ", "_"))
         if settings.remote_rpc_session:
-            working_directory = self.toolkit_directory + "/" + self.design_name
+            working_directory = self.toolkit_directory + "/" + self.design_name.replace(" ", "_")
             settings.remote_rpc_session.filemanager.makedirs(working_directory)
         elif not os.path.isdir(working_directory):
             try:
                 os.makedirs(working_directory)
             except FileNotFoundError:
-                working_directory = os.path.join(self.toolkit_directory, self.design_name + ".results")
+                working_directory = os.path.join(
+                    self.toolkit_directory, self.design_name.replace(" ", "_") + ".results"
+                )
         return working_directory
 
     @property
