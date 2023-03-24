@@ -3187,8 +3187,8 @@ class Design(AedtObjects):
 
         active_design = self.design_name
         design_list = self.design_list
-        self._oproject.CopyDesign(active_design)
-        self._oproject.Paste()
+        _retry_ntimes(10, self._oproject.CopyDesign, active_design)
+        _retry_ntimes(10, self._oproject.Paste)
         newname = label
         ind = 1
         while newname in self.design_list:
