@@ -103,13 +103,18 @@ NONGRAPHICAL = settings.non_graphical
 
 
 class BasisTest(object):
-    def my_setup(self):
+    def my_setup(self, launch_desktop=True):
         scratch_path = tempfile.gettempdir()
         self.local_scratch = Scratch(scratch_path)
         self.aedtapps = []
         self.edbapps = []
         self._main = sys.modules["__main__"]
         self.desktop = None
+        self._main.desktop_pid = 0
+        if launch_desktop:
+            self.desktop = Desktop(desktop_version, NONGRAPHICAL, new_thread)
+            self.desktop.disable_autosave()
+            self._main.desktop_pid = self.desktop.odesktop.GetProcessID()
 
     def my_teardown(self):
         for edbapp in self.edbapps[::-1]:
@@ -154,10 +159,7 @@ class BasisTest(object):
 
     def add_app(self, project_name=None, design_name=None, solution_type=None, application=None, subfolder=""):
         # if "oDesktop" not in dir(self._main):
-        if not self.desktop:
-            self.desktop = Desktop(desktop_version, NONGRAPHICAL, new_thread)
-            self.desktop.disable_autosave()
-            self._main.desktop_pid = self.desktop.odesktop.GetProcessID()
+
         if project_name:
             example_project = os.path.join(local_path, "example_models", subfolder, project_name + ".aedt")
             example_folder = os.path.join(local_path, "example_models", subfolder, project_name + ".aedb")

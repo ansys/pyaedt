@@ -65,7 +65,6 @@ class TestClass(BasisTest, object):
                         ).encode()
                         found = True
                 outf.write(line + b"\n")
-        BasisTest.add_app(self)
         self.aedtapp = Circuit(self.test_project)
         self.aedtapps.append(self.aedtapp)
 

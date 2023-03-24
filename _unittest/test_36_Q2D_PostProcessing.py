@@ -19,7 +19,6 @@ else:
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
-        self.app = BasisTest.add_app(self)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)

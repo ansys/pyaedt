@@ -8,7 +8,7 @@ from pyaedt.misc.aedtlib_personalib_install import write_tab_config
 
 class TestClass(BasisTest, object):
     def setup_class(self):
-        BasisTest.my_setup(self)
+        BasisTest.my_setup(self, launch_desktop=False)
 
     def teardown_class(self):
         self.local_scratch.remove()

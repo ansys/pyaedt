@@ -33,7 +33,7 @@ test_subfolder = "TEDB"
 @pytest.mark.skipif(config["skip_edb"], reason="Optional skip")
 class TestClass(BasisTest, object):
     def setup_class(self):
-        BasisTest.my_setup(self)
+        BasisTest.my_setup(self, launch_desktop=False)
         self.edbapp = BasisTest.add_edb(self, test_project_name, subfolder=test_subfolder)
         example_project = os.path.join(local_path, "example_models", test_subfolder, "example_package.aedb")
         self.target_path = os.path.join(self.local_scratch.path, "example_package.aedb")
