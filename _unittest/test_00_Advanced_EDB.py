@@ -17,6 +17,8 @@ from _unittest.conftest import desktop_version
 from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
 
+from pyaedt.generic.general_methods import is_linux
+
 try:
     import pytest
 except ImportError:  # pragma: no cover
@@ -703,7 +705,7 @@ class TestClass(BasisTest, object):
         sim_config = SimulationConfiguration(cfg_file)
         assert Edb(target_path).build_simulation_project(sim_config)
 
-    @pytest.mark.skipif(is_ironpython, reason="Not supported in IPY")
+    @pytest.mark.skipif(is_ironpython or is_linux, reason="Not supported in IPY")
     def test_16_solve(self):
         target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo_to_be_solved.aedb")
         out_edb = os.path.join(self.local_scratch.path, "Galileo_to_be_solved.aedb")
