@@ -402,8 +402,10 @@ class FieldAnalysis3DLayout(Analysis):
 
         >>> oModule.GetSetups
         """
-        setups = list(self.oanalysis.GetSetups())
-        return setups
+        setups = self.oanalysis.GetSetups()
+        if setups:
+            return list(setups)
+        return []
 
     @pyaedt_function_handler()
     def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):

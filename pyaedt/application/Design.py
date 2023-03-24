@@ -401,7 +401,10 @@ class Design(AedtObjects):
 
     @property
     def _aedt_version(self):
-        return _retry_ntimes(10, self.odesktop.GetVersion)[0:6]
+        v = self.odesktop.GetVersion()
+        if v:
+            return v[0:6]
+        return ""
 
     @property
     def design_name(self):
@@ -739,16 +742,17 @@ class Design(AedtObjects):
             Full absolute path for the ``pyaedt`` directory for this project.
             If this directory does not exist, it is created.
         """
-
-        toolkit_directory = os.path.join(self.project_path, self.project_name + ".pyaedt")
+        if self.project_name:
+            name = self.project_name.replace(" ", "_")
+        else:
+            name = generate_unique_name("prj")
+        toolkit_directory = os.path.join(self.project_path, name + ".pyaedt")
         if settings.remote_rpc_session:
-            toolkit_directory = self.project_path + "/" + self.project_name + ".pyaedt"
+            toolkit_directory = self.project_path + "/" + name + ".pyaedt"
             try:
                 settings.remote_rpc_session.filemanager.makedirs(toolkit_directory)
             except:
-                toolkit_directory = (
-                    settings.remote_rpc_session.filemanager.temp_dir() + "/" + self.project_name + ".pyaedt"
-                )
+                toolkit_directory = settings.remote_rpc_session.filemanager.temp_dir() + "/" + name + ".pyaedt"
         elif settings.remote_api:
             toolkit_directory = self.results_directory
         elif not os.path.isdir(toolkit_directory):
@@ -770,15 +774,19 @@ class Design(AedtObjects):
              If this directory does not exist, it is created.
 
         """
-        working_directory = os.path.join(self.toolkit_directory, self.design_name)
+        if self.design_name:
+            name = self.design_name.replace(" ", "_")
+        else:
+            name = generate_unique_name("prj")
+        working_directory = os.path.join(self.toolkit_directory, name)
         if settings.remote_rpc_session:
-            working_directory = self.toolkit_directory + "/" + self.design_name
+            working_directory = self.toolkit_directory + "/" + name
             settings.remote_rpc_session.filemanager.makedirs(working_directory)
         elif not os.path.isdir(working_directory):
             try:
                 os.makedirs(working_directory)
             except FileNotFoundError:
-                working_directory = os.path.join(self.toolkit_directory, self.design_name + ".results")
+                working_directory = os.path.join(self.toolkit_directory, name + ".results")
         return working_directory
 
     @property
@@ -908,7 +916,8 @@ class Design(AedtObjects):
                     "No project is defined. Project {} exists and has been read.".format(self._oproject.GetName())
                 )
         else:
-            if proj_name in self.odesktop.GetProjectList():
+            prj_list = self.odesktop.GetProjectList()
+            if prj_list and proj_name in list(prj_list):
                 self._oproject = self.odesktop.SetActiveProject(proj_name)
                 self._add_handler()
                 self.logger.info("Project %s set to active.", proj_name)
@@ -3178,8 +3187,8 @@ class Design(AedtObjects):
 
         active_design = self.design_name
         design_list = self.design_list
-        self._oproject.CopyDesign(active_design)
-        self._oproject.Paste()
+        _retry_ntimes(10, self._oproject.CopyDesign, active_design)
+        _retry_ntimes(10, self._oproject.Paste)
         newname = label
         ind = 1
         while newname in self.design_list:

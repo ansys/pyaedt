@@ -102,9 +102,10 @@ def _retrieve_folder(url, directory, destination=None):
         data = response.read().decode("utf-8").split("\n")
 
     if not os.path.isdir(destination):
-        os.mkdir(destination)
-    if not os.path.isdir(local_path):
-        os.makedirs(local_path)
+        try:
+            os.mkdir(destination)
+        except FileNotFoundError:
+            os.makedirs(local_path)
 
     for line in data:
         if "js-navigation-open Link--primary" in line:
