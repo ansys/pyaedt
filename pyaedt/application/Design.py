@@ -404,7 +404,7 @@ class Design(AedtObjects):
         v = self.odesktop.GetVersion()
         if v:
             return v[0:6]
-        return
+        return ""
 
     @property
     def design_name(self):

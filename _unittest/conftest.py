@@ -129,21 +129,6 @@ class BasisTest(object):
                 pass
             self.desktop.release_desktop(False, True)
 
-            # try:
-            #     oDesktop = self._main.oDesktop
-            #     proj_list = oDesktop.GetProjectList()
-            # except Exception as e:
-            #     oDesktop = None
-            #     proj_list = []
-            # if oDesktop and not settings.non_graphical:
-            #     oDesktop.ClearMessages("", "", 3)
-            # if proj_list:
-            #     for proj in proj_list:
-            #         try:
-            #             oDesktop.CloseProject(proj)
-            #         except:
-            #             pass
-            # self.aedtapps[0].release_desktop(False)
         del self.edbapps
         del self.aedtapps
         self.desktop = None
