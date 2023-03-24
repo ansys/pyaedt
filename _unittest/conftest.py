@@ -26,7 +26,6 @@ import sys
 import tempfile
 import time
 
-from pyaedt import is_windows
 from pyaedt import pyaedt_logger
 from pyaedt import settings
 from pyaedt.generic.general_methods import generate_unique_name
@@ -124,11 +123,10 @@ class BasisTest(object):
             except:
                 pass
         if self.desktop:
-            if is_windows:
-                try:
-                    os.kill(self._main.desktop_pid, 9)
-                except:
-                    pass
+            try:
+                os.kill(self._main.desktop_pid, 9)
+            except:
+                pass
             self.desktop.release_desktop(False, True)
 
         del self.edbapps
