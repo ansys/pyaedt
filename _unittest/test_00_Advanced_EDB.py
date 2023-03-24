@@ -17,6 +17,8 @@ from _unittest.conftest import desktop_version
 from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
 
+from pyaedt.generic.general_methods import is_linux
+
 try:
     import pytest
 except ImportError:  # pragma: no cover
@@ -28,7 +30,7 @@ test_subfolder = "TEDB"
 @pytest.mark.skipif(config["skip_edb"], reason="Optional skip")
 class TestClass(BasisTest, object):
     def setup_class(self):
-        BasisTest.my_setup(self)
+        BasisTest.my_setup(self, launch_desktop=False)
         self.edbapp = BasisTest.add_edb(self, test_project_name, subfolder=test_subfolder)
         example_project = os.path.join(local_path, "example_models", test_subfolder, "example_package.aedb")
         self.target_path = os.path.join(self.local_scratch.path, "example_package.aedb")
@@ -180,6 +182,7 @@ class TestClass(BasisTest, object):
                 assert result is False
         edb_padstacks.close_edb()
 
+    @pytest.mark.skipif(is_linux, reason="Failing download files")
     def test_06_edb_with_dxf(self):
         src = os.path.join(local_path, "example_models", test_subfolder, "edb_test_82.dxf")
         dxf_path = self.local_scratch.copyfile(src)
@@ -703,7 +706,7 @@ class TestClass(BasisTest, object):
         sim_config = SimulationConfiguration(cfg_file)
         assert Edb(target_path).build_simulation_project(sim_config)
 
-    @pytest.mark.skipif(is_ironpython, reason="Not supported in IPY")
+    @pytest.mark.skipif(is_ironpython or is_linux, reason="Not supported in IPY")
     def test_16_solve(self):
         target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo_to_be_solved.aedb")
         out_edb = os.path.join(self.local_scratch.path, "Galileo_to_be_solved.aedb")

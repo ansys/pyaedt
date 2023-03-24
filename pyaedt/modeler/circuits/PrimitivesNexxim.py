@@ -7,6 +7,7 @@ import warnings
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.generic.constants import AEDT_UNITS
+from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -300,8 +301,13 @@ class NexximComponents(CircuitComponents):
         >>> oProject.CopyDesign
         >>> oEditor.PasteDesign
         """
-        self._app._oproject.CopyDesign(sourcename)
-        self.oeditor.PasteDesign(0, ["NAME:Attributes", "Page:=", 1, "X:=", 0, "Y:=", 0, "Angle:=", 0, "Flip:=", False])
+        _retry_ntimes(10, self._app._oproject.CopyDesign, sourcename)
+        _retry_ntimes(
+            10,
+            self.oeditor.PasteDesign,
+            0,
+            ["NAME:Attributes", "Page:=", 1, "X:=", 0, "Y:=", 0, "Angle:=", 0, "Flip:=", False],
+        )
         self.refresh_all_ids()
         for el in self.components:
             if sourcename in self.components[el].composed_name:

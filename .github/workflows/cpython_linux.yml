@@ -45,8 +45,8 @@ jobs:
       - name: 'Install pyaedt'
         run: |
           python -m venv .pyaedt_test_env
-          export ANSYSEM_ROOT222=/apps/AnsysEM/v222/Linux64
-          export LD_LIBRARY_PATH=$ANSYSEM_ROOT222/common/mono/Linux64/lib64:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH
+          export ANSYSEM_ROOT231=/apps/AnsysEM/v231/Linux64
+          export LD_LIBRARY_PATH=$ANSYSEM_ROOT231/common/mono/Linux64/lib64:$ANSYSEM_ROOT231/Delcross:$LD_LIBRARY_PATH
           source .pyaedt_test_env/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel setuptools -U
@@ -58,10 +58,11 @@ jobs:
       - name: 'Unit testing'
         timeout-minutes: 30
         run: |
-          export ANSYSEM_ROOT222=/apps/AnsysEM/v222/Linux64
-          export LD_LIBRARY_PATH=$ANSYSEM_ROOT222/common/mono/Linux64/lib64:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH
+          export ANS_NODEPCHECK=1
+          export ANSYSEM_ROOT231=/apps/AnsysEM/v231/Linux64
+          export LD_LIBRARY_PATH=$ANSYSEM_ROOT231/common/mono/Linux64/lib64:$ANSYSEM_ROOT231/Delcross:$LD_LIBRARY_PATH
           source .pyaedt_test_env/bin/activate
-          pytest -n 4 --durations=50  --dist loadfile -v _unittest
+          pytest --tx 6*popen --durations=50  --dist loadfile -v _unittest
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v3

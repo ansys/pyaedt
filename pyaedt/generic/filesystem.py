@@ -97,7 +97,7 @@ class Scratch:
             except OSError:  # pragma: no cover
                 pass
         try:
-            shutil.copy2(src_file, dst_file)
+            dst_file = shutil.copy2(src_file, dst_file)
         except shutil.SameFileError:  # pragma: no cover
             pass
 
