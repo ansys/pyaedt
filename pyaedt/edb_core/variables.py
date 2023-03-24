@@ -112,7 +112,6 @@ class Variables:
 
     def __init__(self, pedb):
         self._pedb = pedb
-        pass
 
     def add(self, name, value, is_parameter=False):
         """Add a new variable.
