@@ -31,7 +31,8 @@ from pyaedt import settings
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
-from pyaedt.generic.general_methods import is_windows
+
+# from pyaedt.generic.general_methods import is_windows
 
 settings.enable_error_handler = False
 settings.enable_desktop_logs = False
@@ -108,6 +109,7 @@ class BasisTest(object):
         self.aedtapps = []
         self.edbapps = []
         self._main = sys.modules["__main__"]
+        self.desktop = None
 
     def my_teardown(self):
         for edbapp in self.edbapps[::-1]:
@@ -117,19 +119,23 @@ class BasisTest(object):
                 pass
         if self.aedtapps:
             try:
-                oDesktop = self._main.oDesktop
-                proj_list = oDesktop.GetProjectList()
-            except Exception as e:
-                oDesktop = None
-                proj_list = []
-            if oDesktop and not settings.non_graphical:
-                oDesktop.ClearMessages("", "", 3)
-            if proj_list:
-                for proj in proj_list:
-                    try:
-                        oDesktop.CloseProject(proj)
-                    except:
-                        pass
+                os.kill(self._main.desktop_pid, 9)
+            except:
+                pass
+            # try:
+            #     oDesktop = self._main.oDesktop
+            #     proj_list = oDesktop.GetProjectList()
+            # except Exception as e:
+            #     oDesktop = None
+            #     proj_list = []
+            # if oDesktop and not settings.non_graphical:
+            #     oDesktop.ClearMessages("", "", 3)
+            # if proj_list:
+            #     for proj in proj_list:
+            #         try:
+            #             oDesktop.CloseProject(proj)
+            #         except:
+            #             pass
             # self.aedtapps[0].release_desktop(False)
         del self.edbapps
         del self.aedtapps
@@ -140,7 +146,8 @@ class BasisTest(object):
             pass
 
     def add_app(self, project_name=None, design_name=None, solution_type=None, application=None, subfolder=""):
-        if "oDesktop" not in dir(self._main):
+        # if "oDesktop" not in dir(self._main):
+        if not self.desktop:
             self.desktop = Desktop(desktop_version, NONGRAPHICAL, new_thread)
             self.desktop.disable_autosave()
             self._main.desktop_pid = self.desktop.odesktop.GetProcessID()
@@ -211,7 +218,7 @@ new_thread = config["NewThread"]
 def desktop_init():
     _main = sys.modules["__main__"]
 
-    if is_windows or is_ironpython:
+    if is_ironpython:
         desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
         _main.desktop_pid = desktop.odesktop.GetProcessID()
     yield
