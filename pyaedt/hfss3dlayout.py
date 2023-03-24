@@ -98,7 +98,18 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     Create an AEDT 2021 R1 object and then create a
     ``Hfss3dLayout`` object and open the specified project.
 
-    >>> aedtapp = Hfss3dLayout(specified_version="2021.2", projectname="myfile.aedt")
+    >>> aedtapp = Hfss3dLayout(specified_version="2023.1", projectname="myfile.aedt")
+
+    Create an instance of ``Hfss3dLayout`` from an ``Edb``
+
+    >>> import pyaedt
+    >>> edb_path = "/path/to/edbfile.aedb"
+    >>> specified_version = "2023.1"
+    >>> edb = pyaedt.Edb(edb_path)
+    >>> edb.import_stackup("stackup.xml")  # Import stackup. Manipulate edb, ...
+    >>> edb.save_edb()
+    >>> edb.close_edb()
+    >>> aedtapp = pyaedt.Hfss3dLayout(specified_version="2021.2", projectname=edb_path)
 
     """
 
@@ -117,6 +128,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         port=0,
         aedt_process_id=None,
     ):
+        if projectname[-4::] == "aedb":
+            projectname = os.path.join(projectname, "edb.def")
+
         FieldAnalysis3DLayout.__init__(
             self,
             "HFSS 3D Layout Design",
