@@ -117,7 +117,8 @@ class BasisTest(object):
                 edbapp.close_edb()
             except:
                 pass
-        if self.aedtapps:
+        if self.desktop:
+            self.desktop.release_desktop(False, True)
             try:
                 os.kill(self._main.desktop_pid, 9)
             except:
@@ -139,6 +140,8 @@ class BasisTest(object):
             # self.aedtapps[0].release_desktop(False)
         del self.edbapps
         del self.aedtapps
+        self.desktop = None
+        del self._main.desktop_pid
         try:
             logger.remove_all_project_file_logger()
             shutil.rmtree(self.local_scratch.path, ignore_errors=True)

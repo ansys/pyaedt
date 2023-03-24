@@ -909,6 +909,8 @@ class Desktop(object):
         if settings.logger_file_path:
             self.logfile = settings.logger_file_path
         else:
+            if not project_dir:
+                project_dir = tempfile.gettempdir()
             self.logfile = os.path.join(
                 project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
             )
