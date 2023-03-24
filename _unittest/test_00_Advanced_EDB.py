@@ -182,6 +182,7 @@ class TestClass(BasisTest, object):
                 assert result is False
         edb_padstacks.close_edb()
 
+    @pytest.mark.skipif(is_linux, reason="Failing download files")
     def test_06_edb_with_dxf(self):
         src = os.path.join(local_path, "example_models", test_subfolder, "edb_test_82.dxf")
         dxf_path = self.local_scratch.copyfile(src)

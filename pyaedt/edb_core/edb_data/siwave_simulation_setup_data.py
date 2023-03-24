@@ -2,6 +2,7 @@ from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import EdbFrequencySwee
 from pyaedt.edb_core.general import convert_netdict_to_pydict
 from pyaedt.edb_core.general import convert_pydict_to_netdict
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -886,8 +887,9 @@ def _parse_value(v):
 
 @pyaedt_function_handler()
 def _get_edb_setup_info(edb_siwave_sim_setup, edb_sim_setup_info):
-    string = edb_siwave_sim_setup.ToString().replace("\t", "").split("\r\n")
-
+    string = edb_siwave_sim_setup.ToString().replace("\t", "").split("\r\n").split("\n")
+    if is_linux:
+        string = string[0].split("\n")
     keys = [i.split("=")[0] for i in string if len(i.split("=")) == 2 and "SourceTermsToGround" not in i]
     values = [i.split("=")[1] for i in string if len(i.split("=")) == 2 and "SourceTermsToGround" not in i]
     for val in string:
