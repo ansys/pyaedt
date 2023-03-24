@@ -2437,10 +2437,6 @@ class Edb(object):
         """
         return {i.name: i for i in self.setups if i.setup_type == "kHFSS"}
 
-        self.save_edb()
-        project_filename = os.path.join(self.edbpath, "edb.def")
-        return pyaedt.Hfss3dLayout(project_filename, non_graphical=non_graphical)
-
     @property
     def siwave_dc_setups(self):
         """Active Siwave DC IR Setups.
