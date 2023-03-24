@@ -128,7 +128,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         port=0,
         aedt_process_id=None,
     ):
-        if projectname[-4::] == "aedb":
+        if projectname and projectname[-4::] == "aedb":
             projectname = os.path.join(projectname, "edb.def")
 
         FieldAnalysis3DLayout.__init__(
