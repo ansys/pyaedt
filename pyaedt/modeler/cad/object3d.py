@@ -1461,27 +1461,26 @@ class Object3d(object):
     def rotate(self, cs_axis, angle=90.0, unit="deg"):
         """Rotate the selection.
 
-         Parameters
-         ----------
-         cs_axis
-             Coordinate system axis or the Application.CoordinateSystemAxis object.
-         angle : float, optional
-             Angle of rotation. The units, defined by ``unit``, can be either
-             degrees or radians. The default is ``90.0``.
-         unit : text, optional
-              Units for the angle. Options are ``"deg"`` or ``"rad"``.
-              The default is ``"deg"``.
+        Parameters
+        ----------
+        cs_axis : int
+            Coordinate system axis or the Application.CoordinateSystemAxis object.
+        angle : float, optional
+            Angle of rotation. The units, defined by ``unit``, can be either
+            degrees or radians. The default is ``90.0``.
+        unit : text, optional
+             Units for the angle. Options are ``"deg"`` or ``"rad"``.
+             The default is ``"deg"``.
 
-         Returns
-         -------
+        Returns
+        -------
         :class:`pyaedt.modeler.cad.object3d.Object3d`
-             3D object.
-             ``False`` when failed.
+            3D object. ``False`` when failed.
 
-         References
-         ----------
+        References
+        ----------
 
-         >>> oEditor.Rotate
+        >>> oEditor.Rotate
         """
         if self._primitives.modeler.rotate(self.id, cs_axis=cs_axis, angle=angle, unit=unit):
             return self

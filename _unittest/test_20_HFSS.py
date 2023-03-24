@@ -529,6 +529,8 @@ class TestClass(BasisTest, object):
         assert imp.name in self.aedtapp.modeler.get_boundaries_name()
         assert imp.update()
 
+    pytest.mark.skipif(config["destkopVersion"] == "2023.2", reason="Crashing Desktop")
+
     def test_14_create_lumpedrlc_on_objects(self):
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "rlc1", "Copper")
         box2 = self.aedtapp.modeler.create_box([0, 0, 10], [10, 10, 5], "rlc2", "copper")

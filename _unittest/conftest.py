@@ -118,11 +118,12 @@ class BasisTest(object):
             except:
                 pass
         if self.desktop:
-            self.desktop.release_desktop(False, True)
             try:
                 os.kill(self._main.desktop_pid, 9)
             except:
                 pass
+            self.desktop.release_desktop(False, True)
+
             # try:
             #     oDesktop = self._main.oDesktop
             #     proj_list = oDesktop.GetProjectList()
@@ -141,7 +142,10 @@ class BasisTest(object):
         del self.edbapps
         del self.aedtapps
         self.desktop = None
-        del self._main.desktop_pid
+        try:
+            del self._main.desktop_pid
+        except:
+            pass
         try:
             logger.remove_all_project_file_logger()
             shutil.rmtree(self.local_scratch.path, ignore_errors=True)

@@ -643,8 +643,8 @@ class Analysis(Design, object):
             Full path to the project folder. The default is ``None``, in which case the
             working directory is used.
         matrix_name : str, optional
-            Matrix to specify to export touchstone file. The default is ``Original``, in which case
-             default matrix is taken.
+            Matrix to specify to export touchstone file.
+            The default is ``Original``, in which case default matrix is taken.
             This argument applies only to 2DExtractor and Q3D setups where Matrix reduction is computed
             and needed to export touchstone file.
         matrix_type : str, optional
