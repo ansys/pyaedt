@@ -887,7 +887,7 @@ def _parse_value(v):
 
 @pyaedt_function_handler()
 def _get_edb_setup_info(edb_siwave_sim_setup, edb_sim_setup_info):
-    string = edb_siwave_sim_setup.ToString().replace("\t", "").split("\r\n").split("\n")
+    string = edb_siwave_sim_setup.ToString().replace("\t", "").split("\r\n")
     if is_linux:
         string = string[0].split("\n")
     keys = [i.split("=")[0] for i in string if len(i.split("=")) == 2 and "SourceTermsToGround" not in i]
