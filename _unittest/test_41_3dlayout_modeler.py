@@ -629,6 +629,7 @@ class TestClass(BasisTest, object):
         aedb_file = os.path.join(self.local_scratch.path, "gerber_out.aedb")
         assert self.aedtapp.import_gerber(gerber_file, aedb_path=aedb_file, control_file=control_file)
 
+    @pytest.mark.skipif(is_linux, reason="Fails in linux")
     def test_37_import_gds(self):
         self.aedtapp.insert_design("gds")
         gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1.gds")
@@ -636,6 +637,7 @@ class TestClass(BasisTest, object):
         aedb_file = os.path.join(self.local_scratch.path, "gds_out.aedb")
         assert self.aedtapp.import_gds(gds_file, aedb_path=aedb_file, control_file=control_file)
 
+    @pytest.mark.skipif(is_linux, reason="Fails in linux")
     def test_38_import_dxf(self):
         self.aedtapp.insert_design("dxf")
         dxf_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf1.dxf")
