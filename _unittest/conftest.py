@@ -31,6 +31,7 @@ from pyaedt import settings
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import is_windows
 
 settings.enable_error_handler = False
 settings.enable_desktop_logs = False
@@ -218,10 +219,10 @@ def desktop_init():
     #         # release_desktop(close_projects=False, close_desktop=True)
     #     except:
     #         pass
-    if os.name != "posix" or is_ironpython:
+    if is_windows or is_ironpython:
         desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
     yield
-    if os.name != "posix" or is_ironpython:
+    if is_windows or is_ironpython:
         desktop.release_desktop(True, True)
         del desktop
 

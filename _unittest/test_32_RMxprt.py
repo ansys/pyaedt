@@ -3,6 +3,7 @@ import os
 from _unittest.conftest import BasisTest
 
 from pyaedt import Rmxprt
+from pyaedt.generic.general_methods import is_linux
 
 try:
     import pytest
@@ -11,7 +12,7 @@ except ImportError:
 test_project_name = "motor"
 
 
-@pytest.mark.skipif(os.name == "posix", reason="Emit API fails on linux.")
+@pytest.mark.skipif(is_linux, reason="Emit API fails on linux.")
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
