@@ -34,12 +34,12 @@ from pyaedt.edb_core.edb_data.sources import ExcitationPorts
 from pyaedt.edb_core.edb_data.sources import ExcitationProbes
 from pyaedt.edb_core.edb_data.sources import ExcitationSources
 from pyaedt.edb_core.edb_data.sources import SourceType
+from pyaedt.edb_core.edb_data.variables import Variable
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.ipc2581.ipc2581 import Ipc2581
 from pyaedt.edb_core.materials import Materials
 from pyaedt.edb_core.padstack import EdbPadstacks
 from pyaedt.edb_core.stackup import Stackup
-from pyaedt.edb_core.variables import Variables
 from pyaedt.generic.clr_module import Convert
 from pyaedt.generic.clr_module import List
 from pyaedt.generic.clr_module import _clr
@@ -269,7 +269,6 @@ class Edb(object):
         self._core_primitives = EdbLayout(self)
         self._stackup2 = Stackup(self)
         self._materials = Materials(self)
-        self._variables = Variables(self)
 
         self.logger.info("Objects Initialized")
 
@@ -346,6 +345,32 @@ class Edb(object):
         self.edbutils = edbbuilder.Ansoft.EdbBuilderUtils
         self.simSetup = __import__("Ansys.Ansoft.SimSetupData")
         self.simsetupdata = self.simSetup.Ansoft.SimSetupData.Data
+
+    @property
+    def design_variables(self):
+        """Get all design variables."""
+        d_var = dict()
+        for i in self.active_cell.GetVariableServer().GetAllVariableNames():
+            d_var[i] = Variable(self, i)
+        return d_var
+
+    @property
+    def project_variables(self):
+        """Get all project variables."""
+        p_var = dict()
+        for i in self.db.GetVariableServer().GetAllVariableNames():
+            p_var[i] = Variable(self, i)
+        return p_var
+
+    @property
+    def variables(self):
+        """Get all variables."""
+        all_vars = dict()
+        for i, j in self.project_variables.items():
+            all_vars[i] = j
+        for i, j in self.design_variables.items():
+            all_vars[i] = j
+        return all_vars
 
     @property
     def excitations(self):
@@ -739,13 +764,6 @@ class Edb(object):
         if not self._materials and self.builder:
             self._materials = Materials(self)
         return self._materials
-
-    @property
-    def variables(self):
-        """Variable Database."""
-        if not self._variables and self.builder:
-            self._variables = Variables(self)
-        return self._variables
 
     @property
     def core_padstack(self):
@@ -1333,7 +1351,7 @@ class Edb(object):
         """Create a cutout using an approach entirely based on pyaedt.
         It does in sequence:
         - delete all nets not in list,
-        - create a extent of the nets,
+        - create an extent of the nets,
         - check and delete all vias not in the extent,
         - check and delete all the primitives not in extent,
         - check and intersect all the primitives that intersect the extent.
