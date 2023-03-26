@@ -1390,6 +1390,9 @@ class Mesh(object):
         >>> oModule.AssignCylindricalGapOp
         """
         try:
+            if self._app.design_type != "Maxwell 2D" and self._app.design_type != "Maxwell 3D":
+                raise MethodNotSupportedError
+
             obj = self.modeler.convert_to_selections(obj, True)
             if len(obj) > 1:
                 self.logger.error("Cylindrical gap treatment cannot be assigned to multiple objects.")
