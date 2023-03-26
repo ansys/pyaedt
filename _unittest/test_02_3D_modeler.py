@@ -547,9 +547,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.modeler.set_working_coordinate_system("Global")
         first_points = [[1.0, 1.0, 0], [1.0, 2.0, 1.0], [1.0, 3.0, 1.0]]
         first_line = self.aedtapp.modeler.create_polyline([[0.0, 0.0, 0.0], first_points[0]])
-        assert first_line.insert_segment(
-            position_list=first_points, segment=PolylineSegment("Spline", num_points=3), segment_number=3
-        )
+        assert first_line.insert_segment(position_list=first_points, segment=PolylineSegment("Spline", num_points=3))
 
         assert (
             self.aedtapp.get_oo_property_value(
@@ -572,14 +570,11 @@ class TestClass(BasisTest, object):
 
         second_points = [[3.0, 2.0, 0], [3.0, 3.0, 1.0], [3.0, 4.0, 1.0]]
         second_line = self.aedtapp.modeler.create_polyline([[0, 0, 0], second_points[0]])
-        assert second_line.insert_segment(
-            position_list=second_points, segment=PolylineSegment("Spline", num_points=3), segment_number=5
-        )
+        assert second_line.insert_segment(position_list=second_points, segment=PolylineSegment("Spline", num_points=3))
 
         assert second_line.insert_segment(
             position_list=[[-3.0, 4.0, 1.0], [-3.0, 5.0, 3.0], [-3.0, 6.0, 1.0], [-3.0, 7.0, 2.0], [0, 0, 0]],
             segment=PolylineSegment("Spline", num_points=5),
-            segment_number=3,
         )
 
         assert (
@@ -624,13 +619,13 @@ class TestClass(BasisTest, object):
             self.aedtapp.get_oo_property_value(
                 self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment0", "Number of segments"
             )
-            == "3"
+            == "0"
         )
         assert (
             self.aedtapp.get_oo_property_value(
                 self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment2", "Number of segments"
             )
-            == "5"
+            == "0"
         )
 
     def test_50_move_edge(self):

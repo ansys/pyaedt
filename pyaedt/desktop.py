@@ -480,7 +480,7 @@ class Desktop(object):
             if "oDesktop" in dir(self._main):
                 del self._main.oDesktop
             self._main.student_version, version_key, version = self._set_version(specified_version, student_version)
-            if not new_desktop_session:  # pragma: no cover
+            if not new_desktop_session and not is_ironpython:  # pragma: no cover
                 sessions = active_sessions(
                     version=version_key, student_version=student_version, non_graphical=non_graphical
                 )

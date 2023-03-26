@@ -5231,6 +5231,8 @@ class GeometryModeler(Modeler, object):
                 return self.Y
             elif item == 2:
                 return self.Z
+            else:
+                raise IndexError
 
         @pyaedt_function_handler()
         def __setitem__(self, item, value):
@@ -5240,9 +5242,6 @@ class GeometryModeler(Modeler, object):
                 self.Y = value
             elif item == 2:
                 self.Z = value
-
-        def __iter__(self):
-            return self
 
         def __len__(self):
             return 3
