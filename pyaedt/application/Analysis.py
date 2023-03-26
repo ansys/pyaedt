@@ -799,9 +799,13 @@ class Analysis(Design, object):
                                         export_folder, "{0}_{1}.s{2}p".format(self.project_name, varCount, excitations)
                                     )
                                 self.logger.info("Export SnP: {}".format(export_path))
+                                if self.design_type == "HFSS 3D Layout Design":
+                                    module = self.odesign
+                                else:
+                                    module = self.osolution
                                 try:
                                     self.logger.info("Export SnP: {}".format(export_path))
-                                    self.osolution.ExportNetworkData(
+                                    module.ExportNetworkData(
                                         variation,
                                         ["{0}:{1}".format(setup_name, sweep_name)],
                                         3 if matrix_type == "S" else 2,
