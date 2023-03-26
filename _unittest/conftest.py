@@ -122,20 +122,20 @@ class BasisTest(object):
                 edbapp.close_edb()
             except:
                 pass
-        if self.desktop:
+        if self.desktop and not is_ironpython:
             try:
                 os.kill(self._main.desktop_pid, 9)
             except:
                 pass
             self.desktop.release_desktop(False, True)
+            try:
+                del self._main.desktop_pid
+            except:
+                pass
 
         del self.edbapps
         del self.aedtapps
         self.desktop = None
-        try:
-            del self._main.desktop_pid
-        except:
-            pass
         try:
             logger.remove_all_project_file_logger()
             shutil.rmtree(self.local_scratch.path, ignore_errors=True)
