@@ -1370,12 +1370,12 @@ class Mesh(object):
             The default is ``None``.
         moving_side_layers : int, optional
             Number of mesh layers on the moving side.
-            The valid ranges are integers ≥ 1.
+            The valid ranges are integers >= 1.
             Option valid only for 3D design.
             The default values is ``1``.
         static_side_layers : int, optional
             Number of mesh layers on the static Side.
-            The valid ranges are integers ≥ 1.
+            The valid ranges are integers >= 1.
             Option valid only for 3D design.
             The default values is ``1``.
 
