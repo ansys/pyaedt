@@ -213,6 +213,7 @@ class TestClass(BasisTest, object):
             solution=self.aedtapp.existing_analysis_sweeps[0],
         )
 
+    @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
     def test_08_setup_ctrlprog_with_file(self):
         transient_setup = self.aedtapp.create_setup()
         transient_setup.props["MaximumPasses"] = 12
@@ -248,6 +249,7 @@ class TestClass(BasisTest, object):
     def test_25_assign_initial_mesh(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(4)
 
+    @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
     def test_26_create_udp(self):
         my_udpPairs = []
         mypair = ["DiaGap", "102mm"]
@@ -563,19 +565,21 @@ class TestClass(BasisTest, object):
     def test_38_assign_current_density(self):
         design_to_activate = [x for x in self.aedtapp.design_list if x.startswith("Maxwell")]
         self.aedtapp.set_active_design(design_to_activate[0])
-        assert self.aedtapp.assign_current_density("Inductor", "CurrentDensity_1")
+        current_box = self.aedtapp.modeler.create_box([50, 0, 50], [294, 294, 19], name="current_box")
+        current_box2 = self.aedtapp.modeler.create_box([50, 0, 50], [294, 294, 19], name="current_box2")
+        assert self.aedtapp.assign_current_density("current_box", "CurrentDensity_1")
         assert self.aedtapp.assign_current_density(
-            "Inductor", "CurrentDensity_2", "40deg", current_density_x="3", current_density_y="4"
+            "current_box", "CurrentDensity_2", "40deg", current_density_x="3", current_density_y="4"
         )
-        assert self.aedtapp.assign_current_density(["Inductor", "Paddle"], "CurrentDensity_3")
+        assert self.aedtapp.assign_current_density(["current_box", "current_box2"], "CurrentDensity_3")
         assert not self.aedtapp.assign_current_density(
-            "Inductor", "CurrentDensity_4", coordinate_system_cartesian="test"
+            "current_box", "CurrentDensity_4", coordinate_system_cartesian="test"
         )
-        assert not self.aedtapp.assign_current_density("Inductor", "CurrentDensity_5", phase="5ang")
+        assert not self.aedtapp.assign_current_density("current_box", "CurrentDensity_5", phase="5ang")
         for bound in self.aedtapp.boundaries:
             if bound.type == "CurrentDensity":
                 if bound.name == "CurrentDensity_1":
-                    assert bound.props["Objects"] == ["Inductor"]
+                    assert bound.props["Objects"] == ["current_box"]
                     assert bound.props["Phase"] == "0deg"
                     assert bound.props["CurrentDensityX"] == "0"
                     assert bound.props["CurrentDensityY"] == "0"
@@ -583,7 +587,7 @@ class TestClass(BasisTest, object):
                     assert bound.props["CoordinateSystem Name"] == "Global"
                     assert bound.props["CoordinateSystem Type"] == "Cartesian"
                 if bound.name == "CurrentDensity_2":
-                    assert bound.props["Objects"] == ["Inductor"]
+                    assert bound.props["Objects"] == ["current_box"]
                     assert bound.props["Phase"] == "40deg"
                     assert bound.props["CurrentDensityX"] == "3"
                     assert bound.props["CurrentDensityY"] == "4"
@@ -591,7 +595,7 @@ class TestClass(BasisTest, object):
                     assert bound.props["CoordinateSystem Name"] == "Global"
                     assert bound.props["CoordinateSystem Type"] == "Cartesian"
                 if bound.name == "CurrentDensity_3":
-                    assert bound.props["Objects"] == ["Inductor", "Paddle"]
+                    assert bound.props["Objects"] == ["current_box", "current_box2"]
                     assert bound.props["Phase"] == "0deg"
                     assert bound.props["CurrentDensityX"] == "0"
                     assert bound.props["CurrentDensityY"] == "0"

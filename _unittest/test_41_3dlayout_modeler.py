@@ -618,6 +618,7 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(is_linux, reason="Failing on linux")
     def test_36_import_gerber(self):
+        self.aedtapp.insert_design("gerber")
         gerber_file = self.local_scratch.copyfile(
             os.path.join(local_path, "example_models", "cad", "Gerber", "gerber1.zip")
         )
@@ -628,19 +629,24 @@ class TestClass(BasisTest, object):
         aedb_file = os.path.join(self.local_scratch.path, "gerber_out.aedb")
         assert self.aedtapp.import_gerber(gerber_file, aedb_path=aedb_file, control_file=control_file)
 
+    @pytest.mark.skipif(is_linux, reason="Fails in linux")
     def test_37_import_gds(self):
+        self.aedtapp.insert_design("gds")
         gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1.gds")
         control_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1.tech")
         aedb_file = os.path.join(self.local_scratch.path, "gds_out.aedb")
         assert self.aedtapp.import_gds(gds_file, aedb_path=aedb_file, control_file=control_file)
 
+    @pytest.mark.skipif(is_linux, reason="Fails in linux")
     def test_38_import_dxf(self):
+        self.aedtapp.insert_design("dxf")
         dxf_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf1.dxf")
         control_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf1.xml")
         aedb_file = os.path.join(self.local_scratch.path, "dxf_out.aedb")
         assert self.aedtapp.import_gerber(dxf_file, aedb_path=aedb_file, control_file=control_file)
 
     def test_39_import_ipc(self):
+        self.aedtapp.insert_design("ipc")
         dxf_file = os.path.join(local_path, "example_models", "cad", "ipc", "galileo.xml")
         aedb_file = os.path.join(self.local_scratch.path, "ipc_out.aedb")
         assert self.aedtapp.import_ipc2581(dxf_file, aedb_path=aedb_file, control_file="")

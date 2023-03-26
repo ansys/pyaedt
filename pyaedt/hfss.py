@@ -4439,8 +4439,9 @@ class Hfss(FieldAnalysis3D, object):
         # Find the number of analysis setups and output the info.
         msg = "Analysis setup messages:"
         val_list.append(msg)
-        setups = list(self.oanalysis.GetSetups())
+        setups = self.oanalysis.GetSetups()
         if setups:
+            setups = list(setups)
             msg = "Detected setup and sweep: "
             val_list.append(msg)
             for setup in setups:
