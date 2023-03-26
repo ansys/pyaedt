@@ -1334,3 +1334,111 @@ class Mesh(object):
         mop.create()
         self.meshoperations.append(mop)
         return mop
+
+    @pyaedt_function_handler()
+    def assign_cylindrical_gap(
+        self,
+        obj,
+        meshop_name=None,
+        band_mapping_angle=None,
+        clone_mesh=False,
+        moving_side_layers=1,
+        static_side_layers=1,
+    ):
+        """Assigns a cylindrical gap for 2D/3D designs to enable use of Clone Mesh and associated Band Mapping Angle.
+
+        Parameters
+        ----------
+        obj : int or str or :class:`pyaedt.modeler.object3d.Object3d`
+            Object to assign cylindrical gap to.
+        meshop_name : str, optional
+            Name of the mesh. The default is ``None``, in which
+            case the default name is used.
+        clone_mesh : bool, optional
+            Whether to clone the mesh.
+            If ``True`` the solid bodies adjacent to the band are detected to identify the clone object.
+            The default is ``False``.
+            Option valid only for 3D design.
+        band_mapping_angle : int, optional
+            Band mapping angle in deg.
+            The recommended band mapping angle (the angle the rotor rotates in one time step) typically
+            equals the rotational speed multiplied by the time step.
+            Band mapping angle must be between 0.0005 and 3 deg.
+            For 2D design if a value is provided the option ``Use band mapping angle``
+            is automatically enabled.
+            For 3D design ``Clone Mesh`` option has to be enabled first.
+            The default is ``None``.
+        moving_side_layers : int, optional
+            Number of mesh layers on the moving side.
+            The valid ranges are integers ≥ 1.
+            Option valid only for 3D design.
+            The default values is ``1``.
+        static_side_layers : int, optional
+            Number of mesh layers on the static Side.
+            The valid ranges are integers ≥ 1.
+            Option valid only for 3D design.
+            The default values is ``1``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Mesh.MeshOperation` or bool
+            Mesh operation object or False if it fails.
+
+        References
+        ----------
+
+        >>> oModule.AssignCylindricalGapOp
+        """
+        try:
+            obj = self.modeler.convert_to_selections(obj, True)
+            if len(obj) > 1:
+                self.logger.error("Cylindrical gap treatment cannot be assigned to multiple objects.")
+                raise ValueError
+            if [x for x in self.meshoperations if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"]:
+                self.logger.error("Cylindrical gap treatment cannot be assigned to multiple objects.")
+                raise ValueError
+            if band_mapping_angle and band_mapping_angle > 3:
+                self.logger.error("Band mapping angle must be between 0.0005 and 3 deg.")
+                raise ValueError
+            if not meshop_name:
+                meshop_name = generate_unique_name("CylindricalGap")
+
+            if self._app.design_type == "Maxwell 3D":
+                if moving_side_layers < 1:
+                    self.logger.error("Moving side layers must be an integer greater or equal to 1.")
+                    raise ValueError
+                if static_side_layers < 1:
+                    self.logger.error("Static side layers must be an integer greater or equal to 1.")
+                    raise ValueError
+                if clone_mesh and not band_mapping_angle:
+                    band_mapping_angle = 3
+                props = OrderedDict(
+                    {
+                        "Name": meshop_name,
+                        "Objects": obj,
+                        "CloneMesh": clone_mesh,
+                        "BandMappingAngle": str(band_mapping_angle) + "deg",
+                        "MovingSideLayers": moving_side_layers,
+                        "StaticSideLayers": static_side_layers,
+                    }
+                )
+            elif self._app.design_type == "Maxwell 2D":
+                if band_mapping_angle:
+                    use_band_mapping_angle = True
+                else:
+                    use_band_mapping_angle = False
+                    band_mapping_angle = 3
+                props = OrderedDict(
+                    {
+                        "Name": meshop_name,
+                        "Objects": obj,
+                        "UseBandMappingAngle": use_band_mapping_angle,
+                        "BandMappingAngle": str(band_mapping_angle) + "deg",
+                    }
+                )
+            mop = MeshOperation(self, meshop_name, props, "CylindricalGap")
+            mop.create()
+            self.meshoperations.append(mop)
+            return mop
+        except:
+            return False
