@@ -176,7 +176,7 @@ class TestClass(BasisTest, object):
             ffd_full_path=os.path.join(local_path, "example_models", test_subfolder, "test.ffd")
         )
 
-    @pytest.mark.skipif(is_ironpython, reason="Not supported.")
+    @pytest.mark.skipif(is_linux or is_ironpython, reason="Not supported.")
     def test_12_import_map(self):
         self.aedtapp.insert_design("city")
         ansys_home = [40.273726, -80.168269]

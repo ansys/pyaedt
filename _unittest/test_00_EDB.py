@@ -33,7 +33,7 @@ test_subfolder = "TEDB"
 @pytest.mark.skipif(config["skip_edb"], reason="Optional skip")
 class TestClass(BasisTest, object):
     def setup_class(self):
-        BasisTest.my_setup(self)
+        BasisTest.my_setup(self, launch_desktop=False)
         self.edbapp = BasisTest.add_edb(self, test_project_name, subfolder=test_subfolder)
         example_project = os.path.join(local_path, "example_models", test_subfolder, "example_package.aedb")
         self.target_path = os.path.join(self.local_scratch.path, "example_package.aedb")
@@ -2222,9 +2222,7 @@ class TestClass(BasisTest, object):
         simconfig.solver_type = SolverType.SiwaveSYZ
         simconfig.mesh_freq = "40.25GHz"
         edbapp.build_simulation_project(simconfig)
-        setup = list(edbapp.active_cell.SimulationSetups)[0]
-        setup_str = [t.strip("\n\t") for t in setup.ToString().split("\r")]
-        assert [f for f in setup_str if "MeshFrequency" in f][0].split("=")[-1].strip("'") == simconfig.mesh_freq
+        assert edbapp.siwave_ac_setups[simconfig.setup_name].mesh_frequency == simconfig.mesh_freq
 
     def test_134_create_port_between_pin_and_layer(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")

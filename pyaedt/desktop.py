@@ -14,7 +14,6 @@ import gc
 import logging
 import os
 import pkgutil
-import random
 import re
 import socket
 import sys
@@ -125,17 +124,10 @@ def _check_grpc_port(port, machine_name=""):
         return True
 
 
-def _find_free_port(port_start=40001, port_end=55000):
-    list_ports = random.sample(range(port_start, port_end), port_end - port_start)
-    s = socket.socket()
-    for port in list_ports:
-        try:
-            s.connect(("127.0.0.1", port))
-        except socket.error:
-            return port
-        else:
-            s.close()
-    return 0
+def _find_free_port():
+    with socket.socket() as s:
+        s.bind(("", 0))  # Bind to a free port provided by the host.
+        return s.getsockname()[1]  # Return the port number assigned.
 
 
 def exception_to_desktop(ex_value, tb_data):  # pragma: no cover
@@ -917,6 +909,8 @@ class Desktop(object):
         if settings.logger_file_path:
             self.logfile = settings.logger_file_path
         else:
+            if not project_dir:
+                project_dir = tempfile.gettempdir()
             self.logfile = os.path.join(
                 project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
             )

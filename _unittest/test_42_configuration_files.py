@@ -59,8 +59,8 @@ class TestClass(BasisTest, object):
         conf_file = self.aedtapp.configurations.export_config()
         assert os.path.exists(conf_file)
         filename = self.aedtapp.design_name
-        file_path = os.path.join(self.aedtapp.working_directory, filename + ".step")
-        self.aedtapp.export_3d_model(filename, self.aedtapp.working_directory, ".step", [], [])
+        file_path = os.path.join(self.aedtapp.working_directory, filename + ".x_t")
+        self.aedtapp.export_3d_model(filename, self.aedtapp.working_directory, ".x_t", [], [])
         app = Hfss(projectname="new_proj", solution_type=self.aedtapp.solution_type)
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
@@ -73,8 +73,8 @@ class TestClass(BasisTest, object):
         conf_file = self.q3dtest.configurations.export_config()
         assert os.path.exists(conf_file)
         filename = self.q3dtest.design_name
-        file_path = os.path.join(self.q3dtest.working_directory, filename + ".step")
-        self.q3dtest.export_3d_model(filename, self.q3dtest.working_directory, ".step", [], [])
+        file_path = os.path.join(self.q3dtest.working_directory, filename + ".x_t")
+        self.q3dtest.export_3d_model(filename, self.q3dtest.working_directory, ".x_t", [], [])
         app = Q3d(projectname="new_proj_Q3d")
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
@@ -87,8 +87,8 @@ class TestClass(BasisTest, object):
 
         assert os.path.exists(conf_file)
         filename = self.q2dtest.design_name
-        file_path = os.path.join(self.q2dtest.working_directory, filename + ".step")
-        self.q2dtest.export_3d_model(filename, self.q2dtest.working_directory, ".step", [], [])
+        file_path = os.path.join(self.q2dtest.working_directory, filename + ".x_t")
+        self.q2dtest.export_3d_model(filename, self.q2dtest.working_directory, ".x_t", [], [])
         app = Q2d(projectname="new_proj_Q2d")
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
@@ -170,7 +170,7 @@ class TestClass(BasisTest, object):
             vunit="",
         )
         filename = self.icepak_a.design_name
-        self.icepak_a.export_3d_model(filename, self.icepak_a.working_directory, ".step", [], [])
+        self.icepak_a.export_3d_model(filename, self.icepak_a.working_directory, ".x_t", [], [])
         assert self.icepak_a.configurations.options.export_monitor
         assert self.icepak_a.configurations.options.export_native_components
         assert self.icepak_a.configurations.options.export_datasets
@@ -182,7 +182,7 @@ class TestClass(BasisTest, object):
         )
         assert self.icepak_a.configurations.export_config()
         f.delete()
-        file_path = os.path.join(self.icepak_a.working_directory, filename + ".step")
+        file_path = os.path.join(self.icepak_a.working_directory, filename + ".x_t")
         app = Icepak(projectname="new_proj_Ipk_a")
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
@@ -228,7 +228,7 @@ class TestClass(BasisTest, object):
             vunit="",
         )
         filename = self.icepak_b.design_name
-        self.icepak_b.export_3d_model(filename, self.icepak_b.working_directory, ".step", [], [])
+        self.icepak_b.export_3d_model(filename, self.icepak_b.working_directory, ".x_t", [], [])
         fan = self.icepak_b.create_fan("test_fan")
         self.icepak_b.modeler.user_defined_components[fan.name].move([1, 2, 3])
         fan2 = self.icepak_b.modeler.user_defined_components[fan.name].duplicate_along_line([4, 5, 6])
@@ -248,7 +248,7 @@ class TestClass(BasisTest, object):
         )
         conf_file = self.icepak_b.configurations.export_config()
         assert os.path.exists(conf_file)
-        file_path = os.path.join(self.icepak_b.working_directory, filename + ".step")
+        file_path = os.path.join(self.icepak_b.working_directory, filename + ".x_t")
         app = Icepak(projectname="new_proj_Ipk")
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
@@ -265,7 +265,7 @@ class TestClass(BasisTest, object):
         assert setup2.props["ViaNumSides"] == 12
 
     def test_05b_hfss3dlayout_existing_setup(self):
-        setup2 = self.hfss3dl_b.get_setup("My_HFSS_Setup_2")
+        setup2 = self.hfss3dl_a.get_setup("My_HFSS_Setup_2")
         export_path = os.path.join(self.local_scratch.path, "export_setup_properties.json")
         assert setup2.export_to_json(export_path)
         setup3 = self.hfss3dl_b.create_setup("My_HFSS_Setup_3")
