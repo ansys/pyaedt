@@ -803,18 +803,19 @@ class EdbPadstacks(object):
         position = self._edb.Geometry.PointData(self._get_edb_value(position[0]), self._get_edb_value(position[1]))
         net = self._pedb.core_nets.find_or_create_net(net_name)
         rotation = self._get_edb_value(rotation * math.pi / 180)
-        sign_layers = list(self._pedb.stackup.signal_layers.keys())
+        sign_layers_values = {i: v for i, v in self._pedb.stackup.signal_layers.items()}
+        sign_layers = list(sign_layers_values.keys())
         if not fromlayer:
-            fromlayer = self._pedb.stackup.signal_layers[sign_layers[0]]._edb_layer
+            fromlayer = sign_layers_values[sign_layers[0]]._edb_layer
         else:
-            fromlayer = self._pedb.stackup.signal_layers[fromlayer]._edb_layer
+            fromlayer = sign_layers_values[fromlayer]._edb_layer
 
         if not tolayer:
-            tolayer = self._pedb.stackup.signal_layers[sign_layers[-1]]._edb_layer
+            tolayer = sign_layers_values[sign_layers[-1]]._edb_layer
         else:
-            tolayer = self._pedb.stackup.signal_layers[tolayer]._edb_layer
+            tolayer = sign_layers_values[tolayer]._edb_layer
         if solderlayer:
-            solderlayer = self._pedb.stackup.signal_layers[solderlayer]._edb_layer
+            solderlayer = sign_layers_values[solderlayer]._edb_layer
         if padstack:
             padstack_instance = self._edb.Cell.Primitive.PadstackInstance.Create(
                 self._active_layout,
