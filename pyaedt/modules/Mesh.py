@@ -1363,11 +1363,12 @@ class Mesh(object):
             Band mapping angle in deg.
             The recommended band mapping angle (the angle the rotor rotates in one time step) typically
             equals the rotational speed multiplied by the time step.
-            Band mapping angle must be between 0.0005 and 3 deg.
-            For 2D design if a value is provided the option ``Use band mapping angle``
-            is automatically enabled.
-            For 3D design ``Clone Mesh`` option has to be enabled first.
+            The band mapping angle must be between 0.0005 and 3 degrees.
             The default is ``None``.
+            
+            - For a 2D design, if a value is provided, the option ``Use band mapping angle``
+              is automatically enabled.
+            - For a 3D design, the ``Clone Mesh`` option has to be enabled first.
         moving_side_layers : int, optional
             Number of mesh layers on the moving side.
             The valid ranges are integers greater or equal to 1.
