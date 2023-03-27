@@ -839,6 +839,7 @@ class TestClass(BasisTest, object):
         plane = self.edbapp.core_primitives.create_polygon(plane_shape, "TOP", net_name="GND")
         void = self.edbapp.core_primitives.create_trace([["0", "0"], ["0", "1mm"]], layer_name="TOP", width="0.1mm")
         assert self.edbapp.core_primitives.add_void(plane, void)
+        assert plane.add_void(void)
 
     def test_078_create_solder_balls_on_component(self):
         assert self.edbapp.core_components.set_solder_ball("U2A5")
