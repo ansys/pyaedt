@@ -26,7 +26,7 @@ class Variable:
         return self._name
 
     @property
-    def value(self):
+    def value_string(self):
         """Get/Set the value of this variable.
 
         Returns
@@ -47,7 +47,7 @@ class Variable:
         return self._pedb.get_variable(self.name)
 
     @property
-    def value_number(self):
+    def value(self):
         """Get the value of this variable.
 
         Returns

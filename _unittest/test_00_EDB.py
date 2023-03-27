@@ -161,7 +161,7 @@ class TestClass(BasisTest, object):
 
         self.edbapp.add_design_variable("via_x", 5e-3)
         self.edbapp["via_y"] = "1mm"
-        assert self.edbapp["via_y"].value_number == 1e-3
+        assert self.edbapp["via_y"].value == 1e-3
         assert self.edbapp["via_y"].value_string == "1mm"
 
         assert self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y"], "myVia")
@@ -1037,9 +1037,9 @@ class TestClass(BasisTest, object):
 
     def test_097b_variables(self):
         self.edbapp["my_var_1"] = 0.01
-        assert self.edbapp["my_var_1"].value_number == 0.01
-        assert self.edbapp.variables["my_var_1"].value_number == 0.01
-        assert self.edbapp.variables["my_var_1"].value == "0.01"
+        assert self.edbapp["my_var_1"].value == 0.01
+        assert self.edbapp.variables["my_var_1"].value == 0.01
+        assert self.edbapp.variables["my_var_1"].value_string == "0.01"
         assert self.edbapp.variables["my_var_1"].value_object.tofloat == 0.01
         assert self.edbapp.variables
 
