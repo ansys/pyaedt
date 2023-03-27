@@ -14,6 +14,8 @@ It can be opened and edited using the ``Edb`` class.
    :toctree: _autosummary
 
    edb.Edb
+   edb_core.edb_data.variables.Variable
+   edb_core.edb_data.edbvalue.EdbValue
 
 
 .. code:: python

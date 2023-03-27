@@ -222,10 +222,11 @@ class Edb(object):
 
         Returns
         -------
+        :class:`pyaedt.edb_core.edb_data.variables.Variable`
 
         """
         if self.variable_exists(variable_name)[0]:
-            return self.get_variable(variable_name)
+            return self.variables[variable_name]
         return
 
     @pyaedt_function_handler()
@@ -348,7 +349,12 @@ class Edb(object):
 
     @property
     def design_variables(self):
-        """Get all design variables."""
+        """Get all edb design variables.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.edb_core.edb_data.variables.Variable`]
+        """
         d_var = dict()
         for i in self.active_cell.GetVariableServer().GetAllVariableNames():
             d_var[i] = Variable(self, i)
@@ -356,7 +362,13 @@ class Edb(object):
 
     @property
     def project_variables(self):
-        """Get all project variables."""
+        """Get all project variables.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.edb_core.edb_data.variables.Variable`]
+
+        """
         p_var = dict()
         for i in self.db.GetVariableServer().GetAllVariableNames():
             p_var[i] = Variable(self, i)
@@ -364,7 +376,13 @@ class Edb(object):
 
     @property
     def variables(self):
-        """Get all variables."""
+        """Get all Edb variables.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.edb_core.edb_data.variables.Variable`]
+
+        """
         all_vars = dict()
         for i, j in self.project_variables.items():
             all_vars[i] = j
