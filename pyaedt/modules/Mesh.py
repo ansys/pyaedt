@@ -1365,7 +1365,7 @@ class Mesh(object):
             equals the rotational speed multiplied by the time step.
             The band mapping angle must be between 0.0005 and 3 degrees.
             The default is ``None``.
-            
+
             - For a 2D design, if a value is provided, the option ``Use band mapping angle``
               is automatically enabled.
             - For a 3D design, the ``Clone Mesh`` option has to be enabled first.
