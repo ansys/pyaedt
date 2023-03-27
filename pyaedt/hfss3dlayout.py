@@ -2202,3 +2202,50 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             else:
                 df.merge(df_tmp, left_index=True, right_index=True, how="outer")
         return df
+
+    @pyaedt_function_handler
+    def show_extent(self, show=True):
+        """Show or hide extent in a HFSS3dLayout design.
+
+        Parameters
+        ----------
+        show: bool, optional
+            Whether to show or not the extent.
+            The default value is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` is successful, ``False`` if it fails.
+
+        """
+        try:
+            self.oeditor.SetHfssExtentsVisible(show)
+            return True
+        except:
+            return False
+
+    @pyaedt_function_handler
+    def change_options(self, color_by_net=True):
+        """Change options for an existing layout.
+
+        It changes design visualization by color.
+
+        Parameters
+        ----------
+        color_by_net: bool, optional
+            Whether visualize color by net or by layer.
+            The default value is ``True``, which means color by net.
+
+        Returns
+        -------
+        bool
+            ``True`` is successful, ``False`` if it fails.
+        """
+        try:
+            options = ["NAME:options", "ColorByNet:=", color_by_net, "CN:=", self.design_name]
+            oeditor = self.odesign.SetActiveEditor("Layout")
+            oeditor.ChangeOptions(options)
+            return True
+        except:
+            return False
