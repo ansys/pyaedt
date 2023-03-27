@@ -133,11 +133,12 @@ class BasisTest(object):
             except:
                 pass
         elif self.desktop:
-            for proj in self.desktop.project_list:
-                try:
-                    self.desktop.odesktop.CloseProject(proj)
-                except:
-                    pass
+            if self.desktop.project_list:
+                for proj in self.desktop.project_list:
+                    try:
+                        self.desktop.odesktop.CloseProject(proj)
+                    except:
+                        pass
         del self.edbapps
         del self.aedtapps
         self.desktop = None
