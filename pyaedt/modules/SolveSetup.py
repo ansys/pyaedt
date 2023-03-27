@@ -3045,7 +3045,7 @@ class SetupQ3D(Setup, object):
         arg = ["NAME:" + self.name]
         props1 = {i: v for i, v in self.props.items()}
         if not self.capacitance_enabled:
-            del props1["CAP"]
+            del props1["Cap"]
         if not self.ac_rl_enabled:
             del props1["AC"]
         if not self.dc_enabled:
