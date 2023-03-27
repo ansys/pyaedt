@@ -25,6 +25,7 @@ if config["desktopVersion"] > "2022.2":
 else:
     core_loss_file = "PlanarTransformer"
 transient = "Transient_StrandedWindings"
+cyl_gap = "Motor3D_cyl_gap"
 
 
 class TestClass(BasisTest, object):
@@ -792,4 +793,45 @@ class TestClass(BasisTest, object):
         assert not self.aedtapp.simplify_objects(input_objects_list="impedance_box", simplify_type="Invalid")
         assert not self.aedtapp.simplify_objects(
             input_objects_list="impedance_box", simplify_type="Polygon Fit", extrusion_axis="U"
+        )
+
+    def test_49_cylindrical_gap(self):
+        example_project = os.path.join(local_path, "example_models", test_subfolder, cyl_gap + ".aedt")
+        m3d = Maxwell3d(example_project, specified_version=desktop_version)
+        [
+            x.delete()
+            for x in m3d.mesh.meshoperations[:]
+            if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
+        ]
+        assert m3d.mesh.assign_cylindrical_gap("Band", meshop_name="cyl_gap_test")
+        assert not m3d.mesh.assign_cylindrical_gap(["Band", "Inner_Band"])
+        assert not m3d.mesh.assign_cylindrical_gap("Band")
+        [
+            x.delete()
+            for x in m3d.mesh.meshoperations[:]
+            if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
+        ]
+        assert m3d.mesh.assign_cylindrical_gap(
+            "Band", meshop_name="cyl_gap_test", clone_mesh=True, band_mapping_angle=1
+        )
+        [
+            x.delete()
+            for x in m3d.mesh.meshoperations[:]
+            if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
+        ]
+        assert m3d.mesh.assign_cylindrical_gap("Band", meshop_name="cyl_gap_test", clone_mesh=False)
+        [
+            x.delete()
+            for x in m3d.mesh.meshoperations[:]
+            if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
+        ]
+        assert m3d.mesh.assign_cylindrical_gap("Band")
+        assert not m3d.mesh.assign_cylindrical_gap(
+            "Band", meshop_name="cyl_gap_test", clone_mesh=True, band_mapping_angle=7
+        )
+        assert not m3d.mesh.assign_cylindrical_gap(
+            "Band", meshop_name="cyl_gap_test", clone_mesh=True, band_mapping_angle=2, moving_side_layers=0
+        )
+        assert not m3d.mesh.assign_cylindrical_gap(
+            "Band", meshop_name="cyl_gap_test", clone_mesh=True, band_mapping_angle=2, static_side_layers=0
         )
