@@ -1887,7 +1887,7 @@ class SimulationConfiguration(object):
     Defined the radiation box type, Conformal, Bounding box and COnvexHull are supported (HFSS only).
 
     >>> sim_setup.max_num_passes= 30
-    Default value is 30, specify the maximum number of adaptive passes (only HFSS). Reasonable high value is recommend
+    Default value is 30, specify the maximum number of adaptive passes (only HFSS). Reasonable high value is recommended
     to force the solver reaaching the convergence criteria.
 
     >>> sim_setup.max_mag_delta_s = 0.02
