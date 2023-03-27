@@ -800,7 +800,7 @@ class Edb(object):
 
         Returns
         -------
-        Instance of :class:`pyaedt.edb_core.nets.EdbNets`
+        :class:`pyaedt.edb_core.nets.EdbNets`
 
         Examples
         --------
