@@ -98,7 +98,7 @@ def which(program):
 def check_file(file_path):
     if not os.path.isfile(file_path):
         show_error(
-            '"{}" does not exist. Please run the "Install PyAEDT" button in the Automation ribbon.'.format(file_path)
+            '"{}" does not exist. Please click on the "Install PyAEDT" button in the Automation ribbon.'.format(file_path)
         )
 
 
