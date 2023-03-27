@@ -132,7 +132,12 @@ class BasisTest(object):
                 del self._main.desktop_pid
             except:
                 pass
-
+        elif self.desktop:
+            for proj in self.desktop.project_list:
+                try:
+                    self.desktop.odesktop.CloseProject(proj)
+                except:
+                    pass
         del self.edbapps
         del self.aedtapps
         self.desktop = None
