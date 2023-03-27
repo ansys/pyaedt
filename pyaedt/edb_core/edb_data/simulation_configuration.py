@@ -1830,7 +1830,7 @@ class SimulationConfiguration(object):
     treated as ratio but string value like "5mm" is also supported.
 
     >>> sim_setup.use_radiation_boundary = True
-    When ``True`` use radiation airbox boundary condition and perfect matal box when
+    When ``True`` use radiation airbox boundary condition and perfect metal box when
     set to ``False``. Default value is ``True``, using enclosed metal box will greatly change simulation results.
     Setting this parameter as ``False`` must be used cautiously.
 
