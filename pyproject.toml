@@ -58,7 +58,7 @@ tests = [
 ]
 doc = [
     "ansys-sphinx-theme==0.8.0",
-    "imageio==2.24.0",
+    "imageio==2.26.1",
     "imageio-ffmpeg==0.4.8",
     "ipython==8.8.0",
     "ipywidgets==8.0.4",
