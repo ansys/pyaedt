@@ -1841,7 +1841,7 @@ class SimulationConfiguration(object):
 
     >>> sim_setup.do_pin_group = False
     When circuit ports are used, setting to ``True`` will force to create pin groups on
-    components having pins belonging to samme net. Setting to ``False`` will generate port  on each signal pin with
+    components having pins belonging to same net. Setting to ``False`` will generate port on each signal pin with
     taking the closest reference pin. The last configuration is more often used when users are creating ports on PDN
     (Power delivery Network) and want to connect all pins individually.
 
