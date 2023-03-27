@@ -1355,10 +1355,9 @@ class Mesh(object):
             Name of the mesh. The default is ``None``, in which
             case the default name is used.
         clone_mesh : bool, optional
-            Whether to clone the mesh.
-            If ``True`` the solid bodies adjacent to the band are detected to identify the clone object.
-            The default is ``False``.
-            Option valid only for 3D design.
+            Whether to clone the mesh. This parameter is valid only for 3D design.
+            The default is ``False``. If ``True``, the solid bodies adjacent to the band
+            are detected to identify the clone object.
         band_mapping_angle : int, optional
             Band mapping angle in degrees.
             The recommended band mapping angle (the angle the rotor rotates in one time step) typically
