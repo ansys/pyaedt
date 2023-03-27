@@ -1776,7 +1776,7 @@ class SimulationConfiguration(object):
     on them and will be clipped during the project build if the cutout option is enabled.
 
     >>> sim_setup.components = ["comp1", "comp2"]
-    setting the list of compoentns which will be included in the simulation. These component will have ports created on
+    setting the list of components which will be included in the simulation. These components will have ports created on
     pins belonging to the net list.
 
     >>> sim_setup.do_cutout_subdesign = True
