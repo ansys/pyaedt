@@ -1814,7 +1814,7 @@ class SimulationConfiguration(object):
     leaving this parameter blank will oervwritte the current open edb.
 
     >>>  sim_setup.dielectric_extent = 0.01
-    Gives the dielectric extent after cutout, keeping default value is adivised unless for
+    Gives the dielectric extent after cutout, keeping default value is advised unless for
     very specific application.
 
     >>> sim_setup.airbox_horizontal_extent = "5mm"
