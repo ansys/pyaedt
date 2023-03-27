@@ -428,7 +428,7 @@ class EDBPrimitives(object):
                 self._app.active_layout, self.layer_name, self.primitive_object.GetNet(), _poly
             )
         elif isinstance(point_list, EDBPrimitives):
-            prim = point_list.polygon_data
+            prim = point_list.primitive_object
         else:
             prim = point_list
         return self.primitive_object.AddVoid(prim)
