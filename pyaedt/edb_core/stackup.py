@@ -239,7 +239,7 @@ class Stackup(object):
 
         Returns
         -------
-        :class:Ansys.Ansoft.Edb.Cell.LayerCollection
+        :class:`Ansys.Ansoft.Edb.Cell.LayerCollection`
             Collection of layers.
         """
         if not self.__layer_collection:
