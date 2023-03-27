@@ -1888,7 +1888,7 @@ class SimulationConfiguration(object):
 
     >>> sim_setup.max_num_passes= 30
     Default value is 30, specify the maximum number of adaptive passes (only HFSS). Reasonable high value is recommended
-    to force the solver reaaching the convergence criteria.
+    to force the solver reaching the convergence criteria.
 
     >>> sim_setup.max_mag_delta_s = 0.02
     Define the convergence criteria
