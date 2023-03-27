@@ -86,6 +86,6 @@ class Variable:
         --------
         >>> from pyaedt import Edb
         >>> edb = Edb()
-        >>> edb.["new_variable"].delete()
+        >>> edb.design_variables["new_variable"].delete()
         """
         return self._var_server.DeleteVariable(self.name)
