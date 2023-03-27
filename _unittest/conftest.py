@@ -134,7 +134,8 @@ class BasisTest(object):
                 pass
         elif self.desktop:
             if self.desktop.project_list:
-                for proj in self.desktop.project_list:
+                proj_list = [i for i in self.desktop.project_list]
+                for proj in proj_list:
                     try:
                         self.desktop.odesktop.CloseProject(proj)
                     except:
