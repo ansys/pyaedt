@@ -133,11 +133,18 @@ class BasisTest(object):
             except:
                 pass
         elif self.desktop:
-            if self.desktop.project_list:
-                proj_list = [i for i in self.desktop.project_list]
+            try:
+                oDesktop = self._main.oDesktop
+                proj_list = oDesktop.GetProjectList()
+            except Exception as e:
+                oDesktop = None
+                proj_list = []
+            if oDesktop and not settings.non_graphical:
+                oDesktop.ClearMessages("", "", 3)
+            if proj_list:
                 for proj in proj_list:
                     try:
-                        self.desktop.odesktop.CloseProject(proj)
+                        oDesktop.CloseProject(proj)
                     except:
                         pass
         del self.edbapps
