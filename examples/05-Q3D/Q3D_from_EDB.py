@@ -11,9 +11,13 @@ Q3D Extractor and run a simulation starting from an EDB Project.
 # Perform required imports.
 import os
 import tempfile
-
 import pyaedt
 
+
+###############################################################################
+# Setup project files and path
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Download of needed project file and setup of temporary project directory.
 project_dir = tempfile.gettempdir()
 aedb_project = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb')
 
@@ -21,9 +25,22 @@ project_name = pyaedt.generate_unique_name("HSD")
 output_edb = os.path.join(project_dir, project_name + '.aedb')
 output_q3d = os.path.join(project_dir, project_name + '_q3d.aedt')
 
+
+###############################################################################
+# Open EDB
+# ~~~~~~~~
+# Open the edb project and created a cutout on the selected nets
+# before exporting to Q3D.
 edb = pyaedt.Edb(aedb_project, edbversion="2023.1")
 edb.create_cutout_multithread(["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"], ["GND"], output_aedb_path=output_edb,
                               use_pyaedt_extent_computing=True, )
+
+
+###############################################################################
+# Identify pins position
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Identify pins location on the components to define where to assign sources
+# and sinks in Q3D.
 
 pin_u13_scl = [i for i in edb.core_components.components["U13"].pins.values() if i.net_name == "CLOCK_I2C_SCL"]
 pin_u1_scl = [i for i in edb.core_components.components["U1"].pins.values() if i.net_name == "CLOCK_I2C_SCL"]
@@ -42,10 +59,22 @@ location_u13_sda.append(edb.core_components.components["U13"].upper_elevation * 
 location_u1_sda = [i * 1000 for i in pin_u1_sda[0].position[::]]
 location_u1_sda.append(edb.core_components.components["U1"].upper_elevation * 1000)
 
+###############################################################################
+# Save and close Edb
+# ~~~~~~~~~~~~~~~~~~
+# Save, close Edb and open it in Hfss 3D Layout to generate the 3D model.
+
 edb.save_edb()
 edb.close_edb()
 
 h3d = pyaedt.Hfss3dLayout(output_edb, specified_version="2023.1")
+
+###############################################################################
+# Export to Q3D
+# ~~~~~~~~~~~~~
+# Create a dummy setup and expor the layout in Q3D.
+# keep_net_name will reassign Q3D nets names from Hfss 3D Layout.
+
 setup = h3d.create_setup()
 setup.export_to_q3d(output_q3d, keep_net_name=True)
 
