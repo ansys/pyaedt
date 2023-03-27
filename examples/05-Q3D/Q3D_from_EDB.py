@@ -11,14 +11,17 @@ Q3D Extractor and run a simulation starting from an EDB Project.
 # Perform required imports.
 import os
 import tempfile
-from pyaedt import Edb, Hfss3dLayout, Q3d
+
+import pyaedt
 
 project_dir = tempfile.gettempdir()
+aedb_project = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb')
 
-edb = Edb(r'C:\ansysdev\Models\aedb\ANSYS-HSD_V1.aedb', edbversion="2023.1")
+project_name = pyaedt.generate_unique_name("HSD")
+output_edb = os.path.join(project_dir, project_name + '.aedb')
+output_q3d = os.path.join(project_dir, project_name + '_q3d.aedt')
 
-output_edb = os.path.join(project_dir, 'hsd1.aedb')
-output_q3d = os.path.join(project_dir, 'hds1_q3d.aedt')
+edb = pyaedt.Edb(aedb_project, edbversion="2023.1")
 edb.create_cutout_multithread(["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"], ["GND"], output_aedb_path=output_edb,
                               use_pyaedt_extent_computing=True, )
 
@@ -27,10 +30,6 @@ pin_u1_scl = [i for i in edb.core_components.components["U1"].pins.values() if i
 pin_u13_sda = [i for i in edb.core_components.components["U13"].pins.values() if i.net_name == "CLOCK_I2C_SDA"]
 pin_u1_sda = [i for i in edb.core_components.components["U1"].pins.values() if i.net_name == "CLOCK_I2C_SDA"]
 
-location_u13_scl = []
-location_u1_scl = []
-location_u13_sda = []
-location_u1_sda = []
 location_u13_scl = [i * 1000 for i in pin_u13_scl[0].position[::]]
 location_u13_scl.append(edb.core_components.components["U13"].upper_elevation * 1000)
 
@@ -46,12 +45,12 @@ location_u1_sda.append(edb.core_components.components["U1"].upper_elevation * 10
 edb.save_edb()
 edb.close_edb()
 
-h3d = Hfss3dLayout(output_edb, specified_version="2023.1")
+h3d = pyaedt.Hfss3dLayout(output_edb, specified_version="2023.1")
 setup = h3d.create_setup()
 setup.export_to_q3d(output_q3d, keep_net_name=True)
 
 h3d.close_project()
-q3d = Q3d(output_q3d)
+q3d = pyaedt.Q3d(output_q3d)
 
 q3d.plot(show=False, export_path=os.path.join(q3d.working_directory, "Q3D.jpg"), plot_air_objects=False)
 
