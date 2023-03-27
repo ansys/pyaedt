@@ -1345,7 +1345,7 @@ class Mesh(object):
         moving_side_layers=1,
         static_side_layers=1,
     ):
-        """Assign a cylindrical gap for 2D/3D designs to enable use of Clone Mesh and associated Band Mapping Angle.
+        """Assign a cylindrical gap for a 2D or 3D design to enable a clone mesh and associated band mapping angle.
 
         Parameters
         ----------
