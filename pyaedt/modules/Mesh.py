@@ -1440,9 +1440,9 @@ class Mesh(object):
                         "BandMappingAngle": str(band_mapping_angle) + "deg",
                     }
                 )
-            mop = MeshOperation(self, meshop_name, props, "CylindricalGap")
-            mop.create()
-            self.meshoperations.append(mop)
-            return mop
+            mesh_operation = MeshOperation(self, meshop_name, props, "CylindricalGap")
+            mesh_operation.create()
+            self.meshoperations.append(mesh_operation)
+            return mesh_operation
         except:
             return False
