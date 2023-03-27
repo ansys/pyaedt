@@ -1884,7 +1884,7 @@ class SimulationConfiguration(object):
 
     >>> from pyaedt.generic.constants import RadiationBoxType
     >>> sim_setup.radiation_box = RadiationBoxType.ConvexHull
-    Defined the radiation box type, Conformal, Bounding box and COnvexHull are supported (HFSS only).
+    Defined the radiation box type, Conformal, Bounding box and ConvexHull are supported (HFSS only).
 
     >>> sim_setup.max_num_passes= 30
     Default value is 30, specify the maximum number of adaptive passes (only HFSS). Reasonable high value is recommended
