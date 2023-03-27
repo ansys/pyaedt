@@ -1374,7 +1374,7 @@ class Mesh(object):
             Option valid only for 3D design.
             The default values is ``1``.
         static_side_layers : int, optional
-            Number of mesh layers on the static Side.
+            Number of mesh layers on the static side.
             The valid ranges are integers >= 1.
             Option valid only for 3D design.
             The default values is ``1``.
