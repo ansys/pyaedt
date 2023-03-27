@@ -2096,8 +2096,11 @@ class Primitives3D(Primitives, object):
             union_polyline2 = []
         union_polyline = union_polyline1 + union_polyline2
         list_positions = []
-        for i in range(len(union_polyline)):
-            list_positions = list_positions + self.get_vertices_of_line(union_polyline[i])
+        for i, p in enumerate(union_polyline):
+            if i == 0:
+                list_positions.extend(self.get_vertices_of_line(p))
+            else:
+                list_positions.extend(self.get_vertices_of_line(p)[1:])
         self.delete(union_polyline)
 
         if sep_layer:

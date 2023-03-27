@@ -999,6 +999,7 @@ class VariableManager(object):
                     ],
                 ]
             )
+            self._clean_variable_from_dicts(variable_name)
         var_list = self._get_var_list_from_aedt(desktop_object)
         lower_case_vars = [var_name.lower() for var_name in var_list]
         if variable_name.lower() not in lower_case_vars:
@@ -1083,10 +1084,19 @@ class VariableManager(object):
                         ],
                     ]
                 )
-                return True
-            except:
+            except:  # pragma: no cover
                 pass
+            else:
+                self._clean_variable_from_dicts(var_name)
+                return True
         return False
+
+    @pyaedt_function_handler()
+    def _clean_variable_from_dicts(self, variable_name):
+        if variable_name in self._dependent_variables:
+            del self._dependent_variables[variable_name]
+        if variable_name in self._independent_variables:
+            del self._independent_variables[variable_name]
 
     @pyaedt_function_handler()
     def _get_var_list_from_aedt(self, desktop_object):

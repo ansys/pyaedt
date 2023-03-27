@@ -3551,7 +3551,9 @@ class Design(AedtObjects):
                 raise ("Invalid string expression {}".expression_string)
 
             # Extract the numeric value of the expression (in SI units!)
-            return self._variable_manager.variables["pyaedt_evaluator"].value
+            eval_value = self._variable_manager.variables["pyaedt_evaluator"].value
+            self._variable_manager.delete_variable("pyaedt_evaluator")
+            return eval_value
 
     @pyaedt_function_handler()
     def design_variation(self, variation_string=None):
