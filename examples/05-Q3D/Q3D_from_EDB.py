@@ -16,25 +16,25 @@ from pyaedt import Edb, Hfss3dLayout, Q3d
 project_dir = tempfile.gettempdir()
 
 edb = Edb(r'C:\ansysdev\Models\aedb\ANSYS-HSD_V1.aedb', edbversion="2023.1")
-output_edb = r'c:\temp\test_hsd1.aedb'
-output_q3d = r'c:\temp\test_q3d.aedt'
+
+output_edb = os.path.join(project_dir, 'hsd1.aedb')
+output_q3d = os.path.join(project_dir, 'hds1_q3d.aedt')
 edb.create_cutout_multithread(["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"], ["GND"], output_aedb_path=output_edb,
                               use_pyaedt_extent_computing=True, )
 
-
-pin_u13_scl = [i for i in edb.core_components.components["U13"].pins.values() if i.net_name=="CLOCK_I2C_SCL"]
-pin_u1_scl = [i for i in edb.core_components.components["U1"].pins.values() if i.net_name=="CLOCK_I2C_SCL"]
-pin_u13_sda = [i for i in edb.core_components.components["U13"].pins.values() if i.net_name=="CLOCK_I2C_SDA"]
-pin_u1_sda = [i for i in edb.core_components.components["U1"].pins.values() if i.net_name=="CLOCK_I2C_SDA"]
+pin_u13_scl = [i for i in edb.core_components.components["U13"].pins.values() if i.net_name == "CLOCK_I2C_SCL"]
+pin_u1_scl = [i for i in edb.core_components.components["U1"].pins.values() if i.net_name == "CLOCK_I2C_SCL"]
+pin_u13_sda = [i for i in edb.core_components.components["U13"].pins.values() if i.net_name == "CLOCK_I2C_SDA"]
+pin_u1_sda = [i for i in edb.core_components.components["U1"].pins.values() if i.net_name == "CLOCK_I2C_SDA"]
 
 location_u13_scl = []
 location_u1_scl = []
 location_u13_sda = []
 location_u1_sda = []
-location_u13_scl = [i*1000 for i in pin_u13_scl[0].position[::]]
+location_u13_scl = [i * 1000 for i in pin_u13_scl[0].position[::]]
 location_u13_scl.append(edb.core_components.components["U13"].upper_elevation * 1000)
 
-location_u1_scl = [i*1000 for i in pin_u1_scl[0].position[::]]
+location_u1_scl = [i * 1000 for i in pin_u1_scl[0].position[::]]
 location_u1_scl.append(edb.core_components.components["U1"].upper_elevation * 1000)
 
 location_u13_sda = [i * 1000 for i in pin_u13_sda[0].position[::]]
@@ -43,10 +43,8 @@ location_u13_sda.append(edb.core_components.components["U13"].upper_elevation * 
 location_u1_sda = [i * 1000 for i in pin_u1_sda[0].position[::]]
 location_u1_sda.append(edb.core_components.components["U1"].upper_elevation * 1000)
 
-
 edb.save_edb()
 edb.close_edb()
-
 
 h3d = Hfss3dLayout(output_edb, specified_version="2023.1")
 setup = h3d.create_setup()
@@ -73,9 +71,9 @@ sweep = setup.add_sweep()
 sweep.add_subrange("LinearStep", 0, end=2, count=0.05, unit="GHz", save_single_fields=False, clear=True)
 traces_acl = q3d.post.available_report_quantities(quantities_category="ACL Matrix")
 traces_acr = q3d.post.available_report_quantities(quantities_category="ACR Matrix")
-solution = q3d.post .get_solution_data(traces_acl)
+solution = q3d.post.get_solution_data(traces_acl)
 solution.plot()
 
-solution2 = q3d.post .get_solution_data(traces_acr)
+solution2 = q3d.post.get_solution_data(traces_acr)
 solution2.plot()
 q3d.release_desktop()
