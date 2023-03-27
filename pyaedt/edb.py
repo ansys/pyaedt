@@ -913,10 +913,10 @@ class Edb(object):
         var_names = var_server_db.GetAllVariableNames()
         var_server_cell = self.active_cell.GetVariableServer()
         var_names_cell = var_server_cell.GetAllVariableNames()
-        if set(val_decomposed).intersection(var_names):
-            return self.edb.Utility.Value(val, var_server_db)
         if set(val_decomposed).intersection(var_names_cell):
             return self.edb.Utility.Value(val, var_server_cell)
+        if set(val_decomposed).intersection(var_names):
+            return self.edb.Utility.Value(val, var_server_db)
         return self.edb.Utility.Value(val)
 
     @pyaedt_function_handler()

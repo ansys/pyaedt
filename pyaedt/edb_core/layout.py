@@ -488,7 +488,7 @@ class EdbLayout(object):
 
         Returns
         -------
-        pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives
+        :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`
         """
         path = self.Shape("Polygon", points=path_list)
         primitive = self._create_path(

@@ -410,7 +410,7 @@ class EDBPrimitives(object):
 
         Parameters
         ----------
-        point_list : list
+        point_list : list or  :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives` or EDB Primitive Object
             Point list in the format of `[[x1,y1], [x2,y2],..,[xn,yn]]`.
 
         Returns
@@ -418,14 +418,19 @@ class EDBPrimitives(object):
         bool
             ``True`` if successful, either  ``False``.
         """
-        plane = self._app.core_primitives.Shape("polygon", points=point_list)
-        _poly = self._app.core_primitives.shape_to_polygon_data(plane)
-        if _poly is None or _poly.IsNull() or _poly is False:
-            self._logger.error("Failed to create void polygon data")
-            return False
-        prim = self._app.edb.Cell.Primitive.Polygon.Create(
-            self._app.active_layout, self.layer_name, self.primitive_object.GetNet(), _poly
-        )
+        if isinstance(point_list, list):
+            plane = self._app.core_primitives.Shape("polygon", points=point_list)
+            _poly = self._app.core_primitives.shape_to_polygon_data(plane)
+            if _poly is None or _poly.IsNull() or _poly is False:
+                self._logger.error("Failed to create void polygon data")
+                return False
+            prim = self._app.edb.Cell.Primitive.Polygon.Create(
+                self._app.active_layout, self.layer_name, self.primitive_object.GetNet(), _poly
+            )
+        elif isinstance(point_list, EDBPrimitives):
+            prim = point_list.polygon_data
+        else:
+            prim = point_list
         return self.primitive_object.AddVoid(prim)
 
     @pyaedt_function_handler()
