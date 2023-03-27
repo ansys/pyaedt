@@ -1382,7 +1382,7 @@ class Mesh(object):
         Returns
         -------
         :class:`pyaedt.modules.Mesh.MeshOperation` or bool
-            Mesh operation object or False if it fails.
+            Mesh operation object or ``False`` if it fails.
 
         References
         ----------
