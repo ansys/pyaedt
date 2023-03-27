@@ -1360,7 +1360,7 @@ class Mesh(object):
             The default is ``False``.
             Option valid only for 3D design.
         band_mapping_angle : int, optional
-            Band mapping angle in deg.
+            Band mapping angle in degrees.
             The recommended band mapping angle (the angle the rotor rotates in one time step) typically
             equals the rotational speed multiplied by the time step.
             The band mapping angle must be between 0.0005 and 3 degrees.
