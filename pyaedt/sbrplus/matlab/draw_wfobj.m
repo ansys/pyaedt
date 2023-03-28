@@ -7,7 +7,7 @@ function hs = draw_wfobj(obj,alpha,face_clr,edge_clr,skip_mtl,do_light)
 %  alpha        (dbl) alpha-channel opacity, 1.0 = totally opaque (DEFAULT)
 %  face_clr (1x3 dbl) face color {[R G B], MATLAB color string, 'none', 'flat'}
 %            OR (str) MATLAB color string can be a preset color, its short
-%                     name, or a hex RGB color string (e.g., 'red','g',
+%                     name, or a hex RGB color string (e.g., 'red', 'g',
 %                     '#ff0088'), set to 'flat' (DEFAULT) to color according
 %                     to diffuse color data as found in MTL file referenced in
 %                     the OBJ file (see ld_wfobj() )

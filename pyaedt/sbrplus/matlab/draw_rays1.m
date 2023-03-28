@@ -12,26 +12,26 @@ function rndrCfg = draw_rays1(rayhdm,idxTrack,rndrCfg,newFig)
 %                     ignored, DEFAULT = [] = render all ray tracks
 %
 %  rndrCfg (struct) rendering controls
-%   .colorBy   (str) {'depth','Nrefl','Ntrans'} DEFAULT = 'depth'
+%   .colorBy   (str) {'depth', 'Nrefl', 'Ntrans'} DEFAULT = 'depth'
 %                    controls color for ray lines, hit points, and footprints,
 %                    unless overridden by .colorByField
 %
-%   .colorByFld (str) {'Einc','Hrefl','Jtot','Mtrans', etc., or 'dist'}
+%   .colorByFld (str) {'Einc', 'Hrefl', 'Jtot', 'Mtrans', etc., or 'dist'}
 %                     activates coloring ray footprints and hit points
 %                     according to E or H field, in general any combination
-%                     of {'E','H','J','M'} prefix and {'inc','refl','trans',
-%                     'ir','tot'} suffix is supported, where 'ir' adds inc
-%                     and refl fields and 'tot' further adds trans fields
-%                     (if applicable), 'dist' colors by propagation distance
-%                     from source, DEFAULT = empty = fall back to .colorBy
-%                     property
+%                     of {'E', 'H', 'J', 'M'} prefix and {'inc', 'refl',
+%                     'trans', 'ir', 'tot'} suffix is supported, where 'ir'
+%                     adds inc and refl fields and 'tot' further adds trans
+%                     fields (if applicable), 'dist' colors by propagation
+%                     distance from source, DEFAULT = empty = fall back to
+%                     .colorBy property
 %
-%   .fldComp   (str) {'c','x','y','z','-x', etc.}: composite, Fx, Fy, Fz,
-%                    use '-' prefix for -Fx, etc., which is useful for phase,
-%                    DEFAULT = 'c'
+%   .fldComp   (str) {'c', 'x', 'y', 'z', '-x', etc.}:
+%                    composite, Fx, Fy, Fz, use '-' prefix for -Fx, etc.,
+%                    which is useful for phase, DEFAULT = 'c'
 %
-%   .fldScale  (str) {'r','i','m','pw','d','ph'}: real, imag, mag, power, dB,
-%                    phase, DEFAULT = dB
+%   .fldScale  (str) {'r', 'i', 'm', 'pw', 'd', 'ph'}:
+%                    real, imag, mag, power, dB, phase, DEFAULT = dB
 %
 %   .ifreq     (int) frequency index when coloring ray footprints and hit
 %                    points by field levels, DEFAULT = 1, 
@@ -46,7 +46,7 @@ function rndrCfg = draw_rays1(rayhdm,idxTrack,rndrCfg,newFig)
 %                    hit points
 %
 %   .fpFaceClr (1x3 dbl) ray footprint face color {[R G B], MATLAB color
-%               OR (str) string, 'none','flat'}, MATLAB color string can be
+%               OR (str) string, 'none', 'flat'}, MATLAB color string can be
 %                        a preset color or its short name (e.g., 'red', 'g')
 %                        or a hex RGB color code string (e.g., '#ff0088'),
 %                        set to 'flat' to follow .colorBy or .colorByFld,

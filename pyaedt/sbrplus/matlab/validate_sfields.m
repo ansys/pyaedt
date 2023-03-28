@@ -8,7 +8,7 @@ function [s_out bad_flds] = validate_sfields(s_in,valid_flds,var_nm)
 % Input Params:
 %  s_in         (struct) structure to be tested
 %  valid_flds (1xN cell) cell array of valid field name strings (char arrays)
-%                        Ex: {'Name','Address','email'}
+%                        Ex: {'Name', 'Address', 'email'}
 %
 %  var_nm          (str) var name of structure being tested, used to issue a
 %                        generic warning message that includes the var name

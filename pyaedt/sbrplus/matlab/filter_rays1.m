@@ -81,7 +81,7 @@ function fltrCfg = filter_rays1(rayhdm,fltrCfg)
 %                        terminating or escaping, track branch-level filter,
 %                        DEFAULT = [0 1000000]
 %
-%   .trackType {1xN cell} a cell array of strings {'SBR','UTD'} for ray track
+%   .trackType {1xN cell} a cell array of strings {'SBR', 'UTD'} for ray track
 %                OR (str) types to include, DEFAULT = [] = include all types,
 %                         accepts simple char string to specify a single type
 %
@@ -104,13 +104,13 @@ function fltrCfg = filter_rays1(rayhdm,fltrCfg)
 % | Field Name |     Type     |                Allowed Values                 |
 % |            |              |    entry before semicolon is the default      |
 % |============+==============+===============================================+
-% | depthRng   |    1x2 int   | [0 1000000]; [min max], min,max:[0,inf)       |
+% | depthRng   |    1x2 int   | [0 1000000]; [min max], min,max:[0, inf)      |
 % | rDepthRng  |    1x2 int   | same                                          |
 % | tDepthRng  |    1x2 int   | same                                          |
 % | NreflRng   |    1x2 int   | same                                          |
 % | NtransRng  |    1x2 int   | same                                          |
-% | trackType  | 1xN cell/str | [] (all types); SBR, UTD, {SBR,UTD}           |
-% | idxAng     |    1xM int   | [] (all angles); [0,inf)                      |
+% | trackType  | 1xN cell/str | [] (all types); SBR, UTD, {SBR, UTD}          |
+% | idxAng     |    1xM int   | [] (all angles); [0, inf)                     |
 % =============================================================================
 %
 % fltrCfg = FILTER_RAYS1(rayhdm[,fltrCfg])
