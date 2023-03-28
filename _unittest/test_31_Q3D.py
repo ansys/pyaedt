@@ -339,15 +339,36 @@ class TestClass(BasisTest, object):
     def test_14_export_equivalent_circuit(self):
         q3d = Q3d(self.test_matrix, specified_version=desktop_version)
         q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest")
-        q3d.matrices[1].name == "JointTest"
+        assert q3d.matrices[1].name == "JointTest"
+        q3d["d"] = "10mm"
+        q3d.modeler.duplicate_along_line(objid="Box1", vector=[0, "d", 0])
         q3d.analyze_setup(q3d.active_setup)
-        assert q3d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.cir"))
+        assert q3d.export_equivalent_circuit(
+            os.path.join(self.local_scratch.path, "test_export_circuit.cir"), variations=["d: 10mm"]
+        )
         assert not q3d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.doc"))
+        q3d["d"] = "20mm"
+        assert not q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            setup_name="Setup1",
+            sweep="LastAdaptive",
+            variations=["d: 10mm", "d: 20mm"],
+        )
+        q3d.analyze_setup(q3d.active_setup)
         assert q3d.export_equivalent_circuit(
             file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
             setup_name="Setup1",
             sweep="LastAdaptive",
+            variations=["d: 10mm", "d: 20mm"],
         )
+
+        assert not q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            setup_name="Setup1",
+            sweep="LastAdaptive",
+            variations=["c: 10mm", "d: 20mm"],
+        )
+
         assert not q3d.export_equivalent_circuit(
             file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), setup_name="Setup2"
         )
