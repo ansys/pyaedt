@@ -1824,11 +1824,10 @@ class SetupHFSS(Setup, object):
     @pyaedt_function_handler()
     def create_linear_step_sweep(
         self,
-        setupname,
-        unit,
-        freqstart,
-        freqstop,
-        step_size,
+        unit="GHz",
+        freqstart=0.1,
+        freqstop=2,
+        step_size=0.05,
         sweepname=None,
         save_fields=True,
         save_rad_fields=False,
@@ -1838,8 +1837,6 @@ class SetupHFSS(Setup, object):
 
         Parameters
         ----------
-        setupname : str
-            Name of the setup.
         unit : str
             Unit of the frequency. For example, ``"MHz`` or ``"GHz"``.
         freqstart : float
@@ -1875,8 +1872,7 @@ class SetupHFSS(Setup, object):
         named ``"LinearStepSweep"``.
 
         >>> setup = hfss.create_setup("LinearStepSetup")
-        >>> linear_step_sweep = hfss.create_linear_step_sweep(setupname="LinearStepSetup",
-        ...                                                   sweepname="LinearStepSweep",
+        >>> linear_step_sweep = setup.create_linear_step_sweep(sweepname="LinearStepSweep",
         ...                                                   unit="MHz", freqstart=1.1e3,
         ...                                                   freqstop=1200.1, step_size=153.8)
         >>> type(linear_step_sweep)
@@ -1888,44 +1884,35 @@ class SetupHFSS(Setup, object):
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
 
-        if setupname not in self._app.setup_names:
+        if sweepname in [sweep.name for sweep in self.sweeps]:
+            oldname = sweepname
+            sweepname = generate_unique_name(oldname)
+            self._app.logger.warning("Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
+        sweepdata = self.add_sweep(sweepname, sweep_type)
+        if not sweepdata:
             return False
-        for s in self._app.setups:
-            if s.name == setupname:
-                setupdata = s
-                if sweepname in [sweep.name for sweep in setupdata.sweeps]:
-                    oldname = sweepname
-                    sweepname = generate_unique_name(oldname)
-                    self._app.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
-                    )
-                sweepdata = setupdata.add_sweep(sweepname, sweep_type)
-                if not sweepdata:
-                    return False
-                sweepdata.props["RangeType"] = "LinearStep"
-                sweepdata.props["RangeStart"] = str(freqstart) + unit
-                sweepdata.props["RangeEnd"] = str(freqstop) + unit
-                sweepdata.props["RangeStep"] = str(step_size) + unit
-                sweepdata.props["SaveFields"] = save_fields
-                sweepdata.props["SaveRadFields"] = save_rad_fields
-                sweepdata.props["ExtrapToDC"] = False
-                sweepdata.props["Type"] = sweep_type
-                if sweep_type == "Interpolating":
-                    sweepdata.props["InterpTolerance"] = 0.5
-                    sweepdata.props["InterpMaxSolns"] = 250
-                    sweepdata.props["InterpMinSolns"] = 0
-                    sweepdata.props["InterpMinSubranges"] = 1
-                sweepdata.update()
-                self._app.logger.info("Linear step sweep {} has been correctly created".format(sweepname))
-                return sweepdata
-        return False
+        sweepdata.props["RangeType"] = "LinearStep"
+        sweepdata.props["RangeStart"] = str(freqstart) + unit
+        sweepdata.props["RangeEnd"] = str(freqstop) + unit
+        sweepdata.props["RangeStep"] = str(step_size) + unit
+        sweepdata.props["SaveFields"] = save_fields
+        sweepdata.props["SaveRadFields"] = save_rad_fields
+        sweepdata.props["ExtrapToDC"] = False
+        sweepdata.props["Type"] = sweep_type
+        if sweep_type == "Interpolating":
+            sweepdata.props["InterpTolerance"] = 0.5
+            sweepdata.props["InterpMaxSolns"] = 250
+            sweepdata.props["InterpMinSolns"] = 0
+            sweepdata.props["InterpMinSubranges"] = 1
+        sweepdata.update()
+        self._app.logger.info("Linear step sweep {} has been correctly created".format(sweepname))
+        return sweepdata
 
     @pyaedt_function_handler()
     def create_single_point_sweep(
         self,
-        setupname,
-        unit,
-        freq,
+        unit="GHz",
+        freq=1,
         sweepname=None,
         save_single_field=True,
         save_fields=False,
@@ -1999,32 +1986,24 @@ class SetupHFSS(Setup, object):
             if add_subranges:
                 save_single_field = [save0] * len(freq)
 
-        if setupname not in self._app.setup_names:
-            return False
-        for s in self._app.setups:
-            if s.name == setupname:
-                setupdata = s
-                if sweepname in [sweep.name for sweep in setupdata.sweeps]:
-                    oldname = sweepname
-                    sweepname = generate_unique_name(oldname)
-                    self._app.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
-                    )
-                sweepdata = setupdata.add_sweep(sweepname, "Discrete")
-                sweepdata.props["RangeType"] = "SinglePoints"
-                sweepdata.props["RangeStart"] = str(freq0) + unit
-                sweepdata.props["RangeEnd"] = str(freq0) + unit
-                sweepdata.props["SaveSingleField"] = save0
-                sweepdata.props["SaveFields"] = save_fields
-                sweepdata.props["SaveRadFields"] = save_rad_fields
-                sweepdata.props["SMatrixOnlySolveMode"] = "Auto"
-                if add_subranges:
-                    for f, s in zip(freq, save_single_field):
-                        sweepdata.add_subrange(rangetype="SinglePoints", start=f, unit=unit, save_single_fields=s)
-                sweepdata.update()
-                self._app.logger.info("Single point sweep {} has been correctly created".format(sweepname))
-                return sweepdata
-        return False
+        if sweepname in [sweep.name for sweep in self.sweeps]:
+            oldname = sweepname
+            sweepname = generate_unique_name(oldname)
+            self._app.logger.warning("Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
+        sweepdata = self.add_sweep(sweepname, "Discrete")
+        sweepdata.props["RangeType"] = "SinglePoints"
+        sweepdata.props["RangeStart"] = str(freq0) + unit
+        sweepdata.props["RangeEnd"] = str(freq0) + unit
+        sweepdata.props["SaveSingleField"] = save0
+        sweepdata.props["SaveFields"] = save_fields
+        sweepdata.props["SaveRadFields"] = save_rad_fields
+        sweepdata.props["SMatrixOnlySolveMode"] = "Auto"
+        if add_subranges:
+            for f, s in zip(freq, save_single_field):
+                sweepdata.add_subrange(rangetype="SinglePoints", start=f, unit=unit, save_single_fields=s)
+        sweepdata.update()
+        self._app.logger.info("Single point sweep {} has been correctly created".format(sweepname))
+        return sweepdata
 
     @pyaedt_function_handler()
     def add_sweep(self, sweepname=None, sweeptype="Interpolating"):
@@ -2633,13 +2612,12 @@ class SetupQ3D(Setup, object):
     @pyaedt_function_handler()
     def create_frequency_sweep(
         self,
-        unit,
-        freqstart,
-        freqstop,
+        unit="GHz",
+        freqstart=0,
+        freqstop=20,
         num_of_freq_points=None,
         sweepname=None,
         save_fields=True,
-        save_rad_fields=False,
         sweep_type="Discrete",
         interpolation_tol=0.5,
         interpolation_max_solutions=250,
@@ -2662,8 +2640,6 @@ class SetupQ3D(Setup, object):
             Name of the sweep. The default is ``None``.
         save_fields : bool, optional
             Whether to save the fields. The default is ``True``.
-        save_rad_fields : bool, optional
-            Whether to save the radiating fields. The default is ``False``.
         sweep_type : str, optional
             Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``,
             and ``"Discrete"``. The default is ``"Discrete"``.
@@ -2731,8 +2707,8 @@ class SetupQ3D(Setup, object):
             sweepdata.props["InterpMaxSolns"] = interpolation_max_solutions
             sweepdata.props["InterpMinSolns"] = 0
             sweepdata.props["InterpMinSubranges"] = 1
-        sweepdata.props["SaveFields"] = save_fields
-        sweepdata.props["SaveRadFields"] = save_rad_fields
+        sweepdata.props["SaveFields"] = save_fields if sweep_type == "Discrete" else False
+        sweepdata.props["SaveRadFields"] = False
         sweepdata.update()
         self._app.logger.info("Linear count sweep {} has been correctly created".format(sweepname))
         return sweepdata
@@ -2740,22 +2716,18 @@ class SetupQ3D(Setup, object):
     @pyaedt_function_handler()
     def create_linear_step_sweep(
         self,
-        setupname,
-        unit,
-        freqstart,
-        freqstop,
-        step_size,
+        unit="GHz",
+        freqstart=0,
+        freqstop=2,
+        step_size=0.05,
         sweepname=None,
         save_fields=True,
-        save_rad_fields=False,
         sweep_type="Discrete",
     ):
         """Create a Sweep with a specified frequency step.
 
         Parameters
         ----------
-        setupname : str
-            Name of the setup.
         unit : str
             Unit of the frequency. For example, ``"MHz`` or ``"GHz"``.
         freqstart : float
@@ -2768,10 +2740,8 @@ class SetupQ3D(Setup, object):
             Name of the sweep. The default is ``None``.
         save_fields : bool, optional
             Whether to save the fields. The default is ``True``.
-        save_rad_fields : bool, optional
-            Whether to save the radiating fields. The default is ``False``.
         sweep_type : str, optional
-            Whether to create a ``"Discrete"``,``"Interpolating"`` or ``"Fast"`` sweep.
+            Whether to create a ``"Discrete"`` or``"Interpolating"``  sweep.
             The default is ``"Discrete"``.
 
         Returns
@@ -2790,9 +2760,8 @@ class SetupQ3D(Setup, object):
         Create a setup named ``"LinearStepSetup"`` and use it in a linear step sweep
         named ``"LinearStepSweep"``.
 
-        >>> setup = hfss.create_setup("LinearStepSetup")
-        >>> linear_step_sweep = hfss.create_linear_step_sweep(setupname="LinearStepSetup",
-        ...                                                   sweepname="LinearStepSweep",
+        >>> setup = q3d.create_setup("LinearStepSetup")
+        >>> linear_step_sweep = setup.create_linear_step_sweep(sweepname="LinearStepSweep",
         ...                                                   unit="MHz", freqstart=1.1e3,
         ...                                                   freqstop=1200.1, step_size=153.8)
         >>> type(linear_step_sweep)
@@ -2804,55 +2773,43 @@ class SetupQ3D(Setup, object):
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
 
-        if setupname not in self._app.setup_names:
+        if sweepname in [sweep.name for sweep in self.sweeps]:
+            oldname = sweepname
+            sweepname = generate_unique_name(oldname)
+            self._app.logger.warning("Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
+        sweepdata = self.add_sweep(sweepname, sweep_type)
+        if not sweepdata:
             return False
-        for s in self._app.setups:
-            if s.name == setupname:
-                setupdata = s
-                if sweepname in [sweep.name for sweep in setupdata.sweeps]:
-                    oldname = sweepname
-                    sweepname = generate_unique_name(oldname)
-                    self._app.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
-                    )
-                sweepdata = setupdata.add_sweep(sweepname, sweep_type)
-                if not sweepdata:
-                    return False
-                sweepdata.props["RangeType"] = "LinearStep"
-                sweepdata.props["RangeStart"] = str(freqstart) + unit
-                sweepdata.props["RangeEnd"] = str(freqstop) + unit
-                sweepdata.props["RangeStep"] = str(step_size) + unit
-                sweepdata.props["SaveFields"] = save_fields
-                sweepdata.props["SaveRadFields"] = save_rad_fields
-                sweepdata.props["ExtrapToDC"] = False
-                sweepdata.props["Type"] = sweep_type
-                if sweep_type == "Interpolating":
-                    sweepdata.props["InterpTolerance"] = 0.5
-                    sweepdata.props["InterpMaxSolns"] = 250
-                    sweepdata.props["InterpMinSolns"] = 0
-                    sweepdata.props["InterpMinSubranges"] = 1
-                sweepdata.update()
-                self._app.logger.info("Linear step sweep {} has been correctly created".format(sweepname))
-                return sweepdata
-        return False
+        sweepdata.props["RangeType"] = "LinearStep"
+        sweepdata.props["RangeStart"] = str(freqstart) + unit
+        sweepdata.props["RangeEnd"] = str(freqstop) + unit
+        sweepdata.props["RangeStep"] = str(step_size) + unit
+        sweepdata.props["SaveFields"] = save_fields if sweep_type == "Discrete" else False
+        sweepdata.props["SaveRadFields"] = False
+        sweepdata.props["ExtrapToDC"] = False
+        sweepdata.props["Type"] = sweep_type
+        if sweep_type == "Interpolating":
+            sweepdata.props["InterpTolerance"] = 0.5
+            sweepdata.props["InterpMaxSolns"] = 250
+            sweepdata.props["InterpMinSolns"] = 0
+            sweepdata.props["InterpMinSubranges"] = 1
+        sweepdata.update()
+        self._app.logger.info("Linear step sweep {} has been correctly created".format(sweepname))
+        return sweepdata
 
     @pyaedt_function_handler()
     def create_single_point_sweep(
         self,
-        setupname,
-        unit,
-        freq,
+        unit="GHz",
+        freq=1,
         sweepname=None,
         save_single_field=True,
         save_fields=False,
-        save_rad_fields=False,
     ):
         """Create a Sweep with a single frequency point.
 
         Parameters
         ----------
-        setupname : str
-            Name of the setup.
         unit : str
             Unit of the frequency. For example, ``"MHz`` or ``"GHz"``.
         freq : float, list
@@ -2864,8 +2821,7 @@ class SetupQ3D(Setup, object):
             If a list is specified, the length must be the same as freq length.
         save_fields : bool, optional
             Whether to save the fields for all points and subranges defined in the sweep. The default is ``False``.
-        save_rad_fields : bool, optional
-            Whether to save only the radiating fields. The default is ``False``.
+
 
         Returns
         -------
@@ -2915,32 +2871,24 @@ class SetupQ3D(Setup, object):
             if add_subranges:
                 save_single_field = [save0] * len(freq)
 
-        if setupname not in self._app.setup_names:
-            return False
-        for s in self._app.setups:
-            if s.name == setupname:
-                setupdata = s
-                if sweepname in [sweep.name for sweep in setupdata.sweeps]:
-                    oldname = sweepname
-                    sweepname = generate_unique_name(oldname)
-                    self._app.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
-                    )
-                sweepdata = setupdata.add_sweep(sweepname, "Discrete")
-                sweepdata.props["RangeType"] = "SinglePoints"
-                sweepdata.props["RangeStart"] = str(freq0) + unit
-                sweepdata.props["RangeEnd"] = str(freq0) + unit
-                sweepdata.props["SaveSingleField"] = save0
-                sweepdata.props["SaveFields"] = save_fields
-                sweepdata.props["SaveRadFields"] = save_rad_fields
-                sweepdata.props["SMatrixOnlySolveMode"] = "Auto"
-                if add_subranges:
-                    for f, s in zip(freq, save_single_field):
-                        sweepdata.add_subrange(rangetype="SinglePoints", start=f, unit=unit, save_single_fields=s)
-                sweepdata.update()
-                self._app.logger.info("Single point sweep {} has been correctly created".format(sweepname))
-                return sweepdata
-        return False
+        if sweepname in [sweep.name for sweep in self.sweeps]:
+            oldname = sweepname
+            sweepname = generate_unique_name(oldname)
+            self._app.logger.warning("Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
+        sweepdata = self.add_sweep(sweepname, "Discrete")
+        sweepdata.props["RangeType"] = "SinglePoints"
+        sweepdata.props["RangeStart"] = str(freq0) + unit
+        sweepdata.props["RangeEnd"] = str(freq0) + unit
+        sweepdata.props["SaveSingleField"] = save0
+        sweepdata.props["SaveFields"] = save_fields
+        sweepdata.props["SaveRadFields"] = False
+        sweepdata.props["SMatrixOnlySolveMode"] = "Auto"
+        if add_subranges:
+            for f, s in zip(freq, save_single_field):
+                sweepdata.add_subrange(rangetype="SinglePoints", start=f, unit=unit, save_single_fields=s)
+        sweepdata.update()
+        self._app.logger.info("Single point sweep {} has been correctly created".format(sweepname))
+        return sweepdata
 
     @pyaedt_function_handler()
     def add_sweep(self, sweepname=None, sweeptype="Interpolating"):
@@ -3011,6 +2959,12 @@ class SetupQ3D(Setup, object):
 
     @property
     def ac_rl_enabled(self):
+        """Get/Set the AC RL solution in active Q3D setup.
+
+        Returns
+        -------
+        bool
+        """
         return self._ac_rl_enbled
 
     @ac_rl_enabled.setter
@@ -3021,6 +2975,12 @@ class SetupQ3D(Setup, object):
 
     @property
     def capacitance_enabled(self):
+        """Get/Set the Capacitance solution in active Q3D setup.
+
+        Returns
+        -------
+        bool
+        """
         return self._capacitance_enabled
 
     @capacitance_enabled.setter
@@ -3031,6 +2991,12 @@ class SetupQ3D(Setup, object):
 
     @property
     def dc_enabled(self):
+        """Get/Set the DC solution in active Q3D setup.
+
+        Returns
+        -------
+        bool
+        """
         return self._dc_enabled
 
     @dc_enabled.setter

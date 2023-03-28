@@ -1283,7 +1283,7 @@ class Edb(object):
             Number of thread to use. Default is 4. Valid only if `use_legacy_cutout` is set to `False`.
         use_pyaedt_extent_computing : bool, optional
             Whether to use pyaedt extent computing (experimental) or EDB API.
-        extent_defeature: float, optional
+        extent_defeature : float, optional
             Defeature the cutout before applying it to produce simpler geometry for mesh (Experimental).
             It applies only to Conforming bounding box. Default value is ``0`` which disable it.
          remove_single_pin_components : bool, optional
