@@ -37,6 +37,7 @@ class TestClass(BasisTest, object):
         self.m3dtransient = BasisTest.add_app(
             self, application=Maxwell3d, project_name=transient, subfolder=test_subfolder
         )
+        self.cyl_gap = BasisTest.add_app(self, application=Maxwell3d, project_name=cyl_gap, subfolder=test_subfolder)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -796,42 +797,40 @@ class TestClass(BasisTest, object):
         )
 
     def test_49_cylindrical_gap(self):
-        example_project = os.path.join(local_path, "example_models", test_subfolder, cyl_gap + ".aedt")
-        m3d = Maxwell3d(example_project, specified_version=desktop_version)
         [
             x.delete()
-            for x in m3d.mesh.meshoperations[:]
+            for x in self.cyl_gap.mesh.meshoperations[:]
             if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
         ]
-        assert m3d.mesh.assign_cylindrical_gap("Band", meshop_name="cyl_gap_test")
-        assert not m3d.mesh.assign_cylindrical_gap(["Band", "Inner_Band"])
-        assert not m3d.mesh.assign_cylindrical_gap("Band")
+        assert self.cyl_gap.mesh.assign_cylindrical_gap("Band", meshop_name="cyl_gap_test")
+        assert not self.cyl_gap.mesh.assign_cylindrical_gap(["Band", "Inner_Band"])
+        assert not self.cyl_gap.mesh.assign_cylindrical_gap("Band")
         [
             x.delete()
-            for x in m3d.mesh.meshoperations[:]
+            for x in self.cyl_gap.mesh.meshoperations[:]
             if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
         ]
-        assert m3d.mesh.assign_cylindrical_gap(
+        assert self.cyl_gap.mesh.assign_cylindrical_gap(
             "Band", meshop_name="cyl_gap_test", clone_mesh=True, band_mapping_angle=1
         )
         [
             x.delete()
-            for x in m3d.mesh.meshoperations[:]
+            for x in self.cyl_gap.mesh.meshoperations[:]
             if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
         ]
-        assert m3d.mesh.assign_cylindrical_gap("Band", meshop_name="cyl_gap_test", clone_mesh=False)
+        assert self.cyl_gap.mesh.assign_cylindrical_gap("Band", meshop_name="cyl_gap_test", clone_mesh=False)
         [
             x.delete()
-            for x in m3d.mesh.meshoperations[:]
+            for x in self.cyl_gap.mesh.meshoperations[:]
             if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
         ]
-        assert m3d.mesh.assign_cylindrical_gap("Band")
-        assert not m3d.mesh.assign_cylindrical_gap(
+        assert self.cyl_gap.mesh.assign_cylindrical_gap("Band")
+        assert not self.cyl_gap.mesh.assign_cylindrical_gap(
             "Band", meshop_name="cyl_gap_test", clone_mesh=True, band_mapping_angle=7
         )
-        assert not m3d.mesh.assign_cylindrical_gap(
+        assert not self.cyl_gap.mesh.assign_cylindrical_gap(
             "Band", meshop_name="cyl_gap_test", clone_mesh=True, band_mapping_angle=2, moving_side_layers=0
         )
-        assert not m3d.mesh.assign_cylindrical_gap(
+        assert not self.cyl_gap.mesh.assign_cylindrical_gap(
             "Band", meshop_name="cyl_gap_test", clone_mesh=True, band_mapping_angle=2, static_side_layers=0
         )
