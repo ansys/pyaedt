@@ -59,6 +59,24 @@ class TestClass(BasisTest, object):
 
         # Create a discrete sweep with the same name of an existing sweep is not possible.
         assert not self.aedtapp.create_discrete_sweep(mysetup.name, sweepname="mysweep", freqstart=1, units="GHz")
+        assert mysetup.create_linear_step_sweep(
+            sweepname="StepFast",
+            unit="GHz",
+            freqstart=1,
+            freqstop=20,
+            step_size=0.1,
+            sweep_type="Interpolating",
+        )
+        assert mysetup.create_single_point_sweep(
+            save_fields=True,
+        )
+        assert mysetup.create_frequency_sweep(
+            unit="GHz",
+            sweepname="Sweep1",
+            freqstart=9.5,
+            freqstop=10.5,
+            sweep_type="Interpolating",
+        )
 
     def test_06b_create_setup(self):
         mysetup = self.aedtapp.create_setup()

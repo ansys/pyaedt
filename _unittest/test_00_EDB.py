@@ -491,10 +491,10 @@ class TestClass(BasisTest, object):
         assert var_server.IsVariableParameter("my_parameter")
         result, var_server = self.edbapp.add_design_variable("my_parameter", "2mm", True)
         assert not result
-        result, var_server = self.edbapp.add_design_variable("$my_project_variable", "3mm")
+        result, var_server = self.edbapp.add_project_variable("$my_project_variable", "3mm")
         assert result
         assert var_server
-        result, var_server = self.edbapp.add_design_variable("$my_project_variable", "3mm")
+        result, var_server = self.edbapp.add_project_variable("$my_project_variable", "3mm")
         assert not result
 
     def test_051_delete_net(self):
@@ -622,18 +622,21 @@ class TestClass(BasisTest, object):
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
         output = os.path.join(self.local_scratch.path, "cutout.aedb")
-        assert edbapp.create_cutout(
+        assert edbapp.cutout(
             ["A0_N", "A0_P"],
             ["GND"],
             output_aedb_path=output,
             open_cutout_at_end=False,
             use_pyaedt_extent_computing=True,
+            use_legacy_cutout=True,
         )
-        assert edbapp.create_cutout(
+        assert edbapp.cutout(
             ["A0_N", "A0_P"],
             ["GND"],
             output_aedb_path=output,
             open_cutout_at_end=False,
+            remove_single_pin_components=True,
+            use_legacy_cutout=True,
         )
         assert os.path.exists(os.path.join(output, "edb.def"))
         bounding = edbapp.get_bounding_box()
@@ -646,9 +649,9 @@ class TestClass(BasisTest, object):
         points.append([bounding[0][0], bounding[0][1]])
         output = os.path.join(self.local_scratch.path, "cutout2.aedb")
 
-        assert edbapp.create_cutout_on_point_list(
-            points,
-            nets_to_include=["GND", "V3P3_S0"],
+        assert edbapp.cutout(
+            custom_extent=points,
+            signal_list=["GND", "V3P3_S0"],
             output_aedb_path=output,
             open_cutout_at_end=False,
             include_partial_instances=True,
@@ -662,14 +665,14 @@ class TestClass(BasisTest, object):
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
         if is_ironpython:
-            assert not edbapp.create_cutout_multithread(
+            assert not edbapp.cutout(
                 signal_list=["V3P3_S0"],
                 reference_list=["GND"],
                 extent_type="Bounding",
                 number_of_threads=4,
             )
         else:
-            assert edbapp.create_cutout_multithread(
+            assert edbapp.cutout(
                 signal_list=["V3P3_S0"],
                 reference_list=["GND"],
                 extent_type="Bounding",
@@ -699,7 +702,7 @@ class TestClass(BasisTest, object):
         points.append([cutout_line_x, cutout_line_y])
         points.append([bounding[0][0], cutout_line_y])
         points.append([bounding[0][0], bounding[0][1]])
-        assert edbapp.create_cutout_multithread(
+        assert edbapp.cutout(
             signal_list=["V3P3_S0"],
             reference_list=["GND"],
             number_of_threads=4,
@@ -716,7 +719,7 @@ class TestClass(BasisTest, object):
 
         edbapp = Edb(target_path, edbversion=desktop_version)
 
-        assert edbapp.create_cutout_multithread(
+        assert edbapp.cutout(
             signal_list=["V3P3_S0"],
             reference_list=["GND"],
             number_of_threads=4,
@@ -851,10 +854,10 @@ class TestClass(BasisTest, object):
     def test_081_padstack_instance(self):
         padstack_instances = self.edbapp.core_padstack.get_padstack_instance_by_net_name("GND")
         assert len(padstack_instances)
-        padstack_1 = list(padstack_instances.values())[0]
+        padstack_1 = padstack_instances[0]
         assert padstack_1.id
         assert isinstance(padstack_1.bounding_box, list)
-        for v in list(padstack_instances.values()):
+        for v in padstack_instances:
             if not v.is_pin:
                 v.name = "TestInst"
                 assert v.name == "TestInst"

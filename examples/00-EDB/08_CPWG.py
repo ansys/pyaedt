@@ -41,7 +41,7 @@ params = {"$ms_width": "0.4mm",
           "$ms_length": "20mm",
           }
 for par_name in params:
-    edbapp.add_design_variable(par_name, params[par_name])
+    edbapp.add_project_variable(par_name, params[par_name])
 
 ###############################################################################
 # Create stackup

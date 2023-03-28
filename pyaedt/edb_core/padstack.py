@@ -1015,10 +1015,11 @@ class EdbPadstacks(object):
             The net name to be used for filtering padstack instances.
         Returns
         -------
-        list of Edb.Cell.Primitive.PadstackInstance
+        list
+            List of :class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`.
         """
-        padstack_instances = {}
+        padstack_instances = []
         for inst_id, inst in self.instances.items():
             if inst.net_name == net_name:
-                padstack_instances[inst_id] = inst
+                padstack_instances.append(inst)
         return padstack_instances
