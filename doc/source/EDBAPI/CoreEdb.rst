@@ -45,7 +45,6 @@ to AEDB files.
    nets.EdbNets
    padstack.EdbPadstacks
    layout.EdbLayout
-   stackup.EdbStackup
    stackup.Stackup
 
 

@@ -230,9 +230,8 @@ class Stackup(object):
         layers = [i.Clone() for i in list(list(lc_readonly.Layers(self._pedb.edb.Cell.LayerTypeSet.AllLayerSet)))]
         self.__layer_collection = self._pedb.edb.Cell.LayerCollection()
         self.__layer_collection.SetMode(lc_readonly.GetMode())
-        self.__layer_collection.AddLayers(convert_py_list_to_net_list(layers, self._pedb.edb.Cell.Layer))
-
-        pass
+        if layers:
+            self.__layer_collection.AddLayers(convert_py_list_to_net_list(layers, self._pedb.edb.Cell.Layer))
 
     @property
     def _layer_collection(self):
@@ -1732,7 +1731,7 @@ class Stackup(object):
                 if color == [1.0, 1.0, 1.0]:
                     color = [0.9, 0.9, 0.9]
                 objects_lists.append(
-                    [x, y, color, "{} {}um".format(layername, round(layerval.thickness * 1e6)), 0.4, "fill"]
+                    [x, y, color, "{} {}um".format(layername, round(layerval.thickness * 1e6), 2), 0.4, "fill"]
                 )
         delta = (x_max - x_min) / 20
         x_start = x_min + delta
