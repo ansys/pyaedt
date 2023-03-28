@@ -227,11 +227,12 @@ class Stackup(object):
     def refresh_layer_collection(self):
         """Refresh layer collection from Edb. This method is run on demand after all edit operations on stackup."""
         lc_readonly = self._pedb._active_layout.GetLayerCollection()
-        layers = list(list(lc_readonly.Layers(self._pedb.edb.Cell.LayerTypeSet.AllLayerSet)))
+        layers = [i.Clone() for i in list(list(lc_readonly.Layers(self._pedb.edb.Cell.LayerTypeSet.AllLayerSet)))]
         self.__layer_collection = self._pedb.edb.Cell.LayerCollection()
         self.__layer_collection.SetMode(lc_readonly.GetMode())
-        for layer in layers:
-            self.__layer_collection.AddLayerBottom(layer.Clone())
+        self.__layer_collection.AddLayers(convert_py_list_to_net_list(layers, self._pedb.edb.Cell.Layer))
+
+        pass
 
     @property
     def _layer_collection(self):
