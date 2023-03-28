@@ -726,7 +726,7 @@ class Primitives3DLayout(object):
 
     @property
     def padstacks(self):
-        """Read all padstacks from HFSS 3D Layout.
+        """Read all definitions from HFSS 3D Layout.
 
         Returns
         -------

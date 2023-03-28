@@ -657,7 +657,7 @@ class EDBComponent(object):
 
         Returns
         -------
-        dic[str, :class:`pyaedt.edb_core.edb_data.padstacks.EDBPadstackInstance`]
+        dic[str, :class:`pyaedt.edb_core.edb_data.definitions.EDBPadstackInstance`]
             Dictionary of EDBPadstackInstance Components.
         """
         pins = {}

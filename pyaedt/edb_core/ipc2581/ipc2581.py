@@ -49,7 +49,7 @@ class Ipc2581(object):
 
     @pyaedt_function_handler()
     def add_pdstack_definition(self):
-        for padstack_name, padstackdef in self._pedb.core_padstack.padstacks.items():
+        for padstack_name, padstackdef in self._pedb.core_padstack.definitions.items():
             padstack_def = PadstackDef()
             padstack_def.name = padstack_name
             padstack_def.padstack_hole_def.name = padstack_name
@@ -309,8 +309,8 @@ class Ipc2581(object):
     @pyaedt_function_handler()
     def add_layer_features(self):
         layers = {i: j for i, j in self._pedb.stackup.signal_layers.items()}
-        padstack_instances = list(self._pedb.core_padstack.padstack_instances.values())
-        padstack_defs = {i: k for i, k in self._pedb.core_padstack.padstacks.items()}
+        padstack_instances = list(self._pedb.core_padstack.instances.values())
+        padstack_defs = {i: k for i, k in self._pedb.core_padstack.definitions.items()}
         polys = {i: j for i, j in self._pedb.core_primitives.primitives_by_layer.items()}
         for layer_name, layer in layers.items():
             self.ecad.cad_data.cad_data_step.add_layer_feature(layer, polys[layer_name])
@@ -319,9 +319,7 @@ class Ipc2581(object):
     @pyaedt_function_handler()
     def add_drills(self):
         via_list = [
-            obj
-            for obj in list(self._pedb.core_padstack.padstack_instances.values())
-            if not obj.start_layer == obj.stop_layer
+            obj for obj in list(self._pedb.core_padstack.instances.values()) if not obj.start_layer == obj.stop_layer
         ]
         l1 = len(list(self._pedb.stackup.signal_layers.keys()))
 

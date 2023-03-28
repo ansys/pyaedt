@@ -1471,7 +1471,7 @@ class Setup3DLayout(CommonSetup):
     @pyaedt_function_handler()
     def _get_via_position_per_net(self):
         via_dict = {}
-        via_list = list(self.p_app.modeler.edb.core_padstack.padstack_instances.values())
+        via_list = list(self.p_app.modeler.edb.core_padstack.instances.values())
         if via_list:
             for net in list(self.p_app.modeler.edb.core_nets.nets.keys()):
                 vias = [via for via in via_list if via.net_name == net and via.start_layer != via.stop_layer]

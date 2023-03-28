@@ -902,7 +902,7 @@ class Edb(object):
 
         Returns
         -------
-        dic[str, :class:`pyaedt.edb_core.edb_data.padstacks.EDBPadstackInstance`]
+        dic[str, :class:`pyaedt.edb_core.edb_data.definitions.EDBPadstackInstance`]
             Dictionary of EDBPadstackInstance Components.
 
 
@@ -1449,7 +1449,7 @@ class Edb(object):
                 i.net_object.Delete()
         reference_pinsts = []
         reference_prims = []
-        for i in self.core_padstack.padstack_instances.values():
+        for i in self.core_padstack.instances.values():
             net_name = i.net_name
             if net_name not in all_list:
                 i.delete()
@@ -1595,7 +1595,7 @@ class Edb(object):
         temp_edb_path = self.edbpath[:-5] + "_temp_aedb.aedb"
         shutil.copytree(self.edbpath, temp_edb_path)
         temp_edb = Edb(temp_edb_path)
-        for via in list(temp_edb.core_padstack.padstack_instances.values()):
+        for via in list(temp_edb.core_padstack.instances.values()):
             via.pin.Delete()
         if netlist:
             nets = convert_py_list_to_net_list(
@@ -1720,11 +1720,9 @@ class Edb(object):
         pinstance_to_add = []
         if include_partial_instances:
             if nets_to_include:
-                pinst = [
-                    i for i in list(self.core_padstack.padstack_instances.values()) if i.net_name in nets_to_include
-                ]
+                pinst = [i for i in list(self.core_padstack.instances.values()) if i.net_name in nets_to_include]
             else:
-                pinst = [i for i in list(self.core_padstack.padstack_instances.values())]
+                pinst = [i for i in list(self.core_padstack.instances.values())]
             for p in pinst:
                 if p.in_polygon(polygonData):
                     pinstance_to_add.append(p)
@@ -1774,9 +1772,9 @@ class Edb(object):
                 else:
                     tolayer = self.stackup.signal_layers[p.stop_layer]._edb_layer
                 padstack = None
-                for pad in list(self.core_padstack.padstacks.keys()):
+                for pad in list(self.core_padstack.definitions.keys()):
                     if pad == p.padstack_definition:
-                        padstack = self.core_padstack.padstacks[pad].edb_padstack
+                        padstack = self.core_padstack.definitions[pad].edb_padstack
                         padstack_instance = self.edb.Cell.Primitive.PadstackInstance.Create(
                             _cutout.GetLayout(),
                             net,
