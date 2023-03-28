@@ -77,9 +77,9 @@ edb.add_design_variable("trace_in_width", "0.2mm", is_parameter=True)
 edb.add_design_variable("trace_out_width", "0.1mm", is_parameter=True)
 
 ##################################################################################
-# Create padstacks
+# Create definitions
 # ~~~~~~~~~~~~~~~~
-# Create two padstacks, one for the ground and one for the signal. The padstacks
+# Create two definitions, one for the ground and one for the signal. The definitions
 # are parametric.
 
 edb.core_padstack.create_padstack(

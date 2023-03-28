@@ -34,6 +34,7 @@ from pyaedt.edb_core.edb_data.sources import ExcitationPorts
 from pyaedt.edb_core.edb_data.sources import ExcitationProbes
 from pyaedt.edb_core.edb_data.sources import ExcitationSources
 from pyaedt.edb_core.edb_data.sources import SourceType
+from pyaedt.edb_core.edb_data.variables import Variable
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.ipc2581.ipc2581 import Ipc2581
 from pyaedt.edb_core.materials import Materials
@@ -221,10 +222,11 @@ class Edb(object):
 
         Returns
         -------
+        :class:`pyaedt.edb_core.edb_data.variables.Variable`
 
         """
         if self.variable_exists(variable_name)[0]:
-            return self.get_variable(variable_name)
+            return self.variables[variable_name]
         return
 
     @pyaedt_function_handler()
@@ -252,6 +254,7 @@ class Edb(object):
         self.simsetupdata = None
         self._setups = {}
         self._layout_instance = None
+        self._variables = None
         # time.sleep(2)
         # gc.collect()
 
@@ -343,6 +346,49 @@ class Edb(object):
         self.edbutils = edbbuilder.Ansoft.EdbBuilderUtils
         self.simSetup = __import__("Ansys.Ansoft.SimSetupData")
         self.simsetupdata = self.simSetup.Ansoft.SimSetupData.Data
+
+    @property
+    def design_variables(self):
+        """Get all edb design variables.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.edb_core.edb_data.variables.Variable`]
+        """
+        d_var = dict()
+        for i in self.active_cell.GetVariableServer().GetAllVariableNames():
+            d_var[i] = Variable(self, i)
+        return d_var
+
+    @property
+    def project_variables(self):
+        """Get all project variables.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.edb_core.edb_data.variables.Variable`]
+
+        """
+        p_var = dict()
+        for i in self.db.GetVariableServer().GetAllVariableNames():
+            p_var[i] = Variable(self, i)
+        return p_var
+
+    @property
+    def variables(self):
+        """Get all Edb variables.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.edb_core.edb_data.variables.Variable`]
+
+        """
+        all_vars = dict()
+        for i, j in self.project_variables.items():
+            all_vars[i] = j
+        for i, j in self.design_variables.items():
+            all_vars[i] = j
+        return all_vars
 
     @property
     def excitations(self):
@@ -856,7 +902,7 @@ class Edb(object):
 
         Returns
         -------
-        dic[str, :class:`pyaedt.edb_core.edb_data.padstacks.EDBPadstackInstance`]
+        dic[str, :class:`pyaedt.edb_core.edb_data.definitions.EDBPadstackInstance`]
             Dictionary of EDBPadstackInstance Components.
 
 
@@ -913,10 +959,10 @@ class Edb(object):
         var_names = var_server_db.GetAllVariableNames()
         var_server_cell = self.active_cell.GetVariableServer()
         var_names_cell = var_server_cell.GetAllVariableNames()
-        if set(val_decomposed).intersection(var_names):
-            return self.edb.Utility.Value(val, var_server_db)
         if set(val_decomposed).intersection(var_names_cell):
             return self.edb.Utility.Value(val, var_server_cell)
+        if set(val_decomposed).intersection(var_names):
+            return self.edb.Utility.Value(val, var_server_db)
         return self.edb.Utility.Value(val)
 
     @pyaedt_function_handler()
@@ -1323,7 +1369,7 @@ class Edb(object):
         """Create a cutout using an approach entirely based on pyaedt.
         It does in sequence:
         - delete all nets not in list,
-        - create a extent of the nets,
+        - create an extent of the nets,
         - check and delete all vias not in the extent,
         - check and delete all the primitives not in extent,
         - check and intersect all the primitives that intersect the extent.
@@ -1403,7 +1449,7 @@ class Edb(object):
                 i.net_object.Delete()
         reference_pinsts = []
         reference_prims = []
-        for i in self.core_padstack.padstack_instances.values():
+        for i in self.core_padstack.instances.values():
             net_name = i.net_name
             if net_name not in all_list:
                 i.delete()
@@ -1549,7 +1595,7 @@ class Edb(object):
         temp_edb_path = self.edbpath[:-5] + "_temp_aedb.aedb"
         shutil.copytree(self.edbpath, temp_edb_path)
         temp_edb = Edb(temp_edb_path)
-        for via in list(temp_edb.core_padstack.padstack_instances.values()):
+        for via in list(temp_edb.core_padstack.instances.values()):
             via.pin.Delete()
         if netlist:
             nets = convert_py_list_to_net_list(
@@ -1674,11 +1720,9 @@ class Edb(object):
         pinstance_to_add = []
         if include_partial_instances:
             if nets_to_include:
-                pinst = [
-                    i for i in list(self.core_padstack.padstack_instances.values()) if i.net_name in nets_to_include
-                ]
+                pinst = [i for i in list(self.core_padstack.instances.values()) if i.net_name in nets_to_include]
             else:
-                pinst = [i for i in list(self.core_padstack.padstack_instances.values())]
+                pinst = [i for i in list(self.core_padstack.instances.values())]
             for p in pinst:
                 if p.in_polygon(polygonData):
                     pinstance_to_add.append(p)
@@ -1728,9 +1772,9 @@ class Edb(object):
                 else:
                     tolayer = self.stackup.signal_layers[p.stop_layer]._edb_layer
                 padstack = None
-                for pad in list(self.core_padstack.padstacks.keys()):
+                for pad in list(self.core_padstack.definitions.keys()):
                     if pad == p.padstack_definition:
-                        padstack = self.core_padstack.padstacks[pad].edb_padstack
+                        padstack = self.core_padstack.definitions[pad].edb_padstack
                         padstack_instance = self.edb.Cell.Primitive.PadstackInstance.Create(
                             _cutout.GetLayout(),
                             net,
