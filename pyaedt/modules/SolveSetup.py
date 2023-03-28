@@ -1368,19 +1368,15 @@ class Setup3DLayout(CommonSetup):
         if not os.path.isdir(os.path.dirname(file_fullname)):
             return False
         file_fullname = os.path.splitext(file_fullname)[0] + ".aedt"
+        info_messages = list(self.p_app.odesktop.GetMessages(self.p_app.project_name, self.p_app.design_name, 0))
+        error_messages = list(self.p_app.odesktop.GetMessages(self.p_app.project_name, self.p_app.design_name, 2))
         self.omodule.ExportToHfss(self.name, file_fullname)
-        timeout = 20
-        time.sleep(2)
-        while timeout > 0:
-            timeout -= 1
-            if os.path.exists(file_fullname):
-                timeout = 0
-            time.sleep(1)
-        if keep_net_name:
+        succeeded = self._check_export_log(info_messages, error_messages, file_fullname)
+        if succeeded and keep_net_name:
             from pyaedt import Hfss
 
             self._get_net_names(Hfss, file_fullname)
-        return True
+        return succeeded
 
     @pyaedt_function_handler()
     def _get_net_names(self, app, file_fullname):
@@ -1499,6 +1495,33 @@ class Setup3DLayout(CommonSetup):
                 input_dict[k] = round(v / output_units, 5)
 
     @pyaedt_function_handler()
+    def _check_export_log(self, info_messages, error_messages, file_fullname):
+        run = True
+        succeeded = False
+        while run:
+            info_messages_n = list(self.p_app.odesktop.GetMessages(self.p_app.project_name, self.p_app.design_name, 0))
+            error_messages_n = list(self.p_app.odesktop.GetMessages(self.p_app.project_name, self.p_app.design_name, 2))
+            infos = [i for i in info_messages_n if i not in info_messages]
+            if infos:
+                for info in infos:
+                    if "Export complete" in info:
+                        succeeded = True
+                    self.p_app.logger.info(info)
+                info_messages.extend(info_messages_n)
+                if succeeded:
+                    break
+            elif os.path.exists(file_fullname):
+                succeeded = True
+                break
+            infos_errors = [i for i in error_messages_n if i not in error_messages]
+            if infos_errors:
+                for message in infos_errors:
+                    self.p_app.logger.error(message)
+                break
+            time.sleep(2)
+        return succeeded
+
+    @pyaedt_function_handler()
     def export_to_q3d(self, file_fullname, keep_net_name=False):
         """Export the HFSS 3DLayout design to Q3D design.
 
@@ -1523,18 +1546,17 @@ class Setup3DLayout(CommonSetup):
         if not os.path.isdir(os.path.dirname(file_fullname)):
             return False
         file_fullname = os.path.splitext(file_fullname)[0] + ".aedt"
+        if os.path.exists(file_fullname):
+            os.unlink(file_fullname)
+        info_messages = list(self.p_app.odesktop.GetMessages(self.p_app.project_name, self.p_app.design_name, 0))
+        error_messages = list(self.p_app.odesktop.GetMessages(self.p_app.project_name, self.p_app.design_name, 2))
         self.omodule.ExportToQ3d(self.name, file_fullname)
-        timeout = 20
-        while timeout > 0:
-            timeout -= 1
-            if os.path.exists(file_fullname):
-                timeout = 0
-            time.sleep(2)
-        if keep_net_name:
+        succeeded = self._check_export_log(info_messages, error_messages, file_fullname)
+        if succeeded and keep_net_name:
             from pyaedt import Q3d
 
             self._get_net_names(Q3d, file_fullname)
-        return True
+        return succeeded
 
     @pyaedt_function_handler()
     def add_sweep(self, sweepname=None, sweeptype="Interpolating"):
