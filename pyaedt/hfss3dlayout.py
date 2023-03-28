@@ -2218,6 +2218,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         bool
             ``True`` is successful, ``False`` if it fails.
 
+        >>> oEditor.SetHfssExtentsVisible
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss3dLayout
+        >>> h3d = Hfss3dLayout()
+        >>> h3d.show_extent(show=True)
         """
         try:
             self.oeditor.SetHfssExtentsVisible(show)
@@ -2233,7 +2240,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Parameters
         ----------
-        color_by_net: bool, optional
+        color_by_net : bool, optional
             Whether visualize color by net or by layer.
             The default value is ``True``, which means color by net.
 
@@ -2241,6 +2248,14 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         -------
         bool
             ``True`` if successful, ``False`` if it fails.
+
+        >>> oEditor.ChangeOptions
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss3dLayout
+        >>> h3d = Hfss3dLayout()
+        >>> h3d.change_options(color_by_net=True)
         """
         try:
             options = ["NAME:options", "ColorByNet:=", color_by_net, "CN:=", self.design_name]
