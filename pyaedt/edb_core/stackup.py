@@ -1686,7 +1686,15 @@ class Stackup(object):
             return False
 
     @pyaedt_function_handler()
-    def plot(self, show_legend=True, save_plot=None, size=(2000, 1500), plot_definitions=None):
+    def plot(
+        self,
+        show_legend=True,
+        save_plot=None,
+        size=(2000, 1500),
+        plot_definitions=None,
+        first_layer=None,
+        last_layer=None,
+    ):
         """Plot actual stackup and, optionally, overlap padstack definitions.
 
         Parameters
@@ -1720,9 +1728,21 @@ class Stackup(object):
         layers_name = list(self.stackup_layers.keys())
         bottom_layer = self.stackup_layers[layers_name[-1]]
         top_layer = self.stackup_layers[layers_name[0]]
-        limits = [bottom_layer.lower_elevation * 1e6, (top_layer.lower_elevation + top_layer.thickness) * 1e6]
+        start_plot = False
+        if not last_layer:
+            last_layer = top_layer
+        elif isinstance(last_layer, str):
+            last_layer = self.layers[last_layer]
+        if not first_layer:
+            first_layer = bottom_layer
+        elif isinstance(first_layer, str):
+            first_layer = self.layers[first_layer]
+        limits = [first_layer.lower_elevation * 1e6, (last_layer.lower_elevation + last_layer.thickness) * 1e6]
+
         for layername, layerval in self.layers.items():
-            if layerval.thickness is not None:
+            if layername == last_layer.name:
+                start_plot = True
+            if start_plot and layerval.thickness is not None:
                 x = [x_min, x_min, x_max, x_max]
                 lel = layerval.lower_elevation * 1e6
                 uel = layerval.upper_elevation * 1e6
@@ -1731,8 +1751,10 @@ class Stackup(object):
                 if color == [1.0, 1.0, 1.0]:
                     color = [0.9, 0.9, 0.9]
                 objects_lists.append(
-                    [x, y, color, "{} {}um".format(layername, round(layerval.thickness * 1e6), 2), 0.4, "fill"]
+                    [x, y, color, "{} {}um".format(layername, round(layerval.thickness * 1e6, 2)), 0.4, "fill"]
                 )
+            if layername == first_layer.name:
+                start_plot = False
         delta = (x_max - x_min) / 20
         x_start = x_min + delta
         if plot_definitions:
