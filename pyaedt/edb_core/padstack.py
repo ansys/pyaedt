@@ -132,7 +132,7 @@ class EdbPadstacks(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.edb_data.EdbPadstack`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.padstacks_data.EdbPadstack`]
             List of definitions via padstack definitions.
 
         """
@@ -160,7 +160,7 @@ class EdbPadstacks(object):
 
     @property
     def instances(self):
-        """List of padstack instances.
+        """List of all padstack instances.
 
         Returns
         -------
@@ -168,6 +168,7 @@ class EdbPadstacks(object):
             List of padstack instances.
 
         """
+
         padstack_instances = {}
         edb_padstack_inst_list = list(self._active_layout.PadstackInstances)
         for edb_padstack_instance in edb_padstack_inst_list:

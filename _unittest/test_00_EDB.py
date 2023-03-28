@@ -168,26 +168,27 @@ class TestClass(BasisTest, object):
         assert self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y*2"], "myVia_bullet")
 
         padstack = self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y*3"], "myVia", is_pin=True)
-        padstack_instance = self.edbapp.core_padstack.instances[padstack.id]
-        assert padstack_instance.is_pin
-        assert padstack_instance.position
-        if not is_ironpython:
-            assert padstack_instance.start_layer in padstack_instance.layer_range_names
-            assert padstack_instance.stop_layer in padstack_instance.layer_range_names
-        padstack_instance.position = [0.001, 0.002]
-        assert padstack_instance.position == [0.001, 0.002]
-        assert padstack_instance.parametrize_position()
-        assert isinstance(padstack_instance.rotation, float)
-        self.edbapp.core_padstack.create_circular_padstack(padstackname="mycircularvia")
-        assert "mycircularvia" in list(self.edbapp.core_padstack.definitions.keys())
-        assert not padstack_instance.backdrill_top
-        assert not padstack_instance.backdrill_bottom
-        assert padstack_instance.delete()
-        via = self.edbapp.core_padstack.place_padstack([0, 0], "myVia")
-        assert via.set_backdrill_top("LYR_1", 0.5e-3)
-        assert via.backdrill_top
-        assert via.set_backdrill_bottom("GND", 0.5e-3)
-        assert via.backdrill_bottom
+        for test_prop in (self.edbapp.core_padstack.padstack_instances, self.edbapp.core_padstack.instances):
+            padstack_instance = test_prop[padstack.id]
+            assert padstack_instance.is_pin
+            assert padstack_instance.position
+            if not is_ironpython:
+                assert padstack_instance.start_layer in padstack_instance.layer_range_names
+                assert padstack_instance.stop_layer in padstack_instance.layer_range_names
+            padstack_instance.position = [0.001, 0.002]
+            assert padstack_instance.position == [0.001, 0.002]
+            assert padstack_instance.parametrize_position()
+            assert isinstance(padstack_instance.rotation, float)
+            self.edbapp.core_padstack.create_circular_padstack(padstackname="mycircularvia")
+            assert "mycircularvia" in list(self.edbapp.core_padstack.definitions.keys())
+            assert not padstack_instance.backdrill_top
+            assert not padstack_instance.backdrill_bottom
+            assert padstack_instance.delete()
+            via = self.edbapp.core_padstack.place_padstack([0, 0], "myVia")
+            assert via.set_backdrill_top("LYR_1", 0.5e-3)
+            assert via.backdrill_top
+            assert via.set_backdrill_bottom("GND", 0.5e-3)
+            assert via.backdrill_bottom
 
     def test_010_nets_query(self):
         signalnets = self.edbapp.core_nets.signal_nets
@@ -1813,7 +1814,7 @@ class TestClass(BasisTest, object):
         edbapp.close_edb()
 
     def test_128_microvias(self):
-        source_path = os.path.join(local_path, "example_models", test_subfolder, "definitions.aedb")
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "padstacks.aedb")
         target_path = os.path.join(self.local_scratch.path, "test_128_microvias.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
@@ -2219,7 +2220,7 @@ class TestClass(BasisTest, object):
         assert self.edbapp.core_padstack.check_and_fix_via_plating()
 
     def test_133_siwave_build_ac_prject(self):
-        source_path = os.path.join(local_path, "example_models", test_subfolder, "definitions.aedb")
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "padstacks.aedb")
         target_path = os.path.join(self.local_scratch.path, "test_133_simconfig.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
