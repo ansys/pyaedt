@@ -488,7 +488,7 @@ class EdbLayout(object):
 
         Returns
         -------
-        pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives
+        :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`
         """
         path = self.Shape("Polygon", points=path_list)
         primitive = self._create_path(
@@ -545,7 +545,7 @@ class EdbLayout(object):
             self._logger.error("Null polygon created")
             return False
         else:
-            return polygon
+            return EDBPrimitives(polygon, self._pedb)
 
     @pyaedt_function_handler()
     def create_polygon_from_points(self, point_list, layer_name, net_name=""):

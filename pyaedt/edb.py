@@ -34,6 +34,7 @@ from pyaedt.edb_core.edb_data.sources import ExcitationPorts
 from pyaedt.edb_core.edb_data.sources import ExcitationProbes
 from pyaedt.edb_core.edb_data.sources import ExcitationSources
 from pyaedt.edb_core.edb_data.sources import SourceType
+from pyaedt.edb_core.edb_data.variables import Variable
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.ipc2581.ipc2581 import Ipc2581
 from pyaedt.edb_core.materials import Materials
@@ -221,10 +222,11 @@ class Edb(object):
 
         Returns
         -------
+        :class:`pyaedt.edb_core.edb_data.variables.Variable`
 
         """
         if self.variable_exists(variable_name)[0]:
-            return self.get_variable(variable_name)
+            return self.variables[variable_name]
         return
 
     @pyaedt_function_handler()
@@ -252,6 +254,7 @@ class Edb(object):
         self.simsetupdata = None
         self._setups = {}
         self._layout_instance = None
+        self._variables = None
         # time.sleep(2)
         # gc.collect()
 
@@ -343,6 +346,49 @@ class Edb(object):
         self.edbutils = edbbuilder.Ansoft.EdbBuilderUtils
         self.simSetup = __import__("Ansys.Ansoft.SimSetupData")
         self.simsetupdata = self.simSetup.Ansoft.SimSetupData.Data
+
+    @property
+    def design_variables(self):
+        """Get all edb design variables.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.edb_core.edb_data.variables.Variable`]
+        """
+        d_var = dict()
+        for i in self.active_cell.GetVariableServer().GetAllVariableNames():
+            d_var[i] = Variable(self, i)
+        return d_var
+
+    @property
+    def project_variables(self):
+        """Get all project variables.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.edb_core.edb_data.variables.Variable`]
+
+        """
+        p_var = dict()
+        for i in self.db.GetVariableServer().GetAllVariableNames():
+            p_var[i] = Variable(self, i)
+        return p_var
+
+    @property
+    def variables(self):
+        """Get all Edb variables.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.edb_core.edb_data.variables.Variable`]
+
+        """
+        all_vars = dict()
+        for i, j in self.project_variables.items():
+            all_vars[i] = j
+        for i, j in self.design_variables.items():
+            all_vars[i] = j
+        return all_vars
 
     @property
     def excitations(self):
@@ -913,10 +959,10 @@ class Edb(object):
         var_names = var_server_db.GetAllVariableNames()
         var_server_cell = self.active_cell.GetVariableServer()
         var_names_cell = var_server_cell.GetAllVariableNames()
-        if set(val_decomposed).intersection(var_names):
-            return self.edb.Utility.Value(val, var_server_db)
         if set(val_decomposed).intersection(var_names_cell):
             return self.edb.Utility.Value(val, var_server_cell)
+        if set(val_decomposed).intersection(var_names):
+            return self.edb.Utility.Value(val, var_server_db)
         return self.edb.Utility.Value(val)
 
     @pyaedt_function_handler()
@@ -1323,7 +1369,7 @@ class Edb(object):
         """Create a cutout using an approach entirely based on pyaedt.
         It does in sequence:
         - delete all nets not in list,
-        - create a extent of the nets,
+        - create an extent of the nets,
         - check and delete all vias not in the extent,
         - check and delete all the primitives not in extent,
         - check and intersect all the primitives that intersect the extent.

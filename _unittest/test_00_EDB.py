@@ -161,8 +161,8 @@ class TestClass(BasisTest, object):
 
         self.edbapp.add_design_variable("via_x", 5e-3)
         self.edbapp["via_y"] = "1mm"
-        assert self.edbapp["via_y"].tofloat == 1e-3
-        assert self.edbapp["via_y"].tostring == "1mm"
+        assert self.edbapp["via_y"].value == 1e-3
+        assert self.edbapp["via_y"].value_string == "1mm"
 
         assert self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y"], "myVia")
         assert self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y*2"], "myVia_bullet")
@@ -839,6 +839,7 @@ class TestClass(BasisTest, object):
         plane = self.edbapp.core_primitives.create_polygon(plane_shape, "TOP", net_name="GND")
         void = self.edbapp.core_primitives.create_trace([["0", "0"], ["0", "1mm"]], layer_name="TOP", width="0.1mm")
         assert self.edbapp.core_primitives.add_void(plane, void)
+        assert plane.add_void(void)
 
     def test_078_create_solder_balls_on_component(self):
         assert self.edbapp.core_components.set_solder_ball("U2A5")
@@ -1034,6 +1035,20 @@ class TestClass(BasisTest, object):
             assert not changed_variable_done
         else:
             assert not changed_variable_5
+
+    def test_097b_variables(self):
+        self.edbapp["my_var_1"] = 0.01
+        assert self.edbapp["my_var_1"].value == 0.01
+        assert self.edbapp.variables["my_var_1"].value == 0.01
+        assert self.edbapp.variables["my_var_1"].value_string == "0.01"
+        assert self.edbapp.variables["my_var_1"].value_object.tofloat == 0.01
+        assert self.edbapp.variables
+
+        assert not self.edbapp.variables["my_var_1"].is_parameter
+        self.edbapp.design_variables["my_var_1"].description = "This is variable description"
+        assert self.edbapp.design_variables["my_var_1"].description
+        self.edbapp["$my_project_var_1"] = 0.02
+        assert self.edbapp.project_variables["$my_project_var_1"].delete()
 
     def test_098_etch_factor(self):
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
