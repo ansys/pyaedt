@@ -282,8 +282,8 @@ class TestClass(BasisTest, object):
             unit="MHz",
             freq=1.2e3,
         )
-        assert self.aedtapp.create_single_point_sweep(
-            setupname="MySetup",
+        setup = self.aedtapp.get_setup("MySetup")
+        assert setup.create_single_point_sweep(
             unit="GHz",
             freq=1.2,
             save_single_field=False,

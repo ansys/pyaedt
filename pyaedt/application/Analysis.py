@@ -44,6 +44,7 @@ from pyaedt.modules.SolveSetup import Setup
 from pyaedt.modules.SolveSetup import SetupHFSS
 from pyaedt.modules.SolveSetup import SetupHFSSAuto
 from pyaedt.modules.SolveSetup import SetupMaxwell
+from pyaedt.modules.SolveSetup import SetupQ3D
 from pyaedt.modules.SolveSetup import SetupSBR
 from pyaedt.modules.SolveSweeps import SetupProps
 
@@ -1242,6 +1243,8 @@ class Analysis(Design, object):
             setup = SetupSBR(self, setuptype, name)
         elif setuptype in [5, 6, 7, 8, 9, 10]:
             setup = SetupMaxwell(self, setuptype, name)
+        elif setuptype in [14]:
+            setup = SetupQ3D(self, setuptype, name)
         else:
             setup = SetupHFSS(self, setuptype, name)
 

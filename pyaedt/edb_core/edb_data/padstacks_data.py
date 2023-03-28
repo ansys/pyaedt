@@ -1336,8 +1336,8 @@ class EDBPadstackInstance(object):
             var_name = "${}_pos".format(self.name)
         else:
             var_name = "${}".format(prefix)
-        self._pedb.add_design_variable(var_name + "X", p[0])
-        self._pedb.add_design_variable(var_name + "Y", p[1])
+        self._pedb.add_project_variable(var_name + "X", p[0])
+        self._pedb.add_project_variable(var_name + "Y", p[1])
         self.position = [var_name + "X", var_name + "Y"]
         return [var_name + "X", var_name + "Y"]
 

@@ -1548,7 +1548,7 @@ class Q3d(QExtractor, object):
 
         Parameters
         ----------
-        sheetname : str
+        sheetname : str, int
             Name of the sheet to create the source on.
         objectname :  str, optional
             Name of the parent object. The default is ``None``.
@@ -1571,8 +1571,12 @@ class Q3d(QExtractor, object):
         """
         if not sourcename:
             sourcename = generate_unique_name("Source")
-        sheetname = self.modeler.convert_to_selections(sheetname, True)
-        props = OrderedDict({"Objects": [sheetname]})
+        sheetname = self.modeler.convert_to_selections(sheetname, True)[0]
+        if isinstance(sheetname, int):
+            props = OrderedDict({"Faces": [sheetname]})
+        else:
+            props = OrderedDict({"Objects": [sheetname]})
+
         if objectname:
             props["ParentBndID"] = objectname
 
@@ -1584,7 +1588,6 @@ class Q3d(QExtractor, object):
         props["TerminalType"] = terminal_str
         if netname:
             props["Net"] = netname
-        props = OrderedDict({"Objects": sheetname, "TerminalType": terminal_str, "Net": netname})
         bound = BoundaryObject(self, sourcename, props, "Source")
         if bound.create():
             self.boundaries.append(bound)
@@ -1667,9 +1670,12 @@ class Q3d(QExtractor, object):
         >>> oModule.AssignSink
         """
         if not sinkname:
-            sinkname = generate_unique_name("Source")
-        sheetname = self.modeler.convert_to_selections(sheetname, True)
-        props = OrderedDict({"Objects": [sheetname]})
+            sinkname = generate_unique_name("Sink")
+        sheetname = self.modeler.convert_to_selections(sheetname, True)[0]
+        if isinstance(sheetname, int):
+            props = OrderedDict({"Faces": [sheetname]})
+        else:
+            props = OrderedDict({"Objects": [sheetname]})
         if objectname:
             props["ParentBndID"] = objectname
 
@@ -1683,7 +1689,6 @@ class Q3d(QExtractor, object):
         if netname:
             props["Net"] = netname
 
-        props = OrderedDict({"Objects": sheetname, "TerminalType": terminal_str, "Net": netname})
         bound = BoundaryObject(self, sinkname, props, "Sink")
         if bound.create():
             self.boundaries.append(bound)
@@ -1882,7 +1887,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSetup.SetupHFSS`
+        :class:`pyaedt.modules.SolveSetup.SetupQ3D`
             3D Solver Setup object.
 
         References

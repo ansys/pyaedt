@@ -49,7 +49,7 @@ params = {"$ms_width": "0.4mm",
           "$corner_rad": "0.5mm"}
 
 for par_name in params:
-    edb.add_design_variable(par_name, params[par_name])
+    edb.add_project_variable(par_name, params[par_name])
 
 ######################################################################
 # Define stackup layers
