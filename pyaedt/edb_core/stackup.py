@@ -827,7 +827,7 @@ class Stackup(object):
                 cmp.SetComponentProperty(cmp_prop)
 
             lay_list = list(new_lc.Layers(self._pedb.edb.Cell.LayerTypeSet.SignalLayerSet))
-            for padstack in list(self._pedb.core_padstack.padstack_instances.values()):
+            for padstack in list(self._pedb.core_padstack.instances.values()):
                 start_layer_id = [lay.GetLayerId() for lay in list(lay_list) if lay.GetName() == padstack.start_layer]
                 stop_layer_id = [lay.GetLayerId() for lay in list(lay_list) if lay.GetName() == padstack.stop_layer]
                 layer_map = padstack._edb_padstackinstance.GetLayerMap()

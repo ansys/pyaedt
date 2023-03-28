@@ -1121,8 +1121,8 @@ class EdbLayout(object):
 
         if delete_padstack_gemometries:
             self._logger.info("Deleting Padstack Definitions")
-            for pad in self._pedb.core_padstack.padstacks:
-                p1 = self._pedb.core_padstack.padstacks[pad].edb_padstack.GetData()
+            for pad in self._pedb.core_padstack.definitions:
+                p1 = self._pedb.core_padstack.definitions[pad].edb_padstack.GetData()
                 if len(p1.GetLayerNames()) > 1:
                     self._pedb.core_padstack.remove_pads_from_padstack(pad)
         return True
@@ -1259,7 +1259,7 @@ class EdbLayout(object):
         stat_model.num_nets = len(self._pedb.core_nets.nets)
         stat_model.num_traces = len(self._pedb.core_primitives.paths)
         stat_model.num_polygons = len(self._pedb.core_primitives.polygons)
-        stat_model.num_vias = len(self._pedb.core_padstack.padstack_instances)
+        stat_model.num_vias = len(self._pedb.core_padstack.instances)
         stat_model.stackup_thickness = self._pedb.stackup.get_layout_thickness()
         if evaluate_area:
             if net_list:

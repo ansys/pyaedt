@@ -163,24 +163,25 @@ class TestClass(BasisTest, object):
         del edbapp_without_path
 
     def test_05_create_rectangle_in_pad(self):
-        example_model = os.path.join(local_path, "example_models", test_subfolder, "padstacks.aedb")
+        example_model = os.path.join(local_path, "example_models", test_subfolder, "definitions.aedb")
         self.local_scratch.copyfolder(
             example_model,
             os.path.join(self.local_scratch.path, "padstacks2.aedb"),
         )
-        edb_padstacks = Edb(
+        edb = Edb(
             edbpath=os.path.join(self.local_scratch.path, "padstacks2.aedb"),
             edbversion=desktop_version,
             isreadonly=True,
         )
-        padstack_instances = list(edb_padstacks.core_padstack.padstack_instances.values())
-        for padstack_instance in padstack_instances:
-            result = padstack_instance.create_rectangle_in_pad("s", partition_max_order=8)
-            if padstack_instance.padstack_definition != "Padstack_None":
-                assert result
-            else:
-                assert result is False
-        edb_padstacks.close_edb()
+        for test_method in (edb.core_padstack.instances, edb.core_padstack.padstack_instances):
+            padstack_instances = list(test_method.values())
+            for padstack_instance in padstack_instances:
+                result = padstack_instance.create_rectangle_in_pad("s", partition_max_order=8)
+                if padstack_instance.padstack_definition != "Padstack_None":
+                    assert result
+                else:
+                    assert result is False
+        edb.close_edb()
 
     @pytest.mark.skipif(is_linux, reason="Failing download files")
     def test_06_edb_with_dxf(self):
