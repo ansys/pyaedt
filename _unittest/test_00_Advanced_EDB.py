@@ -954,6 +954,13 @@ class TestClass(BasisTest, object):
             plot_components_on_bottom=True,
         )
         assert os.path.exists(local_png3)
+        local_png4 = os.path.join(self.local_scratch.path, "test4.png")
+
+        edb_plot.stackup.plot(
+            save_plot=local_png4,
+            plot_definitions=list(edb_plot.core_padstack.definitions.keys())[0],
+        )
+        assert os.path.exists(local_png4)
 
     def test_24_convert_net_to_polygon(self):
         target_path = os.path.join(local_path, "example_models", "convert_and_merge_path.aedb")

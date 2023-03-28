@@ -459,7 +459,17 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
 
 
 @pyaedt_function_handler()
-def plot_matplotlib(plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None):
+def plot_matplotlib(
+    plot_data,
+    size=(2000, 1000),
+    show_legend=True,
+    xlabel="",
+    ylabel="",
+    title="",
+    snapshot_path=None,
+    x_limits=None,
+    y_limits=None,
+):
     """Create a matplotlib plot based on a list of data.
 
     Parameters
@@ -481,6 +491,11 @@ def plot_matplotlib(plot_data, size=(2000, 1000), show_legend=True, xlabel="", y
         Plot Title label.
     snapshot_path : str
         Full path to image file if a snapshot is needed.
+    x_limits : list, optional
+        List of x limits (bottom and top).
+    y_limits : list, optional
+        List of y limits (bottom and top).
+
 
     Returns
     -------
@@ -489,7 +504,9 @@ def plot_matplotlib(plot_data, size=(2000, 1000), show_legend=True, xlabel="", y
     """
     dpi = 100.0
     figsize = (size[0] / dpi, size[1] / dpi)
-    fig, ax = plt.subplots(figsize=figsize)
+    fig = plt.figure(figsize=figsize)
+    ax = fig.add_subplot(1, 1, 1)
+    # fig, ax = plt.subplot(figsize=figsize)
     if isinstance(plot_data, str):
         plot_data = ast.literal_eval(plot_data)
     for points in plot_data:
@@ -507,8 +524,11 @@ def plot_matplotlib(plot_data, size=(2000, 1000), show_legend=True, xlabel="", y
     ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
     if show_legend:
         ax.legend()
-    ax.axis("equal")
-
+    # ax.axis("equal")
+    if x_limits:
+        ax.set_xlim(x_limits)
+    if y_limits:
+        ax.set_ylim(y_limits)
     if snapshot_path:
         plt.savefig(snapshot_path)
     else:

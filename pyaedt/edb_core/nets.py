@@ -11,7 +11,6 @@ from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.generic.plot import plot_matplotlib
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
@@ -626,6 +625,8 @@ class EdbNets(object):
         if is_ironpython:
             self._logger.warning("Plot functionalities are enabled only in CPython.")
             return False
+        from pyaedt.generic.plot import plot_matplotlib
+
         object_lists = self.get_plot_data(
             nets,
             layers,
