@@ -491,10 +491,10 @@ class TestClass(BasisTest, object):
         assert var_server.IsVariableParameter("my_parameter")
         result, var_server = self.edbapp.add_design_variable("my_parameter", "2mm", True)
         assert not result
-        result, var_server = self.edbapp.add_design_variable("$my_project_variable", "3mm")
+        result, var_server = self.edbapp.add_project_variable("$my_project_variable", "3mm")
         assert result
         assert var_server
-        result, var_server = self.edbapp.add_design_variable("$my_project_variable", "3mm")
+        result, var_server = self.edbapp.add_project_variable("$my_project_variable", "3mm")
         assert not result
 
     def test_051_delete_net(self):

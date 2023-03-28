@@ -2409,6 +2409,39 @@ class Edb(object):
         return None
 
     @pyaedt_function_handler()
+    def add_project_variable(self, variable_name, variable_value):
+        """Add a variable to edb database (project). The variable will have the prefix `$`.
+
+        ..note::
+            User can use also the setitem to create or assign a variable. See example below.
+
+        Parameters
+        ----------
+        variable_name : str
+            Name of the variable. Name can be provided without ``$`` prefix.
+        variable_value : str, float
+            Value of the variable with units.
+
+        Returns
+        -------
+        tuple
+            Tuple containing the ``AddVariable`` result and variable server.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+        >>> edb_app = Edb()
+        >>> boolean_1, ant_length = edb_app.add_project_variable("my_local_variable", "1cm")
+        >>> print(edb_app["$my_local_variable"])    #using getitem
+        >>> edb_app["$my_local_variable"] = "1cm"   #using setitem
+
+        """
+        if not variable_name.startswith("$"):
+            variable_name = "${}".format(variable_name)
+        return self.add_design_variable(variable_name=variable_name, variable_value=variable_value)
+
+    @pyaedt_function_handler()
     def add_design_variable(self, variable_name, variable_value, is_parameter=False):
         """Add a variable to edb. The variable can be a design one or a project variable (using ``$`` prefix).
 
