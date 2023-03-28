@@ -1,4 +1,4 @@
-function filter_rays1(rayhdm,fltrCfg)
+function fltrCfg = filter_rays1(rayhdm,fltrCfg)
 % FILTER_RAYS1 apply configurable filter to rays
 %
 % Adds drawBounce, drawTransEscape, drawReflEscape, and drawBranch logical
@@ -10,12 +10,16 @@ function filter_rays1(rayhdm,fltrCfg)
 % ray tracks, adds a ray bounce HdmObject for the diffraction point that
 % sits between the source bounce and the first bounce.
 %
-% In addition, adds the following properties to each ray bounce HdmObject.
+% In addition, adds the following properties to each ray bounce HdmObject:
+%  .cumulative_dist (dbl) path length from source up to current bounce,
+%                         measured from phase ref. plane in case of plane-wave
+%                         incidence
+%
 %  .isLeaf    (lgc) true if ray bounce is a leaf bounce, meaning it
 %                   either has at least one escaping ray or it has no
-%                   descendent bouncces
+%                   descendant bounces
 %
-%  .maxDepth  (int) maximum tree depth reached by following all descendent
+%  .maxDepth  (int) maximum tree depth reached by following all descendant
 %                   bounces and escaping rays to their leaves
 %
 %  .maxTDepth (int) maximum transmission depth reached by following ...
@@ -23,12 +27,26 @@ function filter_rays1(rayhdm,fltrCfg)
 %  .maxRDepth (int) maximum reflection depth reached by following ...
 %
 %  .branches (1xNb int) indices of all branches joining the bounce from among
-%                       all descendents
+%                       all descendants, refs .track_leaves vector of leaf
+%                       bounces added to its parent ray track object
 %
-% Each ray track HdmObject is augmentended with .track_leaves field, a vector
-% of HdmObjects referencing the leaf bounce of each tree branch. The indices
-% held in the .branches field of each ray bounce work through the .track_leaves
-% vector.
+% Adds the following properties to each ray track HdmObject:
+%  .track_leaves (1xNb HdmObject) leaf bounce of each tree branch, the indices
+%                held in .branches of each ray bounce pertain to this vector of
+%                branch leaf bounces
+%
+%  .pwinc_theta_phi_deg (1x2 dbl) [theta phi] incident plane wave angle [deg],
+%                only added if ray bundle source_type is PLANE_WAVE, angles
+%                inferred by vector from ray launch point to first hit point
+%                or UTD diffraction point
+%
+% Adds the following properties to each ray bundle HdmObject:
+%  .pwinc_map (map,            containers.Map object whose integer keys match
+%              int -> 1x2 dbl) sweep_angle_index field found in each track of
+%             monostatic plane wave ray bundle, each value [theta phi] of
+%             incidence angle [deg], has one value at index 0 for bistatic RCS,
+%             only included if bundle source_type is PLANE_WAVE, useful for
+%             setting fltrCfg.idxAng in subsequent calls to FILTER_RAYS1
 %
 % rayhdm is the return value of ld_sbrplushdm when loading SBR+ exported
 % rays. There is no return value for FILTER_RAYS1. Rather, it uses the
@@ -41,9 +59,9 @@ function filter_rays1(rayhdm,fltrCfg)
 %                  (call with ld_sbrplushdm with asStruct set to FALSE)
 %
 %  fltrCfg (struct) filter settings
-%   .depthRng (1x2 int) [min max] bounce depth range, DEFAULT = [0 100000],
-%                       launch point and first bounce have bounce depths of
-%                       0 and 1, respectively, bounce-level filter
+%   .depthRng  (1x2 int) [min max] bounce depth range, DEFAULT = [0 1000000],
+%                        launch point and first bounce have bounce depths of
+%                        0 and 1, respectively, bounce-level filter
 %
 %   .rDepthRng (1x2 int) [min max] refl. depth range, DEFAULT = [0 1000000],
 %                        first bounce has a reflection depth of 0, and after
@@ -55,21 +73,47 @@ function filter_rays1(rayhdm,fltrCfg)
 %                        penetrating there, the next bounce has a trans. depth
 %                        of 1, track bounce-level filter
 %
-%   .NreflRng (1x2 int) [min max] range for total number of reflections before
-%                       terminating or escaping, controls branch-level filter,
-%                       DEFAULT = [0 1000000]
+%   .NreflRng  (1x2 int) [min max] range for total number of reflections before
+%                        terminating or escaping, controls branch-level filter,
+%                        DEFAULT = [0 1000000]
 %
-%   .NtransRng (1x2 int)[min max] range for total number of reflections before
-%                       terminating or escaping, track branch-level filter,
-%                       DEFAULT = [0 1000000]
+%   .NtransRng (1x2 int) [min max] range for total number of reflections before
+%                        terminating or escaping, track branch-level filter,
+%                        DEFAULT = [0 1000000]
 %
-%   .trackType {1xN cell} a cell array of strings {'SBR','UTD'} for ray track
+%   .trackType {1xN cell} a cell array of strings {'SBR', 'UTD'} for ray track
 %                OR (str) types to include, DEFAULT = [] = include all types,
 %                         accepts simple char string to specify a single type
 %
-% Returns: (nothing, but HdmObject handle objects in rayhdm are modifield)
+%   .idxAng    (1xM int) list of monostatic sweep angle indices to include,
+%                        ignored for ray bundles from antenna sources and
+%                        bi-static RCS since only monostatic RCS ray bundles
+%                        include/need a sweep angle index, DEFAULT = [] =
+%                        include all incident angles, see above regarding
+%                        .pwinc_map added to ray bundle HmdObject
 %
-% FILTER_RAYS1(rayhdm[,fltrCfg])
+% Returns:
+%  fltrCfg (struct) copy of input fltrCfg augmented with default values where
+%                   applicable and with any unrecognized struct fields removed
+%
+%  Note: filtered rays are returned via modifications to HdmObject handle
+%        objects in rayhdm
+%
+%                   Summary of Input fltrCfg Struct Fields
+% =============================================================================
+% | Field Name |     Type     |                Allowed Values                 |
+% |            |              |    entry before semicolon is the default      |
+% |============+==============+===============================================+
+% | depthRng   |    1x2 int   | [0 1000000]; [min max], min,max:[0, inf)      |
+% | rDepthRng  |    1x2 int   | same                                          |
+% | tDepthRng  |    1x2 int   | same                                          |
+% | NreflRng   |    1x2 int   | same                                          |
+% | NtransRng  |    1x2 int   | same                                          |
+% | trackType  | 1xN cell/str | [] (all types); SBR, UTD, {SBR, UTD}          |
+% | idxAng     |    1xM int   | [] (all angles); [0, inf)                     |
+% =============================================================================
+%
+% fltrCfg = FILTER_RAYS1(rayhdm[,fltrCfg])
 %
 % COPYRIGHT ANSYS, Inc. ALL RIGHTS RESERVED.
 
@@ -93,21 +137,36 @@ if isempty(fltrCfg.NtransRng) fltrCfg.NtransRng = [0 1000000]; end
 
 if ~isfield(fltrCfg,'trackType') fltrCfg.trackType = []; end
 if isempty(fltrCfg.trackType) fltrCfg.trackType = {'SBR','UTD'}; end
-
-includeSbr = false;
-includeUtd = false;
 if ischar(fltrCfg.trackType)
+  % .trackType is char array, place in 1x1 cell array
   fltrCfg.trackType = {fltrCfg.trackType};
 end
-for trackType0 = fltrCfg.trackType
-  switch lower(trackType0{1})
-   case 'sbr'
-    includeSbr = true;
-   case 'utd'
-    includeUtd = true;
-   otherwise
+
+if ~isfield(fltrCfg,'idxAng') fltrCfg.idxAng = []; end
+
+% validate and update fltrCfg fields
+valid_flds = {'depthRng','rDepthRng','tDepthRng','NreflRng','NtransRng', ...
+              'trackType','idxAng'};
+fltrCfg = validate_sfields(fltrCfg,valid_flds,'fltrCfg');
+
+% perform checks on rayhdm input
+if ~isstruct(rayhdm)
+  error('filter_rays1:badInput',...
+        ['Input argument rayhdm does not appear to be a return value ' ...
+         'from ld_sbrplushdm.m since it is not a MATLAB struct']);
+end
+if ~isfield(rayhdm,'hdm')
+  if isfield(rayhdm,'export_type')
     error('filter_rays1:badInput',...
-          'Unrecognized track type in fltrCfg.trackType: %s',trackType0{1});
+          ['Input struct rayhdm appears to be the return value from ' ...
+           'ld_sbrplushdm.m, but lacks a .hdm struct field. Try loading ' ...
+           'the ray export file again, this time calling ld_sbrplushdm.m ' ...
+           'with asStruct input arg set to false.']);
+
+  else
+    error('filter_rays1.badInput',...
+          ['Input struct rayhdm does not appear to be a return value ' ...
+           'from ld_sbrplushdm.m']);
   end
 end
 
@@ -117,6 +176,10 @@ end
   % at each bounce along the way
   %
   % Input Params:
+  %  rb       (HdmObject) current ray bounce to process
+  %  rbParent (HdmObject) parent of current ray bounce, pass zero (0) if no
+  %              OR 0     parent to this ray bounce
+  %
   %  pushFunc (func ptr) function that accepts current and parent bounce
   %                      HdmObjects as its two arguments, invoked before
   %                      recursively descending further in ray-track tree,
@@ -175,12 +238,21 @@ end
   %
   % Input Params:
   %  rb       (HdmObject) current ray bounce
-  %  rbParent (HdmObject) parent ray bounce
+  %  rbParent (HdmObject) parent ray bounce, pass zero (0) if current ray
+  %                       bounce has no parent (i.e., at top of ray track
+  %                       tree)
   %
   % Returns: (nothing)
   rb.hdmObj.parent = rbParent;
   if ~isfield(rb.hdmObj,'bounce_type')
     rb.hdmObj.bounce_type = SbrBounceType.Surface;  % enum
+  end
+
+  if ~isnumeric(rbParent)
+    % current bounce has parent bounce
+    hitDist = rb.hdmObj.hit_pt - rbParent.hdmObj.hit_pt;
+    hitDist = sqrt(dot(hitDist,hitDist));
+    rb.hdmObj.cumulative_dist = rbParent.hdmObj.cumulative_dist + hitDist;
   end
 
   rb.hdmObj.drawBounce = false;
@@ -196,19 +268,19 @@ end
   %
   % The following bounce properties are added to rb.hdmObj:
   % - isLeaf   true if rb is a leaf bounce (see below)
-  % - maxDepth maximum bounce depth reached following all descendent bounces
+  % - maxDepth maximum bounce depth reached following all descendant bounces
   %            and escaping rays to their leaves
   % - maxTDepth maximum transmission depth reached following all ...
   % - maxRDepth maximum reflection depth reached following all ...
   % - branches  indices (see below) of all branches joining rb from among all
-  %             descendents
+  %             descendants
   %
   % The following definition of a leaf bounce has arbitrary aspects that
   % serve the purpose in which it used.
   %   Any bounce with an escaping ray, whether on reflection or transmission
-  %   side, is deemed a leaf bounce, even if it has a descendent bounce on the
+  %   side, is deemed a leaf bounce, even if it has a descendant bounce on the
   %   other side from the escaping ray. If the bounce has no escaping rays,
-  %   then the presence of a descendent bounce on either the reflection or
+  %   then the presence of a descendant bounce on either the reflection or
   %   transmission side means it is not a leaf bounce.
   %
   % This method modifies the exterior variable, track_leaves. If rb is a leaf
@@ -216,12 +288,12 @@ end
   % handle object. The branch index of the rb leaf bounce will then be its
   % position in the track_leaves vector. This will become the first index
   % in branches (see above), which will then be appended with branch indices
-  % for any descendent bounces. If rb is not a leaf bounce, its branches will
-  % be the combination of branch indices from descendent bounces.
+  % for any descendant bounces. If rb is not a leaf bounce, its branches will
+  % be the combination of branch indices from descendant bounces.
   %
   % Serves as pop function callable from recurse_track. This means this
   % function should only be called for a given ray bounce after it has first
-  % been called for all descendent bounces.
+  % been called for all descendant bounces.
   %
   % Input Params:
   %  rb       (HdmObject) current ray bounce
@@ -239,9 +311,10 @@ end
   if isLeaf
     % LEAF BOUNCE
     % - has escaping trans ray OR escaping refl ray OR
-    % - has no descendent bounces (i.e., terminal hit point)
+    % - has no descendant bounces (i.e., terminal hit point)
     track_leaves = [track_leaves rb];
     branches = length(track_leaves);
+    maxCumulativeDist = max(maxCumulativeDist,rb.hdmObj.cumulative_dist);
   end
 
   maxDepth = 0;
@@ -293,7 +366,7 @@ end
   %
   % Returns: (nothing)
   if ~draw_branch(rb)
-    % We are not drawining this ray branch on account of props of this
+    % We are not drawing this ray branch on account of props of this
     % putative leaf bounce. Don't change the state of its draw-branch
     % flag to false, just leave it alone. It may have have been set
     % true if it's a ray-track branch merge point and the other
@@ -479,25 +552,6 @@ end
   end  % draw_trans_escape
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if ~isstruct(rayhdm)
-  error('filter_rays1:badInput',...
-        ['Input argument rayhdm does not appear to be a return value ' ...
-         'from ld_sbrplushdm.m since it is not a MATLAB struct']);
-end
-if ~isfield(rayhdm,'hdm')
-  if isfield(rayhdm,'export_type')
-    error('filter_rays1:badInput',...
-          ['Input struct rayhdm appears to be the return value from ' ...
-           'ld_sbrplushdm.m, but lacks a .hdm struct field. Try loading ' ...
-           'the ray export file again, this time calling ld_sbrplushdm.m ' ...
-           'with asStruct input arg set to false.']);
-
-  else
-    error('filter_rays1.badInput',...
-          ['Input struct rayhdm does not appear to be a return value ' ...
-           'from ld_sbrplushdm.m']);
-  end
-end
 bundle = rayhdm.hdm;  % HdmObject
 Ntrack = length(bundle.hdmObj.ray_tracks);
 
@@ -519,13 +573,19 @@ hdmStruct.refl_bounce = []; % set to first_bounce of each ray track
 hdmStruct.refl_escaped_ray = [];
 hdmStruct.parent = [];
 hdmStruct.bounce_type = SbrBounceType.Undefined;  % enumeration
+hdmStruct.cumulative_dist = 0;
 
 % Test if ray bundle has already been filtered by filter_rays1().
 %
 % The same ray bundle can be filtered multiple times with filter_rays1,
-% applying a different filter each time to achieve a different outcome,
-% but in that case, we need to skip introduction of a source bounce
-% HdmObject since it should already be there.
+% applying a different filter each time to achieve a different outcome.
+% If the ray bundle has already been filtered, we can/must skip any
+% one-time mods to either save effort or avoid corrupting the tracks:
+% -  skip introduction of a source bounce HdmObject since it should already
+%    be there
+%
+% - skip calling update_branch_info as pop-function on first pass through
+%   track tree to spare wasted effort
 %
 % See later where .filter field is added to bundle.hdmObj after all the
 % filtering is done. The following check needs to be kept consistent
@@ -536,14 +596,39 @@ if alreadyFiltered
   alreadyFiltered = strcmp(bundle.hdmObj.filter,filter_func_name);
 end
 
+r2d = 180/pi;
+isPwSource = strcmp(bundle.hdmObj.source_type,'PLANE_WAVE');
+hasSweepAngIdx = isfield(bundle.hdmObj.ray_tracks(1),'sweep_angle_index');
+filterSweepIdx = hasSweepAngIdx && ~isempty(fltrCfg.idxAng);
+sweepAngIdxMap = containers.Map('KeyType','int32','ValueType','any');
+                 % sweep_angle_index -> [theta phi]
+
+% set flags for track_type filter
+includeSbr = false;
+includeUtd = false;
+for trackType0 = fltrCfg.trackType
+  switch lower(trackType0{1})
+   case 'sbr'
+    includeSbr = true;
+   case 'utd'
+    includeUtd = true;
+   otherwise
+    error('filter_rays1:badInput',...
+          'Unrecognized track type in fltrCfg.trackType: %s',trackType0{1});
+  end
+end
+
+minFpDistBundle = realmax;  % largest double FP number
+maxDistBundle = 0;
 for itrack = 1:Ntrack
   rbSrc = [];
   rbUtd = [];
+  first_bounce = bundle.hdmObj.ray_tracks(itrack).first_bounce;
   % The source bounce will be added if
   % - the ray bundle has not already been filtered by filter_rays1(),
   %   which will often be the case
   %
-  % - in spite of the ray bundle already having been filtered by filter_rays1(),
+  % - in spite of the ray bundle already having been filtered by filter_rays1()
   %   the ray track somehow does not have a .source_bounce field, which is
   %   not expected
   addSrcBnc = ~alreadyFiltered || ...
@@ -556,6 +641,15 @@ for itrack = 1:Ntrack
     rbSrc = HdmObject(hdmStruct);
     rbSrc.hdmObj.hit_pt = bundle.hdmObj.ray_tracks(itrack).source_point;
     rbSrc.hdmObj.bounce_type = SbrBounceType.Source;  % enum
+
+    if isfield(bundle.hdmObj.ray_tracks(itrack),'launch_offset_dist')
+      % Init cumulative dist at source bounce to launch_offset_dist of ray
+      % track. Cumulative dist of any descendants will automatically update
+      % during tree recursion.
+      rbSrc.hdmObj.cumulative_dist = ...
+        bundle.hdmObj.ray_tracks(itrack).launch_offset_dist;
+    end
+
     utd_point = bundle.hdmObj.ray_tracks(itrack).utd_point;
     if ~isempty(utd_point)
       % There's a UTD diffraction. Represent this as a bounce whose parent
@@ -564,8 +658,8 @@ for itrack = 1:Ntrack
       rbUtd = HdmObject(hdmStruct);
       rbUtd.hdmObj.flags.HasReflBnc = true;  % so rbUtd won't be marked as leaf
       rbUtd.hdmObj.hit_pt = utd_point;
-      rbUtd.hdmObj.refl_bounce = bundle.hdmObj.ray_tracks(itrack).first_bounce;
-      rbUtd.hdmObj.bounce_type = SbrBounceType.UtdEdge;  % enum
+      rbUtd.hdmObj.refl_bounce = first_bounce;
+      rbUtd.hdmObj.bounce_type = SbrBounceType.UtdEdge;  % enumeration
 
       rbSrc.hdmObj.flags.HasReflBnc = true;  % so rbSrc won't be marked as leaf
       rbSrc.hdmObj.refl_bounce = rbUtd;
@@ -573,7 +667,25 @@ for itrack = 1:Ntrack
     else
       % no UTD diffraction
       rbSrc.hdmObj.flags.HasReflBnc = true;
-      rbSrc.hdmObj.refl_bounce = bundle.hdmObj.ray_tracks(itrack).first_bounce;
+      rbSrc.hdmObj.refl_bounce = first_bounce;
+    end
+
+    if isPwSource
+      % determine incidence angle and add this info to rayrack in map from
+      % sweep_angle_index to [theta phi] angle
+      %
+      % Following is vector from either first bounce or UTD point to source.
+      % It points toward the PW source.
+      vInc = rbSrc.hdmObj.hit_pt - rbSrc.hdmObj.refl_bounce.hdmObj.hit_pt;
+      [theta phi] = rvec2thetaphi(vInc);
+      theta_phi_deg = [theta phi]*r2d;
+      bundle.hdmObj.ray_tracks(itrack).pwinc_theta_phi_deg = theta_phi_deg;
+
+      idxSweepAng = int32(0);
+      if hasSweepAngIdx
+        idxSweepAng = bundle.hdmObj.ray_tracks(itrack).sweep_angle_index;
+      end
+      sweepAngIdxMap(idxSweepAng) = theta_phi_deg;
     end
     bundle.hdmObj.ray_tracks(itrack).source_bounce = rbSrc;
   
@@ -582,20 +694,28 @@ for itrack = 1:Ntrack
     rbSrc = bundle.hdmObj.ray_tracks(itrack).source_bounce;
   end
 
-  % Recursively traverse the ray track bounce tree, applying various push
-  % and pop functions to add and set new HdmObject fields of each bounce
-  % according to fltrCfg.
+  % First-pass tree recursion: init draw flags and, if first time to filter
+  % ray bundle, determine and cache track properties.
   rDepth = 0;
   tDepth = 0;
   depth = 0;
-  track_leaves = [];
-  recurse_track(rbSrc,0,@init_draw_flags,@update_branch_info);
-  bundle.hdmObj.ray_tracks(itrack).track_leaves = track_leaves;
+  if alreadyFiltered
+    recurse_track(rbSrc,0,@init_draw_flags,0);
+  else
+    track_leaves = [];
+    maxCumulativeDist = 0;
+    recurse_track(rbSrc,0,@init_draw_flags,@update_branch_info);
+    bundle.hdmObj.ray_tracks(itrack).track_leaves = track_leaves;
+    bundle.hdmObj.ray_tracks(itrack).max_cumulative_dist = maxCumulativeDist;
+    maxDistBundle = max(maxDistBundle,maxCumulativeDist);
+    minFpDistBundle = ...
+      min(minFpDistBundle,first_bounce.hdmObj.cumulative_dist);
+  end
 
   % At this point, all the track bounces have their draw flags added and
   % set to false, and metrics like maxDepth have been added. Test if ray
-  % track type does matches those in fltrCfg.trackType, and continue to
-  % to next ray track if no match.
+  % track type matches those in fltrCfg.trackType, and continue to next ray
+  % track if no match.
   track_type = bundle.hdmObj.ray_tracks(itrack).track_type;
   trackTypeMismatched = strcmp(track_type,'SBR_PO') && ~includeSbr;
   trackTypeMismatched = trackTypeMismatched || ...
@@ -604,11 +724,58 @@ for itrack = 1:Ntrack
     continue;
   end
 
-  % Track type matches. Continue with tree recursions to set draw flags
-  % according to other filter properties.
+  if filterSweepIdx
+    % check this track's sweep angle index matches one in the idxAng list
+    idx = find(fltrCfg.idxAng == bundle.hdmObj.ray_tracks(itrack).sweep_angle_index);
+    if isempty(idx)
+      continue;  % no match, leave all draw flags as false for this ray track
+    end
+  end
+
+  % track not being skipped due to track-level filters, proceed with two
+  % more passes to update draw flags according to fltrCfg properties
   recurse_track(rbSrc,0,0,@set_draw_branch);
   recurse_track(rbSrc,0,0,@set_draw_flags);
+end  % for itrack = 1:Ntrack
+
+if ~alreadyFiltered
+  bundle.hdmObj.min_fp_cumulative_dist = minFpDistBundle;
+  bundle.hdmObj.max_cumulative_dist = maxDistBundle;
+
+  if isPwSource
+    % add the sweep angle index map
+    %
+    % The map gets populated during creation of the source_bounce, which only
+    % occurs on the first pass of the ray bundle through ray_filters1.
+    % On subsequent passes, the local map container will be empty, so we
+    % don't want to replace the cached map with an empty one. That's why
+    % we check if ray bundle has already been filtered.
+    bundle.hdmObj.pwinc_map = sweepAngIdxMap;
+  end
 end
 bundle.hdmObj.filter = filter_func_name;
 bundle.hdmObj.filterCfg = fltrCfg;
 end  % filter_rays1
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function [theta phi] = rvec2thetaphi(rvec)
+% RVEC2THETAPHI generate spherical-coord angles from outward radial vector
+%
+% Input Params:
+%  rvec (1x3 dbl) outward pointing radial vector, not assumed to be unit vec
+%
+% Returns:
+%  theta (dbl) theta angle [rad]
+%  phi   (dbl) phi angle [rad]
+rlen = sqrt(dot(rvec,rvec));
+if rlen == 0
+  % this should not happen
+  theta = nan;
+  phi = nan;
+else
+  rvec = rvec/rlen;
+  rho = sqrt(dot(rvec(1:2),rvec(1:2)));
+  theta = atan2(rho,rvec(3));
+  phi = atan2(rvec(2),rvec(1));
+end
+end  % rvec2thetaphi
