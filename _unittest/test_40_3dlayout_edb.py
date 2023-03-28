@@ -328,3 +328,13 @@ class TestClass(BasisTest, object):
         )
         assert isinstance(hfss3d.get_dcir_element_data_loop_resistance("Siwave_DC_WP9QNY"), pd.DataFrame)
         assert isinstance(hfss3d.get_dcir_element_data_current_source("Siwave_DC_WP9QNY"), pd.DataFrame)
+
+    def test_20_change_options(self):
+        assert self.aedtapp.change_options()
+        assert self.aedtapp.change_options(color_by_net=False)
+        assert not self.aedtapp.change_options(color_by_net=None)
+
+    def test_21_show_extent(self):
+        assert self.aedtapp.show_extent()
+        assert self.aedtapp.show_extent(show=False)
+        assert not self.aedtapp.show_extent(show=None)
