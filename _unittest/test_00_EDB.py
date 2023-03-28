@@ -155,39 +155,40 @@ class TestClass(BasisTest, object):
 
     def test_009_vias_creation(self):
         self.edbapp.core_padstack.create_padstack(padstackname="myVia")
-        assert "myVia" in list(self.edbapp.core_padstack.padstacks.keys())
+        assert "myVia" in list(self.edbapp.core_padstack.definitions.keys())
         self.edbapp.core_padstack.create_padstack(padstackname="myVia_bullet", antipad_shape="Bullet")
-        assert "myVia_bullet" in list(self.edbapp.core_padstack.padstacks.keys())
+        assert "myVia_bullet" in list(self.edbapp.core_padstack.definitions.keys())
 
         self.edbapp.add_design_variable("via_x", 5e-3)
         self.edbapp["via_y"] = "1mm"
-        assert self.edbapp["via_y"].tofloat == 1e-3
-        assert self.edbapp["via_y"].tostring == "1mm"
+        assert self.edbapp["via_y"].value == 1e-3
+        assert self.edbapp["via_y"].value_string == "1mm"
 
         assert self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y"], "myVia")
         assert self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y*2"], "myVia_bullet")
 
         padstack = self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y*3"], "myVia", is_pin=True)
-        padstack_instance = self.edbapp.core_padstack.padstack_instances[padstack.id]
-        assert padstack_instance.is_pin
-        assert padstack_instance.position
-        if not is_ironpython:
-            assert padstack_instance.start_layer in padstack_instance.layer_range_names
-            assert padstack_instance.stop_layer in padstack_instance.layer_range_names
-        padstack_instance.position = [0.001, 0.002]
-        assert padstack_instance.position == [0.001, 0.002]
-        assert padstack_instance.parametrize_position()
-        assert isinstance(padstack_instance.rotation, float)
-        self.edbapp.core_padstack.create_circular_padstack(padstackname="mycircularvia")
-        assert "mycircularvia" in list(self.edbapp.core_padstack.padstacks.keys())
-        assert not padstack_instance.backdrill_top
-        assert not padstack_instance.backdrill_bottom
-        assert padstack_instance.delete()
-        via = self.edbapp.core_padstack.place_padstack([0, 0], "myVia")
-        assert via.set_backdrill_top("LYR_1", 0.5e-3)
-        assert via.backdrill_top
-        assert via.set_backdrill_bottom("GND", 0.5e-3)
-        assert via.backdrill_bottom
+        for test_prop in (self.edbapp.core_padstack.padstack_instances, self.edbapp.core_padstack.instances):
+            padstack_instance = test_prop[padstack.id]
+            assert padstack_instance.is_pin
+            assert padstack_instance.position
+            if not is_ironpython:
+                assert padstack_instance.start_layer in padstack_instance.layer_range_names
+                assert padstack_instance.stop_layer in padstack_instance.layer_range_names
+            padstack_instance.position = [0.001, 0.002]
+            assert padstack_instance.position == [0.001, 0.002]
+            assert padstack_instance.parametrize_position()
+            assert isinstance(padstack_instance.rotation, float)
+            self.edbapp.core_padstack.create_circular_padstack(padstackname="mycircularvia")
+            assert "mycircularvia" in list(self.edbapp.core_padstack.definitions.keys())
+            assert not padstack_instance.backdrill_top
+            assert not padstack_instance.backdrill_bottom
+            assert padstack_instance.delete()
+            via = self.edbapp.core_padstack.place_padstack([0, 0], "myVia")
+            assert via.set_backdrill_top("LYR_1", 0.5e-3)
+            assert via.backdrill_top
+            assert via.set_backdrill_bottom("GND", 0.5e-3)
+            assert via.backdrill_bottom
 
     def test_010_nets_query(self):
         signalnets = self.edbapp.core_nets.signal_nets
@@ -519,8 +520,8 @@ class TestClass(BasisTest, object):
             assert points
 
     def test_055_get_padstack(self):
-        for el in self.edbapp.core_padstack.padstacks:
-            pad = self.edbapp.core_padstack.padstacks[el]
+        for el in self.edbapp.core_padstack.definitions:
+            pad = self.edbapp.core_padstack.definitions[el]
             assert pad.hole_plating_thickness is not None or False
             assert pad.hole_properties is not None or False
             assert pad.hole_plating_thickness is not None or False
@@ -543,7 +544,7 @@ class TestClass(BasisTest, object):
                 assert polygon.GetBBox()
 
     def test_056_set_padstack(self):
-        pad = self.edbapp.core_padstack.padstacks["C10N116"]
+        pad = self.edbapp.core_padstack.definitions["C10N116"]
         hole_pad = 8
         tol = 1e-12
         pad.hole_properties = hole_pad
@@ -842,6 +843,7 @@ class TestClass(BasisTest, object):
         plane = self.edbapp.core_primitives.create_polygon(plane_shape, "TOP", net_name="GND")
         void = self.edbapp.core_primitives.create_trace([["0", "0"], ["0", "1mm"]], layer_name="TOP", width="0.1mm")
         assert self.edbapp.core_primitives.add_void(plane, void)
+        assert plane.add_void(void)
 
     def test_078_create_solder_balls_on_component(self):
         assert self.edbapp.core_components.set_solder_ball("U2A5")
@@ -866,7 +868,7 @@ class TestClass(BasisTest, object):
             target_padstack_name="VIA_20-10-28_SMB",
             new_padstack_name="VIA_20-10-28_SMB_NEW",
         )
-        assert self.edbapp.core_padstack.padstacks["VIA_20-10-28_SMB_NEW"]
+        assert self.edbapp.core_padstack.definitions["VIA_20-10-28_SMB_NEW"]
 
     def test_83_set_padstack_property(self):
         self.edbapp.core_padstack.set_pad_property(
@@ -875,7 +877,7 @@ class TestClass(BasisTest, object):
             pad_shape="Circle",
             pad_params="800um",
         )
-        assert self.edbapp.core_padstack.padstacks["VIA_18-10-28_SMB"].pad_by_layer["new"]
+        assert self.edbapp.core_padstack.definitions["VIA_18-10-28_SMB"].pad_by_layer["new"]
 
     def test_084_primitives_area(self):
         i = 0
@@ -1037,6 +1039,20 @@ class TestClass(BasisTest, object):
             assert not changed_variable_done
         else:
             assert not changed_variable_5
+
+    def test_097b_variables(self):
+        self.edbapp["my_var_1"] = 0.01
+        assert self.edbapp["my_var_1"].value == 0.01
+        assert self.edbapp.variables["my_var_1"].value == 0.01
+        assert self.edbapp.variables["my_var_1"].value_string == "0.01"
+        assert self.edbapp.variables["my_var_1"].value_object.tofloat == 0.01
+        assert self.edbapp.variables
+
+        assert not self.edbapp.variables["my_var_1"].is_parameter
+        self.edbapp.design_variables["my_var_1"].description = "This is variable description"
+        assert self.edbapp.design_variables["my_var_1"].description
+        self.edbapp["$my_project_var_1"] = 0.02
+        assert self.edbapp.project_variables["$my_project_var_1"].delete()
 
     def test_098_etch_factor(self):
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
@@ -1805,14 +1821,14 @@ class TestClass(BasisTest, object):
         target_path = os.path.join(self.local_scratch.path, "test_128_microvias.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
-        assert edbapp.core_padstack.padstacks["Padstack_Circle"].convert_to_3d_microvias(False)
-        assert edbapp.core_padstack.padstacks["Padstack_Rectangle"].convert_to_3d_microvias(False, hole_wall_angle=10)
-        assert edbapp.core_padstack.padstacks["Padstack_Polygon_p12"].convert_to_3d_microvias(False)
+        assert edbapp.core_padstack.definitions["Padstack_Circle"].convert_to_3d_microvias(False)
+        assert edbapp.core_padstack.definitions["Padstack_Rectangle"].convert_to_3d_microvias(False, hole_wall_angle=10)
+        assert edbapp.core_padstack.definitions["Padstack_Polygon_p12"].convert_to_3d_microvias(False)
         edbapp.close_edb()
 
     def test_129_split_microvias(self):
         edbapp = Edb(self.target_path4, edbversion=desktop_version)
-        assert len(edbapp.core_padstack.padstacks["C4_POWER_1"].split_to_microvias()) > 0
+        assert len(edbapp.core_padstack.definitions["C4_POWER_1"].split_to_microvias()) > 0
         edbapp.close_edb()
 
     def test_129_hfss_simulation_setup(self):

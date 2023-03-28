@@ -695,7 +695,7 @@ class BasisOrder(object):
     ``single``.
     """
 
-    (Mixed, Zero, Single, Double, Invalid) = range(0, 5)
+    (Mixed, Zero, Single, Double, Invalid) = (-1, 0, 1, 2, 3)
 
 
 class NodeType(object):

@@ -770,7 +770,7 @@ class ExcitationPorts(CommonExcitation):
                 prim_shape_data = primitive.GetPolygonData()
                 if prim_shape_data.PointInPolygon(shape_pd):
                     return EDBPrimitives(primitive, self._pedb)
-        for vias in self._pedb.core_padstack.padstack_instances.values():
+        for vias in self._pedb.core_padstack.instances.values():
             if layer_name in vias.layer_range_names:
                 plane = self._pedb.core_primitives.Shape(
                     "rectangle", pointA=vias.position, pointB=vias.padstack_definition.bounding_box[1]

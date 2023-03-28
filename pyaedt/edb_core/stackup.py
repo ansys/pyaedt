@@ -45,6 +45,7 @@ class Stackup(object):
 
     def __init__(self, pedb):
         self._pedb = pedb
+        self.__layer_collection = None
 
     @property
     def _logger(self):
@@ -222,22 +223,28 @@ class Stackup(object):
             )
         return True
 
+    @pyaedt_function_handler()
+    def refresh_layer_collection(self):
+        """Refresh layer collection from Edb. This method is run on demand after all edit operations on stackup."""
+        lc_readonly = self._pedb._active_layout.GetLayerCollection()
+        layers = list(list(lc_readonly.Layers(self._pedb.edb.Cell.LayerTypeSet.AllLayerSet)))
+        self.__layer_collection = self._pedb.edb.Cell.LayerCollection()
+        self.__layer_collection.SetMode(lc_readonly.GetMode())
+        for layer in layers:
+            self.__layer_collection.AddLayerBottom(layer.Clone())
+
     @property
     def _layer_collection(self):
         """Copy of EDB layer collection.
 
         Returns
         -------
-        class : Ansys.Ansoft.Edb.Cell.LayerCollection
+        :class:`Ansys.Ansoft.Edb.Cell.LayerCollection`
             Collection of layers.
         """
-        lc_readonly = self._pedb._active_layout.GetLayerCollection()
-        layers = list(list(lc_readonly.Layers(self._pedb.edb.Cell.LayerTypeSet.AllLayerSet)))
-        layer_collection = self._pedb.edb.Cell.LayerCollection()
-        layer_collection.SetMode(lc_readonly.GetMode())
-        for layer in layers:
-            layer_collection.AddLayerBottom(layer.Clone())
-        return layer_collection
+        if not self.__layer_collection:
+            self.refresh_layer_collection()
+        return self.__layer_collection
 
     @property
     def _edb_layer_list(self):
@@ -253,7 +260,7 @@ class Stackup(object):
 
         Returns
         -------
-        dict
+        Dict[str, :class:`pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`]
         """
         _lays = OrderedDict()
         for l in self._edb_layer_list:
@@ -267,7 +274,7 @@ class Stackup(object):
 
         Returns
         -------
-        dict
+        Dict[str, :class:`pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`]
         """
         layer_type = self._pedb.edb.Cell.LayerType.SignalLayer
         _lays = OrderedDict()
@@ -282,7 +289,7 @@ class Stackup(object):
 
         Returns
         -------
-        dict
+        Dict[str, :class:`pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`]
         """
         layer_type = [
             self._pedb.edb.Cell.LayerType.SignalLayer,
@@ -300,7 +307,7 @@ class Stackup(object):
 
         Returns
         -------
-        dict
+        Dict[str, :class:`pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`]
         """
         return {l.GetName(): LayerEdbClass(self, l.GetName()) for l in self._edb_layer_list_nonstackup}
 
@@ -369,7 +376,9 @@ class Stackup(object):
             for lay in non_stackup:
                 new_layer = self._pedb.edb.Cell.Layer(lay.GetName(), self._int_to_layer_types(lay.GetLayerType()))
                 new_layer_collection.AddLayerBottom(new_layer)
-        return self._pedb._active_layout.SetLayerCollection(new_layer_collection)
+        result = self._pedb._active_layout.SetLayerCollection(new_layer_collection)
+        self.refresh_layer_collection()
+        return result
 
     @pyaedt_function_handler()
     def _create_stackup_layer(self, layer_name, thickness, layer_type="signal"):
@@ -378,13 +387,15 @@ class Stackup(object):
         else:
             _layer_type = self._pedb.edb.Cell.LayerType.DielectricLayer
 
-        return self._pedb.edb.Cell.StackupLayer(
+        result = self._pedb.edb.Cell.StackupLayer(
             layer_name,
             _layer_type,
             self._edb_value(thickness),
             self._edb_value(0),
             "",
         )
+        self.refresh_layer_collection()
+        return result
 
     @pyaedt_function_handler()
     def _create_nonstackup_layer(self, layer_name, layer_type):
@@ -421,7 +432,9 @@ class Stackup(object):
         else:  # pragma: no cover
             _layer_type = self._pedb.edb.Cell.LayerType.UndefinedLayerType
 
-        return self._pedb.edb.Cell.Layer(layer_name, _layer_type)
+        result = self._pedb.edb.Cell.Layer(layer_name, _layer_type)
+        self.refresh_layer_collection()
+        return result
 
     @pyaedt_function_handler()
     def add_layer(
@@ -510,7 +523,7 @@ class Stackup(object):
         else:
             new_layer = self._create_nonstackup_layer(layer_name, layer_type)
             self._set_layout_stackup(new_layer, "non_stackup")
-
+        self.refresh_layer_collection()
         return self.layers[layer_name]
 
     def remove_layer(self, name):
@@ -529,7 +542,10 @@ class Stackup(object):
         for lyr in self._edb_layer_list:
             if not (lyr.GetName() == name):
                 new_layer_collection.AddLayerBottom(lyr)
-        return self._pedb._active_layout.SetLayerCollection(new_layer_collection)
+
+        result = self._pedb._active_layout.SetLayerCollection(new_layer_collection)
+        self.refresh_layer_collection()
+        return result
 
     @pyaedt_function_handler
     def export_stackup(self, fpath, file_format="xml", include_material_with_layer=False):
@@ -673,6 +689,7 @@ class Stackup(object):
                                 prev_layer = layer_name
                         if layer_name in self.stackup_layers:
                             self.stackup_layers[layer["name"]]._load_layer(layer)
+            self.refresh_layer_collection()
             return True
 
     @pyaedt_function_handler()
@@ -810,12 +827,13 @@ class Stackup(object):
                 cmp.SetComponentProperty(cmp_prop)
 
             lay_list = list(new_lc.Layers(self._pedb.edb.Cell.LayerTypeSet.SignalLayerSet))
-            for padstack in list(self._pedb.core_padstack.padstack_instances.values()):
+            for padstack in list(self._pedb.core_padstack.instances.values()):
                 start_layer_id = [lay.GetLayerId() for lay in list(lay_list) if lay.GetName() == padstack.start_layer]
                 stop_layer_id = [lay.GetLayerId() for lay in list(lay_list) if lay.GetName() == padstack.stop_layer]
                 layer_map = padstack._edb_padstackinstance.GetLayerMap()
                 layer_map.SetMapping(stop_layer_id[0], start_layer_id[0])
                 padstack._edb_padstackinstance.SetLayerMap(layer_map)
+            self.refresh_layer_collection()
             return True
         except:
             return False
@@ -982,7 +1000,7 @@ class Stackup(object):
             cell_inst2.SetPlacementLayer(
                 list(stackup_target.Layers(self._pedb.edb.Cell.LayerTypeSet.SignalLayerSet))[-1]
             )
-
+        self.refresh_layer_collection()
         return True
 
     @pyaedt_function_handler()
@@ -1118,6 +1136,7 @@ class Stackup(object):
             self._edb_value(math.cos(_angle)), self._edb_value(-1 * math.sin(_angle)), zero_data
         )
         cell_inst2.Set3DTransformation(point_loc, point_from, point_to, rotation, point3d_t)
+        self.refresh_layer_collection()
         return True
 
     @pyaedt_function_handler()
@@ -1197,7 +1216,7 @@ class Stackup(object):
         ):  # pragma: no cover
             logger.error("Failed to set 3D transform on a3dcomp cell instance")
             return False
-
+        self.refresh_layer_collection()
         return True
 
     @pyaedt_function_handler
