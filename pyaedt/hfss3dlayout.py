@@ -2240,7 +2240,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         Returns
         -------
         bool
-            ``True`` is successful, ``False`` if it fails.
+            ``True`` if successful, ``False`` if it fails.
         """
         try:
             options = ["NAME:options", "ColorByNet:=", color_by_net, "CN:=", self.design_name]
