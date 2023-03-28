@@ -11,8 +11,9 @@ function fltrCfg = filter_rays1(rayhdm,fltrCfg)
 % sits between the source bounce and the first bounce.
 %
 % In addition, adds the following properties to each ray bounce HdmObject:
-%  .cumulative_dist (dbl) path length from soure up to current bounce, measured
-%                         from phase ref. plane in case of plane-wave incidence
+%  .cumulative_dist (dbl) path length from source up to current bounce,
+%                         measured from phase ref. plane in case of plane-wave
+%                         incidence
 %
 %  .isLeaf    (lgc) true if ray bounce is a leaf bounce, meaning it
 %                   either has at least one escaping ray or it has no

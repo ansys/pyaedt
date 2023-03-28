@@ -20,7 +20,7 @@ function obj = ld_wfobj(fname)
 %
 %   More generally, will parse triangle faces that specify indices to
 %   the preceding block text coords and vertex normals, using forward slash
-%   '/' as a delimeter
+%   '/' as a delimiter
 %   f <v1>/<vt1>/<vn1> <v2>/<vt2>/<vn2> <v3>/<vt3>/<vn3>
 %   f <v1>/<vt1> <v2>/<vt2> <v3>/vt3>
 %   f <v1>//<vn1> <v2>//<vn2> <v3>//<vn3>
