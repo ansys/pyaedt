@@ -1722,6 +1722,138 @@ class Stackup(object):
         else:
             return False
 
+    @pyaedt_function_handler()
+    def plot(
+        self,
+        show_legend=True,
+        save_plot=None,
+        size=(2000, 1500),
+        plot_definitions=None,
+        first_layer=None,
+        last_layer=None,
+    ):
+        """Plot actual stackup and, optionally, overlap padstack definitions.
+
+        Parameters
+        ----------
+        show_legend : bool, optional
+            If ``True`` the legend is shown in the plot. (default)
+            If ``False`` the legend is not shown.
+        save_plot : str, optional
+            If ``None`` the plot will be shown.
+            If a file path is specified the plot will be saved to such file.
+
+        size : tuple, optional
+            Image size in pixel (width, height). Default value is ``(2000, 1500)``
+        plot_definitions : str, list, optional
+            List of padstack definitions to plot on the stackup.
+        first_layer : str or :class:`pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`
+            First layer to plot from the bottom. Default is `None` to start plotting from bottom.
+        last_layer : str or :class:`pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`
+            Last layer to plot from the bottom. Default is `None` to plot up to top layer.
+
+        Returns
+        -------
+        :class:`matplotlib.plt`
+        """
+        if is_ironpython:
+            return False
+        from pyaedt.generic.constants import CSS4_COLORS
+        from pyaedt.generic.plot import plot_matplotlib
+
+        thick = abs(self.get_layout_thickness()) * 1e6
+        x_min = -3 * thick
+        x_max = 3 * thick
+        objects_lists = []
+
+        layers_name = list(self.stackup_layers.keys())
+        bottom_layer = self.stackup_layers[layers_name[-1]]
+        top_layer = self.stackup_layers[layers_name[0]]
+        start_plot = False
+        if not last_layer:
+            last_layer = top_layer
+        elif isinstance(last_layer, str):
+            last_layer = self.layers[last_layer]
+        if not first_layer:
+            first_layer = bottom_layer
+        elif isinstance(first_layer, str):
+            first_layer = self.layers[first_layer]
+        limits = [first_layer.lower_elevation * 1e6, (last_layer.lower_elevation + last_layer.thickness) * 1e6]
+
+        for layername, layerval in self.layers.items():
+            if layername == last_layer.name:
+                start_plot = True
+            if start_plot and layerval.thickness is not None:
+                x = [x_min, x_min, x_max, x_max]
+                lel = layerval.lower_elevation * 1e6
+                uel = layerval.upper_elevation * 1e6
+                y = [lel, uel, uel, lel]
+                color = [float(i) / 256 for i in layerval.color]
+                if color == [1.0, 1.0, 1.0]:
+                    color = [0.9, 0.9, 0.9]
+                objects_lists.append(
+                    [x, y, color, "{} {}um".format(layername, round(layerval.thickness * 1e6, 2)), 0.4, "fill"]
+                )
+            if layername == first_layer.name:
+                start_plot = False
+        delta = (x_max - x_min) / 20
+        x_start = x_min + delta
+        if plot_definitions:
+            if not isinstance(plot_definitions, list):
+                plot_definitions = [plot_definitions]
+            color_index = 0
+            color_keys = list(CSS4_COLORS.keys())
+            max_plots = 20
+
+            for definition in plot_definitions:
+                if isinstance(definition, str):
+                    definition = self._pedb.core_padstack.definitions[definition]
+                min_lel = 1e12
+                max_lel = -1e12
+                max_x = 0
+                name_assigned = definition.name
+                for layer, defs in definition.pad_by_layer.items():
+                    vals = defs.parameters_values
+                    if vals:
+                        pad = 0.5 * vals[0] * 1e6
+                        max_x = max(pad, max_x)
+                        x = [x_start - pad, x_start - pad, x_start + pad, x_start + pad]
+                        lel = self[layer].lower_elevation * 1e6
+                        uel = self[layer].upper_elevation * 1e6
+                        min_lel = min(lel, min_lel)
+                        max_lel = max(uel, max_lel)
+                        y = [lel, uel, uel, lel]
+                        objects_lists.append([x, y, color_keys[color_index], name_assigned, 1.0, "fill"])
+                        name_assigned = None
+                if definition.hole_properties:
+                    hole_rad = definition.hole_properties[0] * 1e6
+                    x = [x_start - hole_rad, x_start - hole_rad, x_start + hole_rad, x_start + hole_rad]
+                    y = [min_lel, max_lel, max_lel, min_lel]
+                    objects_lists.append([x, y, color_keys[color_index], name_assigned, 0.7, "fill"])
+                    max_x = max(max_x, hole_rad)
+                    rad = hole_rad * (100 - definition.hole_plating_ratio) / 100
+                    x = [x_start - rad, x_start - rad, x_start + rad, x_start + rad]
+                    y = [min_lel, max_lel, max_lel, min_lel]
+                    objects_lists.append([x, y, color_keys[color_index], name_assigned, 1.0, "fill"])
+                color_index += 1
+                if color_index == max_plots:
+                    self._logger.warning("Maximum number of definition plotted.")
+                    break
+                x_start += max(delta, 2.5 * max_x)
+
+        x_limits = [x_min, 2 * x_max]
+        plot_matplotlib(
+            objects_lists,
+            size,
+            show_legend,
+            "X (um)",
+            "Y (um)",
+            "Stackup",
+            save_plot,
+            x_limits=x_limits,
+            y_limits=limits,
+        )
+
 
 class EdbStackup(object):
     """Manages EDB methods for stackup and material management accessible from the
