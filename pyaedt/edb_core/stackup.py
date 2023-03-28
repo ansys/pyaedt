@@ -1710,6 +1710,10 @@ class Stackup(object):
             Image size in pixel (width, height). Default value is ``(2000, 1500)``
         plot_definitions : str, list, optional
             List of padstack definitions to plot on the stackup.
+        first_layer : str or :class:`pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`
+            First layer to plot from the bottom. Default is `None` to start plotting from bottom.
+        last_layer : str or :class:`pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`
+            Last layer to plot from the bottom. Default is `None` to plot up to top layer.
 
         Returns
         -------
