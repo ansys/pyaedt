@@ -60,7 +60,7 @@ Install PyAEDT with all extra packages (matplotlib, numpy, pandas, pyvista):
 
 .. code:: python
 
-    pip install pyaedt[all]
+    pip install pyaedt[full]
 
 You can also install PyAEDT from Conda-Forge:
 

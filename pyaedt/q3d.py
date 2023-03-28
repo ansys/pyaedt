@@ -879,6 +879,30 @@ class QExtractor(FieldAnalysis3D, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.ExportCircuit
+
+        Examples
+        --------
+        >>> from pyaedt import Q3d
+        >>> aedtapp = Q3d()
+        >>> box = aedtapp.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
+        >>> net = aedtapp.assign_net(box, "my_net")
+        >>> source = aedtapp.assign_source_to_objectface(box.bottom_face_z.id, axisdir=0,
+        ...     source_name="Source1", net_name=net.name)
+        >>> sink = aedtapp.assign_sink_to_objectface(box.top_face_z.id, axisdir=0,
+        ...     sink_name="Sink1", net_name=net.name)
+        >>> aedtapp["d"] = "20mm"
+        >>> aedtapp.modeler.duplicate_along_line(objid="Box1",vector=[0, "d", 0])
+        >>> mysetup = aedtapp.create_setup()
+        >>> aedtapp.analyze_setup(mysetup.name)
+        >>> aedtapp.export_equivalent_circuit(file_name="test_export_circuit.cir",
+        ...     setup_name=mysetup.name,
+        ...     sweep="LastAdaptive",
+        ...     variations=["d: 20mm"]
         """
         if os.path.splitext(file_name)[1] not in [
             ".cir",
@@ -932,11 +956,10 @@ class QExtractor(FieldAnalysis3D, object):
             for x in range(0, len(variations)):
                 name = variations[x].replace(" ", "").split(":")[0]
                 value = variations[x].replace(" ", "").split(":")[1]
-                if name not in self.available_variations.nominal_w_values_dict.keys():
-                    self.logger.error("Provided variation name doesn't exist.")
-                    return False
-                if value not in self.available_variations.nominal_w_values_dict.values():
-                    self.logger.error("Provided variation value doesn't exist.")
+                solved_variations = self.post.get_solution_data(variations={name: [value]})
+
+                if not solved_variations or not solved_variations.variations[0]:
+                    self.logger.error("Provided variation doesn't exist.")
                     return False
                 variation = "{}='{}'".format(name, value)
                 variations_list.append(variation)
