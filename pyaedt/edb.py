@@ -1184,22 +1184,38 @@ class Edb(object):
         _poly = _poly.Expand(expansion_size, tolerance, round_corner, round_extension)[0]
         return _poly
 
-    def create_cutout(
+    @pyaedt_function_handler()
+    def cutout(
         self,
-        signal_list=[],
+        signal_list=None,
         reference_list=["GND"],
-        extent_type="Conforming",
+        extent_type="ConvexHull",
         expansion_size=0.002,
         use_round_corner=False,
         output_aedb_path=None,
         open_cutout_at_end=True,
-        use_pyaedt_extent_computing=False,
+        use_legacy_cutout=False,
+        number_of_threads=4,
+        use_pyaedt_extent_computing=True,
+        extent_defeature=0,
+        remove_single_pin_components=False,
+        custom_extent=None,
+        custom_extent_units="mm",
+        include_partial_instances=False,
+        keep_voids=True,
     ):
-        """Create a cutout and save it to a new AEDB file.
+        """Create a cutout using an approach entirely based on pyaedt.
+        This new method replaces all legacy cutout methods in pyaedt.
+        It does in sequence:
+        - delete all nets not in list,
+        - create a extent of the nets,
+        - check and delete all vias not in the extent,
+        - check and delete all the primitives not in extent,
+        - check and intersect all the primitives that intersect the extent.
 
         Parameters
         ----------
-        signal_list : list
+         signal_list : list
             List of signal strings.
         reference_list : list, optional
             List of references to add. The default is ``["GND"]``.
@@ -1211,19 +1227,117 @@ class Edb(object):
         use_round_corner : bool, optional
             Whether to use round corners. The default is ``False``.
         output_aedb_path : str, optional
-            Full path and name for the new AEDB file.
+            Full path and name for the new AEDB file. If None, then current aedb will be cutout.
         open_cutout_at_end : bool, optional
-            Whether to open the cutout at the end. The default
-            is ``True``.
+            Whether to open the cutout at the end. The default is ``True``.
+        use_legacy_cutout : bool, optional
+            Whether to use new PyAEDT cutout method or EDB API method.
+            New method is faster than native API method since it benefits of multithread.
+        number_of_threads : int, optional
+            Number of thread to use. Default is 4. Valid only if `use_legacy_cutout` is set to `False`.
         use_pyaedt_extent_computing : bool, optional
-            Whether to use pyaedt extent computing (experimental).
+            Whether to use pyaedt extent computing (experimental) or EDB API.
+        extent_defeature: float, optional
+            Defeature the cutout before applying it to produce simpler geometry for mesh (Experimental).
+            It applies only to Conforming bounding box. Default value is ``0`` which disable it.
+         remove_single_pin_components : bool, optional
+            Remove all Single Pin RLC after the cutout is completed. Default is `False`.
+        custom_extent : list
+            Points list defining the cutout shape. This setting will override `extent_type` field.
+        custom_extent_units : str
+            Units of the point list. The default is ``"mm"``. Valid only if `custom_extend` is provided.
+        include_partial_instances : bool, optional
+            Whether to include padstack instances that have bounding boxes intersecting with point list polygons.
+            This operation may slow down the cutout export.Valid only if `custom_extend` is provided.
+        keep_voids : bool
+            Boolean used for keep or not the voids intersecting the polygon used for clipping the layout.
+            Default value is ``True``, ``False`` will remove the voids.Valid only if `custom_extend` is provided.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        >>> edb = Edb(r'C:\\test.aedb', edbversion="2022.2")
+        >>> edb.logger.info_timer("Edb Opening")
+        >>> edb.logger.reset_timer()
+        >>> start = time.time()
+        >>> signal_list = []
+        >>> for net in edb.core_nets.nets.keys():
+        >>>      if "3V3" in net:
+        >>>           signal_list.append(net)
+        >>> power_list = ["PGND"]
+        >>> edb.cutout(signal_list=signal_list, reference_list=power_list, extent_type="Conforming")
+        >>> end_time = str((time.time() - start)/60)
+        >>> edb.logger.info("Total pyaedt cutout time in min %s", end_time)
+        >>> edb.core_nets.plot(signal_list, None, color_by_net=True)
+        >>> edb.core_nets.plot(power_list, None, color_by_net=True)
+        >>> edb.save_edb()
+        >>> edb.close_edb()
+
+
         """
+        if signal_list is None:
+            signal_list = []
+        if isinstance(reference_list, str):
+            reference_list = [reference_list]
+        if use_legacy_cutout and custom_extent:
+            return self._create_cutout_on_point_list(
+                custom_extent,
+                units=custom_extent_units,
+                output_aedb_path=output_aedb_path,
+                open_cutout_at_end=open_cutout_at_end,
+                nets_to_include=signal_list,
+                include_partial_instances=include_partial_instances,
+                keep_voids=keep_voids,
+            )
+        elif use_legacy_cutout:
+            return self._create_cutout_legacy(
+                signal_list=signal_list,
+                reference_list=reference_list,
+                extent_type=extent_type,
+                expansion_size=expansion_size,
+                use_round_corner=use_round_corner,
+                output_aedb_path=output_aedb_path,
+                open_cutout_at_end=open_cutout_at_end,
+                use_pyaedt_extent_computing=use_pyaedt_extent_computing,
+            )
+        else:
+            legacy_path = self.edbpath
+            result = self._create_cutout_multithread(
+                signal_list=signal_list,
+                reference_list=reference_list,
+                extent_type=extent_type,
+                expansion_size=expansion_size,
+                use_round_corner=use_round_corner,
+                number_of_threads=number_of_threads,
+                custom_extent=custom_extent,
+                output_aedb_path=output_aedb_path,
+                remove_single_pin_components=remove_single_pin_components,
+                use_pyaedt_extent_computing=use_pyaedt_extent_computing,
+                extent_defeature=extent_defeature,
+            )
+            if result and not open_cutout_at_end:
+                self.edb.save_edb()
+                self.edb.close_edb()
+                self.edb.open_edb(legacy_path)
+            return result
+
+    @pyaedt_function_handler()
+    def _create_cutout_legacy(
+        self,
+        signal_list=[],
+        reference_list=["GND"],
+        extent_type="Conforming",
+        expansion_size=0.002,
+        use_round_corner=False,
+        output_aedb_path=None,
+        open_cutout_at_end=True,
+        use_pyaedt_extent_computing=False,
+        remove_single_pin_components=False,
+    ):
         expansion_size = self.edb_value(expansion_size).ToDouble()
 
         # validate nets in layout
@@ -1288,7 +1402,23 @@ class Edb(object):
                 self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
                 self.edbpath = self._db.GetDirectory()
                 self._init_objects()
+                if remove_single_pin_components:
+                    self.core_components.delete_single_pin_rlc()
+                    self.logger.info_timer("Single Pins components deleted")
+                    self.core_components.refresh_components()
             else:
+                if remove_single_pin_components:
+                    try:
+                        layout = list(db2.CircuitCells)[0].GetLayout()
+                        _cmps = [
+                            l
+                            for l in layout.Groups
+                            if l.ToString() == "Ansys.Ansoft.Edb.Cell.Hierarchy.Component" and l.GetNumberOfPins() < 2
+                        ]
+                        for _cmp in _cmps:
+                            _cmp.Delete()
+                    except:
+                        self._logger.error("Failed to remove single pin components.")
                 db2.Close()
                 source = os.path.join(output_aedb_path, "edb.def.tmp")
                 target = os.path.join(output_aedb_path, "edb.def")
@@ -1298,36 +1428,31 @@ class Edb(object):
                         shutil.copy(source, target)
                     except:
                         pass
-        # else:
-        # cells = self.db.CopyCells(convert_py_list_to_net_list(_dbCells))
         elif open_cutout_at_end:
             self._active_cell = _cutout
             self._init_objects()
+            if remove_single_pin_components:
+                self.core_components.delete_single_pin_rlc()
+                self.logger.info_timer("Single Pins components deleted")
+                self.core_components.refresh_components()
         return True
 
     @pyaedt_function_handler()
-    def create_cutout_multithread(
+    def create_cutout(
         self,
         signal_list=[],
         reference_list=["GND"],
         extent_type="Conforming",
         expansion_size=0.002,
         use_round_corner=False,
-        number_of_threads=4,
-        custom_extent=None,
         output_aedb_path=None,
-        remove_single_pin_components=False,
+        open_cutout_at_end=True,
         use_pyaedt_extent_computing=False,
-        extent_defeature=0,
     ):
-        """Create a cutout using an approach entirely based on pyaedt.
-        It does in sequence:
-        - delete all nets not in list,
-        - create a extent of the nets,
-        - check and delete all vias not in the extent,
-        - check and delete all the primitives not in extent,
-        - check and intersect all the primitives that intersect the extent.
+        """Create a cutout and save it to a new AEDB file.
 
+        .. deprecated:: 0.6.58
+           Use new method :func:`cutout` instead.
 
         Parameters
         ----------
@@ -1342,46 +1467,47 @@ class Edb(object):
             Expansion size ratio in meters. The default is ``0.002``.
         use_round_corner : bool, optional
             Whether to use round corners. The default is ``False``.
-        number_of_threads : int, optional
-            Number of thread to use. Default is 4
-        custom_extent : list, optional
-            Custom extent to use for the cutout. It has to be a list of points [[x1,y1],[x2,y2]....] or
-            Edb PolygonData object. In this case, both signal_list and reference_list will be cut.
         output_aedb_path : str, optional
-            Full path and name for the new AEDB file. If None, then current aedb will be cutout.
-        remove_single_pin_components : bool, optional
-            Remove all Single Pin RLC after the cutout is completed. Default is `False`.
+            Full path and name for the new AEDB file.
+        open_cutout_at_end : bool, optional
+            Whether to open the cutout at the end. The default
+            is ``True``.
         use_pyaedt_extent_computing : bool, optional
             Whether to use pyaedt extent computing (experimental).
-        extent_defeature : float, optional
-            Defeature the cutout before applying it to produce simpler geometry for mesh (Experimental).
-            It applies only to Conforming bounding box. Default value is ``0`` which disable it.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
 
-        Examples
-        --------
-        >>> edb = Edb(r'C:\\test.aedb', edbversion="2022.2")
-        >>> edb.logger.info_timer("Edb Opening")
-        >>> edb.logger.reset_timer()
-        >>> start = time.time()
-        >>> signal_list = []
-        >>> for net in edb.core_nets.nets.keys():
-        >>>      if "3V3" in net:
-        >>>           signal_list.append(net)
-        >>> power_list = ["PGND"]
-        >>> edb.create_cutout_multithread(signal_list=signal_list, reference_list=power_list, extent_type="Conforming")
-        >>> end_time = str((time.time() - start)/60)
-        >>> edb.logger.info("Total pyaedt cutout time in min %s", end_time)
-        >>> edb.core_nets.plot(signal_list, None, color_by_net=True)
-        >>> edb.core_nets.plot(power_list, None, color_by_net=True)
-        >>> edb.save_edb()
-        >>> edb.close_edb()
-
         """
+        warnings.warn("Use new method `cutout` instead.", DeprecationWarning)
+        return self._create_cutout_legacy(
+            signal_list=signal_list,
+            reference_list=reference_list,
+            extent_type=extent_type,
+            expansion_size=expansion_size,
+            use_round_corner=use_round_corner,
+            output_aedb_path=output_aedb_path,
+            open_cutout_at_end=open_cutout_at_end,
+            use_pyaedt_extent_computing=use_pyaedt_extent_computing,
+        )
+
+    @pyaedt_function_handler()
+    def _create_cutout_multithread(
+        self,
+        signal_list=[],
+        reference_list=["GND"],
+        extent_type="Conforming",
+        expansion_size=0.002,
+        use_round_corner=False,
+        number_of_threads=4,
+        custom_extent=None,
+        output_aedb_path=None,
+        remove_single_pin_components=False,
+        use_pyaedt_extent_computing=False,
+        extent_defeature=0,
+    ):
         if is_ironpython:  # pragma: no cover
             self.logger.error("Method working only in Cpython")
             return False
@@ -1531,6 +1657,101 @@ class Edb(object):
         return True
 
     @pyaedt_function_handler()
+    def create_cutout_multithread(
+        self,
+        signal_list=[],
+        reference_list=["GND"],
+        extent_type="Conforming",
+        expansion_size=0.002,
+        use_round_corner=False,
+        number_of_threads=4,
+        custom_extent=None,
+        output_aedb_path=None,
+        remove_single_pin_components=False,
+        use_pyaedt_extent_computing=False,
+        extent_defeature=0,
+    ):
+        """Create a cutout using an approach entirely based on pyaedt.
+        It does in sequence:
+        - delete all nets not in list,
+        - create a extent of the nets,
+        - check and delete all vias not in the extent,
+        - check and delete all the primitives not in extent,
+        - check and intersect all the primitives that intersect the extent.
+
+
+        .. deprecated:: 0.6.58
+           Use new method :func:`cutout` instead.
+
+        Parameters
+        ----------
+        signal_list : list
+            List of signal strings.
+        reference_list : list, optional
+            List of references to add. The default is ``["GND"]``.
+        extent_type : str, optional
+            Type of the extension. Options are ``"Conforming"``, ``"ConvexHull"``, and
+            ``"Bounding"``. The default is ``"Conforming"``.
+        expansion_size : float, str, optional
+            Expansion size ratio in meters. The default is ``0.002``.
+        use_round_corner : bool, optional
+            Whether to use round corners. The default is ``False``.
+        number_of_threads : int, optional
+            Number of thread to use. Default is 4
+        custom_extent : list, optional
+            Custom extent to use for the cutout. It has to be a list of points [[x1,y1],[x2,y2]....] or
+            Edb PolygonData object. In this case, both signal_list and reference_list will be cut.
+        output_aedb_path : str, optional
+            Full path and name for the new AEDB file. If None, then current aedb will be cutout.
+        remove_single_pin_components : bool, optional
+            Remove all Single Pin RLC after the cutout is completed. Default is `False`.
+        use_pyaedt_extent_computing : bool, optional
+            Whether to use pyaedt extent computing (experimental).
+        extent_defeature : float, optional
+            Defeature the cutout before applying it to produce simpler geometry for mesh (Experimental).
+            It applies only to Conforming bounding box. Default value is ``0`` which disable it.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> edb = Edb(r'C:\\test.aedb', edbversion="2022.2")
+        >>> edb.logger.info_timer("Edb Opening")
+        >>> edb.logger.reset_timer()
+        >>> start = time.time()
+        >>> signal_list = []
+        >>> for net in edb.core_nets.nets.keys():
+        >>>      if "3V3" in net:
+        >>>           signal_list.append(net)
+        >>> power_list = ["PGND"]
+        >>> edb.create_cutout_multithread(signal_list=signal_list, reference_list=power_list, extent_type="Conforming")
+        >>> end_time = str((time.time() - start)/60)
+        >>> edb.logger.info("Total pyaedt cutout time in min %s", end_time)
+        >>> edb.core_nets.plot(signal_list, None, color_by_net=True)
+        >>> edb.core_nets.plot(power_list, None, color_by_net=True)
+        >>> edb.save_edb()
+        >>> edb.close_edb()
+
+        """
+        warnings.warn("Use new method `cutout` instead.", DeprecationWarning)
+        return self._create_cutout_multithread(
+            signal_list=signal_list,
+            reference_list=reference_list,
+            extent_type=extent_type,
+            expansion_size=expansion_size,
+            use_round_corner=use_round_corner,
+            number_of_threads=number_of_threads,
+            custom_extent=custom_extent,
+            output_aedb_path=output_aedb_path,
+            remove_single_pin_components=remove_single_pin_components,
+            use_pyaedt_extent_computing=use_pyaedt_extent_computing,
+            extent_defeature=extent_defeature,
+        )
+
+    @pyaedt_function_handler()
     def get_conformal_polygon_from_netlist(self, netlist=None):
         """Return an EDB conformal polygon based on a netlist.
 
@@ -1619,7 +1840,7 @@ class Edb(object):
         return self.number_with_units(Value, sUnits)
 
     @pyaedt_function_handler()
-    def create_cutout_on_point_list(
+    def _create_cutout_on_point_list(
         self,
         point_list,
         units="mm",
@@ -1629,36 +1850,6 @@ class Edb(object):
         include_partial_instances=False,
         keep_voids=True,
     ):
-        """Create a cutout on a specified shape and save it to a new AEDB file.
-
-        Parameters
-        ----------
-        point_list : list
-            Points list defining the cutout shape.
-        units : str
-            Units of the point list. The default is ``"mm"``.
-        output_aedb_path : str, optional
-            Full path and name for the new AEDB file.
-            The aedb folder shall not exist otherwise the method will return ``False``.
-        open_cutout_at_end : bool, optional
-            Whether to open the cutout at the end. The default is ``True``.
-        nets_to_include : list, optional
-            List of nets to include in the cutout. The default is ``None``, in
-            which case all nets are included.
-        include_partial_instances : bool, optional
-            Whether to include padstack instances that have bounding boxes intersecting with point list polygons.
-            This operation may slow down the cutout export.
-        keep_voids : bool
-            Boolean used for keep or not the voids intersecting the polygon used for clipping the layout.
-            Default value is ``True``, ``False`` will remove the voids.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        """
-
         if point_list[0] != point_list[-1]:
             point_list.append(point_list[0])
         point_list = [[self.number_with_units(i[0], units), self.number_with_units(i[1], units)] for i in point_list]
@@ -1821,6 +2012,60 @@ class Edb(object):
                     except:
                         pass
         return True
+
+    @pyaedt_function_handler()
+    def create_cutout_on_point_list(
+        self,
+        point_list,
+        units="mm",
+        output_aedb_path=None,
+        open_cutout_at_end=True,
+        nets_to_include=None,
+        include_partial_instances=False,
+        keep_voids=True,
+    ):
+        """Create a cutout on a specified shape and save it to a new AEDB file.
+
+        .. deprecated:: 0.6.58
+           Use new method :func:`cutout` instead.
+
+        Parameters
+        ----------
+        point_list : list
+            Points list defining the cutout shape.
+        units : str
+            Units of the point list. The default is ``"mm"``.
+        output_aedb_path : str, optional
+            Full path and name for the new AEDB file.
+            The aedb folder shall not exist otherwise the method will return ``False``.
+        open_cutout_at_end : bool, optional
+            Whether to open the cutout at the end. The default is ``True``.
+        nets_to_include : list, optional
+            List of nets to include in the cutout. The default is ``None``, in
+            which case all nets are included.
+        include_partial_instances : bool, optional
+            Whether to include padstack instances that have bounding boxes intersecting with point list polygons.
+            This operation may slow down the cutout export.
+        keep_voids : bool
+            Boolean used for keep or not the voids intersecting the polygon used for clipping the layout.
+            Default value is ``True``, ``False`` will remove the voids.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        warnings.warn("Use new method `cutout` instead.", DeprecationWarning)
+        return self._create_cutout_multithread(
+            point_list=point_list,
+            units=units,
+            output_aedb_path=output_aedb_path,
+            open_cutout_at_end=open_cutout_at_end,
+            nets_to_include=nets_to_include,
+            include_partial_instances=include_partial_instances,
+            keep_voids=keep_voids,
+        )
 
     @pyaedt_function_handler()
     def write_export3d_option_config_file(self, path_to_output, config_dictionaries=None):
@@ -2247,12 +2492,14 @@ class Edb(object):
                 self.logger.info("Cutting out using method: {0}".format(simulation_setup.cutout_subdesign_type))
                 if simulation_setup.use_default_cutout:
                     old_cell_name = self.active_cell.GetName()
-                    if self.create_cutout(
+                    if self.cutout(
                         signal_list=simulation_setup.signal_nets,
                         reference_list=simulation_setup.power_nets,
                         expansion_size=simulation_setup.cutout_subdesign_expansion,
                         use_round_corner=simulation_setup.cutout_subdesign_round_corner,
                         extent_type=simulation_setup.cutout_subdesign_type,
+                        use_legacy_cutout=True,
+                        use_pyaedt_extent_computing=False,
                     ):
                         self.logger.info("Cutout processed.")
                         old_cell = self.active_cell.FindByName(
@@ -2264,7 +2511,7 @@ class Edb(object):
                         self.logger.error("Cutout failed.")
                 else:
                     self.logger.info("Cutting out using method: {0}".format(simulation_setup.cutout_subdesign_type))
-                    self.create_cutout_multithread(
+                    self.cutout(
                         signal_list=simulation_setup.signal_nets,
                         reference_list=simulation_setup.power_nets,
                         expansion_size=simulation_setup.cutout_subdesign_expansion,
@@ -2364,7 +2611,7 @@ class Edb(object):
         >>> ... prim_1_id, ["-60mm", "-4mm"], prim_2_id, ["-59mm", "-4mm"], "port_hori", 30, "Lower"
         >>> ... )
         >>> edb.core_hfss.create_wave_port(traces[0].id, trace_paths[0][0], "wave_port")
-        >>> edb.create_cutout(["Net1"])
+        >>> edb.cutout(["Net1"])
         >>> assert edb.are_port_reference_terminals_connected()
         """
         self.logger.reset_timer()
