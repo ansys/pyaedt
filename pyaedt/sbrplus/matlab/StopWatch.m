@@ -20,7 +20,7 @@ classdef StopWatch < handle
   function obj = StopWatch()
   % StopWatch constructor
   %
-  % Returns reset StopWatch: not running, zero elpased time, ready to start
+  % Returns reset StopWatch: not running, zero elapsed time, ready to start
   %
   % obj = StopWatch()
   obj.reset();
