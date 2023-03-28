@@ -1366,9 +1366,9 @@ class Edb(object):
                 extent_defeature=extent_defeature,
             )
             if result and not open_cutout_at_end:
-                self.edb.save_edb()
-                self.edb.close_edb()
-                self.edb.open_edb(legacy_path)
+                self.save_edb()
+                self.close_edb()
+                self.open_edb(legacy_path)
             return result
 
     @pyaedt_function_handler()

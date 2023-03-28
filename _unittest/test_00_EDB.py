@@ -651,7 +651,7 @@ class TestClass(BasisTest, object):
 
         assert edbapp.cutout(
             custom_extent=points,
-            nets_to_include=["GND", "V3P3_S0"],
+            signal_list=["GND", "V3P3_S0"],
             output_aedb_path=output,
             open_cutout_at_end=False,
             include_partial_instances=True,
