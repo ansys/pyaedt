@@ -2209,7 +2209,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Parameters
         ----------
-        show: bool, optional
+        show : bool, optional
             Whether to show or not the extent.
             The default value is ``True``.
 
