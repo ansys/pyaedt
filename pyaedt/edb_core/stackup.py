@@ -45,7 +45,7 @@ class Stackup(object):
 
     def __init__(self, pedb):
         self._pedb = pedb
-        self.__layer_collection = None
+        self._lc = None
 
     @property
     def _logger(self):
@@ -227,11 +227,24 @@ class Stackup(object):
     def refresh_layer_collection(self):
         """Refresh layer collection from Edb. This method is run on demand after all edit operations on stackup."""
         lc_readonly = self._pedb._active_layout.GetLayerCollection()
-        layers = list(list(lc_readonly.Layers(self._pedb.edb.Cell.LayerTypeSet.AllLayerSet)))
-        self.__layer_collection = self._pedb.edb.Cell.LayerCollection()
-        self.__layer_collection.SetMode(lc_readonly.GetMode())
-        for layer in layers:
-            self.__layer_collection.AddLayerBottom(layer.Clone())
+        layers = [i.Clone() for i in list(list(lc_readonly.Layers(self._pedb.edb.Cell.LayerTypeSet.StackupLayerSet)))]
+        non_stackup = [
+            i.Clone() for i in list(list(lc_readonly.Layers(self._pedb.edb.Cell.LayerTypeSet.NonStackupLayerSet)))
+        ]
+        self._lc = self._pedb.edb.Cell.LayerCollection()
+        mode = lc_readonly.GetMode()
+        self._lc.SetMode(lc_readonly.GetMode())
+        if str(mode) == "Overlapping":
+            for layer in layers:
+                self._lc.AddStackupLayerAtElevation(layer)
+        elif str(mode) == "Laminate":
+            for layer in layers:
+                self._lc.AddLayerBottom(layer)
+        else:
+            self._lc.AddLayers(convert_py_list_to_net_list(layers, self._pedb.edb.Cell.Layer))
+        for layer in non_stackup:
+            self._lc.AddLayerBottom(layer)
+        self._lc.SetMode(lc_readonly.GetMode())
 
     @property
     def _layer_collection(self):
@@ -242,9 +255,35 @@ class Stackup(object):
         :class:`Ansys.Ansoft.Edb.Cell.LayerCollection`
             Collection of layers.
         """
-        if not self.__layer_collection:
+        if not self._lc:
             self.refresh_layer_collection()
-        return self.__layer_collection
+        return self._lc
+
+    @property
+    def stackup_mode(self):
+        """Stackup mode.
+
+        Returns
+        -------
+        int, str
+            Type of the stackup mode, where:
+
+            * 0 - Laminate
+            * 1 - Overlapping
+            * 2 - Multizone
+        """
+        self._stackup_mode = self._layer_collection.GetMode()
+        return str(self._stackup_mode)
+
+    @stackup_mode.setter
+    def stackup_mode(self, value):
+        mode = self._pedb.edb.Cell.LayerCollectionMode
+        if value == 0 or value == mode.Laminate or value == "Laminate":
+            self._layer_collection.SetMode(mode.Laminate)
+        elif value == 1 or value == mode.Overlapping or value == "Overlapping":
+            self._layer_collection.SetMode(mode.Overlapping)
+        elif value == 2 or value == mode.MultiZone or value == "MultiZone":
+            self._layer_collection.SetMode(mode.MultiZone)
 
     @property
     def _edb_layer_list(self):
@@ -324,59 +363,51 @@ class Stackup(object):
         layer_clone : :class:`pyaedt.edb_core.EDB_Data.EDBLayer`
         operation : str
             Options are ``"change_attribute"``, ``"change_name"``,``"change_position"``, ``"insert_below"``,
-             ``"insert_above"``, ``"add_on_top"``, ``"add_on_bottom"``, ``"non_stackup"``.
+             ``"insert_above"``, ``"add_on_top"``, ``"add_on_bottom"``, ``"non_stackup"``,  ``"add_at_elevation"``.
         base_layer : str, optional
             Name of the base layer. The default value is ``None``.
         Returns
         -------
 
         """
-        edb_layers = self._edb_layer_list
-        non_stackup = []
-        if operation in ["change_attribute", "change_name", "change_position"]:
-            new_layer_collection = self._pedb.edb.Cell.LayerCollection()
-        else:
-            new_layer_collection = self._pedb.edb.Cell.LayerCollection()
-            for layer in edb_layers:
-                to_layer = layer.Clone()
-                if to_layer.IsStackupLayer() or (to_layer.GetName().lower() == "outline" and method == 1):
-                    new_layer_collection.AddLayerBottom(to_layer)
-                else:
-                    non_stackup.append(to_layer)
-
-        if operation == "change_position":
-            for lyr in edb_layers:
-                if not (layer_clone.GetName() == lyr.GetName()):
-                    if base_layer == lyr.GetName():
-                        new_layer_collection.AddLayerBottom(layer_clone)
-                    new_layer_collection.AddLayerBottom(lyr)
-        elif operation == "change_attribute":
-            for lyr in edb_layers:
-                if not (layer_clone.GetName() == lyr.GetName()):
-                    new_layer_collection.AddLayerBottom(lyr)
-                else:
-                    new_layer_collection.AddLayerBottom(layer_clone)
-        elif operation == "change_name":
-            for lyr in edb_layers:
-                if not (base_layer == lyr.GetName()):
-                    new_layer_collection.AddLayerBottom(lyr)
-                else:
-                    new_layer_collection.AddLayerBottom(layer_clone)
-        else:
-            if operation == "insert_below":
-                new_layer_collection.AddLayerBelow(layer_clone, base_layer)
-            elif operation == "insert_above":
-                new_layer_collection.AddLayerAbove(layer_clone, base_layer)
-            elif operation == "add_on_top":
-                new_layer_collection.AddLayerTop(layer_clone)
-            elif operation == "add_on_bottom":
-                new_layer_collection.AddLayerBottom(layer_clone)
+        _lc = self._layer_collection
+        if operation in ["change_position", "change_attribute", "change_name"]:
+            lc_readonly = self._pedb._active_layout.GetLayerCollection()
+            layers = [
+                i.Clone() for i in list(list(lc_readonly.Layers(self._pedb.edb.Cell.LayerTypeSet.StackupLayerSet)))
+            ]
+            non_stackup = [
+                i.Clone() for i in list(list(lc_readonly.Layers(self._pedb.edb.Cell.LayerTypeSet.NonStackupLayerSet)))
+            ]
+            _lc = self._pedb.edb.Cell.LayerCollection()
+            mode = lc_readonly.GetMode()
+            _lc.SetMode(lc_readonly.GetMode())
+            if str(mode) == "Overlapping":
+                for layer in layers:
+                    if layer.GetName() == layer_clone.GetName() or layer.GetName() == base_layer:
+                        _lc.AddStackupLayerAtElevation(layer_clone)
+                    else:
+                        _lc.AddStackupLayerAtElevation(layer)
             else:
-                new_layer_collection.AddLayerTop(layer_clone)
-            for lay in non_stackup:
-                new_layer = self._pedb.edb.Cell.Layer(lay.GetName(), self._int_to_layer_types(lay.GetLayerType()))
-                new_layer_collection.AddLayerBottom(new_layer)
-        result = self._pedb._active_layout.SetLayerCollection(new_layer_collection)
+                for layer in layers:
+                    if layer.GetName() == layer_clone.GetName() or layer.GetName() == base_layer:
+                        _lc.AddLayerBottom(layer_clone)
+                    else:
+                        _lc.AddLayerBottom(layer)
+            for layer in non_stackup:
+                _lc.AddLayerBottom(layer)
+            _lc.SetMode(lc_readonly.GetMode())
+        elif operation == "insert_below":
+            _lc.AddLayerBelow(layer_clone, base_layer)
+        elif operation == "insert_above":
+            _lc.AddLayerAbove(layer_clone, base_layer)
+        elif operation == "add_on_top":
+            _lc.AddLayerTop(layer_clone)
+        elif operation == "add_on_bottom":
+            _lc.AddLayerBottom(layer_clone)
+        elif operation == "add_at_elevation":
+            _lc.AddStackupLayerAtElevation(layer_clone)
+        result = self._pedb._active_layout.SetLayerCollection(_lc)
         self.refresh_layer_collection()
         return result
 
@@ -449,6 +480,7 @@ class Stackup(object):
         etch_factor=None,
         is_negative=False,
         enable_roughness=False,
+        elevation=None,
     ):
         """Insert a layer into stackup.
 
@@ -460,7 +492,7 @@ class Stackup(object):
             Name of the base layer.
         method : str, optional
             Where to insert the new layer. The default is ``"add_on_top"``. Options are ``"add_on_top"``,
-            ``"add_on_bottom"``, ``"insert_above"``, ``"insert_below"``.
+            ``"add_on_bottom"``, ``"insert_above"``, ``"insert_below"``, ``"add_at_elevation"``,.
         layer_type : str, optional
             Type of layer. The default is ``"signal"``. Options are ``"signal"``, ``"dielectric"``, ``"conducting"``,
              ``"air_lines"``, ``"error"``, ``"symbol"``, ``"measure"``, ``"assembly"``, ``"silkscreen"``,
@@ -477,9 +509,12 @@ class Stackup(object):
             Whether the layer is negative.
         enable_roughness : bool, optional
             Whether roughness is enabled.
+        elevation : float, optional
+            Elevation of new layer. Only valid for Overlapping Stackup.
+
         Returns
         -------
-
+        :class:`pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`
         """
         if layer_name in self.layers:
             logger.error("layer {} exists.".format(layer_name))
@@ -511,6 +546,8 @@ class Stackup(object):
                 new_layer.SetFillMaterial(fillMaterial)
             new_layer.SetNegative(is_negative)
             l1 = len(self.layers)
+            if method == "add_at_elevation" and elevation:
+                new_layer.SetLowerElevation(self._pedb.edb_value(elevation))
             self._set_layout_stackup(new_layer, method, base_layer)
             if len(self.layers) == l1:
                 self._set_layout_stackup(new_layer, method, base_layer, method=2)
