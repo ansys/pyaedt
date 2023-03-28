@@ -79,7 +79,7 @@ class TestClass(BasisTest, object):
         assert p1.num_sides == 8
         via = p1.add_via(50, 50)
         assert via
-        assert len(self.st.definitions) == 1
+        assert len(self.st.padstacks) == 1
 
     def test_04_patch(self):
         top = self.st.stackup_layers["top"]

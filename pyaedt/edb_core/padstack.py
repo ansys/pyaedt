@@ -2,6 +2,7 @@
 This module contains the `EdbPadstacks` class.
 """
 import math
+import warnings
 
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstack
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
@@ -156,6 +157,7 @@ class EdbPadstacks(object):
             List of definitions via padstack definitions.
 
         """
+        warnings.warn("Use `definitions` property instead.", DeprecationWarning)
         return self.definitions
 
     @property
@@ -187,6 +189,8 @@ class EdbPadstacks(object):
         dict[str, :class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`]
             List of padstack instances.
         """
+
+        warnings.warn("Use `instances` property instead.", DeprecationWarning)
         return self.instances
 
     @property
