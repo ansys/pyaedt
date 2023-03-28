@@ -94,38 +94,39 @@ appedb.close_edb()
 # Launch AEDT and import the configured EDB and analysis DCIR
 desktop = pyaedt.Desktop(edbversion, non_graphical=False, new_desktop_session=True)
 hfss3dl = pyaedt.Hfss3dLayout(local_path)
-hfss3dl.analyze_all()
+hfss3dl.analyze()
 hfss3dl.save_project()
 
 ###############################################################################
-# Get loop resistance
+# Get element data
 # ~~~~~~~~~~~~~~~~~~~
-# Get loop resistance from dcir result
-loop_resistance = hfss3dl.get_dcir_solution_data(
-    setup_name="my_setup",
-    show="RL",
-    category="Loop_Resistance")
-print({expression: loop_resistance.data_magnitude(expression) for expression in loop_resistance.expressions})
+# Get loop resistance
+
+loop_resistance = hfss3dl.get_dcir_element_data_loop_resistance(setup_name="my_setup")
+print(loop_resistance)
+
+# ~~~~~~~~~~~~~~~~~~~
+# Get current source
+
+current_source = hfss3dl.get_dcir_element_data_current_source(setup_name="my_setup")
+print(current_source)
+
+# ~~~~~~~~~~~~~~~~~~~
+# Get via information
+
+via = hfss3dl.get_dcir_element_data_via(setup_name="my_setup")
+print(via)
+
 
 ###############################################################################
 # Get voltage
 # ~~~~~~~~~~~
-# Get voltage from dcir result
+# Get voltage from dcir solution data
 voltage = hfss3dl.get_dcir_solution_data(
     setup_name="my_setup",
     show="Sources",
     category="Voltage")
-print({ expression: voltage.data_magnitude(expression) for  expression in voltage.expressions})
-
-###############################################################################
-# Get via
-# ~~~~~~~
-# Get via current from dcir result
-via_current = hfss3dl.get_dcir_solution_data(
-    setup_name="my_setup",
-    show="Vias",
-    category="Current")
-print({ expression: via_current.data_magnitude(expression) for  expression in via_current.expressions[100:105]})
+print({expression: voltage.data_magnitude(expression) for  expression in voltage.expressions})
 
 ###############################################################################
 # Close AEDT

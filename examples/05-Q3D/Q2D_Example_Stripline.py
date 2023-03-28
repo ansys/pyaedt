@@ -206,7 +206,7 @@ sweep.props["Type"] = "Interpolating"
 sweep.update()
 
 # Analyze the nominal design and plot characteristic impedance.
-q.analyze_nominal()
+q.analyze()
 plot_sources = matrix.get_sources_for_plot(category="Z0")
 a = q.post.get_solution_data(expressions=plot_sources, context=matrix.name)
 a.plot(snapshot_path=os.path.join(q.working_directory, "plot.jpg")) # Save plot as jpg

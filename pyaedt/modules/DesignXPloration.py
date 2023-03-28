@@ -1,6 +1,6 @@
+from collections import OrderedDict
 import copy
 import csv
-from collections import OrderedDict
 
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.DataHandlers import _dict2arg
@@ -396,7 +396,7 @@ class CommonOptimetrics(PropsManager, object):
         goal_value : optional
             Value for the optimization goal. The default is ``1``.
         goal_weight : optional
-            Weight for the optimzation goal. The default is ``1``.
+            Weight for the optimization goal. The default is ``1``.
         goal_name : str, optional
             Name of the goal. The default is ``None``.
 
@@ -483,6 +483,68 @@ class CommonOptimetrics(PropsManager, object):
             self._app.activate_variable_sensitivity(variable_name)
         elif self.soltype == "OptiStatistical":
             self._app.activate_variable_statistical(variable_name)
+
+    @pyaedt_function_handler()
+    def analyze(
+        self,
+        num_cores=1,
+        num_tasks=1,
+        num_gpu=0,
+        acf_file=None,
+        use_auto_settings=True,
+        solve_in_batch=False,
+        machine="localhost",
+        run_in_thread=False,
+        revert_to_initial_mesh=False,
+    ):
+        """Solve the active design.
+
+        Parameters
+        ----------
+        num_cores : int, optional
+            Number of simulation cores. Default is ``1``.
+        num_tasks : int, optional
+            Number of simulation tasks. Default is ``1``.
+        num_gpu : int, optional
+            Number of simulation graphic processing units to use. Default is ``0``.
+        acf_file : str, optional
+            Full path to the custom ACF file.
+        use_auto_settings : bool, optional
+            Set ``True`` to use automatic settings for HPC. The option is only considered for setups
+            that support automatic settings.
+        solve_in_batch : bool, optional
+            Whether to solve the project in batch or not.
+            If ``True`` the project will be saved, closed, solved and repened.
+        machine : str, optional
+            Name of the machine if remote.  The default is ``"localhost"``.
+        run_in_thread : bool, optional
+            Whether to submit the batch command as a thread. The default is
+            ``False``.
+        revert_to_initial_mesh : bool, optional
+            Whether to revert to initial mesh before solving or not. Default is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.Analyze
+        """
+        self._app.analyze(
+            setup_name=self.name,
+            num_cores=num_cores,
+            num_tasks=num_tasks,
+            num_gpu=num_gpu,
+            acf_file=acf_file,
+            use_auto_settings=use_auto_settings,
+            solve_in_batch=solve_in_batch,
+            machine=machine,
+            run_in_thread=run_in_thread,
+            revert_to_initial_mesh=revert_to_initial_mesh,
+        )
 
 
 class SetupOpti(CommonOptimetrics, object):

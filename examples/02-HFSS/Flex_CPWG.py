@@ -219,7 +219,7 @@ my_plot.plot(
 ###############################################################################
 # Analyze and release
 # ~~~~~~~~~~~~~~~~~~~~
-# Uncomment the ``hfss.analyze_nominal`` command if you want to analyze the
+# Uncomment the ``hfss.analyze`` command if you want to analyze the
 # model and release AEDT.
 
 hfss.release_desktop()

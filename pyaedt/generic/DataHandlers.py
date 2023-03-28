@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
+from collections import OrderedDict
+from decimal import Decimal
 import json
 import math
 import random
 import re
 import string
-from collections import OrderedDict
-from decimal import Decimal
 
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import settings
@@ -520,6 +520,9 @@ unit_val = {
     "nm": 1e-9,
     "um": 1e-6,
     "mm": 1e-3,
+    "in": 0.0254,
+    "inches": 0.0254,
+    "mil": 2.54e-5,
     "cm": 1e-2,
     "dm": 1e-1,
     "meter": 1.0,

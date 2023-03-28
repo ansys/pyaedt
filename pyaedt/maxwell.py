@@ -2,22 +2,22 @@
 
 from __future__ import absolute_import  # noreorder
 
+from collections import OrderedDict
 import io
 import json
 import os
 import re
-from collections import OrderedDict
 
 from pyaedt.application.Analysis3D import FieldAnalysis3D
-from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.DataHandlers import float_units
+from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import MaxwellParameters
-from pyaedt.modules.SolveSweeps import SetupKeys
+from pyaedt.modules.SetupTemplates import SetupKeys
 
 
 class Maxwell(object):
@@ -1222,7 +1222,7 @@ class Maxwell(object):
         >>> oModule.ResetSetupToTimeZero
         """
         self.oanalysis.ResetSetupToTimeZero(self._setup)
-        self.analyze_nominal()
+        self.analyze()
         return True
 
     @pyaedt_function_handler()

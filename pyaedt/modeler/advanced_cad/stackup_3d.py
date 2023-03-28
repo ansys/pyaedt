@@ -1,5 +1,5 @@
-import os
 from collections import OrderedDict
+import os
 
 from pyaedt import is_ironpython
 
@@ -1276,7 +1276,7 @@ class Stackup3D(object):
 
     @property
     def padstacks(self):
-        """List of padstacks created.
+        """List of definitions created.
 
         Returns
         -------
@@ -1326,7 +1326,7 @@ class Stackup3D(object):
 
     @property
     def objects_by_layer(self):
-        """List of padstacks created.
+        """List of definitions created.
 
         Returns
         -------

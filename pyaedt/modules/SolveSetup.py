@@ -7,20 +7,19 @@ It is based on templates to allow for easy creation and modification of setup pr
 """
 from __future__ import absolute_import  # noreorder
 
+from collections import OrderedDict
 import logging
 import os.path
+from random import randrange
 import time
 import warnings
-from collections import OrderedDict
-from random import randrange
 
-from pyaedt import Hfss
-from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.DataHandlers import _dict2arg
+from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modules.SolveSweeps import SetupKeys
+from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SolveSweeps import SetupProps
 from pyaedt.modules.SolveSweeps import SweepHFSS
 from pyaedt.modules.SolveSweeps import SweepHFSS3DLayout
@@ -69,11 +68,71 @@ class CommonSetup(PropsManager, object):
         return "SetupName " + self.name + " with " + str(len(self.sweeps)) + " Sweeps"
 
     @pyaedt_function_handler()
+    def analyze(
+        self,
+        num_cores=1,
+        num_tasks=1,
+        num_gpu=0,
+        acf_file=None,
+        use_auto_settings=True,
+        solve_in_batch=False,
+        machine="localhost",
+        run_in_thread=False,
+        revert_to_initial_mesh=False,
+    ):
+        """Solve the active design.
+
+        Parameters
+        ----------
+        num_cores : int, optional
+            Number of simulation cores. Default is ``1``.
+        num_tasks : int, optional
+            Number of simulation tasks. Default is ``1``.
+        num_gpu : int, optional
+            Number of simulation graphic processing units to use. Default is ``0``.
+        acf_file : str, optional
+            Full path to the custom ACF file.
+        use_auto_settings : bool, optional
+            Set ``True`` to use automatic settings for HPC. The option is only considered for setups
+            that support automatic settings.
+        solve_in_batch : bool, optional
+            Whether to solve the project in batch or not.
+            If ``True`` the project will be saved, closed, solved and repened.
+        machine : str, optional
+            Name of the machine if remote.  The default is ``"localhost"``.
+        run_in_thread : bool, optional
+            Whether to submit the batch command as a thread. The default is
+            ``False``.
+        revert_to_initial_mesh : bool, optional
+            Whether to revert to initial mesh before solving or not. Default is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.Analyze
+        """
+        self._app.analyze(
+            setup_name=self.name,
+            num_cores=num_cores,
+            num_tasks=num_tasks,
+            num_gpu=num_gpu,
+            acf_file=acf_file,
+            use_auto_settings=use_auto_settings,
+            solve_in_batch=solve_in_batch,
+            machine=machine,
+            run_in_thread=run_in_thread,
+            revert_to_initial_mesh=revert_to_initial_mesh,
+        )
+
+    @pyaedt_function_handler()
     def _init_props(self, isnewsetup=False):
         if isnewsetup:
-            setup_template = SetupKeys.SetupTemplates[self.setuptype]
-            # for t in setup_template:
-            #    _tuple2dict(t, self.props)
+            setup_template = SetupKeys.get_setup_templates()[self.setuptype]
             self.props = SetupProps(self, setup_template)
         else:
             try:
@@ -366,6 +425,8 @@ class Setup(CommonSetup):
         isconvergence=True,
         isrelativeconvergence=True,
         conv_criteria=1,
+        use_cache_for_pass=True,
+        use_cache_for_freq=True,
     ):
         """Enable an expression cache.
 
@@ -387,6 +448,12 @@ class Setup(CommonSetup):
             The default is ``True``.
         conv_criteria :
             The default is ``1``.
+        use_cache_for_pass : bool, optional
+            Use cache for pass.
+            Default value is ``True``.
+        use_cache_for_freq : bool, optional
+            Use cache for frequency.
+            Default value is ``True``.
 
         Returns
         -------
@@ -399,6 +466,11 @@ class Setup(CommonSetup):
         >>> oModule.EditSetup
         """
         arg = ["NAME:" + self.name]
+        self.props["UseCacheFor"] = []
+        if use_cache_for_pass:
+            self.props["UseCacheFor"].append("Pass")
+        if use_cache_for_freq:
+            self.props["UseCacheFor"].append("Freq")
         _dict2arg(self.props, arg)
         expression_cache = self._expression_cache(
             expressions, report_type, intrinsics, isconvergence, isrelativeconvergence, conv_criteria
@@ -572,34 +644,6 @@ class Setup(CommonSetup):
             self.auto_update = auto_update
             return False
 
-    @pyaedt_function_handler()
-    def analyze(self, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None, use_auto_settings=True):
-        """Analyze a design setup.
-
-        Parameters
-        ----------
-        num_cores : int, optional
-            Number of simulation cores. The default is ``None.``
-        num_tasks : int, optional
-            Number of simulation tasks. The default is ``None.``
-        num_gpu : int, optional
-            Number of simulation graphics processing units. The default is ``None.``
-        acf_file : str, optional
-            Full path to custom ACF file. The default is ``None.``
-        use_auto_settings : bool, optional
-            Whether to use automatic settings in tasks or cores. This parameter
-            is not supported by all setup types.
-
-        Returns
-        -------
-        bool
-           ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        """
-        self._app.analyze_setup(self.name, num_cores, num_tasks, num_gpu, acf_file, use_auto_settings)
-
 
 class SetupCircuit(CommonSetup):
     """Initializes, creates, and updates a circuit setup.
@@ -625,9 +669,7 @@ class SetupCircuit(CommonSetup):
     def _init_props(self, isnewsetup=False):
         props = {}
         if isnewsetup:
-            setup_template = SetupKeys.SetupTemplates[self.setuptype]
-            # for t in setup_template:
-            #    _tuple2dict(t, props)
+            setup_template = SetupKeys.get_setup_templates()[self.setuptype]
             self.props = SetupProps(self, setup_template)
         else:
             self.props = SetupProps(self, OrderedDict())
@@ -1154,9 +1196,7 @@ class Setup3DLayout(CommonSetup):
     @pyaedt_function_handler()
     def _init_props(self, isnewsetup=False):
         if isnewsetup:
-            setup_template = SetupKeys.SetupTemplates[self.setuptype]
-            # for t in setup_template:
-            #    _tuple2dict(t, self.props)
+            setup_template = SetupKeys.get_setup_templates()[self.setuptype]
             self.props = SetupProps(self, setup_template)
         else:
             try:
@@ -1337,6 +1377,8 @@ class Setup3DLayout(CommonSetup):
                 timeout = 0
             time.sleep(1)
         if keep_net_name:
+            from pyaedt import Hfss
+
             primitives_3d_pts_per_nets = self._get_primitives_points_per_net()
             via_per_nets = self._get_via_position_per_net()
             layers_elevation = {
@@ -1429,7 +1471,7 @@ class Setup3DLayout(CommonSetup):
     @pyaedt_function_handler()
     def _get_via_position_per_net(self):
         via_dict = {}
-        via_list = list(self.p_app.modeler.edb.core_padstack.padstack_instances.values())
+        via_list = list(self.p_app.modeler.edb.core_padstack.instances.values())
         if via_list:
             for net in list(self.p_app.modeler.edb.core_nets.nets.keys()):
                 vias = [via for via in via_list if via.net_name == net and via.start_layer != via.stop_layer]
@@ -1512,6 +1554,37 @@ class Setup3DLayout(CommonSetup):
             return sweep_n
         return False
 
+    @pyaedt_function_handler()
+    def get_sweep(self, sweepname=None):
+        """Return frequency sweep object of a given sweep.
+
+        Parameters
+        ----------
+        sweepname : str, optional
+            Name of the sweep. the default is ``None`` which returns the first sweep.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS3DLayout`
+
+        Examples
+        --------
+        >>> h3d = Hfss3dLayout()
+        >>> setup = h3d.get_setup('Pyaedt_setup')
+        >>> sweep = setup.get_sweep('Sweep1')
+        >>> sweep.add_subrange("LinearCount", 0, 10, 1, "Hz")
+        >>> sweep.add_subrange("LogScale", 10, 1E8, 100, "Hz")
+        """
+        if sweepname:
+            for sweep in self.sweeps:
+                if sweepname == sweep.name:
+                    return sweep
+        else:
+            if self.sweeps:
+                return self.sweeps[0]
+        return False
+
+    @pyaedt_function_handler()
     def import_from_json(self, file_path):
         """Import setup properties from a json file.
 
@@ -1955,6 +2028,36 @@ class SetupHFSS(Setup, object):
         sweep_n.create()
         self.sweeps.append(sweep_n)
         return sweep_n
+
+    @pyaedt_function_handler()
+    def get_sweep(self, sweepname=None):
+        """Return frequency sweep object of a given sweep.
+
+        Parameters
+        ----------
+        sweepname : str, optional
+            Name of the sweep. the default is ``None`` which returns the first sweep.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or :class:`pyaedt.modules.SolveSweeps.SweepMatrix`
+
+        Examples
+        --------
+        >>> hfss = Hfss()
+        >>> setup = hfss.get_setup('Pyaedt_setup')
+        >>> sweep = setup.get_sweep('Sweep1')
+        >>> sweep.add_subrange("LinearCount", 0, 10, 1, "Hz")
+        >>> sweep.add_subrange("LogScale", 10, 1E8, 100, "Hz")
+        """
+        if sweepname:
+            for sweep in self.sweeps:
+                if sweepname == sweep.name:
+                    return sweep
+        else:
+            if self.sweeps:
+                return self.sweeps[0]
+        return False
 
     @pyaedt_function_handler()
     def enable_adaptive_setup_single(self, freq=None, max_passes=None, max_delta_s=None):
@@ -2407,7 +2510,9 @@ class SetupMaxwell(Setup, object):
         Setup.__init__(self, app, solutiontype, setupname, isnewsetup)
 
     @pyaedt_function_handler()
-    def add_eddy_current_sweep(self, range_type="LinearStep", start=0.1, end=100, count=0.1, units="Hz", clear=True):
+    def add_eddy_current_sweep(
+        self, range_type="LinearStep", start=0.1, end=100, count=0.1, units="Hz", clear=True, save_all_fields=True
+    ):
         """Create a Maxwell Eddy Current Sweep.
 
         Parameters
@@ -2423,14 +2528,18 @@ class SetupMaxwell(Setup, object):
             Frequency count or frequency step. Required for ``rangetype="LinearCount"|"LinearStep"|"LogScale"``.
         units : str, optional
             Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"Hz"``.
-
-        clear : boolean, optional
+        clear : bool, optional
             If set to ``True``, all other subranges will be suppressed except the current one under creation.
             Default value is ``False``.
+        save_all_fields : bool, optional
+            Save fields at all frequency points to save fields for the entire set of sweep ranges.
+            Default is ``True``.
+
 
         Returns
         -------
         bool
+            ``True`` if successful, ``False`` if it fails.
         """
 
         if self.setuptype != 7:
@@ -2458,6 +2567,7 @@ class SetupMaxwell(Setup, object):
             self.props["SweepRanges"]["Subrange"].append(props)
         else:
             self.props["SweepRanges"]["Subrange"] = [self.props["SweepRanges"]["Subrange"], props]
+        self.props["SaveAllFields"] = save_all_fields
         self.update()
         self.auto_update = legacy_update
         return True

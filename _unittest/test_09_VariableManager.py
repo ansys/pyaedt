@@ -4,6 +4,7 @@ from __future__ import division  # noreorder
 import math
 
 from _unittest.conftest import BasisTest
+
 from pyaedt import MaxwellCircuit
 from pyaedt.application.Variables import Variable
 from pyaedt.application.Variables import decompose_variable_value
@@ -487,3 +488,12 @@ class TestClass(BasisTest, object):
         assert v[var].sensitivity_initial_disp == "1mm"
         v[var].sensitivity_initial_disp = "0.5mm"
         assert v[var].sensitivity_initial_disp == "0.5mm"
+
+    def test_20_variable_with_units(self):
+        self.aedtapp["v1"] = "3mm"
+        self.aedtapp["v2"] = "2*v1"
+        assert self.aedtapp.variable_manager.decompose("v1") == (3.0, "mm")
+        assert self.aedtapp.variable_manager.decompose("v2") == (6.0, "mm")
+        assert self.aedtapp.variable_manager["v2"].decompose() == (6.0, "mm")
+        assert self.aedtapp.variable_manager.decompose("5mm") == (5.0, "mm")
+        assert self.aedtapp.number_with_units(3.0, "mil") == "3.0mil"

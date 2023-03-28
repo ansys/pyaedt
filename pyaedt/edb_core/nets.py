@@ -945,7 +945,7 @@ class EdbNets(object):
                 _objects_list[n_name].append(prim)
             else:
                 _objects_list[n_name] = [prim]
-        for pad in list(self._pedb.core_padstack.padstack_instances.values()):
+        for pad in list(self._pedb.core_padstack.instances.values()):
             n_name = pad.net_name
             if n_name in _padstacks_list:
                 _padstacks_list[n_name].append(pad)

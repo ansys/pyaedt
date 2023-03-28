@@ -41,7 +41,7 @@ class TestClass(BasisTest, object):
         assert os.path.exists(test_project)
 
     def test_01A_check_setup(self):
-        assert self.aedtapp.analysis_setup is None
+        assert self.aedtapp.active_setup is None
 
     def test_02_create_primitive(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
@@ -219,7 +219,7 @@ class TestClass(BasisTest, object):
         setup3.delete()
 
     def test_06b_setup_exists(self):
-        assert self.aedtapp.analysis_setup is not None
+        assert self.aedtapp.active_setup is not None
         assert self.aedtapp.nominal_sweep is not None
 
     def test_06c_create_linear_step_sweep(self):
@@ -316,7 +316,12 @@ class TestClass(BasisTest, object):
             "box_sweep", "box_sweep2", self.aedtapp.AxisDir.XNeg, 75, 1, "WaveForSweep", False
         )
         setup = self.aedtapp.create_setup(setupname="MySetupForSweep")
+        assert not setup.get_sweep()
         sweep = setup.add_sweep()
+        sweep1 = setup.get_sweep(sweep.name)
+        assert sweep1 == sweep
+        sweep2 = setup.get_sweep()
+        assert sweep2 == sweep1
         assert sweep.add_subrange("LinearCount", 1, 3, 10, "GHz")
         assert sweep.add_subrange("LinearCount", 2, 4, 10, "GHz")
         assert sweep.add_subrange("LinearStep", 1.1, 2.1, 0.4, "GHz")
@@ -524,6 +529,8 @@ class TestClass(BasisTest, object):
         assert imp.name in self.aedtapp.modeler.get_boundaries_name()
         assert imp.update()
 
+    pytest.mark.skipif(config["desktopVersion"] > "2023.2", reason="Crashing Desktop")
+
     def test_14_create_lumpedrlc_on_objects(self):
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "rlc1", "Copper")
         box2 = self.aedtapp.modeler.create_box([0, 0, 10], [10, 10, 5], "rlc2", "copper")
@@ -637,21 +644,28 @@ class TestClass(BasisTest, object):
     def test_22_create_length_mesh(self):
         mesh = self.aedtapp.mesh.assign_length_mesh(["BoxCircuit1"])
         assert mesh
-        mesh.props["NumMaxElem"] = "10000"
-        assert mesh.update()
+        mesh.props["NumMaxElem"] = "100"
+        assert mesh.props["NumMaxElem"] == self.aedtapp.odesign.GetChildObject("Mesh").GetChildObject(
+            mesh.name
+        ).GetPropValue("Max Elems")
 
     def test_23_create_skin_depth(self):
         mesh = self.aedtapp.mesh.assign_skin_depth(["BoxCircuit2"], "1mm")
         assert mesh
         mesh.props["SkinDepth"] = "3mm"
-        assert mesh.update()
+        assert mesh.props["SkinDepth"] == self.aedtapp.odesign.GetChildObject("Mesh").GetChildObject(
+            mesh.name
+        ).GetPropValue("Skin Depth")
 
     def test_24_create_curvilinear(self):
         mesh = self.aedtapp.mesh.assign_curvilinear_elements(["BoxCircuit2"])
         assert mesh
         mesh.props["Apply"] = False
-        assert mesh.update()
-        assert mesh.delete()
+        assert mesh.props["Apply"] == self.aedtapp.odesign.GetChildObject("Mesh").GetChildObject(
+            mesh.name
+        ).GetPropValue("Apply Curvilinear Elements")
+        mesh.delete()
+        assert len(self.aedtapp.mesh.meshoperations) == 2
         pass
 
     def test_25a_create_parametrics(self):
@@ -862,8 +876,8 @@ class TestClass(BasisTest, object):
     def test_41_export_step(self):
         file_name = "test"
         self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10])
-        assert self.aedtapp.export_3d_model(file_name, self.aedtapp.working_directory, ".step", [], [])
-        assert os.path.exists(os.path.join(self.aedtapp.working_directory, file_name + ".step"))
+        assert self.aedtapp.export_3d_model(file_name, self.aedtapp.working_directory, ".x_t", [], [])
+        assert os.path.exists(os.path.join(self.aedtapp.working_directory, file_name + ".x_t"))
 
     def test_42_floquet_port(self):
         self.aedtapp.insert_design("floquet")
@@ -1150,7 +1164,16 @@ class TestClass(BasisTest, object):
         reason="Not working in non-graphical in version lower than 2022.2",
     )
     def test_51c_export_results(self):
-        self.aedtapp.set_active_design("Array_simple")
+        self.aedtapp.insert_design("Array_simple_resuts", "Modal")
+        from pyaedt.generic.DataHandlers import json_to_dict
+
+        dict_in = json_to_dict(os.path.join(local_path, "example_models", test_subfolder, "array_simple.json"))
+        dict_in["Circ_Patch_5GHz1"] = os.path.join(
+            local_path, "example_models", test_subfolder, "Circ_Patch_5GHz.a3dcomp"
+        )
+        dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
+        assert self.aedtapp.add_3d_component_array_from_json(dict_in)
+        dict_in["cells"][(3, 3)]["rotation"] = 90
         exported_files = self.aedtapp.export_results()
         assert len(exported_files) == 0
         setup = self.aedtapp.create_setup(setupname="test")
@@ -1159,6 +1182,10 @@ class TestClass(BasisTest, object):
         assert len(exported_files) == 0
         self.aedtapp.analyze_setup(name="test")
         exported_files = self.aedtapp.export_results()
+        assert len(exported_files) == 3
+        exported_files = self.aedtapp.export_results(
+            matrix_type="Y",
+        )
         assert len(exported_files) > 0
 
     def test_52_crate_setup_hybrid_sbr(self):

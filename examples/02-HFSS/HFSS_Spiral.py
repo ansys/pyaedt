@@ -153,7 +153,7 @@ setup1.props["Frequency"] = "10GHz"
 hfss.create_linear_count_sweep(setupname="setup1", unit="GHz", freqstart=1e-3, freqstop=50, num_of_freq_points=451,
                                sweep_type="Interpolating")
 hfss.save_project()
-hfss.analyze_all()
+hfss.analyze()
 
 ################################################################
 # Get report data

@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
+import random
 import re
 
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.Modeler import Modeler
-from pyaedt.modeler.circuits.object3dcircuit import CircuitComponent
-from pyaedt.modeler.circuits.object3dcircuit import Wire
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponents
 from pyaedt.modeler.circuits.PrimitivesMaxwellCircuit import MaxwellCircuitComponents
 from pyaedt.modeler.circuits.PrimitivesNexxim import NexximComponents
 from pyaedt.modeler.circuits.PrimitivesTwinBuilder import TwinBuilderComponents
+from pyaedt.modeler.circuits.object3dcircuit import CircuitComponent
+from pyaedt.modeler.circuits.object3dcircuit import Wire
 from pyaedt.modeler.pcb.Primitives3DLayout import Primitives3DLayout
 from pyaedt.modules.LayerStackup import Layers
 
@@ -105,7 +106,7 @@ class ModelerCircuit(Modeler):
              Number of the pin at which to terminate the connection from the right end of the
              starting component. The default is ``2``.
         pinnum_second : str, optional
-             Number of the pin at which to termiante the connection from the left end of the
+             Number of the pin at which to terminate the connection from the left end of the
              ending component. The default is ``1``.
 
         Returns
@@ -155,6 +156,234 @@ class ModelerCircuit(Modeler):
             return False
 
     @pyaedt_function_handler()
+    def create_text(
+        self,
+        text,
+        x_origin=0,
+        y_origin=0,
+        text_size=12,
+        text_angle=0,
+        text_color=0,
+        show_rect=False,
+        x1=0,
+        y1=0,
+        x2=0,
+        y2=0,
+        rect_line_width=0,
+        rect_border_color=0,
+        rect_fill=0,
+        rect_color=0,
+    ):
+        """Draw Text.
+
+        Parameters
+        ----------
+        text : string
+            Text to display.
+        x_origin : float, optional
+            x origin coordinate of the text box.
+            Default value is ``0``.
+        y_origin : float, optional
+            y origin coordinate of the text box .
+            Default value is ``0``.
+        text_size : int, optional
+            Size of text.
+            Default value is ``12``.
+        text_angle : float, optional
+            Angle of text.
+            Default value is ``0``.
+        text_color : int, optional
+            The RGB value of the text color.
+            Default value is ``0``.
+        show_rect : bool, optional
+            Show rectangle.
+            Default value is ``False``.
+        x1 : float, optional
+            The text rectangle left X value, in meters.
+            Default value is ``0``.
+        y1 : float, optional
+            The text rectangle upper Y value, in meters.
+            Default value is ``0``.
+        x2 : float, optional
+            The text rectangle right X value, in meters.
+            Default value is ``0``.
+        y2 : float, optional
+            The text rectangle lower Y value, in meters.
+            Default value is ``0``.
+        rect_line_width : float, optional
+            The width of the rectangle border, in meters.
+            Default value is ``0``.
+        rect_border_color : int, optional
+            The RGB value of the rectangle border color.
+            Default value is ``0``.
+        rect_fill : int, optional
+            The rectangle fill pattern id.
+            Available values are: 0 = hollow, 1 = solid, 2 = NEDiagonal, 3 = OrthoCross,
+            4 = DiagCross, 5 = NWDiagonal, 6 = Horizontal, 7 = Vertical.
+            Default value is ``0``.
+        rect_color : int, optional
+            The RGB value of the rectangle fill color.
+            Default value is ``0``.
+
+
+        Returns
+        -------
+        str
+             Unique id of the created object when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.CreateText
+
+        """
+        element_ids = []
+        for el in self.oeditor.GetAllGraphics():
+            element_ids.append(int(el.split("@")[1]))
+        system_random = random.SystemRandom()
+        text_id = system_random.randint(20000, 23000)
+        while text_id in element_ids:
+            text_id = system_random.randint(20000, 23000)
+        args = [
+            "NAME:TextData",
+            "X:=",
+            x_origin,
+            "Y:=",
+            y_origin,
+            "Size:=",
+            text_size,
+            "Angle:=",
+            text_angle,
+            "Text:=",
+            text,
+            "Color:=",
+            text_color,
+            "Id:=",
+            text_id,
+            "ShowRect:=",
+            show_rect,
+            "X1:=",
+            x1,
+            "Y1:=",
+            y1,
+            "X2:=",
+            x2,
+            "Y2:=",
+            y2,
+            "RectLineWidth:=",
+            rect_line_width,
+            "RectBorderColor:=",
+            rect_border_color,
+            "RectFill:=",
+            rect_fill,
+            "RectColor:=",
+            rect_color,
+        ]
+        a = ["NAME:Attributes", "Page:=", 1]
+        try:
+            return self.oeditor.CreateText(args, a)
+        except:
+            return False
+
+    @pyaedt_function_handler
+    def change_text_property(self, property_id, property_name, property_value):  # pragma: no cover
+        """Change an oeditor property.
+
+        Parameters
+        ----------
+        property_id : str
+            Object id.
+        property_name : str
+            Name of the property. For example, ``Text``.
+        property_value : str, list, int
+            Value of the property. It can be a string, an int for a single value, a list of three elements for
+            ``[r,g,b]`` color values or a list of two elements for ``[x, y]`` coordinates.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
+        """
+        graphics_id = [id.split("@")[1] for id in self.oeditor.GetAllGraphics()]
+        if property_id not in graphics_id:
+            self.logger.error("Invalid id.")
+            return False
+        if isinstance(property_value, list) and len(property_value) == 3:
+            if (
+                not isinstance(property_value[0], int)
+                or not isinstance(property_value[1], int)
+                or not isinstance(property_value[2], int)
+            ):
+                self.logger.error("Invalid RGB values for color")
+                return False
+            self.oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:BaseElementTab",
+                        ["NAME:PropServers", "SchObj@" + property_id],
+                        [
+                            "NAME:ChangedProps",
+                            [
+                                "NAME:" + property_name,
+                                "R:=",
+                                property_value[0],
+                                "G:=",
+                                property_value[1],
+                                "B:=",
+                                property_value[2],
+                            ],
+                        ],
+                    ],
+                ]
+            )
+        elif isinstance(property_value, list) and len(property_value) == 2:
+            xpos = self._arg_with_dim(property_value[0])
+            ypos = self._arg_with_dim(property_value[1])
+            self.oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:BaseElementTab",
+                        ["NAME:PropServers", "SchObj@" + property_id],
+                        ["NAME:ChangedProps", ["NAME:" + property_name, "X:=", xpos, "Y:=", ypos]],
+                    ],
+                ]
+            )
+        elif isinstance(property_value, bool):
+            self.oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:BaseElementTab",
+                        ["NAME:PropServers", "SchObj@" + property_id],
+                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", property_value]],
+                    ],
+                ]
+            )
+        elif isinstance(property_value, (str, float, int)):
+            self.oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:BaseElementTab",
+                        ["NAME:PropServers", "SchObj@" + property_id],
+                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", property_value]],
+                    ],
+                ]
+            )
+        else:
+            self.logger.error("Wrong Property Value")
+            return False
+        self.logger.info("Property {} Changed correctly.".format(property_name))
+        return True
+
+    @pyaedt_function_handler()
     def _get_components_selections(self, selections, return_as_list=True):
         sels = []
         if not isinstance(selections, list):
@@ -171,6 +400,17 @@ class ModelerCircuit(Modeler):
         if not return_as_list:
             return ", ".join(sels)
         return sels
+
+    @pyaedt_function_handler()
+    def _arg_with_dim(self, value, units=None):
+        if units is None:
+            units = self.schematic_units
+        if isinstance(value, str):
+            val = value
+        else:
+            val = "{0}{1}".format(value, units)
+
+        return val
 
 
 class ModelerNexxim(ModelerCircuit):

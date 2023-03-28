@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 * * * This script is meant to run in IronPython within the Ansys Electronics Desktop. * * *
 The script provides for choosing the Python script to execute.
@@ -10,50 +11,84 @@ See the declaration of the command variable to see the order in which arguments 
 The commands allow the launched script to still reference the project and design that was active when the script
 was launched as well as the AEDT instance that has them open.
 
-Author: Carlos A. Mulero Hernandez
 """
 import os
-import subprocess
+import sys
 
-import ScriptEnv
-
-# import clr
-# clr.AddReference("System.Windows.Forms")
+from System.Windows.Forms import MessageBox
+from System.Windows.Forms import MessageBoxButtons
+from System.Windows.Forms import MessageBoxIcon
 from System.Windows.Forms import OpenFileDialog
 
-oProject = oDesktop.GetActiveProject()
-oDesign = oProject.GetActiveDesign()
+is_linux = os.name == "posix"
+script_name = os.path.splitext(os.path.basename(__file__))[0]
 
-# Choose file to launch
-file_dialog = OpenFileDialog()
-file_dialog.InitialDirectory = oProject.GetPath()
-file_dialog.Filter = "python files(*.py)|*.py"
-ret = file_dialog.ShowDialog()
-print("ret: " + repr(ret))
+if is_linux:
+    import subprocessdotnet as subprocess
+else:
+    import subprocess
 
-try:
-    if ret == ret.OK:
-        # launch file
-        version = oDesktop.GetVersion()[2:6].replace(".", "")
-        current_dir = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))
-        pyaedt_toolkit_dir = os.path.normpath(os.path.join(current_dir, "..", "..", r"##TOOLKIT_REL_LIB_DIR##"))
-        config_file = open(
-            os.path.join(pyaedt_toolkit_dir, "python_interpreter.bat"), "r"
-        )  # will fail with a file not found error if it isn't here
-        python_exe = r"##PYTHON_EXE##" % version
-        print("python.exe: " + python_exe)
-        pyaedt_script = file_dialog.FileName
-        print("pyaedt_script: " + str(pyaedt_script))
-        command = [
-            python_exe,
-            pyaedt_script,
-            str(oDesktop.GetProcessID()),
-            oDesktop.GetVersion()[:6],  # "2022.1.0" is returned but this makes PyAEDT fail a float conversion
-        ]
-        subprocess.Popen(command)
-    else:
-        # exit()
-        print("ret didn't pass the equivalence")
-        print("ret:" + repr(ret))
-except Exception as e:
-    print(str(e))
+
+def main():
+    oProject = oDesktop.GetActiveProject()
+
+    # Choose file to launch
+    file_dialog = OpenFileDialog()
+    file_dialog.InitialDirectory = oProject.GetPath()
+    file_dialog.Filter = "python files (*.py)|*.py"
+    ret = file_dialog.ShowDialog()
+    debug("ret: " + repr(ret))
+
+    try:
+        if ret == ret.OK:
+            # launch file
+            version = oDesktop.GetVersion()[2:6].replace(".", "")
+            current_dir = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))
+            pyaedt_toolkit_dir = os.path.normpath(os.path.join(current_dir, r"##TOOLKIT_REL_LIB_DIR##"))
+            config_file = open(
+                os.path.join(pyaedt_toolkit_dir, "python_interpreter.bat"), "r"
+            )  # will fail with a file not found error if it isn't here
+            python_exe = r"##PYTHON_EXE##" % version
+            pyaedt_script = file_dialog.FileName
+            check_file(python_exe)
+            check_file(pyaedt_script)
+            if is_linux:
+                command = [
+                    python_exe,
+                    pyaedt_script,
+                    str(oDesktop.GetProcessID()),
+                    str(oDesktop.GetVersion()[:6]),
+                ]
+            else:
+                command = [
+                    '""'.format(python_exe),
+                    '""'.format(pyaedt_script),
+                    str(oDesktop.GetProcessID()),
+                    str(oDesktop.GetVersion()[:6]),
+                ]
+            subprocess.Popen(command)
+        else:
+            debug("ret didn't pass the equivalence. ret:" + repr(ret))
+    except Exception as e:
+        show_error(str(e))
+
+
+def check_file(file_path):
+    if not os.path.isfile(file_path):
+        show_error('"{}" does not exist. Please click on the "Install PyAEDT" button in the Automation ribbon.'.format(
+            file_path))
+
+
+def show_error(msg):
+    oDesktop.AddMessage("", "", 2, str(msg))
+    MessageBox.Show(str(msg), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+    sys.exit()
+
+
+def debug(msg):
+    print(script_name + ": " + str(msg))
+    LogDebug(script_name + ": " + str(msg) + "\n")
+
+
+if __name__ == "__main__":
+    main()

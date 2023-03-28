@@ -2,6 +2,7 @@
 import math
 
 from _unittest.conftest import BasisTest
+
 from pyaedt.generic.general_methods import _to_boolean
 from pyaedt.generic.general_methods import _uname
 from pyaedt.generic.general_methods import is_ironpython
@@ -560,7 +561,7 @@ class TestClass(BasisTest, object):
         assert box_clone.history.props["Position/Y"] == box.history.props["Position/Y"]
         assert box_clone.history.props["Position/Z"] == box.history.props["Position/Z"]
         assert box_clone.history.props["XSize"] == box.history.props["XSize"]
-        assert box_clone.history.props["YSize"] == box_clone.history.props["YSize"]
+        assert box_clone.history.props["YSize"] == box.history.props["YSize"]
         assert box_clone.history.props["ZSize"] == box.history.props["ZSize"]
         assert len(box_clone.history.children) == 3
         assert "Subtract:1" in box_clone.history.children.keys()

@@ -4,10 +4,10 @@
 Contribute
 ==========
 Overall guidance on contributing to a PyAnsys repository appears in
-`Contribute <https://dev.docs.pyansys.com/dev/how-to/contributing.html>`_
+`Contribute <https://dev.docs.pyansys.com/how-to/contributing.html>`_
 in the *PyAnsys Developer's Guide*. Ensure that you are thoroughly familiar
 with this guide, paying particular attention to `Guidelines and Best Practices
-<https://dev.docs.pyansys.com/dev/how-to/index.html>`_, before attempting
+<https://dev.docs.pyansys.com/how-to/index.html>`_, before attempting
 to contribute to PyAEDT.
  
 The following contribution information is specific to PyAEDT.

@@ -804,11 +804,11 @@ class EdbSiwave(object):
             sweep = "log scale"
         elif sweeptype == 0:
             sweep = "linear scale"
-        start_freq = self._pedb.arg_with_dim(start_freq, "Hz")
-        stop_freq = self._pedb.arg_with_dim(stop_freq, "Hz")
+        start_freq = self._pedb.number_with_units(start_freq, "Hz")
+        stop_freq = self._pedb.number_with_units(stop_freq, "Hz")
         third_arg = int(decade_count)
         if sweeptype == 0:
-            third_arg = self._pedb.arg_with_dim(step_freq, "Hz")
+            third_arg = self._pedb.number_with_units(step_freq, "Hz")
         setup.si_slider_postion = int(accuracy_level)
         sweep = setup.add_frequency_sweep(
             frequency_sweep=[

@@ -7,25 +7,26 @@ This module provides all functionalities for creating and editing plots in the 3
 from __future__ import absolute_import  # noreorder
 
 import ast
+from collections import OrderedDict
 import os
 import random
 import string
 import warnings
-from collections import OrderedDict
 
-import pyaedt.modules.report_templates as rt
 from pyaedt import is_ironpython
 from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
-from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.DataHandlers import json_to_dict
+from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+import pyaedt.modules.report_templates as rt
 from pyaedt.modules.solutions import FieldPlot
 from pyaedt.modules.solutions import SolutionData
+from pyaedt.modules.solutions import VRTFieldPlot
 
 if not is_ironpython:
     try:
@@ -37,7 +38,6 @@ if not is_ironpython:
         Enum = None
 else:
     Enum = object
-
 
 TEMPLATES_BY_DESIGN = {
     "HFSS": [
@@ -98,28 +98,6 @@ TEMPLATES_BY_NAME = {
 }
 
 
-class ReportDcirShow(Enum):
-    RL = "0"
-    Sources = "1"
-    Vias = "2"
-    Bondwires = "3"
-    Probes = "4"
-
-
-class ReportDcirCategory(Enum):
-    Voltage = "Voltage"
-    Current = "Current"
-    Power = "Power"
-    Loop_Resistance = "Loop Resistance"
-    Path_Resistance = "Path Resistance"
-    Resistance = "Resistance"
-    Inductor = "Inductance"
-    X = "X"
-    Y = "Y"
-    Limit = "Limit"
-    IR_Drop = "IR Drop"
-
-
 class Reports(object):
     """Provides the names of default solution types."""
 
@@ -135,9 +113,12 @@ class Reports(object):
         Parameters
         ----------
         expressions : str or list
-            Expression List.
+            Expression List to add into the report. The expression can be any of the available formula
+            you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Setup Name.
+            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
+            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
+            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -151,6 +132,8 @@ class Reports(object):
         >>> report = cir.post.reports_by_category.standard("dB(S(1,1))", "LNA")
         >>> report.create()
         >>> solutions = report.get_solution_data()
+        >>> report2 = cir.post.reports_by_category.standard(["dB(S(2,1))", "dB(S(2,2))"] , "LNA")
+
         """
         if not setup_name:
             setup_name = self._post_app._app.nominal_sweep
@@ -171,9 +154,12 @@ class Reports(object):
         Parameters
         ----------
         expressions : str or list
-            Expression List.
+            Expression List to add into the report. The expression can be any of the available formula
+            you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Setup Name.
+            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
+            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
+            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -202,9 +188,12 @@ class Reports(object):
         Parameters
         ----------
         expressions : str or list
-            Expression List.
+            Expression List to add into the report. The expression can be any of the available formula
+            you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Setup Name.
+            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
+            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
+            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -235,9 +224,12 @@ class Reports(object):
         Parameters
         ----------
         expressions : str or list
-            Expression List.
+            Expression List to add into the report. The expression can be any of the available formula
+            you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Setup Name.
+            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
+            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
+            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -268,9 +260,12 @@ class Reports(object):
         Parameters
         ----------
         expressions : str or list
-            Expression List.
+            Expression List to add into the report. The expression can be any of the available formula
+            you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Setup Name.
+            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
+            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
+            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -301,9 +296,12 @@ class Reports(object):
         Parameters
         ----------
         expressions : str or list
-            Expression List.
+            Expression List to add into the report. The expression can be any of the available formula
+            you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Setup Name.
+            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
+            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
+            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -337,9 +335,12 @@ class Reports(object):
         Parameters
         ----------
         expressions : str or list
-            Expression List.
+            Expression List to add into the report. The expression can be any of the available formula
+            you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Setup name.
+            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
+            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
+            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
         sphere_name : str, optional
             Name of the sphere to create the far field on.
         source_context : str, optional
@@ -376,9 +377,12 @@ class Reports(object):
         Parameters
         ----------
         expressions : str or list
-            Expression List.
+            Expression List to add into the report. The expression can be any of the available formula
+            you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Setup Name.
+            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
+            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
+            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
         sphere_name : str, optional
             Name of the sphere on which compute antenna parameters.
 
@@ -410,9 +414,12 @@ class Reports(object):
         Parameters
         ----------
         expressions : str or list
-            Expression List.
+            Expression List to add into the report. The expression can be any of the available formula
+            you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Setup Name.
+            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
+            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
+            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -443,9 +450,12 @@ class Reports(object):
         Parameters
         ----------
         expressions : str or list
-            Expression List.
+            Expression List to add into the report. The expression can be any of the available formula
+            you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Setup Name.
+            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
+            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
+            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -475,9 +485,12 @@ class Reports(object):
         Parameters
         ----------
         expressions : str or list
-            Expression List.
+            Expression List to add into the report. The expression can be any of the available formula
+            you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Setup Name.
+            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
+            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
+            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -507,9 +520,12 @@ class Reports(object):
         Parameters
         ----------
         expressions : str or list
-            Expression List.
+            Expression List to add into the report. The expression can be any of the available formula
+            you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Setup Name.
+            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
+            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
+            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -539,9 +555,12 @@ class Reports(object):
         Parameters
         ----------
         expressions : str or list
-            Expression List.
+            Expression List to add into the report. The expression can be any of the available formula
+            you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Setup Name.
+            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
+            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
+            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -573,9 +592,12 @@ class Reports(object):
         Parameters
         ----------
         expressions : str or list, optional
-            Expression List.
+            Expression List to add into the report. The expression can be any of the available formula
+            you can enter into the Electronics Desktop Report Editor.
         setup_name : str, optional
-            Setup Name.
+            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
+            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
+            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
 
         Returns
         -------
@@ -1296,7 +1318,7 @@ class PostProcessorCommon(object):
 
     @pyaedt_function_handler()
     def export_report_to_file(self, output_dir, plot_name, extension, unique_file=False):
-        """Export the 2D Plot data to a file.
+        """Export a 2D Plot data to a file.
 
         This method leaves the data in the plot (as data) as a reference
         for the Plot after the loops.
@@ -1328,6 +1350,13 @@ class PostProcessorCommon(object):
 
         >>> oModule.ExportReportDataToFile
         >>> oModule.ExportToFile
+
+        Examples
+        --------
+        >>> from pyaedt import Circuit
+        >>> cir = Circuit("my_project.aedt")
+        >>> report = cir.post.create_report("MyScattering")
+        >>> cir.post.export_report_to_file("C:\\temp", "MyTestScattering", ".csv")
         """
         npath = output_dir
 
@@ -1757,21 +1786,32 @@ class PostProcessorCommon(object):
         polyline_points=1001,
         math_formula=None,
     ):
-        """Get SolutionData of a report in AEDT. It can be a 2D plot, 3D solution data class.
+        """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
+        Data to be retrieved from Electronics Desktop are any simulation results available in that
+        specific simulation context.
+        Most of the argument have some defaults which works for most of the ``Standard`` report quantities.
 
         Parameters
         ----------
         expressions : str or list, optional
-            One or more formulas to add to the report. Example is value ``"dB(S(1,1))"``.
+            One or more formulas to add to the report. Example is value ``"dB(S(1,1))"`` or a list of values.
             Default is `None` which will return all traces.
         setup_sweep_name : str, optional
-            Setup name with the sweep. The default is ``""``.
+            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
+            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
+            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
         domain : str, optional
-            Plot Domain. Options are "Sweep" and "Time".
+            Plot Domain. Options are "Sweep" for frequency domain related results and "Time" for transient related data.
         variations : dict, optional
-            Dictionary of all families including the primary sweep. The default is ``{"Freq": ["All"]}``.
+            Dictionary of all families including the primary sweep.
+            The default is ``None`` which will use the nominal variations of the design.
         primary_sweep_variable : str, optional
-            Name of the primary sweep. The default is ``"Freq"``.
+            Name of the primary sweep. The default is ``"None"`` which, depending on the context,
+            will internally assign the primary sweep to:
+            1. ``Freq`` for frequency domain results,
+            2. ``Time`` for transient results,
+            3. ``Theta`` for radiation patterns,
+            4. ``distance`` for field plot over a polyline.
         report_category : str, optional
             Category of the Report to be created. If `None` default data Report will be used.
             The Report Category can be one of the types available for creating a report depend on the simulation setup.
@@ -1779,18 +1819,24 @@ class PostProcessorCommon(object):
             The report category will be in this case "Far Fields".
             Depending on the setup different categories are available.
             If `None` default category will be used (the first item in the Results drop down menu in AEDT).
+            To get the list of available categories user can use method ``available_report_types``.
         context : str, dict, optional
-            The default is ``None``. It can be `None`, ``"Differential Pairs"`` or
-            Reduce Matrix Name for Q2d/Q3d solution or Infinite Sphere name for Far Fields Plot.
-            If dictionary is passed, key is the report property name and value is property value.
+            This is the context of the report.
+            The default is ``None``. It can be:
+            1. `None`
+            2. ``"Differential Pairs"``
+            3. Reduce Matrix Name for Q2d/Q3d solution
+            4. Infinite Sphere name for Far Fields Plot.
+            5. Dictionary. If dictionary is passed, key is the report property name and value is property value.
         subdesign_id : int, optional
-            Subdesign ID for exporting a Touchstone file of this subdesign. This parameter
-            is valid for Circuit only.
+            Subdesign ID for exporting a Touchstone file of this subdesign.
+            This parameter is valid for ``Circuit`` only.
             The default value is ``None``.
         polyline_points : int, optional
             Number of points on which to create the report for plots on polylines.
+            This parameter is valid for ``Fields`` plot only.
         math_formula : str, optional
-            One of the available AEDT mathematical formulas. For example, ``abs, dB``.
+            One of the available AEDT mathematical formulas to apply. For example, ``abs, dB``.
 
 
         Returns
@@ -1901,6 +1947,20 @@ class PostProcessorCommon(object):
         elif context:
             if hasattr(self.modeler, "line_names") and context in self.modeler.line_names:
                 report.polyline = context
+            elif context in [
+                "RL",
+                "Sources",
+                "Vias",
+                "Bondwires",
+                "Probes",
+            ]:
+                report.siwave_dc_category = [
+                    "RL",
+                    "Sources",
+                    "Vias",
+                    "Bondwires",
+                    "Probes",
+                ].index(context)
         solution_data = report.get_solution_data()
         return solution_data
 
@@ -2852,8 +2912,9 @@ class PostProcessor(PostProcessorCommon, object):
         quantityName : str
             Name of the quantity to plot.
         setup_name : str, optional
-            Name of the setup in the format ``"setupName : sweepName"``. The default
-            is ``None``.
+            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
+            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
+            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
         intrinsincDict : dict, optional
             Dictionary containing all intrinsic variables. The default
             is ``{}``.
@@ -2992,8 +3053,9 @@ class PostProcessor(PostProcessorCommon, object):
         quantityName : str
             Name of the quantity to plot.
         setup_name : str, optional
-            Name of the setup in the format ``"setupName : sweepName"``. The default
-            is ``None``.
+            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
+            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
+            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
         intrinsincDict : dict, optional
             Dictionary containing all intrinsic variables. The default
             is ``{}``.
@@ -3036,9 +3098,9 @@ class PostProcessor(PostProcessorCommon, object):
         quantityName : str
             Name of the quantity to plot.
         setup_name : str, optional
-            Name of the setup in the format
-            ``"setupName : sweepName"``. The default is ``None``,
-            in which case ``"nominal, lastadaptive"`` is used.
+            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
+            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
+            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
         intrinsincDict : dict, optional
             Dictionary containing all intrinsic variables.
             The default is ``{}``.
@@ -3073,9 +3135,9 @@ class PostProcessor(PostProcessorCommon, object):
         quantityName :
             Name of the quantity to plot.
         setup_name : str, optional
-            Name of the setup in the format
-            ``"setupName : sweepName"``. The default is ``None``,
-            in which case ``"nominal, lastadaptive"`` is used.
+            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
+            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
+            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
         intrinsincDict : dict, optional
             Dictionary containing all intrinsic variables. The default
             is ``{}``.
@@ -3253,7 +3315,7 @@ class PostProcessor(PostProcessorCommon, object):
         width=0,
         height=0,
     ):
-        """Export a snapshot of the model to a JPG file.
+        """Export a snapshot of the model to a ``JPG`` file.
 
         .. note::
            This method works only when AEDT is running in the graphical mode.
@@ -3292,8 +3354,13 @@ class PostProcessor(PostProcessorCommon, object):
         ----------
 
         >>> oEditor.ExportModelImageToFile
+
+        Examples
+        --------
+        >>> from pyaedt import Q3d
+        >>> q3d = Q3d(non_graphical=False)
+        >>> output_file = q3d.post.export_model_picture(full_name=os.path.join(q3d.working_directory, "images1.jpg"))
         """
-        # Set up arguments list for createReport function
         if selections:
             selections = self.modeler.convert_to_selections(selections, False)
         else:
@@ -3455,19 +3522,37 @@ class PostProcessor(PostProcessorCommon, object):
 
     @pyaedt_function_handler()
     def export_mesh_obj(self, setup_name=None, intrinsic_dict=None):
-        """Export the mesh.
+        """Export the mesh in ``aedtplt`` format.
+        The mesh has to be available in the selected setup.
+        If a parametric model is provided user can choose the mesh to export providing a specific set of variations.
+        This method applies only to ``Hfss``, ``Q3d``, ``Q2D``, ``Maxwell3d``, ``Maxwell2d``, ``Icepak``
+        and ``Mechanical`` objects. This method is calling ``create_fieldplot_surface`` to create a mesh plot and
+        ``export_field_plot`` to export it as ``aedtplt`` file.
 
         Parameters
         ----------
         setup_name : str, optional
-            Name of the setup. The default is ``None``.
+            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
+            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
+            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
         intrinsic_dict : dict, optional.
             Intrinsic dictionary that is needed for the export.
-            The default is ``{}``.
+            The default is ``{}`` which assumes no variables are present in the dict or nominal values are used.
 
         Returns
         -------
+        str
+            File Generated with full path.
 
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.analyze()
+        >>> # Export report using defaults.
+        >>> hfss.post.export_mesh_obj(setup_name=None, intrinsic_dict=None)
+        >>> # Export report using arguments.
+        >>> hfss.post.export_mesh_obj(setup_name="MySetup : LastAdaptive", intrinsic_dict={"w1":"5mm", "l1":"3mm"})
         """
         if intrinsic_dict is None:
             intrinsic_dict = {}
@@ -3776,6 +3861,245 @@ class PostProcessor(PostProcessorCommon, object):
 
         self.logger.info("The total power is {} {}".format(str(sum(power_dict.values())), units))
         return power_dict, sum(power_dict.values())
+
+    def create_creeping_plane_visual_ray_tracing(
+        self,
+        max_frequency="1GHz",
+        ray_density=1,
+        sample_density=10,
+        ray_cutoff=40,
+        irregular_surface_tolerance=50,
+        incident_theta=0,
+        incident_phi=0,
+        is_vertical_polarization=False,
+    ):
+        """Create a Creeping Wave Plane Wave Visual Ray Tracing and return the class object.
+
+        Parameters
+        ----------
+
+        max_frequency : str, optional
+            Maximum Frequency. Default is ``"1GHz"``.
+        ray_density : int, optional
+            Ray Density. Default is ``2``.
+        sample_density : int, optional
+            Sample density. Default is ``10``.
+        ray_cutoff : int, optional
+            Ray Cutoff number. Default is ``40``.
+        irregular_surface_tolerance : int, optional
+            Irregular Surface Tolerance value. Default is ``50``.
+        incident_theta : str, optional
+            Incident plane wave theta. Default is ``"0deg"``.
+        incident_phi : str, optional
+            Incident plane wave phi. Default is ``"0deg"``.
+        is_vertical_polarization : bool, optional
+            Whether if enable or Vertical Polarization or not. Default is ``False``.
+
+        Returns
+        -------
+        :class:` pyaedt.modules.solutions.VRTFieldPlot`
+        """
+        vrt = VRTFieldPlot(self, is_creeping_wave=True)
+        vrt.max_frequency = max_frequency
+        vrt.sample_density = sample_density
+        vrt.ray_density = ray_density
+        vrt.ray_cutoff = ray_cutoff
+        vrt.irregular_surface_tolerance = irregular_surface_tolerance
+        vrt.is_plane_wave = True
+        vrt.incident_theta = incident_theta
+        vrt.incident_phi = incident_phi
+        vrt.vertical_polarization = is_vertical_polarization
+        vrt.create()
+        return vrt
+
+    def create_creeping_point_visual_ray_tracing(
+        self,
+        max_frequency="1GHz",
+        ray_density=1,
+        sample_density=10,
+        ray_cutoff=40,
+        irregular_surface_tolerance=50,
+        custom_location=None,
+    ):
+        """Create a Creeping Wave Point Source Visual Ray Tracing and return the class object.
+
+        Parameters
+        ----------
+
+        max_frequency : str, optional
+            Maximum Frequency. Default is ``"1GHz"``.
+        ray_density : int, optional
+            Ray Density. Default is ``2``.
+        sample_density : int, optional
+            Sample density. Default is ``10``.
+        ray_cutoff : int, optional
+            Ray Cutoff number. Default is ``40``.
+        irregular_surface_tolerance : int, optional
+            Irregular Surface Tolerance value. Default is ``50``.
+        custom_location : list, optional
+            List of x, y,z position of point source. Default is ``None``.
+
+        Returns
+        -------
+        :class:` pyaedt.modules.solutions.VRTFieldPlot`
+        """
+        if custom_location is None:
+            custom_location = [0, 0, 0]
+        vrt = VRTFieldPlot(
+            self,
+            is_creeping_wave=True,
+        )
+        vrt.max_frequency = max_frequency
+        vrt.sample_density = sample_density
+        vrt.ray_density = ray_density
+        vrt.ray_cutoff = ray_cutoff
+        vrt.irregular_surface_tolerance = irregular_surface_tolerance
+        vrt.is_plane_wave = False
+        vrt.custom_location = custom_location
+        vrt.create()
+        return vrt
+
+    def create_sbr_plane_visual_ray_tracing(
+        self,
+        max_frequency="1GHz",
+        ray_density=2,
+        number_of_bounces=5,
+        multi_bounce=False,
+        mbrd_max_sub_division=2,
+        shoot_utd=False,
+        incident_theta=0,
+        incident_phi=0,
+        is_vertical_polarization=False,
+        shoot_filter_type="All Rays",
+        ray_index_start=0,
+        ray_index_stop=1,
+        ray_index_step=1,
+        ray_box=None,
+    ):
+        """Create an SBR Plane Wave Visual Ray Tracing and return the class object.
+
+        Parameters
+        ----------
+
+        max_frequency : str, optional
+            Maximum Frequency. Default is ``"1GHz"``.
+        ray_density : int, optional
+            Ray Density. Default is ``2``.
+        number_of_bounces : int, optional
+            Maximum number of bounces. Default is ``5``.
+        multi_bounce : bool, optional
+            Whether if enable or not Multi-Bounce ray density control. Default is ``False``.
+        mbrd_max_sub_division : int, optional
+            Maximum number of MBRD subdivisions. Default is ``2``.
+        shoot_utd : bool, optional
+            Whether if enable or UTD Rays shooting or not. Default is ``False``.
+        incident_theta : str, optional
+            Incident plane wave theta. Default is ``"0deg"``.
+        incident_phi : str, optional
+            Incident plane wave phi. Default is ``"0deg"``.
+        is_vertical_polarization : bool, optional
+            Whether if enable or Vertical Polarization or not. Default is ``False``.
+        shoot_filter_type : str, optional
+            Shooter Type. Default is ``"All Rays"``. Options are  ``"Rays by index"``,  ``"Rays in box"``.
+        ray_index_start : int, optional
+            Ray index start. Valid only if ``"Rays by index"`` is chosen.  Default is ``0``.
+        ray_index_stop : int, optional
+            Ray index stop. Valid only if ``"Rays by index"`` is chosen.  Default is ``1``.
+        ray_index_step : int, optional
+            Ray index step. Valid only if ``"Rays by index"`` is chosen.  Default is ``1``.
+        ray_box : int or str optional
+            Ray box name or id. Valid only if ``"Rays by box"`` is chosen.  Default is ``None``.
+
+        Returns
+        -------
+        :class:` pyaedt.modules.solutions.VRTFieldPlot`
+        """
+        vrt = VRTFieldPlot(self, is_creeping_wave=False)
+        vrt.max_frequency = max_frequency
+        vrt.ray_density = ray_density
+        vrt.number_of_bounces = number_of_bounces
+        vrt.multi_bounce_ray_density_control = multi_bounce
+        vrt.mbrd_max_subdivision = mbrd_max_sub_division
+        vrt.shoot_utd_rays = shoot_utd
+        vrt.shoot_type = shoot_filter_type
+        vrt.is_plane_wave = True
+        vrt.incident_theta = incident_theta
+        vrt.incident_phi = incident_phi
+        vrt.vertical_polarization = is_vertical_polarization
+        vrt.start_index = ray_index_start
+        vrt.stop_index = ray_index_stop
+        vrt.step_index = ray_index_step
+        vrt.ray_box = ray_box
+        vrt.create()
+        return vrt
+
+    def create_sbr_point_visual_ray_tracing(
+        self,
+        max_frequency="1GHz",
+        ray_density=2,
+        number_of_bounces=5,
+        multi_bounce=False,
+        mbrd_max_sub_division=2,
+        shoot_utd=False,
+        custom_location=None,
+        shoot_filter_type="All Rays",
+        ray_index_start=0,
+        ray_index_stop=1,
+        ray_index_step=1,
+        ray_box=None,
+    ):
+        """Create an SBR Point Source Visual Ray Tracing and return the class object.
+
+        Parameters
+        ----------
+
+        max_frequency : str, optional
+            Maximum Frequency. Default is ``"1GHz"``.
+        ray_density : int, optional
+            Ray Density. Default is ``2``.
+        number_of_bounces : int, optional
+            Maximum number of bounces. Default is ``5``.
+        multi_bounce : bool, optional
+            Whether if enable or not Multi-Bounce ray density control. Default is ``False``.
+        mbrd_max_sub_division : int, optional
+            Maximum number of MBRD subdivisions. Default is ``2``.
+        shoot_utd : bool, optional
+            Whether if enable or UTD Rays shooting or not. Default is ``False``.
+        custom_location : list, optional
+            List of x, y,z position of point source. Default is ``None`.
+        shoot_filter_type : str, optional
+            Shooter Type. Default is ``"All Rays"``. Options are  ``"Rays by index"``,  ``"Rays in box"``.
+        ray_index_start : int, optional
+            Ray index start. Valid only if ``"Rays by index"`` is chosen.  Default is ``0``.
+        ray_index_stop : int, optional
+            Ray index stop. Valid only if ``"Rays by index"`` is chosen.  Default is ``1``.
+        ray_index_step : int, optional
+            Ray index step. Valid only if ``"Rays by index"`` is chosen.  Default is ``1``.
+        ray_box : int or str optional
+            Ray box name or id. Valid only if ``"Rays by box"`` is chosen.  Default is ``None``.
+
+        Returns
+        -------
+        :class:` pyaedt.modules.solutions.VRTFieldPlot`
+        """
+        if custom_location is None:
+            custom_location = [0, 0, 0]
+        vrt = VRTFieldPlot(self, is_creeping_wave=False)
+        vrt.max_frequency = max_frequency
+        vrt.ray_density = ray_density
+        vrt.number_of_bounces = number_of_bounces
+        vrt.multi_bounce_ray_density_control = multi_bounce
+        vrt.mbrd_max_subdivision = mbrd_max_sub_division
+        vrt.shoot_utd_rays = shoot_utd
+        vrt.shoot_type = shoot_filter_type
+        vrt.is_plane_wave = False
+        vrt.custom_location = custom_location
+        vrt.start_index = ray_index_start
+        vrt.stop_index = ray_index_stop
+        vrt.step_index = ray_index_step
+        vrt.ray_box = ray_box
+        vrt.create()
+        return vrt
 
 
 class CircuitPostProcessor(PostProcessorCommon, object):

@@ -579,11 +579,11 @@ class FacePrimitive(object):
         """Face center in model units.
 
         .. note::
-           It returns the face centroid if number of face vertex is >1.
-           It tries to get AEDT Face Center in case of single vertex face
-           and returns the vertex position otherwise. If the face has no
-           vertices, and it is not planar, the function returns the centroid
-           of the face edges.
+           It returns the face centroid if number of face vertices is >1.
+           For curved faces returns a point on the surface even if it is
+           not properly the center of mass.
+           It falls back to get AEDT Face Center if the efficient methods
+           fail.
 
         Returns
         -------
@@ -597,26 +597,25 @@ class FacePrimitive(object):
 
         """
         vtx = self.vertices
-        if len(vtx) > 1:
-            return GeometryOperators.get_polygon_centroid([pos.position for pos in vtx])
-        elif len(vtx) == 1:
-            centroid = [0, 0, 0]
-            eval_points = 4
-            for edge in self.edges:
-                centroid = GeometryOperators.v_sum(
-                    centroid,
-                    GeometryOperators.get_polygon_centroid(
+        try:
+            if len(vtx) > 1:
+                return GeometryOperators.get_polygon_centroid([pos.position for pos in vtx])
+            elif len(vtx) <= 1:
+                eval_points = 4
+                edge = self.edges[0]
+                centroid = GeometryOperators.get_polygon_centroid(
+                    [
                         [
-                            [
-                                float(i)
-                                for i in self.oeditor.GetEdgePositionAtNormalizedParameter(edge.id, pos / eval_points)
-                            ]
-                            for pos in range(0, eval_points, 1)
+                            float(i)
+                            for i in self.oeditor.GetEdgePositionAtNormalizedParameter(
+                                edge.id, float(pos) / eval_points
+                            )
                         ]
-                    ),
+                        for pos in range(0, eval_points)
+                    ]
                 )
-            return GeometryOperators.v_prod(1 / len(self.edges), centroid)
-        else:
+                return centroid
+        except:  # pragma: no cover
             return self.center_from_aedt
 
     @property
@@ -1361,7 +1360,8 @@ class HistoryProps(OrderedDict):
 class BinaryTreeNode:
     """Manages an object's history structure."""
 
-    def __init__(self, node, child_object, first_level=False, get_child_obj_arg=None):
+    def __init__(self, node, child_object, first_level=False, get_child_obj_arg=None, root_name=None):
+        saved_root_name = node if first_level else root_name
         self.node = node
         self.child_object = child_object
         self.children = {}
@@ -1374,19 +1374,27 @@ class BinaryTreeNode:
         for i in child_names:
             if not name:
                 name = i
-            if not i.startswith("OperandPart_"):
-                self.children[i] = BinaryTreeNode(i, self.child_object.GetChildObject(i))
+            if i == "OperandPart_" + saved_root_name:
+                continue
+            elif not i.startswith("OperandPart_"):
+                self.children[i] = BinaryTreeNode(i, self.child_object.GetChildObject(i), root_name=saved_root_name)
             else:
                 names = self.child_object.GetChildObject(i).GetChildNames()
                 for name in names:
-                    self.children[name] = BinaryTreeNode(name, self.child_object.GetChildObject(i).GetChildObject(name))
-        self.props = {}
+                    self.children[name] = BinaryTreeNode(
+                        name, self.child_object.GetChildObject(i).GetChildObject(name), root_name=saved_root_name
+                    )
         if first_level:
             self.child_object = self.children[name].child_object
+            self.props = self.children[name].props
+            if name == "CreatePolyline:1":
+                self.segments = self.children[name].children
             del self.children[name]
-        for i in self.child_object.GetPropNames():
-            self.props[i] = self.child_object.GetPropValue(i)
-        self.props = HistoryProps(self, self.props)
+        else:
+            self.props = {}
+            for p in self.child_object.GetPropNames():
+                self.props[p] = self.child_object.GetPropValue(p)
+            self.props = HistoryProps(self, self.props)
         self.command = self.props.get("Command", "")
 
     def update_property(self, prop_name, prop_value):
