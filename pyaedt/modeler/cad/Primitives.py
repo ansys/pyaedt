@@ -2829,6 +2829,9 @@ class Primitives(object):
             self.object_id_dict[o.name] = new_id
         else:
             o = Object3d(self, name)
+            history = o.history  # avoids creating the history twice
+            if history and history.command == "CreatePolyline":
+                o = self.get_existing_polyline(o)
             if pid:
                 new_id = pid
             else:
