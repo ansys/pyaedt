@@ -2818,17 +2818,21 @@ class Primitives(object):
         elif name in self.planes.keys():
             o = Plane(self, name)
             self.planes[name] = o
+        elif name in self.line_names:
+            o = Object3d(self, name)
+            if pid:
+                new_id = pid
+            else:
+                new_id = o.id
+            o = self.get_existing_polyline(o)
+            self.objects[new_id] = o
+            self.object_id_dict[o.name] = new_id
         else:
             o = Object3d(self, name)
-            history = o.history  # avoids creating the history twice
-            if history and history.command == "CreatePolyline":
-                new_id = o.id
-                o = self.get_existing_polyline(o)
+            if pid:
+                new_id = pid
             else:
-                if pid:
-                    new_id = pid
-                else:
-                    new_id = o.id
+                new_id = o.id
             self.objects[new_id] = o
             self.object_id_dict[o.name] = new_id
         return o
