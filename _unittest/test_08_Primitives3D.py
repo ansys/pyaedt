@@ -995,7 +995,7 @@ class TestClass(BasisTest, object):
         assert len(p3) == 3
         assert len(s3) == 1
 
-        aedtapp.close_project(name=self.aedtapp.project_name, save_project=False)
+        aedtapp.close_project(save_project=False)
 
     def test_55_create_bond_wires(self):
         b0 = self.aedtapp.modeler.create_bondwire(
