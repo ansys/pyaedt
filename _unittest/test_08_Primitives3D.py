@@ -13,6 +13,7 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
 
+from pyaedt import Hfss
 from pyaedt.generic.constants import AXIS
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.modeler.cad.Primitives import PolylineSegment
@@ -974,11 +975,12 @@ class TestClass(BasisTest, object):
         self.aedtapp.modeler.model_units = save_model_units
 
     def test_54b_open_and_load_a_polyline(self):
-        self.aedtapp.load_project(self.test_54b_project)
+        aedtapp = Hfss(self.test_54b_project)
+        # self.aedtapp.load_project(self.test_54b_project)
 
-        poly1 = self.aedtapp.modeler["Inductor1"]
-        poly2 = self.aedtapp.modeler["Polyline1"]
-        poly3 = self.aedtapp.modeler["Polyline2"]
+        poly1 = aedtapp.modeler["Inductor1"]
+        poly2 = aedtapp.modeler["Polyline1"]
+        poly3 = aedtapp.modeler["Polyline2"]
 
         p1 = poly1.points
         s1 = poly1.segment_types
@@ -993,7 +995,7 @@ class TestClass(BasisTest, object):
         assert len(p3) == 3
         assert len(s3) == 1
 
-        # self.aedtapp.close_project(name=self.aedtapp.project_name, save_project=False)
+        aedtapp.close_project(save_project=False)
 
     def test_55_create_bond_wires(self):
         b0 = self.aedtapp.modeler.create_bondwire(
