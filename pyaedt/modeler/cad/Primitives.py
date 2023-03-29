@@ -1438,6 +1438,7 @@ class Primitives(object):
 
         """
         added_objects = []
+
         for obj_name in self.object_names:
             if obj_name not in self.object_id_dict:
                 self._create_object(obj_name)
