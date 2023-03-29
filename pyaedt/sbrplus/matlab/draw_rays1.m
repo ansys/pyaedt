@@ -1,4 +1,4 @@
-function hndl = draw_rays1(rayhdm,idxTrack,rndrCfg)
+function rndrCfg = draw_rays1(rayhdm,idxTrack,rndrCfg,newFig)
 % DRAW_RAYS1 draws filtered ray bundle
 %
 % Renders rays has line segments, hit points, and/or triangular footprints,
@@ -12,25 +12,26 @@ function hndl = draw_rays1(rayhdm,idxTrack,rndrCfg)
 %                     ignored, DEFAULT = [] = render all ray tracks
 %
 %  rndrCfg (struct) rendering controls
-%   .colorBy   (str) {'depth','Nrefl','Ntrans'} DEFAULT = 'depth'
+%   .colorBy   (str) {'depth', 'Nrefl', 'Ntrans'} DEFAULT = 'depth'
 %                    controls color for ray lines, hit points, and footprints,
 %                    unless overridden by .colorByField
 %
-%   .colorByFld (str) {'Einc','Hrefl','Jtot','Mtrans', etc.} activates
-%                     coloring ray footprints and hit points according
-%                     do E or H field quantities, in general any combination
-%                     of {'E','H','J','M'} prefix and {'inc','refl','trans',
-%                     'ir','tot'} suffix is supported, where 'ir' adds inc
-%                     and refl fields and 'tot' further adds trans fields
-%                     (if applicable), DEFAULT = empty = fall back to
+%   .colorByFld (str) {'Einc', 'Hrefl', 'Jtot', 'Mtrans', etc., or 'dist'}
+%                     activates coloring ray footprints and hit points
+%                     according to E or H field, in general any combination
+%                     of {'E', 'H', 'J', 'M'} prefix and {'inc', 'refl',
+%                     'trans', 'ir', 'tot'} suffix is supported, where 'ir'
+%                     adds inc and refl fields and 'tot' further adds trans
+%                     fields (if applicable), 'dist' colors by propagation
+%                     distance from source, DEFAULT = empty = fall back to
 %                     .colorBy property
 %
-%   .fldComp   (str) {'c','x','y','z','-x', etc.}: composite, Fx, Fy, Fz,
-%                    use '-' prefix for -Fx, etc., which is useful for phase,
-%                    DEFAULT = 'c'
+%   .fldComp   (str) {'c', 'x', 'y', 'z', '-x', etc.}:
+%                    composite, Fx, Fy, Fz, use '-' prefix for -Fx, etc.,
+%                    which is useful for phase, DEFAULT = 'c'
 %
-%   .fldScale  (str) {'r','i','m','pw','d','ph'}: real, imag, mag, power, dB,
-%                    phase, DEFAULT = dB
+%   .fldScale  (str) {'r', 'i', 'm', 'pw', 'd', 'ph'}:
+%                    real, imag, mag, power, dB, phase, DEFAULT = dB
 %
 %   .ifreq     (int) frequency index when coloring ray footprints and hit
 %                    points by field levels, DEFAULT = 1, 
@@ -38,14 +39,14 @@ function hndl = draw_rays1(rayhdm,idxTrack,rndrCfg)
 %   .lineWidth (dbl) width of 1D rays, DEFAULT = 1, set to zero (0) to
 %                    switch off render-by-line
 %
-%   .ptSize    (dbl) size of hit points, DEFAULT = 0 = do not render source or
-%                    hit points
-%
 %   .exitLen   (dbl) length of escaping rays [m], DEFAULT = 0 = do not render
 %                    escaping rays
 %
+%   .ptSize    (dbl) size of hit points, DEFAULT = 0 = do not render source or
+%                    hit points
+%
 %   .fpFaceClr (1x3 dbl) ray footprint face color {[R G B], MATLAB color
-%               OR (str) string, 'none','flat'}, MATLAB color string can be
+%               OR (str) string, 'none', 'flat'}, MATLAB color string can be
 %                        a preset color or its short name (e.g., 'red', 'g')
 %                        or a hex RGB color code string (e.g., '#ff0088'),
 %                        set to 'flat' to follow .colorBy or .colorByFld,
@@ -57,10 +58,44 @@ function hndl = draw_rays1(rayhdm,idxTrack,rndrCfg)
 %
 %   .fpEdgeWidth   (dbl) ray footprint edge width, DEFAULT = 1
 %
-% Returns:
-%  hdnl (handle) return value of MATLAB gca(), get current axes
+%   .fpOffset      (dbl) offset distance of rendered footprints along surface
+%                        normal, DEFAULT = 0
 %
-% hndl = DRAW_RAYS1(rayhdm[,idxTrack][,rndrCfg])
+%   .fpOffScale    (dbl) adjusts the footprint offset distance from .fpOffset
+%                        according to the propagation distance of the footprint,
+%                        allowing earlier or later footprints to be favored
+%                        when they overlap, set to +1 for earliest (latest)
+%                        footprints to be placed at 1 (2) x .fpOffset, set to
+%                        -1 for opposite effect, set to 0 (DEFAULT) for all
+%                        footprints to offset by .fpOffset (no offset scaling)
+%
+% Returns:
+%  rndrCfg (struct) copy of input rndrCfg augmented with default values where
+%                   applicable and with any unrecognized struct fields removed
+%
+%                      Summary of Input rndrCfg Struct Fields
+% =============================================================================
+% | Field Name  |    Type     |                Allowed Values                 |
+% |             |             |    entry before semicolon is the default      |
+% |=============+=============+===============================================+
+% | colorBy     |     str     | depth; Nrefl, Ntrans                          |
+% | colorByFld  |     str     | []; Einc, Hrefl, Jtot, Mtrans, etc., or dist  |
+% | fldComp     |     str     | c; x, y, z, -x, -y, -z                        |
+% | fldScale    |     str     | d; r, i, m, pw, ph                            |
+% |-------------+-------------+-----------------------------------------------+
+% | ifreq       |     int     | 1; [1,Nf]                                     |
+% | lineWidth   |     dbl     | 1; 0 for no lines, [0,inf)                    |
+% | exitLen     |     dbl     | 0 (no exit ray); [0,inf)                      |
+% | ptSize      |     dbl     | 0 (no points); [0,inf)                        |
+% |-------------+-------------+-----------------------------------------------+
+% | fpFaceClr   | 1x3 dbl/str | none; flat, [0.5 0.5 1], red, g, #ff0088, etc.|
+% | fpEdgeClr   | 1x3 dbl/str | none; flat, [0.5 0.5 1], red, g, #ff0088, etc.|
+% | fpEdgeWidth |     dbl     | 1; [0,inf)                                    |
+% | fpOffset    |     dbl     | 0; [0,inf)                                    |
+% | fpOffScale  |     dbl     | 0; (-inf,inf)                                 |
+% =============================================================================
+%
+% rndrCfg = DRAW_RAYS1(rayhdm[,idxTrack][,rndrCfg][,newFig])
 %
 % COPYRIGHT ANSYS, Inc. ALL RIGHTS RESERVED.
 
@@ -85,11 +120,11 @@ if isempty(rndrCfg.ifreq) rndrCfg.ifreq = 1; end
 if ~isfield(rndrCfg,'lineWidth') rndrCfg.lineWidth = []; end
 if isempty(rndrCfg.lineWidth) rndrCfg.lineWidth = 1; end
 
-if ~isfield(rndrCfg,'ptSize') rndrCfg.ptSize = []; end
-if isempty(rndrCfg.ptSize) rndrCfg.ptSize = 0; end
-
 if ~isfield(rndrCfg,'exitLen') rndrCfg.exitLen = []; end
 if isempty(rndrCfg.exitLen) rndrCfg.exitLen = 0; end
+
+if ~isfield(rndrCfg,'ptSize') rndrCfg.ptSize = []; end
+if isempty(rndrCfg.ptSize) rndrCfg.ptSize = 0; end
 
 if ~isfield(rndrCfg,'fpFaceClr') rndrCfg.fpFaceClr = []; end
 if isempty(rndrCfg.fpFaceClr) rndrCfg.fpFaceClr = 'none'; end
@@ -100,7 +135,33 @@ if isempty(rndrCfg.fpEdgeClr) rndrCfg.fpEdgeClr = 'none'; end
 if ~isfield(rndrCfg,'fpEdgeWidth') rndrCfg.fpEdgeWidth = []; end
 if isempty(rndrCfg.fpEdgeWidth) rndrCfg.fpEdgeWidth = 1; end
 
+if ~isfield(rndrCfg,'fpOffset') rndrCfg.fpOffset = []; end
+if isempty(rndrCfg.fpOffset) rndrCfg.fpOffset = 0; end
+
+if ~isfield(rndrCfg,'fpOffScale') rndrCfg.fpOffScale = []; end
+if isempty(rndrCfg.fpOffScale) rndrCfg.fpOffScale = 0; end
+
+if ~exist('newFig','var') newFig = []; end
+if isempty(newFig) newFig = true; end
+
+% validate and update rndrCfg fields
+valid_flds = {'colorBy','colorByFld','fldComp','fldScale','ifreq', ...
+              'lineWidth','ptSize','exitLen','fpFaceClr','fpEdgeClr', ...
+              'fpEdgeWidth','fpOffset','fpOffScale'};
+rndrCfg = validate_sfields(rndrCfg,valid_flds,'rndrCfg');
+
 errIdBadInp = 'draw_rays1:badInput';  % use for any invocations of error()
+
+% verify the ray bundle has been passed through filter_rays1()
+bundle = rayhdm.hdm;
+errMsg = ['Passed in ray bundle must be post-processed using ' ...
+          'filter_rays1.m before rays can be rendered.'];
+if ~isfield(bundle.hdmObj,'filter')
+  error(errIdBadInp,errMsg);
+end
+if ~strcmp(bundle.hdmObj.filter,'filter_rays1')
+  error(errIdBadInp,errMsg);
+end
 
 % convert rndrCfg settings into more convenient local booleans and values
 colorByDepth = false;
@@ -119,11 +180,48 @@ end
 
 drawLines = rndrCfg.lineWidth > 0;
 drawPoints = rndrCfg.ptSize > 0;
-if drawPoints
-  % apply scale factor based on what I think input ptSize = 1 should look like
-  rndrCfg.ptSize = rndrCfg.ptSize*3;
-end
 drawEscape = rndrCfg.exitLen > 0;
+
+% footprint offset
+%
+% In general, the footprint spatial offset along the surface normal is the base
+% offset (rndrCfg.fpOffset) plus a scale factor times the difference between
+% the cumulative path length distance of the footprint and either its minimum
+% or maximum across all ray tracks. The scale factor is based on
+% rndrCfg.fpOffScale.
+%
+% fpOffScale = +1:
+%   offset = fpOffset*(1 + (dist - dist_min)/(dist_max - dist_min))
+%          = fpOffset*(1 + (dist - dist_min)/dist_span)
+%
+% fpOffScale = -1:
+%   offset = fpOffset*(1 + (dist_max - dist)/dist_span)
+%
+% We can generalize this to other values of .fpOffScale = scale.
+%   scale >= 0: offset = fpOffset*(1 + scale*(dist - dist_min)/dist_span)
+%   scale <  0: offset = fpOffset*(1 + scale*(dist - dist_max)/dist_span)
+%
+% This can be written as:
+%   offset = offsetBase + offsetSlope*dist
+%   scale >= 0:
+%     offsetBase = fpOffset*(1 - scale*dist_min/dist_span);
+%     offsetSlope = fpOffset*scale*dist/dist_span;
+%
+%   scale < 0:
+%     offsetBase = fpOffset(1 - scale*dist_max/dist_span);
+%     offsetSlope = fpOffset*scale/dist_span;
+
+fpOffset = rndrCfg.fpOffset;
+fpOffScale = rndrCfg.fpOffScale;
+distMin = bundle.hdmObj.min_fp_cumulative_dist;
+distMax = bundle.hdmObj.max_cumulative_dist;
+distSpan = distMax - distMin;
+offsetSlope = fpOffset*fpOffScale/distSpan;
+if fpOffScale >= 0
+  offsetBase = fpOffset*(1 - fpOffScale*distMin/distSpan);
+else
+  offsetBase = fpOffset*(1 - fpOffScale*distMax/distSpan);
+end
 
 % determine local booleans and values for footprint rendering
 
@@ -132,7 +230,7 @@ drawEscape = rndrCfg.exitLen > 0;
   % parse color spec from input
   %
   % Input Params:
-  %  clrParamName (1x3 dbl) {[R G B], MATLAB color string, 'same', 'none'},
+  %  clrParamName (1x3 dbl) {[R G B], MATLAB color string, 'flat', 'none'},
   %                OR (str) color string can be a preset color or its short
   %                         name (e.g., 'red', 'g') or a hex RGB color string
   %
@@ -191,6 +289,7 @@ doEFld = false;
 doHFld = false;
 doJCur = false;
 doMCur = false;
+doDist = false;
 
 doIncFld = false;
 doReflFld = false;
@@ -221,6 +320,12 @@ if ~isempty(rndrCfg.colorByFld)
   cbfPrefix = rndrCfg.colorByFld(1);
   cbfSuffix = rndrCfg.colorByFld(2:end);
 
+  if strcmp(lower(rndrCfg.colorByFld),'dist')
+    doDist = true;
+    cbfPrefix = '#';
+    cbfSuffix = '#';
+  end
+
   switch lower(cbfPrefix)
    case 'e'
     doEFld = true;
@@ -233,6 +338,9 @@ if ~isempty(rndrCfg.colorByFld)
 
    case 'm'
     doMCur = true;
+
+   case '#'
+    % do nothing this is for colorByFld == 'dist'
 
    otherwise
     error(errIdBadInp,...
@@ -258,6 +366,9 @@ if ~isempty(rndrCfg.colorByFld)
     doIncFld = true;
     doReflFld = true;
     doTransFld = true;
+
+   case '#'
+    % do nothing, this is for colorByFld == 'dist'
 
    otherwise
     error(errIdBadInp,...
@@ -286,6 +397,9 @@ if ~isempty(rndrCfg.colorByFld)
 end
 
 if doFldClr
+  if doDist
+    rndrCfg.fldComp = 'x';  % hardwire, there will be special handling
+  end
   switch lower(rndrCfg.fldComp)
    case {'c','comp','composite'}
     doCompositeFld = true;
@@ -310,6 +424,9 @@ if doFldClr
            '{''c'',''x'',''y'',''z'',''-x'',''-y'',''-z'',empty}']);
   end
 
+  if doDist
+    rndrCfg.fldScale = 'r';  % hard-wire, there will be special handling
+  end
   switch lower(rndrCfg.fldScale)
    case {'r','rl','real'}
     doRealFld = true;
@@ -351,16 +468,6 @@ orange = [0.85 0.325 0.098];  % used for UTD rays in some cases
 rayClrs = [black;green;blue;cyan;magenta;red];
 NrayClr = size(rayClrs,1);
 
-% verify the ray bundle has been passed through filter_rays1()
-bundle = rayhdm.hdm;
-errMsg = 'Passed in ray bundle must be post-processed using filter_rays1.m before rays can be rendered.';
-if ~isfield(bundle.hdmObj,'filter')
-  error(errIdBadInp,errMsg);
-end
-if ~strcmp(bundle.hdmObj.filter,'filter_rays1')
-  error(errIdBadInp,errMsg);
-end
-
 Ntrack = length(bundle.hdmObj.ray_tracks);
 Nf = length(bundle.hdmObj.frequency_list);
 ifreq = min(max(1,ifreq),Nf);
@@ -375,6 +482,13 @@ end
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   function recurse_track(rb)
+  if ~rb.hdmObj.drawBranch
+    % Entire branch switched off for rendering. Not rendering this bounce
+    % or any of its descendants. No need to further descend the ray track
+    % tree in search of bounces to draw --> early return to save effort.
+    return;
+  end
+
   rbParent = rb.hdmObj.parent;
   clr = [];
   fldClr = [];
@@ -435,7 +549,13 @@ end
     % Augment fptVrts and fptClrs to later render ray footprint faces and/or
     % edges.
     %
-    fptVrts = [fptVrts;rb.hdmObj.footprint_vertices];
+    fptVrts0 = rb.hdmObj.footprint_vertices;
+    if fpOffset
+      offset = offsetBase + offsetSlope*rb.hdmObj.cumulative_dist;
+      fptVrts0 = fptVrts0 + rb.hdmObj.surf_norm*offset;
+    end
+    fptVrts = [fptVrts;fptVrts0];
+
     if doFldClr
       if isempty(fldClr)
         fldClr = fld_clrdat(rb);  % Nfpt x 1, color-scale data
@@ -506,7 +626,7 @@ end
     clr = red;
     return;
   end
-  if rb.bounce_type == SbrBounceType.UtdEdge
+  if rb.hdmObj.bounce_type == SbrBounceType.UtdEdge
     % draw UTD diffraction point as orange
     clr = orange;
     return;
@@ -522,7 +642,7 @@ end
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   function clr = Ntrans_color(rb,drawTransEscape,drawReflEscape)
-  % return ray/boucne color RGB according to max trans depth among branches
+  % return ray/bounce color RGB according to max trans depth among branches
   %
   % Intended to by called via color_func function pointer, implements
   % its expected interface.
@@ -531,7 +651,7 @@ end
     clr = red;
     return;
   end  
-  if rb.bounce_type == SbrBounceType.UtdEdge
+  if rb.hdmObj.bounce_type == SbrBounceType.UtdEdge
     % draw UTD diffraction point as orange
     clr = orange;
     return;
@@ -549,7 +669,7 @@ end
   function cdat = fld_clrdat(rb)
   % return a scalar color value (not RGB) based on fields at bounce
   cdat = nan;
-  if rb.hdmObj.bounce_type ~= SbrBounceType.Surface
+  if (rb.hdmObj.bounce_type ~= SbrBounceType.Surface) && ~doDist
     % this can happen when fld_clrdat is called for source or UTD diffraction
     % point, return nan and deal with it later
     return;
@@ -638,6 +758,16 @@ end
   efield(rb);
   bncFld = cross(bncFld,rb.hdmObj.surf_norm);  % -n x E
   end  % mcur
+
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  function cumulative_dist(rb)
+  % determine cumulative path length at specified ray bounce and cache in
+  % x-component of bncFld
+  %
+  % Intended to be called via vec_field_func function pointer and implements
+  % its expected interface.
+  bncFld = [rb.hdmObj.cumulative_dist 0 0];
+  end  % cumulative_dist
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   function field_component()
@@ -803,6 +933,8 @@ if doFldClr
     vec_field_func = @jcur;
   elseif doMCur
     vec_field_func = @mcur;
+  elseif doDist
+    vec_field_func = @cumulative_dist;
   end
 
   if doCompositeFld
@@ -851,7 +983,11 @@ if doFldClr
   end
 end  % doFldClr
 
-figure;
+if newFig
+  figure;
+else
+  hold on;
+end
 for itrack = idxTrack
   % Descend the ray-track tree, starting from the "source bounce", an
   % artificial bounce introduced by filter_rays1() to simplify post-proc code
@@ -940,7 +1076,7 @@ if drawPoints
     idx = find(isnan(ptClrs));
     ptClrs(idx) = clrMax;
   end
-  scatter3(pts(:,1),pts(:,2),pts(:,3),rndrCfg.ptSize^2,ptClrs,'filled');
+  scatter3(pts(:,1),pts(:,2),pts(:,3),10*rndrCfg.ptSize^2,ptClrs,'filled');
   hold on;
 end
 
@@ -948,6 +1084,5 @@ hold off;
 
 axis vis3d;
 axis equal;
-hndl = gca;
 
 end  % draw_rays1

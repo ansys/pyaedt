@@ -32,6 +32,8 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
 
+# from pyaedt.generic.general_methods import is_windows
+
 settings.enable_error_handler = False
 settings.enable_desktop_logs = False
 if is_ironpython:
@@ -51,7 +53,6 @@ from pyaedt.misc.misc import list_installed_ansysem
 test_project_name = "test_primitives"
 
 sys.path.append(local_path)
-from _unittest.launch_desktop_tests import run_desktop_tests
 
 # Initialize default desktop configuration
 default_version = "2023.1"
@@ -102,12 +103,18 @@ NONGRAPHICAL = settings.non_graphical
 
 
 class BasisTest(object):
-    def my_setup(self):
+    def my_setup(self, launch_desktop=True):
         scratch_path = tempfile.gettempdir()
         self.local_scratch = Scratch(scratch_path)
         self.aedtapps = []
         self.edbapps = []
         self._main = sys.modules["__main__"]
+        self.desktop = None
+        self._main.desktop_pid = 0
+        if launch_desktop:
+            self.desktop = Desktop(desktop_version, NONGRAPHICAL, new_thread)
+            self.desktop.disable_autosave()
+            self._main.desktop_pid = self.desktop.odesktop.GetProcessID()
 
     def my_teardown(self):
         for edbapp in self.edbapps[::-1]:
@@ -115,7 +122,17 @@ class BasisTest(object):
                 edbapp.close_edb()
             except:
                 pass
-        if self.aedtapps:
+        if self.desktop and not is_ironpython:
+            try:
+                os.kill(self._main.desktop_pid, 9)
+            except:
+                pass
+            self.desktop.release_desktop(False, True)
+            try:
+                del self._main.desktop_pid
+            except:
+                pass
+        elif self.desktop:
             try:
                 oDesktop = self._main.oDesktop
                 proj_list = oDesktop.GetProjectList()
@@ -130,18 +147,18 @@ class BasisTest(object):
                         oDesktop.CloseProject(proj)
                     except:
                         pass
-            # self.aedtapps[0].release_desktop(False)
-
-        logger.remove_all_project_file_logger()
-        shutil.rmtree(self.local_scratch.path, ignore_errors=True)
         del self.edbapps
         del self.aedtapps
+        self.desktop = None
+        try:
+            logger.remove_all_project_file_logger()
+            shutil.rmtree(self.local_scratch.path, ignore_errors=True)
+        except:
+            pass
 
     def add_app(self, project_name=None, design_name=None, solution_type=None, application=None, subfolder=""):
-        if "oDesktop" not in dir(self._main):
-            self.desktop = Desktop(desktop_version, NONGRAPHICAL, new_thread)
-            self.desktop.disable_autosave()
-            self._main.desktop_pid = self.desktop.odesktop.GetProcessID()
+        # if "oDesktop" not in dir(self._main):
+
         if project_name:
             example_project = os.path.join(local_path, "example_models", subfolder, project_name + ".aedt")
             example_folder = os.path.join(local_path, "example_models", subfolder, project_name + ".aedb")
@@ -207,33 +224,20 @@ new_thread = config["NewThread"]
 
 @pytest.fixture(scope="session", autouse=True)
 def desktop_init():
-    # _main = sys.modules["__main__"]
-    # yield
-    # if not is_ironpython:
-    #     try:
-    #         try:
-    #             os.kill(_main.desktop_pid, 9)
-    #         except:
-    #             pass
-    #         # release_desktop(close_projects=False, close_desktop=True)
-    #     except:
-    #         pass
-    if os.name != "posix" or is_ironpython:
+    _main = sys.modules["__main__"]
+
+    if is_ironpython:
         desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
+        _main.desktop_pid = desktop.odesktop.GetProcessID()
     yield
-    if os.name != "posix" or is_ironpython:
+    if is_ironpython:
         desktop.release_desktop(True, True)
         del desktop
-
-    else:
-        _main = sys.modules["__main__"]
-        try:
-            os.kill(_main.desktop_pid, 9)
-        except:
-            pass
+    try:
+        os.kill(_main.desktop_pid, 9)
+    except:
+        pass
     gc.collect()
-    if config["test_desktops"]:
-        run_desktop_tests()
 
 
 @pytest.fixture(scope="function", autouse=True)

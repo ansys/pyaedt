@@ -282,8 +282,8 @@ class TestClass(BasisTest, object):
             unit="MHz",
             freq=1.2e3,
         )
-        assert self.aedtapp.create_single_point_sweep(
-            setupname="MySetup",
+        setup = self.aedtapp.get_setup("MySetup")
+        assert setup.create_single_point_sweep(
             unit="GHz",
             freq=1.2,
             save_single_field=False,
@@ -528,6 +528,8 @@ class TestClass(BasisTest, object):
         imp = self.aedtapp.create_impedance_between_objects("imp1", "imp2", self.aedtapp.AxisDir.XPos, "TL2", 50, 25)
         assert imp.name in self.aedtapp.modeler.get_boundaries_name()
         assert imp.update()
+
+    pytest.mark.skipif(config["desktopVersion"] > "2023.2", reason="Crashing Desktop")
 
     def test_14_create_lumpedrlc_on_objects(self):
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "rlc1", "Copper")
@@ -874,8 +876,8 @@ class TestClass(BasisTest, object):
     def test_41_export_step(self):
         file_name = "test"
         self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10])
-        assert self.aedtapp.export_3d_model(file_name, self.aedtapp.working_directory, ".step", [], [])
-        assert os.path.exists(os.path.join(self.aedtapp.working_directory, file_name + ".step"))
+        assert self.aedtapp.export_3d_model(file_name, self.aedtapp.working_directory, ".x_t", [], [])
+        assert os.path.exists(os.path.join(self.aedtapp.working_directory, file_name + ".x_t"))
 
     def test_42_floquet_port(self):
         self.aedtapp.insert_design("floquet")

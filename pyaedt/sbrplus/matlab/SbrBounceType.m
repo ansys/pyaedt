@@ -6,7 +6,7 @@ classdef SbrBounceType < int8
 % from SBR+ HDM files can have their source points and, if applicable, UTD
 % edge diffraction points encoded as ray-bounce HdmObjects that parent the
 % first_bounce HdmObject from the HDM import. Doing this simplifies ray track
-% post-proessing logic for recursively traversing ray track trees by
+% post-processing logic for recursively traversing ray track trees by
 % representing all points along the ray track in a consistent way.
 %
 % COPYRIGHT ANSYS, Inc. ALL RIGHTS RESERVED.

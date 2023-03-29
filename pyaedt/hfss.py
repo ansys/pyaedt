@@ -1020,32 +1020,16 @@ class Hfss(FieldAnalysis3D, object):
             return False
         for s in self.setups:
             if s.name == setupname:
-                setupdata = s
-                if sweepname in [sweep.name for sweep in setupdata.sweeps]:
-                    oldname = sweepname
-                    sweepname = generate_unique_name(oldname)
-                    self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
-                    )
-                sweepdata = setupdata.add_sweep(sweepname, sweep_type)
-                if not sweepdata:
-                    return False
-                sweepdata.props["RangeType"] = "LinearStep"
-                sweepdata.props["RangeStart"] = str(freqstart) + unit
-                sweepdata.props["RangeEnd"] = str(freqstop) + unit
-                sweepdata.props["RangeStep"] = str(step_size) + unit
-                sweepdata.props["SaveFields"] = save_fields
-                sweepdata.props["SaveRadFields"] = save_rad_fields
-                sweepdata.props["ExtrapToDC"] = False
-                sweepdata.props["Type"] = sweep_type
-                if sweep_type == "Interpolating":
-                    sweepdata.props["InterpTolerance"] = 0.5
-                    sweepdata.props["InterpMaxSolns"] = 250
-                    sweepdata.props["InterpMinSolns"] = 0
-                    sweepdata.props["InterpMinSubranges"] = 1
-                sweepdata.update()
-                self.logger.info("Linear step sweep {} has been correctly created.".format(sweepname))
-                return sweepdata
+                return s.create_linear_step_sweep(
+                    unit=unit,
+                    freqstart=freqstart,
+                    freqstop=freqstop,
+                    step_size=step_size,
+                    sweepname=sweepname,
+                    save_fields=save_fields,
+                    save_rad_fields=save_rad_fields,
+                    sweep_type=sweep_type,
+                )
         return False
 
     @pyaedt_function_handler()
@@ -1132,27 +1116,14 @@ class Hfss(FieldAnalysis3D, object):
             return False
         for s in self.setups:
             if s.name == setupname:
-                setupdata = s
-                if sweepname in [sweep.name for sweep in setupdata.sweeps]:
-                    oldname = sweepname
-                    sweepname = generate_unique_name(oldname)
-                    self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
-                    )
-                sweepdata = setupdata.add_sweep(sweepname, "Discrete")
-                sweepdata.props["RangeType"] = "SinglePoints"
-                sweepdata.props["RangeStart"] = str(freq0) + unit
-                sweepdata.props["RangeEnd"] = str(freq0) + unit
-                sweepdata.props["SaveSingleField"] = save0
-                sweepdata.props["SaveFields"] = save_fields
-                sweepdata.props["SaveRadFields"] = save_rad_fields
-                sweepdata.props["SMatrixOnlySolveMode"] = "Auto"
-                if add_subranges:
-                    for f, s in zip(freq, save_single_field):
-                        sweepdata.add_subrange(rangetype="SinglePoints", start=f, unit=unit, save_single_fields=s)
-                sweepdata.update()
-                self.logger.info("Single point sweep {} has been correctly created".format(sweepname))
-                return sweepdata
+                return s.create_single_point_sweep(
+                    unit=unit,
+                    freq=freq,
+                    sweepname=sweepname,
+                    save_single_field=save_single_field,
+                    save_fields=save_fields,
+                    save_rad_fields=save_rad_fields,
+                )
         return False
 
     @pyaedt_function_handler()
@@ -4439,8 +4410,9 @@ class Hfss(FieldAnalysis3D, object):
         # Find the number of analysis setups and output the info.
         msg = "Analysis setup messages:"
         val_list.append(msg)
-        setups = list(self.oanalysis.GetSetups())
+        setups = self.oanalysis.GetSetups()
         if setups:
+            setups = list(setups)
             msg = "Detected setup and sweep: "
             val_list.append(msg)
             for setup in setups:

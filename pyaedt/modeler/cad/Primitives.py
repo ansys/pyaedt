@@ -531,13 +531,13 @@ class Primitives(object):
         ----------
         value : string or list of strings
             One or more strings for numerical lengths. For example, ``"10mm"``
-            or ``["10mm", "12mm", "14mm"]``. When a a list is given, the entire
+            or ``["10mm", "12mm", "14mm"]``. When a list is given, the entire
             list is converted.
 
         Returns
         -------
-        float or list of floats
-            Defined in object units :attr:`pyaedt.modeler.Primitives.Polyline.object_units`.
+        List of floats
+            Defined in model units :attr:`pyaedt.modeler.model_units`.
 
         """
         # Convert to a list if a scalar is presented
@@ -815,7 +815,7 @@ class Primitives(object):
         :class:`pyaedt.modeler.polylines.PolylineSegment`
         """
         return PolylineSegment(
-            type=type,
+            segment_type=type,
             num_seg=num_seg,
             num_points=num_points,
             arc_angle=arc_angle,
@@ -862,12 +862,10 @@ class Primitives(object):
             "1mm"]``, or ``["x1", "y1", "z1"]``.
         segment_type : str or PolylineSegment or list, optional
             The default behavior is to connect all points as
-            ``"Line"`` segments. The default is ``None``. For a
-            string, ``"Line"`` or ``"Arc"`` is valid. For a
-            ``"PolylineSegment"``, for ``"Line",`` ``"Arc"``,
-            ``"Spline"``, or ``"AngularArc"``, a list of segment types
-            (str or
-            :class:`pyaedt.modeler.Primitives.PolylineSegment`) is
+            ``"Line"`` segments. The default is ``None``.
+            Use a ``"PolylineSegment"``, for ``"Line"``, ``"Arc"``, ``"Spline"``,
+            or ``"AngularArc"``.
+            A list of segment types (str or :class:`pyaedt.modeler.Primitives.PolylineSegment`) is
             valid for a compound polyline.
         cover_surface : bool, optional
             The default is ``False``.
@@ -921,7 +919,7 @@ class Primitives(object):
         --------
         Set up the desktop environment.
 
-        >>> from pyaedt.modeler.polylines import PolylineSegment        >>> from pyaedt.desktop import Desktop
+        >>> from pyaedt.modeler.cad.polylines import PolylineSegment        >>> from pyaedt.desktop import Desktop
         >>> from pyaedt.maxwell import Maxwell3d
         >>> desktop=Desktop(specified_version="2021.2", new_desktop_session=False)
         >>> aedtapp = Maxwell3D()
@@ -947,7 +945,7 @@ class Primitives(object):
         additionally specify five segments using ``PolylineSegment``.
 
         >>> P3 = modeler.create_polyline(test_points[1:],
-        ...                               segment_type=PolylineSegment(type="Arc", num_seg=7),
+        ...                               segment_type=PolylineSegment(segment_type="Arc", num_seg=7),
         ...                               name="PL_segmented_arc")
 
         Specify that the four points form a spline and add a circular
@@ -963,7 +961,8 @@ class Primitives(object):
 
         >>> start_point = test_points[1]
         >>> center_point = test_points[0]
-        >>> segment_def = PolylineSegment(type="AngularArc", arc_center=center_point, arc_angle="90deg", arc_plane="XY")
+        >>> segment_def = PolylineSegment(segment_type="AngularArc", arc_center=center_point,
+        ...                                arc_angle="90deg", arc_plane="XY")
         >>> modeler.create_polyline(start_point, segment_type=segment_def, name="PL_center_point_arc")
 
         Create a spline using a list of variables for the coordinates of the points.
@@ -1439,6 +1438,7 @@ class Primitives(object):
 
         """
         added_objects = []
+
         for obj_name in self.object_names:
             if obj_name not in self.object_id_dict:
                 self._create_object(obj_name)
@@ -2818,8 +2818,20 @@ class Primitives(object):
         elif name in self.planes.keys():
             o = Plane(self, name)
             self.planes[name] = o
+        elif name in self.line_names:
+            o = Object3d(self, name)
+            if pid:
+                new_id = pid
+            else:
+                new_id = o.id
+            o = self.get_existing_polyline(o)
+            self.objects[new_id] = o
+            self.object_id_dict[o.name] = new_id
         else:
             o = Object3d(self, name)
+            history = o.history  # avoids creating the history twice
+            if history and history.command == "CreatePolyline":
+                o = self.get_existing_polyline(o)
             if pid:
                 new_id = pid
             else:
@@ -2878,7 +2890,7 @@ class Primitives(object):
                 ]["GeometryPart"]["Attributes"]
                 operations = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
                     "ToplevelParts"
-                ]["GeometryPart"]["Attributes"]
+                ]["GeometryPart"]["Operations"]
             if attribs["Name"] in self._all_object_names:
                 pid = 0
 

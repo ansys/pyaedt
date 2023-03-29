@@ -41,7 +41,7 @@ params = {"$ms_width": "0.4mm",
           "$ms_length": "20mm",
           }
 for par_name in params:
-    edbapp.add_design_variable(par_name, params[par_name])
+    edbapp.add_project_variable(par_name, params[par_name])
 
 ###############################################################################
 # Create stackup
@@ -122,7 +122,7 @@ edbapp.close_edb()
 # ~~~~~~~~~~~~~~~~
 # Open EDB in AEDT.
 
-h3d = pyaedt.Hfss3dLayout(projectname=os.path.join(aedb_path, "edb.def"), specified_version="2023.1",
+h3d = pyaedt.Hfss3dLayout(projectname=aedb_path, specified_version="2023.1",
                           non_graphical=non_graphical)
 
 ###############################################################################

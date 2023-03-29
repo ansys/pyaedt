@@ -56,11 +56,11 @@ You can install PyAEDT on CPython 3.7 through 3.10 from PyPI:
 
     pip install pyaedt
 
-Install PyaAEDT with all extra packages (matplotlib, numpy, pandas, pyvista):
+Install PyAEDT with all extra packages (matplotlib, numpy, pandas, pyvista):
 
 .. code:: python
 
-    pip install pyaedt[all]
+    pip install pyaedt[full]
 
 You can also install PyAEDT from Conda-Forge:
 
@@ -68,7 +68,7 @@ You can also install PyAEDT from Conda-Forge:
 
     conda install -c conda-forge pyaedt
 
-PyAEDT is still compatible with Ironpython and can be still used in AEDT Framework.
+PyAEDT remains compatible with Ironpython and can be still used in AEDT Framework.
 
 About PyAnsys
 -------------

@@ -98,7 +98,18 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     Create an AEDT 2021 R1 object and then create a
     ``Hfss3dLayout`` object and open the specified project.
 
-    >>> aedtapp = Hfss3dLayout(specified_version="2021.2", projectname="myfile.aedt")
+    >>> aedtapp = Hfss3dLayout(specified_version="2023.1", projectname="myfile.aedt")
+
+    Create an instance of ``Hfss3dLayout`` from an ``Edb``
+
+    >>> import pyaedt
+    >>> edb_path = "/path/to/edbfile.aedb"
+    >>> specified_version = "2023.1"
+    >>> edb = pyaedt.Edb(edb_path)
+    >>> edb.import_stackup("stackup.xml")  # Import stackup. Manipulate edb, ...
+    >>> edb.save_edb()
+    >>> edb.close_edb()
+    >>> aedtapp = pyaedt.Hfss3dLayout(specified_version="2021.2", projectname=edb_path)
 
     """
 
@@ -2191,3 +2202,65 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             else:
                 df.merge(df_tmp, left_index=True, right_index=True, how="outer")
         return df
+
+    @pyaedt_function_handler
+    def show_extent(self, show=True):
+        """Show or hide extent in a HFSS3dLayout design.
+
+        Parameters
+        ----------
+        show : bool, optional
+            Whether to show or not the extent.
+            The default value is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` is successful, ``False`` if it fails.
+
+        >>> oEditor.SetHfssExtentsVisible
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss3dLayout
+        >>> h3d = Hfss3dLayout()
+        >>> h3d.show_extent(show=True)
+        """
+        try:
+            self.oeditor.SetHfssExtentsVisible(show)
+            return True
+        except:
+            return False
+
+    @pyaedt_function_handler
+    def change_options(self, color_by_net=True):
+        """Change options for an existing layout.
+
+        It changes design visualization by color.
+
+        Parameters
+        ----------
+        color_by_net : bool, optional
+            Whether visualize color by net or by layer.
+            The default value is ``True``, which means color by net.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful, ``False`` if it fails.
+
+        >>> oEditor.ChangeOptions
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss3dLayout
+        >>> h3d = Hfss3dLayout()
+        >>> h3d.change_options(color_by_net=True)
+        """
+        try:
+            options = ["NAME:options", "ColorByNet:=", color_by_net, "CN:=", self.design_name]
+            oeditor = self.odesign.SetActiveEditor("Layout")
+            oeditor.ChangeOptions(options)
+            return True
+        except:
+            return False

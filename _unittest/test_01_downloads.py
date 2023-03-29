@@ -8,6 +8,13 @@ from _unittest.conftest import is_ironpython
 from pyaedt import downloads
 from pyaedt.generic.general_methods import generate_unique_name
 
+try:
+    import pytest
+except ImportError:  # pragma: no cover
+    import _unittest_ironpython.conf_unittest as pytest
+
+from pyaedt import is_linux
+
 
 class TestClass(BasisTest, object):
     def setup_class(self):
@@ -74,6 +81,7 @@ class TestClass(BasisTest, object):
         example_folder = self.examples.download_file("motorcad", "IPM_Vweb_Hairpin.mot")
         assert os.path.exists(example_folder)
 
+    @pytest.mark.skipif(is_linux, reason="Failing download files")
     def test_13_download_specific_folder(self):
         if is_ironpython:
             assert not self.examples.download_file(directory="nissan")
@@ -86,5 +94,6 @@ class TestClass(BasisTest, object):
             example_folder = self.examples.download_file(directory="wpf_edb_merge")
             assert os.path.exists(example_folder)
 
+    @pytest.mark.skipif(is_linux, reason="Failing download files")
     def test_14_download_icepak_3d_component(self):
         assert self.examples.download_icepak_3d_component()

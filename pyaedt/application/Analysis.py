@@ -44,6 +44,7 @@ from pyaedt.modules.SolveSetup import Setup
 from pyaedt.modules.SolveSetup import SetupHFSS
 from pyaedt.modules.SolveSetup import SetupHFSSAuto
 from pyaedt.modules.SolveSetup import SetupMaxwell
+from pyaedt.modules.SolveSetup import SetupQ3D
 from pyaedt.modules.SolveSetup import SetupSBR
 from pyaedt.modules.SolveSweeps import SetupProps
 
@@ -302,7 +303,7 @@ class Analysis(Design, object):
             assert setup_name in setup_list, "Invalid setup name {}".format(setup_name)
             self._setup = setup_name
         else:
-            self._setup = setup_list[0]
+            raise AttributeError("No setup defined")
 
     @property
     def analysis_setup(self):
@@ -425,8 +426,10 @@ class Analysis(Design, object):
 
         >>> oModule.GetSetups
         """
-        setups = list(self.oanalysis.GetSetups())
-        return setups
+        setups = self.oanalysis.GetSetups()
+        if setups:
+            return list(setups)
+        return []
 
     @property
     def setup_names(self):
@@ -641,8 +644,8 @@ class Analysis(Design, object):
             Full path to the project folder. The default is ``None``, in which case the
             working directory is used.
         matrix_name : str, optional
-            Matrix to specify to export touchstone file. The default is ``Original``, in which case
-             default matrix is taken.
+            Matrix to specify to export touchstone file.
+            The default is ``Original``, in which case default matrix is taken.
             This argument applies only to 2DExtractor and Q3D setups where Matrix reduction is computed
             and needed to export touchstone file.
         matrix_type : str, optional
@@ -797,9 +800,13 @@ class Analysis(Design, object):
                                         export_folder, "{0}_{1}.s{2}p".format(self.project_name, varCount, excitations)
                                     )
                                 self.logger.info("Export SnP: {}".format(export_path))
+                                if self.design_type == "HFSS 3D Layout Design":
+                                    module = self.odesign
+                                else:
+                                    module = self.osolution
                                 try:
                                     self.logger.info("Export SnP: {}".format(export_path))
-                                    self.osolution.ExportNetworkData(
+                                    module.ExportNetworkData(
                                         variation,
                                         ["{0}:{1}".format(setup_name, sweep_name)],
                                         3 if matrix_type == "S" else 2,
@@ -1236,6 +1243,8 @@ class Analysis(Design, object):
             setup = SetupSBR(self, setuptype, name)
         elif setuptype in [5, 6, 7, 8, 9, 10]:
             setup = SetupMaxwell(self, setuptype, name)
+        elif setuptype in [14]:
+            setup = SetupQ3D(self, setuptype, name)
         else:
             setup = SetupHFSS(self, setuptype, name)
 

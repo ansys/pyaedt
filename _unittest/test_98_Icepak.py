@@ -24,14 +24,14 @@ if config["desktopVersion"] > "2022.2":
     src_project_name = "USB_Connector_IPK_231"
     radio_board_name = "RadioBoardIcepak_231"
     coldplate = "ColdPlateExample_231"
-    power_budget = "PB_Test_231"
+    power_budget = "PB_test_231"
 
 else:
     coldplate = "ColdPlateExample"
     test_project_name = "Filter_Board_Icepak"
     src_project_name = "USB_Connector_IPK"
     radio_board_name = "RadioBoardIcepak"
-    power_budget = "PB_Test"
+    power_budget = "PB_test"
 proj_name = None
 design_name = "cutout3"
 solution_name = "HFSS Setup 1 : Last Adaptive"
@@ -154,7 +154,7 @@ class TestClass(BasisTest, object):
     def test_07_ExportStepForWB(self):
         file_path = self.local_scratch.path
         file_name = "WBStepModel"
-        assert self.aedtapp.export_3d_model(file_name, file_path, ".step", [], ["Region", "Component_Region"])
+        assert self.aedtapp.export_3d_model(file_name, file_path, ".x_t", [], ["Region", "Component_Region"])
 
     def test_08_Setup(self):
         setup_name = "DomSetup"
@@ -872,3 +872,9 @@ class TestClass(BasisTest, object):
             fan_1_history.children["DuplicateAlongLine:1"].props["Vector/" + i] == j + "mm"
             for i, j in [("X", "4"), ("Y", "5"), ("Z", "6")]
         )
+
+    def test_56_mesh_priority(self):
+        app = Icepak(designname="IDF")
+        assert app.mesh.add_priority(entity_type=1, obj_list=app.modeler.object_names, priority=3)
+        assert app.mesh.add_priority(entity_type=2, comp_name=app.modeler.user_defined_component_names[1], priority=1)
+        assert app.mesh.add_priority(entity_type=2, comp_name=app.modeler.user_defined_component_names[0], priority=2)

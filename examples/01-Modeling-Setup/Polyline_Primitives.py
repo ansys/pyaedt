@@ -62,7 +62,7 @@ test_points = [["0mm", "p1", "0mm"], ["-p1", "0mm", "0mm"], ["-p1/2", "-p1/2", "
 P = prim3D.create_polyline(position_list=test_points[0:2], name="PL01_line")
 
 print("Created Polyline with name: {}".format(prim3D.objects[P.id].name))
-print("Segment types : {}".format(P._segment_types))
+print("Segment types : {}".format([s.type for s in P.segment_types]))
 print("primitive id = {}".format(P.id))
 
 ###############################################################################
@@ -173,10 +173,10 @@ P = prim3D.create_polyline(position_list=test_points, cover_surface=True, name="
 
 P = prim3D.create_polyline(position_list=test_points, close_surface=True, name="PL08_segmented_compound_insert_segment")
 
-start_point = P.start_point
-insert_point = ["90mm", "20mm", "0mm"]
+p2 = P.points[1]
+insert_point = ["-100mm", "20mm", "0mm"]
 
-P.insert_segment(position_list=[start_point, insert_point])
+P.insert_segment(position_list=[insert_point, p2])
 
 ###############################################################################
 # Insert compound line with insert curve

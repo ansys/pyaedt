@@ -17,6 +17,7 @@ The ``Setup`` object is accessible through the ``create_setup`` method and ``set
    SetupHFSS
    SetupHFSSAuto
    SetupSBR
+   SetupQ3D
    SetupMaxwell
    Setup
    Setup3DLayout
