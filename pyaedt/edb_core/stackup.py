@@ -270,7 +270,7 @@ class Stackup(object):
 
             * 0 - Laminate
             * 1 - Overlapping
-            * 2 - Multizone
+            * 2 - MultiZone
         """
         self._stackup_mode = self._layer_collection.GetMode()
         return str(self._stackup_mode)

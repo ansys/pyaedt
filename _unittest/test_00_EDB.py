@@ -1710,8 +1710,8 @@ class TestClass(BasisTest, object):
         assert edbapp.stackup.stackup_mode == "Laminate"
         edbapp.stackup.stackup_mode = "Overlapping"
         assert edbapp.stackup.stackup_mode == "Overlapping"
-        edbapp.stackup.stackup_mode = "Multizone"
-        assert edbapp.stackup.stackup_mode == "Multizone"
+        edbapp.stackup.stackup_mode = "MultiZone"
+        assert edbapp.stackup.stackup_mode == "MultiZone"
         edbapp.stackup.stackup_mode = "Overlapping"
         assert edbapp.stackup.stackup_mode == "Overlapping"
         assert edbapp.stackup.add_layer("new_bottom", "TOP", "add_at_elevation", "dielectric", elevation=0.0003)
