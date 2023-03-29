@@ -872,3 +872,9 @@ class TestClass(BasisTest, object):
             fan_1_history.children["DuplicateAlongLine:1"].props["Vector/" + i] == j + "mm"
             for i, j in [("X", "4"), ("Y", "5"), ("Z", "6")]
         )
+
+    def test_56_mesh_priority(self):
+        app = Icepak(designname="IDF")
+        assert app.mesh.add_priority(entity_type=1, obj_list=app.modeler.object_names, priority=3)
+        assert app.mesh.add_priority(entity_type=2, comp_name=app.modeler.user_defined_component_names[1], priority=1)
+        assert app.mesh.add_priority(entity_type=2, comp_name=app.modeler.user_defined_component_names[0], priority=2)
