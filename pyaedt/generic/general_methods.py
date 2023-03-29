@@ -1011,9 +1011,13 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
                 if "-grpcsrv" in cmd:
                     if non_graphical and "-ng" in cmd or not non_graphical:
                         if not version or (version and version in cmd[0]):
-                            sessions.append(
-                                int(cmd[cmd.index("-grpcsrv") + 1]),
-                            )
+                            try:
+                                sessions.append(
+                                    int(cmd[cmd.index("-grpcsrv") + 1]),
+                                )
+                            except (IndexError, ValueError):
+                                # default desktop grpc port.
+                                sessions.append(50051)
         except:
             pass
     return sessions
@@ -1061,11 +1065,12 @@ def active_sessions(version=None, student_version=False, non_graphical=False):
                                             int(cmd[cmd.index("-grpcsrv") + 1]),
                                         ]
                                     )
-                                except IndexError:
+                                except (IndexError, ValueError):
+                                    # default desktop grpc port.
                                     sessions.append(
                                         [
                                             p.pid,
-                                            -1,
+                                            50051,
                                         ]
                                     )
                         else:
