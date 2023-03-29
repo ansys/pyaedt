@@ -109,7 +109,7 @@ function hdm = ld_sbrplushdm(fname,asStruct,showProg)
   % read the entire binary HDM data block according to format information
   % gathered in the ASCII header
   try
-    progPeriod = 0.5;  % prog report every 0.5 sec
+    progPeriod = 0.5;  % progress report every 0.5 sec
     minFileSize_Mb = 2;  % minimum file size to show progress
     start_prog_monitor(showProg,fname,progPeriod,minFileSize_Mb*1000000);
     if asStruct
@@ -454,7 +454,7 @@ function start_prog_monitor(showProg,fname,progPeriod,minFileSize)
 %  fname    (str) full path name of file being loaded, used to determine file
 %                 size in bytes, the denominator in fraction complete
 %
-%  progPeriod  (dbl) time interval between prog reports [sec]
+%  progPeriod  (dbl) time interval between progress reports [sec]
 %  minFileSize (int) minimum file size to activate progress monitor [bytes],
 %                    files smaller than this will load quietly
 
@@ -489,7 +489,8 @@ finfo = dir(fname);
 LD_PROG_MON.prog_denom = finfo.bytes;
 LD_PROG_MON.prog_numer = 0;
 LD_PROG_MON.wbar = 0;  % graphical progress (wait) bar
-LD_PROG_MON.oldTextLen = 0;  % used to precisely erase earlier text prog rprts
+LD_PROG_MON.oldTextLen = 0;  % used to precisely erase earlier text
+                             % progress reports
 
 if finfo.bytes < minFileSize
   % file too small to be worth monitoring load progress
@@ -500,7 +501,7 @@ end
 if LD_PROG_MON.doProgBar
   % set up graphical progress bar
   %
-  % Underscores in file name will trigger subscripting unless preceded by
+  % Underscores in file name will trigger sub-scripting unless preceded by
   % backslash to be taken as literal and not a control code.
   frootnm = strrep(finfo.name,'_','\_');
   LD_PROG_MON.wbar = waitbar(0,['Loading HDM File: ' frootnm]);
@@ -519,7 +520,7 @@ end  % start_prog_monitor
 function prog_monitor_cb(obj,event)
 % callback function to update progress report to progress bar or console text
 %
-% See MATLAB timer documentation regarding arguments of callback frunction.
+% See MATLAB timer documentation regarding arguments of callback function.
 %
 % Input Params:
 %  obj    (Timer) timer object that invoked this callback, ignored

@@ -1321,42 +1321,56 @@ class TestClass(BasisTest, object):
         choke_file6 = os.path.join(
             local_path, "example_models", "choke_json_file", "choke_2winding_2Layer_Common_Corrected.json"
         )
+        self.aedtapp.insert_design("Chokes")
         resolve1 = self.aedtapp.modeler.create_choke(choke_file1)
-        resolve2 = self.aedtapp.modeler.create_choke(choke_file2)
-        resolve3 = self.aedtapp.modeler.create_choke(choke_file3)
-        resolve4 = self.aedtapp.modeler.create_choke(choke_file4)
-        resolve5 = self.aedtapp.modeler.create_choke(choke_file5)
-        resolve6 = self.aedtapp.modeler.create_choke(choke_file6)
+
         assert isinstance(resolve1, list)
         assert resolve1[0]
         assert isinstance(resolve1[1], Object3d)
         for i in range(2, len(resolve1)):
             assert isinstance(resolve1[i][0], Object3d)
             assert isinstance(resolve1[i][1], list)
+        self.aedtapp.delete_design("Chokes")
+        self.aedtapp.insert_design("Chokes2")
+        resolve2 = self.aedtapp.modeler.create_choke(choke_file2)
         assert isinstance(resolve2, list)
         assert resolve2[0]
         assert isinstance(resolve2[1], Object3d)
         for i in range(2, len(resolve2)):
             assert isinstance(resolve2[i][0], Object3d)
             assert isinstance(resolve2[i][1], list)
+        self.aedtapp.delete_design("Chokes2")
+        self.aedtapp.insert_design("Chokes3")
+        resolve3 = self.aedtapp.modeler.create_choke(choke_file3)
         assert isinstance(resolve3, list)
         assert resolve3[0]
         assert isinstance(resolve3[1], Object3d)
         for i in range(2, len(resolve3)):
             assert isinstance(resolve3[i][0], Object3d)
             assert isinstance(resolve3[i][1], list)
+        self.aedtapp.delete_design("Chokes3")
+        self.aedtapp.insert_design("Chokes4")
+        resolve4 = self.aedtapp.modeler.create_choke(choke_file4)
+
         assert isinstance(resolve4, list)
         assert resolve4[0]
         assert isinstance(resolve4[1], Object3d)
         for i in range(2, len(resolve4)):
             assert isinstance(resolve4[i][0], Object3d)
             assert isinstance(resolve4[i][1], list)
+        self.aedtapp.delete_design("Chokes4")
+        self.aedtapp.insert_design("Chokes5")
+        resolve5 = self.aedtapp.modeler.create_choke(choke_file5)
+
         assert isinstance(resolve5, list)
         assert resolve5[0]
         assert isinstance(resolve5[1], Object3d)
         for i in range(2, len(resolve5)):
             assert isinstance(resolve5[i][0], Object3d)
             assert isinstance(resolve5[i][1], list)
+        self.aedtapp.delete_design("Chokes5")
+        self.aedtapp.insert_design("Chokes6")
+        resolve6 = self.aedtapp.modeler.create_choke(choke_file6)
         assert isinstance(resolve6, list)
         assert resolve6[0]
         assert isinstance(resolve6[1], Object3d)
