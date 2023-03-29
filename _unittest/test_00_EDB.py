@@ -1707,6 +1707,14 @@ class TestClass(BasisTest, object):
         assert edbapp.stackup["TOP"].color == (0, 120, 0)
         edbapp.stackup["TOP"].transparency = 10
         assert edbapp.stackup["TOP"].transparency == 10
+        assert edbapp.stackup.stackup_mode == "Laminate"
+        edbapp.stackup.stackup_mode = "Overlapping"
+        assert edbapp.stackup.stackup_mode == "Overlapping"
+        edbapp.stackup.stackup_mode = "MultiZone"
+        assert edbapp.stackup.stackup_mode == "MultiZone"
+        edbapp.stackup.stackup_mode = "Overlapping"
+        assert edbapp.stackup.stackup_mode == "Overlapping"
+        assert edbapp.stackup.add_layer("new_bottom", "TOP", "add_at_elevation", "dielectric", elevation=0.0003)
         edbapp.close_edb()
 
     @pytest.mark.skipif(is_ironpython, reason="Requires Pandas")

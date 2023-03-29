@@ -1240,6 +1240,12 @@ class LayerEdbClass(object):
             pass
         return self._lower_elevation
 
+    @lower_elevation.setter
+    def lower_elevation(self, value):
+        layer_clone = self._edb_layer
+        layer_clone.SetLowerElevation(self._pclass._edb_value(value))
+        self._pclass._set_layout_stackup(layer_clone, "change_attribute")
+
     @property
     def upper_elevation(self):
         """Upper elevation.
