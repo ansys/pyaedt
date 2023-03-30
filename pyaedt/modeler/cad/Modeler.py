@@ -9,14 +9,14 @@ This modules provides functionalities for the 3D Modeler, 2D Modeler,
 
 from __future__ import absolute_import  # noreorder
 
+from collections import OrderedDict
 import copy
 import math
 import os
 import warnings
-from collections import OrderedDict
 
-from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.DataHandlers import _dict2arg
+from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
@@ -2871,11 +2871,12 @@ class GeometryModeler(Modeler, object):
         vArg2.append("ZComponent:="), vArg2.append(Zpos)
         vArg2.append("Numclones:="), vArg2.append(str(nclones))
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
-        added_objs = self.oeditor.DuplicateAlongLine(vArg1, vArg2, vArg3)
-        self._duplicate_added_objects_tuple()
+        _retry_ntimes(5, self.oeditor.DuplicateAlongLine, vArg1, vArg2, vArg3)
         if is_3d_comp:
             return self._duplicate_added_components_tuple()
-        return True, list(added_objs)
+        if attachObject:
+            return True, []
+        return self._duplicate_added_objects_tuple()
 
     @pyaedt_function_handler()
     def thicken_sheet(self, objid, thickness, bBothSides=False):
@@ -3495,12 +3496,10 @@ class GeometryModeler(Modeler, object):
         >>> oEditor.Copy
         >>> oEditor.Paste
         """
-
         szSelections = self.convert_to_selections(objid)
         vArg1 = ["NAME:Selections", "Selections:=", szSelections]
-
-        self.oeditor.Copy(vArg1)
-        self.oeditor.Paste()
+        _retry_ntimes(10, self.oeditor.Copy, vArg1)
+        _retry_ntimes(10, self.oeditor.Paste)
         new_objects = self.add_new_objects()
         return True, new_objects
 
@@ -4483,6 +4482,11 @@ class GeometryModeler(Modeler, object):
         refresh_all_ids=True,
         import_materials=False,
         create_lightweigth_part=False,
+        group_by_assembly=False,
+        create_group=True,
+        separate_disjoints_lumped_object=False,
+        import_free_surfaces=False,
+        point_coicidence_tolerance=1e-6,
     ):
         """Import a CAD model.
 
@@ -4504,6 +4508,16 @@ class GeometryModeler(Modeler, object):
             Either to import material names from the file or not if presents.
         create_lightweigth_part : bool ,optional
             Either to import lightweight or not.
+        group_by_assembly : bool, optional
+            Either import by sub-assembly or individual parts. The default is ``False``.
+        create_group : bool, optional
+            Either to create a new group of imported objects. The default is ``True``.
+        separate_disjoints_lumped_object : bool, optional
+            Either to automatically separate disjoint parts. The default is ``False``.
+        import_free_surfaces : bool, optional
+            Either to import free surfaces parts. The default is ``False``.
+        point_coicidence_tolerance : float, optional
+            Tolerance on point. Default is ``1e-6``.
 
         Returns
         -------
@@ -4526,15 +4540,15 @@ class GeometryModeler(Modeler, object):
         vArg1.append("Options:="), vArg1.append("-1")
         vArg1.append("FileType:="), vArg1.append("UnRecognized")
         vArg1.append("MaxStitchTol:="), vArg1.append(-1)
-        vArg1.append("ImportFreeSurfaces:="), vArg1.append(False)
-        vArg1.append("GroupByAssembly:="), vArg1.append(False)
-        vArg1.append("CreateGroup:="), vArg1.append(True)
+        vArg1.append("ImportFreeSurfaces:="), vArg1.append(import_free_surfaces)
+        vArg1.append("GroupByAssembly:="), vArg1.append(group_by_assembly)
+        vArg1.append("CreateGroup:="), vArg1.append(create_group)
         vArg1.append("STLFileUnit:="), vArg1.append("Auto")
         vArg1.append("MergeFacesAngle:="), vArg1.append(-1)
-        vArg1.append("PointCoincidenceTol:="), vArg1.append(1e-06)
+        vArg1.append("PointCoincidenceTol:="), vArg1.append(point_coicidence_tolerance)
         vArg1.append("CreateLightweightPart:="), vArg1.append(create_lightweigth_part)
         vArg1.append("ImportMaterialNames:="), vArg1.append(import_materials)
-        vArg1.append("SeparateDisjointLumps:="), vArg1.append(False)
+        vArg1.append("SeparateDisjointLumps:="), vArg1.append(separate_disjoints_lumped_object)
         vArg1.append("SourceFile:="), vArg1.append(filename)
         self.oeditor.Import(vArg1)
         if refresh_all_ids:
@@ -5217,6 +5231,8 @@ class GeometryModeler(Modeler, object):
                 return self.Y
             elif item == 2:
                 return self.Z
+            else:
+                raise IndexError
 
         @pyaedt_function_handler()
         def __setitem__(self, item, value):
@@ -5226,9 +5242,6 @@ class GeometryModeler(Modeler, object):
                 self.Y = value
             elif item == 2:
                 self.Z = value
-
-        def __iter__(self):
-            return self
 
         def __len__(self):
             return 3

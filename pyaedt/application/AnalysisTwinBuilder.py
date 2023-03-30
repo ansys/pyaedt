@@ -1,7 +1,7 @@
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SolveSetup import SetupCircuit
-from pyaedt.modules.SolveSweeps import SetupKeys
 
 
 class AnalysisTwinBuilder(Analysis):
@@ -107,7 +107,7 @@ class AnalysisTwinBuilder(Analysis):
         -------
         :class:`pyaedt.modules.PostProcessor.CircuitPostProcessor`
         """
-        if self._post is None:
+        if self._post is None:  # pragma: no cover
             from pyaedt.modules.PostProcessor import CircuitPostProcessor
 
             self._post = CircuitPostProcessor(self)

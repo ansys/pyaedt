@@ -1040,7 +1040,11 @@ class Components(object):
             if componentDefinition.IsNull():
                 self._logger.error("Failed to create component definition {}".format(name))
                 return None
+            ind = 1
             for pin in pins:
+                if not pin.GetName():
+                    pin.SetName(str(ind))
+                ind += 1
                 componentDefinitionPin = self._edb.Definition.ComponentDefPin.Create(componentDefinition, pin.GetName())
                 if componentDefinitionPin.IsNull():
                     self._logger.error("Failed to create component definition pin {}-{}".format(name, pin.GetName()))
@@ -2102,15 +2106,15 @@ class Components(object):
         for pin in pins_list:
             placement_layer = pin.placement_layer
             positions_to_short.append(pin.position)
-            if placement_layer in self._pedb.core_padstack.padstacks[pin.pin.GetPadstackDef().GetName()].pad_by_layer:
-                pad = self._pedb.core_padstack.padstacks[pin.pin.GetPadstackDef().GetName()].pad_by_layer[
+            if placement_layer in self._pedb.core_padstack.definitions[pin.pin.GetPadstackDef().GetName()].pad_by_layer:
+                pad = self._pedb.core_padstack.definitions[pin.pin.GetPadstackDef().GetName()].pad_by_layer[
                     placement_layer
                 ]
             else:
                 layer = list(
-                    self._pedb.core_padstack.padstacks[pin.pin.GetPadstackDef().GetName()].pad_by_layer.keys()
+                    self._pedb.core_padstack.definitions[pin.pin.GetPadstackDef().GetName()].pad_by_layer.keys()
                 )[0]
-                pad = self._pedb.core_padstack.padstacks[pin.pin.GetPadstackDef().GetName()].pad_by_layer[layer]
+                pad = self._pedb.core_padstack.definitions[pin.pin.GetPadstackDef().GetName()].pad_by_layer[layer]
             pars = pad.parameters_values
             geom = pad.geometry_type
             if geom < 6 and pars:

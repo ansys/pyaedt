@@ -26,14 +26,14 @@ non_graphical = False
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2022 R2 in graphical mode.
+# Launch AEDT 2023 R1 in graphical mode.
 
-d = pyaedt.launch_desktop("2022.2", non_graphical=non_graphical, new_desktop_session=True)
+d = pyaedt.launch_desktop("2023.1", non_graphical=non_graphical, new_desktop_session=True)
 
 ###############################################################################
 # Launch HFSS
 # ~~~~~~~~~~~
-# Launch HFSS 2022 R2 in graphical mode.
+# Launch HFSS 2023 R1 in graphical mode.
 
 hfss = pyaedt.Hfss(projectname=project_name, solution_type="Modal")
 

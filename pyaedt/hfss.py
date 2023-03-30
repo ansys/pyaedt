@@ -3,17 +3,17 @@
 from __future__ import absolute_import  # noreorder
 
 import ast
+from collections import OrderedDict
 import math
 import os
 import tempfile
 import warnings
-from collections import OrderedDict
 
 from pyaedt import settings
 from pyaedt.application.Analysis3D import FieldAnalysis3D
-from pyaedt.generic.constants import INFINITE_SPHERE_TYPE
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import json_to_dict
+from pyaedt.generic.constants import INFINITE_SPHERE_TYPE
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import parse_excitation_file
@@ -24,7 +24,7 @@ from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import FarFieldSetup
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NearFieldSetup
-from pyaedt.modules.SolveSweeps import SetupKeys
+from pyaedt.modules.SetupTemplates import SetupKeys
 
 
 class Hfss(FieldAnalysis3D, object):
@@ -1020,32 +1020,16 @@ class Hfss(FieldAnalysis3D, object):
             return False
         for s in self.setups:
             if s.name == setupname:
-                setupdata = s
-                if sweepname in [sweep.name for sweep in setupdata.sweeps]:
-                    oldname = sweepname
-                    sweepname = generate_unique_name(oldname)
-                    self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
-                    )
-                sweepdata = setupdata.add_sweep(sweepname, sweep_type)
-                if not sweepdata:
-                    return False
-                sweepdata.props["RangeType"] = "LinearStep"
-                sweepdata.props["RangeStart"] = str(freqstart) + unit
-                sweepdata.props["RangeEnd"] = str(freqstop) + unit
-                sweepdata.props["RangeStep"] = str(step_size) + unit
-                sweepdata.props["SaveFields"] = save_fields
-                sweepdata.props["SaveRadFields"] = save_rad_fields
-                sweepdata.props["ExtrapToDC"] = False
-                sweepdata.props["Type"] = sweep_type
-                if sweep_type == "Interpolating":
-                    sweepdata.props["InterpTolerance"] = 0.5
-                    sweepdata.props["InterpMaxSolns"] = 250
-                    sweepdata.props["InterpMinSolns"] = 0
-                    sweepdata.props["InterpMinSubranges"] = 1
-                sweepdata.update()
-                self.logger.info("Linear step sweep {} has been correctly created.".format(sweepname))
-                return sweepdata
+                return s.create_linear_step_sweep(
+                    unit=unit,
+                    freqstart=freqstart,
+                    freqstop=freqstop,
+                    step_size=step_size,
+                    sweepname=sweepname,
+                    save_fields=save_fields,
+                    save_rad_fields=save_rad_fields,
+                    sweep_type=sweep_type,
+                )
         return False
 
     @pyaedt_function_handler()
@@ -1132,27 +1116,14 @@ class Hfss(FieldAnalysis3D, object):
             return False
         for s in self.setups:
             if s.name == setupname:
-                setupdata = s
-                if sweepname in [sweep.name for sweep in setupdata.sweeps]:
-                    oldname = sweepname
-                    sweepname = generate_unique_name(oldname)
-                    self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
-                    )
-                sweepdata = setupdata.add_sweep(sweepname, "Discrete")
-                sweepdata.props["RangeType"] = "SinglePoints"
-                sweepdata.props["RangeStart"] = str(freq0) + unit
-                sweepdata.props["RangeEnd"] = str(freq0) + unit
-                sweepdata.props["SaveSingleField"] = save0
-                sweepdata.props["SaveFields"] = save_fields
-                sweepdata.props["SaveRadFields"] = save_rad_fields
-                sweepdata.props["SMatrixOnlySolveMode"] = "Auto"
-                if add_subranges:
-                    for f, s in zip(freq, save_single_field):
-                        sweepdata.add_subrange(rangetype="SinglePoints", start=f, unit=unit, save_single_fields=s)
-                sweepdata.update()
-                self.logger.info("Single point sweep {} has been correctly created".format(sweepname))
-                return sweepdata
+                return s.create_single_point_sweep(
+                    unit=unit,
+                    freq=freq,
+                    sweepname=sweepname,
+                    save_single_field=save_single_field,
+                    save_fields=save_fields,
+                    save_rad_fields=save_rad_fields,
+                )
         return False
 
     @pyaedt_function_handler()
@@ -2215,7 +2186,10 @@ class Hfss(FieldAnalysis3D, object):
             )
             if add_pec_cap:
                 dist = math.sqrt(self.modeler[sheet_name].faces[0].area)
-                self._create_pec_cap(sheet_name, startobj, dist / 10)
+                if settings.aedt_version > "2022.2":
+                    self._create_pec_cap(sheet_name, startobj, -dist / 10)
+                else:
+                    self._create_pec_cap(sheet_name, startobj, dist / 10)
             portname = self._get_unique_source_name(portname, "Port")
 
             if "Modal" in self.solution_type:
@@ -4436,8 +4410,9 @@ class Hfss(FieldAnalysis3D, object):
         # Find the number of analysis setups and output the info.
         msg = "Analysis setup messages:"
         val_list.append(msg)
-        setups = list(self.oanalysis.GetSetups())
+        setups = self.oanalysis.GetSetups()
         if setups:
+            setups = list(setups)
             msg = "Detected setup and sweep: "
             val_list.append(msg)
             for setup in setups:
@@ -6015,3 +5990,91 @@ class Hfss(FieldAnalysis3D, object):
             return self._create_boundary(symmetry_name, props, "Symmetry")
         except:
             return False
+
+    @pyaedt_function_handler()
+    def get_touchstone_data(self, setup_name, sweep_name=None, variation_dict=None):
+        """
+        Return a Touchstone data plot.
+
+        Parameters
+        ----------
+        setup_name : list
+            List of the curves to plot.
+        sweep_name : str, optional
+            Name of the solution. The default value is ``None``.
+        variation_dict : dict, optional
+            Dictionary of variation names. The default value is ``None``.
+
+        Returns
+        -------
+        :class:`pyaedt.generic.touchstone_parser.TouchstoneData`
+           Class containing all requested data.
+
+        References
+        ----------
+
+        >>> oModule.GetSolutionDataPerVariation
+        """
+        from pyaedt.generic.touchstone_parser import TouchstoneData
+
+        if not setup_name:
+            setup_name = self.setups[0].name
+
+        if not sweep_name:
+            for setup in self.setups:
+                if setup.name == setup_name:
+                    sweep_name = setup.sweeps[0].name
+        s_parameters = []
+        solution = "{} : {}".format(setup_name, sweep_name)
+        expression = self.get_traces_for_plot(category="S")
+        sol_data = self.post.get_solution_data(expression, solution, variations=variation_dict)
+        for i in range(sol_data.number_of_variations):
+            sol_data.set_active_variation(i)
+            s_parameters.append(TouchstoneData(solution_data=sol_data))
+        return s_parameters
+
+    @pyaedt_function_handler()
+    def parse_hdm_file(self, filename):
+        """Parse an HFSS SBR+ or Creeping Waves ``hdm`` file.
+
+        Parameters
+        ----------
+        filename : str
+            File to parse.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.hdm_parser.Parser`
+        """
+
+        from pyaedt.sbrplus.hdm_parser import Parser
+
+        if os.path.exists(filename):
+            return Parser(filename).parse_message()
+        return False
+
+    @pyaedt_function_handler()
+    def get_hdm_plotter(self, filename=None):
+        """Get the ``HDMPlotter``.
+
+        Parameters
+        ----------
+        filename : str, optional
+
+
+        Returns
+        -------
+        :class:`pyaedt.sbrplus.plot.HDMPlotter`
+
+        """
+        from pyaedt.sbrplus.plot import HDMPlotter
+
+        hdm = HDMPlotter()
+        files = self.post.export_model_obj(
+            export_as_single_objects=True,
+            air_objects=False,
+        )
+        for file in files:
+            hdm.add_cad_model(file[0], file[1], file[2], self.modeler.model_units)
+        hdm.add_hdm_bundle_from_file(filename)
+        return hdm

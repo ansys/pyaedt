@@ -12,8 +12,10 @@ from pyaedt import generate_unique_name
 from pyaedt.generic.general_methods import env_path
 
 from pyaedt import is_ironpython
+from pyaedt import is_linux
+from pyaedt import is_windows
 
-if os.name == "posix" and is_ironpython:
+if is_linux and is_ironpython:
     import subprocessdotnet as subprocess
 else:
     import subprocess
@@ -155,7 +157,11 @@ class FileManagement(object):
         if self.client.root.pathexists(remotepath):
             return "Directory Exists!"
         self.client.root.makedirs(remotepath)
-        return "Directory created!"
+        return "Directory created."
+
+    def walk(self, remotepath):
+        if self.client.root.pathexists(remotepath):
+            return self.client.root.walk(remotepath)
 
     def listdir(self, remotepath):
         if self.client.root.pathexists(remotepath):
@@ -191,7 +197,7 @@ def check_port(port):
     check = False
     while not check:
         try:
-            s.bind((socket.getfqdn(), port))
+            s.bind(("127.0.0.1", port))
             check = True
         except socket.error:
             port += 1
@@ -217,7 +223,7 @@ class PyaedtServiceWindows(rpyc.Service):
         # code that runs after the connection has already closed
         # (to finalize the service, if needed)
         if self.app:
-            if not os.name == "posix":
+            if not is_linux:
                 if self.app and "release_desktop" in dir(self.app[0]):
                     self.app[0].release_desktop()
 
@@ -262,7 +268,7 @@ class PyaedtServiceWindows(rpyc.Service):
         else:
             return "File wrong or wrong commands."
         executable = "ansysedt.exe"
-        if os.name == "posix" and not ansysem_path and not env_path(aedt_version):
+        if is_linux and not ansysem_path and not env_path(aedt_version):
             ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
         if env_path(aedt_version) or ansysem_path:
             if not ansysem_path:
@@ -832,7 +838,7 @@ class GlobalService(rpyc.Service):
     def on_disconnect(self, connection):
         # code that runs after the connection has already closed
         # (to finalize the service, if needed)
-        if os.name != "posix":
+        if is_windows:
             sys.stdout = sys.__stdout__
 
     @staticmethod
@@ -856,7 +862,6 @@ class GlobalService(rpyc.Service):
             gRPC port on which the AEDT session has started.
         """
         from pyaedt.generic.general_methods import grpc_active_sessions
-
         sessions = grpc_active_sessions()
         if not port:
             port = check_port(random.randint(18500, 20000))
@@ -868,7 +873,7 @@ class GlobalService(rpyc.Service):
             print("AEDT Session already opened on port {}.".format(port))
             return True
         ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
-        if os.name == "posix":
+        if is_linux:
             executable = "ansysedt"
         else:
             executable = "ansysedt.exe"
@@ -901,7 +906,7 @@ class GlobalService(rpyc.Service):
         subprocess.Popen(command)
         timeout = 60
         s = socket.socket()
-        machine_name = socket.getfqdn()
+        machine_name = "127.0.0.1"
         while timeout > 0:
             try:
                 s.connect((machine_name, port))
@@ -1023,7 +1028,7 @@ class ServiceManager(rpyc.Service):
     def on_disconnect(self, connection):
         # code that runs after the connection has already closed
         # (to finalize the service, if needed)
-        if os.name != "posix":
+        if is_windows:
             sys.stdout = sys.__stdout__
         for edb in self._edb:
             try:

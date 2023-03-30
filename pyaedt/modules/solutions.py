@@ -1,9 +1,9 @@
+from collections import OrderedDict
 import itertools
 import math
 import os
 import sys
 import time
-from collections import OrderedDict
 
 from pyaedt import get_pyaedt_app
 from pyaedt import is_ironpython
@@ -49,7 +49,8 @@ class SolutionData(object):
         self._original_data = aedtdata
         self.number_of_variations = len(aedtdata)
         self._enable_pandas_output = True if settings.enable_pandas_output and pd else False
-
+        self._expressions = None
+        self._intrinsics = None
         self._nominal_variation = None
         self._nominal_variation = self._original_data[0]
         self.active_expression = self.expressions[0]
@@ -107,6 +108,8 @@ class SolutionData(object):
         if var_id < len(self.variations):
             self.active_variation = self.variations[var_id]
             self.nominal_variation = var_id
+            self._expressions = None
+            self._intrinsics = None
             return True
         return False
 
@@ -145,13 +148,14 @@ class SolutionData(object):
     @property
     def intrinsics(self):
         """Get intrinsics dictionary on active variation."""
-        _sweeps = OrderedDict({})
-        intrinsics = [i for i in self._sweeps_names if i not in self.nominal_variation.GetDesignVariableNames()]
-        for el in intrinsics:
-            values = list(self.nominal_variation.GetSweepValues(el, False))
-            _sweeps[el] = [i for i in values]
-            _sweeps[el] = list(OrderedDict.fromkeys(_sweeps[el]))
-        return _sweeps
+        if not self._intrinsics:
+            self._intrinsics = OrderedDict({})
+            intrinsics = [i for i in self._sweeps_names if i not in self.nominal_variation.GetDesignVariableNames()]
+            for el in intrinsics:
+                values = list(self.nominal_variation.GetSweepValues(el, False))
+                self._intrinsics[el] = [i for i in values]
+                self._intrinsics[el] = list(OrderedDict.fromkeys(self._intrinsics[el]))
+        return self._intrinsics
 
     @property
     def nominal_variation(self):
@@ -184,8 +188,10 @@ class SolutionData(object):
     @property
     def expressions(self):
         """Expressions."""
-        mydata = [i for i in self._nominal_variation.GetDataExpressions()]
-        return list(dict.fromkeys(mydata))
+        if not self._expressions:
+            mydata = [i for i in self._nominal_variation.GetDataExpressions()]
+            self._expressions = list(dict.fromkeys(mydata))
+        return self._expressions
 
     @pyaedt_function_handler()
     def update_sweeps(self):
@@ -1787,8 +1793,10 @@ class FfdSolutionData(object):
             full_setup_str = "{}-{}-{}".format(sol_setup_name_str, self.sphere_name, frequency)
             export_path = "{}/{}/eep/".format(self._app.working_directory, full_setup_str)
             if settings.remote_rpc_session:
-                settings.remote_rpc_session.root.makedirs(export_path)
-                file_exists = settings.remote_rpc_session.root.pathexists(export_path + exported_name_base + ".txt")
+                settings.remote_rpc_session.filemanager.makedirs(export_path)
+                file_exists = settings.remote_rpc_session.filemanager.pathexists(
+                    export_path + exported_name_base + ".txt"
+                )
             elif not os.path.exists(export_path):
                 os.makedirs(export_path)
                 file_exists = os.path.exists(export_path + exported_name_base + ".txt")
@@ -2518,6 +2526,7 @@ class FieldPlot:
         solutionName="",
         quantityName="",
         intrinsincList={},
+        seedingFaces=[],
     ):
         self._postprocessor = postprocessor
         self.oField = postprocessor.ofieldsreporter
@@ -2525,6 +2534,7 @@ class FieldPlot:
         self.surfaces_indexes = surfacelist
         self.line_indexes = linelist
         self.cutplane_indexes = cutplanelist
+        self.seeding_faces = seedingFaces
         self.solutionName = solutionName
         self.quantityName = quantityName
         self.intrinsincList = intrinsincList
@@ -2548,6 +2558,15 @@ class FieldPlot:
         self.CloudSpacing = 0.5
         self.CloudMinSpacing = -1
         self.CloudMaxSpacing = -1
+        self.LineWidth = 4
+        self.LineStyle = "Cylinder"
+        self.IsoValType = "Tone"
+        self.NumofPoints = 100
+        self.TraceStepLength = "0.001mm"
+        self.UseAdaptiveStep = True
+        self.SeedingSamplingOption = True
+        self.SeedingPointsNumber = 15
+        self.FractionOfMaximum = 0.8
 
     @property
     def plotGeomInfo(self):
@@ -2673,6 +2692,19 @@ class FieldPlot:
                 "GridColor:=",
                 self.GridColor,
             ]
+        elif self.line_indexes:
+            arg = [
+                "NAME:PlotOnLineSettings",
+                ["NAME:LineSettingsID", "Width:=", self.LineWidth, "Style:=", self.LineStyle],
+                "IsoValType:=",
+                self.IsoValType,
+                "ArrowUniform:=",
+                self.ArrowUniform,
+                "NumofArrow:=",
+                self.NumofPoints,
+                "Refinement:=",
+                self.Refinement,
+            ]
         else:
             arg = [
                 "NAME:PlotOnVolumeSettings",
@@ -2742,6 +2774,71 @@ class FieldPlot:
         ]
 
     @property
+    def surfacePlotInstructionLineTraces(self):
+        """Surface plot settings for field line traces.
+
+        ..note::
+            ``Specify seeding points on selections`` is by default set to ''by sampling''.
+
+        Returns
+        -------
+        list
+            List of plot settings for line traces.
+
+        """
+        return [
+            "NAME:" + self.name,
+            "SolutionName:=",
+            self.solutionName,
+            "UserSpecifyName:=",
+            0,
+            "UserSpecifyFolder:=",
+            0,
+            "QuantityName:=",
+            "QuantityName_FieldLineTrace",
+            "PlotFolder:=",
+            self.plotFolder,
+            "IntrinsicVar:=",
+            self.intrinsicVar,
+            "Trace Step Length:=",
+            self.TraceStepLength,
+            "Use Adaptive Step:=",
+            self.UseAdaptiveStep,
+            "Seeding Faces:=",
+            self.seeding_faces,
+            "Seeding Markers:=",
+            [0],
+            "Surface Tracing Objects:=",
+            self.surfaces_indexes,
+            "Volume Tracing Objects:=",
+            self.volume_indexes,
+            "Seeding Sampling Option:=",
+            self.SeedingSamplingOption,
+            "Seeding Points Number:=",
+            self.SeedingPointsNumber,
+            "Fractional of Maximal:=",
+            self.FractionOfMaximum,
+            "Discrete Seeds Option:=",
+            "Marker Point",
+            [
+                "NAME:InceptionEvaluationSettings",
+                "Gas Type:=",
+                0,
+                "Gas Pressure:=",
+                1,
+                "Use Inception:=",
+                True,
+                "Potential U0:=",
+                0,
+                "Potential K:=",
+                0,
+                "Potential A:=",
+                1,
+            ],
+            self.field_line_trace_plot_settings,
+        ]
+
+    @property
     def field_plot_settings(self):
         """Field Plot Settings.
 
@@ -2786,6 +2883,22 @@ class FieldPlot:
             ],
         ]
 
+    @property
+    def field_line_trace_plot_settings(self):
+        """Settings for the field line traces in the plot.
+
+        Returns
+        -------
+        list
+            List of settings for the field line traces in the plot.
+        """
+        return [
+            "NAME:FieldLineTracePlotSettings",
+            ["NAME:LineSettingsID", "Width:=", self.LineWidth, "Style:=", self.LineStyle],
+            "IsoValType:=",
+            self.IsoValType,
+        ]
+
     @pyaedt_function_handler()
     def create(self):
         """Create a field plot.
@@ -2796,9 +2909,14 @@ class FieldPlot:
             ``True`` when successful, ``False`` when failed.
 
         """
-
-        self.oField.CreateFieldPlot(self.surfacePlotInstruction, "Field")
-        return True
+        try:
+            if self.seeding_faces:
+                self.oField.CreateFieldPlot(self.surfacePlotInstructionLineTraces, "FieldLineTrace")
+            else:
+                self.oField.CreateFieldPlot(self.surfacePlotInstruction, "Field")
+            return True
+        except:
+            return False
 
     @pyaedt_function_handler()
     def update(self):
@@ -2813,11 +2931,54 @@ class FieldPlot:
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.oField.ModifyFieldPlot(self.name, self.surfacePlotInstruction)
+        try:
+            if self.seeding_faces:
+                if self.seeding_faces[0] != len(self.seeding_faces) - 1:
+                    for face in self.seeding_faces[1:]:
+                        if not isinstance(face, int):
+                            self._postprocessor.logger.error("Provide valid object id for seeding faces.")
+                            return False
+                        else:
+                            if face not in list(self._postprocessor._app.modeler.objects.keys()):
+                                self._postprocessor.logger.error("Invalid object id.")
+                                self.seeding_faces.remove(face)
+                                return False
+                    self.seeding_faces[0] = len(self.seeding_faces) - 1
+                if self.volume_indexes[0] != len(self.volume_indexes) - 1:
+                    for obj in self.volume_indexes[1:]:
+                        if not isinstance(obj, int):
+                            self._postprocessor.logger.error("Provide valid object id for in-volume object.")
+                            return False
+                        else:
+                            if obj not in list(self._postprocessor._app.modeler.objects.keys()):
+                                self._postprocessor.logger.error("Invalid object id.")
+                                self.volume_indexes.remove(obj)
+                                return False
+                    self.volume_indexes[0] = len(self.volume_indexes) - 1
+                if self.surfaces_indexes[0] != len(self.surfaces_indexes) - 1:
+                    for obj in self.surfaces_indexes[1:]:
+                        if not isinstance(obj, int):
+                            self._postprocessor.logger.error("Provide valid object id for surface object.")
+                            return False
+                        else:
+                            if obj not in list(self._postprocessor._app.modeler.objects.keys()):
+                                self._postprocessor.logger.error("Invalid object id.")
+                                self.surfaces_indexes.remove(obj)
+                                return False
+                    self.surfaces_indexes[0] = len(self.surfaces_indexes) - 1
+                self.oField.ModifyFieldPlot(self.name, self.surfacePlotInstructionLineTraces)
+            else:
+                self.oField.ModifyFieldPlot(self.name, self.surfacePlotInstruction)
+            return True
+        except:
+            return False
 
     @pyaedt_function_handler()
     def update_field_plot_settings(self):
         """Modify the field plot settings.
+
+        .. note::
+            This method is not available for field plot line traces.
 
         Returns
         -------
@@ -2992,3 +3153,264 @@ class FieldPlot:
         else:
             self._postprocessor.logger.info("This method works only on CPython with PyVista")
             return False
+
+
+class VRTFieldPlot:
+    """Creates and edits VRT field plots for SBR+ and Creeping Waves.
+
+    Parameters
+    ----------
+    postprocessor : :class:`pyaedt.modules.PostProcessor.PostProcessor`
+
+    objlist : list
+        List of objects.
+    solutionName : str
+        Name of the solution.
+    quantity_name : str
+        Name of the plot or the name of the object.
+    intrinsincList : dict, optional
+        Name of the intrinsic dictionary. The default is ``{}``.
+
+    """
+
+    def __init__(
+        self,
+        postprocessor,
+        is_creeping_wave=False,
+        quantity_name="QuantityName_SBR",
+        max_frequency="1GHz",
+        ray_density=2,
+        bounces=5,
+        intrinsincList={},
+    ):
+        self.is_creeping_wave = is_creeping_wave
+        self._postprocessor = postprocessor
+        self._ofield = postprocessor.ofieldsreporter
+        self.quantity_name = quantity_name
+        self.intrinsics = intrinsincList
+        self.name = "Field_Plot"
+        self.plot_folder = "Field_Plot"
+        self.max_frequency = max_frequency
+        self.ray_density = ray_density
+        self.number_of_bounces = bounces
+        self.multi_bounce_ray_density_control = False
+        self.mbrd_max_subdivision = 2
+        self.shoot_utd_rays = False
+        self.shoot_type = "All Rays"
+        self.start_index = 0
+        self.stop_index = 1
+        self.step_index = 1
+        self.is_plane_wave = True
+        self.incident_theta = "0deg"
+        self.incident_phi = "0deg"
+        self.vertical_polarization = False
+        self.custom_location = [0, 0, 0]
+        self.ray_box = None
+        self.ray_elevation = "0deg"
+        self.ray_azimuth = "0deg"
+        self.custom_coordinatesystem = 1
+        self.ray_cutoff = 40
+        self.sample_density = 10
+        self.irregular_surface_tolerance = 50
+
+    @property
+    def intrinsicVar(self):
+        """Intrinsic variable.
+
+        Returns
+        -------
+        list or dict
+            List or dictionary of the variables for the field plot.
+        """
+        var = ""
+        if isinstance(self.intrinsics, list):
+            l = 0
+            while l < len(self.intrinsics):
+                val = self.intrinsics[l + 1]
+                if ":=" in self.intrinsics[l] and isinstance(self.intrinsics[l + 1], list):
+                    val = self.intrinsics[l + 1][0]
+                ll = self.intrinsics[l].split(":=")
+                var += ll[0] + "='" + str(val) + "' "
+                l += 2
+        else:
+            for a in self.intrinsics:
+                var += a + "='" + str(self.intrinsics[a]) + "' "
+        return var
+
+    @pyaedt_function_handler()
+    def _create_args(self):
+        args = [
+            "NAME:" + self.name,
+            "UserSpecifyName:=",
+            0,
+            "UserSpecifyFolder:=",
+            0,
+            "QuantityName:=",
+            self.quantity_name,
+            "PlotFolder:=",
+            "Visual Ray Trace SBR",
+            "IntrinsicVar:=",
+            self.intrinsicVar,
+            "MaxFrequency:=",
+            self.max_frequency,
+            "RayDensity:=",
+            self.ray_density,
+            "NumberBounces:=",
+            self.number_of_bounces,
+            "Multi-Bounce Ray Density Control:=",
+            self.multi_bounce_ray_density_control,
+            "MBRD Max sub divisions:=",
+            self.mbrd_max_subdivision,
+            "Shoot UTD Rays:=",
+            self.shoot_utd_rays,
+            "ShootFilterType:=",
+            self.shoot_type,
+        ]
+        if self.shoot_type == "Rays by index":
+            args.extend(
+                [
+                    "start index:=",
+                    self.start_index,
+                    "stop index:=",
+                    self.stop_index,
+                    "index step:=",
+                    self.step_index,
+                ]
+            )
+        elif self.shoot_type == "Rays in box":
+            box_id = None
+            if isinstance(self.ray_box, int):
+                box_id = self.ray_box
+            elif isinstance(self.ray_box, str):
+                box_id = self._postprocessor._primitives.object_id_dict[self.ray_box]
+            else:
+                box_id = self.ray_box.id
+            args.extend("FilterBoxID:=", box_id)
+        elif self.shoot_type == "Single ray":
+            args.extend("Ray elevation:=", self.ray_elevation, "Ray azimuth:=", self.ray_azimuth)
+        args.append("LaunchFrom:=")
+        if self.is_plane_wave:
+            args.append("Launch from Plane-Wave")
+            args.append("Incident direction theta:=")
+            args.append(self.incident_theta)
+            args.append("Incident direction phi:=")
+            args.append(self.incident_phi)
+            args.append("Vertical Incident Polarization:=")
+            args.append(self.vertical_polarization)
+        else:
+            args.append("Launch from Custom")
+            args.append("LaunchFromPointID:=")
+            args.append(-1)
+            args.append("CustomLocationCoordSystem:=")
+            args.append(self.custom_coordinatesystem)
+            args.append("CustomLocation:=")
+            args.append(self.custom_location)
+        return args
+
+    @pyaedt_function_handler()
+    def _create_args_creeping(self):
+        args = [
+            "NAME:" + self.name,
+            "UserSpecifyName:=",
+            0,
+            "UserSpecifyFolder:=",
+            0,
+            "QuantityName:=",
+            self.quantity_name,
+            "PlotFolder:=",
+            "Visual Ray Trace CW",
+            "IntrinsicVar:=",
+            "",
+            "MaxFrequency:=",
+            self.max_frequency,
+            "SampleDensity:=",
+            self.sample_density,
+            "RayCutOff:=",
+            self.ray_cutoff,
+            "Irregular Surface Tolerance:=",
+            self.irregular_surface_tolerance,
+            "LaunchFrom:=",
+        ]
+        if self.is_plane_wave:
+            args.append("Launch from Plane-Wave")
+            args.append("Incident direction theta:=")
+            args.append(self.incident_theta)
+            args.append("Incident direction phi:=")
+            args.append(self.incident_phi)
+            args.append("Vertical Incident Polarization:=")
+            args.append(self.vertical_polarization)
+        else:
+            args.append("Launch from Custom")
+            args.append("LaunchFromPointID:=")
+            args.append(-1)
+            args.append("CustomLocationCoordSystem:=")
+            args.append(self.custom_coordinatesystem)
+            args.append("CustomLocation:=")
+            args.append(self.custom_location)
+        args.append("SBRRayDensity:=")
+        args.append(self.ray_density)
+        return args
+
+    @pyaedt_function_handler()
+    def create(self):
+        """Create a field plot.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        try:
+            if self.is_creeping_wave:
+                self._ofield.CreateFieldPlot(self._create_args_creeping(), "CreepingWave_VRT")
+            else:
+                self._ofield.CreateFieldPlot(self._create_args(), "VRT")
+            return True
+        except:
+            return False
+
+    @pyaedt_function_handler()
+    def update(self):
+        """Update the field plot.
+
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        try:
+            if self.is_creeping_wave:
+                self._ofield.ModifyFieldPlot(self.name, self._create_args_creeping())
+
+            else:
+                self._ofield.ModifyFieldPlot(self.name, self._create_args())
+            return True
+        except:
+            return False
+
+    @pyaedt_function_handler()
+    def delete(self):
+        """Delete the field plot."""
+        self._ofield.DeleteFieldPlot([self.name])
+        return True
+
+    @pyaedt_function_handler()
+    def export(self, path_to_hdm_file=None):
+        """Export the Visual Ray Tracing to ``hdm`` file.
+
+        Parameters
+        ----------
+        path_to_hdm_file : str, optional
+            Full path to output file. If ``None``, the file will be exported in working directory.
+
+        Returns
+        -------
+        str
+            Path to the file.
+        """
+        if not path_to_hdm_file:
+            path_to_hdm_file = os.path.join(self._postprocessor._app.working_directory, self.name + ".hdm")
+        self._ofield.ExportFieldPlot(self.name, False, path_to_hdm_file)
+        return path_to_hdm_file

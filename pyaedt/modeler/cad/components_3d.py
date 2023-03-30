@@ -1,9 +1,9 @@
 from __future__ import absolute_import
 
+from collections import OrderedDict
 import random
 import re
 import warnings
-from collections import OrderedDict
 
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.general_methods import _uname
@@ -784,6 +784,9 @@ class UserDefinedComponent(object):
             Pyaedt object.
         """
         from pyaedt.generic.design_types import get_pyaedt_app
+        from pyaedt.generic.general_methods import is_linux
+
+        project_list = [i for i in self._primitives._app.project_list]
 
         self._primitives.oeditor.Edit3DComponentDefinition(
             [
@@ -791,7 +794,16 @@ class UserDefinedComponent(object):
                 ["NAME:DefinitionAndPassword", "Definition:=", self.definition_name, "Password:=", password],
             ]
         )
-        project = self._primitives._app.odesktop.GetActiveProject()
-        project_name = project.GetName()
-        design_name = project.GetActiveDesign().GetName()
-        return get_pyaedt_app(project_name, design_name)
+
+        new_project = [i for i in self._primitives._app.project_list if i not in project_list]
+
+        if new_project:
+            self._primitives._app.odesktop.SetActiveProject(new_project[0])
+            project = self._primitives._app.odesktop.GetActiveProject()
+            project_name = project.GetName()
+            if is_linux:
+                design_name = project.GetDesigns()[0].GetName()
+            else:
+                design_name = project.GetActiveDesign().GetName()
+            return get_pyaedt_app(project_name, design_name)
+        return False

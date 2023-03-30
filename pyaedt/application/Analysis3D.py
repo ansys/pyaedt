@@ -149,7 +149,7 @@ class FieldAnalysis3D(Analysis, object):
             PostProcessor object.
         """
         if self._post is None:
-            if is_ironpython:
+            if is_ironpython:  # pragma: no cover
                 from pyaedt.modules.PostProcessor import PostProcessor
             else:
                 from pyaedt.modules.AdvancedPostProcessing import PostProcessor
@@ -183,7 +183,6 @@ class FieldAnalysis3D(Analysis, object):
                     for file in files:
                         if file.endswith(".a3dcomp"):
                             listfiles.append(os.path.join(root, file))
-                # listfiles = glob.glob(syspath + "/**/*.a3dcomp", recursive=True)
                 for el in listfiles:
                     head, tail = ntpath.split(el)
                     components_dict[tail[:-8]] = el
@@ -1040,4 +1039,7 @@ class FieldAnalysis3D(Analysis, object):
                         ):  # pragma: no cover
                             return False
             app.oproject.Close()
+
+        if not self.design_type == "Icepak":
+            self.mesh._refresh_mesh_operations()
         return True

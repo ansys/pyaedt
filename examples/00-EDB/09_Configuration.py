@@ -10,7 +10,7 @@ run anlasyis and get results.
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Peform required imports. Importing the ``Hfss3dlayout`` object initializes it
-# on version 2022 R2.
+# on version 2023 R1.
 
 import os
 import pyaedt
@@ -35,9 +35,9 @@ print("Project folder will be", target_aedb)
 ###############################################################################
 # Launch EDB
 # ~~~~~~~~~~
-# Launch the :class:`pyaedt.Edb` class, using EDB 2022 R2 and SI units.
+# Launch the :class:`pyaedt.Edb` class, using EDB 2023 R1 and SI units.
 
-edbapp = pyaedt.Edb(target_aedb, edbversion="2022.2")
+edbapp = pyaedt.Edb(target_aedb, edbversion="2023.1")
 ###############################################################################
 # Import Definitions
 # ~~~~~~~~~~~~~~~~~~
@@ -137,13 +137,13 @@ edbapp.close_edb()
 # Open Aedt
 # ~~~~~~~~~
 # Project folder aedb will be opened in AEDT Hfss3DLayout and loaded.
-h3d = pyaedt.Hfss3dLayout(specified_version="2022.2", projectname=target_aedb, non_graphical=non_graphical)
+h3d = pyaedt.Hfss3dLayout(specified_version="2023.1", projectname=target_aedb, non_graphical=non_graphical)
 
 ###############################################################################
 # Analyze
 # ~~~~~~~
 # Project will be solved.
-h3d.analyze_nominal()
+h3d.analyze()
 
 ###############################################################################
 # Get Results

@@ -780,7 +780,7 @@ class ExcitationPorts(CommonExcitation):
                 prim_shape_data = primitive.GetPolygonData()
                 if prim_shape_data.PointInPolygon(shape_pd):
                     return EDBPrimitives(primitive, self._pedb)
-        for vias in self._pedb.core_padstack.padstack_instances.values():
+        for vias in self._pedb.core_padstack.instances.values():
             if layer_name in vias.layer_range_names:
                 plane = self._pedb.core_primitives.Shape(
                     "rectangle", pointA=vias.position, pointB=vias.padstack_definition.bounding_box[1]
@@ -912,17 +912,17 @@ class ExcitationProbes(CommonExcitation):
         CommonExcitation.__init__(self, pedb, edb_terminal)
 
 
-class ExcitationDifferential:
-    """Manages differential excitation properties."""
+class ExcitationBundle:
+    """Manages multi terminal excitation properties."""
 
-    def __init__(self, pedb, edb_boundle_terminal):
+    def __init__(self, pedb, edb_bundle_terminal):
         self._pedb = pedb
-        self._edb_boundle_terminal = edb_boundle_terminal
+        self._edb_bundle_terminal = edb_bundle_terminal
 
     @property
     def name(self):
         """Port Name."""
-        return self._edb_boundle_terminal.GetName()
+        return self._edb_bundle_terminal.GetName()
 
     @property
     def edb(self):  # pragma: no cover
@@ -932,9 +932,16 @@ class ExcitationDifferential:
     @property
     def terminals(self):
         """Get terminals belonging to this excitation."""
-        return {i.GetName(): ExcitationPorts(self._pedb, i) for i in list(self.edb_boundle_terminal.GetTerminals())}
+        return {i.GetName(): ExcitationPorts(self._pedb, i) for i in list(self._edb_bundle_terminal.GetTerminals())}
 
     @property
     def reference_net_name(self):
         """Reference Name. Not applicable to Differential pairs."""
         return
+
+
+class ExcitationDifferential(ExcitationBundle):
+    """Manages differential excitation properties."""
+
+    def __init__(self, pedb, edb_boundle_terminal):
+        ExcitationBundle.__init__(self, pedb, edb_boundle_terminal)

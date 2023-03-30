@@ -15,6 +15,7 @@ import time
 from pyaedt.generic.clr_module import _clr
 from pyaedt.generic.general_methods import _pythonver
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import is_windows
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.misc import list_installed_ansysem
 
@@ -61,7 +62,7 @@ class Siwave(object):
         if is_ironpython:
             _com = "pythonnet"
             import System
-        elif os.name == "nt":  # pragma: no cover
+        elif is_windows:  # pragma: no cover
             modules = [tup[1] for tup in pkgutil.iter_modules()]
             if _clr:
                 import win32com.client

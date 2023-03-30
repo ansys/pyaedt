@@ -25,9 +25,9 @@ non_graphical = False
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2022 R2 in graphical mode.
+# Launch AEDT 2023 R1 in graphical mode.
 
-hfss = pyaedt.Hfss(specified_version="2022.2",
+hfss = pyaedt.Hfss(specified_version="2023.1",
                    solution_type="DrivenTerminal",
                    new_desktop_session=True,
                    non_graphical=non_graphical)
@@ -219,7 +219,7 @@ my_plot.plot(
 ###############################################################################
 # Analyze and release
 # ~~~~~~~~~~~~~~~~~~~~
-# Uncomment the ``hfss.analyze_nominal`` command if you want to analyze the
+# Uncomment the ``hfss.analyze`` command if you want to analyze the
 # model and release AEDT.
 
 hfss.release_desktop()

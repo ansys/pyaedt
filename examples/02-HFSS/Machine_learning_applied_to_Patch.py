@@ -132,7 +132,7 @@ print("Its length is: " + str(len(dictionary_list)))
 # the patch. In the stackup library, most things, like the layers and patch,
 # are already parametrized.
 
-desktopVersion = "2022.2"
+desktopVersion = "2023.1"
 
 hfss = Hfss(
     new_desktop_session=True, solution_type="Terminal", non_graphical=non_graphical, specified_version=desktopVersion

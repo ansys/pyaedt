@@ -32,6 +32,8 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
 
+# from pyaedt.generic.general_methods import is_windows
+
 settings.enable_error_handler = False
 settings.enable_desktop_logs = False
 if is_ironpython:
@@ -46,14 +48,17 @@ from pyaedt import Desktop
 from pyaedt import Edb
 from pyaedt import Hfss
 from pyaedt.generic.filesystem import Scratch
+from pyaedt.misc.misc import list_installed_ansysem
 
 test_project_name = "test_primitives"
 
 sys.path.append(local_path)
-from _unittest.launch_desktop_tests import run_desktop_tests
 
 # Initialize default desktop configuration
-default_version = "2022.2"
+default_version = "2023.1"
+if "ANSYSEM_ROOT".format(default_version[2:].replace(".", "")) not in list_installed_ansysem():
+    default_version = list_installed_ansysem()[0][12:].replace(".", "")
+    default_version = "20{}.{}".format(default_version[:2], default_version[-1])
 os.environ["ANSYSEM_FEATURE_SS544753_ICEPAK_VIRTUALMESHREGION_PARADIGM_ENABLE"] = "1"
 if inside_desktop and "oDesktop" in dir(sys.modules["__main__"]):
     default_version = sys.modules["__main__"].oDesktop.GetVersion()[0:6]
@@ -69,7 +74,7 @@ config = {
     "skip_debug": False,
     "local": False,
     "use_grpc": True,
-    "disable_sat_bounding_box": False,
+    "disable_sat_bounding_box": True,
 }
 
 # Check for the local config file, override defaults if found
@@ -98,12 +103,18 @@ NONGRAPHICAL = settings.non_graphical
 
 
 class BasisTest(object):
-    def my_setup(self):
+    def my_setup(self, launch_desktop=True):
         scratch_path = tempfile.gettempdir()
         self.local_scratch = Scratch(scratch_path)
         self.aedtapps = []
         self.edbapps = []
         self._main = sys.modules["__main__"]
+        self.desktop = None
+        self._main.desktop_pid = 0
+        if launch_desktop:
+            self.desktop = Desktop(desktop_version, NONGRAPHICAL, new_thread)
+            self.desktop.disable_autosave()
+            self._main.desktop_pid = self.desktop.odesktop.GetProcessID()
 
     def my_teardown(self):
         for edbapp in self.edbapps[::-1]:
@@ -111,7 +122,17 @@ class BasisTest(object):
                 edbapp.close_edb()
             except:
                 pass
-        if self.aedtapps:
+        if self.desktop and not is_ironpython:
+            try:
+                os.kill(self._main.desktop_pid, 9)
+            except:
+                pass
+            self.desktop.release_desktop(False, True)
+            try:
+                del self._main.desktop_pid
+            except:
+                pass
+        elif self.desktop:
             try:
                 oDesktop = self._main.oDesktop
                 proj_list = oDesktop.GetProjectList()
@@ -120,23 +141,24 @@ class BasisTest(object):
                 proj_list = []
             if oDesktop and not settings.non_graphical:
                 oDesktop.ClearMessages("", "", 3)
-            for proj in proj_list:
-                try:
-                    oDesktop.CloseProject(proj)
-                except:
-                    pass
-            # self.aedtapps[0].release_desktop(False)
-
-        logger.remove_all_project_file_logger()
-        shutil.rmtree(self.local_scratch.path, ignore_errors=True)
+            if proj_list:
+                for proj in proj_list:
+                    try:
+                        oDesktop.CloseProject(proj)
+                    except:
+                        pass
         del self.edbapps
         del self.aedtapps
+        self.desktop = None
+        try:
+            logger.remove_all_project_file_logger()
+            shutil.rmtree(self.local_scratch.path, ignore_errors=True)
+        except:
+            pass
 
     def add_app(self, project_name=None, design_name=None, solution_type=None, application=None, subfolder=""):
-        if "oDesktop" not in dir(self._main):
-            self.desktop = Desktop(desktop_version, NONGRAPHICAL, new_thread)
-            self.desktop.disable_autosave()
-            self._main.desktop_pid = self.desktop.odesktop.GetProcessID()
+        # if "oDesktop" not in dir(self._main):
+
         if project_name:
             example_project = os.path.join(local_path, "example_models", subfolder, project_name + ".aedt")
             example_folder = os.path.join(local_path, "example_models", subfolder, project_name + ".aedb")
@@ -203,19 +225,19 @@ new_thread = config["NewThread"]
 @pytest.fixture(scope="session", autouse=True)
 def desktop_init():
     _main = sys.modules["__main__"]
-    yield
-    if not is_ironpython:
-        try:
-            try:
-                os.kill(_main.desktop_pid, 9)
-            except:
-                pass
-            # release_desktop(close_projects=False, close_desktop=True)
-        except:
-            pass
 
-    if config["test_desktops"]:
-        run_desktop_tests()
+    if is_ironpython:
+        desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
+        _main.desktop_pid = desktop.odesktop.GetProcessID()
+    yield
+    if is_ironpython:
+        desktop.release_desktop(True, True)
+        del desktop
+    try:
+        os.kill(_main.desktop_pid, 9)
+    except:
+        pass
+    gc.collect()
 
 
 @pytest.fixture(scope="function", autouse=True)

@@ -5,6 +5,7 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
+
 from pyaedt import Hfss
 from pyaedt import Icepak
 from pyaedt.modules.Boundary import NativeComponentObject
@@ -23,14 +24,14 @@ if config["desktopVersion"] > "2022.2":
     src_project_name = "USB_Connector_IPK_231"
     radio_board_name = "RadioBoardIcepak_231"
     coldplate = "ColdPlateExample_231"
-    power_budget = "PB_Test_231"
+    power_budget = "PB_test_231"
 
 else:
     coldplate = "ColdPlateExample"
     test_project_name = "Filter_Board_Icepak"
     src_project_name = "USB_Connector_IPK"
     radio_board_name = "RadioBoardIcepak"
-    power_budget = "PB_Test"
+    power_budget = "PB_test"
 proj_name = None
 design_name = "cutout3"
 solution_name = "HFSS Setup 1 : Last Adaptive"
@@ -153,7 +154,7 @@ class TestClass(BasisTest, object):
     def test_07_ExportStepForWB(self):
         file_path = self.local_scratch.path
         file_name = "WBStepModel"
-        assert self.aedtapp.export_3d_model(file_name, file_path, ".step", [], ["Region", "Component_Region"])
+        assert self.aedtapp.export_3d_model(file_name, file_path, ".x_t", [], ["Region", "Component_Region"])
 
     def test_08_Setup(self):
         setup_name = "DomSetup"
@@ -189,6 +190,10 @@ class TestClass(BasisTest, object):
         test = self.aedtapp.mesh.assign_mesh_region(component_name, mesh_level_RadioPCB, is_submodel=True)
         assert test
         test = self.aedtapp.mesh.assign_mesh_region(["USB_ID"], mesh_level_RadioPCB)
+        assert test
+        b = self.aedtapp.modeler.create_box([0, 0, 0], [1, 1, 1])
+        b.model = False
+        test = self.aedtapp.mesh.assign_mesh_region([b.name])
         assert test
 
     def test_12b_AssignVirtualMeshOperation(self):
@@ -270,6 +275,14 @@ class TestClass(BasisTest, object):
         self.aedtapp["Variable1"] = "0.5"
         assert self.aedtapp.create_output_variable("OutputVariable1", "abs(Variable1)")  # test creation
         assert self.aedtapp.create_output_variable("OutputVariable1", "asin(Variable1)")  # test update
+        self.aedtapp.monitor.assign_point_monitor_in_object(
+            "box", monitor_quantity="Temperature", monitor_name="test_monitor"
+        )
+        self.aedtapp.monitor.assign_face_monitor(
+            self.aedtapp.modeler.get_object_from_name("box").faces[0].id,
+            monitor_quantity=["Temperature", "HeatFlowRate"],
+            monitor_name="test_monitor2",
+        )
         self.aedtapp.analyze_setup("SetupIPK")
         self.aedtapp.save_project()
         self.aedtapp.export_summary(self.aedtapp.working_directory)
@@ -282,6 +295,14 @@ class TestClass(BasisTest, object):
         value = self.aedtapp.get_output_variable("OutputVariable1")
         tol = 1e-9
         assert abs(value - 0.5235987755982988) < tol
+
+    def test_19C_get_monitor_output(self):
+        assert self.aedtapp.monitor.all_monitors["test_monitor"].value()
+        assert self.aedtapp.monitor.all_monitors["test_monitor"].value(quantity="Temperature")
+        assert self.aedtapp.monitor.all_monitors["test_monitor"].value(
+            setup_name=self.aedtapp.existing_analysis_sweeps[0]
+        )
+        assert self.aedtapp.monitor.all_monitors["test_monitor2"].value(quantity="HeatFlowRate")
 
     def test_20_eval_tempc(self):
         assert os.path.exists(
@@ -381,7 +402,7 @@ class TestClass(BasisTest, object):
         dest = Icepak(designname="IcepakDesign1", specified_version=desktop_version)
         dest.copy_solid_bodies_from(self.aedtapp, [obj_udm.name, obj_3dcomp.name])
         dest.delete_design("IcepakDesign1")
-        dest = Icepak(designname="IcepakDesign1", specified_version=desktop_version)
+        dest = Icepak(designname="IcepakDesign2", specified_version=desktop_version)
         dest.copy_solid_bodies_from(self.aedtapp)
         dest2 = Hfss(designname="uUSB", specified_version=desktop_version)
         dest2.copy_solid_bodies_from(self.aedtapp, [obj_udm.name, obj_3dcomp.name])
@@ -677,7 +698,7 @@ class TestClass(BasisTest, object):
             os.path.join(file_path, file_name),
             component_name="board_assembly",
             included_cs=["Global"],
-            auxiliary_dict_file=True,
+            auxiliary_dict=True,
         )
         self.aedtapp.create_dataset(
             "test_ignore",
@@ -700,7 +721,7 @@ class TestClass(BasisTest, object):
             os.path.join(file_path, file_name),
             component_name="board_assembly",
             included_cs=cs_list,
-            auxiliary_dict_file=True,
+            auxiliary_dict=True,
             reference_cs="CS1",
             monitor_objects=mon_list,
             datasets=["test_dataset"],
@@ -714,6 +735,7 @@ class TestClass(BasisTest, object):
         fan_obj_3d.delete()
 
     def test_51_advanced3dcomp_import(self):
+        self.aedtapp.insert_design("test_51_1")
         cs2 = self.aedtapp.modeler.create_coordinate_system(name="CS2")
         cs2.props["OriginX"] = 20
         cs2.props["OriginY"] = 20
@@ -723,9 +745,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.modeler.insert_3d_component(
             comp_file=os.path.join(file_path, file_name), targetCS="CS2", auxiliary_dict=True
         )
-        self.aedtapp.modeler.insert_3d_component(
-            comp_file=os.path.join(file_path, file_name), targetCS="Global", auxiliary_dict=False, name="test"
-        )
+
         assert all(i in self.aedtapp.native_components.keys() for i in ["Fan", "Board"])
         assert all(
             i in self.aedtapp.monitor.all_monitors
@@ -733,25 +753,41 @@ class TestClass(BasisTest, object):
         )
         assert "test_dataset" in self.aedtapp.design_datasets
         assert "board_assembly1_CS1" in [i.name for i in self.aedtapp.modeler.coordinate_systems]
+        dup = self.aedtapp.modeler.user_defined_components["board_assembly1"].duplicate_and_mirror([0, 0, 0], [1, 2, 0])
+        self.aedtapp.modeler.refresh_all_ids()
+        self.aedtapp.modeler.user_defined_components[dup[0]].delete()
+        dup = self.aedtapp.modeler.user_defined_components["board_assembly1"].duplicate_along_line([1, 2, 0], nclones=2)
+        self.aedtapp.modeler.refresh_all_ids()
+        self.aedtapp.modeler.user_defined_components[dup[0]].delete()
+        self.aedtapp.insert_design("test_51_2")
         self.aedtapp.modeler.insert_3d_component(
-            comp_file=os.path.join(file_path, file_name), targetCS="CS1", auxiliary_dict=True
+            comp_file=os.path.join(file_path, file_name), targetCS="Global", auxiliary_dict=False, name="test"
         )
         file_name = "Advanced3DComp1.a3dcomp"
+        self.aedtapp.insert_design("test_51_3")
+        cs2 = self.aedtapp.modeler.create_coordinate_system(name="CS2")
+        cs2.props["OriginX"] = 20
+        cs2.props["OriginY"] = 20
+        cs2.props["OriginZ"] = 20
         self.aedtapp.modeler.insert_3d_component(
             comp_file=os.path.join(file_path, file_name), targetCS="CS2", auxiliary_dict=True, name="test"
         )
-        dup = self.aedtapp.modeler.user_defined_components["board_assembly2"].duplicate_and_mirror([0, 0, 0], [1, 2, 0])
-        self.aedtapp.modeler.refresh_all_ids()
-        self.aedtapp.modeler.user_defined_components[dup[0]].delete()
-        dup = self.aedtapp.modeler.user_defined_components["board_assembly2"].duplicate_along_line([1, 2, 0], nclones=2)
-        self.aedtapp.modeler.refresh_all_ids()
-        self.aedtapp.modeler.user_defined_components[dup[0]].delete()
 
     def test_52_flatten_3d_components(self):
-        mon_name = self.aedtapp.monitor.assign_face_monitor(
-            list(self.aedtapp.modeler.user_defined_components["board_assembly2"].parts.values())[0].faces[0].id
+        self.aedtapp.insert_design("test_52")
+        cs2 = self.aedtapp.modeler.create_coordinate_system(name="CS2")
+        cs2.props["OriginX"] = 20
+        cs2.props["OriginY"] = 20
+        cs2.props["OriginZ"] = 20
+        file_path = self.local_scratch.path
+        file_name = "Advanced3DComp.a3dcomp"
+        self.aedtapp.modeler.insert_3d_component(
+            comp_file=os.path.join(file_path, file_name), targetCS="CS2", auxiliary_dict=True
         )
-        mon_point_name = self.aedtapp.monitor.assign_point_monitor([0, 0, 0])
+        mon_name = self.aedtapp.monitor.assign_face_monitor(
+            list(self.aedtapp.modeler.user_defined_components["board_assembly1"].parts.values())[0].faces[0].id
+        )
+        mon_point_name = self.aedtapp.monitor.assign_point_monitor([20, 20, 20])
         assert self.aedtapp.flatten_3d_components()
         assert all(
             i in self.aedtapp.monitor.all_monitors
@@ -766,6 +802,7 @@ class TestClass(BasisTest, object):
         assert "test_dataset" in self.aedtapp.design_datasets
 
     def test_53_create_conduting_plate(self):
+        box = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 10], name="box1")
         assert self.aedtapp.create_conduting_plate(
             self.aedtapp.modeler.get_object_from_name("box1").faces[0].id,
             thermal_specification="Thickness",
@@ -774,6 +811,7 @@ class TestClass(BasisTest, object):
         )
 
     def test_54_assign_stationary_wall(self):
+        self.aedtapp.insert_design("test_54")
         self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
         box = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 10], name="box1")
 
@@ -834,3 +872,9 @@ class TestClass(BasisTest, object):
             fan_1_history.children["DuplicateAlongLine:1"].props["Vector/" + i] == j + "mm"
             for i, j in [("X", "4"), ("Y", "5"), ("Z", "6")]
         )
+
+    def test_56_mesh_priority(self):
+        app = Icepak(designname="IDF")
+        assert app.mesh.add_priority(entity_type=1, obj_list=app.modeler.object_names, priority=3)
+        assert app.mesh.add_priority(entity_type=2, comp_name=app.modeler.user_defined_component_names[1], priority=1)
+        assert app.mesh.add_priority(entity_type=2, comp_name=app.modeler.user_defined_component_names[0], priority=2)

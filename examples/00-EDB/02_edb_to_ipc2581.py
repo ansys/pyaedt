@@ -30,9 +30,9 @@ print(targetfile)
 ###############################################################################
 # Launch EDB
 # ~~~~~~~~~~
-# Launch the :class:`pyaedt.Edb` class, using EDB 2022 R2 and SI units.
+# Launch the :class:`pyaedt.Edb` class, using EDB 2023 R1 and SI units.
 
-edb = pyaedt.Edb(edbpath=targetfile, edbversion="2022.2")
+edb = pyaedt.Edb(edbpath=targetfile, edbversion="2023.1")
 
 
 ###############################################################################
@@ -53,14 +53,14 @@ for net in edb.core_nets.nets.keys():
     if "PCIE" in net:
         signal_list.append(net)
 power_list = ["GND"]
-edb.create_cutout_multithread(signal_list=signal_list, reference_list=power_list, extent_type="ConvexHull",
-                              expansion_size=0.002,
-                              use_round_corner=False,
-                              number_of_threads=4,
-                              remove_single_pin_components=True,
-                              use_pyaedt_extent_computing=True,
-                              extent_defeature=0,
-                              )
+edb.cutout(signal_list=signal_list, reference_list=power_list, extent_type="ConvexHull",
+           expansion_size=0.002,
+           use_round_corner=False,
+           number_of_threads=4,
+           remove_single_pin_components=True,
+           use_pyaedt_extent_computing=True,
+           extent_defeature=0,
+           )
 
 ###############################################################################
 # Plot cutout

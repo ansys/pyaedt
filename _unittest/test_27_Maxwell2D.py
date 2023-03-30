@@ -1,13 +1,14 @@
 #!/ekm/software/anaconda3/bin/python
 # Standard imports
+from collections import OrderedDict
 import filecmp
 import os
 import shutil
-from collections import OrderedDict
 
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+
 from pyaedt import Maxwell2d
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name
@@ -435,3 +436,20 @@ class TestClass(BasisTest, object):
 
     def test_30_simplify_objects(self):
         assert not self.aedtapp.simplify_objects(input_objects_list="Rotor_Section1")
+
+    def test_31_cylindrical_gap(self):
+        assert not self.aedtapp.mesh.assign_cylindrical_gap("Band")
+        [
+            x.delete()
+            for x in self.aedtapp.mesh.meshoperations[:]
+            if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
+        ]
+        assert self.aedtapp.mesh.assign_cylindrical_gap("Band", meshop_name="cyl_gap_test")
+        assert not self.aedtapp.mesh.assign_cylindrical_gap(["Band", "Region"])
+        assert not self.aedtapp.mesh.assign_cylindrical_gap("Band")
+        [
+            x.delete()
+            for x in self.aedtapp.mesh.meshoperations[:]
+            if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
+        ]
+        assert self.aedtapp.mesh.assign_cylindrical_gap("Band", meshop_name="cyl_gap_test", band_mapping_angle=2)

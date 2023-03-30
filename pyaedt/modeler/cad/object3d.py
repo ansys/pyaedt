@@ -258,7 +258,8 @@ class Object3d(object):
 
     @pyaedt_function_handler()
     def export_image(self, file_path=None):
-        """Export the model to path.
+        """Export the current object to a specified file path.
+
 
         .. note::
            Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
@@ -266,7 +267,9 @@ class Object3d(object):
         Parameters
         ----------
         file_path : str, optional
-            File name with full path. If `None` Project directory will be used.
+            File name with full path. If `None` the exported image will be a ``png`` file that
+            will be saved in ``working_directory``.
+            To access the ``working_directory`` the use ``app.working_directory`` property.
 
         Returns
         -------
@@ -725,7 +728,12 @@ class Object3d(object):
         if self.object_type == "Unclassified":
             return []
         vertices = []
+
         v = [i for i in self._primitives.get_object_vertices(self.name)]
+        if not v:
+            for el in self.edges:
+                pos = [float(p) for p in self._primitives.oeditor.GetEdgePositionAtNormalizedParameter(el.id, 0)]
+                vertices.append(VertexPrimitive(self, -1, pos))
         if settings.aedt_version > "2022.2":
             v = v[::-1]
         for vertex in v:
@@ -1357,7 +1365,7 @@ class Object3d(object):
 
         Returns
         -------
-        pyaedt.modeler.object3d.Object3d
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
            Object 3D object.
 
         References
@@ -1383,7 +1391,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             Retrieve the resulting 3D Object when succeeded.
 
         References
@@ -1436,7 +1444,7 @@ class Object3d(object):
 
         Returns
         -------
-        pyaedt.modeler.Object3d.Object3d, bool
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
             ``False`` when failed.
 
@@ -1455,7 +1463,7 @@ class Object3d(object):
 
         Parameters
         ----------
-        cs_axis
+        cs_axis : int
             Coordinate system axis or the Application.CoordinateSystemAxis object.
         angle : float, optional
             Angle of rotation. The units, defined by ``unit``, can be either
@@ -1466,9 +1474,8 @@ class Object3d(object):
 
         Returns
         -------
-        pyaedt.modeler.Object3d.Object3d, bool
-            3D object.
-            ``False`` when failed.
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
+            3D object. ``False`` when failed.
 
         References
         ----------
@@ -1493,7 +1500,7 @@ class Object3d(object):
 
         Returns
         -------
-        pyaedt.modeler.Object3d.Object3d, bool
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
             ``False`` when failed.
 
@@ -1521,7 +1528,7 @@ class Object3d(object):
 
         Returns
         -------
-        list
+        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             List of names of the newly added objects.
 
         References
@@ -1550,7 +1557,7 @@ class Object3d(object):
 
         Returns
         -------
-        list
+        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             List of names of the newly added objects.
 
         References
@@ -1571,7 +1578,7 @@ class Object3d(object):
 
         Returns
         -------
-        pyaedt.modeler.object3d.Object3d
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
 
         References
@@ -1634,7 +1641,7 @@ class Object3d(object):
 
         Returns
         -------
-        pyaedt.modeler.object3d.Object3d
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             Swept object.
 
         References
@@ -1663,7 +1670,7 @@ class Object3d(object):
 
         Returns
         -------
-        pyaedt.modeler.object3d.Object3d
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             Swept object.
 
         References
@@ -1690,7 +1697,7 @@ class Object3d(object):
 
         Returns
         -------
-        pyaedt.modeler.object3d.Object3d
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
 
         References
@@ -1708,7 +1715,7 @@ class Object3d(object):
 
         Returns
         -------
-        pyaedt.modeler.object3d.Object3d
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object that was added.
 
         References
@@ -1737,7 +1744,7 @@ class Object3d(object):
 
         Returns
         -------
-        pyaedt.modeler.object3d.Object3d
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             Modified 3D object following the subtraction.
 
         References
