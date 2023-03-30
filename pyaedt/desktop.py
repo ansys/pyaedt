@@ -1446,3 +1446,93 @@ class Desktop(object):
             return True
         except:
             return False
+
+    @pyaedt_function_handler()
+    def get_available_toolkits(self):
+        """Get toolkit ready for installation.
+
+        Returns
+        -------
+        list
+            List of toolkit names
+        """
+        from pyaedt.misc.install_extra_toolkits import available_toolkits
+
+        return list(available_toolkits.keys())
+
+    @pyaedt_function_handler()
+    def add_custom_toolkit(self, toolkitname):
+        """Add toolkit to AEDT Automation Tab.
+
+        Parameters
+        ----------
+        toolkitname : str
+            Name of toolkit to add.
+
+        Returns
+        -------
+        bool
+        """
+        from pyaedt.misc.install_extra_toolkits import available_toolkits
+        from pyaedt.misc.install_extra_toolkits import write_toolkit_config
+
+        toolkit = available_toolkits[toolkitname]
+        toolkitname = toolkitname.replace("_", "")
+
+        def install(package):
+            """Install a package
+
+            Parameters
+            ----------
+            package : str
+
+            Returns
+            -------
+            bool
+            """
+            command = [sys.executable, "-m", "pip", "install", package, "-U"]
+            p = subprocess.Popen(" ".join(command))
+            p.wait()
+
+        install(toolkit["pip"])
+        import site
+
+        packages = site.getsitepackages()
+        full_path = None
+        for pkg in packages:
+            if os.path.exists(os.path.join(pkg, toolkit["toolkit_script"])):
+                full_path = os.path.join(pkg, toolkit["toolkit_script"])
+                break
+        if not full_path:
+            warnings.warn("Error finding the package")
+        product = toolkit["installation_path"]
+        toolkit_dir = os.path.join(self.personallib, "Toolkits")
+        aedt_version = self.aedt_version_id
+        tool_dir = os.path.join(toolkit_dir, product, toolkitname)
+        lib_dir = os.path.join(tool_dir, "Lib")
+        toolkit_rel_lib_dir = os.path.relpath(lib_dir, tool_dir)
+        if is_linux and aedt_version <= "2023.1":
+            toolkit_rel_lib_dir = os.path.join("Lib", toolkitname)
+            lib_dir = os.path.join(toolkit_dir, toolkit_rel_lib_dir)
+            toolkit_rel_lib_dir = "../../" + toolkit_rel_lib_dir
+            tool_dir = os.path.join(toolkit_dir, product, toolkitname)
+        os.makedirs(lib_dir, exist_ok=True)
+        os.makedirs(tool_dir, exist_ok=True)
+        files_to_copy = ["Run_PyAEDT_Toolkit_Script"]
+        executable_version_agnostic = sys.executable
+        for file_name in files_to_copy:
+            with open(os.path.join(pathname, "misc", file_name + ".py_build"), "r") as build_file:
+                file_name_dest = file_name.replace("_", " ") + ".py"
+                with open(os.path.join(tool_dir, file_name_dest), "w") as out_file:
+                    self.logger.info("Building to " + os.path.join(tool_dir, file_name_dest))
+                    build_file_data = build_file.read()
+                    build_file_data = (
+                        build_file_data.replace("##TOOLKIT_REL_LIB_DIR##", toolkit_rel_lib_dir)
+                        .replace("##PYTHON_EXE##", executable_version_agnostic)
+                        .replace("##PYTHON_SCRIPT##", full_path)
+                    )
+                    build_file_data = build_file_data.replace(" % version", "")
+                    out_file.write(build_file_data)
+        if aedt_version >= "2023.2":
+            write_toolkit_config(os.path.join(toolkit_dir, product), lib_dir, toolkitname, toolkit=toolkit)
+        self.logger.info("Toolkit installed")
