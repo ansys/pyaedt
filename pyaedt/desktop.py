@@ -1454,7 +1454,7 @@ class Desktop(object):
         Returns
         -------
         list
-            List of toolkit names
+            List of toolkit names.
         """
         from pyaedt.misc.install_extra_toolkits import available_toolkits
 
