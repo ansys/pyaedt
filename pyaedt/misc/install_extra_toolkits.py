@@ -14,7 +14,14 @@ available_toolkits = {
         "toolkit_script": "ansys/aedt/toolkits/antennas/antenna_toolkit.py",
         "installation_path": "HFSS",
         "package_name": "ansys.aedt.toolkits.antennas",
-    }
+    },
+    "ChokeWizard": {
+        "pip": "git+https://github.com/pyansys/pyaedt-choke-toolkit.git",
+        "image": "pyansys.png",
+        "toolkit_script": "ansys/aedt/toolkits/choke/choke_toolkit.py",
+        "installation_path": "Project",
+        "package_name": "ansys.aedt.toolkits.choke",
+    },
 }
 
 
@@ -39,6 +46,8 @@ def write_toolkit_config(product_toolkit_dir, pyaedt_lib_dir, toolkitname, toolk
             panel = [panel for panel in panels if panel.attrib["label"] == "Panel_PyAEDT_Toolkits"][0]
         else:
             panel = ET.SubElement(root, "panel", label="Panel_PyAEDT_Toolkits")
+    else:
+        panel = ET.SubElement(root, "panel", label="Panel_PyAEDT_Toolkits")
 
     # Write a new "Panel_PyAEDT" sub-element.
     image_rel_path = os.path.relpath(pyaedt_lib_dir, product_toolkit_dir).replace("\\", "/") + "/"

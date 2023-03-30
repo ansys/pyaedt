@@ -1516,7 +1516,6 @@ class Desktop(object):
             toolkit_rel_lib_dir = os.path.join("Lib", toolkitname)
             lib_dir = os.path.join(toolkit_dir, toolkit_rel_lib_dir)
             toolkit_rel_lib_dir = "../../" + toolkit_rel_lib_dir
-            tool_dir = os.path.join(toolkit_dir, product, toolkitname)
         os.makedirs(lib_dir, exist_ok=True)
         os.makedirs(tool_dir, exist_ok=True)
         files_to_copy = ["Run_PyAEDT_Toolkit_Script"]
