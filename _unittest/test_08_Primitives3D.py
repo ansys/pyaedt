@@ -644,8 +644,8 @@ class TestClass(BasisTest, object):
         )
         try:
             prim3D.create_polyline(position_list=test_points[0:3], segment_type="Spline", name="PL03_spline_str_3pt")
-        except TypeError as e:
-            assert str(e) == 'segment must be either "Line", "Arc" or PolylineSegment object'
+        except ValueError as e:
+            assert str(e) == "The position_list argument must contain at least 4 points for segment of type Spline."
         else:
             assert False
         assert prim3D.create_polyline(
