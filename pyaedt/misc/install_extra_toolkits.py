@@ -49,10 +49,7 @@ def write_toolkit_config(product_toolkit_dir, pyaedt_lib_dir, toolkitname, toolk
     else:
         panel = ET.SubElement(root, "panel", label="Panel_PyAEDT_Toolkits")
 
-    # Write a new "Panel_PyAEDT" sub-element.
-    image_rel_path = os.path.relpath(pyaedt_lib_dir, product_toolkit_dir).replace("\\", "/") + "/"
-    if image_rel_path == "./":
-        image_rel_path = ""
+    # Write a new "Panel_PyAEDT_Toolkits" sub-element.
     image_rel_path = os.path.relpath(pyaedt_lib_dir, product_toolkit_dir).replace("\\", "/") + "/"
     if image_rel_path == "./":
         image_rel_path = ""
