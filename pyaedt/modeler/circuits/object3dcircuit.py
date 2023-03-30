@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-import math
 from collections import OrderedDict
+import math
 
 from pyaedt import _retry_ntimes
 from pyaedt import pyaedt_function_handler
@@ -744,11 +744,17 @@ class CircuitComponent(object):
             for p, v in zip(property_name, property_value):
                 v_prop = ["NAME:" + p, "Value:=", v]
                 self.change_property(v_prop)
-                self.__dict__[p] = v
+                if self.__dict__.get("_parameters", None) and p in self.__dict__["_parameters"]:
+                    self.__dict__["_parameters"][p] = v
+                else:
+                    self.__dict__[p] = v
         else:
             v_prop = ["NAME:" + property_name, "Value:=", property_value]
             self.change_property(v_prop)
-            self.__dict__[property_name] = property_value
+            if self.__dict__.get("_parameters", None) and property_name in self.__dict__["_parameters"]:
+                self.__dict__["_parameters"][property_name] = property_value
+            else:
+                self.__dict__[property_name] = property_value
         return True
 
     @pyaedt_function_handler()

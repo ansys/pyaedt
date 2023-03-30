@@ -25,10 +25,10 @@ non_graphical = False
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2022 R2 in graphical mode.
+# Launch AEDT 2023 R1 in graphical mode.
 
 m3d = Maxwell3d(projectname=generate_unique_project_name(),
-                specified_version="2022.2",
+                specified_version="2023.1",
                 new_desktop_session=True,
                 non_graphical=non_graphical)
 
@@ -66,7 +66,7 @@ m3d.plot(show=False, export_path=os.path.join(m3d.working_directory, "Image.jpg"
 # ~~~~~~~~~~~
 # Solve the setup.
 
-m3d.analyze_nominal()
+m3d.analyze()
 
 ###############################################################################
 # Compute mass center

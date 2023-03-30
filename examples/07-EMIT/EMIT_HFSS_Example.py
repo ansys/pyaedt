@@ -15,6 +15,7 @@ import os
 # Import required modules
 import pyaedt
 from pyaedt.generic.filesystem import Scratch
+import pyaedt.emit_core.EmitConstants as econsts
 
 ###############################################################################
 ## Set non-graphical mode
@@ -25,11 +26,11 @@ from pyaedt.generic.filesystem import Scratch
 # The Boolean parameter ``new_thread`` defines whether to create a new instance
 # of AEDT or try to connect to an existing instance of it.
 # 
-# The following code uses AEDT 2022 R2.
+# The following code uses AEDT 2023 R1.
 
 non_graphical = False
 NewThread = True
-desktop_version = "2022.2"
+desktop_version = "2023.1"
 scratch_path = pyaedt.generate_unique_folder_name()
 
 ###############################################################################
@@ -107,15 +108,15 @@ for link in aedtapp.couplings.coupling_names:
 # This part of the example requires Ansys AEDT 2023 R2. 
 
 if desktop_version > "2023.1":
-    rev = aedtapp.analyze()
-    modeRx = aedtapp.tx_rx_mode().rx
-    modeTx = aedtapp.tx_rx_mode().tx
-    modeEmi = aedtapp.result_type().emi
-    rx_bands = aedtapp.results.get_band_names(rad1.name, modeRx) 
-    tx_bands = aedtapp.results.get_band_names(rad2.name, modeTx) 
-    domain = aedtapp.interaction_domain()
+    rev = aedtapp.results.analyze()
+    modeRx = econsts.tx_rx_mode().rx
+    modeTx = econsts.tx_rx_mode().tx
+    modeEmi = econsts.result_type().emi
+    rx_bands = rev.get_band_names(rad1.name, modeRx) 
+    tx_bands = rev.get_band_names(rad2.name, modeTx) 
+    domain = aedtapp.results.interaction_domain()
     domain.set_receiver(rad1.name, rx_bands[0], -1)
-    domain.set_interferers([rad2.name],[tx_bands[0]],[-1])
+    domain.set_interferer([rad2.name],[tx_bands[0]],[-1])
     interaction = rev.run(domain)
     worst = interaction.get_worst_instance(modeEmi)
     if worst.has_valid_values():

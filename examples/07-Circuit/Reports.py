@@ -21,9 +21,9 @@ project_path = pyaedt.downloads.download_custom_reports(temp_folder)
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2022 R2 in graphical mode. This example uses SI units.
+# Launch AEDT 2023 R1 in graphical mode. This example uses SI units.
 
-desktopVersion = "2022.2"
+desktopVersion = "2023.1"
 
 ##########################################################
 # Set non-graphical mode
@@ -55,7 +55,7 @@ cir = pyaedt.Circuit(projectname=os.path.join(project_path, 'CISPR25_Radiated_Em
 # or a fully customized one. The following code creates a simple setup and changes
 # the JSON file to customize it. In a spectrum report, you can add limitilines and
 # notes and edit axes, the grid, and the legend. You can create custom reports
-# in non-graphical mode in AEDT 2022 R2 and later.
+# in non-graphical mode in AEDT 2023 R1 and later.
 
 report1 = cir.post.create_report_from_configuration(os.path.join(project_path,'Spectrum_CISPR_Basic.json'))
 
@@ -68,7 +68,7 @@ if not non_graphical:
 # Create a transient report. You can read and modify the JSON file
 # before running the script. The following code modifies the traces
 # before generating the report. You can create custom reports in non-graphical
-# mode in AEDT 2022 R2 and later.
+# mode in AEDT 2023 R1 and later.
 
 if non_graphical:
     props = pyaedt.data_handler.json_to_dict(os.path.join(project_path, 'Transient_CISPR_Basic.json'))
@@ -85,7 +85,7 @@ report3 = cir.post.create_report_from_configuration(input_dict=props, solution_n
 # ~~~~~~~~~~~~~~~~~~
 # Create an eye diagram. If the JSON file contains an eye mask, you can create
 # an eye diagram and fully customize it. You can create custom reports in
-# non-graphical mode in AEDT 2022 R2 and later.
+# non-graphical mode in AEDT 2023 R1 and later.
 
 report4 = cir.post.create_report_from_configuration(os.path.join(project_path, 'EyeDiagram_CISPR_Basic.json'))
 
@@ -94,6 +94,10 @@ if not non_graphical:
 
 if not non_graphical:
     cir.post.export_report_to_jpg(cir.working_directory, report4.plot_name)
+
+################################################
+# This is how the spectrum looks like
+# .. image:: Resources/spectrum_plot.png
 
 ###############################################################################
 # Save project and close AEDT

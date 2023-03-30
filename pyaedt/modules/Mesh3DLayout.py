@@ -32,6 +32,7 @@ class Mesh3DOperation(PropsManager, object):
     """
 
     def __init__(self, app, hfss_setup_name, name, props):
+        self.auto_update = True
         self._mesh3dlayout = app
         self.name = name
         self.props = MeshProps(self, props)
@@ -77,7 +78,7 @@ class Mesh3DOperation(PropsManager, object):
         return True
 
     @pyaedt_function_handler()
-    def update(self):
+    def update(self, *args, **kwargs):
         """Update the mesh.
 
         Returns
@@ -132,7 +133,7 @@ class Mesh3d(object):
 
         self.logger = self._app.logger
         self._odesign = self._app._odesign
-        self.modeler = self._app._modeler
+        self.modeler = self._app.modeler
         self.id = 0
 
         self.meshoperations = self._get_design_mesh_operations()

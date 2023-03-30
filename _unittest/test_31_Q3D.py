@@ -3,6 +3,7 @@ import os
 from _unittest.conftest import BasisTest
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
+
 from pyaedt import Q3d
 
 test_project_name = "coax_Q3D"
@@ -58,6 +59,24 @@ class TestClass(BasisTest, object):
 
         # Create a discrete sweep with the same name of an existing sweep is not possible.
         assert not self.aedtapp.create_discrete_sweep(mysetup.name, sweepname="mysweep", freqstart=1, units="GHz")
+        assert mysetup.create_linear_step_sweep(
+            sweepname="StepFast",
+            unit="GHz",
+            freqstart=1,
+            freqstop=20,
+            step_size=0.1,
+            sweep_type="Interpolating",
+        )
+        assert mysetup.create_single_point_sweep(
+            save_fields=True,
+        )
+        assert mysetup.create_frequency_sweep(
+            unit="GHz",
+            sweepname="Sweep1",
+            freqstart=9.5,
+            freqstop=10.5,
+            sweep_type="Interpolating",
+        )
 
     def test_06b_create_setup(self):
         mysetup = self.aedtapp.create_setup()
@@ -249,7 +268,7 @@ class TestClass(BasisTest, object):
         q3d.insert_reduced_matrix("FloatInfinity", None, "JointTest3")
         q3d.matrices[3].name == "JointTest3"
         sweep = q3d.setups[0].add_sweep()
-        q3d.analyze_setup(q3d.analysis_setup)
+        q3d.analyze_setup(q3d.active_setup)
         assert len(sweep.frequencies) > 0
         assert sweep.basis_frequencies == []
         assert q3d.export_matrix_data(os.path.join(self.local_scratch.path, "test.txt"))
@@ -338,15 +357,36 @@ class TestClass(BasisTest, object):
     def test_14_export_equivalent_circuit(self):
         q3d = Q3d(self.test_matrix, specified_version=desktop_version)
         q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest")
-        q3d.matrices[1].name == "JointTest"
-        q3d.analyze_setup(q3d.analysis_setup)
-        assert q3d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.cir"))
+        assert q3d.matrices[1].name == "JointTest"
+        q3d["d"] = "10mm"
+        q3d.modeler.duplicate_along_line(objid="Box1", vector=[0, "d", 0])
+        q3d.analyze_setup(q3d.active_setup)
+        assert q3d.export_equivalent_circuit(
+            os.path.join(self.local_scratch.path, "test_export_circuit.cir"), variations=["d: 10mm"]
+        )
         assert not q3d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.doc"))
+        q3d["d"] = "20mm"
+        assert not q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            setup_name="Setup1",
+            sweep="LastAdaptive",
+            variations=["d: 10mm", "d: 20mm"],
+        )
+        q3d.analyze_setup(q3d.active_setup)
         assert q3d.export_equivalent_circuit(
             file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
             setup_name="Setup1",
             sweep="LastAdaptive",
+            variations=["d: 10mm", "d: 20mm"],
         )
+
+        assert not q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            setup_name="Setup1",
+            sweep="LastAdaptive",
+            variations=["c: 10mm", "d: 20mm"],
+        )
+
         assert not q3d.export_equivalent_circuit(
             file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), setup_name="Setup2"
         )
@@ -398,7 +438,7 @@ class TestClass(BasisTest, object):
         exported_files = q3d.export_results()
         assert len(exported_files) > 0
         q3d.setups[0].add_sweep()
-        q3d.analyze_setup(q3d.analysis_setup)
+        q3d.analyze_setup(q3d.active_setup)
         exported_files = q3d.export_results()
         assert len(exported_files) > 0
         q3d.close_project(q3d.project_name, save_project=False)

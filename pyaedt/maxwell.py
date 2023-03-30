@@ -2,22 +2,22 @@
 
 from __future__ import absolute_import  # noreorder
 
+from collections import OrderedDict
 import io
 import json
 import os
 import re
-from collections import OrderedDict
 
 from pyaedt.application.Analysis3D import FieldAnalysis3D
-from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.DataHandlers import float_units
+from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import MaxwellParameters
-from pyaedt.modules.SolveSweeps import SetupKeys
+from pyaedt.modules.SetupTemplates import SetupKeys
 
 
 class Maxwell(object):
@@ -1222,7 +1222,7 @@ class Maxwell(object):
         >>> oModule.ResetSetupToTimeZero
         """
         self.oanalysis.ResetSetupToTimeZero(self._setup)
-        self.analyze_nominal()
+        self.analyze()
         return True
 
     @pyaedt_function_handler()
@@ -2090,8 +2090,8 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Parameters
         ----------
-        geometry_selection : str
-            Objects to apply the insulating boundary to.
+        geometry_selection : str or int
+            Objects or faces to apply the insulating boundary to.
         insulation_name : str, optional
             Name of the insulation. The default is ``None`` in which case a unique name is chosen.
 
@@ -2113,8 +2113,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         >>> insulated_box = maxwell3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="InsulatedBox")
         >>> insulating_assignment = maxwell3d_app.assign_insulating(insulated_box, "InsulatingExample")
         >>> type(insulating_assignment)
-        <class 'pyaedt.modules.Boundary.BoundaryObject'>
-
         """
 
         if self.solution_type in [
@@ -2130,7 +2128,12 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                 insulation_name = generate_unique_name(insulation_name)
 
             listobj = self.modeler.convert_to_selections(geometry_selection, True)
-            props = {"Objects": listobj}
+            props = {"Objects": [], "Faces": []}
+            for sel in listobj:
+                if isinstance(sel, str):
+                    props["Objects"].append(sel)
+                elif isinstance(sel, int):
+                    props["Faces"].append(sel)
 
             return self._create_boundary(insulation_name, props, "Insulating")
         return False
@@ -2591,9 +2594,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     @model_depth.setter
     def model_depth(self, value):
         """Set model depth."""
-        return self.change_design_settings(
-            {"ModelDepth": self._modeler._arg_with_dim(value, self._modeler.model_units)}
-        )
+        return self.change_design_settings({"ModelDepth": self.modeler._arg_with_dim(value, self.modeler.model_units)})
 
     @pyaedt_function_handler()
     def generate_design_data(self, linefilter=None, objectfilter=None):

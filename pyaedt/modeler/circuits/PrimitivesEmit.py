@@ -1,7 +1,7 @@
 from collections import defaultdict
 
-import pyaedt.generic.constants as consts
 from pyaedt.emit_core import EmitConstants as emit_consts
+import pyaedt.generic.constants as consts
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -114,7 +114,7 @@ class EmitComponents(object):
         self.modeler = modeler
         self._currentId = 0
         self.components = defaultdict(EmitComponent)
-        pass
+        self.refresh_all_ids()
 
     @pyaedt_function_handler()
     def create_component(self, component_type, name=None, library=None):
@@ -405,7 +405,7 @@ class EmitComponent(object):
         """
         wire_name = self.oeditor.GetWireAtPort(self.name, port_name)
         wire_connections = self.oeditor.GetWireConnections(wire_name)
-        # One end of the wire will be this componenent. The other end will be
+        # One end of the wire will be this component. The other end will be
         # the other component. Return component and port names for the other
         # end.
         for wc_comp_name, wc_port_name in wire_connections:

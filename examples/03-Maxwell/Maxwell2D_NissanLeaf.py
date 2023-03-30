@@ -21,7 +21,7 @@ import pyaedt
 # Initialize Maxwell 2D, providing the version, path to the project, and the design
 # name and type.
 
-desktopVersion = "2022.2"
+desktopVersion = "2023.1"
 
 sName = "MySetupAuto"
 sType = "TransientXY"

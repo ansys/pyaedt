@@ -9,7 +9,7 @@ basic support for EDB and Circuit (Nexxim).
 Requirements
 ~~~~~~~~~~~~
 In addition to the runtime dependencies listed in the installation information, PyAEDT
-requires Ansys Electronics Desktop (AEDT) 2021 R2 or later. The AEDT Student Version is also supported.
+requires Ansys Electronics Desktop (AEDT) 2022 R1 or later. The AEDT Student Version is also supported.
 
 
 
@@ -44,13 +44,14 @@ Install offline from a wheelhouse
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Using a wheelhouse can be helpful if you work for a company that restricts access to external networks.
 Wheelhouses for CPython 3.7, 3.8, and 3.9 are available in the releases for PyAEDT v0.4.70
-and later for both Windows and Linux.
-You can install PyAEDT and all of its dependencies from one single entry point that can be shared internally,
+and later for both Windows and Linux. From the `Releases <https://github.com/pyansys/pyaedt/releases>`_
+page in the PyAEDT repository, you can find the wheelhouses for a particular release in its
+assets and download the wheelhouse specific to your setup.
+
+You can then install PyAEDT and all of its dependencies from one single entry point that can be shared internally,
 which eases the security review of the PyAEDT package content.
-`WheelHouse releases <https://github.com/pyansys/pyaedt/releases>`
 
-
-For example, here is a command for installing the PyAEDT package and all its dependencies from a wheelhouse:
+For example, on Windows with Python 3.7, install PyAEDT and all its dependencies from a wheelhouse with code like this:
 
 .. code::
 
@@ -136,3 +137,33 @@ To use IronPython in AEDT:
 .. code::
 
     ipy64 setup-distutils.py install --user
+
+
+Install PyAEDT in Conda virtual environment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Create virtual environment
+
+.. code:: bash
+
+    conda create --name pyaedt_py310 python=3.10
+
+Activate virtual environment
+
+.. code:: bash
+
+    conda activate pyaedt_py310
+
+Install required packages.
+
+Download `requirements.txt <https://github.com/pyansys/pyaedt/blob/main/requirements/requirements.txt>`_
+
+.. code:: bash
+
+    pip install -r requirements.txt
+
+Upgrade PyAEDT to the latest version
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code:: bash
+
+    pip install -U pyaedt

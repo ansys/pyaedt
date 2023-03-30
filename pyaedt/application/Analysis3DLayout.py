@@ -4,15 +4,8 @@ import warnings
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.modelerpcb import Modeler3DLayout
-from pyaedt.modules.Mesh3DLayout import Mesh3d
+from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SolveSetup import Setup3DLayout
-from pyaedt.modules.SolveSweeps import SetupKeys
-
-if is_ironpython:
-    from pyaedt.modules.PostProcessor import PostProcessor
-else:
-    from pyaedt.modules.AdvancedPostProcessing import PostProcessor
 
 
 class FieldAnalysis3DLayout(Analysis):
@@ -95,11 +88,27 @@ class FieldAnalysis3DLayout(Analysis):
             aedt_process_id,
         )
         self.logger.info("Analysis Loaded")
-        self._modeler = Modeler3DLayout(self)
+        self._modeler = None
         self.logger.info("Modeler Loaded")
-        self._mesh = Mesh3d(self)
-        self._post = PostProcessor(self)
-        # self._post = PostProcessor(self)
+        self._mesh = None
+        self._post = None
+
+    @property
+    def post(self):
+        """PostProcessor.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.AdvancedPostProcessing.PostProcessor`
+            PostProcessor object.
+        """
+        if self._post is None:
+            if is_ironpython:  # pragma: no cover
+                from pyaedt.modules.PostProcessor import PostProcessor
+            else:
+                from pyaedt.modules.AdvancedPostProcessing import PostProcessor
+            self._post = PostProcessor(self)
+        return self._post
 
     @property
     def mesh(self):
@@ -109,6 +118,10 @@ class FieldAnalysis3DLayout(Analysis):
         -------
         :class:`pyaedt.modules.Mesh3DLayout.Mesh3d`
         """
+        if self._mesh is None:
+            from pyaedt.modules.Mesh3DLayout import Mesh3d
+
+            self._mesh = Mesh3d(self)
         return self._mesh
 
     @property
@@ -353,7 +366,16 @@ class FieldAnalysis3DLayout(Analysis):
 
     @property
     def modeler(self):
-        """Modeler object."""
+        """Modeler object.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.modelerpcb.Modeler3DLayout`
+        """
+        if self._modeler is None:
+            from pyaedt.modeler.modelerpcb import Modeler3DLayout
+
+            self._modeler = Modeler3DLayout(self)
         return self._modeler
 
     @property
@@ -380,8 +402,10 @@ class FieldAnalysis3DLayout(Analysis):
 
         >>> oModule.GetSetups
         """
-        setups = list(self.oanalysis.GetSetups())
-        return setups
+        setups = self.oanalysis.GetSetups()
+        if setups:
+            return list(setups)
+        return []
 
     @pyaedt_function_handler()
     def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
@@ -461,7 +485,7 @@ class FieldAnalysis3DLayout(Analysis):
             if setupname == setup.name:
                 return setup
         setup = Setup3DLayout(self, setuptype, setupname, isnewsetup=False)
-        self.analysis_setup = setupname
+        self.active_setup = setupname
         return setup
 
     @pyaedt_function_handler()

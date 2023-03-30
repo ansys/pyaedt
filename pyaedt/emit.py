@@ -1,16 +1,19 @@
 from __future__ import absolute_import
 
+import sys
 import warnings
 
 from pyaedt import generate_unique_project_name
-from pyaedt.application.AnalysisEmit import FieldAnalysisEmit
+from pyaedt.application.Design import Design
 from pyaedt.emit_core import EMIT_MODULE
 from pyaedt.emit_core import EmitConstants
+from pyaedt.emit_core.Couplings import CouplingsEmit
 from pyaedt.emit_core.results.results import Results
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler.schematic import ModelerEmit
 
 
-class Emit(FieldAnalysisEmit, object):
+class Emit(Design, object):
     """Provides the Emit application interface.
 
     Parameters
@@ -117,23 +120,9 @@ class Emit(FieldAnalysisEmit, object):
         if projectname is None:
             projectname = generate_unique_project_name()
         self.__emit_api_enabled = False
+        self.results = None
         """Constructor for the ``FieldAnalysisEmit`` class"""
-        FieldAnalysisEmit.__init__(
-            self,
-            "EMIT",
-            projectname,
-            designname,
-            solution_type,
-            setup_name,
-            specified_version,
-            non_graphical,
-            new_desktop_session,
-            close_on_exit,
-            student_version,
-            machine=machine,
-            port=port,
-            aedt_process_id=aedt_process_id,
-        )
+
         self._units = {
             "Power": "dBm",
             "Frequency": "MHz",
@@ -145,7 +134,24 @@ class Emit(FieldAnalysisEmit, object):
         }
         """Default Emit units."""
 
-        if self._aedt_version >= "2023.1":
+        Design.__init__(
+            self,
+            "EMIT",
+            projectname,
+            designname,
+            solution_type,
+            specified_version,
+            non_graphical,
+            new_desktop_session,
+            close_on_exit,
+            student_version,
+            machine=machine,
+            port=port,
+            aedt_process_id=aedt_process_id,
+        )
+        self._modeler = ModelerEmit(self)
+        self._couplings = CouplingsEmit(self)
+        if self._aedt_version >= "2023.1" and sys.version_info.major == 3 and sys.version_info.minor == 7:
             self._emit_api = EMIT_MODULE.EmitApi()
             """Instance of the Emit api."""
 
@@ -153,6 +159,28 @@ class Emit(FieldAnalysisEmit, object):
             """''Result'' object for the selected design."""
 
             self.__emit_api_enabled = True
+
+    @property
+    def modeler(self):
+        """Modeler.
+
+        Returns
+        -------
+        pyaedt.modeler.schematic.ModelerEmit
+            Design oModeler
+        """
+        return self._modeler
+
+    @property
+    def couplings(self):
+        """Emit Couplings.
+
+        Returns
+        -------
+        pyaedt.emit_core.Couplings.CouplingsEmit
+            Couplings within the EMIT Design
+        """
+        return self._couplings
 
     @pyaedt_function_handler()
     def __enter__(self):

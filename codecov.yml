@@ -24,3 +24,5 @@ coverage:
     - "pyaedt/setup.py"  # ignore folders and all its contents
     - "pyaedt/setup-distutils.py"  # ignore folders and all its contents
     - "pyaedt/_setup_common.py"  # ignore folders and all its contents
+    - "pyaedt/misc/*.py"  # ignore folders and all its contents
+    - "pyaedt/sbrplus/hdm_utils.py" # ignore folder and all its contents

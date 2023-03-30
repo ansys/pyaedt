@@ -1,6 +1,7 @@
 # Setup paths for module imports
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
+
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.modeler.cad.Modeler import FaceCoordinateSystem
 from pyaedt.modeler.cad.Primitives import PolylineSegment
@@ -135,8 +136,18 @@ class TestClass(BasisTest, object):
             self.aedtapp.PLANE.XY,
         )
 
-    def test_12_separate_Bodies(self):
-        assert self.aedtapp.modeler.separate_bodies("Poly1")
+    def test_12_separate_bodies(self):
+        self.aedtapp.modeler.create_cylinder(
+            cs_axis="Z", position=[0, -20, 15], radius=40, height=20, name="SearchCoil", matname="copper"
+        )
+        self.aedtapp.modeler.create_cylinder(
+            cs_axis="Z", position=[0, -20, 15], radius=20, height=20, name="Bore", matname="copper"
+        )
+        self.aedtapp.modeler.subtract("SearchCoil", "Bore", keep_originals=False)
+        self.aedtapp.modeler.section("SearchCoil", "YZ")
+        object_list = self.aedtapp.modeler.separate_bodies("SearchCoil_Section1")
+        assert isinstance(object_list, list)
+        assert len(object_list) == 2
 
     def test_13_rotate(self):
         assert self.aedtapp.modeler.rotate("Poly1", self.aedtapp.AXIS.X, 30)
@@ -179,7 +190,10 @@ class TestClass(BasisTest, object):
         id1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, udp, [5, 10])
         udp = self.aedtapp.modeler.Position(0, 0, 10)
         id2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, udp, [-3, 10])
-        assert self.aedtapp.modeler.connect([id1, id2])
+        objects_after_connection = self.aedtapp.modeler.connect([id1, id2])
+        assert isinstance(objects_after_connection, list)
+        assert id1.name == objects_after_connection[0].name
+        assert len(objects_after_connection) == 1
 
     def test_22_translate(self):
         udp = [0, 0, 0]
@@ -533,9 +547,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.modeler.set_working_coordinate_system("Global")
         first_points = [[1.0, 1.0, 0], [1.0, 2.0, 1.0], [1.0, 3.0, 1.0]]
         first_line = self.aedtapp.modeler.create_polyline([[0.0, 0.0, 0.0], first_points[0]])
-        assert first_line.insert_segment(
-            position_list=first_points, segment=PolylineSegment("Spline", num_points=3), segment_number=3
-        )
+        assert first_line.insert_segment(position_list=first_points, segment=PolylineSegment("Spline", num_points=3))
 
         assert (
             self.aedtapp.get_oo_property_value(
@@ -558,14 +570,11 @@ class TestClass(BasisTest, object):
 
         second_points = [[3.0, 2.0, 0], [3.0, 3.0, 1.0], [3.0, 4.0, 1.0]]
         second_line = self.aedtapp.modeler.create_polyline([[0, 0, 0], second_points[0]])
-        assert second_line.insert_segment(
-            position_list=second_points, segment=PolylineSegment("Spline", num_points=3), segment_number=5
-        )
+        assert second_line.insert_segment(position_list=second_points, segment=PolylineSegment("Spline", num_points=3))
 
         assert second_line.insert_segment(
             position_list=[[-3.0, 4.0, 1.0], [-3.0, 5.0, 3.0], [-3.0, 6.0, 1.0], [-3.0, 7.0, 2.0], [0, 0, 0]],
             segment=PolylineSegment("Spline", num_points=5),
-            segment_number=3,
         )
 
         assert (
@@ -610,13 +619,13 @@ class TestClass(BasisTest, object):
             self.aedtapp.get_oo_property_value(
                 self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment0", "Number of segments"
             )
-            == "3"
+            == "0"
         )
         assert (
             self.aedtapp.get_oo_property_value(
                 self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment2", "Number of segments"
             )
-            == "5"
+            == "0"
         )
 
     def test_50_move_edge(self):
@@ -640,7 +649,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.imprint_vector_projection([rect, box1], [3, 2, -5], 1)
 
     def test_52_objects_in_bounding_box(self):
-        bounding_box = [100, 200, 100, -100, -300, -200]
+        bounding_box = [-100, -300, -200, 100, 200, 100]
         objects_in_bounding_box = self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
         assert type(objects_in_bounding_box) is list
 

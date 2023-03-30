@@ -162,11 +162,15 @@ def unit_converter(values, unit_system="Length", input_units="meter", output_uni
         Converted value.
     """
     if unit_system in AEDT_UNITS:
-        if input_units not in AEDT_UNITS[unit_system] or output_units not in AEDT_UNITS[unit_system]:
-            warnings.warn("No units found")
+        if input_units not in AEDT_UNITS[unit_system]:
+            warnings.warn("Unknown units: '{}'".format(input_units))
+            return values
+        elif output_units not in AEDT_UNITS[unit_system]:
+            warnings.warn("Unknown units: '{}'".format(output_units))
             return values
         else:
-            if not isinstance(values, list):
+            input_is_list = isinstance(values, list)
+            if not input_is_list:
                 values = [values]
             converted_values = []
             for value in values:
@@ -191,10 +195,10 @@ def unit_converter(values, unit_system="Length", input_units="meter", output_uni
                     value = AEDT_UNITS[unit_system][output_units](value, True)
 
                 converted_values.append(value)
-            if len(converted_values) == 1:
-                return converted_values[0]
-            else:
+            if input_is_list:
                 return converted_values
+            else:
+                return converted_values[0]
     warnings.warn("No system unit found")
     return values
 
@@ -691,7 +695,7 @@ class BasisOrder(object):
     ``single``.
     """
 
-    (Mixed, Zero, Single, Double, Invalid) = range(0, 5)
+    (Mixed, Zero, Single, Double, Invalid) = (-1, 0, 1, 2, 3)
 
 
 class NodeType(object):

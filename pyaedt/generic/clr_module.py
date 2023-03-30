@@ -6,7 +6,9 @@ import warnings
 modules = [tup[1] for tup in pkgutil.iter_modules()]
 pyaedt_path = os.path.dirname(os.path.dirname(__file__))
 cpython = "IronPython" not in sys.version and ".NETFramework" not in sys.version
-if os.name == "posix" and cpython:  # pragma: no cover
+is_linux = os.name == "posix"
+is_windows = not is_linux
+if is_linux and cpython:  # pragma: no cover
     try:
         if os.environ.get("DOTNET_ROOT") is None:
             try:
@@ -38,7 +40,7 @@ if os.name == "posix" and cpython:  # pragma: no cover
 
 try:  # work around a number formatting bug in the EDB API for non-English locales
     # described in #1980
-    import clr as _clr
+    import clr as _clr  # isort:skip
     from System.Globalization import CultureInfo as _CultureInfo
 
     _CultureInfo.DefaultThreadCurrentCulture = _CultureInfo.InvariantCulture
@@ -53,7 +55,7 @@ try:  # work around a number formatting bug in the EDB API for non-English local
     edb_initialized = True
 
 except ImportError:  # pragma: no cover
-    if os.name != "posix":
+    if is_windows:
         warnings.warn(
             "The clr is missing. Install PythonNET or use an IronPython version if you want to use the EDB module."
         )

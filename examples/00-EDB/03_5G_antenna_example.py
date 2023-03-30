@@ -72,7 +72,7 @@ class LinearArray:
 tmpfold = tempfile.gettempdir()
 aedb_path = os.path.join(tmpfold, pyaedt.generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
-edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2022.2")
+edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.1")
 
 
 ###############################################################################
@@ -207,22 +207,19 @@ port_name = edb.core_padstack.create_coax_port(con_pin)
 edb.core_nets.plot(None)
 
 ###############################################################################
-# Save EDB
+# Save and close Edb instance prior to opening it in Electronics Desktop.
 # ~~~~~~~~
 # Save EDB.
 
-if edb:
-    edb.standalone = False
-    edb.save_edb()
-    edb.close_edb()
+edb.save_edb()
+edb.close_edb()
 print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 ###############################################################################
 # Launch HFSS 3D Layout and open EDB
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch HFSS 3D Layout and open EDB.
 
-project = os.path.join(aedb_path, "edb.def")
-h3d = pyaedt.Hfss3dLayout(projectname=project, specified_version="2022.2", new_desktop_session=True,
+h3d = pyaedt.Hfss3dLayout(projectname=aedb_path, specified_version="2023.1", new_desktop_session=True,
                           non_graphical=non_graphical)
 
 ###############################################################################
@@ -267,7 +264,7 @@ h3d.create_linear_count_sweep(
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Solve the project and create a report.
 
-h3d.analyze_nominal()
+h3d.analyze()
 h3d.post.create_report(["db(S({0},{1}))".format(port_name, port_name)])
 
 

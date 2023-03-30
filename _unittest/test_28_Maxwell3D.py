@@ -7,9 +7,11 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
+
 from pyaedt import Maxwell3d
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_linux
 
 try:
     import pytest
@@ -23,6 +25,7 @@ if config["desktopVersion"] > "2022.2":
 else:
     core_loss_file = "PlanarTransformer"
 transient = "Transient_StrandedWindings"
+cyl_gap = "Motor3D_cyl_gap"
 
 
 class TestClass(BasisTest, object):
@@ -34,6 +37,7 @@ class TestClass(BasisTest, object):
         self.m3dtransient = BasisTest.add_app(
             self, application=Maxwell3d, project_name=transient, subfolder=test_subfolder
         )
+        self.cyl_gap = BasisTest.add_app(self, application=Maxwell3d, project_name=cyl_gap, subfolder=test_subfolder)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -186,11 +190,13 @@ class TestClass(BasisTest, object):
         count = 1
         assert Setup.add_eddy_current_sweep("LinearStep", dc_freq, stop_freq, count, clear=True)
         assert isinstance(Setup.props["SweepRanges"]["Subrange"], dict)
+        assert Setup.props["SaveAllFields"]
         assert Setup.add_eddy_current_sweep("LinearCount", dc_freq, stop_freq, count, clear=False)
         assert isinstance(Setup.props["SweepRanges"]["Subrange"], list)
 
         assert Setup.update()
         assert Setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
+        assert Setup.props["UseCacheFor"] == ["Pass", "Freq"]
         assert Setup.disable()
         assert Setup.enable()
         assert self.aedtapp.setup_ctrlprog(Setup.name)
@@ -208,6 +214,7 @@ class TestClass(BasisTest, object):
             solution=self.aedtapp.existing_analysis_sweeps[0],
         )
 
+    @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
     def test_08_setup_ctrlprog_with_file(self):
         transient_setup = self.aedtapp.create_setup()
         transient_setup.props["MaximumPasses"] = 12
@@ -243,6 +250,7 @@ class TestClass(BasisTest, object):
     def test_25_assign_initial_mesh(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(4)
 
+    @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
     def test_26_create_udp(self):
         my_udpPairs = []
         mypair = ["DiaGap", "102mm"]
@@ -352,7 +360,7 @@ class TestClass(BasisTest, object):
         assert int(udp_from_python.bounding_dimension[0]) == 22.0
         assert int(udp_from_python.bounding_dimension[1]) == 22.0
 
-    @pytest.mark.skipif(os.name == "posix", reason="Feature not supported in Linux")
+    @pytest.mark.skipif(is_linux, reason="Feature not supported in Linux")
     def test_27_create_udm(self):
         my_udmPairs = []
         mypair = ["ILD Thickness (ILD)", "0.006mm"]
@@ -548,23 +556,31 @@ class TestClass(BasisTest, object):
         assert insulating_assignment.name == "InsulatingExample"
         insulating_assignment.name = "InsulatingExampleModified"
         assert insulating_assignment.update()
+        insulating_assignment_face = self.aedtapp.assign_insulating(insulated_box.faces[0], "InsulatingExample2")
+        assert insulating_assignment_face.name == "InsulatingExample2"
+        insulating_assignment_comb = self.aedtapp.assign_insulating(
+            [insulated_box.name, insulated_box.faces[0]], "InsulatingExample3"
+        )
+        assert insulating_assignment_comb.name == "InsulatingExample3"
 
     def test_38_assign_current_density(self):
         design_to_activate = [x for x in self.aedtapp.design_list if x.startswith("Maxwell")]
         self.aedtapp.set_active_design(design_to_activate[0])
-        assert self.aedtapp.assign_current_density("Inductor", "CurrentDensity_1")
+        current_box = self.aedtapp.modeler.create_box([50, 0, 50], [294, 294, 19], name="current_box")
+        current_box2 = self.aedtapp.modeler.create_box([50, 0, 50], [294, 294, 19], name="current_box2")
+        assert self.aedtapp.assign_current_density("current_box", "CurrentDensity_1")
         assert self.aedtapp.assign_current_density(
-            "Inductor", "CurrentDensity_2", "40deg", current_density_x="3", current_density_y="4"
+            "current_box", "CurrentDensity_2", "40deg", current_density_x="3", current_density_y="4"
         )
-        assert self.aedtapp.assign_current_density(["Inductor", "Paddle"], "CurrentDensity_3")
+        assert self.aedtapp.assign_current_density(["current_box", "current_box2"], "CurrentDensity_3")
         assert not self.aedtapp.assign_current_density(
-            "Inductor", "CurrentDensity_4", coordinate_system_cartesian="test"
+            "current_box", "CurrentDensity_4", coordinate_system_cartesian="test"
         )
-        assert not self.aedtapp.assign_current_density("Inductor", "CurrentDensity_5", phase="5ang")
+        assert not self.aedtapp.assign_current_density("current_box", "CurrentDensity_5", phase="5ang")
         for bound in self.aedtapp.boundaries:
             if bound.type == "CurrentDensity":
                 if bound.name == "CurrentDensity_1":
-                    assert bound.props["Objects"] == ["Inductor"]
+                    assert bound.props["Objects"] == ["current_box"]
                     assert bound.props["Phase"] == "0deg"
                     assert bound.props["CurrentDensityX"] == "0"
                     assert bound.props["CurrentDensityY"] == "0"
@@ -572,7 +588,7 @@ class TestClass(BasisTest, object):
                     assert bound.props["CoordinateSystem Name"] == "Global"
                     assert bound.props["CoordinateSystem Type"] == "Cartesian"
                 if bound.name == "CurrentDensity_2":
-                    assert bound.props["Objects"] == ["Inductor"]
+                    assert bound.props["Objects"] == ["current_box"]
                     assert bound.props["Phase"] == "40deg"
                     assert bound.props["CurrentDensityX"] == "3"
                     assert bound.props["CurrentDensityY"] == "4"
@@ -580,7 +596,7 @@ class TestClass(BasisTest, object):
                     assert bound.props["CoordinateSystem Name"] == "Global"
                     assert bound.props["CoordinateSystem Type"] == "Cartesian"
                 if bound.name == "CurrentDensity_3":
-                    assert bound.props["Objects"] == ["Inductor", "Paddle"]
+                    assert bound.props["Objects"] == ["current_box", "current_box2"]
                     assert bound.props["Phase"] == "0deg"
                     assert bound.props["CurrentDensityX"] == "0"
                     assert bound.props["CurrentDensityY"] == "0"
@@ -659,7 +675,7 @@ class TestClass(BasisTest, object):
             last_cycles_number=3,
             calculate_force="Harmonic",
         )
-        self.m3dtransient.analyze_nominal()
+        self.m3dtransient.analyze(self.m3dtransient.active_setup)
         assert self.m3dtransient.export_element_based_harmonic_force(
             start_frequency=1, stop_frequency=100, number_of_frequency=None
         )
@@ -778,4 +794,43 @@ class TestClass(BasisTest, object):
         assert not self.aedtapp.simplify_objects(input_objects_list="impedance_box", simplify_type="Invalid")
         assert not self.aedtapp.simplify_objects(
             input_objects_list="impedance_box", simplify_type="Polygon Fit", extrusion_axis="U"
+        )
+
+    def test_49_cylindrical_gap(self):
+        [
+            x.delete()
+            for x in self.cyl_gap.mesh.meshoperations[:]
+            if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
+        ]
+        assert self.cyl_gap.mesh.assign_cylindrical_gap("Band", meshop_name="cyl_gap_test")
+        assert not self.cyl_gap.mesh.assign_cylindrical_gap(["Band", "Inner_Band"])
+        assert not self.cyl_gap.mesh.assign_cylindrical_gap("Band")
+        [
+            x.delete()
+            for x in self.cyl_gap.mesh.meshoperations[:]
+            if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
+        ]
+        assert self.cyl_gap.mesh.assign_cylindrical_gap(
+            "Band", meshop_name="cyl_gap_test", clone_mesh=True, band_mapping_angle=1
+        )
+        [
+            x.delete()
+            for x in self.cyl_gap.mesh.meshoperations[:]
+            if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
+        ]
+        assert self.cyl_gap.mesh.assign_cylindrical_gap("Band", meshop_name="cyl_gap_test", clone_mesh=False)
+        [
+            x.delete()
+            for x in self.cyl_gap.mesh.meshoperations[:]
+            if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
+        ]
+        assert self.cyl_gap.mesh.assign_cylindrical_gap("Band")
+        assert not self.cyl_gap.mesh.assign_cylindrical_gap(
+            "Band", meshop_name="cyl_gap_test", clone_mesh=True, band_mapping_angle=7
+        )
+        assert not self.cyl_gap.mesh.assign_cylindrical_gap(
+            "Band", meshop_name="cyl_gap_test", clone_mesh=True, band_mapping_angle=2, moving_side_layers=0
+        )
+        assert not self.cyl_gap.mesh.assign_cylindrical_gap(
+            "Band", meshop_name="cyl_gap_test", clone_mesh=True, band_mapping_angle=2, static_side_layers=0
         )

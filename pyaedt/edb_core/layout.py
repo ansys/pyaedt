@@ -488,7 +488,7 @@ class EdbLayout(object):
 
         Returns
         -------
-        pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives
+        :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`
         """
         path = self.Shape("Polygon", points=path_list)
         primitive = self._create_path(
@@ -545,7 +545,7 @@ class EdbLayout(object):
             self._logger.error("Null polygon created")
             return False
         else:
-            return polygon
+            return EDBPrimitives(polygon, self._pedb)
 
     @pyaedt_function_handler()
     def create_polygon_from_points(self, point_list, layer_name, net_name=""):
@@ -726,11 +726,11 @@ class EdbLayout(object):
         Parameters
         ----------
         net_name : str, optional
-            Set filter on net_name. Default is `None"`.
+            Set filter on net_name. Default is `None`.
         layer_name : str, optional
-            Set filter on layer_name. Default is `None"`.
+            Set filter on layer_name. Default is `None`.
         prim_type :  str, optional
-            Set filter on primitive type. Default is `None"`.
+            Set filter on primitive type. Default is `None`.
         is_void : bool
             Set filter on is_void. Default is 'False'
         Returns
@@ -1121,8 +1121,8 @@ class EdbLayout(object):
 
         if delete_padstack_gemometries:
             self._logger.info("Deleting Padstack Definitions")
-            for pad in self._pedb.core_padstack.padstacks:
-                p1 = self._pedb.core_padstack.padstacks[pad].edb_padstack.GetData()
+            for pad in self._pedb.core_padstack.definitions:
+                p1 = self._pedb.core_padstack.definitions[pad].edb_padstack.GetData()
                 if len(p1.GetLayerNames()) > 1:
                     self._pedb.core_padstack.remove_pads_from_padstack(pad)
         return True
@@ -1259,7 +1259,7 @@ class EdbLayout(object):
         stat_model.num_nets = len(self._pedb.core_nets.nets)
         stat_model.num_traces = len(self._pedb.core_primitives.paths)
         stat_model.num_polygons = len(self._pedb.core_primitives.polygons)
-        stat_model.num_vias = len(self._pedb.core_padstack.padstack_instances)
+        stat_model.num_vias = len(self._pedb.core_padstack.instances)
         stat_model.stackup_thickness = self._pedb.stackup.get_layout_thickness()
         if evaluate_area:
             if net_list:

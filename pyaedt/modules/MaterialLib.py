@@ -10,6 +10,7 @@ import json
 import math
 import os
 import re
+import sys
 
 from pyaedt import is_ironpython
 from pyaedt import settings
@@ -19,16 +20,10 @@ from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modules.Material import Material
 from pyaedt.modules.Material import MatProperties
+from pyaedt.modules.Material import Material
 from pyaedt.modules.Material import OrderedDict
 from pyaedt.modules.Material import SurfaceMaterial
-
-if not is_ironpython:
-    try:
-        import pandas as pd
-    except ImportError:
-        pd = None
 
 
 class Materials(object):
@@ -66,7 +61,7 @@ class Materials(object):
         return len(self.material_keys)
 
     def __iter__(self):
-        return self.material_keys.itervalues()
+        return iter(self.material_keys.values()) if sys.version_info.major > 2 else self.material_keys.itervalues()
 
     def __getitem__(self, item):
         matobj = self.checkifmaterialexists(item)
@@ -612,6 +607,8 @@ class Materials(object):
     def _load_from_project(self):
         if self.odefinition_manager:
             mats = self.odefinition_manager.GetProjectMaterialNames()
+            if not mats:
+                mats = []
             for el in mats:
                 if el not in list(self.material_keys.keys()):
                     try:
@@ -779,8 +776,10 @@ class Materials(object):
         List of :class:`pyaedt.modules.Material.Material`
 
         """
-        if not pd:
-            self.logger.error("Pandas is needed. Please, install it first.")
+        try:  # pragma: no cover
+            import pandas as pd
+        except ImportError:
+            self.logger.error("Pandas is needed. Install it.")
             return False
         materials_added = []
         props = {}
@@ -809,7 +808,7 @@ class Materials(object):
                     and val[keys.index(prop)]
                     and not (isinstance(val[keys.index(prop)], float) and math.isnan(val[keys.index(prop)]))
                 ):
-                    props[prop] = val[keys.index(prop)]
+                    props[prop] = float(val[keys.index(prop)])
             new_material = Material(self, newname, props)
             new_material.update()
             self.material_keys[newname] = new_material

@@ -4,6 +4,7 @@ import random
 import warnings
 
 from pyaedt.application.Variables import decompose_variable_value
+from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import filter_string
@@ -11,8 +12,6 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import recursive_glob
-from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
-from pyaedt.generic.TouchstoneParser import _parse_ports_name
 from pyaedt.modeler.circuits.object3dcircuit import CircuitComponent
 from pyaedt.modeler.circuits.object3dcircuit import Wire
 
@@ -375,6 +374,27 @@ class CircuitComponents(object):
         >>> oModelManager.Add
         >>> oComponentManager.Add
         """
+
+        def _parse_ports_name(file):
+            """Parse and interpret the option line in the touchstone file
+            Parameters
+            ----------
+            file : str
+                Path of the Touchstone file.
+            Returns
+            -------
+            List of str
+                Names of the ports in the touchstone file.
+            """
+            portnames = []
+            line = file.readline()
+            while not line.startswith("! Port"):
+                line = file.readline()
+            while line.startswith("! Port"):
+                portnames.append(line.split(" = ")[1].strip())
+                line = file.readline()
+            return portnames
+
         if not model_name:
             model_name = os.path.splitext(os.path.basename(touchstone_full_path))[0]
         if model_name in list(self.o_model_manager.GetNames()):
@@ -1118,6 +1138,9 @@ class CircuitComponents(object):
     def arg_with_dim(self, Value, sUnits=None):
         """Format an argument with dimensions.
 
+        .. deprecated:: 0.6.56
+           Use :func:`number_with_units` instead.
+
         Parameters
         ----------
         Value : str
@@ -1131,14 +1154,26 @@ class CircuitComponents(object):
 
 
         """
-        if isinstance(Value, str):
-            val = Value
-        else:
-            if sUnits is None:
-                sUnits = self.model_units
-            val = "{0}{1}".format(Value, sUnits)
+        warnings.warn("Use :func:`number_with_units` instead.", DeprecationWarning)
+        return self._app.number_with_units(Value, sUnits)
 
-        return val
+    @pyaedt_function_handler()
+    def number_with_units(self, value, units=None):
+        """Convert a number to a string with units. If value is a string, it's returned as is.
+
+        Parameters
+        ----------
+        value : float, int, str
+            Input  number or string.
+        units : optional
+            Units for formatting. The default is ``None``, which uses ``"meter"``.
+
+        Returns
+        -------
+        str
+           String concatenating the value and unit.
+        """
+        return self._app.number_with_units(value, units)
 
     @pyaedt_function_handler()
     def create_line(self, points_array, color=0, line_width=0):

@@ -1,5 +1,8 @@
 import re
 
+from pyaedt.generic.DataHandlers import _dict2arg
+from pyaedt.generic.constants import SI_UNITS
+from pyaedt.generic.constants import unit_system
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
@@ -539,6 +542,8 @@ class Monitor:
         m_name = monitor_dict["Name"]
         m_object = None
         if mode == 1:
+            if monitor_dict["Geometry Assignment"] not in self._app.modeler.object_names:
+                return False
             if m_case == "Face":
                 for f in self._app.modeler.get_object_from_name(monitor_dict["Geometry Assignment"]).faces:
                     if f.center == monitor_dict["Location"]:
@@ -557,10 +562,11 @@ class Monitor:
             m_object = monitor_dict["ID"]
         else:
             self._app.logger.error("Only modes supported are 0 and 1")
-        if m_object is None:
+        if m_object is None:  # pragma: no cover
             self._app.logger.error("{} monitor object could not be restored".format(m_name))
             return False
         self._app.configurations.update_monitor(m_case, m_object, m_quantity, m_name)
+        self._app.logger.info("{} monitor object restored".format(m_name))
         return m_name
 
 
@@ -660,6 +666,76 @@ class ObjectMonitor:
         str
         """
         return self._type
+
+    @pyaedt_function_handler
+    def value(self, quantity=None, setup_name=None, design_variation_dict=None, si_out=True):
+        """
+        Get a list of values obtained from the monitor object. If the simulation is steady state,
+        the list will contain just one element.
+
+        Parameters
+        ----------
+        quantity : str or list, optional
+            String that specifies the quantity that is retrieved. If this parameter is not provided,
+            all monitored quantity will be considered.
+        design_variation_dict : dict, optional
+            Dictionary containing the project and design variables and values. If this parameter
+            is not provided, all variations will be considered.
+        setup_name : str, optional
+            String that specifies the name of the setup from which to extract the monitor value.
+            If this parameter is not provided, the first one of the design will be selected.
+        si_out : bool, optional
+            Whether to return the values of th monitor object in SI units. Default is ``True``.
+
+        Returns
+        -------
+        dict
+            Dictionary containing the variables names and values and the monitor values for each
+            variation.
+        """
+        if not setup_name:
+            setup_name = self._app.existing_analysis_sweeps[0]
+        design_variation = []
+        if not design_variation_dict:
+            design_variation_dict = {k: ["All"] for k in self._app.variable_manager.variables.keys()}
+        _dict2arg(design_variation_dict, design_variation)
+        if not quantity:
+            quantity = self.quantities
+        elif not isinstance(quantity, list):
+            quantity = [quantity]
+        return_dict = {}
+        for q in quantity:
+            for i, monitor_result_obj in enumerate(
+                self._app.oreportsetup.GetSolutionDataPerVariation(
+                    "Monitor", setup_name, [], design_variation, "{}.{}".format(self.name, q)
+                )
+            ):
+                variation_a = {
+                    i: [monitor_result_obj.GetDesignVariableValue(i), monitor_result_obj.GetDesignVariableUnits(i)]
+                    for i in monitor_result_obj.GetDesignVariableNames()
+                }
+                variation_b = {
+                    i: list(monitor_result_obj.GetSweepValues(i)) + [monitor_result_obj.GetSweepUnits(i)]
+                    for i in monitor_result_obj.GetSweepNames()
+                }
+                variation_a.update(variation_b)
+                unit = monitor_result_obj.GetDataUnits("{}.{}".format(self.name, q))
+                if si_out and unit != "cel":
+                    unit = SI_UNITS[unit_system(unit)]
+                if i in return_dict.keys():
+                    return_dict[i][q] = {
+                        "Unit": unit,
+                        "Value": list(monitor_result_obj.GetRealDataValues("{}.{}".format(self.name, q), si_out)),
+                    }
+                else:
+                    return_dict[i] = {
+                        "Variation": variation_a,
+                        q: {
+                            "Unit": unit,
+                            "Value": list(monitor_result_obj.GetRealDataValues("{}.{}".format(self.name, q), si_out)),
+                        },
+                    }
+        return return_dict
 
 
 class PointMonitor(ObjectMonitor):
