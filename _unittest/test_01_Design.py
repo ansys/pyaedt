@@ -376,3 +376,7 @@ class TestClass(BasisTest, object):
             hfss = Hfss3dLayout(projectname=file_name3)
         except:
             assert True
+
+    def test_37_add_custom_toolkit(self):
+        desktop = Desktop(desktop_version, new_desktop_session=False)
+        assert desktop.get_available_toolkits()
