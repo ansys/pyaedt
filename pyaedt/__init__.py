@@ -11,7 +11,7 @@ os.environ["ANSYSEM_FEATURE_F395486_RIGID_FLEX_BENDING_ENABLE"] = "1"
 
 pyaedt_path = os.path.dirname(__file__)
 
-__version__ = "0.6.58"
+__version__ = "0.6.59"
 
 version = __version__
 import pyaedt.downloads as downloads
