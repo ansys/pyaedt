@@ -2016,7 +2016,7 @@ class SimulationConfiguration(object):
 
     Activate the loop resistance usage per pin when ``True``
 
-    >>> sim_setup.dc_via_report_path = r"C:\temp\via_report_file"
+    >>> sim_setup.dc_via_report_path = 'C:\\temp\\via_report_file'
 
     Define the via report path file.
 
