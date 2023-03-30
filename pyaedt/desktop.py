@@ -1461,7 +1461,7 @@ class Desktop(object):
         return list(available_toolkits.keys())
 
     @pyaedt_function_handler()
-    def add_custom_toolkit(self, toolkitname):
+    def add_custom_toolkit(self, toolkitname):  # pragma: no cover
         """Add toolkit to AEDT Automation Tab.
 
         Parameters
@@ -1479,22 +1479,23 @@ class Desktop(object):
         toolkit = available_toolkits[toolkitname]
         toolkitname = toolkitname.replace("_", "")
 
-        def install(package):
-            """Install a package
+        def install(package_path, package_name=None):
+            command = [sys.executable, "-m", "pip", "install", "--upgrade", package_path]
+            if package_path.startswith("git") and package_name:
+                command1 = [sys.executable, "-m", "pip", "uninstall", "--yes", package_name]
+                if is_linux:
+                    p = subprocess.Popen(command1)
+                else:
+                    p = subprocess.Popen(" ".join(command1))
+                p.wait()
 
-            Parameters
-            ----------
-            package : str
-
-            Returns
-            -------
-            bool
-            """
-            command = [sys.executable, "-m", "pip", "install", package, "-U"]
-            p = subprocess.Popen(" ".join(command))
+            if is_linux:
+                p = subprocess.Popen(command)
+            else:
+                p = subprocess.Popen(" ".join(command))
             p.wait()
 
-        install(toolkit["pip"])
+        install(toolkit["pip"], toolkit.get("package_name", None))
         import site
 
         packages = site.getsitepackages()

@@ -1,4 +1,3 @@
-from distutils.dir_util import copy_tree
 from glob import glob
 import os
 import random
@@ -117,6 +116,8 @@ class Scratch:
         -------
 
         """
+        from distutils.dir_util import copy_tree
+
         copy_tree(src_folder, destfolder)
         return True
 
