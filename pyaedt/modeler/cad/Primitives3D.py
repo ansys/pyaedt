@@ -2089,6 +2089,7 @@ class Primitives3D(Primitives, object):
         points_list1 = points_list1[::-1]
         import math
 
+        turns = int(turns)
         list_positions = [i for i in points_list1]
         angle = 2 * teta_r
         for i in range(
