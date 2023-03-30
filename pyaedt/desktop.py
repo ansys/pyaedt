@@ -1461,12 +1461,12 @@ class Desktop(object):
         return list(available_toolkits.keys())
 
     @pyaedt_function_handler()
-    def add_custom_toolkit(self, toolkitname):  # pragma: no cover
+    def add_custom_toolkit(self, toolkit_name):  # pragma: no cover
         """Add toolkit to AEDT Automation Tab.
 
         Parameters
         ----------
-        toolkitname : str
+        toolkit_name : str
             Name of toolkit to add.
 
         Returns
@@ -1476,24 +1476,24 @@ class Desktop(object):
         from pyaedt.misc.install_extra_toolkits import available_toolkits
         from pyaedt.misc.install_extra_toolkits import write_toolkit_config
 
-        toolkit = available_toolkits[toolkitname]
-        toolkitname = toolkitname.replace("_", "")
+        toolkit = available_toolkits[toolkit_name]
+        toolkit_name = toolkit_name.replace("_", "")
 
         def install(package_path, package_name=None):
-            command = [sys.executable, "-m", "pip", "install", "--upgrade", package_path]
-            if package_path.startswith("git") and package_name:
-                command1 = [sys.executable, "-m", "pip", "uninstall", "--yes", package_name]
-                if is_linux:
-                    p = subprocess.Popen(command1)
-                else:
-                    p = subprocess.Popen(" ".join(command1))
-                p.wait()
+            executable = '"{}"'.format(sys.executable) if is_windows else sys.executable
 
-            if is_linux:
-                p = subprocess.Popen(command)
-            else:
-                p = subprocess.Popen(" ".join(command))
-            p.wait()
+            commands = []
+            if package_path.startswith("git") and package_name:
+                commands.append([executable, "-m", "pip", "uninstall", "--yes", package_name])
+
+            commands.append([executable, "-m", "pip", "install", "--upgrade", package_path])
+
+            for command in commands:
+                if is_linux:
+                    p = subprocess.Popen(command)
+                else:
+                    p = subprocess.Popen(" ".join(command))
+                p.wait()
 
         install(toolkit["pip"], toolkit.get("package_name", None))
         import site
@@ -1505,15 +1505,15 @@ class Desktop(object):
                 full_path = os.path.join(pkg, toolkit["toolkit_script"])
                 break
         if not full_path:
-            warnings.warn("Error finding the package")
+            raise FileNotFoundError("Error finding the package.")
         product = toolkit["installation_path"]
         toolkit_dir = os.path.join(self.personallib, "Toolkits")
         aedt_version = self.aedt_version_id
-        tool_dir = os.path.join(toolkit_dir, product, toolkitname)
+        tool_dir = os.path.join(toolkit_dir, product, toolkit_name)
         lib_dir = os.path.join(tool_dir, "Lib")
         toolkit_rel_lib_dir = os.path.relpath(lib_dir, tool_dir)
         if is_linux and aedt_version <= "2023.1":
-            toolkit_rel_lib_dir = os.path.join("Lib", toolkitname)
+            toolkit_rel_lib_dir = os.path.join("Lib", toolkit_name)
             lib_dir = os.path.join(toolkit_dir, toolkit_rel_lib_dir)
             toolkit_rel_lib_dir = "../../" + toolkit_rel_lib_dir
         os.makedirs(lib_dir, exist_ok=True)
@@ -1521,10 +1521,13 @@ class Desktop(object):
         files_to_copy = ["Run_PyAEDT_Toolkit_Script"]
         executable_version_agnostic = sys.executable
         for file_name in files_to_copy:
-            with open(os.path.join(pathname, "misc", file_name + ".py_build"), "r") as build_file:
-                file_name_dest = file_name.replace("_", " ") + ".py"
-                with open(os.path.join(tool_dir, file_name_dest), "w") as out_file:
-                    self.logger.info("Building to " + os.path.join(tool_dir, file_name_dest))
+            src = os.path.join(pathname, "misc", file_name + ".py_build")
+            dst = os.path.join(tool_dir, file_name.replace("_", " ") + ".py")
+            if not os.path.isfile(src):
+                raise FileNotFoundError("File not found: {}".format(src))
+            with open(src, "r") as build_file:
+                with open(dst, "w") as out_file:
+                    self.logger.info("Building to " + dst)
                     build_file_data = build_file.read()
                     build_file_data = (
                         build_file_data.replace("##TOOLKIT_REL_LIB_DIR##", toolkit_rel_lib_dir)
@@ -1534,5 +1537,5 @@ class Desktop(object):
                     build_file_data = build_file_data.replace(" % version", "")
                     out_file.write(build_file_data)
         if aedt_version >= "2023.2":
-            write_toolkit_config(os.path.join(toolkit_dir, product), lib_dir, toolkitname, toolkit=toolkit)
-        self.logger.info("Toolkit installed")
+            write_toolkit_config(os.path.join(toolkit_dir, product), lib_dir, toolkit_name, toolkit=toolkit)
+        self.logger.info("{} toolkit installed.".format(toolkit_name))
