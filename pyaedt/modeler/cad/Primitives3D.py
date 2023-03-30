@@ -2074,6 +2074,8 @@ class Primitives3D(Primitives, object):
 
     @pyaedt_function_handler()
     def _make_winding(self, name, material, in_rad, out_rad, height, teta, turns, chamf, sep_layer):
+        import math
+
         teta_r = radians(teta)
         points_list1 = [
             [in_rad * cos(teta_r), -in_rad * sin(teta_r), height / 2 - chamf],
@@ -2087,8 +2089,6 @@ class Primitives3D(Primitives, object):
             [in_rad * cos(teta_r), in_rad * sin(teta_r), height / 2 - chamf],
         ]
         points_list1 = points_list1[::-1]
-        import math
-
         turns = int(turns)
         list_positions = [i for i in points_list1]
         angle = 2 * teta_r
