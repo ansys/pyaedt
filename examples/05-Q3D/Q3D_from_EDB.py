@@ -73,7 +73,7 @@ location_u1_sda.append(edb.core_components.components["U1"].upper_elevation * 10
 edb.save_edb()
 edb.close_edb()
 
-h3d = pyaedt.Hfss3dLayout(output_edb, specified_version="2023.1", non_graphical=True)
+h3d = pyaedt.Hfss3dLayout(output_edb, specified_version="2023.1", non_graphical=True, new_desktop_session=True)
 
 ###############################################################################
 # Export to Q3D
