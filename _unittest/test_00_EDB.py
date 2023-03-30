@@ -2270,7 +2270,7 @@ class TestClass(BasisTest, object):
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
         for pingroup_name, pingroup in edbapp.core_siwave.pin_groups.items():
-            pingroup.delete()
+            assert pingroup.delete()
         assert not edbapp.core_siwave.pin_groups
 
     def test_136_rlc_component_values_getter_setter(self):

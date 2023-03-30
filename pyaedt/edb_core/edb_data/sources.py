@@ -279,6 +279,7 @@ class PinGroup(object):
     def net_name(self):
         return self._edb_pin_group.GetNet().GetName()
 
+    @pyaedt_function_handler()
     def _create_terminal(self, is_reference=False):
         pg_term = self._edb_pin_group.GetPinGroupTerminal()
         pin_group_net = self._edb_pin_group.GetNet()
@@ -295,6 +296,7 @@ class PinGroup(object):
         else:
             return pg_term
 
+    @pyaedt_function_handler()
     def create_current_source_terminal(self, magnitude=1, phase=0):
         terminal = self._create_terminal()
         terminal.SetBoundaryType(self._pedb.edb.Cell.Terminal.BoundaryType.kCurrentSource)
@@ -302,6 +304,7 @@ class PinGroup(object):
         terminal.SetSourcePhase(self._pedb.edb.Utility.Value(phase))
         return terminal
 
+    @pyaedt_function_handler()
     def create_voltage_source_terminal(self, magnitude=1, phase=0):
         terminal = self._create_terminal()
         terminal.SetBoundaryType(self._pedb.edb.Cell.Terminal.BoundaryType.kVoltageSource)
@@ -309,6 +312,7 @@ class PinGroup(object):
         terminal.SetSourcePhase(self._pedb.edb.Utility.Value(phase))
         return terminal
 
+    @pyaedt_function_handler()
     def create_port_terminal(self, impedance=50):
         terminal = self._create_terminal()
         terminal.SetBoundaryType(self._pedb.edb.Cell.Terminal.BoundaryType.PortBoundary)
@@ -316,15 +320,19 @@ class PinGroup(object):
         terminal.SetIsCircuitPort(True)
         return terminal
 
+    @pyaedt_function_handler()
     def delete(self):
         """Delete active pin group.
 
         Returns
         -------
-        None.
+        bool
 
         """
+        terminals = self._edb_pin_group.GetPinGroupTerminal()
         self._edb_pin_group.Delete()
+        terminals.Delete()
+        return True
 
 
 class CircuitPort(Source, object):
