@@ -65,6 +65,7 @@ def interferer_type():
         raise ValueError("An Emit object must be initialized before any static member of EmitConstants is accessed.")
     return inter_type
 
+
 def unit_type():
     """Get a ``unit_type`` object.
     Returns
@@ -80,6 +81,7 @@ def unit_type():
     except NameError:
         raise ValueError("An Emit object must be initialized before any static member of EmitConstants is accessed.")
     return unit_type
+
 
 EMIT_UNIT_TYPE = ["Power", "Frequency", "Length", "Time", "Voltage", "Data Rate", "Resistance"]
 """Valid unit type."""
