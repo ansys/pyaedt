@@ -26,7 +26,7 @@ sName = 'MySetupAuto'
 sType = 'Electrostatic'
 dName = 'Design1'
 pName = pyaedt.generate_unique_project_name()
-non_graphical = True
+non_graphical = False
 
 #################################################################################
 # Download .xlsx file
