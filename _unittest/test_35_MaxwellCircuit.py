@@ -2,6 +2,7 @@
 import os
 
 from _unittest.conftest import BasisTest
+
 from pyaedt import Maxwell2d
 from pyaedt import MaxwellCircuit
 from pyaedt.generic.constants import SOLUTIONS

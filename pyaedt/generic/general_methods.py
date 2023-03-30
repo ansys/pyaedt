@@ -3,10 +3,12 @@ from __future__ import absolute_import
 
 import ast
 import codecs
+from collections import OrderedDict
 import csv
 import datetime
 import difflib
 import fnmatch
+from functools import update_wrapper
 import inspect
 import itertools
 import json
@@ -20,21 +22,14 @@ import sys
 import tempfile
 import time
 import traceback
-from collections import OrderedDict
-from functools import update_wrapper
 
 from pyaedt.generic.constants import CSS4_COLORS
 
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
+is_linux = os.name == "posix"
+is_windows = not is_linux
 _pythonver = sys.version_info[0]
-inside_desktop = True
-try:
-    import ScriptEnv
-
-    ScriptEnv.Initialize("Ansoft.ElectronicsDesktop")
-except:
-    inside_desktop = False
-
+inside_desktop = True if is_ironpython and "4.0.30319.42000" in sys.version else False
 
 if not is_ironpython:
     import psutil
@@ -674,7 +669,7 @@ def is_project_locked(project_path):
     bool
         ``True`` when successful, ``False`` when failed.
     """
-    return check_if_path_exists(project_path[:-4] + "lock")
+    return check_if_path_exists(project_path + ".lock")
 
 
 @pyaedt_function_handler()
@@ -1016,8 +1011,74 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
                 if "-grpcsrv" in cmd:
                     if non_graphical and "-ng" in cmd or not non_graphical:
                         if not version or (version and version in cmd[0]):
+                            try:
+                                sessions.append(
+                                    int(cmd[cmd.index("-grpcsrv") + 1]),
+                                )
+                            except (IndexError, ValueError):
+                                # default desktop grpc port.
+                                sessions.append(50051)
+        except:
+            pass
+    return sessions
+
+
+def active_sessions(version=None, student_version=False, non_graphical=False):
+    """Get information for the active COM AEDT sessions.
+
+    Parameters
+    ----------
+    version : str, optional
+        Version to check. The default is ``None``, in which case all versions are checked.
+        When specifying a version, you can use a three-digit format like ``"222"`` or a
+        five-digit format like ``"2022.2"``.
+    student_version : bool, optional
+    non_graphical : bool, optional
+
+
+    Returns
+    -------
+    list
+        List of AEDT PIDs.
+    """
+    if student_version:
+        keys = ["ansysedtsv.exe"]
+    else:
+        keys = ["ansysedt.exe"]
+    if version and "." in version:
+        version = version[-4:].replace(".", "")
+    if version < "222":
+        version = version[:2] + "." + version[2]
+    sessions = []
+    for p in psutil.process_iter():
+        try:
+            if p.name() in keys:
+                cmd = p.cmdline()
+                if non_graphical and "-ng" in cmd or not non_graphical:
+                    if not version or (version and version in cmd[0]):
+                        if "-grpcsrv" in cmd:
+                            if not version or (version and version in cmd[0]):
+                                try:
+                                    sessions.append(
+                                        [
+                                            p.pid,
+                                            int(cmd[cmd.index("-grpcsrv") + 1]),
+                                        ]
+                                    )
+                                except (IndexError, ValueError):
+                                    # default desktop grpc port.
+                                    sessions.append(
+                                        [
+                                            p.pid,
+                                            50051,
+                                        ]
+                                    )
+                        else:
                             sessions.append(
-                                int(cmd[cmd.index("-grpcsrv") + 1]),
+                                [
+                                    p.pid,
+                                    -1,
+                                ]
                             )
         except:
             pass
@@ -1521,6 +1582,71 @@ class Settings(object):
         self._enable_local_log_file = False
         self._global_log_file_size = 10
         self._edb_dll_path = None
+        self._lsf_num_cores = 2
+        self._lsf_ram = 1000
+        self._use_lsf_scheduler = False
+        self._lsf_aedt_command = "ansysedt"
+        self._lsf_timeout = 3600
+        self._lsf_queue = None
+
+    @property
+    def lsf_queue(self):
+        """LSF queue name. This attribute is valid only on Linux
+        systems running LSF Scheduler."""
+        return self._lsf_queue
+
+    @lsf_queue.setter
+    def lsf_queue(self, value):
+        self._lsf_queue = value
+
+    @property
+    def use_lsf_scheduler(self):
+        """Whether to use LSF Scheduler. This attribute is valid only on Linux
+        systems running LSF Scheduler."""
+        return self._use_lsf_scheduler
+
+    @use_lsf_scheduler.setter
+    def use_lsf_scheduler(self, value):
+        self._use_lsf_scheduler = value
+
+    @property
+    def lsf_aedt_command(self):
+        """Get or set the ``ansysedt`` command to launch. The default is ``"ansysedt"``.
+        This attribute is valid only on Linux systems running LSF Scheduler."""
+        return self._lsf_aedt_command
+
+    @lsf_aedt_command.setter
+    def lsf_aedt_command(self, value):
+        self._lsf_aedt_command = value
+
+    @property
+    def lsf_num_cores(self):
+        """Get or set the number of LSF cores. This attribute is valid only
+        on Linux systems running LSF Scheduler."""
+        return self._lsf_num_cores
+
+    @lsf_num_cores.setter
+    def lsf_num_cores(self, value):
+        self._lsf_num_cores = int(value)
+
+    @property
+    def lsf_ram(self):
+        """Get or set the RAM allocated for the LSF job. This attribute is valid
+        only on Linux systems running LSF Scheduler."""
+        return self._lsf_ram
+
+    @lsf_ram.setter
+    def lsf_ram(self, value):
+        self._lsf_ram = int(value)
+
+    @property
+    def lsf_timeout(self):
+        """Get or set the timeout for starting the interactive session. The default is ``3600`` seconds."""
+        return self._lsf_timeout
+
+    @lsf_timeout.setter
+    def lsf_timeout(self, value):
+        self._lsf_timeout = int(value)
 
     @property
     def aedt_version(self):

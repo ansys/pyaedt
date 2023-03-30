@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<c:Control xmlns:c="http://www.ansys.com/control" schemaVersion="1.0">
+
+  <Stackup schemaVersion="1.0">
+    <Materials>
+      <Material Name="AIR">
+        <Permittivity>
+          <Double>1</Double>
+        </Permittivity>
+        <Permeability>
+          <Double>1</Double>
+        </Permeability>
+        <DielectricLossTangent>
+          <Double>0</Double>
+        </DielectricLossTangent>
+      </Material>
+      <Material Name="BOTTOM_FILL">
+        <Permittivity>
+          <Double>4.5</Double>
+        </Permittivity>
+        <Permeability>
+          <Double>1</Double>
+        </Permeability>
+        <DielectricLossTangent>
+          <Double>0</Double>
+        </DielectricLossTangent>
+      </Material>
+      <Material Name="COPPER_new">
+        <Conductivity>
+          <Double>59590000</Double>
+        </Conductivity>
+      </Material>
+      <Material Name="FR-4">
+        <Permittivity>
+          <Double>3.86</Double>
+        </Permittivity>
+        <Permeability>
+          <Double>1</Double>
+        </Permeability>
+        <DielectricLossTangent>
+          <Double>0.024</Double>
+        </DielectricLossTangent>
+      </Material>
+      <Material Name="FR-4_1">
+        <Permittivity>
+          <Double>4.34</Double>
+        </Permittivity>
+        <Permeability>
+          <Double>1</Double>
+        </Permeability>
+        <DielectricLossTangent>
+          <Double>0.018</Double>
+        </DielectricLossTangent>
+      </Material>
+      <Material Name="FR-4_2">
+        <Permittivity>
+          <Double>4.5</Double>
+        </Permittivity>
+        <Permeability>
+          <Double>1</Double>
+        </Permeability>
+        <DielectricLossTangent>
+          <Double>0.035</Double>
+        </DielectricLossTangent>
+      </Material>
+      <Material Name="PWR_FILL">
+        <Permittivity>
+          <Double>4.5</Double>
+        </Permittivity>
+        <Permeability>
+          <Double>1</Double>
+        </Permeability>
+        <DielectricLossTangent>
+          <Double>0.035</Double>
+        </DielectricLossTangent>
+      </Material>
+      <Material Name="TOP_FILL">
+        <Permittivity>
+          <Double>4.5</Double>
+        </Permittivity>
+        <Permeability>
+          <Double>1</Double>
+        </Permeability>
+        <DielectricLossTangent>
+          <Double>0</Double>
+        </DielectricLossTangent>
+      </Material>
+    </Materials>
+    <Layers LengthUnit="mil">
+      <Layer Color="#44614c" Material="AIR" Name="UNNAMED_000" Thickness="0" Type="dielectric"/>
+      <Layer Color="#868feb" FillMaterial="TOP_FILL" Material="COPPER" Name="TOP" Thickness="1.9" Type="conductor">
+        <HuraySurfaceRoughness HallHuraySurfaceRatio="2.9" NoduleRadius="0.5um"/>
+        <HurayBottomSurfaceRoughness HallHuraySurfaceRatio="2.9" NoduleRadius="0.5um"/>
+        <HuraySideSurfaceRoughness HallHuraySurfaceRatio="2.9" NoduleRadius="0.5um"/>
+      </Layer>
+      <Layer Color="#264a33" Material="FR-4" Name="UNNAMED_002" Thickness="2.65" Type="dielectric"/>
+      <Layer Color="#efa15d" FillMaterial="PWR_FILL" Material="COPPER" Name="PWR" Thickness="1.3" Type="conductor">
+        <GroissSurfaceRoughness Roughness="1um"/>
+        <GroissBottomSurfaceRoughness Roughness="1um"/>
+        <GroissSideSurfaceRoughness Roughness="1um"/>
+      </Layer>
+      <Layer Color="#1a291f" Material="FR-4_1" Name="UNNAMED_004" Thickness="50" Type="dielectric"/>
+      <Layer Color="#f67fc1" FillMaterial="FR-4_2" Material="COPPER" Name="LYR_1" Thickness="1.2" Type="conductor"/>
+      <Layer Color="#44614c" Material="FR-4_2" Name="UNNAMED_006" Thickness="8" Type="dielectric"/>
+      <Layer Color="#fd777a" FillMaterial="FR-4_2" Material="COPPER" Name="LYR_2" Thickness="1.2" Type="conductor"/>
+      <Layer Color="#264a33" Material="FR-4_2" Name="UNNAMED_008" Thickness="8" Type="dielectric"/>
+      <Layer Color="#8db7ca" FillMaterial="FR-4_2" Material="COPPER" Name="GND" Thickness="1.3" Type="conductor"/>
+      <Layer Color="#1a291f" Material="FR-4" Name="UNNAMED_010" Thickness="2.65" Type="dielectric"/>
+      <Layer Color="#5c4300" FillMaterial="BOTTOM_FILL" Material="COPPER" Name="BOTTOM" Thickness="1.9" Type="conductor"/>
+      <Layer Color="#44614c" Material="AIR" Name="UNNAMED_012" Thickness="0" Type="dielectric"/>
+      <Layer Color="#7f7f7f" Name="SIwave Regions" Type="user"/>
+      <Layer Color="#6db148" Name="spt" Type="solderpaste"/>
+      <Layer Color="#d5503d" Name="smt" Type="soldermask"/>
+      <Layer Color="#529999" Name="smb" Type="soldermask"/>
+      <Layer Color="#289889" Name="Outline" Type="outline"/>
+    </Layers>
+  </Stackup>
+
+</c:Control>

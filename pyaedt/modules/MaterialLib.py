@@ -20,8 +20,8 @@ from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modules.Material import Material
 from pyaedt.modules.Material import MatProperties
+from pyaedt.modules.Material import Material
 from pyaedt.modules.Material import OrderedDict
 from pyaedt.modules.Material import SurfaceMaterial
 
@@ -607,6 +607,8 @@ class Materials(object):
     def _load_from_project(self):
         if self.odefinition_manager:
             mats = self.odefinition_manager.GetProjectMaterialNames()
+            if not mats:
+                mats = []
             for el in mats:
                 if el not in list(self.material_keys.keys()):
                     try:

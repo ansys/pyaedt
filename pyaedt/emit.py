@@ -120,6 +120,7 @@ class Emit(Design, object):
         if projectname is None:
             projectname = generate_unique_project_name()
         self.__emit_api_enabled = False
+        self.results = None
         """Constructor for the ``FieldAnalysisEmit`` class"""
 
         self._units = {
@@ -150,7 +151,6 @@ class Emit(Design, object):
         )
         self._modeler = ModelerEmit(self)
         self._couplings = CouplingsEmit(self)
-
         if self._aedt_version >= "2023.1" and sys.version_info.major == 3 and sys.version_info.minor == 7:
             self._emit_api = EMIT_MODULE.EmitApi()
             """Instance of the Emit api."""

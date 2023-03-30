@@ -49,7 +49,7 @@ params = {"$ms_width": "0.4mm",
           "$corner_rad": "0.5mm"}
 
 for par_name in params:
-    edb.add_design_variable(par_name, params[par_name])
+    edb.add_project_variable(par_name, params[par_name])
 
 ######################################################################
 # Define stackup layers
@@ -285,7 +285,7 @@ edb.close_edb()
 # ~~~~~~~~~~~~~~~~
 # Open EDB in AEDT.
 
-h3d = pyaedt.Hfss3dLayout(projectname=os.path.join(aedb_path, "edb.def"), specified_version="2023.1",
+h3d = pyaedt.Hfss3dLayout(projectname=aedb_path, specified_version="2023.1",
                           non_graphical=non_graphical)
 
 ###############################################################################
@@ -312,9 +312,9 @@ h3d.create_linear_count_sweep(
 ###############################################################################
 # Start HFSS solver
 # ~~~~~~~~~~~~~~~~~
-# Start the HFSS solver by uncommenting the ``h3d.analyze_nominal()`` command.
+# Start the HFSS solver by uncommenting the ``h3d.analyze()`` command.
 
-# h3d.analyze_nominal()
+# h3d.analyze()
 
 h3d.release_desktop()
 

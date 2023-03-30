@@ -65,6 +65,21 @@ class EDBPrimitives(object):
         return self.primitive_object.IsVoid()
 
     @property
+    def is_negative(self):
+        """Determine whether this primitive is negative.
+
+        Returns
+        -------
+        bool
+            True if it is negative, False otherwise.
+        """
+        return self.primitive_object.GetIsNegative()
+
+    @is_negative.setter
+    def is_negative(self, value):
+        self.primitive_object.SetIsNegative(value)
+
+    @property
     def id(self):
         """Primitive ID.
 
@@ -257,6 +272,24 @@ class EDBPrimitives(object):
         bbox = self.bbox
         return [(bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2]
 
+    @pyaedt_function_handler
+    def get_center_line(self, to_string=False):
+        """Get the center line of the trace.
+
+        Parameters
+        ----------
+        to_string : bool, optional
+            Type of return. The default is ``"False"``.
+        Returns
+        -------
+        list
+
+        """
+        if to_string:
+            return [[p.X.ToString(), p.Y.ToString()] for p in list(self.primitive_object.GetCenterLine().Points)]
+        else:
+            return [[p.X.ToDouble(), p.Y.ToDouble()] for p in list(self.primitive_object.GetCenterLine().Points)]
+
     @pyaedt_function_handler()
     def is_arc(self, point):
         """Either if a point is an arc or not.
@@ -377,7 +410,7 @@ class EDBPrimitives(object):
 
         Parameters
         ----------
-        point_list : list
+        point_list : list or  :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives` or EDB Primitive Object
             Point list in the format of `[[x1,y1], [x2,y2],..,[xn,yn]]`.
 
         Returns
@@ -385,14 +418,19 @@ class EDBPrimitives(object):
         bool
             ``True`` if successful, either  ``False``.
         """
-        plane = self._app.core_primitives.Shape("polygon", points=point_list)
-        _poly = self._app.core_primitives.shape_to_polygon_data(plane)
-        if _poly is None or _poly.IsNull() or _poly is False:
-            self._logger.error("Failed to create void polygon data")
-            return False
-        prim = self._app.edb.Cell.Primitive.Polygon.Create(
-            self._app.active_layout, self.layer_name, self.primitive_object.GetNet(), _poly
-        )
+        if isinstance(point_list, list):
+            plane = self._app.core_primitives.Shape("polygon", points=point_list)
+            _poly = self._app.core_primitives.shape_to_polygon_data(plane)
+            if _poly is None or _poly.IsNull() or _poly is False:
+                self._logger.error("Failed to create void polygon data")
+                return False
+            prim = self._app.edb.Cell.Primitive.Polygon.Create(
+                self._app.active_layout, self.layer_name, self.primitive_object.GetNet(), _poly
+            )
+        elif isinstance(point_list, EDBPrimitives):
+            prim = point_list.primitive_object
+        else:
+            prim = point_list
         return self.primitive_object.AddVoid(prim)
 
     @pyaedt_function_handler()

@@ -5,10 +5,12 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
+
 from pyaedt import Circuit
 from pyaedt import Hfss
 from pyaedt import Q2d
 from pyaedt import Q3d
+from pyaedt.generic.general_methods import is_linux
 
 try:
     import pytest
@@ -93,7 +95,7 @@ class TestClass(BasisTest, object):
         assert hfss_comp.id == 87
         assert hfss_comp.composed_name == "CompInst@uUSB;87;3"
 
-    @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(config.get("skip_circuits", False) or is_linux, reason="Skipped because Desktop is crashing")
     def test_04_refresh_dynamic_link(self):
         assert self.aedtapp.modeler.schematic.refresh_dynamic_link("uUSB")
 
@@ -206,6 +208,7 @@ class TestClass(BasisTest, object):
         LNA_setup.props["SweepDefinition"]["Data"] = " ".join(sweep_list)
         assert LNA_setup.update()
 
+    @pytest.mark.skipif(is_linux, reason="Skipped because Desktop is crashing")
     def test_10_q3d_link(self):
         self.aedtapp.insert_design("test_link")
         q2d = Q2d(self.q3d, specified_version=desktop_version)
@@ -235,6 +238,7 @@ class TestClass(BasisTest, object):
             hfss, solution_name="Setup2 : Sweep", tline_port="1"
         )
 
+    @pytest.mark.skipif(is_linux, reason="Skipped because Desktop is crashing")
     def test_11_siwave_link(self):
         model = os.path.join(local_path, "example_models", test_subfloder, "Galileo_um.siw")
         model_out = self.local_scratch.copyfile(model)
@@ -245,7 +249,7 @@ class TestClass(BasisTest, object):
         assert siw_comp
         assert len(siw_comp.pins) == 2
 
-    @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(config.get("skip_circuits", False) or is_linux, reason="Skipped because Desktop is crashing")
     def test_12_create_interface_port(self):
         page_port = self.aedtapp.modeler.components.create_page_port(name="Port12", location=[0, -0.50])
         interface_port = self.aedtapp.modeler.components.create_interface_port(name="Port12", location=[0.3, -0.50])

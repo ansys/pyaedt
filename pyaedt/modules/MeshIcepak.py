@@ -501,7 +501,7 @@ class IcepakMesh(object):
         return True
 
     @pyaedt_function_handler()
-    def add_priority(self, entity_type, obj_list, comp_name=None, priority=3):
+    def add_priority(self, entity_type, obj_list=None, comp_name=None, priority=3):
         """Add priority to objects.
 
         Parameters
@@ -510,7 +510,8 @@ class IcepakMesh(object):
             Type of the entity. Options are ``1`` and ``2``, which represent respectively
             an object and a component.
         obj_list : list
-            List of objects, which can include conductors and dielctrics.
+            List of 3D objects, which can include conductors and dielectrics.
+            If the user pass a non 3D object, it will be excluded.
         comp_name : str, optional
             Name of the component. The default is ``None``.
         priority : int, optional
@@ -525,11 +526,26 @@ class IcepakMesh(object):
         ----------
 
         >>> oEditor.UpdatePriorityList
+
+        Examples
+        --------
+
+        >>> from pyaedt import Icepak
+        >>> app = Icepak()
+        >>> app.mesh.add_priority(entity_type=1, obj_list=app.modeler.object_names, priority=3)
+        >>> app.mesh.add_priority(entity_type=2, comp_name=app.modeler.user_defined_component_names[0], priority=2)
         """
         i = priority
-        objects = ", ".join(obj_list)
+
         args = ["NAME:UpdatePriorityListData"]
         if entity_type == 1:
+            non_user_defined_component_parts = self._app.modeler.oeditor.GetChildNames()
+            new_obj_list = []
+            for comp in obj_list:
+                if comp != "Region" and comp in non_user_defined_component_parts and self._app.modeler[comp].is3d:
+                    new_obj_list.append(comp)
+
+            objects = ", ".join(new_obj_list)
             prio = [
                 "NAME:PriorityListParameters",
                 "EntityType:=",
@@ -544,13 +560,12 @@ class IcepakMesh(object):
             self._priorities_args.append(prio)
             args += self._priorities_args
         elif entity_type == 2:
-            pcblist = self.modeler.oeditor.Get3DComponentInstanceNames(comp_name)
             prio = [
                 "NAME:PriorityListParameters",
                 "EntityType:=",
                 "Component",
                 "EntityList:=",
-                pcblist[0],
+                comp_name,
                 "PriorityNumber:=",
                 i,
                 "PriorityListType:=",

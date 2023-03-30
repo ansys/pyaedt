@@ -12,6 +12,7 @@ import time
 import traceback
 import warnings
 
+from pyaedt import __version__
 from pyaedt import pyaedt_logger
 from pyaedt import settings
 from pyaedt.edb_core import Components
@@ -20,21 +21,20 @@ from pyaedt.edb_core import EdbLayout
 from pyaedt.edb_core import EdbNets
 from pyaedt.edb_core import EdbSiwave
 from pyaedt.edb_core import EdbStackup
+from pyaedt.edb_core.edb_data.design_options import EdbDesignOptions
 from pyaedt.edb_core.edb_data.edb_builder import EdbBuilder
+from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import HfssSimulationSetup
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
-from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import (
-    SiwaveDCSimulationSetup,
-)
-from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import (
-    SiwaveSYZSimulationSetup,
-)
+from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveDCSimulationSetup
+from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveSYZSimulationSetup
 from pyaedt.edb_core.edb_data.sources import ExcitationDifferential
 from pyaedt.edb_core.edb_data.sources import ExcitationPorts
 from pyaedt.edb_core.edb_data.sources import ExcitationProbes
 from pyaedt.edb_core.edb_data.sources import ExcitationSources
 from pyaedt.edb_core.edb_data.sources import SourceType
+from pyaedt.edb_core.edb_data.variables import Variable
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.ipc2581.ipc2581 import Ipc2581
 from pyaedt.edb_core.materials import Materials
@@ -51,11 +51,13 @@ from pyaedt.generic.general_methods import env_value
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import is_linux
+from pyaedt.generic.general_methods import is_windows
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.process import SiwaveSolve
 from pyaedt.misc.misc import list_installed_ansysem
 
-if os.name == "posix" and is_ironpython:
+if is_linux and is_ironpython:
     import subprocessdotnet as subprocess
 else:
     import subprocess
@@ -96,6 +98,13 @@ class Edb(object):
     >>> from pyaedt import Edb
     >>> app = Edb()
 
+    Add a new variable named "s1" to the ``Edb`` instance.
+    >>> app['s1'] = "0.25 mm"
+    >>> app['s1'].tofloat
+    >>> 0.00025
+    >>> app['s1'].tostring
+    >>> "0.25mm"
+
     Create an ``Edb`` object and open the specified project.
 
     >>> app = Edb("myfile.aedb")
@@ -104,6 +113,7 @@ class Edb(object):
     The XML control file resides in the same directory as the GDS file: (myfile.xml).
 
     >>> app = Edb("/path/to/file/myfile.gds")
+
     """
 
     def __init__(
@@ -118,7 +128,7 @@ class Edb(object):
         use_ppe=False,
     ):
         self._clean_variables()
-        if is_ironpython and inside_desktop:
+        if inside_desktop:
             self.standalone = False
         else:
             self.standalone = True
@@ -129,6 +139,8 @@ class Edb(object):
             self._logger = pyaedt_logger
             self.student_version = student_version
             self.logger.info("Logger is initialized in EDB.")
+            self.logger.info("pyaedt v%s", __version__)
+            self.logger.info("Python version %s", sys.version)
             if not edbversion:
                 try:
                     edbversion = "20{}.{}".format(list_installed_ansysem()[0][-3:-1], list_installed_ansysem()[0][-1:])
@@ -143,7 +155,7 @@ class Edb(object):
             self.isreadonly = isreadonly
             self.cellname = cellname
             if not edbpath:
-                if os.name != "posix":
+                if is_windows:
                     edbpath = os.getenv("USERPROFILE")
                     if not edbpath:
                         edbpath = os.path.expanduser("~")
@@ -199,6 +211,31 @@ class Edb(object):
         if ex_type:
             self.edb_exception(ex_value, ex_traceback)
 
+    @pyaedt_function_handler()
+    def __getitem__(self, variable_name):
+        """Get or Set a variable to the Edb project. The variable can be project using ``$`` prefix or
+        it can be a design variable, in which case the ``$`` is omitted.
+
+        Parameters
+        ----------
+        variable_name : str
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.variables.Variable`
+
+        """
+        if self.variable_exists(variable_name)[0]:
+            return self.variables[variable_name]
+        return
+
+    @pyaedt_function_handler()
+    def __setitem__(self, variable_name, variable_value):
+        if self.variable_exists(variable_name)[0]:
+            self.change_design_variable_value(variable_name, variable_value)
+        else:
+            self.add_design_variable(variable_name, variable_value)
+
     def _clean_variables(self):
         """Initialize internal variables and perform garbage collection."""
 
@@ -217,6 +254,7 @@ class Edb(object):
         self.simsetupdata = None
         self._setups = {}
         self._layout_instance = None
+        self._variables = None
         # time.sleep(2)
         # gc.collect()
 
@@ -260,7 +298,7 @@ class Edb(object):
     @pyaedt_function_handler()
     def _init_dlls(self):
         """Initialize DLLs."""
-        if os.name == "posix":
+        if is_linux:
             if env_value(self.edbversion) in os.environ or settings.edb_dll_path:
                 if settings.edb_dll_path:
                     self.base_path = settings.edb_dll_path
@@ -308,6 +346,49 @@ class Edb(object):
         self.edbutils = edbbuilder.Ansoft.EdbBuilderUtils
         self.simSetup = __import__("Ansys.Ansoft.SimSetupData")
         self.simsetupdata = self.simSetup.Ansoft.SimSetupData.Data
+
+    @property
+    def design_variables(self):
+        """Get all edb design variables.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.edb_core.edb_data.variables.Variable`]
+        """
+        d_var = dict()
+        for i in self.active_cell.GetVariableServer().GetAllVariableNames():
+            d_var[i] = Variable(self, i)
+        return d_var
+
+    @property
+    def project_variables(self):
+        """Get all project variables.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.edb_core.edb_data.variables.Variable`]
+
+        """
+        p_var = dict()
+        for i in self.db.GetVariableServer().GetAllVariableNames():
+            p_var[i] = Variable(self, i)
+        return p_var
+
+    @property
+    def variables(self):
+        """Get all Edb variables.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.edb_core.edb_data.variables.Variable`]
+
+        """
+        all_vars = dict()
+        for i, j in self.project_variables.items():
+            all_vars[i] = j
+        for i, j in self.design_variables.items():
+            all_vars[i] = j
+        return all_vars
 
     @property
     def excitations(self):
@@ -516,7 +597,7 @@ class Edb(object):
             command = anstranslator_full_path
         else:
             command = os.path.join(self.base_path, "anstranslator")
-            if os.name != "posix":
+            if is_windows:
                 command += ".exe"
 
         if not working_dir:
@@ -530,7 +611,7 @@ class Edb(object):
         if not use_ppe:
             cmd_translator.append("-ppe=false")
         if control_file and input_file[-3:] not in ["brd"]:
-            if os.name == "posix":
+            if is_linux:
                 cmd_translator.append("-c={}".format(control_file))
             else:
                 cmd_translator.append('-c="{}"'.format(control_file))
@@ -623,7 +704,17 @@ class Edb(object):
 
     @property
     def core_components(self):
-        """Core components."""
+        """Edb Components methods and properties.
+
+        Returns
+        -------
+        Instance of :class:`pyaedt.edb_core.Components.Components`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> comp = self.edbapp.core_components.get_component_by_name("J1")
+        """
         if not self._components and self.builder:
             self._components = Components(self)
         return self._components
@@ -644,57 +735,155 @@ class Edb(object):
         return self._stackup
 
     @property
+    def design_options(self):
+        """Edb Design Settings and Options.
+
+        Returns
+        -------
+        Instance of :class:`pyaedt.edb_core.edb_data.design_options.EdbDesignOptions`
+        """
+        return EdbDesignOptions(self.active_cell)
+
+    @property
     def stackup(self):
-        """Stackup."""
+        """Stackup manager.
+
+        Returns
+        -------
+        Instance of :class: 'pyaedt.edb_core.Stackup`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> edbapp.stackup.layers["TOP"].thickness = 4e-5
+        >>> edbapp.stackup.layers["TOP"].thickness == 4e-05
+        >>> edbapp.stackup.add_layer("Diel", "GND", layer_type="dielectric", thickness="0.1mm", material="FR4_epoxy")
+        """
         if not self._stackup2 and self.builder:
             self._stackup2 = Stackup(self)
         return self._stackup2
 
     @property
     def materials(self):
-        """Material Database."""
+        """Material Database.
+
+        Returns
+        -------
+        Instance of :class: `pyaedt.edb_core.Materials`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> edbapp.materials["FR4_epoxy"].conductivity = 1
+        >>> edbapp.materials.add_debye_material("My_Debye2", 5, 3, 0.02, 0.05, 1e5, 1e9)
+        >>> edbapp.materials.add_djordjevicsarkar_material("MyDjord2", 3.3, 0.02, 3.3)
+        """
+
         if not self._materials and self.builder:
             self._materials = Materials(self)
         return self._materials
 
     @property
     def core_padstack(self):
-        """Core padstack."""
+        """Core padstack.
+
+
+        Returns
+        -------
+        Instance of :class: `pyaedt.edb_core.padstack.EdbPadstack`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> p = edbapp.core_padstack.create_padstack(padstackname="myVia_bullet", antipad_shape="Bullet")
+        >>> edbapp.core_padstack.get_pad_parameters(
+        >>> ... p, "TOP", self.edbapp.core_padstack.pad_type.RegularPad
+        >>> ... )
+        """
+
         if not self._padstack and self.builder:
             self._padstack = EdbPadstacks(self)
         return self._padstack
 
     @property
     def core_siwave(self):
-        """Core SI Wave."""
+        """Core SIWave methods and properties.
+
+        Returns
+        -------
+        Instance of :class: `pyaedt.edb_core.siwave.EdbSiwave`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> p2 = edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V3P3_S0", "U2A5", "GND", 50, "test")
+        """
+
         if not self._siwave and self.builder:
             self._siwave = EdbSiwave(self)
         return self._siwave
 
     @property
     def core_hfss(self):
-        """Core HFSS."""
+        """Core HFSS methods and properties.
+
+        Returns
+        -------
+        Instance of :class:`pyaedt.edb_core.hfss.EdbHfss`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> edbapp.core_hfss.configure_hfss_analysis_setup(sim_config)
+        """
         if not self._hfss and self.builder:
             self._hfss = EdbHfss(self)
         return self._hfss
 
     @property
     def core_nets(self):
-        """Core nets."""
+        """Core nets.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.nets.EdbNets`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> edbapp.core_nets.find_or_create_net("GND")
+        >>> edbapp.core_nets.find_and_fix_disjoint_nets("GND", keep_only_main_net=True)
+        """
+
         if not self._nets and self.builder:
             self._nets = EdbNets(self)
         return self._nets
 
     @property
     def core_primitives(self):
-        """Core primitives."""
+        """Core primitives.
+
+        Returns
+        -------
+        Instance of :class: `pyaedt.edb_core.layout.EdbLayout`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> top_prims = edbapp.core_primitives.primitives_by_layer["TOP"]
+        """
         if not self._core_primitives and self.builder:
             self._core_primitives = EdbLayout(self)
         return self._core_primitives
 
     @property
     def active_layout(self):
-        """Active layout."""
+        """Active layout.
+
+        Returns
+        -------
+        Instance of :class: `pyaedt.`
+        """
         self._active_layout = None
         if self._active_cell:
             self._active_layout = self.active_cell.GetLayout()
@@ -713,8 +902,14 @@ class Edb(object):
 
         Returns
         -------
-        dic[str, :class:`pyaedt.edb_core.edb_data.padstacks.EDBPadstackInstance`]
+        dic[str, :class:`pyaedt.edb_core.edb_data.definitions.EDBPadstackInstance`]
             Dictionary of EDBPadstackInstance Components.
+
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> pin_net_name = edbapp.pins[424968329].netname
         """
         pins = {}
         if self.core_components:
@@ -730,35 +925,18 @@ class Edb(object):
         return pins
 
     class Boundaries:
-        """Boundaries.
+        """Boundaries Enumerator.
 
-        Parameters
-        ----------
-        Port :
-
-        Pec :
-
-        RLC :
-
-        CurrentSource :
-
-        VoltageSource :
-
-        NexximGround :
-
-        NexximPort :
-
-        DcTerminal :
-
-        VoltageProbe :
-
+        Returns
+        -------
+        int
         """
 
         (Port, Pec, RLC, CurrentSource, VoltageSource, NexximGround, NexximPort, DcTerminal, VoltageProbe) = range(0, 9)
 
     @pyaedt_function_handler()
     def edb_value(self, val):
-        """EDB value.
+        """Convert a value to an EDB value. Value can be a string, float or integer. Mainly used in internal calls.
 
         Parameters
         ----------
@@ -767,6 +945,7 @@ class Edb(object):
 
         Returns
         -------
+        Instance of `Edb.Utility.Value`
 
         """
         if isinstance(val, (int, float)):
@@ -780,10 +959,10 @@ class Edb(object):
         var_names = var_server_db.GetAllVariableNames()
         var_server_cell = self.active_cell.GetVariableServer()
         var_names_cell = var_server_cell.GetAllVariableNames()
-        if set(val_decomposed).intersection(var_names):
-            return self.edb.Utility.Value(val, var_server_db)
         if set(val_decomposed).intersection(var_names_cell):
             return self.edb.Utility.Value(val, var_server_cell)
+        if set(val_decomposed).intersection(var_names):
+            return self.edb.Utility.Value(val, var_server_db)
         return self.edb.Utility.Value(val)
 
     @pyaedt_function_handler()
@@ -839,7 +1018,7 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def close_edb(self):
-        """Close EDB.
+        """Close EDB and cleanup variables.
 
         Returns
         -------
@@ -1051,22 +1230,38 @@ class Edb(object):
         _poly = _poly.Expand(expansion_size, tolerance, round_corner, round_extension)[0]
         return _poly
 
-    def create_cutout(
+    @pyaedt_function_handler()
+    def cutout(
         self,
-        signal_list=[],
+        signal_list=None,
         reference_list=["GND"],
-        extent_type="Conforming",
+        extent_type="ConvexHull",
         expansion_size=0.002,
         use_round_corner=False,
         output_aedb_path=None,
         open_cutout_at_end=True,
-        use_pyaedt_extent_computing=False,
+        use_legacy_cutout=False,
+        number_of_threads=4,
+        use_pyaedt_extent_computing=True,
+        extent_defeature=0,
+        remove_single_pin_components=False,
+        custom_extent=None,
+        custom_extent_units="mm",
+        include_partial_instances=False,
+        keep_voids=True,
     ):
-        """Create a cutout and save it to a new AEDB file.
+        """Create a cutout using an approach entirely based on pyaedt.
+        This new method replaces all legacy cutout methods in pyaedt.
+        It does in sequence:
+        - delete all nets not in list,
+        - create a extent of the nets,
+        - check and delete all vias not in the extent,
+        - check and delete all the primitives not in extent,
+        - check and intersect all the primitives that intersect the extent.
 
         Parameters
         ----------
-        signal_list : list
+         signal_list : list
             List of signal strings.
         reference_list : list, optional
             List of references to add. The default is ``["GND"]``.
@@ -1078,19 +1273,117 @@ class Edb(object):
         use_round_corner : bool, optional
             Whether to use round corners. The default is ``False``.
         output_aedb_path : str, optional
-            Full path and name for the new AEDB file.
+            Full path and name for the new AEDB file. If None, then current aedb will be cutout.
         open_cutout_at_end : bool, optional
-            Whether to open the cutout at the end. The default
-            is ``True``.
+            Whether to open the cutout at the end. The default is ``True``.
+        use_legacy_cutout : bool, optional
+            Whether to use new PyAEDT cutout method or EDB API method.
+            New method is faster than native API method since it benefits of multithread.
+        number_of_threads : int, optional
+            Number of thread to use. Default is 4. Valid only if `use_legacy_cutout` is set to `False`.
         use_pyaedt_extent_computing : bool, optional
-            Whether to use pyaedt extent computing (experimental).
+            Whether to use pyaedt extent computing (experimental) or EDB API.
+        extent_defeature : float, optional
+            Defeature the cutout before applying it to produce simpler geometry for mesh (Experimental).
+            It applies only to Conforming bounding box. Default value is ``0`` which disable it.
+         remove_single_pin_components : bool, optional
+            Remove all Single Pin RLC after the cutout is completed. Default is `False`.
+        custom_extent : list
+            Points list defining the cutout shape. This setting will override `extent_type` field.
+        custom_extent_units : str
+            Units of the point list. The default is ``"mm"``. Valid only if `custom_extend` is provided.
+        include_partial_instances : bool, optional
+            Whether to include padstack instances that have bounding boxes intersecting with point list polygons.
+            This operation may slow down the cutout export.Valid only if `custom_extend` is provided.
+        keep_voids : bool
+            Boolean used for keep or not the voids intersecting the polygon used for clipping the layout.
+            Default value is ``True``, ``False`` will remove the voids.Valid only if `custom_extend` is provided.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        >>> edb = Edb(r'C:\\test.aedb', edbversion="2022.2")
+        >>> edb.logger.info_timer("Edb Opening")
+        >>> edb.logger.reset_timer()
+        >>> start = time.time()
+        >>> signal_list = []
+        >>> for net in edb.core_nets.nets.keys():
+        >>>      if "3V3" in net:
+        >>>           signal_list.append(net)
+        >>> power_list = ["PGND"]
+        >>> edb.cutout(signal_list=signal_list, reference_list=power_list, extent_type="Conforming")
+        >>> end_time = str((time.time() - start)/60)
+        >>> edb.logger.info("Total pyaedt cutout time in min %s", end_time)
+        >>> edb.core_nets.plot(signal_list, None, color_by_net=True)
+        >>> edb.core_nets.plot(power_list, None, color_by_net=True)
+        >>> edb.save_edb()
+        >>> edb.close_edb()
+
+
         """
+        if signal_list is None:
+            signal_list = []
+        if isinstance(reference_list, str):
+            reference_list = [reference_list]
+        if use_legacy_cutout and custom_extent:
+            return self._create_cutout_on_point_list(
+                custom_extent,
+                units=custom_extent_units,
+                output_aedb_path=output_aedb_path,
+                open_cutout_at_end=open_cutout_at_end,
+                nets_to_include=signal_list,
+                include_partial_instances=include_partial_instances,
+                keep_voids=keep_voids,
+            )
+        elif use_legacy_cutout:
+            return self._create_cutout_legacy(
+                signal_list=signal_list,
+                reference_list=reference_list,
+                extent_type=extent_type,
+                expansion_size=expansion_size,
+                use_round_corner=use_round_corner,
+                output_aedb_path=output_aedb_path,
+                open_cutout_at_end=open_cutout_at_end,
+                use_pyaedt_extent_computing=use_pyaedt_extent_computing,
+            )
+        else:
+            legacy_path = self.edbpath
+            result = self._create_cutout_multithread(
+                signal_list=signal_list,
+                reference_list=reference_list,
+                extent_type=extent_type,
+                expansion_size=expansion_size,
+                use_round_corner=use_round_corner,
+                number_of_threads=number_of_threads,
+                custom_extent=custom_extent,
+                output_aedb_path=output_aedb_path,
+                remove_single_pin_components=remove_single_pin_components,
+                use_pyaedt_extent_computing=use_pyaedt_extent_computing,
+                extent_defeature=extent_defeature,
+            )
+            if result and not open_cutout_at_end:
+                self.save_edb()
+                self.close_edb()
+                self.open_edb(legacy_path)
+            return result
+
+    @pyaedt_function_handler()
+    def _create_cutout_legacy(
+        self,
+        signal_list=[],
+        reference_list=["GND"],
+        extent_type="Conforming",
+        expansion_size=0.002,
+        use_round_corner=False,
+        output_aedb_path=None,
+        open_cutout_at_end=True,
+        use_pyaedt_extent_computing=False,
+        remove_single_pin_components=False,
+    ):
         expansion_size = self.edb_value(expansion_size).ToDouble()
 
         # validate nets in layout
@@ -1155,7 +1448,23 @@ class Edb(object):
                 self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
                 self.edbpath = self._db.GetDirectory()
                 self._init_objects()
+                if remove_single_pin_components:
+                    self.core_components.delete_single_pin_rlc()
+                    self.logger.info_timer("Single Pins components deleted")
+                    self.core_components.refresh_components()
             else:
+                if remove_single_pin_components:
+                    try:
+                        layout = list(db2.CircuitCells)[0].GetLayout()
+                        _cmps = [
+                            l
+                            for l in layout.Groups
+                            if l.ToString() == "Ansys.Ansoft.Edb.Cell.Hierarchy.Component" and l.GetNumberOfPins() < 2
+                        ]
+                        for _cmp in _cmps:
+                            _cmp.Delete()
+                    except:
+                        self._logger.error("Failed to remove single pin components.")
                 db2.Close()
                 source = os.path.join(output_aedb_path, "edb.def.tmp")
                 target = os.path.join(output_aedb_path, "edb.def")
@@ -1165,36 +1474,37 @@ class Edb(object):
                         shutil.copy(source, target)
                     except:
                         pass
-        # else:
-        # cells = self.db.CopyCells(convert_py_list_to_net_list(_dbCells))
         elif open_cutout_at_end:
             self._active_cell = _cutout
             self._init_objects()
+            if remove_single_pin_components:
+                self.core_components.delete_single_pin_rlc()
+                self.logger.info_timer("Single Pins components deleted")
+                self.core_components.refresh_components()
         return True
 
     @pyaedt_function_handler()
-    def create_cutout_multithread(
+    def create_cutout(
         self,
         signal_list=[],
         reference_list=["GND"],
         extent_type="Conforming",
         expansion_size=0.002,
         use_round_corner=False,
-        number_of_threads=4,
-        custom_extent=None,
         output_aedb_path=None,
-        remove_single_pin_components=False,
+        open_cutout_at_end=True,
         use_pyaedt_extent_computing=False,
-        extent_defeature=0,
     ):
         """Create a cutout using an approach entirely based on pyaedt.
         It does in sequence:
         - delete all nets not in list,
-        - create a extent of the nets,
+        - create an extent of the nets,
         - check and delete all vias not in the extent,
         - check and delete all the primitives not in extent,
         - check and intersect all the primitives that intersect the extent.
 
+        .. deprecated:: 0.6.58
+           Use new method :func:`cutout` instead.
 
         Parameters
         ----------
@@ -1209,46 +1519,47 @@ class Edb(object):
             Expansion size ratio in meters. The default is ``0.002``.
         use_round_corner : bool, optional
             Whether to use round corners. The default is ``False``.
-        number_of_threads : int, optional
-            Number of thread to use. Default is 4
-        custom_extent : list, optional
-            Custom extent to use for the cutout. It has to be a list of points [[x1,y1],[x2,y2]....] or
-            Edb PolygonData object. In this case, both signal_list and reference_list will be cut.
         output_aedb_path : str, optional
-            Full path and name for the new AEDB file. If None, then current aedb will be cutout.
-        remove_single_pin_components : bool, optional
-            Remove all Single Pin RLC after the cutout is completed. Default is `False`.
+            Full path and name for the new AEDB file.
+        open_cutout_at_end : bool, optional
+            Whether to open the cutout at the end. The default
+            is ``True``.
         use_pyaedt_extent_computing : bool, optional
             Whether to use pyaedt extent computing (experimental).
-        extent_defeature : float, optional
-            Defeature the cutout before applying it to produce simpler geometry for mesh (Experimental).
-            It applies only to Conforming bounding box. Default value is ``0`` which disable it.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
 
-        Examples
-        --------
-        >>> edb = Edb(r'C:.aedb', edbversion="2022.2")
-        >>> edb.logger.info_timer("Edb Opening")
-        >>> edb.logger.reset_timer()
-        >>> start = time.time()
-        >>> signal_list = []
-        >>> for net in edb.core_nets.nets.keys():
-        >>>      if "3V3" in net:
-        >>>           signal_list.append(net)
-        >>> power_list = ["PGND"]
-        >>> edb.create_cutout_multithread(signal_list=signal_list, reference_list=power_list, extent_type="Conforming")
-        >>> end_time = str((time.time() - start)/60)
-        >>> edb.logger.info("Total pyaedt cutout time in min %s", end_time)
-        >>> edb.core_nets.plot(signal_list, None, color_by_net=True)
-        >>> edb.core_nets.plot(power_list, None, color_by_net=True)
-        >>> edb.save_edb()
-        >>> edb.close_edb()
-
         """
+        warnings.warn("Use new method `cutout` instead.", DeprecationWarning)
+        return self._create_cutout_legacy(
+            signal_list=signal_list,
+            reference_list=reference_list,
+            extent_type=extent_type,
+            expansion_size=expansion_size,
+            use_round_corner=use_round_corner,
+            output_aedb_path=output_aedb_path,
+            open_cutout_at_end=open_cutout_at_end,
+            use_pyaedt_extent_computing=use_pyaedt_extent_computing,
+        )
+
+    @pyaedt_function_handler()
+    def _create_cutout_multithread(
+        self,
+        signal_list=[],
+        reference_list=["GND"],
+        extent_type="Conforming",
+        expansion_size=0.002,
+        use_round_corner=False,
+        number_of_threads=4,
+        custom_extent=None,
+        output_aedb_path=None,
+        remove_single_pin_components=False,
+        use_pyaedt_extent_computing=False,
+        extent_defeature=0,
+    ):
         if is_ironpython:  # pragma: no cover
             self.logger.error("Method working only in Cpython")
             return False
@@ -1270,7 +1581,7 @@ class Edb(object):
                 i.net_object.Delete()
         reference_pinsts = []
         reference_prims = []
-        for i in self.core_padstack.padstack_instances.values():
+        for i in self.core_padstack.instances.values():
             net_name = i.net_name
             if net_name not in all_list:
                 i.delete()
@@ -1398,6 +1709,101 @@ class Edb(object):
         return True
 
     @pyaedt_function_handler()
+    def create_cutout_multithread(
+        self,
+        signal_list=[],
+        reference_list=["GND"],
+        extent_type="Conforming",
+        expansion_size=0.002,
+        use_round_corner=False,
+        number_of_threads=4,
+        custom_extent=None,
+        output_aedb_path=None,
+        remove_single_pin_components=False,
+        use_pyaedt_extent_computing=False,
+        extent_defeature=0,
+    ):
+        """Create a cutout using an approach entirely based on pyaedt.
+        It does in sequence:
+        - delete all nets not in list,
+        - create a extent of the nets,
+        - check and delete all vias not in the extent,
+        - check and delete all the primitives not in extent,
+        - check and intersect all the primitives that intersect the extent.
+
+
+        .. deprecated:: 0.6.58
+           Use new method :func:`cutout` instead.
+
+        Parameters
+        ----------
+        signal_list : list
+            List of signal strings.
+        reference_list : list, optional
+            List of references to add. The default is ``["GND"]``.
+        extent_type : str, optional
+            Type of the extension. Options are ``"Conforming"``, ``"ConvexHull"``, and
+            ``"Bounding"``. The default is ``"Conforming"``.
+        expansion_size : float, str, optional
+            Expansion size ratio in meters. The default is ``0.002``.
+        use_round_corner : bool, optional
+            Whether to use round corners. The default is ``False``.
+        number_of_threads : int, optional
+            Number of thread to use. Default is 4
+        custom_extent : list, optional
+            Custom extent to use for the cutout. It has to be a list of points [[x1,y1],[x2,y2]....] or
+            Edb PolygonData object. In this case, both signal_list and reference_list will be cut.
+        output_aedb_path : str, optional
+            Full path and name for the new AEDB file. If None, then current aedb will be cutout.
+        remove_single_pin_components : bool, optional
+            Remove all Single Pin RLC after the cutout is completed. Default is `False`.
+        use_pyaedt_extent_computing : bool, optional
+            Whether to use pyaedt extent computing (experimental).
+        extent_defeature : float, optional
+            Defeature the cutout before applying it to produce simpler geometry for mesh (Experimental).
+            It applies only to Conforming bounding box. Default value is ``0`` which disable it.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> edb = Edb(r'C:\\test.aedb', edbversion="2022.2")
+        >>> edb.logger.info_timer("Edb Opening")
+        >>> edb.logger.reset_timer()
+        >>> start = time.time()
+        >>> signal_list = []
+        >>> for net in edb.core_nets.nets.keys():
+        >>>      if "3V3" in net:
+        >>>           signal_list.append(net)
+        >>> power_list = ["PGND"]
+        >>> edb.create_cutout_multithread(signal_list=signal_list, reference_list=power_list, extent_type="Conforming")
+        >>> end_time = str((time.time() - start)/60)
+        >>> edb.logger.info("Total pyaedt cutout time in min %s", end_time)
+        >>> edb.core_nets.plot(signal_list, None, color_by_net=True)
+        >>> edb.core_nets.plot(power_list, None, color_by_net=True)
+        >>> edb.save_edb()
+        >>> edb.close_edb()
+
+        """
+        warnings.warn("Use new method `cutout` instead.", DeprecationWarning)
+        return self._create_cutout_multithread(
+            signal_list=signal_list,
+            reference_list=reference_list,
+            extent_type=extent_type,
+            expansion_size=expansion_size,
+            use_round_corner=use_round_corner,
+            number_of_threads=number_of_threads,
+            custom_extent=custom_extent,
+            output_aedb_path=output_aedb_path,
+            remove_single_pin_components=remove_single_pin_components,
+            use_pyaedt_extent_computing=use_pyaedt_extent_computing,
+            extent_defeature=extent_defeature,
+        )
+
+    @pyaedt_function_handler()
     def get_conformal_polygon_from_netlist(self, netlist=None):
         """Return an EDB conformal polygon based on a netlist.
 
@@ -1416,7 +1822,7 @@ class Edb(object):
         temp_edb_path = self.edbpath[:-5] + "_temp_aedb.aedb"
         shutil.copytree(self.edbpath, temp_edb_path)
         temp_edb = Edb(temp_edb_path)
-        for via in list(temp_edb.core_padstack.padstack_instances.values()):
+        for via in list(temp_edb.core_padstack.instances.values()):
             via.pin.Delete()
         if netlist:
             nets = convert_py_list_to_net_list(
@@ -1439,29 +1845,54 @@ class Edb(object):
             return False
 
     @pyaedt_function_handler()
-    def arg_with_dim(self, Value, sUnits):
-        """Format arguments with dimensions.
+    def number_with_units(self, value, units=None):
+        """Convert a number to a string with units. If value is a string, it's returned as is.
 
         Parameters
         ----------
-        Value :
-
-        sUnits :
+        value : float, int, str
+            Input number or string.
+        units : optional
+            Units for formatting. The default is ``None``, which uses ``"meter"``.
 
         Returns
         -------
         str
-            String containing the value or the value and units if ``sUnits`` is not ``None``.
-        """
-        if type(Value) is str:
-            val = Value
-        else:
-            val = "{0}{1}".format(Value, sUnits)
+           String concatenating the value and unit.
 
-        return val
+        """
+        if units is None:
+            units = "meter"
+        if isinstance(value, str):
+            return value
+        else:
+            return "{0}{1}".format(value, units)
 
     @pyaedt_function_handler()
-    def create_cutout_on_point_list(
+    def arg_with_dim(self, Value, sUnits):
+        """Convert a number to a string with units. If value is a string, it's returned as is.
+
+        .. deprecated:: 0.6.56
+           Use :func:`number_with_units` property instead.
+
+        Parameters
+        ----------
+        Value : float, int, str
+            Input  number or string.
+        sUnits : optional
+            Units for formatting. The default is ``None``, which uses ``"meter"``.
+
+        Returns
+        -------
+        str
+           String concatenating the value and unit.
+
+        """
+        warnings.warn("Use :func:`number_with_units` instead.", DeprecationWarning)
+        return self.number_with_units(Value, sUnits)
+
+    @pyaedt_function_handler()
+    def _create_cutout_on_point_list(
         self,
         point_list,
         units="mm",
@@ -1471,39 +1902,9 @@ class Edb(object):
         include_partial_instances=False,
         keep_voids=True,
     ):
-        """Create a cutout on a specified shape and save it to a new AEDB file.
-
-        Parameters
-        ----------
-        point_list : list
-            Points list defining the cutout shape.
-        units : str
-            Units of the point list. The default is ``"mm"``.
-        output_aedb_path : str, optional
-            Full path and name for the new AEDB file.
-            The aedb folder shall not exist otherwise the method will return ``False``.
-        open_cutout_at_end : bool, optional
-            Whether to open the cutout at the end. The default is ``True``.
-        nets_to_include : list, optional
-            List of nets to include in the cutout. The default is ``None``, in
-            which case all nets are included.
-        include_partial_instances : bool, optional
-            Whether to include padstack instances that have bounding boxes intersecting with point list polygons.
-            This operation may slow down the cutout export.
-        keep_voids : bool
-            Boolean used for keep or not the voids intersecting the polygon used for clipping the layout.
-            Default value is ``True``, ``False`` will remove the voids.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        """
-
         if point_list[0] != point_list[-1]:
             point_list.append(point_list[0])
-        point_list = [[self.arg_with_dim(i[0], units), self.arg_with_dim(i[1], units)] for i in point_list]
+        point_list = [[self.number_with_units(i[0], units), self.number_with_units(i[1], units)] for i in point_list]
         plane = self.core_primitives.Shape("polygon", points=point_list)
         polygonData = self.core_primitives.shape_to_polygon_data(plane)
         _ref_nets = []
@@ -1516,11 +1917,9 @@ class Edb(object):
         pinstance_to_add = []
         if include_partial_instances:
             if nets_to_include:
-                pinst = [
-                    i for i in list(self.core_padstack.padstack_instances.values()) if i.net_name in nets_to_include
-                ]
+                pinst = [i for i in list(self.core_padstack.instances.values()) if i.net_name in nets_to_include]
             else:
-                pinst = [i for i in list(self.core_padstack.padstack_instances.values())]
+                pinst = [i for i in list(self.core_padstack.instances.values())]
             for p in pinst:
                 if p.in_polygon(polygonData):
                     pinstance_to_add.append(p)
@@ -1570,9 +1969,9 @@ class Edb(object):
                 else:
                     tolayer = self.stackup.signal_layers[p.stop_layer]._edb_layer
                 padstack = None
-                for pad in list(self.core_padstack.padstacks.keys()):
+                for pad in list(self.core_padstack.definitions.keys()):
                     if pad == p.padstack_definition:
-                        padstack = self.core_padstack.padstacks[pad].edb_padstack
+                        padstack = self.core_padstack.definitions[pad].edb_padstack
                         padstack_instance = self.edb.Cell.Primitive.PadstackInstance.Create(
                             _cutout.GetLayout(),
                             net,
@@ -1663,6 +2062,60 @@ class Edb(object):
                     except:
                         pass
         return True
+
+    @pyaedt_function_handler()
+    def create_cutout_on_point_list(
+        self,
+        point_list,
+        units="mm",
+        output_aedb_path=None,
+        open_cutout_at_end=True,
+        nets_to_include=None,
+        include_partial_instances=False,
+        keep_voids=True,
+    ):
+        """Create a cutout on a specified shape and save it to a new AEDB file.
+
+        .. deprecated:: 0.6.58
+           Use new method :func:`cutout` instead.
+
+        Parameters
+        ----------
+        point_list : list
+            Points list defining the cutout shape.
+        units : str
+            Units of the point list. The default is ``"mm"``.
+        output_aedb_path : str, optional
+            Full path and name for the new AEDB file.
+            The aedb folder shall not exist otherwise the method will return ``False``.
+        open_cutout_at_end : bool, optional
+            Whether to open the cutout at the end. The default is ``True``.
+        nets_to_include : list, optional
+            List of nets to include in the cutout. The default is ``None``, in
+            which case all nets are included.
+        include_partial_instances : bool, optional
+            Whether to include padstack instances that have bounding boxes intersecting with point list polygons.
+            This operation may slow down the cutout export.
+        keep_voids : bool
+            Boolean used for keep or not the voids intersecting the polygon used for clipping the layout.
+            Default value is ``True``, ``False`` will remove the voids.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        warnings.warn("Use new method `cutout` instead.", DeprecationWarning)
+        return self._create_cutout_multithread(
+            point_list=point_list,
+            units=units,
+            output_aedb_path=output_aedb_path,
+            open_cutout_at_end=open_cutout_at_end,
+            nets_to_include=nets_to_include,
+            include_partial_instances=include_partial_instances,
+            keep_voids=keep_voids,
+        )
 
     @pyaedt_function_handler()
     def write_export3d_option_config_file(self, path_to_output, config_dictionaries=None):
@@ -1912,8 +2365,88 @@ class Edb(object):
         )
 
     @pyaedt_function_handler()
+    def variable_exists(self, variable_name):
+        """Check if a variable exists or not.
+
+        Returns
+        -------
+        tuple of bool and VaribleServer
+            It returns a booleand to check if the variable exists and the variable
+            server that should contain the variable.
+        """
+        if "$" in variable_name:
+            if variable_name.index("$") == 0:
+                var_server = self.db.GetVariableServer()
+
+            else:
+                var_server = self.active_cell.GetVariableServer()
+
+        else:
+            var_server = self.active_cell.GetVariableServer()
+
+        variables = var_server.GetAllVariableNames()
+        if variable_name in list(variables):
+            return True, var_server
+        return False, var_server
+
+    @pyaedt_function_handler()
+    def get_variable(self, variable_name):
+        """Return Variable Value if variable exists.
+
+        Parameters
+        ----------
+        variable_name
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.edbvalue.EdbValue`
+        """
+        var_server = self.variable_exists(variable_name)
+        if var_server[0]:
+            tuple_value = var_server[1].GetVariableValue(variable_name)
+            return EdbValue(tuple_value[1])
+        self.logger.info("Variable %s doesn't exists.", variable_name)
+        return None
+
+    @pyaedt_function_handler()
+    def add_project_variable(self, variable_name, variable_value):
+        """Add a variable to edb database (project). The variable will have the prefix `$`.
+
+        ..note::
+            User can use also the setitem to create or assign a variable. See example below.
+
+        Parameters
+        ----------
+        variable_name : str
+            Name of the variable. Name can be provided without ``$`` prefix.
+        variable_value : str, float
+            Value of the variable with units.
+
+        Returns
+        -------
+        tuple
+            Tuple containing the ``AddVariable`` result and variable server.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+        >>> edb_app = Edb()
+        >>> boolean_1, ant_length = edb_app.add_project_variable("my_local_variable", "1cm")
+        >>> print(edb_app["$my_local_variable"])    #using getitem
+        >>> edb_app["$my_local_variable"] = "1cm"   #using setitem
+
+        """
+        if not variable_name.startswith("$"):
+            variable_name = "${}".format(variable_name)
+        return self.add_design_variable(variable_name=variable_name, variable_value=variable_value)
+
+    @pyaedt_function_handler()
     def add_design_variable(self, variable_name, variable_value, is_parameter=False):
-        """Add a design variable.
+        """Add a variable to edb. The variable can be a design one or a project variable (using ``$`` prefix).
+
+        ..note::
+            User can use also the setitem to create or assign a variable. See example below.
 
         Parameters
         ----------
@@ -1937,46 +2470,25 @@ class Edb(object):
         >>> from pyaedt import Edb
         >>> edb_app = Edb()
         >>> boolean_1, ant_length = edb_app.add_design_variable("my_local_variable", "1cm")
+        >>> print(edb_app["my_local_variable"])    #using getitem
+        >>> edb_app["my_local_variable"] = "1cm"   #using setitem
         >>> boolean_2, para_length = edb_app.change_design_variable_value("my_parameter", "1m", is_parameter=True
         >>> boolean_3, project_length = edb_app.change_design_variable_value("$my_project_variable", "1m")
 
 
         """
-        if "$" in variable_name:
-            if variable_name.index("$") == 0:
-                var_server = self.db.GetVariableServer()
-                is_parameter = False
-                string_message = [
-                    "Creating project variable %s.",
-                    "Project variable %s already exists. You can use it.",
-                ]
-            else:
-                var_server = self.active_cell.GetVariableServer()
-                self.logger.warning(
-                    "The character ``$`` must be placed at the beginning of your variable name,"
-                    " to make it a project variable."
-                )
-
-                string_message = ["Creating local variable %s.", "Local variable %s already exists. You can use it."]
-        else:
-            var_server = self.active_cell.GetVariableServer()
-            string_message = ["Creating local variable %s.", "Local variable %s already exists. You can use it."]
-        variables = var_server.GetAllVariableNames()
-        if variable_name in list(variables):
-            if var_server.IsVariableParameter(variable_name):
-                string_message[1] = "Parameter default %s already exists. You can use it."
-            self.logger.warning(string_message[1], variable_name)
-            return False, var_server
-        else:
-            if is_parameter:
-                string_message[0] = "Creating parameter default %s"
-            self.logger.info(string_message[0], variable_name)
-            var_server.AddVariable(variable_name, self.edb_value(variable_value), is_parameter)
-            return True, var_server
+        var_server = self.variable_exists(variable_name)
+        if not var_server[0]:
+            var_server[1].AddVariable(variable_name, self.edb_value(variable_value), is_parameter)
+            return True, var_server[1]
+        self.logger.error("Variable %s already exists.", variable_name)
+        return False, var_server[1]
 
     @pyaedt_function_handler()
     def change_design_variable_value(self, variable_name, variable_value):
         """Change a variable value.
+        ..note::
+            User can use also the getitem to read the variable value. See example below.
 
         Parameters
         ----------
@@ -1997,44 +2509,14 @@ class Edb(object):
         >>> edb_app = Edb()
         >>> boolean, ant_length = edb_app.add_design_variable("ant_length", "1cm")
         >>> boolean, ant_length = edb_app.change_design_variable_value("ant_length", "1m")
-
+        >>> print(edb_app["ant_length"])    #using getitem
         """
-        if "$" in variable_name:
-            if variable_name.index("$") == 0:
-                var_server = self.db.GetVariableServer()
-                string_message = [
-                    "Value of the project variable %s has been changed from %s to %s.",
-                    "Project variable %s doesn't exist. You can create it using the method add_design_variable.",
-                ]
-            else:
-                var_server = self.active_cell.GetVariableServer()
-                string_message = [
-                    "Value of the local variable %s has been changed from %s to %s.",
-                    "Local variable or parameter default %s doesn't exist."
-                    " You can create it using method add_design_variable.",
-                ]
-        else:
-            var_server = self.active_cell.GetVariableServer()
-            string_message = [
-                "Value of the local variable %s has been changed from %s to %s.",
-                "Local variable or parameter default %s doesn't exist."
-                " You can create it using the method add_design_variable.",
-            ]
-        variables = var_server.GetAllVariableNames()
-        if variable_name in list(variables):
-            if is_ironpython:
-                tuple_value = var_server.GetVariableValue(variable_name)
-            else:
-                out_value = self.edb.Utility.Value("")
-                tuple_value = var_server.GetVariableValue(variable_name, out_value)
-            var_server.SetVariableValue(variable_name, self.edb_value(variable_value))
-            if var_server.IsVariableParameter(variable_name):
-                string_message[0] = "Value of the parameter default %s has been changed from %s to %s."
-            self.logger.info(string_message[0], variable_name, tuple_value[1], variable_value)
-            return True, var_server
-        else:
-            self.logger.error(string_message[1], variable_name)
-            return False
+        var_server = self.variable_exists(variable_name)
+        if var_server[0]:
+            var_server[1].SetVariableValue(variable_name, self.edb_value(variable_value))
+            return True, var_server[1]
+        self.logger.error("Variable %s does not exists.", variable_name)
+        return False, var_server[1]
 
     @pyaedt_function_handler()
     def get_bounding_box(self):
@@ -2093,12 +2575,14 @@ class Edb(object):
                 self.logger.info("Cutting out using method: {0}".format(simulation_setup.cutout_subdesign_type))
                 if simulation_setup.use_default_cutout:
                     old_cell_name = self.active_cell.GetName()
-                    if self.create_cutout(
+                    if self.cutout(
                         signal_list=simulation_setup.signal_nets,
                         reference_list=simulation_setup.power_nets,
                         expansion_size=simulation_setup.cutout_subdesign_expansion,
                         use_round_corner=simulation_setup.cutout_subdesign_round_corner,
                         extent_type=simulation_setup.cutout_subdesign_type,
+                        use_legacy_cutout=True,
+                        use_pyaedt_extent_computing=False,
                     ):
                         self.logger.info("Cutout processed.")
                         old_cell = self.active_cell.FindByName(
@@ -2110,7 +2594,7 @@ class Edb(object):
                         self.logger.error("Cutout failed.")
                 else:
                     self.logger.info("Cutting out using method: {0}".format(simulation_setup.cutout_subdesign_type))
-                    self.create_cutout_multithread(
+                    self.cutout(
                         signal_list=simulation_setup.signal_nets,
                         reference_list=simulation_setup.power_nets,
                         expansion_size=simulation_setup.cutout_subdesign_expansion,
@@ -2201,6 +2685,17 @@ class Edb(object):
         -------
         bool
             Either if the ports are connected to reference_name or not.
+
+        Examples
+        --------
+        >>>edb = Edb()
+        >>> edb.core_hfss.create_edge_port_vertical(prim_1_id, ["-66mm", "-4mm"], "port_ver")
+        >>> edb.core_hfss.create_edge_port_horizontal(
+        >>> ... prim_1_id, ["-60mm", "-4mm"], prim_2_id, ["-59mm", "-4mm"], "port_hori", 30, "Lower"
+        >>> ... )
+        >>> edb.core_hfss.create_wave_port(traces[0].id, trace_paths[0][0], "wave_port")
+        >>> edb.cutout(["Net1"])
+        >>> assert edb.are_port_reference_terminals_connected()
         """
         self.logger.reset_timer()
         if not common_reference:
@@ -2222,7 +2717,7 @@ class Edb(object):
             "Terminal reference primitive IDs total intersections = {}\n\n".format(len(iDintersection))
         )
 
-        # If the intersections are non-zero, the termimal references are connected.
+        # If the intersections are non-zero, the terminal references are connected.
         return True if len(iDintersection) > 0 else False
 
     @pyaedt_function_handler()
@@ -2270,7 +2765,7 @@ class Edb(object):
         Dict[str, :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.HfssSimulationSetup`]
 
         """
-        return {i.name: i for i in self.setups if i.setup_type == "kHFSS"}
+        return {name: i for name, i in self.setups.items() if i.setup_type == "kHFSS"}
 
     @property
     def siwave_dc_setups(self):
@@ -2280,7 +2775,7 @@ class Edb(object):
         -------
         Dict[str, :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveDCSimulationSetup`]
         """
-        return {i.name: i for i in self.setups if i.setup_type == "kSIWave"}
+        return {name: i for name, i in self.setups.items() if i.setup_type == "kSIWaveDCIR"}
 
     @property
     def siwave_ac_setups(self):
@@ -2290,7 +2785,7 @@ class Edb(object):
         -------
         Dict[str, :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveSYZSimulationSetup`]
         """
-        return {i.name: i for i in self.setups if i.setup_type == "kSIWaveDCIR"}
+        return {name: i for name, i in self.setups.items() if i.setup_type == "kSIWave"}
 
     def create_hfss_setup(self, name=None):
         """Create a setup from a template.
@@ -2315,6 +2810,7 @@ class Edb(object):
         self._setups[name] = setup
         return setup
 
+    @pyaedt_function_handler()
     def create_siwave_syz_setup(self, name=None):
         """Create a setup from a template.
 
@@ -2344,6 +2840,7 @@ class Edb(object):
         self._setups[name] = setup
         return setup
 
+    @pyaedt_function_handler()
     def create_siwave_dc_setup(self, name=None):
         """Create a setup from a template.
 

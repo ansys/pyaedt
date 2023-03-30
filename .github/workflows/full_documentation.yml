@@ -63,8 +63,7 @@ jobs:
       - name: 'Install pyaedt'
         run: |
           testenv\Scripts\Activate.ps1
-          pip install -r requirements/requirements.txt
-          pip install -r requirements/requirements_docs.txt
+          pip install .[doc]
           Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "testenv\Lib\site-packages\vtkmodules" -Force
 
       - name: Retrieve PyAEDT version
@@ -96,7 +95,7 @@ jobs:
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
     steps:
       - name: "Deploy the stable documentation"
-        uses: pyansys/actions/doc-deploy-stable@v3
+        uses: pyansys/actions/doc-deploy-stable@v4
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}

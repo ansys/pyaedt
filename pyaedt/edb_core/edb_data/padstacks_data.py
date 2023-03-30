@@ -28,7 +28,7 @@ class EDBPadProperties(object):
     --------
     >>> from pyaedt import Edb
     >>> edb = Edb(myedb, edbversion="2021.2")
-    >>> edb_pad_properties = edb.core_padstack.padstacks["MyPad"].pad_by_layer["TOP"]
+    >>> edb_pad_properties = edb.core_padstack.definitions["MyPad"].pad_by_layer["TOP"]
     """
 
     def __init__(self, edb_padstack, layer_name, pad_type, p_edb_padstack):
@@ -317,7 +317,7 @@ class EDBPadstack(object):
     --------
     >>> from pyaedt import Edb
     >>> edb = Edb(myedb, edbversion="2021.2")
-    >>> edb_padstack = edb.core_padstack.padstacks["MyPad"]
+    >>> edb_padstack = edb.core_padstack.definitions["MyPad"]
     """
 
     def __init__(self, edb_padstack, ppadstack):
@@ -888,7 +888,7 @@ class EDBPadstackInstance(object):
     --------
     >>> from pyaedt import Edb
     >>> edb = Edb(myedb, edbversion="2021.2")
-    >>> edb_padstack_instance = edb.core_padstack.padstack_instances[0]
+    >>> edb_padstack_instance = edb.core_padstack.instances[0]
     """
 
     def __getattr__(self, key):
@@ -1304,7 +1304,7 @@ class EDBPadstackInstance(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edbapp.core_padstack.padstack_instances[111].get_aedt_pin_name()
+        >>> edbapp.core_padstack.instances[111].get_aedt_pin_name()
 
         """
         if is_ironpython:
@@ -1336,8 +1336,8 @@ class EDBPadstackInstance(object):
             var_name = "${}_pos".format(self.name)
         else:
             var_name = "${}".format(prefix)
-        self._pedb.add_design_variable(var_name + "X", p[0])
-        self._pedb.add_design_variable(var_name + "Y", p[1])
+        self._pedb.add_project_variable(var_name + "X", p[0])
+        self._pedb.add_project_variable(var_name + "Y", p[1])
         self.position = [var_name + "X", var_name + "Y"]
         return [var_name + "X", var_name + "Y"]
 
@@ -1472,7 +1472,7 @@ class EDBPadstackInstance(object):
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
         >>> edb_layout = edbapp.core_primitives
-        >>> list_of_padstack_instances = list(edbapp.core_padstack.padstack_instances.values())
+        >>> list_of_padstack_instances = list(edbapp.core_padstack.instances.values())
         >>> padstack_inst = list_of_padstack_instances[0]
         >>> padstack_inst.create_rectangle_in_pad("TOP")
         """
@@ -1481,7 +1481,7 @@ class EDBPadstackInstance(object):
         rotation = self.rotation  # in radians
         padstack_name = self.padstack_definition
         try:
-            padstack = self._pedb.core_padstack.padstacks[padstack_name]
+            padstack = self._pedb.core_padstack.definitions[padstack_name]
         except KeyError:  # pragma: no cover
             return False
         try:

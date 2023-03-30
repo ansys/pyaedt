@@ -104,7 +104,7 @@ LNA_setup.props["SweepDefinition"]["Data"] = " ".join(sweep_list)
 # Solve the circuit and push excitations to the HFSS model to calculate the
 # correct value of losses.
 
-circuit.analyze_nominal()
+circuit.analyze()
 circuit.push_excitations(instance_name="S1", setup_name=setup_name)
 
 
@@ -148,7 +148,7 @@ mech.plot(show=False, export_path=os.path.join(mech.working_directory, "Mech.jpg
 
 mech.create_setup()
 mech.save_project()
-mech.analyze_nominal()
+mech.analyze()
 surfaces = []
 for name in mech.get_all_conductors_names():
     surfaces.extend(mech.modeler.get_object_faces(name))

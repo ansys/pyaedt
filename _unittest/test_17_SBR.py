@@ -4,8 +4,10 @@ import sys
 from _unittest.conftest import BasisTest
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
+
 from pyaedt import Hfss
 from pyaedt import is_ironpython
+from pyaedt import is_linux
 
 try:
     import pytest  # noqa: F401
@@ -174,7 +176,7 @@ class TestClass(BasisTest, object):
             ffd_full_path=os.path.join(local_path, "example_models", test_subfolder, "test.ffd")
         )
 
-    @pytest.mark.skipif(is_ironpython, reason="Not supported.")
+    @pytest.mark.skipif(is_linux or is_ironpython, reason="Not supported.")
     def test_12_import_map(self):
         self.aedtapp.insert_design("city")
         ansys_home = [40.273726, -80.168269]
@@ -184,11 +186,11 @@ class TestClass(BasisTest, object):
         for part in parts_dict["parts"]:
             assert os.path.exists(parts_dict["parts"][part]["file_name"])
 
-    @pytest.mark.skipif(sys.version_info < (3, 8), reason="Not supported.")
+    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not supported.")
     def test_13_link_array(self):
         self.array.setups[0].props["MaximumPasses"] = 1
         assert self.sbr_platform.create_sbr_linked_antenna(self.array, target_cs="antenna_CS", fieldtype="farfield")
-        self.sbr_platform.analyze_all()
+        self.sbr_platform.analyze()
         ffdata = self.sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere_name="3D")
         self.array.close_project()
         ffdata2 = self.sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere_name="3D", overwrite=False)
@@ -213,3 +215,47 @@ class TestClass(BasisTest, object):
             export_image_path=os.path.join(self.local_scratch.path, "3d2_array.jpg"),
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d2_array.jpg"))
+
+    def test_14_create_vrt(self):
+        self.aedtapp.insert_design("vtr")
+        self.aedtapp.modeler.create_sphere([10, 10, 10], 5, matname="copper")
+        vrt = self.aedtapp.post.create_sbr_plane_visual_ray_tracing(max_frequency="10GHz", incident_theta="40deg")
+        assert vrt
+        vrt.incident_phi = "30deg"
+        assert vrt.update()
+        assert vrt.delete()
+        vrt = self.aedtapp.post.create_sbr_point_visual_ray_tracing(max_frequency="10GHz")
+        assert vrt
+        vrt.custom_location = [10, 10, 0]
+        assert vrt.update()
+        assert vrt.delete()
+
+    def test_15_create_vrt_creeping(self):
+        self.aedtapp.insert_design("vtr_creeping")
+        self.aedtapp.modeler.create_sphere([10, 10, 10], 5, matname="copper")
+        vrt = self.aedtapp.post.create_creeping_plane_visual_ray_tracing(max_frequency="10GHz")
+        assert vrt
+        vrt.incident_phi = "30deg"
+        assert vrt.update()
+        assert vrt.delete()
+        vrt = self.aedtapp.post.create_creeping_point_visual_ray_tracing(max_frequency="10GHz")
+        assert vrt
+        vrt.custom_location = [10, 10, 0]
+        assert vrt.update()
+        assert vrt.delete()
+
+    @pytest.mark.skipif(is_linux or is_ironpython, reason="feature supported in Cpython")
+    def test_16_read_hdm(self):
+        self.aedtapp.insert_design("hdm")
+        hdm_path = os.path.join(local_path, "example_models", test_subfolder, "freighter_rays.hdm")
+        stl_path = os.path.join(local_path, "example_models", test_subfolder, "freighter_ship.stl")
+        self.aedtapp.modeler.model_units = "meter"
+        self.aedtapp.modeler.import_3d_cad(stl_path)
+        assert self.aedtapp.parse_hdm_file(hdm_path)
+        plotter = self.aedtapp.get_hdm_plotter(hdm_path)
+        assert plotter
+        plotter.plot_first_bounce_currents(os.path.join(self.local_scratch.path, "bounce1.jpg"))
+        assert os.path.exists(os.path.join(self.local_scratch.path, "bounce1.jpg"))
+        assert plotter
+        plotter.plot_rays(os.path.join(self.local_scratch.path, "bounce2.jpg"))
+        assert os.path.exists(os.path.join(self.local_scratch.path, "bounce2.jpg"))

@@ -9,12 +9,11 @@ from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import get_filename_without_extension
 from pyaedt.generic.general_methods import inside_desktop
-from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.Modeler import Modeler
-from pyaedt.modeler.pcb.object3dlayout import ComponentsSubCircuit3DLayout
 from pyaedt.modeler.pcb.Primitives3DLayout import Primitives3DLayout
+from pyaedt.modeler.pcb.object3dlayout import ComponentsSubCircuit3DLayout
 from pyaedt.modules.LayerStackup import Layers
 
 
@@ -92,7 +91,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             return self._edb
         if not self._edb:
             self._edb = None
-            if os.path.exists(self._edb_file) or (inside_desktop and is_ironpython):
+            if os.path.exists(self._edb_file) or inside_desktop:
                 self._edb = Edb(
                     self._edb_folder,
                     self._app.design_name,
@@ -101,7 +100,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                     isaedtowned=True,
                     oproject=self._app.oproject,
                 )
-        elif not (inside_desktop and is_ironpython):
+        elif not inside_desktop:
             if self._app.project_timestamp_changed:
                 if self._edb:
                     self._edb.close_edb()
@@ -390,7 +389,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 "Type:=",
                 "Colinear",
                 "Tol:=",
-                self.arg_with_dim(tolerance),
+                self.number_with_units(tolerance),
             ]
         )
 
@@ -442,7 +441,9 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         poly = self.oeditor.GetPolygonDef(object_to_expand).GetPoints()
         pos = [poly[0].GetX(), poly[0].GetY()]
         geom_names = self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0], pos[1]), layer)
-        self.oeditor.Expand(self.arg_with_dim(size), expand_type, replace_original, ["NAME:elements", object_to_expand])
+        self.oeditor.Expand(
+            self.number_with_units(size), expand_type, replace_original, ["NAME:elements", object_to_expand]
+        )
         self.cleanup_objects()
         if not replace_original:
             new_geom_names = [

@@ -1,17 +1,55 @@
+# -*- coding: utf-8 -*-
 """
-* * * This script is meant to run in IronPython within the Ansys Electronics Desktop. * * *
+* * * This script launches a Jupyter Notebook. * * *
 
-It looks for a reference to a Python interpreter in the ``python_interpreter.bat`` file.
-
-This script executes the CPython script ``Lib/console_setup.py``.
-The ``console_setup.py`` script sets up the HFSS variable based on the command line arguments and kicks off an
-interactive Python session.
+This script makes a copy of the referenced Jupyter Notebook script, ``Lib/jupyter_template.ipynb``, to the project
+directory and launches it.
 
 """
 import os
 import random
 import string
-import subprocess
+import sys
+
+from System.Windows.Forms import MessageBox
+from System.Windows.Forms import MessageBoxButtons
+from System.Windows.Forms import MessageBoxIcon
+
+is_linux = os.name == "posix"
+
+if is_linux:
+    import subprocessdotnet as subprocess
+else:
+    import subprocess
+
+
+def main():
+    # Launch file
+    proj_dir = oDesktop.GetProjectDirectory()
+    os.chdir(proj_dir)
+
+    version = oDesktop.GetVersion()[2:6].replace(".", "")
+    current_dir = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))
+    pyaedt_toolkit_dir = os.path.normpath(os.path.join(current_dir, r"##TOOLKIT_REL_LIB_DIR##"))
+    jupyter_exe = r"##JUPYTER_EXE##" % version
+    template = os.path.join(pyaedt_toolkit_dir, "jupyter_template.ipynb")
+    target = os.path.join(proj_dir, generate_unique_name("pyaedt", ".ipynb", n=3))
+    check_file(jupyter_exe)
+    check_file(template)
+
+    with open(template, "r") as source:
+        with open(target, "w") as t:
+            for line in source:
+                line = line.replace("PROCESSID", str(oDesktop.GetProcessID())).replace(
+                    "AEDTVERSION", oDesktop.GetVersion()[:6]
+                )
+                t.write(line)
+    if is_linux:
+        command = ["{}".format(jupyter_exe), "lab", "{}".format(target)]
+    else:
+        command = ['"{}"'.format(jupyter_exe), "lab", '"{}"'.format(target)]
+
+    subprocess.Popen(" ".join(command))
 
 
 def generate_unique_name(rootname, suffix="", n=6):
@@ -22,22 +60,17 @@ def generate_unique_name(rootname, suffix="", n=6):
     return unique_name
 
 
-# Launch file
-proj_dir = oDesktop.GetProjectDirectory()
-os.chdir(proj_dir)
+def check_file(file_path):
+    if not os.path.isfile(file_path):
+        show_error('"{}" does not exist. Please click on the "Install PyAEDT" button in the Automation ribbon.'.format(
+            file_path))
 
-version = oDesktop.GetVersion()[2:6].replace(".", "")
-current_dir = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))
-pyaedt_toolkit_dir = os.path.normpath(os.path.join(current_dir, "..", "..", r"##TOOLKIT_REL_LIB_DIR##"))
-jupyter_exe = r"##JUPYTER_EXE##" % version
-template = os.path.join(pyaedt_toolkit_dir, "jupyter_template.ipynb")
-target = os.path.join(proj_dir, generate_unique_name("pyaedt", ".ipynb", n=3))
-with open(template, "r") as source:
-    with open(target, "w") as t:
-        for line in source:
-            line = line.replace("PROCESSID", str(oDesktop.GetProcessID())).replace(
-                "AEDTVERSION", oDesktop.GetVersion()[:6]
-            )
-            t.write(line)
-command = ['"{}"'.format(jupyter_exe), "lab", '"{}"'.format(target)]
-subprocess.Popen(" ".join(command))
+
+def show_error(msg):
+    oDesktop.AddMessage("", "", 2, str(msg))
+    MessageBox.Show(str(msg), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+    sys.exit()
+
+
+if __name__ == "__main__":
+    main()

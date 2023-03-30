@@ -6,6 +6,7 @@ import tempfile
 import zipfile
 
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import settings
 from pyaedt.misc import list_installed_ansysem
 
@@ -44,15 +45,11 @@ def _retrieve_file(url, filename, directory, destination=None):
     # grab the correct url retriever
     if not is_ironpython:
         urlretrieve = urllib.request.urlretrieve
-
-    dirpath = os.path.dirname(local_path)
-    if not os.path.isdir(destination):
-        os.mkdir(destination)
-    if not os.path.isdir(dirpath):
-        os.makedirs(dirpath)
-
+    destination_dir = os.path.join(destination, directory)
+    if not os.path.isdir(destination_dir):
+        os.makedirs(destination_dir)
     # Perform download
-    if os.name == "posix":
+    if is_linux:
         command = "wget {} -O {}".format(url, local_path)
         os.system(command)
     elif is_ironpython:
@@ -105,9 +102,10 @@ def _retrieve_folder(url, directory, destination=None):
         data = response.read().decode("utf-8").split("\n")
 
     if not os.path.isdir(destination):
-        os.mkdir(destination)
-    if not os.path.isdir(local_path):
-        os.makedirs(local_path)
+        try:
+            os.mkdir(destination)
+        except FileNotFoundError:
+            os.makedirs(local_path)
 
     for line in data:
         if "js-navigation-open Link--primary" in line:

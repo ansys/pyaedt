@@ -102,7 +102,7 @@ h3d.create_linear_count_sweep(
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Solve and plot the results.
 
-h3d.analyze_nominal()
+h3d.analyze()
 traces = h3d.get_traces_for_plot(first_element_filter="Port1")
 h3d.post.create_report(traces, variations=h3d.available_variations.nominal_w_values_dict)
 

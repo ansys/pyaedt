@@ -1,6 +1,5 @@
 import copy
 import json
-import os
 from math import asin
 from math import ceil
 from math import cos
@@ -10,6 +9,7 @@ from math import radians
 from math import sin
 from math import sqrt
 from math import tan
+import os
 
 from pyaedt import Icepak
 from pyaedt.generic import LoadAEDTFile
@@ -2086,25 +2086,47 @@ class Primitives3D(Primitives, object):
             [in_rad * cos(teta_r), in_rad * sin(teta_r), -height / 2 + chamf],
             [in_rad * cos(teta_r), in_rad * sin(teta_r), height / 2 - chamf],
         ]
-        polyline = self.create_polyline(position_list=points_list1, name=name, matname=material)
-        union_polyline1 = [polyline.name]
-        if turns > 1:
-            union_polyline2 = polyline.duplicate_around_axis(
-                cs_axis="Z", angle=2 * teta, nclones=turns, create_new_objects=True
-            )
-        else:
-            union_polyline2 = []
-        union_polyline = union_polyline1 + union_polyline2
-        list_positions = []
-        for i in range(len(union_polyline)):
-            list_positions = list_positions + self.get_vertices_of_line(union_polyline[i])
-        self.delete(union_polyline)
+        points_list1 = points_list1[::-1]
+        import math
+
+        list_positions = [i for i in points_list1]
+        angle = 2 * teta_r
+        for i in range(
+            1,
+            turns,
+        ):
+            for k in points_list1[1:]:
+                list_positions.append(
+                    [
+                        k[0] * math.cos(i * angle) + k[1] * math.sin(i * angle),
+                        -k[0] * math.sin(i * angle) + k[1] * math.cos(i * angle),
+                        k[2],
+                    ]
+                )
+
+        # polyline = self.create_polyline(position_list=points_list1, name=name, matname=material)
+        # union_polyline1 = [polyline.name]
+        # if turns > 1:
+        #     union_polyline2 = polyline.duplicate_around_axis(
+        #         cs_axis="Z", angle=2 * teta, nclones=turns, create_new_objects=True
+        #     )
+        # else:
+        #     union_polyline2 = []
+        # union_polyline = union_polyline1 + union_polyline2
+        # list_positions = []
+        # for i, p in enumerate(union_polyline):
+        #     if i == 0:
+        #         list_positions.extend(self.get_vertices_of_line(p))
+        #     else:
+        #         list_positions.extend(self.get_vertices_of_line(p)[1:])
+        # self.delete(union_polyline)
+        del list_positions[0]
 
         if sep_layer:
             for i in range(4):
                 list_positions.pop()
             list_positions.insert(0, [list_positions[0][0], list_positions[0][1], -height])
-            list_positions.append([list_positions[-1][0], list_positions[-1][1], -height])
+            list_positions.append([list_positions[-1][0], list_positions[-1][1], height])
             true_polyline = self.create_polyline(position_list=list_positions, name=name, matname=material)
             true_polyline.rotate("Z", 180 - (turns - 1) * teta)
             list_positions = self.get_vertices_of_line(true_polyline.name)
