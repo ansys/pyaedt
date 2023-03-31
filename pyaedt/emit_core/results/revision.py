@@ -287,7 +287,7 @@ class Revision:
 
         Returns
         -------
-        freqs:class:`list of float`
+        freqs : List of float
             List of ``tx`` or ``rx`` radio/emitter frequencies.
 
         Examples
