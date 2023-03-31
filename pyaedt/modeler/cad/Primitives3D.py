@@ -1943,7 +1943,7 @@ class Primitives3D(Primitives, object):
                     chamf,
                     sr,
                 )
-                print("make_double_linked_winding")
+                self.logger.info("Creating double linked winding")
             else:
                 list_object = self._make_double_winding(
                     name_wind,
@@ -1961,7 +1961,7 @@ class Primitives3D(Primitives, object):
                     sr,
                     sep_layer,
                 )
-                print("make_double_winding")
+                self.logger.info("Creating double winding")
         elif values["Layer"]["Triple"]:
             if values["Layer Type"]["Linked"]:
                 list_object = self._make_triple_linked_winding(
@@ -1981,7 +1981,7 @@ class Primitives3D(Primitives, object):
                     chamf,
                     sr,
                 )
-                print("make_triple_linked_winding")
+                self.logger.info("Creating triple linked winding")
             else:
                 list_object = self._make_triple_winding(
                     name_wind,
@@ -2001,12 +2001,12 @@ class Primitives3D(Primitives, object):
                     sr,
                     sep_layer,
                 )
-                print("make_triple_winding")
+                self.logger.info("Creating triple winding")
         else:
             list_object = self._make_winding(
                 name_wind, material_wind, in_rad_wind, out_rad_wind, height_wind, teta, turns, chamf, sep_layer
             )
-            print("make_winding")
+            self.logger.info("Creating single winding")
         list_duplicated_object = []
         if type(list_object[0]) == list:
             for i in range(len(list_object)):
@@ -2068,7 +2068,10 @@ class Primitives3D(Primitives, object):
                         )
                         list_duplicated_object.append([duplication, duplication_points])
             returned_list = returned_list + list_duplicated_object
-
+        if success:
+            self.logger.info("Choke created correctly")
+        else:
+            self.logger.error("Error creating choke")
         returned_list.insert(0, success)
         return returned_list
 
@@ -2088,14 +2091,11 @@ class Primitives3D(Primitives, object):
             [in_rad * cos(teta_r), in_rad * sin(teta_r), -height / 2 + chamf],
             [in_rad * cos(teta_r), in_rad * sin(teta_r), height / 2 - chamf],
         ]
-        points_list1 = points_list1[::-1]
-        turns = int(turns)
-        list_positions = [i for i in points_list1]
-        angle = 2 * teta_r
-        for i in range(
-            1,
-            turns,
-        ):
+        list_positions = [i for i in points_list1[:]]
+        import math
+
+        angle = -2 * teta * math.pi / 180
+        for i in range(1, turns):
             for k in points_list1[1:]:
                 list_positions.append(
                     [
@@ -2105,29 +2105,29 @@ class Primitives3D(Primitives, object):
                     ]
                 )
 
-        # polyline = self.create_polyline(position_list=points_list1, name=name, matname=material)
-        # union_polyline1 = [polyline.name]
-        # if turns > 1:
-        #     union_polyline2 = polyline.duplicate_around_axis(
-        #         cs_axis="Z", angle=2 * teta, nclones=turns, create_new_objects=True
-        #     )
-        # else:
-        #     union_polyline2 = []
-        # union_polyline = union_polyline1 + union_polyline2
-        # list_positions = []
-        # for i, p in enumerate(union_polyline):
-        #     if i == 0:
-        #         list_positions.extend(self.get_vertices_of_line(p))
-        #     else:
-        #         list_positions.extend(self.get_vertices_of_line(p)[1:])
-        # self.delete(union_polyline)
-        del list_positions[0]
+        polyline = self.create_polyline(position_list=points_list1, name=name, matname=material)
+        union_polyline1 = [polyline.name]
+        if turns > 1:
+            union_polyline2 = polyline.duplicate_around_axis(
+                cs_axis="Z", angle=2 * teta, nclones=turns, create_new_objects=True
+            )
+        else:
+            union_polyline2 = []
+        union_polyline = union_polyline1 + union_polyline2
+        list_positions2 = []
+        for i, p in enumerate(union_polyline):
+            if i == 0:
+                list_positions2.extend(self.get_vertices_of_line(p))
+            else:
+                list_positions2.extend(self.get_vertices_of_line(p)[1:])
+        self.delete(union_polyline)
+        # del list_positions[0]
 
         if sep_layer:
             for i in range(4):
                 list_positions.pop()
             list_positions.insert(0, [list_positions[0][0], list_positions[0][1], -height])
-            list_positions.append([list_positions[-1][0], list_positions[-1][1], height])
+            list_positions.append([list_positions[-1][0], list_positions[-1][1], -height])
             true_polyline = self.create_polyline(position_list=list_positions, name=name, matname=material)
             true_polyline.rotate("Z", 180 - (turns - 1) * teta)
             list_positions = self.get_vertices_of_line(true_polyline.name)

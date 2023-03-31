@@ -849,30 +849,10 @@ class CircuitComponents(object):
         xp = -0.00254
         yp = 0.00254 * (h + 2)
         angle = 0
-        self.o_symbol_manager.Add(
-            [
-                "NAME:" + symbol_name,
-                "ModTime:=",
-                1591858230,
-                "Library:=",
-                "",
-                "ModSinceLib:=",
-                False,
-                "LibLocation:=",
-                "Project",
-                "HighestLevel:=",
-                1,
-                "Normalize:=",
-                True,
-                "InitialLevels:=",
-                [0, 1],
-                ["NAME:Graphics"],
-            ]
-        )
         arg = [
             "NAME:" + symbol_name,
             "ModTime:=",
-            1591858265,
+            1591858230,
             "Library:=",
             "",
             "ModSinceLib:=",
@@ -882,44 +862,18 @@ class CircuitComponents(object):
             "HighestLevel:=",
             1,
             "Normalize:=",
-            False,
+            True,
             "InitialLevels:=",
             [0, 1],
+            ["NAME:Graphics"],
         ]
-        oDefinitionEditor = self._app._oproject.SetActiveDefinitionEditor("SymbolEditor", symbol_name)
+        self.o_symbol_manager.Add(arg)
+
         id = 2
-        oDefinitionEditor.CreateRectangle(
-            [
-                "NAME:RectData",
-                "X1:=",
-                x1,
-                "Y1:=",
-                y1,
-                "X2:=",
-                x2,
-                "Y2:=",
-                y2,
-                "LineWidth:=",
-                0,
-                "BorderColor:=",
-                0,
-                "Fill:=",
-                0,
-                "Color:=",
-                0,
-                "Id:=",
-                id,
-            ],
-            ["NAME:Attributes", "Page:=", 1],
-        )
         i = 1
         id += 2
         r = numpins - (h * 2)
         for pin in pin_lists:
-            oDefinitionEditor.CreatePin(
-                ["NAME:PinData", "Name:=", pin, "Id:=", id],
-                ["NAME:PinParams", "X:=", xp, "Y:=", yp, "Angle:=", angle, "Flip:=", False],
-            )
             arg.append(
                 [
                     "NAME:PinDef",
@@ -943,7 +897,6 @@ class CircuitComponents(object):
             ]
         )
         self.o_symbol_manager.EditWithComps(symbol_name, arg, [])
-        oDefinitionEditor.CloseEditor()
         return True
 
     @pyaedt_function_handler()

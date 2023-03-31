@@ -1503,7 +1503,7 @@ class Primitives(object):
         >>> oEditor.GetObjectsByMaterial
 
         """
-        if materialname:
+        if materialname is not None:
             obj_lst = [x for x in self.object_list if x.material_name == materialname]
         else:
             obj_lst = [
