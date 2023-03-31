@@ -347,7 +347,7 @@ class EdbPadstacks(object):
             net_names = [net_names]
 
         for p_id, p in self.instances.items():
-            if p.name in net_names:
+            if p.net_name in net_names:
                 if not p.delete():  # pragma: no cover
                     return False
         return True
