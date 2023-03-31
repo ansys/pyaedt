@@ -1376,7 +1376,7 @@ class BinaryTreeNode:
         for i in child_names:
             if not name:
                 name = i
-            if i == "OperandPart_" + saved_root_name:
+            if i == "OperandPart_" + saved_root_name or i == "OperandPart_" + saved_root_name.split("_")[0]:
                 continue
             elif not i.startswith("OperandPart_"):
                 self.children[i] = BinaryTreeNode(i, self.child_object.GetChildObject(i), root_name=saved_root_name)
