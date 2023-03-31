@@ -642,7 +642,20 @@ def Edb(
     use_ppe=False,
 ):
     """Edb Class."""
-    from pyaedt.edb import Edb as app
+    from pyaedt.generic.general_methods import is_ironpython
+    from pyaedt.generic.general_methods import settings
+    from pyaedt.misc import list_installed_ansysem
+
+    if not edbversion:
+        if not edbversion:
+            try:
+                edbversion = "20{}.{}".format(list_installed_ansysem()[0][-3:-1], list_installed_ansysem()[0][-1:])
+            except IndexError:
+                raise Exception("No ANSYSEM_ROOTxxx is found.")
+    if edbversion > "2023.1" and settings.use_pyedb and not is_ironpython:
+        from pyaedt.edb_grpc.edb import Edb as app
+    else:
+        from pyaedt.edb import Edb as app
 
     return app(
         edbpath=edbpath,

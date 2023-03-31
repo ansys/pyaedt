@@ -1588,6 +1588,16 @@ class Settings(object):
         self._lsf_aedt_command = "ansysedt"
         self._lsf_timeout = 3600
         self._lsf_queue = None
+        self._use_pyedb = False
+
+    @property
+    def use_pyedb(self):
+        """Whether to use or not PyEdb. Working only in AEDT greater than 2023.1."""
+        return self._use_pyedb
+
+    @use_pyedb.setter
+    def use_pyedb(self, value):
+        self._use_pyedb = value
 
     @property
     def lsf_queue(self):

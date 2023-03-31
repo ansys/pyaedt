@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+<ns0:Control xmlns:ns0="http://www.ansys.com/control" schemaVersion="1.0">
+    <Stackup schemaVersion="1.0">
+        <Materials>
+            <Material Name="air">
+                <Permittivity>
+                    <Double>1.0006</Double>
+                </Permittivity>
+                <DielectricLossTangent>
+                    <Double>0.0</Double>
+                </DielectricLossTangent>
+            </Material>
+            <Material Name="copper">
+                <Conductivity>
+                    <Double>58000000.0</Double>
+                </Conductivity>
+            </Material>
+            <Material Name="fr4_epoxy">
+                <Permittivity>
+                    <Double>4.4</Double>
+                </Permittivity>
+                <DielectricLossTangent>
+                    <Double>0.02</Double>
+                </DielectricLossTangent>
+            </Material>
+            <Material Name="solder_mask">
+                <Permittivity>
+                    <Double>3.1</Double>
+                </Permittivity>
+                <DielectricLossTangent>
+                    <Double>0.035</Double>
+                </DielectricLossTangent>
+            </Material>
+        </Materials>
+        <Layers LengthUnit="meter"/>
+    </Stackup>
+</ns0:Control>
