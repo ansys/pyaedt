@@ -2185,7 +2185,7 @@ class Primitives3D(Primitives, object):
         outer_polyline = self.create_polyline(position_list=points_out_wind, name=name, matname=material)
         outer_polyline.rotate("Z", 180 - (turns - 1) * teta)
         inner_polyline = self.create_polyline(position_list=points_in_wind, name=name, matname=material)
-        inner_polyline.rotate("Z", 180 - (turns_in_wind - 1) * teta_in_wind)
+        inner_polyline.rotate("Z", 180 - (turns_in_wind) * teta_in_wind)
         outer_polyline.mirror([0, 0, 0], [0, -1, 0])
         outer_polyline.rotate("Z", turns_in_wind * teta_in_wind - turns * teta)
 
