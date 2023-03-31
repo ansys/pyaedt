@@ -643,11 +643,11 @@ class TestClass(BasisTest, object):
         assert instance.get_largest_problem_type(econsts.result_type().emi) == "Out-of-Channel: Tx Fundamental"
         domain2 = self.aedtapp.results.interaction_domain()
         rx_frequencies = rev.get_active_frequencies(radiosRX[0], bandsRX[0], econsts.tx_rx_mode().rx, "Hz")
-        domain2.set_receiver(radiosRX[0], bandsRX[0], rx_frequencies[0], "MHz")
+        domain2.set_receiver(radiosRX[0], bandsRX[0], rx_frequencies[0], "Hz")
         radiosTX = rev.get_interferer_names(econsts.interferer_type().transmitters)
         bandsTX = rev.get_band_names(radiosTX[0], econsts.tx_rx_mode().tx)
         tx_frequencies = rev.get_active_frequencies(radiosTX[0], bandsTX[0], econsts.tx_rx_mode().tx, "Hz")
-        domain2.set_interferer(radiosTX[0], bandsTX[0], tx_frequencies[0], "MHz")
+        domain2.set_interferer(radiosTX[0], bandsTX[0], tx_frequencies[0], "Hz")
         exception_raised = False
         try:
             instance = interaction.get_instance(domain2)
