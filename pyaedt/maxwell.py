@@ -545,8 +545,8 @@ class Maxwell(object):
         ----------
         object_list : list
             List of objects to assign the current source to.
-        amplitude : float, optional
-            Current amplitude in mA. The default is ``1``.
+        amplitude : float or str, optional
+            Current amplitude. The default is ``1A``.
         phase : str, optional
             The default is ``"0deg"``.
         solid : bool, optional
@@ -565,6 +565,14 @@ class Maxwell(object):
         ----------
 
         >>> oModule.AssignCurrent
+
+        Examples
+        --------
+
+        >>> from pyaedt import Maxwell3d
+        >>> app = pyaedt.Maxwell3d(solution_type="ElectroDCConduction")
+        >>> cylinder= app.modeler.create_cylinder("X", [0,0,0],10, 100, 250)
+        >>> current = app.assign_current(cylinder.top_face_x.id, amplitude= "2mA")
         """
 
         if isinstance(amplitude, (int, float)):
@@ -594,9 +602,10 @@ class Maxwell(object):
                 "DCConduction",
                 "ElectricTransient",
                 "TransientAPhiFormulation",
+                "ElectroDCConduction",
             ]:
                 props["Phase"] = phase
-            if self.solution_type not in ["DCConduction", "ElectricTransient"]:
+            if self.solution_type not in ["DCConduction", "ElectricTransient", "ElectroDCConduction"]:
                 props["IsSolid"] = solid
             props["Point out of terminal"] = swap_direction
         else:
