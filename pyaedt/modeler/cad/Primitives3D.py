@@ -1943,7 +1943,7 @@ class Primitives3D(Primitives, object):
                     chamf,
                     sr,
                 )
-                print("make_double_linked_winding")
+                self.logger.info("Creating double linked winding")
             else:
                 list_object = self._make_double_winding(
                     name_wind,
@@ -1961,7 +1961,7 @@ class Primitives3D(Primitives, object):
                     sr,
                     sep_layer,
                 )
-                print("make_double_winding")
+                self.logger.info("Creating double winding")
         elif values["Layer"]["Triple"]:
             if values["Layer Type"]["Linked"]:
                 list_object = self._make_triple_linked_winding(
@@ -1981,7 +1981,7 @@ class Primitives3D(Primitives, object):
                     chamf,
                     sr,
                 )
-                print("make_triple_linked_winding")
+                self.logger.info("Creating triple linked winding")
             else:
                 list_object = self._make_triple_winding(
                     name_wind,
@@ -2001,12 +2001,12 @@ class Primitives3D(Primitives, object):
                     sr,
                     sep_layer,
                 )
-                print("make_triple_winding")
+                self.logger.info("Creating triple winding")
         else:
             list_object = self._make_winding(
                 name_wind, material_wind, in_rad_wind, out_rad_wind, height_wind, teta, turns, chamf, sep_layer
             )
-            print("make_winding")
+            self.logger.info("Creating single winding")
         list_duplicated_object = []
         if type(list_object[0]) == list:
             for i in range(len(list_object)):
@@ -2068,7 +2068,10 @@ class Primitives3D(Primitives, object):
                         )
                         list_duplicated_object.append([duplication, duplication_points])
             returned_list = returned_list + list_duplicated_object
-
+        if success:
+            self.logger.info("Choke created correctly")
+        else:
+            self.logger.error("Error creating choke")
         returned_list.insert(0, success)
         return returned_list
 
@@ -2091,7 +2094,7 @@ class Primitives3D(Primitives, object):
         points_list1 = points_list1[::-1]
         turns = int(turns)
         list_positions = [i for i in points_list1]
-        angle = 2 * teta_r
+        angle = -2 * teta_r
         for i in range(
             1,
             turns,
