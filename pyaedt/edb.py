@@ -107,6 +107,14 @@ class Edb(object):
     >>> app['s1'].tostring
     >>> "0.25mm"
 
+    or add a new parameter with description:
+
+    >>> app['s2'] = ["20um", "Spacing between traces"]
+    >>> app['s2'].value
+    >>> 1.9999999999999998e-05
+    >>> app['s2'].description
+    >>> 'Spacing between traces'
+
     Create an ``Edb`` object and open the specified project.
 
     >>> app = Edb("myfile.aedb")
