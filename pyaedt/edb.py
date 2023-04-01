@@ -115,6 +115,7 @@ class Edb(object):
     >>> app['s2'].description
     >>> 'Spacing between traces'
 
+
     Create an ``Edb`` object and open the specified project.
 
     >>> app = Edb("myfile.aedb")
