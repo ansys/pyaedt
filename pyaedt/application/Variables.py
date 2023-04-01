@@ -415,10 +415,9 @@ class VariableManager(object):
         ----------
         variable_value : str
 
-
         Returns
         -------
-        tuples
+        tuple
             The float value of the variable and the units exposed as a string.
 
         Examples
@@ -1539,12 +1538,11 @@ class Variable(object):
 
     @pyaedt_function_handler()
     def decompose(self):
-        """Decompose variable value to a floating with its unit.
-
+        """Decompose a variable value to a floating with its unit.
 
         Returns
         -------
-        tuples
+        tuple
             The float value of the variable and the units exposed as a string.
 
         Examples
@@ -1677,7 +1675,7 @@ class Variable(object):
 
                 Parameters
                 ---------
-                other : Variable
+                other : class:`pyaedt.application.Variables.Variable`
                     Object to be multiplied.
 
                 Returns
@@ -1688,8 +1686,8 @@ class Variable(object):
                 Examples
                 --------
                 >>> from pyaedt.application.Variables import Variable
-
-        import pyaedt.generic.constants        >>> v1 = Variable("3mA")
+                >>> import pyaedt.generic.constants        
+                >>> v1 = Variable("3mA")
                 >>> v2 = Variable("10A")
                 >>> result = v1 + v2
                 >>> assert result.numeric_value == 10.003
@@ -1718,7 +1716,7 @@ class Variable(object):
 
                 Parameters
                 ---------
-                other : Variable
+                other : class:`pyaedt.application.Variables.Variable`
                     Object to be subtracted.
 
                 Returns
@@ -1729,7 +1727,8 @@ class Variable(object):
                 Examples
                 --------
 
-        import pyaedt.generic.constants        >>> from pyaedt.application.Variables import Variable
+                >>> import pyaedt.generic.constants        
+                >>> from pyaedt.application.Variables import Variable
                 >>> v3 = Variable("3mA")
                 >>> v4 = Variable("10A")
                 >>> result_2 = v3 - v4
@@ -1774,8 +1773,8 @@ class Variable(object):
                 resolve the new units to ``"A"``.
 
                 >>> from pyaedt.application.Variables import Variable
-
-        import pyaedt.generic.constants        >>> v1 = Variable("10W")
+                >>> import pyaedt.generic.constants        
+                >>> v1 = Variable("10W")
                 >>> v2 = Variable("40V")
                 >>> result = v1 / v2
                 >>> assert result_1.numeric_value == 0.25
@@ -1817,7 +1816,8 @@ class Variable(object):
                 Divide a number by a variable with units ``"s"`` and automatically determine that
                 the result is in ``"Hz"``.
 
-        import pyaedt.generic.constants        >>> from pyaedt.application.Variables import Variable
+                >>> import pyaedt.generic.constants        
+                >>> from pyaedt.application.Variables import Variable
                 >>> v = Variable("1s")
                 >>> result = 3.0 / v
                 >>> assert result.numeric_value == 3.0
@@ -1847,7 +1847,8 @@ class DataSet(object):
     Parameters
     ----------
     app :
-    name :
+    name : str
+        Name of the app.
     x : list
         List of X-axis values for the dataset.
     y : list
@@ -1947,7 +1948,9 @@ class DataSet(object):
         Parameters
         ----------
         x : float
+            X coordinate of the point.
         y : float
+            Y coordinate of the point.
         z : float, optional
             The default is ``None``.
         v : float, optional
