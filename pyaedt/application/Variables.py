@@ -1673,26 +1673,26 @@ class Variable(object):
     def __add__(self, other):
         """Add the variable to another variable to return a new object.
 
-                Parameters
-                ---------
-                other : class:`pyaedt.application.Variables.Variable`
-                    Object to be multiplied.
+        Parameters
+        ---------
+        other : class:`pyaedt.application.Variables.Variable`
+            Object to be multiplied.
 
-                Returns
-                -------
-                type
-                    Variable.
+        Returns
+        -------
+        type
+            Variable.
 
-                Examples
-                --------
-                >>> from pyaedt.application.Variables import Variable
-                >>> import pyaedt.generic.constants        
-                >>> v1 = Variable("3mA")
-                >>> v2 = Variable("10A")
-                >>> result = v1 + v2
-                >>> assert result.numeric_value == 10.003
-                >>> assert result.units == "A"
-                >>> assert result.unit_system == "Current"
+        Examples
+        --------
+        >>> from pyaedt.application.Variables import Variable
+        >>> import pyaedt.generic.constants
+        >>> v1 = Variable("3mA")
+        >>> v2 = Variable("10A")
+        >>> result = v1 + v2
+        >>> assert result.numeric_value == 10.003
+        >>> assert result.units == "A"
+        >>> assert result.unit_system == "Current"
 
         """
         assert isinstance(other, Variable), "You can only add a variable with another variable."
@@ -1714,27 +1714,27 @@ class Variable(object):
     def __sub__(self, other):
         """Subtract another variable from the variable to return a new object.
 
-                Parameters
-                ---------
-                other : class:`pyaedt.application.Variables.Variable`
-                    Object to be subtracted.
+        Parameters
+        ---------
+        other : class:`pyaedt.application.Variables.Variable`
+            Object to be subtracted.
 
-                Returns
-                -------
-                type
-                    Variable.
+        Returns
+        -------
+        type
+            Variable.
 
-                Examples
-                --------
+        Examples
+        --------
 
-                >>> import pyaedt.generic.constants        
-                >>> from pyaedt.application.Variables import Variable
-                >>> v3 = Variable("3mA")
-                >>> v4 = Variable("10A")
-                >>> result_2 = v3 - v4
-                >>> assert result_2.numeric_value == -9.997
-                >>> assert result_2.units == "A"
-                >>> assert result_2.unit_system == "Current"
+        >>> import pyaedt.generic.constants
+        >>> from pyaedt.application.Variables import Variable
+        >>> v3 = Variable("3mA")
+        >>> v4 = Variable("10A")
+        >>> result_2 = v3 - v4
+        >>> assert result_2.numeric_value == -9.997
+        >>> assert result_2.units == "A"
+        >>> assert result_2.unit_system == "Current"
 
         """
         assert isinstance(other, Variable), "You can only subtract a variable from another variable."
@@ -1757,29 +1757,29 @@ class Variable(object):
     def __truediv__(self, other):
         """Divide the variable by a number or another variable to return a new object.
 
-                Parameters
-                ---------
-                other : numbers.Number or variable
-                    Object by which to divide.
+        Parameters
+        ---------
+        other : numbers.Number or variable
+            Object by which to divide.
 
-                Returns
-                -------
-                type
-                    Variable.
+        Returns
+        -------
+        type
+            Variable.
 
-                Examples
-                --------
-                Divide a variable with units ``"W"`` by a variable with units ``"V"`` and automatically
-                resolve the new units to ``"A"``.
+        Examples
+        --------
+        Divide a variable with units ``"W"`` by a variable with units ``"V"`` and automatically
+        resolve the new units to ``"A"``.
 
-                >>> from pyaedt.application.Variables import Variable
-                >>> import pyaedt.generic.constants        
-                >>> v1 = Variable("10W")
-                >>> v2 = Variable("40V")
-                >>> result = v1 / v2
-                >>> assert result_1.numeric_value == 0.25
-                >>> assert result_1.units == "A"
-                >>> assert result_1.unit_system == "Current"
+        >>> from pyaedt.application.Variables import Variable
+        >>> import pyaedt.generic.constants
+        >>> v1 = Variable("10W")
+        >>> v2 = Variable("40V")
+        >>> result = v1 / v2
+        >>> assert result_1.numeric_value == 0.25
+        >>> assert result_1.units == "A"
+        >>> assert result_1.unit_system == "Current"
 
         """
         assert is_number(other) or isinstance(other, Variable), "Divisor must be a scalar quantity or a variable."
@@ -1801,28 +1801,28 @@ class Variable(object):
     def __rtruediv__(self, other):
         """Divide another object by this object.
 
-                Parameters
-                ---------
-                other : numbers.Number or variable
-                    Object to divide by.
+        Parameters
+        ---------
+        other : numbers.Number or variable
+            Object to divide by.
 
-                Returns
-                -------
-                type
-                    Variable.
+        Returns
+        -------
+        type
+            Variable.
 
-                Examples
-                --------
-                Divide a number by a variable with units ``"s"`` and automatically determine that
-                the result is in ``"Hz"``.
+        Examples
+        --------
+        Divide a number by a variable with units ``"s"`` and automatically determine that
+        the result is in ``"Hz"``.
 
-                >>> import pyaedt.generic.constants        
-                >>> from pyaedt.application.Variables import Variable
-                >>> v = Variable("1s")
-                >>> result = 3.0 / v
-                >>> assert result.numeric_value == 3.0
-                >>> assert result.units == "Hz"
-                >>> assert result.unit_system == "Freq"
+        >>> import pyaedt.generic.constants
+        >>> from pyaedt.application.Variables import Variable
+        >>> v = Variable("1s")
+        >>> result = 3.0 / v
+        >>> assert result.numeric_value == 3.0
+        >>> assert result.units == "Hz"
+        >>> assert result.unit_system == "Freq"
 
         """
         if is_number(other):
