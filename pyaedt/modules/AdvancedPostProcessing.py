@@ -208,11 +208,12 @@ class PostProcessor(Post):
 
         model = ModelPlotter()
         model.off_screen = True
+        units = self.modeler.model_units
         for file in files:
             if force_opacity_value:
-                model.add_object(file[0], file[1], force_opacity_value, self.modeler.model_units)
+                model.add_object(file[0], file[1], force_opacity_value, units)
             else:
-                model.add_object(file[0], file[1], file[2], self.modeler.model_units)
+                model.add_object(file[0], file[1], file[2], units)
         model.array_coordinates = array_coordinates
         if generate_mesh:
             model.generate_geometry_mesh()

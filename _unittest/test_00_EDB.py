@@ -2261,10 +2261,10 @@ class TestClass(BasisTest, object):
             component_name="U2A5", pins_name="AJ30", layer_name="BOTTOM", reference_net="GND"
         )
 
-    def test_135_siwave_source_setter(self):
+    def test_134_siwave_source_setter(self):
         # test needed for the setter with sources created in Siwave prior EDB import
         source_path = os.path.join(local_path, "example_models", test_subfolder, "test_sources.aedb")
-        target_path = os.path.join(self.local_scratch.path, "test_135_source_setter.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_134_source_setter.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
         sources = list(edbapp.core_siwave.sources.values())
@@ -2274,6 +2274,15 @@ class TestClass(BasisTest, object):
         assert sources[1].magnitude == 1.45
         sources[2].magnitude = 1.45
         assert sources[2].magnitude == 1.45
+
+    def test_135_delete_pingroup(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "test_pin_group.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_135_pin_group.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, edbversion=desktop_version)
+        for pingroup_name, pingroup in edbapp.core_siwave.pin_groups.items():
+            assert pingroup.delete()
+        assert not edbapp.core_siwave.pin_groups
 
     def test_136_rlc_component_values_getter_setter(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")

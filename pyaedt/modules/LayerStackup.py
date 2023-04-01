@@ -177,12 +177,18 @@ class Layer(object):
         -------
 
         """
-        return self._color
+        if isinstance(self._color, list):
+            return self._color
+        else:
+            self._color = _getRGBfromI(self._color)
+            return self._color
 
     @color.setter
     def color(self, val):
-        self._color = val
-
+        if isinstance(val, list):
+            self._color = val
+        else:
+            self._color = _getRGBfromI(val)
         self.update_stackup_layer()
 
     @property
