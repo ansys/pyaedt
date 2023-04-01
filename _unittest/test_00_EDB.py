@@ -9,6 +9,7 @@ from pyaedt.edb_core.components import resistor_value_parser
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.sources import Source
 from pyaedt.generic.constants import RadiationBoxType
+from pyaedt.generic.general_methods import check_numeric_equivalence
 
 test_project_name = "Galileo_edb"
 bom_example = "bom_example.csv"
@@ -1041,18 +1042,28 @@ class TestClass(BasisTest, object):
             assert not changed_variable_5
 
     def test_097b_variables(self):
-        self.edbapp["my_var_1"] = 0.01
-        assert self.edbapp["my_var_1"].value == 0.01
-        assert self.edbapp.variables["my_var_1"].value == 0.01
-        assert self.edbapp.variables["my_var_1"].value_string == "0.01"
-        assert self.edbapp.variables["my_var_1"].value_object.tofloat == 0.01
-        assert self.edbapp.variables
-
-        assert not self.edbapp.variables["my_var_1"].is_parameter
-        self.edbapp.design_variables["my_var_1"].description = "This is variable description"
-        assert self.edbapp.design_variables["my_var_1"].description
-        self.edbapp["$my_project_var_1"] = 0.02
-        assert self.edbapp.project_variables["$my_project_var_1"].delete()
+        variables = {
+            "var1": 0.01,
+            "var2": "10um",
+            "var3": [0.03, "test description"],
+            "$var4": ["1mm", "Project variable."],
+            "$var5": 0.1,
+        }
+        for key, val in variables.items():
+            self.edbapp[key] = val
+            if key == "var1":
+                assert self.edbapp[key].value == val
+            elif key == "var2":
+                assert check_numeric_equivalence(self.edbapp[key].value, 1.0e-5)
+            elif key == "var3":
+                assert self.edbapp[key].value == val[0]
+                assert self.edbapp[key].description == val[1]
+            elif key == "$var4":
+                assert self.edbapp[key].value == 0.001
+                assert self.edbapp[key].description == val[1]
+            elif key == "$var5":
+                assert self.edbapp[key].value == 0.1
+                assert self.edbapp.project_variables[key].delete()
 
     def test_098_etch_factor(self):
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]

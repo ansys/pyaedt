@@ -35,6 +35,7 @@ from pyaedt.edb_core.edb_data.sources import ExcitationProbes
 from pyaedt.edb_core.edb_data.sources import ExcitationSources
 from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.edb_data.variables import Variable
+import pyaedt.edb_core.general
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.ipc2581.ipc2581 import Ipc2581
 from pyaedt.edb_core.materials import Materials
@@ -231,10 +232,26 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def __setitem__(self, variable_name, variable_value):
-        if self.variable_exists(variable_name)[0]:
-            self.change_design_variable_value(variable_name, variable_value)
+        type_error_message = "Allowed values are str, numeric or two-item list with variable description."
+        if type(variable_value) in [list, tuple]:  # Two-item list or tuple. 2nd argument is a str description.
+            if len(variable_value) == 2:
+                if type(variable_value[1]) is str:
+                    description = variable_value[1] if len(variable_value[1]) > 0 else None
+                else:
+                    description = None
+                    pyaedt.edb_core.general.logger.warning("Invalid type for Edb variable desciprtion is ignored.")
+                val = variable_value[0]
+            else:
+                raise TypeError(type_error_message)
         else:
-            self.add_design_variable(variable_name, variable_value)
+            description = None
+            val = variable_value
+        if self.variable_exists(variable_name)[0]:
+            self.change_design_variable_value(variable_name, val)
+        else:
+            self.add_design_variable(variable_name, val)
+        if description:  # Add the variable description if a two-item list is passed for variable_value.
+            self.__getitem__(variable_name).description = description
 
     def _clean_variables(self):
         """Initialize internal variables and perform garbage collection."""
