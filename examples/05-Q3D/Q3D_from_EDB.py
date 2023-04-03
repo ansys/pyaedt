@@ -42,10 +42,10 @@ edb.cutout(["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"], ["GND"], output_aedb_path=output_
 # Identify [x,y] pin locations on the components to define where to assign sources
 # and sinks for Q3D and append Z elevation.
 
-pin_u13_scl = [i for i in edb.core_components.components["U13"].pins.values() if i.net_name == "CLOCK_I2C_SCL"]
-pin_u1_scl = [i for i in edb.core_components.components["U1"].pins.values() if i.net_name == "CLOCK_I2C_SCL"]
-pin_u13_sda = [i for i in edb.core_components.components["U13"].pins.values() if i.net_name == "CLOCK_I2C_SDA"]
-pin_u1_sda = [i for i in edb.core_components.components["U1"].pins.values() if i.net_name == "CLOCK_I2C_SDA"]
+pin_u13_scl = [i for i in edb.components.components["U13"].pins.values() if i.net_name == "CLOCK_I2C_SCL"]
+pin_u1_scl = [i for i in edb.components.components["U1"].pins.values() if i.net_name == "CLOCK_I2C_SCL"]
+pin_u13_sda = [i for i in edb.components.components["U13"].pins.values() if i.net_name == "CLOCK_I2C_SDA"]
+pin_u1_sda = [i for i in edb.components.components["U1"].pins.values() if i.net_name == "CLOCK_I2C_SDA"]
 
 
 ###############################################################################
@@ -54,16 +54,16 @@ pin_u1_sda = [i for i in edb.core_components.components["U1"].pins.values() if i
 # Note: The factor 100 converts from "meters" to "mm"
 
 location_u13_scl = [i * 1000 for i in pin_u13_scl[0].position]
-location_u13_scl.append(edb.core_components.components["U13"].upper_elevation * 1000)
+location_u13_scl.append(edb.components.components["U13"].upper_elevation * 1000)
 
 location_u1_scl = [i * 1000 for i in pin_u1_scl[0].position]
-location_u1_scl.append(edb.core_components.components["U1"].upper_elevation * 1000)
+location_u1_scl.append(edb.components.components["U1"].upper_elevation * 1000)
 
 location_u13_sda = [i * 1000 for i in pin_u13_sda[0].position]
-location_u13_sda.append(edb.core_components.components["U13"].upper_elevation * 1000)
+location_u13_sda.append(edb.components.components["U13"].upper_elevation * 1000)
 
 location_u1_sda = [i * 1000 for i in pin_u1_sda[0].position]
-location_u1_sda.append(edb.core_components.components["U1"].upper_elevation * 1000)
+location_u1_sda.append(edb.components.components["U1"].upper_elevation * 1000)
 
 ###############################################################################
 # Save and close Edb

@@ -733,6 +733,26 @@ class Stackup(object):
     def stackup_limits(self, only_metals=False):
         """Retrieve stackup limits.
 
+        .. deprecated:: 0.6.62
+           Use :func:`Edb.stackup.limits` function instead.
+
+        Parameters
+        ----------
+        only_metals : bool, optional
+            Whether to retrieve only metals. The default is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        warnings.warn("`stackup_limits` is deprecated. Use `limits` property instead.", DeprecationWarning)
+        return self.limits(only_metals=only_metals)
+
+    @pyaedt_function_handler()
+    def limits(self, only_metals=False):
+        """Retrieve stackup limits.
+
         Parameters
         ----------
         only_metals : bool, optional
@@ -831,7 +851,7 @@ class Stackup(object):
             if not self._pedb.active_layout.SetLayerCollection(new_lc):
                 self._pedb.logger.error("Failed to Flip Stackup.")
                 return False
-            for pyaedt_cmp in list(self._pedb.core_components.components.values()):
+            for pyaedt_cmp in list(self._pedb.components.components.values()):
                 cmp = pyaedt_cmp.edbcomponent
                 cmp_type = cmp.GetComponentType()
                 cmp_prop = cmp.GetComponentProperty().Clone()
@@ -864,7 +884,7 @@ class Stackup(object):
                 cmp.SetComponentProperty(cmp_prop)
 
             lay_list = list(new_lc.Layers(self._pedb.edb.Cell.LayerTypeSet.SignalLayerSet))
-            for padstack in list(self._pedb.core_padstack.instances.values()):
+            for padstack in list(self._pedb.padstacks.instances.values()):
                 start_layer_id = [lay.GetLayerId() for lay in list(lay_list) if lay.GetName() == padstack.start_layer]
                 stop_layer_id = [lay.GetLayerId() for lay in list(lay_list) if lay.GetName() == padstack.stop_layer]
                 layer_map = padstack._edb_padstackinstance.GetLayerMap()
@@ -892,14 +912,14 @@ class Stackup(object):
 
     @pyaedt_function_handler()
     def _get_solder_height(self, layer_name):
-        for el, val in self._pedb.core_components.components.items():
+        for el, val in self._pedb.components.components.items():
             if val.solder_ball_height and val.placement_layer == layer_name:
                 return val.solder_ball_height
         return 0
 
     @pyaedt_function_handler()
     def _remove_solder_pec(self, layer_name):
-        for el, val in self._pedb.core_components.components.items():
+        for el, val in self._pedb.components.components.items():
             if val.solder_ball_height and val.placement_layer == layer_name:
                 comp_prop = val.component_property
                 port_property = comp_prop.GetPortProperty().Clone()
@@ -918,7 +938,7 @@ class Stackup(object):
         -------
         bool
         """
-        for el, val in self._pedb.core_components.components.items():
+        for el, val in self._pedb.components.components.items():
             if val.solder_ball_height:
                 layer = val.placement_layer
                 if layer == list(self.stackup_layers.keys())[0]:
@@ -984,10 +1004,10 @@ class Stackup(object):
         >>> edb1 = Edb(edbpath=targetfile1,  edbversion="2021.2")
         >>> edb2 = Edb(edbpath=targetfile2, edbversion="2021.2")
 
-        >>> hosting_cmp = edb1.core_components.get_component_by_name("U100")
-        >>> mounted_cmp = edb2.core_components.get_component_by_name("BGA")
+        >>> hosting_cmp = edb1.components.get_component_by_name("U100")
+        >>> mounted_cmp = edb2.components.get_component_by_name("BGA")
 
-        >>> vector, rotation, solder_ball_height = edb1.core_components.get_component_placement_vector(
+        >>> vector, rotation, solder_ball_height = edb1.components.get_component_placement_vector(
         ...                                                     mounted_component=mounted_cmp,
         ...                                                     hosting_component=hosting_cmp,
         ...                                                     mounted_component_pin1="A12",
@@ -1082,8 +1102,8 @@ class Stackup(object):
         --------
         >>> edb1 = Edb(edbpath=targetfile1,  edbversion="2021.2")
         >>> edb2 = Edb(edbpath=targetfile2, edbversion="2021.2")
-        >>> hosting_cmp = edb1.core_components.get_component_by_name("U100")
-        >>> mounted_cmp = edb2.core_components.get_component_by_name("BGA")
+        >>> hosting_cmp = edb1.components.get_component_by_name("U100")
+        >>> mounted_cmp = edb2.components.get_component_by_name("BGA")
         >>> edb2.stackup.place_in_layout(edb1.active_cell, angle=0.0, offset_x="1mm",
         ...                                   offset_y="2mm", flipped_stackup=False, place_on_top=True,
         ...                                   )
@@ -1272,7 +1292,7 @@ class Stackup(object):
         """
         temp_data = {name: 0 for name, _ in self.signal_layers.items()}
         outline_area = 0
-        for i in self._pedb.core_primitives.primitives:
+        for i in self._pedb.modeler.primitives:
             layer_name = i.GetLayer().GetName()
             if layer_name.lower() == "outline":
                 if i.area() > outline_area:
@@ -1807,7 +1827,7 @@ class Stackup(object):
 
             for definition in plot_definitions:
                 if isinstance(definition, str):
-                    definition = self._pedb.core_padstack.definitions[definition]
+                    definition = self._pedb.padstacks.definitions[definition]
                 min_lel = 1e12
                 max_lel = -1e12
                 max_x = 0
@@ -2267,10 +2287,10 @@ class EdbStackup(object):
         >>> edb1 = Edb(edbpath=targetfile1,  edbversion="2021.2")
         >>> edb2 = Edb(edbpath=targetfile2, edbversion="2021.2")
 
-        >>> hosting_cmp = edb1.core_components.get_component_by_name("U100")
-        >>> mounted_cmp = edb2.core_components.get_component_by_name("BGA")
+        >>> hosting_cmp = edb1.components.get_component_by_name("U100")
+        >>> mounted_cmp = edb2.components.get_component_by_name("BGA")
 
-        >>> vector, rotation, solder_ball_height = edb1.core_components.get_component_placement_vector(
+        >>> vector, rotation, solder_ball_height = edb1.components.get_component_placement_vector(
         ...                                                     mounted_component=mounted_cmp,
         ...                                                     hosting_component=hosting_cmp,
         ...                                                     mounted_component_pin1="A12",
@@ -2337,8 +2357,8 @@ class EdbStackup(object):
         --------
         >>> edb1 = Edb(edbpath=targetfile1,  edbversion="2021.2")
         >>> edb2 = Edb(edbpath=targetfile2, edbversion="2021.2")
-        >>> hosting_cmp = edb1.core_components.get_component_by_name("U100")
-        >>> mounted_cmp = edb2.core_components.get_component_by_name("BGA")
+        >>> hosting_cmp = edb1.components.get_component_by_name("U100")
+        >>> mounted_cmp = edb2.components.get_component_by_name("BGA")
         >>> edb2.core_stackup.place_in_layout(edb1.active_cell, angle=0.0, offset_x="1mm",
         ...                                   offset_y="2mm", flipped_stackup=False, place_on_top=True,
         ...                                   )

@@ -28,7 +28,7 @@ class EDBPadProperties(object):
     --------
     >>> from pyaedt import Edb
     >>> edb = Edb(myedb, edbversion="2021.2")
-    >>> edb_pad_properties = edb.core_padstack.definitions["MyPad"].pad_by_layer["TOP"]
+    >>> edb_pad_properties = edb.padstacks.definitions["MyPad"].pad_by_layer["TOP"]
     """
 
     def __init__(self, edb_padstack, layer_name, pad_type, p_edb_padstack):
@@ -317,7 +317,7 @@ class EDBPadstack(object):
     --------
     >>> from pyaedt import Edb
     >>> edb = Edb(myedb, edbversion="2021.2")
-    >>> edb_padstack = edb.core_padstack.definitions["MyPad"]
+    >>> edb_padstack = edb.padstacks.definitions["MyPad"]
     """
 
     def __init__(self, edb_padstack, ppadstack):
@@ -651,7 +651,7 @@ class EDBPadstack(object):
         layers = self._ppadstack._pedb.stackup.signal_layers
         layer_names = [i for i in list(layers.keys())]
         if convert_only_signal_vias:
-            signal_nets = [i for i in list(self._ppadstack._pedb.core_nets.signal_nets.keys())]
+            signal_nets = [i for i in list(self._ppadstack._pedb.nets.signal_nets.keys())]
         topl, topz, bottoml, bottomz = self._ppadstack._pedb.stackup.stackup_limits(True)
         start_elevation = layers[self.via_start_layer].lower_elevation
         diel_thick = abs(start_elevation - layers[self.via_stop_layer].upper_elevation)
@@ -888,7 +888,7 @@ class EDBPadstackInstance(object):
     --------
     >>> from pyaedt import Edb
     >>> edb = Edb(myedb, edbversion="2021.2")
-    >>> edb_padstack_instance = edb.core_padstack.instances[0]
+    >>> edb_padstack_instance = edb.padstacks.instances[0]
     """
 
     def __getattr__(self, key):
@@ -962,10 +962,8 @@ class EDBPadstackInstance(object):
                 else 0
             )
         else:
-            plane = self._pedb.core_primitives.Shape(
-                "rectangle", pointA=self.bounding_box[0], pointB=self.bounding_box[1]
-            )
-            rectangle_data = self._pedb.core_primitives.shape_to_polygon_data(plane)
+            plane = self._pedb.modeler.Shape("rectangle", pointA=self.bounding_box[0], pointB=self.bounding_box[1])
+            rectangle_data = self._pedb.modeler.shape_to_polygon_data(plane)
             int_val = polygon_data.GetIntersectionType(rectangle_data)
         # Intersection type:
         # 0 = objects do not intersect
@@ -985,8 +983,8 @@ class EDBPadstackInstance(object):
     def component(self):
         """Get component this padstack belong to."""
         comp_name = self._edb_padstackinstance.GetComponent().GetName()
-        if comp_name in self._pedb.core_components.components:
-            return self._pedb.core_components.components[comp_name]
+        if comp_name in self._pedb.components.components:
+            return self._pedb.components.components[comp_name]
         else:  # pragma: no cover
             return ""
 
@@ -1184,8 +1182,8 @@ class EDBPadstackInstance(object):
                 self._edb_padstackinstance.SetNet(val)
             except:
                 raise AttributeError("Value inserted not found. Input has to be net name or net object.")
-        elif val in self._pedb.core_nets.nets:
-            net = self._pedb.core_nets.nets[val].net_object
+        elif val in self._pedb.nets.nets:
+            net = self._pedb.nets.nets[val].net_object
             self._edb_padstackinstance.SetNet(net)
         else:
             raise AttributeError("Value inserted not found. Input has to be net name or net object.")
@@ -1304,7 +1302,7 @@ class EDBPadstackInstance(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edbapp.core_padstack.instances[111].get_aedt_pin_name()
+        >>> edbapp.padstacks.instances[111].get_aedt_pin_name()
 
         """
         if is_ironpython:
@@ -1376,10 +1374,10 @@ class EDBPadstackInstance(object):
         """
         x_pos = self._pedb.edb_value(self.position[0])
         y_pos = self._pedb.edb_value(self.position[1])
-        point_data = self._pedb.core_primitives._edb.Geometry.PointData(x_pos, y_pos)
+        point_data = self._pedb.modeler._edb.Geometry.PointData(x_pos, y_pos)
 
         voids = []
-        for prim in self._pedb.core_primitives.get_primitives(net_name, layer_name, is_void=True):
+        for prim in self._pedb.modeler.get_primitives(net_name, layer_name, is_void=True):
             if prim.primitive_object.GetPolygonData().PointInPolygon(point_data):
                 voids.append(prim)
         return voids
@@ -1471,8 +1469,8 @@ class EDBPadstackInstance(object):
         --------
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
-        >>> edb_layout = edbapp.core_primitives
-        >>> list_of_padstack_instances = list(edbapp.core_padstack.instances.values())
+        >>> edb_layout = edbapp.modeler
+        >>> list_of_padstack_instances = list(edbapp.padstacks.instances.values())
         >>> padstack_inst = list_of_padstack_instances[0]
         >>> padstack_inst.create_rectangle_in_pad("TOP")
         """
@@ -1481,7 +1479,7 @@ class EDBPadstackInstance(object):
         rotation = self.rotation  # in radians
         padstack_name = self.padstack_definition
         try:
-            padstack = self._pedb.core_padstack.definitions[padstack_name]
+            padstack = self._pedb.padstacks.definitions[padstack_name]
         except KeyError:  # pragma: no cover
             return False
         try:
@@ -1629,8 +1627,8 @@ class EDBPadstackInstance(object):
 
         if rect is None or len(rect) != 4:
             return False
-        path = self._pedb.core_primitives.Shape("polygon", points=rect)
-        pdata = self._pedb.core_primitives.shape_to_polygon_data(path)
+        path = self._pedb.modeler.Shape("polygon", points=rect)
+        pdata = self._pedb.modeler.shape_to_polygon_data(path)
         new_rect = []
         for point in pdata.Points:
             p_transf = self._edb_padstackinstance.GetComponent().GetTransform().TransformPoint(point)
@@ -1638,8 +1636,8 @@ class EDBPadstackInstance(object):
         if return_points:
             return new_rect
         else:
-            path = self._pedb.core_primitives.Shape("polygon", points=new_rect)
-            created_polygon = self._pedb.core_primitives.create_polygon(path, layer_name)
+            path = self._pedb.modeler.Shape("polygon", points=new_rect)
+            created_polygon = self._pedb.modeler.create_polygon(path, layer_name)
             return created_polygon
 
     @pyaedt_function_handler()

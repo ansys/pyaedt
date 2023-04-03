@@ -64,46 +64,44 @@ class TestClass(BasisTest, object):
         assert os.path.exists(ipc_path)
 
     def test_001_find_by_name(self):
-        comp = self.edbapp.core_components.get_component_by_name("J1")
+        comp = self.edbapp.components.get_component_by_name("J1")
         assert comp is not None
-        pin = self.edbapp.core_components.get_pin_from_component("J1", pinName="1")
+        pin = self.edbapp.components.get_pin_from_component("J1", pinName="1")
         assert pin is not False
-        parameters = self.edbapp.core_padstack.get_pad_parameters(
-            pin[0], "TOP", self.edbapp.core_padstack.pad_type.RegularPad
-        )
+        parameters = self.edbapp.padstacks.get_pad_parameters(pin[0], "TOP", self.edbapp.padstacks.pad_type.RegularPad)
         assert isinstance(parameters[1], list)
         assert isinstance(parameters[0], int)
 
     def test_002_get_vias_from_nets(self):
-        assert self.edbapp.core_padstack.get_via_instance_from_net("GND")
-        assert not self.edbapp.core_padstack.get_via_instance_from_net(["GND2"])
+        assert self.edbapp.padstacks.get_via_instance_from_net("GND")
+        assert not self.edbapp.padstacks.get_via_instance_from_net(["GND2"])
 
     def test_003_create_coax_port_on_component(self):
-        assert self.edbapp.core_hfss.create_coax_port_on_component("U1A1", "M_DQ<14>")
+        assert self.edbapp.hfss.create_coax_port_on_component("U1A1", "M_DQ<14>")
 
     def test_004_get_properties(self):
-        assert len(self.edbapp.core_components.components) > 0
-        assert len(self.edbapp.core_components.inductors) > 0
-        assert len(self.edbapp.core_components.resistors) > 0
-        assert len(self.edbapp.core_components.capacitors) > 0
-        assert len(self.edbapp.core_components.ICs) > 0
-        assert len(self.edbapp.core_components.IOs) > 0
-        assert len(self.edbapp.core_components.Others) > 0
+        assert len(self.edbapp.components.components) > 0
+        assert len(self.edbapp.components.inductors) > 0
+        assert len(self.edbapp.components.resistors) > 0
+        assert len(self.edbapp.components.capacitors) > 0
+        assert len(self.edbapp.components.ICs) > 0
+        assert len(self.edbapp.components.IOs) > 0
+        assert len(self.edbapp.components.Others) > 0
         assert len(self.edbapp.get_bounding_box()) == 2
 
     def test_005_get_primitives(self):
-        assert len(self.edbapp.core_primitives.polygons) > 0
-        assert len(self.edbapp.core_primitives.paths) > 0
-        assert len(self.edbapp.core_primitives.rectangles) > 0
-        assert len(self.edbapp.core_primitives.circles) > 0
-        assert len(self.edbapp.core_primitives.bondwires) == 0
-        assert "TOP" in self.edbapp.core_primitives.polygons_by_layer.keys()
-        assert len(self.edbapp.core_primitives.polygons_by_layer["TOP"]) > 0
-        assert len(self.edbapp.core_primitives.polygons_by_layer["UNNAMED_000"]) == 0
-        assert self.edbapp.core_primitives.polygons[0].is_void == self.edbapp.core_primitives.polygons[0].IsVoid()
-        poly0 = self.edbapp.core_primitives.polygons[0]
-        assert self.edbapp.core_primitives.polygons[0].clone()
-        poly1 = self.edbapp.core_primitives.polygons[0]
+        assert len(self.edbapp.modeler.polygons) > 0
+        assert len(self.edbapp.modeler.paths) > 0
+        assert len(self.edbapp.modeler.rectangles) > 0
+        assert len(self.edbapp.modeler.circles) > 0
+        assert len(self.edbapp.modeler.bondwires) == 0
+        assert "TOP" in self.edbapp.modeler.polygons_by_layer.keys()
+        assert len(self.edbapp.modeler.polygons_by_layer["TOP"]) > 0
+        assert len(self.edbapp.modeler.polygons_by_layer["UNNAMED_000"]) == 0
+        assert self.edbapp.modeler.polygons[0].is_void == self.edbapp.modeler.polygons[0].IsVoid()
+        poly0 = self.edbapp.modeler.polygons[0]
+        assert self.edbapp.modeler.polygons[0].clone()
+        poly1 = self.edbapp.modeler.polygons[0]
         assert isinstance(poly0.voids, list)
         assert isinstance(poly0.points_raw(), list)
         assert isinstance(poly0.points(), tuple)
@@ -111,13 +109,13 @@ class TestClass(BasisTest, object):
         assert poly0.points()[0][0] >= 0.0
         assert poly0.points_raw()[0].X.ToDouble() >= 0.0
         assert poly0.type == "Polygon"
-        assert self.edbapp.core_primitives.paths[0].type == "Path"
-        assert self.edbapp.core_primitives.paths[0].clone()
-        assert self.edbapp.core_primitives.rectangles[0].type == "Rectangle"
-        assert self.edbapp.core_primitives.circles[0].type == "Circle"
+        assert self.edbapp.modeler.paths[0].type == "Path"
+        assert self.edbapp.modeler.paths[0].clone()
+        assert self.edbapp.modeler.rectangles[0].type == "Rectangle"
+        assert self.edbapp.modeler.circles[0].type == "Circle"
         assert not poly0.is_arc(poly0.points_raw()[0])
         assert isinstance(poly0.voids, list)
-        assert self.edbapp.core_primitives.primitives_by_layer["TOP"][0].layer_name == "TOP"
+        assert self.edbapp.modeler.primitives_by_layer["TOP"][0].layer_name == "TOP"
         assert isinstance(poly0.intersection_type(poly1), int)
         assert poly0.is_intersecting(poly1)
         assert isinstance(poly0.get_closest_point([0, 0]), list)
@@ -150,25 +148,25 @@ class TestClass(BasisTest, object):
         assert self.edbapp.stackup.residual_copper_area_per_layer()
 
     def test_008_component_lists(self):
-        component_list = self.edbapp.core_components.components
+        component_list = self.edbapp.components.components
         assert len(component_list) > 2
 
     def test_009_vias_creation(self):
-        self.edbapp.core_padstack.create_padstack(padstackname="myVia")
-        assert "myVia" in list(self.edbapp.core_padstack.definitions.keys())
-        self.edbapp.core_padstack.create_padstack(padstackname="myVia_bullet", antipad_shape="Bullet")
-        assert "myVia_bullet" in list(self.edbapp.core_padstack.definitions.keys())
+        self.edbapp.padstacks.create(padstackname="myVia")
+        assert "myVia" in list(self.edbapp.padstacks.definitions.keys())
+        self.edbapp.padstacks.create(padstackname="myVia_bullet", antipad_shape="Bullet")
+        assert "myVia_bullet" in list(self.edbapp.padstacks.definitions.keys())
 
         self.edbapp.add_design_variable("via_x", 5e-3)
         self.edbapp["via_y"] = "1mm"
         assert self.edbapp["via_y"].value == 1e-3
         assert self.edbapp["via_y"].value_string == "1mm"
 
-        assert self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y"], "myVia")
-        assert self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y*2"], "myVia_bullet")
+        assert self.edbapp.padstacks.place(["via_x", "via_x+via_y"], "myVia")
+        assert self.edbapp.padstacks.place(["via_x", "via_x+via_y*2"], "myVia_bullet")
 
-        padstack = self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y*3"], "myVia", is_pin=True)
-        for test_prop in (self.edbapp.core_padstack.padstack_instances, self.edbapp.core_padstack.instances):
+        padstack = self.edbapp.padstacks.place(["via_x", "via_x+via_y*3"], "myVia", is_pin=True)
+        for test_prop in (self.edbapp.padstacks.padstack_instances, self.edbapp.padstacks.instances):
             padstack_instance = test_prop[padstack.id]
             assert padstack_instance.is_pin
             assert padstack_instance.position
@@ -179,22 +177,23 @@ class TestClass(BasisTest, object):
             assert padstack_instance.position == [0.001, 0.002]
             assert padstack_instance.parametrize_position()
             assert isinstance(padstack_instance.rotation, float)
-            self.edbapp.core_padstack.create_circular_padstack(padstackname="mycircularvia")
-            assert "mycircularvia" in list(self.edbapp.core_padstack.definitions.keys())
+            self.edbapp.padstacks.create_circular_padstack(padstackname="mycircularvia")
+            assert "mycircularvia" in list(self.edbapp.padstacks.definitions.keys())
             assert not padstack_instance.backdrill_top
             assert not padstack_instance.backdrill_bottom
             assert padstack_instance.delete()
-            via = self.edbapp.core_padstack.place_padstack([0, 0], "myVia")
+            via = self.edbapp.padstacks.place([0, 0], "myVia")
             assert via.set_backdrill_top("LYR_1", 0.5e-3)
             assert via.backdrill_top
             assert via.set_backdrill_bottom("GND", 0.5e-3)
             assert via.backdrill_bottom
 
     def test_010_nets_query(self):
-        signalnets = self.edbapp.core_nets.signal_nets
-        powernets = self.edbapp.core_nets.power_nets
+        signalnets = self.edbapp.nets.signal
+        powernets = self.edbapp.nets.power
         assert len(signalnets) > 2
         assert len(powernets) > 2
+        assert len(self.edbapp.nets.netlist) > 0
         assert powernets["V3P3_S0"].is_power_ground
         assert powernets["V3P3_S0"].IsPowerGround()
         assert len(list(powernets["V3P3_S0"].components.keys())) > 0
@@ -204,17 +203,15 @@ class TestClass(BasisTest, object):
         assert not signalnets[list(signalnets.keys())[0]].IsPowerGround()
         assert len(list(signalnets[list(signalnets.keys())[0]].primitives)) > 0
 
-        assert self.edbapp.core_nets.find_or_create_net("GND")
-        assert self.edbapp.core_nets.find_or_create_net(start_with="gn")
-        assert self.edbapp.core_nets.find_or_create_net(start_with="g", end_with="d")
-        assert self.edbapp.core_nets.find_or_create_net(end_with="d")
-        assert self.edbapp.core_nets.find_or_create_net(contain="usb")
+        assert self.edbapp.nets.find_or_create_net("GND")
+        assert self.edbapp.nets.find_or_create_net(start_with="gn")
+        assert self.edbapp.nets.find_or_create_net(start_with="g", end_with="d")
+        assert self.edbapp.nets.find_or_create_net(end_with="d")
+        assert self.edbapp.nets.find_or_create_net(contain="usb")
 
     def test_011_assign_rlc(self):
-        assert self.edbapp.core_components.set_component_rlc(
-            "C3B14", res_value=1e-3, cap_value="10e-6", isparallel=False
-        )
-        assert self.edbapp.core_components.set_component_rlc("L3A1", res_value=1e-3, ind_value="10e-6", isparallel=True)
+        assert self.edbapp.components.set_component_rlc("C3B14", res_value=1e-3, cap_value="10e-6", isparallel=False)
+        assert self.edbapp.components.set_component_rlc("L3A1", res_value=1e-3, ind_value="10e-6", isparallel=True)
 
     def test_012_add_layer(self):
         layers = self.edbapp.core_stackup.stackup_layers
@@ -269,79 +266,79 @@ class TestClass(BasisTest, object):
         assert layers.remove_layer("BOTTOM")
 
     def test_020_components(self):
-        assert "R1" in list(self.edbapp.core_components.components.keys())
-        assert self.edbapp.core_components.components["R1"].res_value
-        assert self.edbapp.core_components.components["R1"].placement_layer
-        assert isinstance(self.edbapp.core_components.components["R1"].lower_elevation, float)
-        assert isinstance(self.edbapp.core_components.components["R1"].upper_elevation, float)
-        assert self.edbapp.core_components.components["R1"].top_bottom_association == 0
-        assert self.edbapp.core_components.components["R1"].pinlist
-        assert self.edbapp.core_components.components["R1"].pins
-        assert self.edbapp.core_components.components["R1"].pins["1"].pin_number
-        assert self.edbapp.core_components.components["R1"].pins["1"].component
+        assert "R1" in list(self.edbapp.components.components.keys())
+        assert self.edbapp.components.components["R1"].res_value
+        assert self.edbapp.components.components["R1"].placement_layer
+        assert isinstance(self.edbapp.components.components["R1"].lower_elevation, float)
+        assert isinstance(self.edbapp.components.components["R1"].upper_elevation, float)
+        assert self.edbapp.components.components["R1"].top_bottom_association == 0
+        assert self.edbapp.components.components["R1"].pinlist
+        assert self.edbapp.components.components["R1"].pins
+        assert self.edbapp.components.components["R1"].pins["1"].pin_number
+        assert self.edbapp.components.components["R1"].pins["1"].component
         assert (
-            self.edbapp.core_components.components["R1"].pins["1"].lower_elevation
-            == self.edbapp.core_components.components["R1"].lower_elevation
+            self.edbapp.components.components["R1"].pins["1"].lower_elevation
+            == self.edbapp.components.components["R1"].lower_elevation
         )
         assert (
-            self.edbapp.core_components.components["R1"].pins["1"].placement_layer
-            == self.edbapp.core_components.components["R1"].placement_layer
+            self.edbapp.components.components["R1"].pins["1"].placement_layer
+            == self.edbapp.components.components["R1"].placement_layer
         )
         assert (
-            self.edbapp.core_components.components["R1"].pins["1"].upper_elevation
-            == self.edbapp.core_components.components["R1"].upper_elevation
+            self.edbapp.components.components["R1"].pins["1"].upper_elevation
+            == self.edbapp.components.components["R1"].upper_elevation
         )
         assert (
-            self.edbapp.core_components.components["R1"].pins["1"].top_bottom_association
-            == self.edbapp.core_components.components["R1"].top_bottom_association
+            self.edbapp.components.components["R1"].pins["1"].top_bottom_association
+            == self.edbapp.components.components["R1"].top_bottom_association
         )
-        assert self.edbapp.core_components.components["R1"].pins["1"].position
-        assert self.edbapp.core_components.components["R1"].pins["1"].rotation
+        assert self.edbapp.components.components["R1"].pins["1"].position
+        assert self.edbapp.components.components["R1"].pins["1"].rotation
 
     def test_021b_components(self):
-        comp = self.edbapp.core_components.components["U1A1"]
+        comp = self.edbapp.components.components["U1A1"]
         comp.create_clearance_on_component()
 
     def test_021_components_from_net(self):
-        assert self.edbapp.core_components.get_components_from_nets("A0_N")
+        assert self.edbapp.components.get_components_from_nets("A0_N")
 
     def test_022_resistors(self):
-        assert "R1" in list(self.edbapp.core_components.resistors.keys())
-        assert "C1" not in list(self.edbapp.core_components.resistors.keys())
+        assert "R1" in list(self.edbapp.components.resistors.keys())
+        assert "C1" not in list(self.edbapp.components.resistors.keys())
 
     def test_023_capacitors(self):
-        assert "C1" in list(self.edbapp.core_components.capacitors.keys())
-        assert "R1" not in list(self.edbapp.core_components.capacitors.keys())
+        assert "C1" in list(self.edbapp.components.capacitors.keys())
+        assert "R1" not in list(self.edbapp.components.capacitors.keys())
 
     def test_024_inductors(self):
-        assert "L3M1" in list(self.edbapp.core_components.inductors.keys())
-        assert "R1" not in list(self.edbapp.core_components.inductors.keys())
+        assert "L3M1" in list(self.edbapp.components.inductors.keys())
+        assert "R1" not in list(self.edbapp.components.inductors.keys())
 
     def test_025_ICs(self):
-        assert "U8" in list(self.edbapp.core_components.ICs.keys())
-        assert "R1" not in list(self.edbapp.core_components.ICs.keys())
+        assert "U8" in list(self.edbapp.components.ICs.keys())
+        assert "R1" not in list(self.edbapp.components.ICs.keys())
 
     def test_026_IOs(self):
-        assert "J1" in list(self.edbapp.core_components.IOs.keys())
-        assert "R1" not in list(self.edbapp.core_components.IOs.keys())
+        assert "J1" in list(self.edbapp.components.IOs.keys())
+        assert "R1" not in list(self.edbapp.components.IOs.keys())
 
     def test_027_Others(self):
-        assert "EU1" in self.edbapp.core_components.Others
-        assert "R1" not in self.edbapp.core_components.Others
+        assert "EU1" in self.edbapp.components.Others
+        assert "R1" not in self.edbapp.components.Others
 
     def test_028_Components_by_PartName(self):
-        comp = self.edbapp.core_components.components_by_partname
+        comp = self.edbapp.components.components_by_partname
         assert "A93549-020" in comp
         assert len(comp["A93549-020"]) > 1
 
     def test_029_get_through_resistor_list(self):
-        assert self.edbapp.core_components.get_through_resistor_list(10)
+        assert self.edbapp.components.get_through_resistor_list(10)
 
     def test_030_get_rats(self):
-        assert len(self.edbapp.core_components.get_rats()) > 0
+        assert len(self.edbapp.components.get_rats()) > 0
 
     def test_031_get_component_connections(self):
-        assert len(self.edbapp.core_components.get_component_net_connection_info("U2A5")) > 0
+        assert len(self.edbapp.components.get_component_net_connection_info("U2A5")) > 0
 
     def test_032_get_power_tree(self):
         OUTPUT_NET = "BST_V1P0_S0"
@@ -350,63 +347,61 @@ class TestClass(BasisTest, object):
             component_list,
             component_list_columns,
             net_group,
-        ) = self.edbapp.core_nets.get_powertree(OUTPUT_NET, GROUND_NETS)
+        ) = self.edbapp.nets.get_powertree(OUTPUT_NET, GROUND_NETS)
         assert component_list
         assert component_list_columns
         assert net_group
 
     def test_033_aedt_pinname_pin_position(self):
-        cmp_pinlist = self.edbapp.core_padstack.get_pinlist_from_component_and_net("U2A5", "GND")
-        pin_name = self.edbapp.core_components.get_aedt_pin_name(cmp_pinlist[0])
+        cmp_pinlist = self.edbapp.padstacks.get_pinlist_from_component_and_net("U2A5", "GND")
+        pin_name = self.edbapp.components.get_aedt_pin_name(cmp_pinlist[0])
         assert type(pin_name) is str
         assert len(pin_name) > 0
         assert len(cmp_pinlist[0].position) == 2
-        assert len(self.edbapp.core_components.get_pin_position(cmp_pinlist[0])) == 2
+        assert len(self.edbapp.components.get_pin_position(cmp_pinlist[0])) == 2
 
     def test_034_get_pins_name_from_net(self):
-        cmp_pinlist = self.edbapp.core_components.get_pin_from_component("U2A5")
-        assert len(self.edbapp.core_components.get_pins_name_from_net(cmp_pinlist, "GND")) > 0
-        assert len(self.edbapp.core_components.get_pins_name_from_net(cmp_pinlist, "VCCC")) == 0
+        cmp_pinlist = self.edbapp.components.get_pin_from_component("U2A5")
+        assert len(self.edbapp.components.get_pins_name_from_net(cmp_pinlist, "GND")) > 0
+        assert len(self.edbapp.components.get_pins_name_from_net(cmp_pinlist, "VCCC")) == 0
 
     def test_035_delete_single_pin_rlc(self):
-        assert len(self.edbapp.core_components.delete_single_pin_rlc()) > 0
+        assert len(self.edbapp.components.delete_single_pin_rlc()) > 0
 
     def test_036_component_rlc(self):
-        assert self.edbapp.core_components.set_component_rlc("R1", 30, 1e-9, 1e-12)
+        assert self.edbapp.components.set_component_rlc("R1", 30, 1e-9, 1e-12)
 
     def test_037_disable_component(self):
-        assert self.edbapp.core_components.disable_rlc_component("R1")
+        assert self.edbapp.components.disable_rlc_component("R1")
 
     def test_038_delete_component(self):
-        assert self.edbapp.core_components.delete_component("R1")
+        assert self.edbapp.components.delete("R1")
 
     def test_039_create_coax_port(self):
-        assert self.edbapp.core_hfss.create_coax_port_on_component("U2A5", ["RSVD_0", "V1P0_S0"])
+        assert self.edbapp.hfss.create_coax_port_on_component("U2A5", ["RSVD_0", "V1P0_S0"])
 
     def test_040_create_circuit_port(self):
-        initial_len = len(self.edbapp.core_padstack.pingroups)
-        assert (
-            self.edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 50, "test") == "test"
-        )
-        p2 = self.edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V3P3_S0", "U2A5", "GND", 50, "test")
+        initial_len = len(self.edbapp.padstacks.pingroups)
+        assert self.edbapp.siwave.create_circuit_port_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 50, "test") == "test"
+        p2 = self.edbapp.siwave.create_circuit_port_on_net("U2A5", "V3P3_S0", "U2A5", "GND", 50, "test")
         assert p2 != "test" and "test" in p2
-        pins = self.edbapp.core_components.get_pin_from_component("U2A5")
-        p3 = self.edbapp.core_siwave.create_circuit_port_on_pin(pins[200], pins[0], 45)
+        pins = self.edbapp.components.get_pin_from_component("U2A5")
+        p3 = self.edbapp.siwave.create_circuit_port_on_pin(pins[200], pins[0], 45)
         assert p3 != ""
-        p4 = self.edbapp.core_hfss.create_circuit_port_on_net("U2A5", "RSVD_9")
-        assert len(self.edbapp.core_padstack.pingroups) == initial_len + 6
+        p4 = self.edbapp.hfss.create_circuit_port_on_net("U2A5", "RSVD_9")
+        assert len(self.edbapp.padstacks.pingroups) == initial_len + 6
         assert "GND" in p4 and "RSVD_9" in p4
-        assert self.edbapp.core_siwave.create_pin_group_on_net("U2A5", "V1P0_S0", "PG_V1P0_S0")
-        assert self.edbapp.core_siwave.create_circuit_port_on_pin_group(
+        assert self.edbapp.siwave.create_pin_group_on_net("U2A5", "V1P0_S0", "PG_V1P0_S0")
+        assert self.edbapp.siwave.create_circuit_port_on_pin_group(
             "PG_V1P0_S0", "PinGroup_2", impedance=50, name="test_port"
         )
 
     def test_041_create_voltage_source(self):
-        assert "Vsource_" in self.edbapp.core_siwave.create_voltage_source_on_net(
+        assert "Vsource_" in self.edbapp.siwave.create_voltage_source_on_net(
             "U2A5", "PCIE_RBIAS", "U2A5", "GND", 3.3, 0
         )
-        pins = self.edbapp.core_components.get_pin_from_component("U2A5")
-        assert "VSource_" in self.edbapp.core_siwave.create_voltage_source_on_pin(pins[300], pins[10], 3.3, 0)
+        pins = self.edbapp.components.get_pin_from_component("U2A5")
+        assert "VSource_" in self.edbapp.siwave.create_voltage_source_on_pin(pins[300], pins[10], 3.3, 0)
         if not is_ironpython:
             assert len(self.edbapp.sources) > 0
             assert len(self.edbapp.probes) == 0
@@ -415,51 +410,45 @@ class TestClass(BasisTest, object):
             assert list(self.edbapp.sources.values())[0].phase == 1
 
     def test_042_create_current_source(self):
-        assert self.edbapp.core_siwave.create_current_source_on_net("U2A5", "DDR3_DM1", "U2A5", "GND", 0.1, 0) != ""
-        pins = self.edbapp.core_components.get_pin_from_component("U2A5")
-        assert "I22" == self.edbapp.core_siwave.create_current_source_on_pin(pins[301], pins[10], 0.1, 0, "I22")
+        assert self.edbapp.siwave.create_current_source_on_net("U2A5", "DDR3_DM1", "U2A5", "GND", 0.1, 0) != ""
+        pins = self.edbapp.components.get_pin_from_component("U2A5")
+        assert "I22" == self.edbapp.siwave.create_current_source_on_pin(pins[301], pins[10], 0.1, 0, "I22")
 
-        assert self.edbapp.core_siwave.create_pin_group_on_net(
-            reference_designator="U3A1", net_name="GND", group_name="gnd"
-        )
-        self.edbapp.core_siwave.create_pin_group(
-            reference_designator="U3A1", pin_numbers=[16, 17], group_name="vrm_pos"
-        )
-        self.edbapp.core_siwave.create_current_source_on_pin_group(
+        assert self.edbapp.siwave.create_pin_group_on_net(reference_designator="U3A1", net_name="GND", group_name="gnd")
+        self.edbapp.siwave.create_pin_group(reference_designator="U3A1", pin_numbers=[16, 17], group_name="vrm_pos")
+        self.edbapp.siwave.create_current_source_on_pin_group(
             pos_pin_group_name="vrm_pos", neg_pin_group_name="gnd", name="vrm_current_source"
         )
 
-        self.edbapp.core_siwave.create_pin_group(
-            reference_designator="U3A1", pin_numbers=[14, 15], group_name="sink_pos"
-        )
+        self.edbapp.siwave.create_pin_group(reference_designator="U3A1", pin_numbers=[14, 15], group_name="sink_pos")
 
-        self.edbapp.core_siwave.create_voltage_source_on_pin_group("sink_pos", "gnd", "vrm_voltage_source")
+        self.edbapp.siwave.create_voltage_source_on_pin_group("sink_pos", "gnd", "vrm_voltage_source")
 
     def test_043_create_dc_terminal(self):
-        assert self.edbapp.core_siwave.create_dc_terminal("U2A5", "DDR3_DM1", "dc_terminal1") == "dc_terminal1"
+        assert self.edbapp.siwave.create_dc_terminal("U2A5", "DDR3_DM1", "dc_terminal1") == "dc_terminal1"
 
     def test_044_create_resistors(self):
-        pins = self.edbapp.core_components.get_pin_from_component("U2A5")
-        assert "RST4000" == self.edbapp.core_siwave.create_resistor_on_pin(pins[302], pins[10], 40, "RST4000")
+        pins = self.edbapp.components.get_pin_from_component("U2A5")
+        assert "RST4000" == self.edbapp.siwave.create_resistor_on_pin(pins[302], pins[10], 40, "RST4000")
 
     def test_045_create_siwave_ac_analsyis(self):
-        assert self.edbapp.core_siwave.add_siwave_syz_analysis()
+        assert self.edbapp.siwave.add_siwave_syz_analysis()
 
     def test_046_create_siwave_dc_analsyis(self):
-        setup = self.edbapp.core_siwave.add_siwave_dc_analysis()
+        setup = self.edbapp.siwave.add_siwave_dc_analysis()
         assert setup.add_source_terminal_to_ground(list(self.edbapp.sources.keys())[0], 2)
 
     def test_047_get_nets_from_pin_list(self):
-        cmp_pinlist = self.edbapp.core_padstack.get_pinlist_from_component_and_net("U2A5", "GND")
+        cmp_pinlist = self.edbapp.padstacks.get_pinlist_from_component_and_net("U2A5", "GND")
         if cmp_pinlist:
             assert cmp_pinlist[0].GetNet().GetName()
 
     def test_048_mesh_operations(self):
-        mesh_ops = self.edbapp.core_hfss.get_trace_width_for_traces_with_ports()
+        mesh_ops = self.edbapp.hfss.get_trace_width_for_traces_with_ports()
         assert len(mesh_ops) > 0
 
     def test_049_assign_model(self):
-        assert self.edbapp.core_components.set_component_model(
+        assert self.edbapp.components.set_component_model(
             "C1A14",
             modelpath=os.path.join(
                 self.local_scratch.path,
@@ -468,7 +457,7 @@ class TestClass(BasisTest, object):
             ),
             modelname="GRM32ER72A225KA35_25C_0V",
         )
-        assert not self.edbapp.core_components.set_component_model(
+        assert not self.edbapp.components.set_component_model(
             "C10000",
             modelpath=os.path.join(
                 self.local_scratch.path,
@@ -484,8 +473,8 @@ class TestClass(BasisTest, object):
         assert var_server
         result, var_server = self.edbapp.add_design_variable("my_variable", "1mm")
         assert not result
-        assert self.edbapp.core_primitives.parametrize_trace_width("A0_N")
-        assert self.edbapp.core_primitives.parametrize_trace_width("A0_N_R")
+        assert self.edbapp.modeler.parametrize_trace_width("A0_N")
+        assert self.edbapp.modeler.parametrize_trace_width("A0_N_R")
         result, var_server = self.edbapp.add_design_variable("my_parameter", "2mm", True)
         assert result
         assert var_server.IsVariableParameter("my_parameter")
@@ -498,30 +487,30 @@ class TestClass(BasisTest, object):
         assert not result
 
     def test_051_delete_net(self):
-        self.edbapp.core_nets.nets["M_MA<6>"].delete()
-        nets_deleted = self.edbapp.core_nets.delete_nets("M_MA<7>")
+        self.edbapp.nets["M_MA<6>"].delete()
+        nets_deleted = self.edbapp.nets.delete("M_MA<7>")
         assert "M_MA<7>" in nets_deleted
 
     def test_052_get_polygons_bounding(self):
-        polys = self.edbapp.core_primitives.get_polygons_by_layer("GND")
+        polys = self.edbapp.modeler.get_polygons_by_layer("GND")
         for poly in polys:
-            bounding = self.edbapp.core_primitives.get_polygon_bounding_box(poly)
+            bounding = self.edbapp.modeler.get_polygon_bounding_box(poly)
             assert len(bounding) == 4
 
     def test_053_get_polygons_bbylayerandnets(self):
         nets = ["GND", "IO2"]
-        polys = self.edbapp.core_primitives.get_polygons_by_layer("BOTTOM", nets)
+        polys = self.edbapp.modeler.get_polygons_by_layer("BOTTOM", nets)
         assert polys
 
     def test_0548_get_polygons_points(self):
-        polys = self.edbapp.core_primitives.get_polygons_by_layer("GND")
+        polys = self.edbapp.modeler.get_polygons_by_layer("GND")
         for poly in polys:
-            points = self.edbapp.core_primitives.get_polygon_points(poly)
+            points = self.edbapp.modeler.get_polygon_points(poly)
             assert points
 
     def test_055_get_padstack(self):
-        for el in self.edbapp.core_padstack.definitions:
-            pad = self.edbapp.core_padstack.definitions[el]
+        for el in self.edbapp.padstacks.definitions:
+            pad = self.edbapp.padstacks.definitions[el]
             assert pad.hole_plating_thickness is not None or False
             assert pad.hole_properties is not None or False
             assert pad.hole_plating_thickness is not None or False
@@ -544,7 +533,7 @@ class TestClass(BasisTest, object):
                 assert polygon.GetBBox()
 
     def test_056_set_padstack(self):
-        pad = self.edbapp.core_padstack.definitions["C10N116"]
+        pad = self.edbapp.padstacks.definitions["C10N116"]
         hole_pad = 8
         tol = 1e-12
         pad.hole_properties = hole_pad
@@ -572,46 +561,44 @@ class TestClass(BasisTest, object):
         assert os.path.exists(os.path.join(self.local_scratch.path, "Gelileo_new.aedb", "edb.def"))
 
     def test_058_parametrize_layout(self):
-        assert len(self.edbapp.core_primitives.polygons) > 0
-        for el in self.edbapp.core_primitives.polygons:
+        assert len(self.edbapp.modeler.polygons) > 0
+        for el in self.edbapp.modeler.polygons:
             if el.GetId() == 2647:
                 poly = el
-        for el in self.edbapp.core_primitives.polygons:
+        for el in self.edbapp.modeler.polygons:
             if el.GetId() == 2742:
                 selection_poly = el
-        for el in self.edbapp.core_primitives.polygons:
+        for el in self.edbapp.modeler.polygons:
             if el.GetId() == 2647:
                 poly = el
-        assert self.edbapp.core_primitives.parametrize_polygon(poly, selection_poly)
+        assert self.edbapp.modeler.parametrize_polygon(poly, selection_poly)
 
     def test_059_import_bom(self):
-        assert self.edbapp.core_components.update_rlc_from_bom(
+        assert self.edbapp.components.update_rlc_from_bom(
             os.path.join(local_path, "example_models", test_subfolder, bom_example),
             delimiter=",",
             valuefield="Value",
             comptype="Prod name",
             refdes="RefDes",
         )
-        assert not self.edbapp.core_components.components["R2L2"].is_enabled
-        self.edbapp.core_components.components["R2L2"].is_enabled = True
-        assert self.edbapp.core_components.components["R2L2"].is_enabled
+        assert not self.edbapp.components.components["R2L2"].is_enabled
+        self.edbapp.components.components["R2L2"].is_enabled = True
+        assert self.edbapp.components.components["R2L2"].is_enabled
 
     def test_060_import_bom(self):
         target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
         edbapp = Edb(target_path, edbversion=desktop_version)
-        edbapp.core_components.import_bom(
-            os.path.join(local_path, "example_models", test_subfolder, "bom_example_2.csv")
-        )
-        assert not edbapp.core_components.components["R2L2"].is_enabled
-        assert edbapp.core_components.components["U2A5"].partname == "IPD031-201x"
+        edbapp.components.import_bom(os.path.join(local_path, "example_models", test_subfolder, "bom_example_2.csv"))
+        assert not edbapp.components.components["R2L2"].is_enabled
+        assert edbapp.components.components["U2A5"].partname == "IPD031-201x"
 
         export_bom_path = os.path.join(self.local_scratch.path, "export_bom.csv")
-        assert edbapp.core_components.export_bom(export_bom_path)
+        assert edbapp.components.export_bom(export_bom_path)
         edbapp.close_edb()
 
     def test_061_create_component_from_pins(self):
-        pins = self.edbapp.core_components.get_pin_from_component("R13")
-        component = self.edbapp.core_components.create_component_from_pins(pins, "newcomp")
+        pins = self.edbapp.components.get_pin_from_component("R13")
+        component = self.edbapp.components.create(pins, "newcomp")
         assert component
         assert component.GetName() == "newcomp"
         assert len(list(component.LayoutObjs)) == 2
@@ -679,10 +666,10 @@ class TestClass(BasisTest, object):
                 number_of_threads=4,
                 extent_defeature=0.001,
             )
-            assert "A0_N" not in edbapp.core_nets.nets
-            assert isinstance(edbapp.core_nets.find_and_fix_disjoint_nets("GND"), list)
-            assert isinstance(edbapp.core_nets.find_and_fix_disjoint_nets("GND", keep_only_main_net=True), list)
-            assert isinstance(edbapp.core_nets.find_and_fix_disjoint_nets("GND", clean_disjoints_less_than=0.005), list)
+            assert "A0_N" not in edbapp.nets.nets
+            assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND"), list)
+            assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND", keep_only_main_net=True), list)
+            assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND", clean_disjoints_less_than=0.005), list)
         edbapp.close_edb()
         target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_3.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
@@ -733,6 +720,7 @@ class TestClass(BasisTest, object):
 
     def test_067_stackup_limits(self):
         assert self.edbapp.core_stackup.stackup_limits()
+        assert self.edbapp.stackup.limits()
 
     def test_068_create_polygon(self):
         settings.enable_error_handler = True
@@ -743,7 +731,7 @@ class TestClass(BasisTest, object):
             [-0.025, 0.02],
             [-0.025, -0.02],
         ]
-        plane = self.edbapp.core_primitives.Shape("polygon", points=points)
+        plane = self.edbapp.modeler.Shape("polygon", points=points)
         points = [
             [-0.001, -0.001],
             [0.001, -0.001, "ccw", 0.0, -0.0012],
@@ -751,21 +739,21 @@ class TestClass(BasisTest, object):
             [-0.001, 0.001],
             [-0.001, -0.001],
         ]
-        void1 = self.edbapp.core_primitives.Shape("polygon", points=points)
-        void2 = self.edbapp.core_primitives.Shape("rectangle", [-0.002, 0.0], [-0.015, 0.0005])
-        assert self.edbapp.core_primitives.create_polygon(plane, "TOP", [void1, void2])
+        void1 = self.edbapp.modeler.Shape("polygon", points=points)
+        void2 = self.edbapp.modeler.Shape("rectangle", [-0.002, 0.0], [-0.015, 0.0005])
+        assert self.edbapp.modeler.create_polygon(plane, "TOP", [void1, void2])
         points = [
             [0, 0, 1],
         ]
-        assert not self.edbapp.core_primitives.create_polygon_from_points(points, "TOP")
+        assert not self.edbapp.modeler.create_polygon_from_points(points, "TOP")
         points = [
             [0.1, "s"],
         ]
-        plane = self.edbapp.core_primitives.Shape("polygon", points=points)
-        assert not self.edbapp.core_primitives.create_polygon(plane, "TOP")
+        plane = self.edbapp.modeler.Shape("polygon", points=points)
+        assert not self.edbapp.modeler.create_polygon(plane, "TOP")
         points = [[0.001, -0.001, "ccn", 0.0, -0.0012]]
-        plane = self.edbapp.core_primitives.Shape("polygon", points=points)
-        assert not self.edbapp.core_primitives.create_polygon(plane, "TOP")
+        plane = self.edbapp.modeler.Shape("polygon", points=points)
+        assert not self.edbapp.modeler.create_polygon(plane, "TOP")
         settings.enable_error_handler = False
 
     def test_069_create_path(self):
@@ -774,7 +762,7 @@ class TestClass(BasisTest, object):
             [0.025, -0.02],
             [0.025, 0.02],
         ]
-        trace = self.edbapp.core_primitives.create_trace(points, "TOP")
+        trace = self.edbapp.modeler.create_trace(points, "TOP")
         assert trace
         assert isinstance(trace.get_center_line(), list)
         assert isinstance(trace.get_center_line(True), list)
@@ -833,26 +821,26 @@ class TestClass(BasisTest, object):
         edb.close_edb()
 
     def test_075_flatten_planes(self):
-        assert self.edbapp.core_primitives.unite_polygons_on_layer("TOP")
+        assert self.edbapp.modeler.unite_polygons_on_layer("TOP")
 
     def test_076_create_solder_ball_on_component(self):
-        assert self.edbapp.core_components.set_solder_ball("U1A1")
+        assert self.edbapp.components.set_solder_ball("U1A1")
 
     def test_077_add_void(self):
-        plane_shape = self.edbapp.core_primitives.Shape("rectangle", pointA=["-5mm", "-5mm"], pointB=["5mm", "5mm"])
-        plane = self.edbapp.core_primitives.create_polygon(plane_shape, "TOP", net_name="GND")
-        void = self.edbapp.core_primitives.create_trace([["0", "0"], ["0", "1mm"]], layer_name="TOP", width="0.1mm")
-        assert self.edbapp.core_primitives.add_void(plane, void)
+        plane_shape = self.edbapp.modeler.Shape("rectangle", pointA=["-5mm", "-5mm"], pointB=["5mm", "5mm"])
+        plane = self.edbapp.modeler.create_polygon(plane_shape, "TOP", net_name="GND")
+        void = self.edbapp.modeler.create_trace([["0", "0"], ["0", "1mm"]], layer_name="TOP", width="0.1mm")
+        assert self.edbapp.modeler.add_void(plane, void)
         assert plane.add_void(void)
 
     def test_078_create_solder_balls_on_component(self):
-        assert self.edbapp.core_components.set_solder_ball("U2A5")
+        assert self.edbapp.components.set_solder_ball("U2A5")
 
     def test_080_fix_circle_voids(self):
-        assert self.edbapp.core_primitives.fix_circle_void_for_clipping()
+        assert self.edbapp.modeler.fix_circle_void_for_clipping()
 
     def test_081_padstack_instance(self):
-        padstack_instances = self.edbapp.core_padstack.get_padstack_instance_by_net_name("GND")
+        padstack_instances = self.edbapp.padstacks.get_padstack_instance_by_net_name("GND")
         assert len(padstack_instances)
         padstack_1 = padstack_instances[0]
         assert padstack_1.id
@@ -864,36 +852,36 @@ class TestClass(BasisTest, object):
                 break
 
     def test_082_duplicate_padstack(self):
-        self.edbapp.core_padstack.duplicate_padstack(
+        self.edbapp.padstacks.duplicate(
             target_padstack_name="VIA_20-10-28_SMB",
             new_padstack_name="VIA_20-10-28_SMB_NEW",
         )
-        assert self.edbapp.core_padstack.definitions["VIA_20-10-28_SMB_NEW"]
+        assert self.edbapp.padstacks.definitions["VIA_20-10-28_SMB_NEW"]
 
     def test_83_set_padstack_property(self):
-        self.edbapp.core_padstack.set_pad_property(
+        self.edbapp.padstacks.set_pad_property(
             padstack_name="VIA_18-10-28_SMB",
             layer_name="new",
             pad_shape="Circle",
             pad_params="800um",
         )
-        assert self.edbapp.core_padstack.definitions["VIA_18-10-28_SMB"].pad_by_layer["new"]
+        assert self.edbapp.padstacks.definitions["VIA_18-10-28_SMB"].pad_by_layer["new"]
 
     def test_084_primitives_area(self):
         i = 0
         while i < 10:
-            assert self.edbapp.core_primitives.primitives[i].area(False) > 0
-            assert self.edbapp.core_primitives.primitives[i].area(True) > 0
+            assert self.edbapp.modeler.primitives[i].area(False) > 0
+            assert self.edbapp.modeler.primitives[i].area(True) > 0
             i += 1
-        assert self.edbapp.core_primitives.primitives[i].bbox
-        assert self.edbapp.core_primitives.primitives[i].center
+        assert self.edbapp.modeler.primitives[i].bbox
+        assert self.edbapp.modeler.primitives[i].center
 
     def test_085_short_component(self):
-        assert self.edbapp.core_components.short_component_pins("EU1", width=0.2e-3)
-        assert self.edbapp.core_components.short_component_pins("U10", ["2", "5"])
+        assert self.edbapp.components.short_component_pins("EU1", width=0.2e-3)
+        assert self.edbapp.components.short_component_pins("U10", ["2", "5"])
 
     def test_086_set_component_type(self):
-        comp = self.edbapp.core_components.components["R2L18"]
+        comp = self.edbapp.components.components["R2L18"]
         comp.type = "Resistor"
         assert comp.type == "Resistor"
         comp.type = "Inductor"
@@ -908,8 +896,8 @@ class TestClass(BasisTest, object):
         assert comp.type == "Other"
 
     def test_087_deactivate_rlc(self):
-        assert self.edbapp.core_components.deactivate_rlc_component(component="C1", create_circuit_port=True)
-        assert self.edbapp.core_components.deactivate_rlc_component(component="C2", create_circuit_port=False)
+        assert self.edbapp.components.deactivate_rlc_component(component="C1", create_circuit_port=True)
+        assert self.edbapp.components.deactivate_rlc_component(component="C2", create_circuit_port=False)
 
     def test_088_create_symmetric_stackup(self):
         if not is_ironpython:
@@ -932,13 +920,13 @@ class TestClass(BasisTest, object):
             app_edb.close_edb()
 
     def test_089_create_rectangle(self):
-        rect = self.edbapp.core_primitives.create_rectangle("TOP", "SIG1", ["0", "0"], ["2mm", "3mm"])
+        rect = self.edbapp.modeler.create_rectangle("TOP", "SIG1", ["0", "0"], ["2mm", "3mm"])
         assert rect
         rect.is_negative = True
         assert rect.is_negative
         rect.is_negative = False
         assert not rect.is_negative
-        assert self.edbapp.core_primitives.create_rectangle(
+        assert self.edbapp.modeler.create_rectangle(
             "TOP",
             "SIG2",
             center_point=["0", "0"],
@@ -949,19 +937,17 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(is_ironpython, reason="Failing Subtract")
     def test_089B_circle_boolean(self):
-        poly = self.edbapp.core_primitives.create_polygon_from_points([[0, 0], [100, 0], [100, 100], [0, 100]], "TOP")
+        poly = self.edbapp.modeler.create_polygon_from_points([[0, 0], [100, 0], [100, 100], [0, 100]], "TOP")
         assert poly
         poly.add_void([[20, 20], [20, 30], [100, 30], [100, 20]])
-        poly2 = self.edbapp.core_primitives.create_polygon_from_points(
-            [[60, 60], [60, 150], [150, 150], [150, 60]], "TOP"
-        )
+        poly2 = self.edbapp.modeler.create_polygon_from_points([[60, 60], [60, 150], [150, 150], [150, 60]], "TOP")
         new_polys = poly.subtract(poly2)
         assert len(new_polys) == 1
-        circle = self.edbapp.core_primitives.create_circle("TOP", 40, 40, 15)
+        circle = self.edbapp.modeler.create_circle("TOP", 40, 40, 15)
         assert circle
         intersection = new_polys[0].intersect(circle)
         assert len(intersection) == 1
-        circle2 = self.edbapp.core_primitives.create_circle("TOP", 20, 20, 15)
+        circle2 = self.edbapp.modeler.create_circle("TOP", 20, 20, 15)
         assert circle2.unite(intersection)
 
     def test_090_negative_properties(self):
@@ -1195,7 +1181,7 @@ class TestClass(BasisTest, object):
         assert not failing_test_02
 
     def test_104_classify_nets(self):
-        assert self.edbapp.core_nets.classify_nets(["RSVD_0", "RSVD_1"], ["V3P3_S0"])
+        assert self.edbapp.nets.classify_nets(["RSVD_0", "RSVD_1"], ["V3P3_S0"])
 
     def test_105_place_a3dcomp_3d_placement(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "lam_for_bottom_place.aedb")
@@ -1326,7 +1312,7 @@ class TestClass(BasisTest, object):
         ref_poly = [poly for poly in poly_list if poly.GetId() == 19][0]
         port_location = [-65e-3, -13e-3]
         ref_location = [-63e-3, -13e-3]
-        assert edb.core_hfss.create_edge_port_on_polygon(
+        assert edb.hfss.create_edge_port_on_polygon(
             polygon=port_poly,
             reference_polygon=ref_poly,
             terminal_point=port_location,
@@ -1336,7 +1322,7 @@ class TestClass(BasisTest, object):
         ref_poly = [poly for poly in poly_list if poly.GetId() == 22][0]
         port_location = [-65e-3, -10e-3]
         ref_location = [-65e-3, -10e-3]
-        assert edb.core_hfss.create_edge_port_on_polygon(
+        assert edb.hfss.create_edge_port_on_polygon(
             polygon=port_poly,
             reference_polygon=ref_poly,
             terminal_point=port_location,
@@ -1344,7 +1330,7 @@ class TestClass(BasisTest, object):
         )
         port_poly = [poly for poly in poly_list if poly.GetId() == 25][0]
         port_location = [-65e-3, -7e-3]
-        assert edb.core_hfss.create_edge_port_on_polygon(
+        assert edb.hfss.create_edge_port_on_polygon(
             polygon=port_poly, terminal_point=port_location, reference_layer="gnd"
         )
         edb.close_edb()
@@ -1437,7 +1423,7 @@ class TestClass(BasisTest, object):
         assert initial_extent_info.ExtentType == edb.edb.Utility.HFSSExtentInfoType.Conforming
         config = SimulationConfiguration()
         config.radiation_box = RadiationBoxType.BoundingBox
-        assert edb.core_hfss.configure_hfss_extents(config)
+        assert edb.hfss.configure_hfss_extents(config)
         final_extent_info = edb.active_cell.GetHFSSExtentInfo()
         assert final_extent_info.ExtentType == edb.edb.Utility.HFSSExtentInfoType.BoundingBox
 
@@ -1475,11 +1461,9 @@ class TestClass(BasisTest, object):
         target_path = os.path.join(self.local_scratch.path, "Galileo_114.aedb")
         self.local_scratch.copyfolder(example_project, target_path)
         edb = Edb(target_path, edbversion=desktop_version)
-        pins = edb.core_components.get_pin_from_component("U2A5", "V1P5_S0")
-        ref_pins = edb.core_components.get_pin_from_component("U2A5", "GND")
-        assert edb.core_components.create_rlc_component(
-            [pins[0], ref_pins[0]], "test_0rlc", r_value=1.67, l_value=1e-13, c_value=1e-11
-        )
+        pins = edb.components.get_pin_from_component("U2A5", "V1P5_S0")
+        ref_pins = edb.components.get_pin_from_component("U2A5", "GND")
+        assert edb.components.create([pins[0], ref_pins[0]], "test_0rlc", r_value=1.67, l_value=1e-13, c_value=1e-11)
         edb.close_edb()
 
     def test_117_create_rlc_boundary(self):
@@ -1489,11 +1473,9 @@ class TestClass(BasisTest, object):
             os.mkdir(self.local_scratch.path)
         self.local_scratch.copyfolder(example_project, target_path)
         edb = Edb(target_path, edbversion=desktop_version)
-        pins = edb.core_components.get_pin_from_component("U2A5", "V1P5_S0")
-        ref_pins = edb.core_components.get_pin_from_component("U2A5", "GND")
-        assert edb.core_hfss.create_rlc_boundary_on_pins(
-            pins[0], ref_pins[0], rvalue=1.05, lvalue=1.05e-12, cvalue=1.78e-13
-        )
+        pins = edb.components.get_pin_from_component("U2A5", "V1P5_S0")
+        ref_pins = edb.components.get_pin_from_component("U2A5", "GND")
+        assert edb.hfss.create_rlc_boundary_on_pins(pins[0], ref_pins[0], rvalue=1.05, lvalue=1.05e-12, cvalue=1.78e-13)
         edb.close_edb()
 
     def test_118_configure_hfss_analysis_setup_enforce_causality(self):
@@ -1511,7 +1493,7 @@ class TestClass(BasisTest, object):
         assert sim_config.mesh_sizefactor == 0.1
         assert not sim_config.do_lambda_refinement
         sim_config.start_freq = "1GHz"
-        edb.core_hfss.configure_hfss_analysis_setup(sim_config)
+        edb.hfss.configure_hfss_analysis_setup(sim_config)
         assert len(list(edb.active_cell.SimulationSetups)) == 1
         setup = list(edb.active_cell.SimulationSetups)[0]
         ssi = setup.GetSimSetupInfo()
@@ -1527,7 +1509,7 @@ class TestClass(BasisTest, object):
         sim_setup = SimulationConfiguration()
         sim_setup.mesh_sizefactor = 1.9
         assert not sim_setup.do_lambda_refinement
-        edb.core_hfss.configure_hfss_analysis_setup(sim_setup)
+        edb.hfss.configure_hfss_analysis_setup(sim_setup)
         if is_ironpython:
             mesh_size_factor = (
                 list(edb.active_cell.SimulationSetups)[0]
@@ -1549,15 +1531,15 @@ class TestClass(BasisTest, object):
             edbpath=os.path.join(local_path, "example_models", "edb_edge_ports.aedb"),
             edbversion=desktop_version,
         )
-        prim_1_id = [i.id for i in edb.core_primitives.primitives if i.net_name == "trace_2"][0]
-        assert edb.core_hfss.create_edge_port_vertical(prim_1_id, ["-66mm", "-4mm"], "port_ver")
+        prim_1_id = [i.id for i in edb.modeler.primitives if i.net_name == "trace_2"][0]
+        assert edb.hfss.create_edge_port_vertical(prim_1_id, ["-66mm", "-4mm"], "port_ver")
 
-        prim_2_id = [i.id for i in edb.core_primitives.primitives if i.net_name == "trace_3"][0]
-        assert edb.core_hfss.create_edge_port_horizontal(
+        prim_2_id = [i.id for i in edb.modeler.primitives if i.net_name == "trace_3"][0]
+        assert edb.hfss.create_edge_port_horizontal(
             prim_1_id, ["-60mm", "-4mm"], prim_2_id, ["-59mm", "-4mm"], "port_hori", 30, "Lower"
         )
-        assert edb.core_hfss.get_ports_number() == 2
-        port_ver = edb.core_hfss.excitations["port_ver"]
+        assert edb.hfss.get_ports_number() == 2
+        port_ver = edb.hfss.excitations["port_ver"]
         assert port_ver.hfss_type == "Gap"
         assert isinstance(port_ver.horizontal_extent_factor, float)
         assert isinstance(port_ver.vertical_extent_factor, float)
@@ -1576,12 +1558,12 @@ class TestClass(BasisTest, object):
             [["-40mm", "-10.4mm"], ["-30mm", "-10.4mm"]],
         ]
         for p in trace_paths:
-            t = edb.core_primitives.create_trace(path_list=p, **args)
+            t = edb.modeler.create_trace(path_list=p, **args)
             traces.append(t)
 
-        assert edb.core_hfss.create_wave_port(traces[0].id, trace_paths[0][0], "wave_port")
+        assert edb.hfss.create_wave_port(traces[0].id, trace_paths[0][0], "wave_port")
 
-        assert edb.core_hfss.create_differential_wave_port(
+        assert edb.hfss.create_differential_wave_port(
             traces[0].id,
             trace_paths[0][0],
             traces[1].id,
@@ -1592,7 +1574,7 @@ class TestClass(BasisTest, object):
 
         traces_id = [i.id for i in traces]
         paths = [i[1] for i in trace_paths]
-        assert edb.core_hfss.create_bundle_wave_port(traces_id, paths)
+        assert edb.hfss.create_bundle_wave_port(traces_id, paths)
         edb.close_edb()
 
     def test_120b_edb_create_port(self):
@@ -1614,12 +1596,12 @@ class TestClass(BasisTest, object):
             [["-40mm", "-10.4mm"], ["-30mm", "-10.4mm"]],
         ]
         for p in trace_pathes:
-            t = edb.core_primitives.create_trace(path_list=p, **args)
+            t = edb.modeler.create_trace(path_list=p, **args)
             traces.append(t)
 
-        assert edb.core_hfss.create_wave_port(traces[0], trace_pathes[0][0], "wave_port")
+        assert edb.hfss.create_wave_port(traces[0], trace_pathes[0][0], "wave_port")
 
-        assert edb.core_hfss.create_differential_wave_port(
+        assert edb.hfss.create_differential_wave_port(
             traces[0],
             trace_pathes[0][0],
             traces[1],
@@ -1629,7 +1611,7 @@ class TestClass(BasisTest, object):
         assert not edb.are_port_reference_terminals_connected()
 
         paths = [i[1] for i in trace_pathes]
-        assert edb.core_hfss.create_bundle_wave_port(traces, paths)
+        assert edb.hfss.create_bundle_wave_port(traces, paths)
         edb.close_edb()
 
     def test_121_insert_layer(self):
@@ -1657,7 +1639,7 @@ class TestClass(BasisTest, object):
         target_path = os.path.join(self.local_scratch.path, "test_0120.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
-        assert edbapp.core_padstack.set_all_antipad_value(0.0)
+        assert edbapp.padstacks.set_all_antipad_value(0.0)
         edbapp.close_edb()
 
     def test_124_stackup(self):
@@ -1744,27 +1726,27 @@ class TestClass(BasisTest, object):
         target_path = os.path.join(self.local_scratch.path, "test_0123.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
-        assert edbapp.core_components.components
-        assert edbapp.core_components.definitions
-        comp_def = edbapp.core_components.definitions["G83568-001"]
+        assert edbapp.components.components
+        assert edbapp.components.definitions
+        comp_def = edbapp.components.definitions["G83568-001"]
         assert comp_def
         comp_def.part_name = "G83568-001x"
         assert comp_def.part_name == "G83568-001x"
         assert len(comp_def.components) > 0
-        cap = edbapp.core_components.definitions["602431-005"]
+        cap = edbapp.components.definitions["602431-005"]
         assert cap.type == "Capacitor"
         cap.type = "Resistor"
         assert cap.type == "Resistor"
 
         export_path = os.path.join(self.local_scratch.path, "comp_definition.csv")
-        assert edbapp.core_components.export_definition(export_path)
-        assert edbapp.core_components.import_definition(export_path)
+        assert edbapp.components.export_definition(export_path)
+        assert edbapp.components.import_definition(export_path)
 
-        assert edbapp.core_components.definitions["602431-005"].assign_rlc_model(1, 2, 3)
+        assert edbapp.components.definitions["602431-005"].assign_rlc_model(1, 2, 3)
         sparam_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC_series.s2p")
-        assert edbapp.core_components.definitions["602433-026"].assign_s_param_model(sparam_path)
+        assert edbapp.components.definitions["602433-026"].assign_s_param_model(sparam_path)
         spice_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC.mod")
-        assert edbapp.core_components.definitions["602433-038"].assign_spice_model(spice_path)
+        assert edbapp.components.definitions["602433-038"].assign_spice_model(spice_path)
         edbapp.close_edb()
 
     def test_127_material(self):
@@ -1829,14 +1811,14 @@ class TestClass(BasisTest, object):
         target_path = os.path.join(self.local_scratch.path, "test_128_microvias.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
-        assert edbapp.core_padstack.definitions["Padstack_Circle"].convert_to_3d_microvias(False)
-        assert edbapp.core_padstack.definitions["Padstack_Rectangle"].convert_to_3d_microvias(False, hole_wall_angle=10)
-        assert edbapp.core_padstack.definitions["Padstack_Polygon_p12"].convert_to_3d_microvias(False)
+        assert edbapp.padstacks.definitions["Padstack_Circle"].convert_to_3d_microvias(False)
+        assert edbapp.padstacks.definitions["Padstack_Rectangle"].convert_to_3d_microvias(False, hole_wall_angle=10)
+        assert edbapp.padstacks.definitions["Padstack_Polygon_p12"].convert_to_3d_microvias(False)
         edbapp.close_edb()
 
     def test_129_split_microvias(self):
         edbapp = Edb(self.target_path4, edbversion=desktop_version)
-        assert len(edbapp.core_padstack.definitions["C4_POWER_1"].split_to_microvias()) > 0
+        assert len(edbapp.padstacks.definitions["C4_POWER_1"].split_to_microvias()) > 0
         edbapp.close_edb()
 
     def test_129_hfss_simulation_setup(self):
@@ -2228,7 +2210,7 @@ class TestClass(BasisTest, object):
         assert setup1.xtalk_threshold == "-44"
 
     def test_132_via_plating_ratio_check(self):
-        assert self.edbapp.core_padstack.check_and_fix_via_plating()
+        assert self.edbapp.padstacks.check_and_fix_via_plating()
 
     def test_133_siwave_build_ac_prject(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "padstacks.aedb")
@@ -2246,7 +2228,7 @@ class TestClass(BasisTest, object):
         target_path = os.path.join(self.local_scratch.path, "test_0134.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
-        edbapp.core_siwave.create_port_between_pin_and_layer(
+        edbapp.siwave.create_port_between_pin_and_layer(
             component_name="U2A5", pins_name="AJ30", layer_name="BOTTOM", reference_net="GND"
         )
 
@@ -2256,7 +2238,7 @@ class TestClass(BasisTest, object):
         target_path = os.path.join(self.local_scratch.path, "test_134_source_setter.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
-        sources = list(edbapp.core_siwave.sources.values())
+        sources = list(edbapp.siwave.sources.values())
         sources[0].magnitude = 1.45
         assert sources[0].magnitude == 1.45
         sources[1].magnitude = 1.45
@@ -2269,18 +2251,16 @@ class TestClass(BasisTest, object):
         target_path = os.path.join(self.local_scratch.path, "test_135_pin_group.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
-        for pingroup_name, pingroup in edbapp.core_siwave.pin_groups.items():
+        for pingroup_name, pingroup in edbapp.siwave.pin_groups.items():
             assert pingroup.delete()
-        assert not edbapp.core_siwave.pin_groups
+        assert not edbapp.siwave.pin_groups
 
     def test_136_rlc_component_values_getter_setter(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
         target_path = os.path.join(self.local_scratch.path, "test_0123.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
-        components_to_change = [
-            res for res in list(edbapp.core_components.Others.values()) if res.partname == "A93549-027"
-        ]
+        components_to_change = [res for res in list(edbapp.components.Others.values()) if res.partname == "A93549-027"]
         for res in components_to_change:
             res.type = "Resistor"
             res.res_value = [25, 0, 0]

@@ -25,7 +25,6 @@ from pyaedt.edb_core.edb_data.design_options import EdbDesignOptions
 from pyaedt.edb_core.edb_data.edb_builder import EdbBuilder
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import HfssSimulationSetup
-from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveDCSimulationSetup
 from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveSYZSimulationSetup
@@ -706,6 +705,9 @@ class Edb(object):
     def core_components(self):
         """Edb Components methods and properties.
 
+        .. deprecated:: 0.6.62
+           Use new property :func:`components` instead.
+
         Returns
         -------
         Instance of :class:`pyaedt.edb_core.Components.Components`
@@ -713,7 +715,23 @@ class Edb(object):
         Examples
         --------
         >>> edbapp = pyaedt.Edb("myproject.aedb")
-        >>> comp = self.edbapp.core_components.get_component_by_name("J1")
+        >>> comp = self.edbapp.components.get_component_by_name("J1")
+        """
+        warnings.warn("Use new property :func:`components` instead.", DeprecationWarning)
+        return self.components
+
+    @property
+    def components(self):
+        """Edb Components methods and properties.
+
+        Returns
+        -------
+        Instance of :class:`pyaedt.edb_core.Components.Components`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> comp = self.edbapp.components.get_component_by_name("J1")
         """
         if not self._components and self.builder:
             self._components = Components(self)
@@ -788,6 +806,9 @@ class Edb(object):
         """Core padstack.
 
 
+        .. deprecated:: 0.6.62
+           Use new property :func:`padstacks` instead.
+
         Returns
         -------
         Instance of :class: `pyaedt.edb_core.padstack.EdbPadstack`
@@ -795,9 +816,30 @@ class Edb(object):
         Examples
         --------
         >>> edbapp = pyaedt.Edb("myproject.aedb")
-        >>> p = edbapp.core_padstack.create_padstack(padstackname="myVia_bullet", antipad_shape="Bullet")
-        >>> edbapp.core_padstack.get_pad_parameters(
-        >>> ... p, "TOP", self.edbapp.core_padstack.pad_type.RegularPad
+        >>> p = edbapp.padstacks.create(padstackname="myVia_bullet", antipad_shape="Bullet")
+        >>> edbapp.padstacks.get_pad_parameters(
+        >>> ... p, "TOP", self.edbapp.padstacks.pad_type.RegularPad
+        >>> ... )
+        """
+
+        warnings.warn("Use new property :func:`padstacks` instead.", DeprecationWarning)
+        return self.padstack
+
+    @property
+    def padstacks(self):
+        """Core padstack.
+
+
+        Returns
+        -------
+        Instance of :class: `pyaedt.edb_core.padstack.EdbPadstack`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> p = edbapp.padstacks.create(padstackname="myVia_bullet", antipad_shape="Bullet")
+        >>> edbapp.padstacks.get_pad_parameters(
+        >>> ... p, "TOP", self.edbapp.padstacks.pad_type.RegularPad
         >>> ... )
         """
 
@@ -809,6 +851,9 @@ class Edb(object):
     def core_siwave(self):
         """Core SIWave methods and properties.
 
+        .. deprecated:: 0.6.62
+           Use new property :func:`siwave` instead.
+
         Returns
         -------
         Instance of :class: `pyaedt.edb_core.siwave.EdbSiwave`
@@ -816,15 +861,49 @@ class Edb(object):
         Examples
         --------
         >>> edbapp = pyaedt.Edb("myproject.aedb")
-        >>> p2 = edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V3P3_S0", "U2A5", "GND", 50, "test")
+        >>> p2 = edbapp.siwave.create_circuit_port_on_net("U2A5", "V3P3_S0", "U2A5", "GND", 50, "test")
         """
+        warnings.warn("Use new property :func:`siwave` instead.", DeprecationWarning)
+        return self.siwave
 
+    @property
+    def siwave(self):
+        """Core SIWave methods and properties.
+
+        Returns
+        -------
+        Instance of :class: `pyaedt.edb_core.siwave.EdbSiwave`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> p2 = edbapp.siwave.create_circuit_port_on_net("U2A5", "V3P3_S0", "U2A5", "GND", 50, "test")
+        """
         if not self._siwave and self.builder:
             self._siwave = EdbSiwave(self)
         return self._siwave
 
     @property
     def core_hfss(self):
+        """Core HFSS methods and properties.
+
+        .. deprecated:: 0.6.62
+           Use new property :func:`hfss` instead.
+
+        Returns
+        -------
+        Instance of :class:`pyaedt.edb_core.hfss.EdbHfss`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> edbapp.hfss.configure_hfss_analysis_setup(sim_config)
+        """
+        warnings.warn("Use new property :func:`hfss` instead.", DeprecationWarning)
+        return self.hfss
+
+    @property
+    def hfss(self):
         """Core HFSS methods and properties.
 
         Returns
@@ -834,7 +913,7 @@ class Edb(object):
         Examples
         --------
         >>> edbapp = pyaedt.Edb("myproject.aedb")
-        >>> edbapp.core_hfss.configure_hfss_analysis_setup(sim_config)
+        >>> edbapp.hfss.configure_hfss_analysis_setup(sim_config)
         """
         if not self._hfss and self.builder:
             self._hfss = EdbHfss(self)
@@ -844,6 +923,9 @@ class Edb(object):
     def core_nets(self):
         """Core nets.
 
+        .. deprecated:: 0.6.62
+           Use new property :func:`nets` instead.
+
         Returns
         -------
         :class:`pyaedt.edb_core.nets.EdbNets`
@@ -851,8 +933,25 @@ class Edb(object):
         Examples
         --------
         >>> edbapp = pyaedt.Edb("myproject.aedb")
-        >>> edbapp.core_nets.find_or_create_net("GND")
-        >>> edbapp.core_nets.find_and_fix_disjoint_nets("GND", keep_only_main_net=True)
+        >>> edbapp.nets.find_or_create_net("GND")
+        >>> edbapp.nets.find_and_fix_disjoint_nets("GND", keep_only_main_net=True)
+        """
+        warnings.warn("Use new property :func:`nets` instead.", DeprecationWarning)
+        return self.nets
+
+    @property
+    def nets(self):
+        """Core nets.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.nets.EdbNets`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> edbapp.nets.find_or_create_net("GND")
+        >>> edbapp.nets.find_and_fix_disjoint_nets("GND", keep_only_main_net=True)
         """
 
         if not self._nets and self.builder:
@@ -863,6 +962,10 @@ class Edb(object):
     def core_primitives(self):
         """Core primitives.
 
+
+        .. deprecated:: 0.6.62
+           Use new property :func:`modeler` instead.
+
         Returns
         -------
         Instance of :class: `pyaedt.edb_core.layout.EdbLayout`
@@ -870,7 +973,23 @@ class Edb(object):
         Examples
         --------
         >>> edbapp = pyaedt.Edb("myproject.aedb")
-        >>> top_prims = edbapp.core_primitives.primitives_by_layer["TOP"]
+        >>> top_prims = edbapp.modeler.primitives_by_layer["TOP"]
+        """
+        warnings.warn("Use new property :func:`modeler` instead.", DeprecationWarning)
+        return self.modeler
+
+    @property
+    def modeler(self):
+        """Core primitives modeler.
+
+        Returns
+        -------
+        Instance of :class: `pyaedt.edb_core.layout.EdbLayout`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> top_prims = edbapp.modeler.primitives_by_layer["TOP"]
         """
         if not self._core_primitives and self.builder:
             self._core_primitives = EdbLayout(self)
@@ -900,6 +1019,9 @@ class Edb(object):
     def pins(self):
         """EDBPadstackInstance of Component.
 
+        .. deprecated:: 0.6.62
+           Use new method :func:`edb.padstacks.pins` instead.
+
         Returns
         -------
         dic[str, :class:`pyaedt.edb_core.edb_data.definitions.EDBPadstackInstance`]
@@ -911,18 +1033,8 @@ class Edb(object):
         >>> edbapp = pyaedt.Edb("myproject.aedb")
         >>> pin_net_name = edbapp.pins[424968329].netname
         """
-        pins = {}
-        if self.core_components:
-            for el in self.core_components.components:
-                comp = self.edb.Cell.Hierarchy.Component.FindByName(self.active_layout, el)
-                temp = [
-                    p
-                    for p in comp.LayoutObjs
-                    if p.GetObjType() == self.edb.Cell.LayoutObjType.PadstackInstance and p.IsLayoutPin()
-                ]
-                for p in temp:
-                    pins[p.GetId()] = EDBPadstackInstance(p, self)
-        return pins
+        warnings.warn("Use new method :func:`edb.padstacks.pins` instead.", DeprecationWarning)
+        return self.padstacks.pins
 
     class Boundaries:
         """Boundaries Enumerator.
@@ -1207,7 +1319,7 @@ class Edb(object):
         _polys = []
         for net in net_signals:
             names.append(net.GetName())
-        for prim in self.core_primitives.primitives:
+        for prim in self.modeler.primitives:
             if prim.net_name in names:
                 obj_data = prim.primitive_object.GetPolygonData().Expand(
                     expansion_size, tolerance, round_corner, round_extension
@@ -1223,7 +1335,7 @@ class Edb(object):
         _polys = []
         for net in net_signals:
             names.append(net.GetName())
-        for prim in self.core_primitives.primitives:
+        for prim in self.modeler.primitives:
             if prim.net_name in names:
                 _polys.append(prim.primitive_object.GetPolygonData())
         _poly = self.edb.Geometry.PolygonData.GetConvexHullOfPolygons(convert_py_list_to_net_list(_polys))
@@ -1311,15 +1423,15 @@ class Edb(object):
         >>> edb.logger.reset_timer()
         >>> start = time.time()
         >>> signal_list = []
-        >>> for net in edb.core_nets.nets.keys():
+        >>> for net in edb.nets.netlist:
         >>>      if "3V3" in net:
         >>>           signal_list.append(net)
         >>> power_list = ["PGND"]
         >>> edb.cutout(signal_list=signal_list, reference_list=power_list, extent_type="Conforming")
         >>> end_time = str((time.time() - start)/60)
         >>> edb.logger.info("Total pyaedt cutout time in min %s", end_time)
-        >>> edb.core_nets.plot(signal_list, None, color_by_net=True)
-        >>> edb.core_nets.plot(power_list, None, color_by_net=True)
+        >>> edb.nets.plot(signal_list, None, color_by_net=True)
+        >>> edb.nets.plot(power_list, None, color_by_net=True)
         >>> edb.save_edb()
         >>> edb.close_edb()
 
@@ -1451,9 +1563,9 @@ class Edb(object):
                 self.edbpath = self._db.GetDirectory()
                 self._init_objects()
                 if remove_single_pin_components:
-                    self.core_components.delete_single_pin_rlc()
+                    self.components.delete_single_pin_rlc()
                     self.logger.info_timer("Single Pins components deleted")
-                    self.core_components.refresh_components()
+                    self.components.refresh_components()
             else:
                 if remove_single_pin_components:
                     try:
@@ -1480,9 +1592,9 @@ class Edb(object):
             self._active_cell = _cutout
             self._init_objects()
             if remove_single_pin_components:
-                self.core_components.delete_single_pin_rlc()
+                self.components.delete_single_pin_rlc()
                 self.logger.info_timer("Single Pins components deleted")
-                self.core_components.refresh_components()
+                self.components.refresh_components()
         return True
 
     @pyaedt_function_handler()
@@ -1578,18 +1690,18 @@ class Edb(object):
             all_list = reference_list
         else:
             all_list = signal_list + reference_list
-        for i in self.core_nets.nets.values():
+        for i in self.nets.nets.values():
             if i.name not in all_list:
                 i.net_object.Delete()
         reference_pinsts = []
         reference_prims = []
-        for i in self.core_padstack.instances.values():
+        for i in self.padstacks.instances.values():
             net_name = i.net_name
             if net_name not in all_list:
                 i.delete()
             elif net_name in reference_list:
                 reference_pinsts.append(i)
-        for i in self.core_primitives.primitives:
+        for i in self.modeler.primitives:
             net_name = i.net_name
             if net_name not in all_list:
                 i.delete()
@@ -1599,8 +1711,8 @@ class Edb(object):
         self.logger.reset_timer()
 
         if custom_extent and isinstance(custom_extent, list):
-            plane = self.core_primitives.Shape("polygon", points=custom_extent)
-            _poly = self.core_primitives.shape_to_polygon_data(plane)
+            plane = self.modeler.Shape("polygon", points=custom_extent)
+            _poly = self.modeler.shape_to_polygon_data(plane)
         elif custom_extent:
             _poly = custom_extent
         else:
@@ -1687,7 +1799,7 @@ class Edb(object):
             pool.map(lambda item: clean_prim(item), reference_prims)
 
         for el in poly_to_create:
-            self.core_primitives.create_polygon(el[0], el[1], net_name=el[2], voids=el[3])
+            self.modeler.create_polygon(el[0], el[1], net_name=el[2], voids=el[3])
 
         for prim in prims_to_delete:
             prim.delete()
@@ -1695,16 +1807,16 @@ class Edb(object):
         self.logger.reset_timer()
 
         i = 0
-        for comp, val in self.core_components.components.items():
+        for comp, val in self.components.components.items():
             if val.numpins == 0:
                 val.edbcomponent.Delete()
                 i += 1
         self.logger.info("Deleted {} additional components".format(i))
         if remove_single_pin_components:
-            self.core_components.delete_single_pin_rlc()
+            self.components.delete_single_pin_rlc()
             self.logger.info_timer("Single Pins components deleted")
 
-        self.core_components.refresh_components()
+        self.components.refresh_components()
 
         self.logger.info_timer("Cutout completed.", timer_start)
         self.logger.reset_timer()
@@ -1777,15 +1889,15 @@ class Edb(object):
         >>> edb.logger.reset_timer()
         >>> start = time.time()
         >>> signal_list = []
-        >>> for net in edb.core_nets.nets.keys():
+        >>> for net in edb.nets.nets.keys():
         >>>      if "3V3" in net:
         >>>           signal_list.append(net)
         >>> power_list = ["PGND"]
         >>> edb.create_cutout_multithread(signal_list=signal_list, reference_list=power_list, extent_type="Conforming")
         >>> end_time = str((time.time() - start)/60)
         >>> edb.logger.info("Total pyaedt cutout time in min %s", end_time)
-        >>> edb.core_nets.plot(signal_list, None, color_by_net=True)
-        >>> edb.core_nets.plot(power_list, None, color_by_net=True)
+        >>> edb.nets.plot(signal_list, None, color_by_net=True)
+        >>> edb.nets.plot(power_list, None, color_by_net=True)
         >>> edb.save_edb()
         >>> edb.close_edb()
 
@@ -1824,7 +1936,7 @@ class Edb(object):
         temp_edb_path = self.edbpath[:-5] + "_temp_aedb.aedb"
         shutil.copytree(self.edbpath, temp_edb_path)
         temp_edb = Edb(temp_edb_path)
-        for via in list(temp_edb.core_padstack.instances.values()):
+        for via in list(temp_edb.padstacks.instances.values()):
             via.pin.Delete()
         if netlist:
             nets = convert_py_list_to_net_list(
@@ -1907,8 +2019,8 @@ class Edb(object):
         if point_list[0] != point_list[-1]:
             point_list.append(point_list[0])
         point_list = [[self.number_with_units(i[0], units), self.number_with_units(i[1], units)] for i in point_list]
-        plane = self.core_primitives.Shape("polygon", points=point_list)
-        polygonData = self.core_primitives.shape_to_polygon_data(plane)
+        plane = self.modeler.Shape("polygon", points=point_list)
+        polygonData = self.modeler.shape_to_polygon_data(plane)
         _ref_nets = []
         if nets_to_include:
             self.logger.info("Creating cutout on {} nets.".format(len(nets_to_include)))
@@ -1919,22 +2031,22 @@ class Edb(object):
         pinstance_to_add = []
         if include_partial_instances:
             if nets_to_include:
-                pinst = [i for i in list(self.core_padstack.instances.values()) if i.net_name in nets_to_include]
+                pinst = [i for i in list(self.padstacks.instances.values()) if i.net_name in nets_to_include]
             else:
-                pinst = [i for i in list(self.core_padstack.instances.values())]
+                pinst = [i for i in list(self.padstacks.instances.values())]
             for p in pinst:
                 if p.in_polygon(polygonData):
                     pinstance_to_add.append(p)
         # validate references in layout
-        for _ref in self.core_nets.nets:
+        for _ref in self.nets.nets:
             if nets_to_include:
                 if _ref in nets_to_include:
-                    _ref_nets.append(self.core_nets.nets[_ref].net_object)
+                    _ref_nets.append(self.nets.nets[_ref].net_object)
             else:
-                _ref_nets.append(self.core_nets.nets[_ref].net_object)  # pragma: no cover
+                _ref_nets.append(self.nets.nets[_ref].net_object)  # pragma: no cover
         if keep_voids:
-            voids = [p for p in self.core_primitives.circles if p.is_void]
-            voids2 = [p for p in self.core_primitives.polygons if p.is_void]
+            voids = [p for p in self.modeler.circles if p.is_void]
+            voids2 = [p for p in self.modeler.polygons if p.is_void]
             voids.extend(voids2)
         else:
             voids = []
@@ -1958,7 +2070,7 @@ class Edb(object):
             self.logger.info("Added {} padstack instances after cutout".format(len(p_missing)))
             for p in p_missing:
                 position = self.edb.Geometry.PointData(self.edb_value(p.position[0]), self.edb_value(p.position[1]))
-                net = self.core_nets.find_or_create_net(p.net_name)
+                net = self.nets.find_or_create_net(p.net_name)
                 rotation = self.edb_value(p.rotation)
                 sign_layers = list(self.stackup.signal_layers.keys())
                 if not p.start_layer:  # pragma: no cover
@@ -1971,9 +2083,9 @@ class Edb(object):
                 else:
                     tolayer = self.stackup.signal_layers[p.stop_layer]._edb_layer
                 padstack = None
-                for pad in list(self.core_padstack.definitions.keys()):
+                for pad in list(self.padstacks.definitions.keys()):
                     if pad == p.padstack_definition:
-                        padstack = self.core_padstack.definitions[pad].edb_padstack
+                        padstack = self.padstacks.definitions[pad].edb_padstack
                         padstack_instance = self.edb.Cell.Primitive.PadstackInstance.Create(
                             _cutout.GetLayout(),
                             net,
@@ -2011,9 +2123,9 @@ class Edb(object):
                 cloned_polygon.SetIsNegative(True)
         layers = [i for i in list(self.stackup.signal_layers.keys())]
         for layer in layers:
-            layer_primitves = self.core_primitives.get_primitives(layer_name=layer)
+            layer_primitves = self.modeler.get_primitives(layer_name=layer)
             if len(layer_primitves) == 0:
-                self.core_primitives.create_polygon(plane, layer, net_name="DUMMY")
+                self.modeler.create_polygon(plane, layer, net_name="DUMMY")
         self.logger.info("Cutout %s created correctly", _cutout.GetName())
         id = 1
         for _setup in self.active_cell.SimulationSetups:
@@ -2572,7 +2684,7 @@ class Edb(object):
                         if len(simulation_setup.etching_factor_instances) > idx:
                             self.stackup[layer].etch_factor = float(simulation_setup.etching_factor_instances[idx])
 
-            self.core_nets.classify_nets(simulation_setup.power_nets, simulation_setup.signal_nets)
+            self.nets.classify_nets(simulation_setup.power_nets, simulation_setup.signal_nets)
             if simulation_setup.do_cutout_subdesign:
                 self.logger.info("Cutting out using method: {0}".format(simulation_setup.cutout_subdesign_type))
                 if simulation_setup.use_default_cutout:
@@ -2612,16 +2724,16 @@ class Edb(object):
             if simulation_setup.solver_type == SolverType.Hfss3dLayout:
                 self.logger.info("Creating HFSS ports for signal nets.")
                 for cmp in simulation_setup.components:
-                    self.core_components.create_port_on_component(
+                    self.components.create_port_on_component(
                         cmp,
                         net_list=simulation_setup.signal_nets,
                         do_pingroup=False,
                         reference_net=simulation_setup.power_nets,
                         port_type=SourceType.CoaxPort,
                     )
-                if not self.core_hfss.set_coax_port_attributes(simulation_setup):  # pragma: no cover
+                if not self.hfss.set_coax_port_attributes(simulation_setup):  # pragma: no cover
                     self.logger.error("Failed to configure coaxial port attributes.")
-                self.logger.info("Number of ports: {}".format(self.core_hfss.get_ports_number()))
+                self.logger.info("Number of ports: {}".format(self.hfss.get_ports_number()))
                 self.logger.info("Configure HFSS extents.")
                 if simulation_setup.trim_reference_size:  # pragma: no cover
                     self.logger.info(
@@ -2629,13 +2741,13 @@ class Edb(object):
                             bool(simulation_setup.trim_reference_size)
                         )
                     )
-                    self.core_hfss.trim_component_reference_size(simulation_setup)  # pragma: no cover
-                self.core_hfss.configure_hfss_extents(simulation_setup)
-                if not self.core_hfss.configure_hfss_analysis_setup(simulation_setup):
+                    self.hfss.trim_component_reference_size(simulation_setup)  # pragma: no cover
+                self.hfss.configure_hfss_extents(simulation_setup)
+                if not self.hfss.configure_hfss_analysis_setup(simulation_setup):
                     self.logger.error("Failed to configure HFSS simulation setup.")
             if simulation_setup.solver_type == SolverType.SiwaveSYZ:
                 for cmp in simulation_setup.components:
-                    self.core_components.create_port_on_component(
+                    self.components.create_port_on_component(
                         cmp,
                         net_list=simulation_setup.signal_nets,
                         do_pingroup=simulation_setup.do_pingroup,
@@ -2643,14 +2755,14 @@ class Edb(object):
                         port_type=SourceType.CircPort,
                     )
                 self.logger.info("Configuring analysis setup.")
-                if not self.core_siwave.configure_siw_analysis_setup(simulation_setup):  # pragma: no cover
+                if not self.siwave.configure_siw_analysis_setup(simulation_setup):  # pragma: no cover
                     self.logger.error("Failed to configure Siwave simulation setup.")
 
             if simulation_setup.solver_type == SolverType.SiwaveDC:
-                self.core_components.create_source_on_component(simulation_setup.sources)
-                if not self.core_siwave.configure_siw_analysis_setup(simulation_setup):  # pragma: no cover
+                self.components.create_source_on_component(simulation_setup.sources)
+                if not self.siwave.configure_siw_analysis_setup(simulation_setup):  # pragma: no cover
                     self.logger.error("Failed to configure Siwave simulation setup.")
-            self.core_padstack.check_and_fix_via_plating()
+            self.padstacks.check_and_fix_via_plating()
             self.save_edb()
             if not simulation_setup.open_edb_after_build and simulation_setup.output_aedb:
                 self.close_edb()
@@ -2668,7 +2780,7 @@ class Edb(object):
         -------
         EDBStatistics object from the loaded layout.
         """
-        return self.core_primitives.get_layout_statistics(evaluate_area=compute_area, net_list=None)
+        return self.modeler.get_layout_statistics(evaluate_area=compute_area, net_list=None)
 
     @pyaedt_function_handler()
     def are_port_reference_terminals_connected(self, common_reference=None):
@@ -2691,11 +2803,11 @@ class Edb(object):
         Examples
         --------
         >>>edb = Edb()
-        >>> edb.core_hfss.create_edge_port_vertical(prim_1_id, ["-66mm", "-4mm"], "port_ver")
-        >>> edb.core_hfss.create_edge_port_horizontal(
+        >>> edb.hfss.create_edge_port_vertical(prim_1_id, ["-66mm", "-4mm"], "port_ver")
+        >>> edb.hfss.create_edge_port_horizontal(
         >>> ... prim_1_id, ["-60mm", "-4mm"], prim_2_id, ["-59mm", "-4mm"], "port_hori", 30, "Lower"
         >>> ... )
-        >>> edb.core_hfss.create_wave_port(traces[0].id, trace_paths[0][0], "wave_port")
+        >>> edb.hfss.create_wave_port(traces[0].id, trace_paths[0][0], "wave_port")
         >>> edb.cutout(["Net1"])
         >>> assert edb.are_port_reference_terminals_connected()
         """
