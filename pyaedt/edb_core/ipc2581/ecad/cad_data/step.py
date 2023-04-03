@@ -125,7 +125,7 @@ class Step(object):
                 package.type = component.type
                 pin_number = 0
                 for _, pin in component.pins.items():
-                    geometry_type, pad_parameters, pos_x, pos_y, rot = self._pedb.core_padstack.get_pad_parameters(
+                    geometry_type, pad_parameters, pos_x, pos_y, rot = self._pedb.padstacks.get_pad_parameters(
                         pin._edb_padstackinstance, component.placement_layer, 0
                     )
                     position = pin._position if pin._position else pin.position
@@ -223,7 +223,7 @@ class Step(object):
 
                 comp_name = padstack_instance.GetComponent().GetName()
                 if padstack_instance.is_pin and comp_name:
-                    component_inst = self._pedb.core_components.components[comp_name]
+                    component_inst = self._pedb.components.components[comp_name]
                     layers[layer_name].add_component_padstack_instance_feature(
                         component_inst, padstack_instance, top_bottom_layers, padstack_def
                     )
