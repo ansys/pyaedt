@@ -700,7 +700,7 @@ class EdbPadstacks(object):
         pad_offset_x="0.0",
         pad_offset_y="0.0",
         pad_rotation="0.0",
-    ):
+    ):  # pragma: no cover
         """Create a padstack.
 
         .. deprecated:: 0.6.62
