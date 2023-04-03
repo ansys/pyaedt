@@ -497,17 +497,18 @@ class TestClass(BasisTest, object):
         )
 
     def test_10_1_create_lumped_ports_on_object_driven_termnal(self):
-        self.aedtapp.solution_type = "Terminal"
-        box1 = self.aedtapp.modeler.create_box([0, 0, 50], [10, 10, 5], "BoxLumped1")
+        hfss = Hfss()
+        hfss.solution_type = "Terminal"
+        box1 = hfss.modeler.create_box([0, 0, 50], [10, 10, 5], "BoxLumped1")
         box1.material_name = "Copper"
-        box2 = self.aedtapp.modeler.create_box([0, 0, 60], [10, 10, 5], "BoxLumped2")
+        box2 = hfss.modeler.create_box([0, 0, 60], [10, 10, 5], "BoxLumped2")
         box2.material_name = "Copper"
-        port = self.aedtapp.create_lumped_port_between_objects(
+        port = hfss.create_lumped_port_between_objects(
             "BoxLumped1", "BoxLumped2", self.aedtapp.AxisDir.XNeg, 50, "Lump1xx", True, False
         )
-        self.aedtapp.save_project()
-        self.aedtapp.boundaries.__init__()
-        term = [term for term in self.aedtapp.boundaries if term.type == "Terminal"][0]
+        hfss.save_project()
+        hfss.boundaries.__init__()
+        term = [term for term in hfss.boundaries if term.type == "Terminal"][0]
         assert term
         term.name = "test"
         assert term.name == "test"
