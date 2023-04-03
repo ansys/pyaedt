@@ -647,16 +647,7 @@ class BoundaryObject(BoundaryCommon, object):
         elif self.type == "Hybrid":
             self._app.oboundary.EditHybridRegion(self._boundary_name, self._get_args())
         elif self.type == "Terminal":
-            self._app.odesign.ChangeProperty(
-                [
-                    "NAME:AllTabs",
-                    [
-                        "NAME:Component Data",
-                        ["NAME:PropServers", "BoundarySetup:{}".format(self._boundary_name)],
-                        ["NAME:ChangedProps", ["NAME:Name", "Value:=", self.name]],
-                    ],
-                ]
-            )
+            self._app.oboundary.EditTerminal(self._boundary_name, self._get_args())
         else:
             return False  # pragma: no cover
         self._boundary_name = self.name
