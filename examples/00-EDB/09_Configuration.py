@@ -46,7 +46,7 @@ edbapp = pyaedt.Edb(target_aedb, edbversion="2023.1")
 # Once imported the definition is applied to the board.
 # Json file is stored for convenience in aedb folder.
 
-edbapp.core_components.import_definition(os.path.join(target_aedb, "1_comp_definition.json"))
+edbapp.components.import_definition(os.path.join(target_aedb, "1_comp_definition.json"))
 
 ###############################################################################
 # Import BOM
@@ -56,7 +56,7 @@ edbapp.core_components.import_definition(os.path.join(target_aedb, "1_comp_defin
 # Components not in the BOM are deactivated.
 # Csv file is store for convenience in aedb folder.
 
-edbapp.core_components.import_bom(os.path.join(target_aedb,"0_bom.csv"),
+edbapp.components.import_bom(os.path.join(target_aedb,"0_bom.csv"),
                                   refdes_col=0,
                                   part_name_col=1,
                                   comp_type_col=2,
@@ -68,20 +68,20 @@ edbapp.core_components.import_bom(os.path.join(target_aedb,"0_bom.csv"),
 # Check Component Values
 # ~~~~~~~~~~~~~~~~~~~~~~
 
-comp = edbapp.core_components.components["C3B14"]
+comp = edbapp.components["C3B14"]
 comp.model_type, comp.value
 
 ###############################################################################
 # Check Component Values
 # ~~~~~~~~~~~~~~~~~~~~~~
-comp2 = edbapp.core_components.components["C3A3"]
+comp2 = edbapp.components["C3A3"]
 comp2.model_type, comp2.value
 
 ###############################################################################
 # Check Component Definition
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-edbapp.core_components.nport_comp_definition
+edbapp.components.nport_comp_definition
 
 ###############################################################################
 # Save Edb
@@ -123,7 +123,7 @@ edbapp.build_simulation_project(sim_setup)
 # ~~~~~~~~~~~
 # Plot cutout once finished.
 
-edbapp.core_nets.plot(None,None)
+edbapp.nets.plot(None,None)
 
 ###############################################################################
 # Save and Close EDB

@@ -947,12 +947,12 @@ class EDBComponent(object):
         else:
             soldermask_layer = layer_names[layer_index + 1]
 
-        if not self._pedb.core_primitives.get_primitives(layer_name=soldermask_layer):
-            all_nets = list(self._pedb.core_nets.nets.values())
+        if not self._pedb.modeler.get_primitives(layer_name=soldermask_layer):
+            all_nets = list(self._pedb.nets.nets.values())
             poly = self._pedb._create_conformal(all_nets, 0, 1e-12, False, 0)
-            self._pedb.core_primitives.create_polygon(poly, soldermask_layer, [], "")
+            self._pedb.modeler.create_polygon(poly, soldermask_layer, [], "")
 
-        void = self._pedb.core_primitives.create_rectangle(
+        void = self._pedb.modeler.create_rectangle(
             soldermask_layer,
             "{}_opening".format(self.refdes),
             lower_left_point=opening[:2],
