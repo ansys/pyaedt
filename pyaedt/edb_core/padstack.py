@@ -39,6 +39,10 @@ class EdbPadstacks(object):
             return self.instances[name]
         elif name in self.definitions:
             return self.definitions[name]
+        else:
+            for i in list(self.instances.values()):
+                if i.name == name or i.aedt_name == name:
+                    return i
         self._pedb.logger.error("Component or definition not found.")
         return
 

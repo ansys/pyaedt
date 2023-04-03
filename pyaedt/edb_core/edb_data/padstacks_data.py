@@ -1182,7 +1182,7 @@ class EDBPadstackInstance(object):
                 self._edb_padstackinstance.SetNet(val)
             except:
                 raise AttributeError("Value inserted not found. Input has to be net name or net object.")
-        elif val in self._pedb.nets.nets:
+        elif val in self._pedb.nets.netlist:
             net = self._pedb.nets.nets[val].net_object
             self._edb_padstackinstance.SetNet(net)
         else:

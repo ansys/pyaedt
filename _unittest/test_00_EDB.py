@@ -162,9 +162,10 @@ class TestClass(BasisTest, object):
         assert self.edbapp["via_y"].value == 1e-3
         assert self.edbapp["via_y"].value_string == "1mm"
 
-        assert self.edbapp.padstacks.place(["via_x", "via_x+via_y"], "myVia")
+        assert self.edbapp.padstacks.place(["via_x", "via_x+via_y"], "myVia", via_name="via_test1")
         assert self.edbapp.padstacks.place(["via_x", "via_x+via_y*2"], "myVia_bullet")
-
+        self.edbapp.padstacks["via_test1"].net_name = "GND"
+        assert self.edbapp.padstacks["via_test1"].net_name == "GND"
         padstack = self.edbapp.padstacks.place(["via_x", "via_x+via_y*3"], "myVia", is_pin=True)
         for test_prop in (self.edbapp.padstacks.padstack_instances, self.edbapp.padstacks.instances):
             padstack_instance = test_prop[padstack.id]
