@@ -3981,7 +3981,6 @@ class PostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-
         max_frequency : str, optional
             Maximum Frequency. Default is ``"1GHz"``.
         ray_density : int, optional

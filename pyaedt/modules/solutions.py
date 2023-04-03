@@ -2527,7 +2527,6 @@ class FieldPlot:
     Parameters
     ----------
     postprocessor : :class:`pyaedt.modules.PostProcessor.PostProcessor`
-
     objlist : list
         List of objects.
     solutionName : str
@@ -2801,7 +2800,7 @@ class FieldPlot:
         """Surface plot settings for field line traces.
 
         ..note::
-            ``Specify seeding points on selections`` is by default set to ''by sampling''.
+            ``Specify seeding points on selections`` is by default set to ``by sampling``.
 
         Returns
         -------
@@ -3184,14 +3183,17 @@ class VRTFieldPlot:
     Parameters
     ----------
     postprocessor : :class:`pyaedt.modules.PostProcessor.PostProcessor`
-
-    objlist : list
-        List of objects.
-    solutionName : str
-        Name of the solution.
-    quantity_name : str
+    is_creeping_wave : bool
+        Whether it is a creeping wave model or not.
+    quantity_name : str, optional
         Name of the plot or the name of the object.
-    intrinsincList : dict, optional
+    max_frequency : str, optional
+        Maximum Frequency. The default is ``"1GHz"``.
+    ray_density : int, optional
+        Ray Density. The default is ``2``.
+    bounces : int, optional
+        Maximum number of bounces. The default is ``5``.
+    intrinsinc_list : dict, optional
         Name of the intrinsic dictionary. The default is ``{}``.
 
     """
@@ -3204,13 +3206,13 @@ class VRTFieldPlot:
         max_frequency="1GHz",
         ray_density=2,
         bounces=5,
-        intrinsincList={},
+        intrinsinc_list={},
     ):
         self.is_creeping_wave = is_creeping_wave
         self._postprocessor = postprocessor
         self._ofield = postprocessor.ofieldsreporter
         self.quantity_name = quantity_name
-        self.intrinsics = intrinsincList
+        self.intrinsics = intrinsinc_list
         self.name = "Field_Plot"
         self.plot_folder = "Field_Plot"
         self.max_frequency = max_frequency
