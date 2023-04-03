@@ -2091,14 +2091,12 @@ class Primitives3D(Primitives, object):
             [in_rad * cos(teta_r), in_rad * sin(teta_r), -height / 2 + chamf],
             [in_rad * cos(teta_r), in_rad * sin(teta_r), height / 2 - chamf],
         ]
-        points = points[::-1]
-        turns = int(turns)
-        positions = [i for i in points]
-        angle = -2 * teta_r
-        for i in range(
-            1,
-            turns,
-        ):
+
+        positions = [i for i in points[:]]
+        import math
+
+        angle = -2 * teta * math.pi / 180
+        for i in range(1, turns):
             for point in points[1:]:
                 positions.append(
                     [
@@ -2108,19 +2106,35 @@ class Primitives3D(Primitives, object):
                     ]
                 )
 
-        del positions[0]
+        polyline = self.create_polyline(position_list=points, name=name, matname=material)
+        union_polyline1 = [polyline.name]
+        if turns > 1:
+            union_polyline2 = polyline.duplicate_around_axis(
+                cs_axis="Z", angle=2 * teta, nclones=turns, create_new_objects=True
+            )
+        else:
+            union_polyline2 = []
+        union_polyline = union_polyline1 + union_polyline2
+        list_positions2 = []
+        for i, p in enumerate(union_polyline):
+            if i == 0:
+                list_positions2.extend(self.get_vertices_of_line(p))
+            else:
+                list_positions2.extend(self.get_vertices_of_line(p)[1:])
+        self.delete(union_polyline)
+        # del list_positions[0]
 
         if sep_layer:
             for i in range(4):
                 positions.pop()
             positions.insert(0, [positions[0][0], positions[0][1], -height])
-            positions.append([positions[-1][0], positions[-1][1], height])
+            positions.append([positions[-1][0], positions[-1][1], -height])
             true_polyline = self.create_polyline(position_list=positions, name=name, matname=material)
             true_polyline.rotate("Z", 180 - (turns - 1) * teta)
             positions = self.get_vertices_of_line(true_polyline.name)
             return [true_polyline, positions]
 
-        return list_positions
+        return positions
 
     @pyaedt_function_handler()
     def _make_double_linked_winding(
@@ -2169,7 +2183,7 @@ class Primitives3D(Primitives, object):
         outer_polyline = self.create_polyline(position_list=points_out_wind, name=name, matname=material)
         outer_polyline.rotate("Z", 180 - (turns - 1) * teta)
         inner_polyline = self.create_polyline(position_list=points_in_wind, name=name, matname=material)
-        inner_polyline.rotate("Z", 180 - (turns_in_wind) * teta_in_wind)
+        inner_polyline.rotate("Z", 180 - (turns_in_wind - 1) * teta_in_wind)
         outer_polyline.mirror([0, 0, 0], [0, -1, 0])
         outer_polyline.rotate("Z", turns_in_wind * teta_in_wind - turns * teta)
 

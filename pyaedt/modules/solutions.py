@@ -2139,11 +2139,15 @@ class FfdSolutionData(object):
             Default is [[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]].
         show : bool, optional
             Either if the plot has to be shown or not. Default is `True`.
-        show_outside_notebook : bool, optional
+        show_as_standalone : bool, optional
             Either if the plot has to be shown as standalone or not. Default is `True`.
+
         Returns
         -------
-        PyVista object
+        bool or :class:`Pyvista.Plotter`
+            Return :class:`Pyvista.Plotter` in case show and export_image_path is `False`.
+            In other cases return ``True`` when successful.
+
         """
         if not position:
             position = np.zeros(3)
@@ -2159,10 +2163,16 @@ class FfdSolutionData(object):
 
         # plot everything together
         rotation_euler = self._rotation_to_euler_angles(rotation) * 180 / np.pi
-        if show_as_standalone:
-            p = pv.Plotter(notebook=False, off_screen=not show)
+
+        if not export_image_path and not show:
+            off_screen = False
         else:
-            p = pv.Plotter(notebook=is_notebook(), off_screen=not show)
+            off_screen = not show
+
+        if show_as_standalone:
+            p = pv.Plotter(notebook=False, off_screen=off_screen)
+        else:
+            p = pv.Plotter(notebook=is_notebook(), off_screen=off_screen)
 
         uf = UpdateBeamForm(self)
 
@@ -2253,10 +2263,13 @@ class FfdSolutionData(object):
                 cad.append(p.add_mesh(cm[0], color=cm[1], show_scalar_bar=False, opacity=cm[2]))
             p.add_checkbox_button_widget(toggle_vis_cad, value=True, position=(10, 70), size=30)
             p.add_text("Show Geometry", position=(70, 75), color="white", font_size=10)
+
         if export_image_path:
             p.show(screenshot=export_image_path)
-        else:
+            return True
+        elif show:  # pragma: no cover
             p.show()
+            return True
         return p
 
     @pyaedt_function_handler()
@@ -2268,7 +2281,7 @@ class FfdSolutionData(object):
         rotation=None,
         export_image_path=None,
         show=True,
-    ):
+    ):  # pragma: no cover
         """Create a 3d Polar Plot with 2 beams of Geometry with Radiation Pattern in Pyvista.
 
         Parameters
@@ -2281,7 +2294,7 @@ class FfdSolutionData(object):
             Full path to image file. Default is None to not export.
         position : list, optional
             It can be a list of numpy list of origin of plot. Default is [0,0,0].
-        rotationn : list, optional
+        rotation : list, optional
             It can be a list of numpy list of origin of plot.
             Default is [[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]].
         show : bool, optional
@@ -2289,7 +2302,9 @@ class FfdSolutionData(object):
 
         Returns
         -------
-        PyVista object
+        bool or :class:`Pyvista.Plotter`
+            Return :class:`Pyvista.Plotter` in case show and export_image_path is `False`.
+            In other cases return ``True`` when successful.
         """
         if not position:
             position = np.zeros(3)
@@ -2305,7 +2320,12 @@ class FfdSolutionData(object):
         uf = Update2BeamForms(self, max_value=self.max_gain)
         rotation_euler = self._rotation_to_euler_angles(rotation) * 180 / np.pi
 
-        p = pv.Plotter(notebook=is_notebook(), off_screen=not show, window_size=[1024, 768])
+        if not export_image_path and not show:
+            off_screen = False
+        else:
+            off_screen = not show
+
+        p = pv.Plotter(notebook=is_notebook(), off_screen=off_screen, window_size=[1024, 768])
 
         p.add_slider_widget(
             uf.update_phi1,
@@ -2392,10 +2412,13 @@ class FfdSolutionData(object):
             size = int(p.window_size[1] / 40)
             p.add_checkbox_button_widget(toggle_vis_cad, size=size, value=True, position=(10, 70))
             p.add_text("Show Geometry", position=(70, 75), color="black", font_size=12)
+
         if export_image_path:
             p.show(screenshot=export_image_path)
-        else:
+            return True
+        elif show:
             p.show()
+            return True
         return p
 
     @staticmethod

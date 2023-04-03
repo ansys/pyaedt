@@ -35,6 +35,7 @@ from pyaedt.edb_core.edb_data.sources import ExcitationProbes
 from pyaedt.edb_core.edb_data.sources import ExcitationSources
 from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.edb_data.variables import Variable
+import pyaedt.edb_core.general
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.ipc2581.ipc2581 import Ipc2581
 from pyaedt.edb_core.materials import Materials
@@ -99,11 +100,21 @@ class Edb(object):
     >>> app = Edb()
 
     Add a new variable named "s1" to the ``Edb`` instance.
+
     >>> app['s1'] = "0.25 mm"
     >>> app['s1'].tofloat
     >>> 0.00025
     >>> app['s1'].tostring
     >>> "0.25mm"
+
+    or add a new parameter with description:
+
+    >>> app['s2'] = ["20um", "Spacing between traces"]
+    >>> app['s2'].value
+    >>> 1.9999999999999998e-05
+    >>> app['s2'].description
+    >>> 'Spacing between traces'
+
 
     Create an ``Edb`` object and open the specified project.
 
@@ -231,10 +242,26 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def __setitem__(self, variable_name, variable_value):
-        if self.variable_exists(variable_name)[0]:
-            self.change_design_variable_value(variable_name, variable_value)
+        type_error_message = "Allowed values are str, numeric or two-item list with variable description."
+        if type(variable_value) in [list, tuple]:  # Two-item list or tuple. 2nd argument is a str description.
+            if len(variable_value) == 2:
+                if type(variable_value[1]) is str:
+                    description = variable_value[1] if len(variable_value[1]) > 0 else None
+                else:
+                    description = None
+                    pyaedt.edb_core.general.logger.warning("Invalid type for Edb variable desciprtion is ignored.")
+                val = variable_value[0]
+            else:
+                raise TypeError(type_error_message)
         else:
-            self.add_design_variable(variable_name, variable_value)
+            description = None
+            val = variable_value
+        if self.variable_exists(variable_name)[0]:
+            self.change_design_variable_value(variable_name, val)
+        else:
+            self.add_design_variable(variable_name, val)
+        if description:  # Add the variable description if a two-item list is passed for variable_value.
+            self.__getitem__(variable_name).description = description
 
     def _clean_variables(self):
         """Initialize internal variables and perform garbage collection."""
@@ -1329,13 +1356,15 @@ class Edb(object):
             signal_list = []
         if isinstance(reference_list, str):
             reference_list = [reference_list]
+        elif reference_list is None:
+            reference_list = []
         if use_legacy_cutout and custom_extent:
             return self._create_cutout_on_point_list(
                 custom_extent,
                 units=custom_extent_units,
                 output_aedb_path=output_aedb_path,
                 open_cutout_at_end=open_cutout_at_end,
-                nets_to_include=signal_list,
+                nets_to_include=signal_list + reference_list,
                 include_partial_instances=include_partial_instances,
                 keep_voids=keep_voids,
             )

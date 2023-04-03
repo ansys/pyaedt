@@ -457,7 +457,7 @@ class TestClass(BasisTest, object):
         self.create_polylines()
         self.create_copper_box()
         self.create_rectangle()
-        listsobj = self.aedtapp.modeler.get_objects_by_material("vacuum")
+        listsobj = self.aedtapp.modeler.get_objects_by_material("copper")
         assert len(listsobj) > 0
         listsobj = self.aedtapp.modeler.get_objects_by_material("FR4")
         assert len(listsobj) == 0

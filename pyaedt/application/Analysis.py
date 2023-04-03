@@ -1959,7 +1959,7 @@ class Analysis(Design, object):
             self.logger.info("Batch job finished.")
 
         if machine == "localhost":
-            while not os.path.exists(queue_file) and not os.path.exists(queue_file_completed):
+            while not os.path.exists(queue_file_completed):
                 time.sleep(0.5)
             with open(queue_file, "r") as f:
                 lines = f.readlines()
