@@ -33,7 +33,6 @@ if not is_ironpython:
     except ImportError:
         pd = None
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -1745,20 +1744,17 @@ class Stackup(object):
     @pyaedt_function_handler()
     def plot(
         self,
-        show_legend=True,
         save_plot=None,
         size=(2000, 1500),
         plot_definitions=None,
         first_layer=None,
         last_layer=None,
+        ignore_elevations=False,
     ):
         """Plot actual stackup and, optionally, overlap padstack definitions.
 
         Parameters
         ----------
-        show_legend : bool, optional
-            If ``True`` the legend is shown in the plot. (default)
-            If ``False`` the legend is not shown.
         save_plot : str, optional
             If ``None`` the plot will be shown.
             If a file path is specified the plot will be saved to such file.
@@ -1771,6 +1767,8 @@ class Stackup(object):
             First layer to plot from the bottom. Default is `None` to start plotting from bottom.
         last_layer : str or :class:`pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`
             Last layer to plot from the bottom. Default is `None` to plot up to top layer.
+        ignore_elevations :bool, optional
+            Whether to ignore or not the real layer elevation. Default is `False`.
 
         Returns
         -------
@@ -1781,9 +1779,9 @@ class Stackup(object):
         from pyaedt.generic.constants import CSS4_COLORS
         from pyaedt.generic.plot import plot_matplotlib
 
-        thick = abs(self.get_layout_thickness()) * 1e6
-        x_min = -3 * thick
-        x_max = 3 * thick
+        stackup_elevation = abs(self.get_layout_thickness()) * 1e6
+        x_min = -3 * stackup_elevation
+        x_max = 3 * stackup_elevation
         objects_lists = []
 
         layers_name = list(self.stackup_layers.keys())
@@ -1798,22 +1796,36 @@ class Stackup(object):
             first_layer = bottom_layer
         elif isinstance(first_layer, str):
             first_layer = self.layers[first_layer]
-        limits = [first_layer.lower_elevation * 1e6, (last_layer.lower_elevation + last_layer.thickness) * 1e6]
-
-        for layername, layerval in self.layers.items():
+        limits = [first_layer.lower_elevation * 1e6, (last_layer.lower_elevation + last_layer.thickness) * 1e6 * 1.1]
+        annotations = []
+        upper_limit = 0
+        if ignore_elevations:
+            layer_thickness = (limits[1] / 1.1 - limits[0]) / len(self.stackup_layers)
+        uel = None
+        x = [x_min, x_min, x_max, x_max]
+        for layername, layerval in self.stackup_layers.items():
             if layername == last_layer.name:
                 start_plot = True
             if start_plot and layerval.thickness is not None:
-                x = [x_min, x_min, x_max, x_max]
-                lel = layerval.lower_elevation * 1e6
-                uel = layerval.upper_elevation * 1e6
+                if ignore_elevations:
+                    if uel is None:
+                        uel = limits[1] / 1.1
+                        lel = uel - layer_thickness
+                    else:
+                        lel -= layer_thickness
+                        uel -= layer_thickness
+                else:
+                    lel = layerval.lower_elevation * 1e6
+                    uel = layerval.upper_elevation * 1e6
                 y = [lel, uel, uel, lel]
                 color = [float(i) / 256 for i in layerval.color]
                 if color == [1.0, 1.0, 1.0]:
                     color = [0.9, 0.9, 0.9]
-                objects_lists.append(
-                    [x, y, color, "{} {}um".format(layername, round(layerval.thickness * 1e6, 2)), 0.4, "fill"]
-                )
+                label = "{} Thick: {}um Elev:{}um".format(layername, round(layerval.thickness * 1e6, 3), round(lel, 3))
+                objects_lists.append([x, y, color, label, 0.4, "fill"])
+                if self.stackup_mode == "Laminate":
+                    annotations.append([x_max, (uel + lel) / 2, label, {}])
+                upper_limit = max(uel, upper_limit, lel)
             if layername == first_layer.name:
                 start_plot = False
         delta = (x_max - x_min) / 20
@@ -1823,7 +1835,7 @@ class Stackup(object):
                 plot_definitions = [plot_definitions]
             color_index = 0
             color_keys = list(CSS4_COLORS.keys())
-            max_plots = 20
+            max_plots = 10
 
             for definition in plot_definitions:
                 if isinstance(definition, str):
@@ -1832,14 +1844,20 @@ class Stackup(object):
                 max_lel = -1e12
                 max_x = 0
                 name_assigned = definition.name
+                annotations.append([x_start, upper_limit, definition.name, {"rotation": 45}])
+
                 for layer, defs in definition.pad_by_layer.items():
                     vals = defs.parameters_values
                     if vals:
-                        pad = 0.5 * vals[0] * 1e6
+                        pad = vals[0] * 1e6
                         max_x = max(pad, max_x)
                         x = [x_start - pad, x_start - pad, x_start + pad, x_start + pad]
-                        lel = self[layer].lower_elevation * 1e6
-                        uel = self[layer].upper_elevation * 1e6
+                        if ignore_elevations:
+                            lel = limits[1] / 1.1 - layers_name.index(layer) * layer_thickness
+                            uel = lel - layer_thickness
+                        else:
+                            lel = self[layer].lower_elevation * 1e6
+                            uel = self[layer].upper_elevation * 1e6
                         min_lel = min(lel, min_lel)
                         max_lel = max(uel, max_lel)
                         y = [lel, uel, uel, lel]
@@ -1859,20 +1877,27 @@ class Stackup(object):
                 if color_index == max_plots:
                     self._logger.warning("Maximum number of definition plotted.")
                     break
-                x_start += max(delta, 2.5 * max_x)
+                x_start += max(delta, 4 * max_x)
 
-        x_limits = [x_min, 2 * x_max]
-        plot_matplotlib(
+        x_limits = [x_min * 1.2, x_max * 1.5]
+        plt = plot_matplotlib(
             objects_lists,
             size,
-            show_legend,
+            True if self.stackup_mode != "Laminate" else False,
             "X (um)",
             "Y (um)",
             "Stackup",
             save_plot,
             x_limits=x_limits,
             y_limits=limits,
+            annotations=annotations,
+            show=False,
         )
+        plt.axis("off")
+        plt.box(False)
+        plt.title("Stackup", fontsize=40)
+        plt.show()
+        return plt
 
 
 class EdbStackup(object):
