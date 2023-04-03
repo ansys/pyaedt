@@ -1329,13 +1329,15 @@ class Edb(object):
             signal_list = []
         if isinstance(reference_list, str):
             reference_list = [reference_list]
+        elif reference_list is None:
+            reference_list = []
         if use_legacy_cutout and custom_extent:
             return self._create_cutout_on_point_list(
                 custom_extent,
                 units=custom_extent_units,
                 output_aedb_path=output_aedb_path,
                 open_cutout_at_end=open_cutout_at_end,
-                nets_to_include=signal_list,
+                nets_to_include=signal_list + reference_list,
                 include_partial_instances=include_partial_instances,
                 keep_voids=keep_voids,
             )
