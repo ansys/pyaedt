@@ -642,6 +642,18 @@ class TestClass(BasisTest, object):
             output_aedb_path=output,
             open_cutout_at_end=False,
             include_partial_instances=True,
+            use_legacy_cutout=True,
+        )
+        assert os.path.exists(os.path.join(output, "edb.def"))
+        output = os.path.join(self.local_scratch.path, "cutout3.aedb")
+
+        assert edbapp.cutout(
+            custom_extent=points,
+            signal_list=["GND", "V3P3_S0"],
+            output_aedb_path=output,
+            open_cutout_at_end=False,
+            include_partial_instances=True,
+            use_legacy_cutout=False,
         )
         assert os.path.exists(os.path.join(output, "edb.def"))
         edbapp.close_edb()
@@ -881,7 +893,7 @@ class TestClass(BasisTest, object):
         assert self.edbapp.components.short_component_pins("U10", ["2", "5"])
 
     def test_086_set_component_type(self):
-        comp = self.edbapp.components.components["R2L18"]
+        comp = self.edbapp.components["R2L18"]
         comp.type = "Resistor"
         assert comp.type == "Resistor"
         comp.type = "Inductor"
@@ -1464,6 +1476,8 @@ class TestClass(BasisTest, object):
         pins = edb.components.get_pin_from_component("U2A5", "V1P5_S0")
         ref_pins = edb.components.get_pin_from_component("U2A5", "GND")
         assert edb.components.create([pins[0], ref_pins[0]], "test_0rlc", r_value=1.67, l_value=1e-13, c_value=1e-11)
+        assert edb.components.create([pins[0], ref_pins[0]], "test_1rlc", r_value=None, l_value=1e-13, c_value=1e-11)
+        assert edb.components.create([pins[0], ref_pins[0]], "test_2rlc", r_value=None, c_value=1e-13)
         edb.close_edb()
 
     def test_117_create_rlc_boundary(self):

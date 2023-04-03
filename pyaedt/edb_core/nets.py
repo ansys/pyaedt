@@ -92,12 +92,13 @@ class EdbNets(object):
 
     @property
     def netlist(self):
-        """Return the cell netlist
+        """Return the cell netlist.
 
         Returns
         -------
         list
-            Net names."""
+            Net names.
+        """
         return list(self.nets.keys())
 
     @property
@@ -744,7 +745,7 @@ class EdbNets(object):
             List of nets connected to DC through inductors.
         """
         temp_list = []
-        for refdes, comp_obj in self._pedb.components.inductors.items():
+        for _, comp_obj in self._pedb.components.inductors.items():
             numpins = comp_obj.numpins
 
             if numpins == 2:
@@ -859,7 +860,7 @@ class EdbNets(object):
         >>> deleted_nets = edb_core.nets.delete(["Net1","Net2"])
         """
         warnings.warn("Use :func:`delete` method instead.", DeprecationWarning)
-        return self.nets(netlist=netlist)
+        return self.delete(netlist=netlist)
 
     @pyaedt_function_handler()
     def delete(self, netlist):

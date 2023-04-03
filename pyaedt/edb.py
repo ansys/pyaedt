@@ -702,7 +702,7 @@ class Edb(object):
         return self._active_cell
 
     @property
-    def core_components(self):
+    def core_components(self):  # pragma: no cover
         """Edb Components methods and properties.
 
         .. deprecated:: 0.6.62
@@ -802,7 +802,7 @@ class Edb(object):
         return self._materials
 
     @property
-    def core_padstack(self):
+    def core_padstack(self):  # pragma: no cover
         """Core padstack.
 
 
@@ -823,7 +823,7 @@ class Edb(object):
         """
 
         warnings.warn("Use new property :func:`padstacks` instead.", DeprecationWarning)
-        return self.padstack
+        return self.padstacks
 
     @property
     def padstacks(self):
@@ -848,7 +848,7 @@ class Edb(object):
         return self._padstack
 
     @property
-    def core_siwave(self):
+    def core_siwave(self):  # pragma: no cover
         """Core SIWave methods and properties.
 
         .. deprecated:: 0.6.62
@@ -884,7 +884,7 @@ class Edb(object):
         return self._siwave
 
     @property
-    def core_hfss(self):
+    def core_hfss(self):  # pragma: no cover
         """Core HFSS methods and properties.
 
         .. deprecated:: 0.6.62
@@ -920,7 +920,7 @@ class Edb(object):
         return self._hfss
 
     @property
-    def core_nets(self):
+    def core_nets(self):  # pragma: no cover
         """Core nets.
 
         .. deprecated:: 0.6.62
@@ -959,7 +959,7 @@ class Edb(object):
         return self._nets
 
     @property
-    def core_primitives(self):
+    def core_primitives(self):  # pragma: no cover
         """Core primitives.
 
 
@@ -1807,7 +1807,7 @@ class Edb(object):
         self.logger.reset_timer()
 
         i = 0
-        for comp, val in self.components.components.items():
+        for _, val in self.components.components.items():
             if val.numpins == 0:
                 val.edbcomponent.Delete()
                 i += 1
@@ -2221,7 +2221,7 @@ class Edb(object):
 
         """
         warnings.warn("Use new method `cutout` instead.", DeprecationWarning)
-        return self._create_cutout_multithread(
+        return self._create_cutout_on_point_list(
             point_list=point_list,
             units=units,
             output_aedb_path=output_aedb_path,

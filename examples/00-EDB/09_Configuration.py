@@ -68,13 +68,13 @@ edbapp.components.import_bom(os.path.join(target_aedb,"0_bom.csv"),
 # Check Component Values
 # ~~~~~~~~~~~~~~~~~~~~~~
 
-comp = edbapp.components.components["C3B14"]
+comp = edbapp.components["C3B14"]
 comp.model_type, comp.value
 
 ###############################################################################
 # Check Component Values
 # ~~~~~~~~~~~~~~~~~~~~~~
-comp2 = edbapp.components.components["C3A3"]
+comp2 = edbapp.components["C3A3"]
 comp2.model_type, comp2.value
 
 ###############################################################################

@@ -1099,7 +1099,9 @@ class Components(object):
         return componentDefinition
 
     @pyaedt_function_handler()
-    def create_rlc_component(self, pins, component_name="", r_value=1.0, c_value=1e-9, l_value=1e-9, is_parallel=False):
+    def create_rlc_component(
+        self, pins, component_name="", r_value=1.0, c_value=1e-9, l_value=1e-9, is_parallel=False
+    ):  # pragma: no cover
         """Create physical Rlc component.
 
         Parameters
@@ -1254,7 +1256,9 @@ class Components(object):
         return new_cmp
 
     @pyaedt_function_handler()
-    def create_component_from_pins(self, pins, component_name, placement_layer=None, component_part_name=None):
+    def create_component_from_pins(
+        self, pins, component_name, placement_layer=None, component_part_name=None
+    ):  # pragma: no cover
         """Create a component from pins.
 
         .. deprecated:: 0.6.62
@@ -1455,7 +1459,7 @@ class Components(object):
         return deleted_comps
 
     @pyaedt_function_handler()
-    def delete_component(self, component_name):
+    def delete_component(self, component_name):  # pragma: no cover
         """Delete a component.
 
         .. deprecated:: 0.6.62
