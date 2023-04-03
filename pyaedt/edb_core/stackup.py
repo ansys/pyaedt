@@ -919,7 +919,7 @@ class Stackup(object):
 
     @pyaedt_function_handler()
     def _remove_solder_pec(self, layer_name):
-        for el, val in self._pedb.components.components.items():
+        for _, val in self._pedb.components.components.items():
             if val.solder_ball_height and val.placement_layer == layer_name:
                 comp_prop = val.component_property
                 port_property = comp_prop.GetPortProperty().Clone()
