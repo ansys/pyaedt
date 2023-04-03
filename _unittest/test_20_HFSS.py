@@ -496,7 +496,7 @@ class TestClass(BasisTest, object):
             "BoxLumped1", "BoxLumped2", self.aedtapp.AxisDir.XNeg, 50, "Lump2", False, True
         )
 
-    def test_10_1_create_lumped_ports_on_object_driven_termnal(self):
+    def test_10_1_create_lumped_ports_on_object_driven_terminal(self):
         hfss = Hfss()
         hfss.solution_type = "Terminal"
         box1 = hfss.modeler.create_box([0, 0, 50], [10, 10, 5], "BoxLumped1")
