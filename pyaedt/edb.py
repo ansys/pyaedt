@@ -1373,13 +1373,13 @@ class Edb(object):
     def cutout(
         self,
         signal_list=None,
-        reference_list=["GND"],
+        reference_list=None,
         extent_type="ConvexHull",
         expansion_size=0.002,
         use_round_corner=False,
         output_aedb_path=None,
         open_cutout_at_end=True,
-        use_legacy_cutout=False,
+        use_pyaedt_cutout=True,
         number_of_threads=4,
         use_pyaedt_extent_computing=True,
         extent_defeature=0,
@@ -1415,11 +1415,11 @@ class Edb(object):
             Full path and name for the new AEDB file. If None, then current aedb will be cutout.
         open_cutout_at_end : bool, optional
             Whether to open the cutout at the end. The default is ``True``.
-        use_legacy_cutout : bool, optional
+        use_pyaedt_cutout : bool, optional
             Whether to use new PyAEDT cutout method or EDB API method.
             New method is faster than native API method since it benefits of multithread.
         number_of_threads : int, optional
-            Number of thread to use. Default is 4. Valid only if `use_legacy_cutout` is set to `False`.
+            Number of thread to use. Default is 4. Valid only if ``use_pyaedt_cutout`` is set to ``True``.
         use_pyaedt_extent_computing : bool, optional
             Whether to use pyaedt extent computing (experimental) or EDB API.
         extent_defeature : float, optional
@@ -1433,7 +1433,8 @@ class Edb(object):
             Units of the point list. The default is ``"mm"``. Valid only if `custom_extend` is provided.
         include_partial_instances : bool, optional
             Whether to include padstack instances that have bounding boxes intersecting with point list polygons.
-            This operation may slow down the cutout export.Valid only if `custom_extend` is provided.
+            This operation may slow down the cutout export.Valid only if `custom_extend` and
+            `use_pyaedt_cutout` is provided.
         keep_voids : bool
             Boolean used for keep or not the voids intersecting the polygon used for clipping the layout.
             Default value is ``True``, ``False`` will remove the voids.Valid only if `custom_extend` is provided.
@@ -1470,7 +1471,7 @@ class Edb(object):
             reference_list = [reference_list]
         elif reference_list is None:
             reference_list = []
-        if use_legacy_cutout and custom_extent:
+        if not use_pyaedt_cutout and custom_extent:
             return self._create_cutout_on_point_list(
                 custom_extent,
                 units=custom_extent_units,
@@ -1480,7 +1481,7 @@ class Edb(object):
                 include_partial_instances=include_partial_instances,
                 keep_voids=keep_voids,
             )
-        elif use_legacy_cutout:
+        elif not use_pyaedt_cutout:
             return self._create_cutout_legacy(
                 signal_list=signal_list,
                 reference_list=reference_list,
@@ -1505,11 +1506,13 @@ class Edb(object):
                 remove_single_pin_components=remove_single_pin_components,
                 use_pyaedt_extent_computing=use_pyaedt_extent_computing,
                 extent_defeature=extent_defeature,
+                custom_extent_units=custom_extent_units,
             )
             if result and not open_cutout_at_end:
                 self.save_edb()
                 self.close_edb()
-                self.open_edb(legacy_path)
+                self.edbpath = legacy_path
+                self.open_edb(init_dlls=True)
             return result
 
     @pyaedt_function_handler()
@@ -1699,7 +1702,8 @@ class Edb(object):
         output_aedb_path=None,
         remove_single_pin_components=False,
         use_pyaedt_extent_computing=False,
-        extent_defeature=0,
+        extent_defeature=0.0,
+        custom_extent_units="mm",
     ):
         if is_ironpython:  # pragma: no cover
             self.logger.error("Method working only in Cpython")
@@ -1713,8 +1717,12 @@ class Edb(object):
 
         timer_start = self.logger.reset_timer()
         if custom_extent:
-            reference_list = reference_list + signal_list
-            all_list = reference_list
+            if not reference_list and not signal_list:
+                reference_list = self.nets.netlist[::]
+                all_list = reference_list
+            else:
+                reference_list = reference_list + signal_list
+                all_list = reference_list
         else:
             all_list = signal_list + reference_list
         for i in self.nets.nets.values():
@@ -1738,6 +1746,12 @@ class Edb(object):
         self.logger.reset_timer()
 
         if custom_extent and isinstance(custom_extent, list):
+            if custom_extent[0] != custom_extent[-1]:
+                custom_extent.append(custom_extent[0])
+            custom_extent = [
+                [self.number_with_units(i[0], custom_extent_units), self.number_with_units(i[1], custom_extent_units)]
+                for i in custom_extent
+            ]
             plane = self.modeler.Shape("polygon", points=custom_extent)
             _poly = self.modeler.shape_to_polygon_data(plane)
         elif custom_extent:
@@ -2722,7 +2736,7 @@ class Edb(object):
                         expansion_size=simulation_setup.cutout_subdesign_expansion,
                         use_round_corner=simulation_setup.cutout_subdesign_round_corner,
                         extent_type=simulation_setup.cutout_subdesign_type,
-                        use_legacy_cutout=True,
+                        use_pyaedt_cutout=False,
                         use_pyaedt_extent_computing=False,
                     ):
                         self.logger.info("Cutout processed.")
@@ -2741,6 +2755,7 @@ class Edb(object):
                         expansion_size=simulation_setup.cutout_subdesign_expansion,
                         use_round_corner=simulation_setup.cutout_subdesign_round_corner,
                         extent_type=simulation_setup.cutout_subdesign_type,
+                        use_pyaedt_cutout=True,
                         use_pyaedt_extent_computing=True,
                         remove_single_pin_components=True,
                     )
