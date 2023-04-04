@@ -1728,22 +1728,41 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(is_ironpython, reason="Requires Pandas")
     def test_125_stackup(self):
         edbapp = Edb(edbversion=desktop_version)
+        import_method = edbapp.stackup.load
+        export_method = edbapp.stackup.export
         assert edbapp.stackup.add_layer("TOP", None, "add_on_top", material="iron")
-        assert edbapp.stackup.import_stackup(
-            os.path.join(local_path, "example_models", test_subfolder, "galileo_stackup.csv")
-        )
+        assert import_method(os.path.join(local_path, "example_models", test_subfolder, "galileo_stackup.csv"))
         assert "TOP" in edbapp.stackup.layers.keys()
         assert edbapp.stackup.layers["TOP"].material == "COPPER"
         assert edbapp.stackup.layers["TOP"].thickness == 6e-5
         export_stackup_path = os.path.join(self.local_scratch.path, "export_galileo_stackup.csv")
-        assert edbapp.stackup.export_stackup(export_stackup_path)
+        assert export_method(export_stackup_path)
         assert os.path.exists(export_stackup_path)
 
-        assert edbapp.stackup.import_stackup(
-            os.path.join(local_path, "example_models", test_subfolder, "stackup_laminate.xml")
-        )
+        assert import_method(os.path.join(local_path, "example_models", test_subfolder, "stackup_laminate.xml"))
         xml_export = os.path.join(self.local_scratch.path, "stackup.xml")
-        assert edbapp.stackup.export_stackup(xml_export)
+        assert export_method(xml_export)
+        assert os.path.exists(xml_export)
+        edbapp.close_edb()
+
+    @pytest.mark.skipif(is_ironpython, reason="Requires Pandas")
+    def test_125b_stackup(self):
+        edbapp = Edb(edbversion=desktop_version)
+        import_method = edbapp.stackup.import_stackup
+        export_method = edbapp.stackup.export_stackup
+        assert edbapp.stackup.add_layer("TOP", None, "add_on_top", material="iron")
+        assert import_method(os.path.join(local_path, "example_models", test_subfolder, "galileo_stackup.csv"))
+        assert "TOP" in edbapp.stackup.layers.keys()
+        assert edbapp.stackup.layers["TOP"].material == "COPPER"
+        assert edbapp.stackup.layers["TOP"].thickness == 6e-5
+        export_stackup_path = os.path.join(self.local_scratch.path, "export_galileo_stackup.csv")
+        assert export_method(export_stackup_path)
+        assert os.path.exists(export_stackup_path)
+
+        assert import_method(os.path.join(local_path, "example_models", test_subfolder, "stackup_laminate.xml"))
+        xml_export = os.path.join(self.local_scratch.path, "stackup.xml")
+        assert export_method(xml_export)
+        assert os.path.exists(xml_export)
         edbapp.close_edb()
 
     @pytest.mark.skipif(is_ironpython, reason="Requires Numpy")
