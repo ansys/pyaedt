@@ -1419,7 +1419,7 @@ class Edb(object):
             Whether to use new PyAEDT cutout method or EDB API method.
             New method is faster than native API method since it benefits of multithread.
         number_of_threads : int, optional
-            Number of thread to use. Default is 4. Valid only if `use_pyaedt_cutout` is set to `True`.
+            Number of thread to use. Default is 4. Valid only if ``use_pyaedt_cutout`` is set to ``True``.
         use_pyaedt_extent_computing : bool, optional
             Whether to use pyaedt extent computing (experimental) or EDB API.
         extent_defeature : float, optional
