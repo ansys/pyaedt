@@ -214,7 +214,7 @@ def check_numeric_equivalence(a, b, relative_tolerance=1e-7):
     b : int, float
         Secondary value for the comparison.
     relative_tolerance : float, optional
-        Relative tolerance for equivalence test. Difference is relative to the first value.
+        Relative tolerance for the equivalence test. The difference is relative to the first value.
         The default is ``1E-7``.
 
     Returns
