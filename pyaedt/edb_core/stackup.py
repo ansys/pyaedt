@@ -585,8 +585,48 @@ class Stackup(object):
         return result
 
     @pyaedt_function_handler
+    def export(self, fpath, file_format="xml", include_material_with_layer=False):
+        """Export stackup definition to a CSV or JSON file.
+
+        Parameters
+        ----------
+        fpath : str
+            File path to csv or json file.
+        file_format : str, optional
+            Format of the file to export. The default is ``"csv"``. Options are ``"csv"``, ``"xlsx"``,
+            ``"json"``.
+        include_material_with_layer : bool, optional.
+            Whether to include the material definition inside layer ones. This parameter is only used
+            when a JSON file is exported. The default is ``False``, which keeps the material definition
+            section in the JSON file. If ``True``, the material definition is included inside the layer ones.
+
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> edb = Edb()
+        >>> edb.stackup.export("stackup.xml")
+        """
+        if len(fpath.split(".")) == 1:
+            fpath = "{}.{}".format(fpath, file_format)
+
+        if fpath.endswith(".csv"):
+            return self._export_layer_stackup_to_csv_xlsx(fpath, file_format="csv")
+        elif fpath.endswith(".xlsx"):
+            return self._export_layer_stackup_to_csv_xlsx(fpath, file_format="xlsx")
+        elif fpath.endswith(".json"):
+            return self._export_layer_stackup_to_json(fpath, include_material_with_layer)
+        elif fpath.endswith(".xml"):
+            return self._export_xml(fpath)
+        else:
+            self._logger.warning("Layer stackup format is not supported. Skipping import.")
+            return False
+
+    @pyaedt_function_handler
     def export_stackup(self, fpath, file_format="xml", include_material_with_layer=False):
         """Export stackup definition to a CSV or JSON file.
+
+        .. deprecated:: 0.6.61
+           Use :func:`export` instead.
 
         Parameters
         ----------
@@ -606,20 +646,9 @@ class Stackup(object):
         >>> edb = Edb()
         >>> edb.stackup.export_stackup("stackup.xml")
         """
-        if len(fpath.split(".")) == 1:
-            fpath = "{}.{}".format(fpath, file_format)
 
-        if fpath.endswith(".csv"):
-            return self._export_layer_stackup_to_csv_xlsx(fpath, file_format="csv")
-        elif fpath.endswith(".xlsx"):
-            return self._export_layer_stackup_to_csv_xlsx(fpath, file_format="xlsx")
-        elif fpath.endswith(".json"):
-            return self._export_layer_stackup_to_json(fpath, include_material_with_layer)
-        elif fpath.endswith(".xml"):
-            return self._export_xml(fpath)
-        else:
-            self._logger.warning("Layer stackup format is not supported. Skipping import.")
-            return False
+        self._logger.warning("Method export_stackup is deprecated. Use .export.")
+        return self.export(fpath, file_format=file_format, include_material_with_layer=include_material_with_layer)
 
     @pyaedt_function_handler()
     def _export_layer_stackup_to_csv_xlsx(self, fpath=None, file_format=None):
@@ -1714,8 +1743,43 @@ class Stackup(object):
         return True
 
     @pyaedt_function_handler
+    def load(self, file_path):
+        """Import stackup from a file. The file format can be XML, CSV, or JSON.
+
+        .. deprecated:: 0.6.61
+           Use :func:`import` instead.
+
+        Parameters
+        ----------
+        file_path : str
+            Path to stackup file.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> edb = Edb()
+        >>> edb.stackup.load("stackup.xml")
+        """
+
+        if file_path.endswith(".csv"):
+            return self._import_csv(file_path)
+        elif file_path.endswith(".json"):
+            return self._import_json(file_path)
+        elif file_path.endswith(".xml"):
+            return self._import_xml(file_path)
+        else:
+            return False
+
+    @pyaedt_function_handler
     def import_stackup(self, file_path):
         """Import stackup from a file. The file format can be XML, CSV, or JSON.
+
+        .. deprecated:: 0.6.61
+           Use :func:`load` instead.
 
         Parameters
         ----------
@@ -1733,14 +1797,8 @@ class Stackup(object):
         >>> edb.stackup.import_stackup("stackup.xml")
         """
 
-        if file_path.endswith(".csv"):
-            return self._import_csv(file_path)
-        elif file_path.endswith(".json"):
-            return self._import_json(file_path)
-        elif file_path.endswith(".xml"):
-            return self._import_xml(file_path)
-        else:
-            return False
+        self._logger.warning("Method export_stackup is deprecated. Use .export.")
+        return self.load(file_path)
 
     @pyaedt_function_handler()
     def plot(
