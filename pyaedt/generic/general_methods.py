@@ -210,7 +210,7 @@ def check_numeric_equivalence(a, b, relative_tolerance=1e-7):
     Paraemters
     ----------
     a : int, float
-        The reference value to be compared to.
+        Reference value to compare to.
     b : int, float
         The secondary value used for comparison.
     relative_tolerance : float, optional
