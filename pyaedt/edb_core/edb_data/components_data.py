@@ -83,17 +83,17 @@ class EDBComponentDef(object):
         return {comp.refdes: comp for comp in comp_list}
 
     @pyaedt_function_handler
-    def assign_rlc_model(self, res, ind, cap, is_parallel=False):
+    def assign_rlc_model(self, res=None, ind=None, cap=None, is_parallel=False):
         """Assign RLC to all components under this part name.
 
         Parameters
         ----------
         res : int, float
-            Resistance.
+            Resistance. Default is ``None``.
         ind : int, float
-            Inductance.
+            Inductance. Default is ``None``.
         cap : int, float
-            Capacitance.
+            Capacitance. Default is ``None``.
         is_parallel : bool, optional
             Whether it is parallel or series RLC component.
         """
@@ -895,27 +895,37 @@ class EDBComponent(object):
         return self._set_model(model)
 
     @pyaedt_function_handler
-    def assign_rlc_model(self, res, ind, cap, is_parallel=False):
+    def assign_rlc_model(self, res=None, ind=None, cap=None, is_parallel=False):
         """Assign RLC to this component.
 
         Parameters
         ----------
         res : int, float
-            Resistance.
+            Resistance. Default is ``None``.
         ind : int, float
-            Inductance.
+            Inductance. Default is ``None``.
         cap : int, float
-            Capacitance.
+            Capacitance. Default is ``None``.
         is_parallel : bool, optional
             Whether it is a parallel or series RLC component. The default is ``False``.
         """
+        if res is None and ind is None and cap is None:
+            self._pedb.logger.error("At least one value has to be provided.")
+            return False
+        r_enabled = True if res else False
+        l_enabled = True if ind else False
+        c_enabled = True if cap else False
+        res = 0 if res is None else res
+        ind = 0 if ind is None else ind
+        cap = 0 if cap is None else cap
         res, ind, cap = self._get_edb_value(res), self._get_edb_value(ind), self._get_edb_value(cap)
         model = self._edb.Cell.Hierarchy.PinPairModel()
 
         pin_names = list(self.pins.keys())
         for idx, i in enumerate(np.arange(len(pin_names) // 2)):
             pin_pair = self._edb.Utility.PinPair(pin_names[idx], pin_names[idx + 1])
-            rlc = self._edb.Utility.Rlc(res, True, ind, True, cap, True, is_parallel)
+
+            rlc = self._edb.Utility.Rlc(res, r_enabled, ind, l_enabled, cap, c_enabled, is_parallel)
             model.SetPinPairRlc(pin_pair, rlc)
         return self._set_model(model)
 
