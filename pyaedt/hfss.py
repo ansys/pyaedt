@@ -1814,6 +1814,15 @@ class Hfss(FieldAnalysis3D, object):
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
 
+        Examples
+        --------
+        >>> aedtapp = Hfss()
+        >>> aedtapp.insert_design("Design_Terminal_2")
+        >>> aedtapp.solution_type = "Terminal"
+        >>> box1 = aedtapp.modeler.create_box([-100, -100, 0], [200, 200, 5], name="gnd2z", matname="copper")
+        >>> box2 = aedtapp.modeler.create_box([-100, -100, 20], [200, 200, 25], name="sig2z", matname="copper")
+        >>> aedtapp.modeler.fit_all()
+        >>> portz = aedtapp.create_spiral_lumped_port(box1, box2)
         """
         if not "Terminal" in self.solution_type:
             raise Exception("This method can be used only in Terminal solutions.")
@@ -1957,7 +1966,7 @@ class Hfss(FieldAnalysis3D, object):
         self.assign_perfecte_to_sheets(poly2, sourcename=end_object)
 
         # create lumped port on spiral
-        port = self.create_lumped_port_to_sheet(spiral, reference_object_list=[poly2.name], portname=name)
+        port = self.lumped_port(spiral, reference=[poly2.name], name=name)
 
         return port
 
@@ -2124,6 +2133,9 @@ class Hfss(FieldAnalysis3D, object):
     ):
         """Create a waveport taking the closest edges of two objects.
 
+        .. deprecated:: 0.6.62
+           Use :func:`wave_port` metho instead.
+
         Parameters
         ----------
         startobj :
@@ -2176,42 +2188,22 @@ class Hfss(FieldAnalysis3D, object):
         pyaedt INFO: Connection Correctly created
 
         """
-
-        if not self.modeler.does_object_exists(startobj) or not self.modeler.does_object_exists(endobject):
-            self.logger.error("One or both objects do not exist. Check and retry.")
-            return False
-        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
-            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
-                startobj, endobject, axisdir, port_on_plane
-            )
-            if add_pec_cap:
-                dist = math.sqrt(self.modeler[sheet_name].faces[0].area)
-                if settings.aedt_version > "2022.2":
-                    self._create_pec_cap(sheet_name, startobj, -dist / 10)
-                else:
-                    self._create_pec_cap(sheet_name, startobj, dist / 10)
-            portname = self._get_unique_source_name(portname, "Port")
-
-            if "Modal" in self.solution_type:
-                return self._create_waveport_driven(
-                    sheet_name, point0, point1, impedance, portname, renorm, nummodes, deembed_dist
-                )
-            else:
-                faces = self.modeler.get_object_faces(sheet_name)
-                if deembed_dist == 0:
-                    deembed = None
-                else:
-                    deembed = deembed_dist
-                return self._create_port_terminal(
-                    faces[0],
-                    endobject,
-                    portname,
-                    renorm=renorm,
-                    deembed=deembed,
-                    iswaveport=True,
-                    impedance=impedance,
-                )
-        return False  # pragma: no cover
+        warnings.warn(
+            "`create_wave_port_between_objects` is deprecated. Use `wave_port` property instead.", DeprecationWarning
+        )
+        return self.wave_port(
+            signal=startobj,
+            reference=endobject,
+            integration_line_location=axisdir,
+            create_port_sheet=True,
+            impedance=impedance,
+            num_modes=nummodes,
+            name=portname,
+            renormalize=renorm,
+            deembed=deembed_dist,
+            port_on_plane=port_on_plane,
+            add_pec_cap=add_pec_cap,
+        )
 
     @pyaedt_function_handler()
     def create_floquet_port(
@@ -2588,6 +2580,9 @@ class Hfss(FieldAnalysis3D, object):
     ):
         """Create a waveport taking the closest edges of two objects.
 
+        .. deprecated:: 0.6.62
+            `create_wave_port_microstrip_between_objects` is deprecated. Use `wave_port` property instead.
+
         Parameters
         ----------
         startobj :
@@ -2641,37 +2636,24 @@ class Hfss(FieldAnalysis3D, object):
         pyaedt INFO: Connection correctly created.
 
         """
-        if not self.modeler.does_object_exists(startobj) or not self.modeler.does_object_exists(endobject):
-            self.logger.error("One or both objects do not exist. Check and retry.")
-            return False
-        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
-            sheet_name, point0, point1 = self.modeler._create_microstrip_sheet_from_object_closest_edge(
-                startobj, endobject, axisdir, vfactor, hfactor
-            )
-            dist = GeometryOperators.points_distance(point0, point1)
-            self._create_pec_cap(sheet_name, startobj, dist / 10)
-            portname = self._get_unique_source_name(portname, "Port")
-
-            if "Modal" in self.solution_type:
-                return self._create_waveport_driven(
-                    sheet_name, point0, point1, impedance, portname, renorm, nummodes, deembed_dist
-                )
-            else:
-                faces = self.modeler.get_object_faces(sheet_name)
-                if deembed_dist == 0:
-                    deembed = None
-                else:
-                    deembed = deembed_dist
-                return self._create_port_terminal(
-                    faces[0],
-                    endobject,
-                    portname,
-                    renorm=renorm,
-                    deembed=deembed,
-                    iswaveport=True,
-                    impedance=impedance,
-                )
-        return False
+        warnings.warn(
+            "`create_wave_port_microstrip_between_objects` is deprecated. Use `wave_port` property instead.",
+            DeprecationWarning,
+        )
+        return self.wave_port(
+            signal=startobj,
+            reference=endobject,
+            integration_line_location=axisdir,
+            create_port_sheet=True,
+            impedance=impedance,
+            num_modes=nummodes,
+            name=portname,
+            renormalize=renorm,
+            deembed=deembed_dist,
+            is_microstrip=True,
+            vfactor=vfactor,
+            hfactor=hfactor,
+        )
 
     @pyaedt_function_handler()
     def create_perfecte_from_objects(
@@ -3171,6 +3153,9 @@ class Hfss(FieldAnalysis3D, object):
     ):
         """Create a waveport on sheet objects created starting from sheets.
 
+        .. deprecated:: 0.6.62
+            `create_wave_port_from_sheet` is deprecated. Use `wave_port` property instead.
+
         Parameters
         ----------
         sheet : str or int or list or :class:`pyaedt.modeler.object3d.Object3d`
@@ -3219,59 +3204,20 @@ class Hfss(FieldAnalysis3D, object):
         'WavePortFromSheet'
 
         """
-
-        sheet = self.modeler.convert_to_selections(sheet, True)[0]
-        if terminal_references:
-            terminal_references = self.modeler.convert_to_selections(terminal_references, True)
-        if isinstance(sheet, int):
-            try:
-                oname = self.modeler.oeditor.GetObjectNameByFaceID(sheet)
-            except:
-                oname = ""
-        else:
-            oname = ""
-        if "Modal" in self.solution_type:
-            if axisdir:
-                try:
-                    _, int_start, int_stop = self._get_reference_and_integration_points(sheet, axisdir, oname)
-                except (IndexError, TypeError):
-                    int_start = int_stop = None
-            else:
-                int_start = int_stop = None
-            portname = self._get_unique_source_name(portname, "Port")
-
-            return self._create_waveport_driven(
-                sheet, int_start, int_stop, impedance, portname, renorm, nummodes, deemb
-            )
-        else:
-            if isinstance(sheet, int):
-                faces = sheet
-            else:
-                faces = self.modeler.get_object_faces(sheet)[0]
-            if not faces:  # pragma: no cover
-                self.logger.error("Wrong Input object. it has to be a face id or a sheet.")
-                return False
-            if not portname:
-                portname = generate_unique_name("Port")
-            elif portname in self.excitations:
-                portname = generate_unique_name(portname)
-            if terminal_references:
-                if deemb == 0:
-                    deembed = None
-                else:
-                    deembed = deemb
-                return self._create_port_terminal(
-                    faces,
-                    terminal_references,
-                    portname,
-                    renorm=renorm,
-                    deembed=deembed,
-                    iswaveport=True,
-                    impedance=impedance,
-                )
-            else:
-                self.logger.error("Reference conductors are missing.")
-                return False
+        warnings.warn(
+            "`create_wave_port_from_sheet` is deprecated. Use `wave_port` property instead.", DeprecationWarning
+        )
+        return self.wave_port(
+            signal=sheet,
+            reference=terminal_references,
+            integration_line_location=axisdir,
+            create_port_sheet=False,
+            impedance=impedance,
+            num_modes=nummodes,
+            name=portname,
+            renormalize=renorm,
+            deembed=deemb,
+        )
 
     @pyaedt_function_handler()
     def create_wave_port(
@@ -3288,6 +3234,9 @@ class Hfss(FieldAnalysis3D, object):
         terminal_references=None,
     ):
         """Assign a wave port to a face given a point on the face.
+
+        .. deprecated:: 0.6.62
+            `create_wave_port` is deprecated. Use `wave_port` property instead.
 
         Parameters
         ----------
@@ -3339,58 +3288,27 @@ class Hfss(FieldAnalysis3D, object):
         >>> [print(name) for p.name in ports]
 
         """
-        # TODO: check that port_item is a planar sheet
-        if terminal_references:
-            terminal_references = self.modeler.convert_to_selections(terminal_references, True)
-        if isinstance(port_item, int):
-            try:
-                oname = self.modeler.oeditor.GetObjectNameByFaceID(port_item)
-            except:
-                oname = ""
-        else:
-            oname = ""
-        if "Modal" in self.solution_type:
-            if portname is None:
-                portname = self._get_unique_source_name(portname, "Port")
-
-            return self._create_waveport_driven(
-                port_item, int_start, int_stop, impedance, portname, renorm, nummodes, deemb
-            )
-        else:
-            if isinstance(port_item, int):
-                faces = port_item
-            else:
-                faces = self.modeler.get_object_faces(port_item)[0]
-            if not faces:  # pragma: no cover
-                self.logger.error("Input object is wrong. It must be a face ID or a sheet.")
-                return False
-            if not portname:
-                portname = generate_unique_name("Port")
-            elif portname in self.excitations:
-                portname = generate_unique_name(portname)
-            if terminal_references:
-                if deemb == 0:
-                    deembed = None
-                else:
-                    deembed = deemb
-                return self._create_port_terminal(
-                    faces,
-                    terminal_references,
-                    portname,
-                    renorm=renorm,
-                    deembed=deembed,
-                    iswaveport=True,
-                    impedance=impedance,
-                )
-            else:
-                self.logger.error("Reference conductors are missing.")
-                return False
+        warnings.warn("`create_wave_port` is deprecated. Use `wave_port` property instead.", DeprecationWarning)
+        return self.wave_port(
+            signal=port_item,
+            reference=terminal_references,
+            integration_line_location=[int_start, int_stop],
+            create_port_sheet=True,
+            impedance=impedance,
+            num_modes=nummodes,
+            name=portname,
+            renormalize=renorm,
+            deembed=deemb,
+        )
 
     @pyaedt_function_handler()
     def create_lumped_port_to_sheet(
         self, sheet_name, axisdir=0, impedance=50, portname=None, renorm=True, deemb=False, reference_object_list=[]
     ):
         """Create a lumped port taking one sheet.
+
+        .. deprecated:: 0.6.62
+            `create_lumped_port_to_sheet` is deprecated. Use `lumped` property instead.
 
         Parameters
         ----------
@@ -3437,53 +3355,19 @@ class Hfss(FieldAnalysis3D, object):
         ...                                     False)
 
         """
-        sheet_name = self.modeler.convert_to_selections(sheet_name, False)
-        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
-            if isinstance(axisdir, list):
-                if len(axisdir) != 2 or len(axisdir[0]) != len(axisdir[1]):
-                    self.logger.error("List of coordinates is not set correctly")
-                    return False
-                point0 = axisdir[0]
-                point1 = axisdir[1]
-            else:
-                point0, point1 = self.modeler.get_mid_points_on_dir(sheet_name, axisdir)
-
-            portname = self._get_unique_source_name(portname, "Port")
-
-            port = False
-            if "Modal" in self.solution_type:
-                port = self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
-            else:
-                if not reference_object_list:
-                    cond = self.get_all_conductors_names()
-                    touching = self.modeler.get_bodynames_from_position(point0)
-                    reference_object_list = []
-                    for el in touching:
-                        if el in cond:
-                            reference_object_list.append(el)
-                if isinstance(sheet_name, int):
-                    faces = sheet_name
-                else:
-                    faces = self.modeler.get_object_faces(sheet_name)[0]
-                if not faces:  # pragma: no cover
-                    self.logger.error("Wrong input object. It must be a face ID or a sheet.")
-                    return False
-                if deemb:
-                    deembed = 0
-                else:
-                    deembed = None
-                port = self._create_port_terminal(
-                    faces,
-                    reference_object_list,
-                    portname,
-                    renorm=renorm,
-                    deembed=deembed,
-                    iswaveport=False,
-                    impedance=impedance,
-                )
-
-            return port
-        return False
+        warnings.warn(
+            "`create_lumped_port_to_sheet` is deprecated. Use `lumped_port` property instead.", DeprecationWarning
+        )
+        return self.lumped_port(
+            signal=sheet_name,
+            reference=reference_object_list,
+            integration_line_location=axisdir,
+            create_port_sheet=False,
+            impedance=impedance,
+            name=portname,
+            renormalize=renorm,
+            deembed=deemb,
+        )
 
     @pyaedt_function_handler()
     def assig_voltage_source_to_sheet(self, sheet_name, axisdir=0, sourcename=None):
@@ -6078,3 +5962,385 @@ class Hfss(FieldAnalysis3D, object):
             hdm.add_cad_model(file[0], file[1], file[2], self.modeler.model_units)
         hdm.add_hdm_bundle_from_file(filename)
         return hdm
+
+    @pyaedt_function_handler()
+    def circuit_port(
+        self,
+        signal,
+        reference,
+        port_location=0,
+        impedance=50,
+        name=None,
+        renormalize=True,
+        renorm_impedance=50,
+        deembed=False,
+    ):
+        """Create a circuit port from two objects.
+
+        The integration line is from edge 2 to edge 1.
+
+        Parameters
+        ----------
+        signal : int or :class:`pyaedt.modeler.object3d.Object3d` or
+         :class:`pyaedt.modeler.cad.FacePrimitive`or :class:`pyaedt.modeler.cad.EdgePrimitive`
+            Signal object.
+        reference : int or :class:`pyaedt.modeler.object3d.Object3d` or
+         :class:`pyaedt.modeler.cad.FacePrimitive`or :class:`pyaedt.modeler.cad.EdgePrimitive`
+            Reference object.
+        port_location : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
+            Position of the port when an object different from an edge is provided.
+            It should be one of the values for ``Application.AxisDir``,
+            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+            The default is ``Application.AxisDir.XNeg``.
+        name : str, optional
+            Name of the port. The default is ``""``.
+        impedance : int, str, or float, optional
+            Impedance. The default is ``"50"``. You can also
+            enter a string that looks like this: ``"50+1i*55"``.
+        renormalize : bool, optional
+            Whether to renormalize the mode. The default is ``False``.
+            This parameter is ignored for a driven terminal.
+        renorm_impedance :  str, optional
+            Impedance. The default is ``50``.
+        deembed : bool, optional
+            Whether to deembed the port. The default is ``False``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+
+        >>> oModule.AssignCircuitPort
+
+        Examples
+        --------
+
+        Create two rectangles in the XY plane.
+        Select the first edge of each rectangle created previously.
+        Create a circuit port from the first edge of the first rectangle
+        toward the first edge of the second rectangle.
+
+        >>> plane = hfss.PLANE.XY
+        >>> rectangle1 = hfss.modeler.create_rectangle(plane, [10, 10, 10], [10, 10],
+        ...                                            name="rectangle1_for_port")
+        >>> edges1 = hfss.modeler.get_object_edges(rectangle1.id)
+        >>> first_edge = edges1[0]
+        >>> rectangle2 = hfss.modeler.create_rectangle(plane, [30, 10, 10], [10, 10],
+        ...                                            name="rectangle2_for_port")
+        >>> edges2 = hfss.modeler.get_object_edges(rectangle2.id)
+        >>> second_edge = edges2[0]
+        >>> hfss.solution_type = "Modal"
+        >>> hfss.circuit_port(first_edge, second_edge, name="PortExample",
+        ...                   impedance=50.1, renormalize=False,
+        ...                   renorm_impedance="50")
+        'PortExample'
+        """
+        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
+            if not self.modeler.does_object_exists(signal) or not self.modeler.does_object_exists(reference):
+                out = self.modeler.convert_to_selections([signal, reference], True)
+                if isinstance(out[0], str) or isinstance(out[1], str):
+                    self.logger.error("Failed to create circuit port.")
+                    return False
+            else:
+                out, parallel = self.modeler.find_closest_edges(signal, reference, port_location)
+            name = self._get_unique_source_name(name, "Port")
+            return self._create_circuit_port(
+                out, impedance, name, renormalize, deembed, renorm_impedance=renorm_impedance
+            )
+        return False
+
+    @pyaedt_function_handler()
+    def lumped_port(
+        self,
+        signal,
+        reference=None,
+        create_port_sheet=False,
+        port_on_plane=True,
+        integration_line_location=0,
+        impedance=50,
+        name=None,
+        renormalize=True,
+        deembed=False,
+    ):
+        """Create a waveport taking the closest edges of two objects.
+
+        Parameters
+        ----------
+        signal : int, list or :class:`pyaedt.modeler.object3d.Object3d` or
+         :class:`pyaedt.modeler.elements3d.FacePrimitive`
+            Starting object for the integration line.
+        reference : int, list or :class:`pyaedt.modeler.object3d.Object3d`
+            Ending object for the integration line or reference for Terminal solution. Can be multiple objects.
+        create_port_sheet : bool, optional
+            Whether to create a port sheet or use given start_object as port shee.
+        integration_line_location : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
+            Position of the port. It should be one of the values for ``Application.AxisDir``,
+            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+            The default is ``Application.AxisDir.XNeg``.
+            It can also be a list of 2 points.
+        port_on_plane : bool, optional
+            Whether to create the source on the plane orthogonal to ``AxisDir``.
+            The default is ``True``.
+        impedance : float, optional
+            Port impedance. The default is ``50``.
+        name : str, optional
+            name of the port. The default is ``None``.
+        renormalize : bool, optional
+            Whether to renormalize the mode. The default is ``True``.
+        deembed : float, optional
+            Deembed distance in millimeters. The default is ``0``,
+            in which case deembed is disabled.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Port object.
+
+        Examples
+        --------
+
+        Create two boxes that will be used to create a lumped port
+        named ``'LumpedPort'``.
+
+        >>> box1 = hfss.modeler.create_box([0, 0, 50], [10, 10, 5],
+        ...                                "BoxLumped1","copper")
+        >>> box2 = hfss.modeler.create_box([0, 0, 60], [10, 10, 5],
+        ...                                "BoxLumped2", "copper")
+        >>> hfss.lumped_port("BoxLumped1", "BoxLumped2",
+        ...                  hfss.AxisDir.XNeg, 50,
+        ...                  "LumpedPort", True, False)
+        pyaedt INFO: Connection Correctly created
+        'LumpedPort'
+
+        """
+        if create_port_sheet:
+            signal = self.modeler.convert_to_selections(signal)
+            reference = self.modeler.convert_to_selections(reference)
+            if not self.modeler.does_object_exists(signal) or not self.modeler.does_object_exists(reference):
+                self.logger.error("One or both objects do not exist. Check and retry.")
+                return False
+            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
+                signal, reference, integration_line_location, port_on_plane
+            )
+        else:
+            if isinstance(signal, list):
+                objs = self.modeler.get_faceid_from_position(signal)
+                if len(objs) == 1:
+                    signal = objs[0]
+                elif len(objs) > 1:
+                    self.logger.warning("More than 1 face found. Getting first.")
+                    signal = objs[0]
+                else:
+                    self.logger.error("No Faces found on given location.")
+                    return False
+            sheet_name = self.modeler.convert_to_selections(signal, False)
+            if isinstance(integration_line_location, list):
+                if len(integration_line_location) != 2 or len(integration_line_location[0]) != len(
+                    integration_line_location[1]
+                ):
+                    self.logger.error("List of coordinates is not set correctly")
+                    return False
+                point0 = integration_line_location[0]
+                point1 = integration_line_location[1]
+            else:
+                point0, point1 = self.modeler.get_mid_points_on_dir(sheet_name, integration_line_location)
+        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
+            name = self._get_unique_source_name(name, "Port")
+
+            if "Modal" in self.solution_type:
+                return self._create_lumped_driven(sheet_name, point0, point1, impedance, name, renormalize, deembed)
+            else:
+                faces = self.modeler.get_object_faces(sheet_name)
+                if deembed:
+                    deembed = 0
+                else:
+                    deembed = None
+                return self._create_port_terminal(
+                    faces[0],
+                    reference,
+                    name,
+                    renorm=renormalize,
+                    deembed=deembed,
+                    iswaveport=False,
+                    impedance=impedance,
+                )
+        return False
+
+    @pyaedt_function_handler()
+    def wave_port(
+        self,
+        signal,
+        reference=None,
+        create_port_sheet=False,
+        create_pec_cap=False,
+        integration_line_location=0,
+        port_on_plane=True,
+        num_modes=1,
+        impedance=50,
+        name=None,
+        renormalize=True,
+        deembed=0,
+        is_microstrip=False,
+        vfactor=3,
+        hfactor=5,
+    ):
+        """Create a waveport from a sheet (``start_object``) or taking the closest edges of two objects.
+
+        Parameters
+        ----------
+        signal : int, list or :class:`pyaedt.modeler.object3d.Object3d` or
+         :class:`pyaedt.modeler.elements3d.FacePrimitive`
+            Starting object for the integration line.
+        reference : int, list or :class:`pyaedt.modeler.object3d.Object3d`
+            Ending object for the integration line or reference for Terminal solution. Can be multiple objects.
+        create_port_sheet : bool, optional
+            Whether to create a port sheet or use given start_object as port shee.
+        create_pec_cap : bool, False
+            Whether to create a port cap or not.
+        integration_line_location : list or int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
+            Position of the integration. It should be one of the values for ``Application.AxisDir``,
+            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``
+            The default is ``Application.AxisDir.XNeg``.
+            It can also be a list of 2 points.
+        port_on_plane : bool, optional
+            Whether to create the source on the plane orthogonal to ``AxisDir``.
+            The default is ``True``.
+        impedance : float, optional
+            Port impedance. The default is ``50``.
+        num_modes : int, optional
+            Number of modes. The default is ``1``.
+        name : str, optional
+            name of the port. The default is ``None``.
+        renormalize : bool, optional
+            Whether to renormalize the mode. The default is ``True``.
+        deembed : float, optional
+            Deembed distance in millimeters. The default is ``0``,
+            in which case deembed is disabled.
+        is_microstrip : bool, optional
+            Whether if the wave port will be created and is a microstrip port.
+            The default is ``False``.
+        vfactor : int, optional
+            Port vertical factor. Only valid if ``is_microstrip`` is enabled. The default is ``3``.
+        hfactor : int, optional
+            Port horizontal factor. Only valid if ``is_microstrip`` is enabled. The default is ``5``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Port object.
+
+        References
+        ----------
+
+        >>> oModule.AssignWavePort
+
+        Examples
+        --------
+
+        Create a wave port supported by a microstrip line.
+
+        >>> ms = hfss.modeler.create_box([4, 5, 0], [1, 100, 0.2],
+        ...                               name="MS1", matname="copper")
+        >>> sub = hfss.modeler.create_box([0, 5, -2], [20, 100, 2],
+        ...                               name="SUB1", matname="FR4_epoxy")
+        >>> gnd = hfss.modeler.create_box([0, 5, -2.2], [20, 100, 0.2],
+        ...                               name="GND1", matname="FR4_epoxy")
+        >>> port = hfss.wave_port("GND1", "MS1",
+        ...                       name="MS1",
+        ...                        integration_line_location=1)
+        pyaedt INFO: Connection correctly created.
+
+        """
+        oname = ""
+
+        if create_port_sheet:
+            if not self.modeler.does_object_exists(signal) or not self.modeler.does_object_exists(reference):
+                self.logger.error("One or both objects do not exist. Check and retry.")
+                return False
+            if is_microstrip:
+                sheet_name, int_start, int_stop = self.modeler._create_microstrip_sheet_from_object_closest_edge(
+                    signal, reference, integration_line_location, vfactor, hfactor
+                )
+            else:
+                sheet_name, int_start, int_stop = self.modeler._create_sheet_from_object_closest_edge(
+                    signal, reference, integration_line_location, port_on_plane
+                )
+        else:
+            if isinstance(signal, list):
+                objs = self.modeler.get_faceid_from_position(signal)
+                if len(objs) == 1:
+                    signal = objs[0]
+                elif len(objs) > 1:
+                    self.logger.warning("More than 1 face found. Getting first.")
+                    signal = objs[0]
+                else:
+                    self.logger.error("No Faces found on given location.")
+                    return False
+            sheet_name = self.modeler.convert_to_selections(signal, True)[0]
+            if isinstance(sheet_name, int):
+                try:
+                    oname = self.modeler.oeditor.GetObjectNameByFaceID(sheet_name)
+                except:
+                    oname = ""
+            if reference:
+                reference = self.modeler.convert_to_selections(reference, True)
+            if integration_line_location:
+                if isinstance(integration_line_location, list):
+                    if len(integration_line_location) != 2 or len(integration_line_location[0]) != len(
+                        integration_line_location[1]
+                    ):
+                        self.logger.error("List of coordinates is not set correctly")
+                        return False
+                    int_start = integration_line_location[0]
+                    int_stop = integration_line_location[1]
+                else:
+                    try:
+                        _, int_start, int_stop = self._get_reference_and_integration_points(
+                            sheet_name, integration_line_location, oname
+                        )
+                    except (IndexError, TypeError):
+                        int_start = int_stop = None
+            else:
+                int_start = int_stop = None
+        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
+            if create_pec_cap:
+                if oname:
+                    face = oname
+                else:
+                    face = sheet_name
+                dist = math.sqrt(self.modeler[face].faces[0].area)
+                if settings.aedt_version > "2022.2":
+                    self._create_pec_cap(face, signal, -dist / 10)
+                else:
+                    self._create_pec_cap(face, signal, dist / 10)
+            name = self._get_unique_source_name(name, "Port")
+
+            if "Modal" in self.solution_type:
+                return self._create_waveport_driven(
+                    sheet_name, int_start, int_stop, impedance, name, renormalize, num_modes, deembed
+                )
+            elif reference:
+                if isinstance(sheet_name, int):
+                    faces = [sheet_name]
+                else:
+                    faces = self.modeler.get_object_faces(sheet_name)
+                if deembed == 0:
+                    deembed = None
+                else:
+                    deembed = deembed
+                return self._create_port_terminal(
+                    faces[0],
+                    reference,
+                    name,
+                    renorm=renormalize,
+                    deembed=deembed,
+                    iswaveport=True,
+                    impedance=impedance,
+                )
+            else:
+                self.logger.error("Reference conductors are missing.")
+                return False
+        return False

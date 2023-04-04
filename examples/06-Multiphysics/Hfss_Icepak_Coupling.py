@@ -123,10 +123,18 @@ aedtapp.mesh.assign_length_mesh(names=o2.faces, isinside=False, maxlength=1, max
 # the faces. It also assigns a port to this face. If ``add_pec_cap=True``, the method
 # creates a PEC cap.
 
-aedtapp.create_wave_port_between_objects(startobj="inner", endobject="outer", axisdir=1, add_pec_cap=True,
-                                         portname="P1")
-aedtapp.create_wave_port_between_objects(startobj="inner", endobject="outer", axisdir=4, add_pec_cap=True,
-                                         portname="P2")
+aedtapp.wave_port(signal="inner",
+                  reference="outer",
+                  integration_line_location=1,
+                  create_port_sheet=True,
+                  add_pec_cap=True,
+                  name="P1")
+aedtapp.wave_port(signal="inner",
+                  reference="outer",
+                  integration_line_location=4,
+                  add_pec_cap=True,
+                  create_port_sheet=True,
+                  name="P2")
 
 port_names = aedtapp.get_all_sources()
 aedtapp.modeler.fit_all()

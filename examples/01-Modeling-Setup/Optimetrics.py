@@ -57,8 +57,8 @@ model.plot(os.path.join(hfss.working_directory, "Image.jpg"))
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create two wave ports on the sheets.
 
-hfss.create_wave_port_from_sheet(p1, axisdir=hfss.AxisDir.ZPos, portname="1")
-hfss.create_wave_port_from_sheet(p2, axisdir=hfss.AxisDir.ZPos, portname="2")
+hfss.wave_port(p1, integration_line_location=hfss.AxisDir.ZPos, name="1")
+hfss.wave_port(p2, integration_line_location=hfss.AxisDir.ZPos, name="2")
 
 ###############################################################################
 # Create setup and frequency sweep
