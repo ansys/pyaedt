@@ -1746,8 +1746,6 @@ class Stackup(object):
     def load(self, file_path):
         """Import stackup from a file. The file format can be XML, CSV, or JSON.
 
-        .. deprecated:: 0.6.61
-           Use :func:`import` instead.
 
         Parameters
         ----------
