@@ -617,7 +617,7 @@ class TestClass(BasisTest, object):
             output_aedb_path=output,
             open_cutout_at_end=False,
             use_pyaedt_extent_computing=True,
-            use_legacy_cutout=True,
+            use_pyaedt_cutout=False,
         )
         assert edbapp.cutout(
             ["A0_N", "A0_P"],
@@ -625,7 +625,7 @@ class TestClass(BasisTest, object):
             output_aedb_path=output,
             open_cutout_at_end=False,
             remove_single_pin_components=True,
-            use_legacy_cutout=True,
+            use_pyaedt_cutout=False,
         )
         assert os.path.exists(os.path.join(output, "edb.def"))
         bounding = edbapp.get_bounding_box()
@@ -644,7 +644,7 @@ class TestClass(BasisTest, object):
             output_aedb_path=output,
             open_cutout_at_end=False,
             include_partial_instances=True,
-            use_legacy_cutout=True,
+            use_pyaedt_cutout=False,
         )
         assert os.path.exists(os.path.join(output, "edb.def"))
         output = os.path.join(self.local_scratch.path, "cutout3.aedb")
@@ -655,7 +655,7 @@ class TestClass(BasisTest, object):
             output_aedb_path=output,
             open_cutout_at_end=False,
             include_partial_instances=True,
-            use_legacy_cutout=False,
+            use_pyaedt_cutout=False,
         )
         assert os.path.exists(os.path.join(output, "edb.def"))
         edbapp.close_edb()
