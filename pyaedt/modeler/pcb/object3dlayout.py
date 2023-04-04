@@ -1461,7 +1461,7 @@ class Line3dLayout(Geometries3DLayout, object):
 
 
 class Points3dLayout(object):
-    """Manages Hfss 3D Layout Points."""
+    """Manages HFSS 3D Layout points."""
 
     def __init__(self, primitives, point):
         self._primitives = primitives
