@@ -1377,7 +1377,7 @@ class TestClass(BasisTest, object):
         time_domain = os.path.join(local_path, "example_models", test_subfolder, "Sinusoidal.csv")
 
         box1 = aedtapp.modeler.create_box([0, 0, 0], [10, 20, 20])
-        self.aedtapp.wave_port(
+        aedtapp.wave_port(
             signal=box1.bottom_face_x,
             create_port_sheet=False,
         )
