@@ -1821,7 +1821,9 @@ class Stackup(object):
                 color = [float(i) / 256 for i in layerval.color]
                 if color == [1.0, 1.0, 1.0]:
                     color = [0.9, 0.9, 0.9]
-                label = "{} Thick: {}um Elev:{}um".format(layername, round(layerval.thickness * 1e6, 3), round(lel, 3))
+                label = "{} {} Thick: {}um Elev:{}um".format(
+                    layername, layerval.material, round(layerval.thickness * 1e6, 3), round(lel, 3)
+                )
                 objects_lists.append([x, y, color, label, 0.4, "fill"])
                 if self.stackup_mode == "Laminate":
                     annotations.append([x_max, (uel + lel) / 2, label, {}])
