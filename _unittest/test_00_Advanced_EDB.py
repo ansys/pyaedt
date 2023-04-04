@@ -730,11 +730,12 @@ class TestClass(BasisTest, object):
 
         edbapp = Edb(target_path, edbversion=desktop_version)
         comp = edbapp.components.components["R6"]
-        comp.assign_rlc_model(1, 2, 3, False)
+        assert not comp.assign_rlc_model()
+        comp.assign_rlc_model(1, None, 3, False)
         assert (
             not comp.is_parallel_rlc
             and float(comp.res_value) == 1
-            and float(comp.ind_value) == 2
+            and float(comp.ind_value) == 0
             and float(comp.cap_value) == 3
         )
         comp.assign_rlc_model(1, 2, 3, True)
