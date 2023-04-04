@@ -1432,6 +1432,33 @@ class Line3dLayout(Geometries3DLayout, object):
         """
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "TotalLength")
 
+    @property
+    def center_line(self):
+        """Get the center line points.
+
+        Returns
+        -------
+        dict
+            Points.
+        """
+        props = [i for i in list(self.m_Editor.GetProperties("BaseElementTab", self.name)) if i.startswith("Pt")]
+        points = {}
+        for i in props:
+            points[i] = [
+                i.strip()
+                for i in _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, i).split(
+                    ","
+                )
+            ]
+        return points
+
+    @center_line.setter
+    def center_line(self, points):
+        u = self._primitives.model_units
+        for point_name, value in points.items():
+            vpoint = ["NAME:{}".format(point_name), "X:=", _dim_arg(value[0], u), "Y:=", _dim_arg(value[1], u)]
+            self.change_property(vpoint)
+
 
 class Points3dLayout(object):
     """Manages Hfss 3D Layout Points."""
