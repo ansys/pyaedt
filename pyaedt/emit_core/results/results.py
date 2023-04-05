@@ -217,6 +217,4 @@ class Results:
             self.current_revision.revision_loaded = False
             self.current_revision = self._add_revision()
 
-        # save the changes to the revision
-        self.emit_project._emit_api.save_project()
         return self.current_revision

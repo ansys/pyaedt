@@ -92,7 +92,6 @@ class Revision:
         >>> aedtapp.results.revision.load_revision()
         """
         if self.revision_loaded:
-            print("Specified result already loaded.")
             return
         self.parent_results._unload_revisions()
         self.emit_project._emit_api.load_project(self.path)
