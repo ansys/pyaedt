@@ -520,7 +520,11 @@ class Primitives(object):
 
         """
         o = self._resolve_object(obj)
-        o._update()
+        name = o.name
+
+        del self.objects[self.object_id_dict[name]]
+        del self.object_id_dict[name]
+        o = self._create_object(name)
         return o
 
     @pyaedt_function_handler()
@@ -2829,8 +2833,8 @@ class Primitives(object):
             self.object_id_dict[o.name] = new_id
         else:
             o = Object3d(self, name)
-            history = o.history  # avoids creating the history twice
-            if history and history.command == "CreatePolyline":
+            commands = self._get_commands(name)
+            if commands and commands[0].startswith("CreatePolyline"):
                 o = self.get_existing_polyline(o)
             if pid:
                 new_id = pid
@@ -2839,6 +2843,13 @@ class Primitives(object):
             self.objects[new_id] = o
             self.object_id_dict[o.name] = new_id
         return o
+
+    @pyaedt_function_handler()
+    def _get_commands(self, name):
+        try:
+            return self.oeditor.GetChildObject(name).GetChildNames()
+        except:
+            return []
 
     @pyaedt_function_handler()
     def _create_user_defined_component(self, name):

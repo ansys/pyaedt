@@ -385,7 +385,7 @@ class Polyline(Object3d):
         segments = []
         points = []
         try:
-            history = self.history
+            history = self.history()
             h_segments = history.segments
         except:  # pragma: no cover
             history = None
@@ -978,8 +978,7 @@ class Polyline(Object3d):
         arg2.append(arg3)
         arg1.append(arg2)
         self._primitives.oeditor.ChangeProperty(arg1)
-        self._update()
-        return True
+        return self._primitives.update_object(self.name)
 
     @pyaedt_function_handler()
     def _get_point_slice_from_segment_id(self, segment_id, at_start=True):

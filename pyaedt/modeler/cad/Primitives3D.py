@@ -901,8 +901,10 @@ class Primitives3D(Primitives, object):
         vArg2.append("Thread:=")
         vArg2.append(self._arg_with_dim(thread))
 
-        new_name = self.oeditor.CreateHelix(vArg1, vArg2)
-        return self._create_object(new_name)
+        self.oeditor.CreateHelix(vArg1, vArg2)
+        if polyline_name in self.object_id_dict:
+            del self.objects[self.object_id_dict[polyline_name]]
+        return self._create_object(polyline_name)
 
     @pyaedt_function_handler()
     def convert_segments_to_line(self, object_name):

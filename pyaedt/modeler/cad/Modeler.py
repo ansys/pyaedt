@@ -2908,6 +2908,12 @@ class GeometryModeler(Modeler, object):
         vArg2.append("BothSides:="), vArg2.append(bBothSides)
 
         self.oeditor.ThickenSheet(vArg1, vArg2)
+
+        if isinstance(objid, list):
+            obj_list = []
+            for objl in objid:
+                obj_list.append(self.update_object(objl))
+            return obj_list
         return self.update_object(objid)
 
     @pyaedt_function_handler()
