@@ -1750,8 +1750,10 @@ class Stackup(object):
         first_layer=None,
         last_layer=None,
         ignore_elevations=False,
+        scale_elevation=True,
     ):
-        """Plot actual stackup and, optionally, overlap padstack definitions.
+        """Plot current stackup and, optionally, overlap padstack definitions.
+        Plot supports only 'Laminate' and 'Overlapping' stackup types.
 
         Parameters
         ----------
@@ -1778,6 +1780,203 @@ class Stackup(object):
             return False
         from pyaedt.generic.constants import CSS4_COLORS
         from pyaedt.generic.plot import plot_matplotlib
+
+        ###################
+
+        layer_names = list(self.stackup_layers.keys())
+        if first_layer is None or first_layer not in layer_names:
+            bottom_layer = layer_names[-1]
+        elif isinstance(first_layer, str):
+            bottom_layer = first_layer
+        elif isinstance(first_layer, LayerEdbClass):
+            bottom_layer = first_layer.name
+        else:
+            raise AttributeError("first_layer must be str or class `pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`")
+        if last_layer is None or last_layer not in layer_names:
+            top_layer = layer_names[0]
+        elif isinstance(last_layer, str):
+            top_layer = last_layer
+        elif isinstance(last_layer, LayerEdbClass):
+            top_layer = last_layer.name
+        else:
+            raise AttributeError("last_layer must be str or class `pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`")
+        if self.stackup_mode not in ["Laminate", "Overlapping"]:
+            raise AttributeError("stackup plot supports only 'Laminate' and 'Overlapping' stackup types.")
+
+        # build the layers data
+        layers_data = []
+        skip_flag = True
+        for layer in self.stackup_layers.values():  # start from top
+            if layer.name != top_layer and skip_flag:
+                continue
+            else:
+                skip_flag = False
+            layers_data.append([layer, layer.lower_elevation, layer.upper_elevation, layer.thickness])
+            if layer.name == bottom_layer:
+                break
+        layers_data.reverse()  # let's start from the bottom
+
+        # separate dielectric and signal if overlapping stackup
+        if self.stackup_mode == "Overlapping":
+            dielectric_layers = [l for l in layers_data if l[0].type == "dielectric"]
+            signal_layers = [l for l in layers_data if l[0].type == "signal"]
+
+        # compress the thicknesses if required
+        if scale_elevation:
+            min_thickness = min([i[3] for i in layers_data if i[3] != 0])
+            max_thickness = max([i[3] for i in layers_data])
+            c = 4  # max_thickness = c * min_thickness
+
+            def _compress_t(y):
+                m = min_thickness
+                M = max_thickness
+                k = (c - 1) * m / (M - m)
+                if y > 0:
+                    return (y - m) * k + m
+                else:
+                    return 0.0
+
+            if self.stackup_mode == "Laminate":
+                l0 = layers_data[0]
+                compressed_layers_data = [[l0[0], l0[1], _compress_t(l0[3]), _compress_t(l0[3])]]  # the first row
+                lp = compressed_layers_data[0]
+                for li in layers_data[1:]:  # the other rows
+                    ct = _compress_t(li[3])
+                    compressed_layers_data.append([li[0], lp[2], lp[2] + ct, ct])
+                    lp = compressed_layers_data[-1]
+                layers_data = compressed_layers_data
+
+            elif self.stackup_mode == "Overlapping":
+                compressed_diels = []
+                first_diel = True
+                for li in dielectric_layers:
+                    ct = _compress_t(li[3])
+                    if first_diel:
+                        if li[1] > 0:
+                            l0le = _compress_t(li[1])
+                        else:
+                            l0le = li[1]
+                        compressed_diels.append([li[0], l0le, l0le + ct, ct])
+                        first_diel = False
+                    else:
+                        lp = compressed_diels[-1]
+                        compressed_diels.append([li[0], lp[2], lp[2] + ct, ct])
+                compressed_signals = []
+                for li in signal_layers:
+                    if li[1] > 0:
+                        lile = _compress_t(li[1])
+                    else:
+                        lile = 0.0
+                    ct = _compress_t(li[3])
+                    compressed_signals.append([li[0], lile, lile + ct, ct])
+                dielectric_layers = compressed_diels
+                signal_layers = compressed_signals
+
+        # create the data for the plot
+        annotations = []
+        alpha = 0.7
+        plot_data = []
+        if self.stackup_mode == "Laminate":
+            for ly in layers_data:
+                layer = ly[0]
+                le = ly[1]  # lower elevation
+                ue = ly[2]  # upper elevation
+                y = [le, ue, ue, le]
+                x = [0, 0, 1, 1]
+
+                # set color and label
+                color = [float(i) / 256 for i in layer.color]
+                if color == [1.0, 1.0, 1.0]:
+                    color = [0.9, 0.9, 0.9]
+                label = (
+                    f"{layer.name}, {layer.material}, "
+                    f"Thick: {layer.thickness * 1e6:.3f}um,  "
+                    f"Elev:{layer.lower_elevation * 1e6:.3f}um"
+                )
+                plot_data.append([x, y, color, label, alpha, "fill"])
+
+        elif self.stackup_mode == "Overlapping":
+            columns = []  # first column is x=[0,1], second column is x=[1,2] and so on...
+            for ly in signal_layers:
+                layer = ly[0]
+                le = ly[1]  # lower elevation
+                ue = ly[2]  # upper elevation
+                y = [le, ue, ue, le]
+                put_in_column = 0
+                for c in columns:
+                    uep = c[-1][1]  # upper elevation of the last entry of that column
+                    if abs(le - uep) < 1e-15 or le >= uep:
+                        break
+                    else:
+                        put_in_column += 1
+                if len(columns) < put_in_column + 1:  # add a new column
+                    columns.append([])
+                columns[put_in_column].append(y)
+
+                x = [put_in_column + 1, put_in_column + 1, put_in_column + 2, put_in_column + 2]
+
+                # set color and label
+                color = [float(i) / 256 for i in layer.color]
+                if color == [1.0, 1.0, 1.0]:
+                    color = [0.9, 0.9, 0.9]
+                label = (
+                    f"{layer.name}, {layer.material}, "
+                    f"Thick: {layer.thickness * 1e6:.3f}um,  "
+                    f"Elev:{layer.lower_elevation * 1e6:.3f}um"
+                )
+                plot_data.append([x, y, color, label, alpha, "fill"])
+
+            width = len(columns) + 1
+            for ly in dielectric_layers:
+                layer = ly[0]
+                le = ly[1]  # lower elevation
+                ue = ly[2]  # upper elevation
+                y = [le, ue, ue, le]
+                x = [0, 0, width, width]
+
+                # set color and label
+                color = [float(i) / 256 for i in layer.color]
+                if color == [1.0, 1.0, 1.0]:
+                    color = [0.9, 0.9, 0.9]
+                label = (
+                    f"{layer.name}, {layer.material}, "
+                    f"Thick: {layer.thickness * 1e6:.3f}um,  "
+                    f"Elev:{layer.lower_elevation * 1e6:.3f}um"
+                )
+                plot_data.insert(0, [x, y, color, label, alpha, "fill"])
+
+        # plot the stackup
+        x_limits = [0, max([max(i[0]) for i in plot_data]) * 1.0]
+        if self.stackup_mode == "Laminate":
+            min_y = layers_data[0][1]
+            max_y = layers_data[-1][2] + layers_data[-1][3]
+        elif self.stackup_mode == "Overlapping":
+            min_y = min(dielectric_layers[0][1], signal_layers[0][1])
+            max_y = max(
+                (dielectric_layers[-1][2] + dielectric_layers[-1][3]), (signal_layers[-1][2] + signal_layers[-1][3])
+            )
+        y_limits = [min_y, max_y * 1.0]
+
+        plt = plot_matplotlib(
+            plot_data,
+            size,
+            True if self.stackup_mode != "Laminate" else False,
+            "X (um)",
+            "Y (um)",
+            "Stackup",
+            save_plot,
+            x_limits=x_limits,
+            y_limits=y_limits,
+            annotations=annotations,
+            show=False,
+        )
+        plt.axis("off")
+        plt.box(False)
+        plt.title("Stackup", fontsize=40)
+        plt.show()
+
+        return plt
+        ###########################
 
         stackup_elevation = abs(self.get_layout_thickness()) * 1e6
         x_min = -3 * stackup_elevation
@@ -1832,6 +2031,7 @@ class Stackup(object):
                 start_plot = False
         delta = (x_max - x_min) / 20
         x_start = x_min + delta
+
         if plot_definitions:
             if not isinstance(plot_definitions, list):
                 plot_definitions = [plot_definitions]

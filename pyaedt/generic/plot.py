@@ -494,7 +494,7 @@ def plot_matplotlib(
     snapshot_path : str
         Full path to image file if a snapshot is needed.
     x_limits : list, optional
-        List of x limits (bottom and top).
+        List of x limits (left and right).
     y_limits : list, optional
         List of y limits (bottom and top).
     annotations : list, optional

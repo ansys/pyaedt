@@ -158,7 +158,7 @@ def unit_converter(values, unit_system="Length", input_units="meter", output_uni
 
     Returns
     -------
-    float
+    float, list
         Converted value.
     """
     if unit_system in AEDT_UNITS:
