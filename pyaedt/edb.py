@@ -1442,6 +1442,7 @@ class Edb(object):
         include_partial_instances=False,
         keep_voids=True,
         check_terminals=False,
+        delta_expansion=0.0,
     ):
         """Create a cutout using an approach entirely based on pyaedt.
         This new method replaces all legacy cutout methods in pyaedt.
@@ -1495,6 +1496,9 @@ class Edb(object):
         check_terminals : bool, optional
             Whether to check for all reference terminals and increase extent to include them into the cutout.
             This applies to pingroups and components which have a model (spice, touchstone or netlist) associated.
+        delta_expansion : float, optional
+            When smart_cutout is enabled, the method checks if the terminal reference pins are connected and if not,
+            increases the expansion size of the cutout. Default is 0 to disable. Works only if `use_pyaedt_cutout`.
 
         Returns
         -------
@@ -1552,21 +1556,51 @@ class Edb(object):
             )
         else:
             legacy_path = self.edbpath
-            result = self._create_cutout_multithread(
-                signal_list=signal_list,
-                reference_list=reference_list,
-                extent_type=extent_type,
-                expansion_size=expansion_size,
-                use_round_corner=use_round_corner,
-                number_of_threads=number_of_threads,
-                custom_extent=custom_extent,
-                output_aedb_path=output_aedb_path,
-                remove_single_pin_components=remove_single_pin_components,
-                use_pyaedt_extent_computing=use_pyaedt_extent_computing,
-                extent_defeature=extent_defeature,
-                custom_extent_units=custom_extent_units,
-                check_terminals=check_terminals,
-            )
+            if delta_expansion > 0:
+                self.save_edb()
+                dummy_path = self.edbpath.replace(".aedb", "_cutout.aedb")
+                working_cutout = False
+                while not working_cutout:
+                    result = self._create_cutout_multithread(
+                        signal_list=signal_list,
+                        reference_list=reference_list,
+                        extent_type=extent_type,
+                        expansion_size=expansion_size,
+                        use_round_corner=use_round_corner,
+                        number_of_threads=number_of_threads,
+                        custom_extent=custom_extent,
+                        output_aedb_path=dummy_path,
+                        remove_single_pin_components=remove_single_pin_components,
+                        use_pyaedt_extent_computing=use_pyaedt_extent_computing,
+                        extent_defeature=extent_defeature,
+                        custom_extent_units=custom_extent_units,
+                        check_terminals=check_terminals,
+                    )
+                    if self.are_port_reference_terminals_connected():
+                        if output_aedb_path:
+                            self.save_edb_as(output_aedb_path)
+                        else:
+                            self.save_edb_as(legacy_path)
+                        break
+                    self.close_edb()
+                    self.open_edb(legacy_path)
+                    expansion_size += delta_expansion
+            else:
+                result = self._create_cutout_multithread(
+                    signal_list=signal_list,
+                    reference_list=reference_list,
+                    extent_type=extent_type,
+                    expansion_size=expansion_size,
+                    use_round_corner=use_round_corner,
+                    number_of_threads=number_of_threads,
+                    custom_extent=custom_extent,
+                    output_aedb_path=output_aedb_path,
+                    remove_single_pin_components=remove_single_pin_components,
+                    use_pyaedt_extent_computing=use_pyaedt_extent_computing,
+                    extent_defeature=extent_defeature,
+                    custom_extent_units=custom_extent_units,
+                    check_terminals=check_terminals,
+                )
             if result and not open_cutout_at_end:
                 self.save_edb()
                 self.close_edb()
@@ -2922,18 +2956,20 @@ class Edb(object):
         >>> edb.cutout(["Net1"])
         >>> assert edb.are_port_reference_terminals_connected()
         """
+        all_sources = [i for i in self.excitations.values()]
+        all_sources.extend([i for i in self.sources.values()])
+        if not all_sources:
+            return True
         self.logger.reset_timer()
         if not common_reference:
-            common_reference = list(
-                set([i.reference_net_name for i in self.excitations.values() if i.reference_net_name])
-            )
+            common_reference = list(set([i.reference_net_name for i in all_sources if i.reference_net_name]))
             if len(common_reference) > 1:
                 self.logger.error("More than 1 reference found.")
             common_reference = common_reference[0]
         setList = [
             set(i.reference_object.get_connected_object_id_set())
-            for i in self.excitations.values()
-            if i.reference_net_name == common_reference
+            for i in all_sources
+            if i.reference_object and i.reference_net_name == common_reference
         ]
 
         # Get the set intersections for all the ID sets.

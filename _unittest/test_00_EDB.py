@@ -727,6 +727,7 @@ class TestClass(BasisTest, object):
         )
         edbapp.components.create_port_on_component("U2A5", ["VREF"], reference_net="GND")
         edbapp.hfss.create_voltage_source_on_net("U1B5", "VREF", "U1B5", "GND")
+        legacy_name = edbapp.edbpath
         assert edbapp.cutout(
             signal_list=["V3P3_S0", "VREF"],
             reference_list=["GND"],
@@ -734,8 +735,10 @@ class TestClass(BasisTest, object):
             extent_type="ConvexHull",
             use_pyaedt_extent_computing=True,
             check_terminals=True,
+            delta_expansion=0.002,
         )
-        assert edbapp.are_port_reference_terminals_connected(common_reference=["GND"])
+        assert edbapp.edbpath == legacy_name
+        assert edbapp.are_port_reference_terminals_connected(common_reference="GND")
 
         edbapp.close_edb()
 
