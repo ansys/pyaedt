@@ -585,12 +585,12 @@ class TestClass(BasisTest, object):
 
     def test_27b_object_suppress(self):
         box = self.aedtapp.modeler.get_object_from_name("box_history1")
-        assert box_history.suppress_all(self.aedtapp)
-        assert box_history.unsuppress_all(self.aedtapp)
+        assert box.history().suppress_all(self.aedtapp)
+        assert box.history().unsuppress_all(self.aedtapp)
 
     def test_27c_object_jsonalize(self):
         box = self.aedtapp.modeler.get_object_from_name("box_history1")
-        assert box_history.jsonalize_tree()
+        assert box.history().jsonalize_tree()
 
     def test_28_set_object_history_properties(self):
         history = self.aedtapp.modeler["box_history1"].history()
