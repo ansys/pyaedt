@@ -2512,7 +2512,7 @@ class GeometryModeler(Modeler, object):
         if return_list:
             return objnames
         else:
-            return ",".join(objnames)
+            return ",".join([str(i) for i in objnames])
 
     @pyaedt_function_handler()
     def split(self, objects, plane, sides="Both"):

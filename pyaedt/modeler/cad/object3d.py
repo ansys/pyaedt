@@ -1060,6 +1060,7 @@ class Object3d(object):
                 vOut = ["NAME:AllTabs", vGeo3d]
                 _retry_ntimes(10, self._primitives.oeditor.ChangeProperty, vOut)
                 self._m_name = obj_name
+                self._primitives.add_new_objects()
                 self._primitives.cleanup_objects()
         else:
             pass
