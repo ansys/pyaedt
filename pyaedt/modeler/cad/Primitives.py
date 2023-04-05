@@ -1386,7 +1386,7 @@ class Primitives(object):
         """
         obj_dict = {}
         for _, v in self.objects.items():
-            obj_dict[v.self._m_name] = v
+            obj_dict[v._m_name] = v
         return v
 
     @pyaedt_function_handler()
@@ -1405,7 +1405,6 @@ class Primitives(object):
 
         """
         new_object_dict = {}
-        new_object_by_name_dict = {}
         new_object_id_dict = {}
         new_points_dict = {}
 
