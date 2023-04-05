@@ -169,7 +169,7 @@ class Components(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`]
+        Dict[str, :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`]
             Default dictionary for the EDB component.
 
         Examples
@@ -777,7 +777,7 @@ class Components(object):
 
         """
         if isinstance(component, str):
-            component = self.components[component].edbcomponent
+            component = self.instances[component].edbcomponent
         if not isinstance(net_list, list):
             net_list = [net_list]
         for net in net_list:

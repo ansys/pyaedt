@@ -719,14 +719,24 @@ class TestClass(BasisTest, object):
         self.local_scratch.copyfolder(source_path, target_path)
 
         edbapp = Edb(target_path, edbversion=desktop_version)
-
+        edbapp.components.create_port_on_component(
+            "U2A5",
+            ["V3P3_S0"],
+            reference_net="GND",
+            port_type=SourceType.CircPort,
+        )
+        edbapp.components.create_port_on_component("U2A5", ["VREF"], reference_net="GND")
+        edbapp.hfss.create_voltage_source_on_net("U1B5", "VREF", "U1B5", "GND")
         assert edbapp.cutout(
-            signal_list=["V3P3_S0"],
+            signal_list=["V3P3_S0", "VREF"],
             reference_list=["GND"],
             number_of_threads=4,
             extent_type="ConvexHull",
             use_pyaedt_extent_computing=True,
+            check_terminals=True,
         )
+        assert edbapp.are_port_reference_terminals_connected(common_reference=["GND"])
+
         edbapp.close_edb()
 
     def test_066_rvalue(self):

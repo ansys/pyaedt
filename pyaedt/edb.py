@@ -42,6 +42,7 @@ from pyaedt.edb_core.padstack import EdbPadstacks
 from pyaedt.edb_core.stackup import Stackup
 from pyaedt.generic.clr_module import Convert
 from pyaedt.generic.clr_module import List
+from pyaedt.generic.clr_module import Tuple
 from pyaedt.generic.clr_module import _clr
 from pyaedt.generic.clr_module import edb_initialized
 from pyaedt.generic.constants import SolverType
@@ -753,7 +754,7 @@ class Edb(object):
 
         Returns
         -------
-        Instance of :class:`pyaedt.edb_core.Components.Components`
+        :class:`pyaedt.edb_core.Components.Components`
 
         Examples
         --------
@@ -935,7 +936,7 @@ class Edb(object):
 
         Returns
         -------
-        Instance of :class:`pyaedt.edb_core.hfss.EdbHfss`
+        :class:`pyaedt.edb_core.hfss.EdbHfss`
 
         Examples
         --------
@@ -1317,10 +1318,14 @@ class Edb(object):
         expansion_size,
         use_round_corner,
         use_pyaedt_extent=False,
+        smart_cut=False,
+        reference_list=[],
     ):
         if extent_type in ["Conforming", self.edb.Geometry.ExtentType.Conforming, 1]:
             if use_pyaedt_extent:
-                _poly = self._create_conformal(net_signals, expansion_size, 1e-12, use_round_corner, expansion_size)
+                _poly = self._create_conformal(
+                    net_signals, expansion_size, 1e-12, use_round_corner, expansion_size, smart_cut, reference_list
+                )
             else:
                 _poly = self.active_layout.GetExpandedExtentFromNets(
                     net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
@@ -1331,7 +1336,9 @@ class Edb(object):
             )
         else:
             if use_pyaedt_extent:
-                _poly = self._create_convex_hull(net_signals, expansion_size, 1e-12, use_round_corner, expansion_size)
+                _poly = self._create_convex_hull(
+                    net_signals, expansion_size, 1e-12, use_round_corner, expansion_size, smart_cut, reference_list
+                )
             else:
                 _poly = self.active_layout.GetExpandedExtentFromNets(
                     net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
@@ -1341,7 +1348,16 @@ class Edb(object):
         return _poly
 
     @pyaedt_function_handler()
-    def _create_conformal(self, net_signals, expansion_size, tolerance, round_corner, round_extension):
+    def _create_conformal(
+        self,
+        net_signals,
+        expansion_size,
+        tolerance,
+        round_corner,
+        round_extension,
+        smart_cutout=False,
+        reference_list=[],
+    ):
         names = []
         _polys = []
         for net in net_signals:
@@ -1353,11 +1369,46 @@ class Edb(object):
                 )
                 if obj_data:
                     _polys.extend(list(obj_data))
+        if smart_cutout:
+            _polys.extend(self._smart_cut(net_signals, reference_list))
         _poly = self.edb.Geometry.PolygonData.Unite(convert_py_list_to_net_list(_polys))[0]
         return _poly
 
     @pyaedt_function_handler()
-    def _create_convex_hull(self, net_signals, expansion_size, tolerance, round_corner, round_extension):
+    def _smart_cut(self, net_signals, reference_list=[]):
+        _polys = []
+        terms = [term for term in list(self.active_layout.Terminals) if int(term.GetBoundaryType()) in [0, 3, 4, 7, 8]]
+        locations = []
+        for term in terms:
+            if term.GetTerminalType().ToString() == "PadstackInstanceTerminal":
+                if term.GetParameters()[1].GetNet().GetName() in reference_list:
+                    locations.append(self.padstacks.instances[term.GetParameters()[1].GetId()].position)
+            elif term.GetTerminalType().ToString() == "PointTerminal" and term.GetNet().GetName() in reference_list:
+                pd = term.GetParameters()[1]
+                locations.append([pd.X.ToDouble(), pd.Y.ToDouble()])
+        for pingroup in self.padstacks.pingroups:
+            for pin in list(pingroup.GetPins()):
+                if pin.GetNet().GetName() in reference_list:
+                    locations.append(self.padstacks.instances[pin.GetId()].position)
+        for point in locations:
+            pointA = self.edb.Geometry.PointData(self.edb_value(point[0] - 1e-12), self.edb_value(point[1] - 1e-12))
+            pointB = self.edb.Geometry.PointData(self.edb_value(point[0] + 1e-12), self.edb_value(point[1] + 1e-12))
+            points = Tuple[self.edb.Geometry.PointData, self.edb.Geometry.PointData](pointA, pointB)
+            _polys.append(self.edb.Geometry.PolygonData.CreateFromBBox(points))
+        for cname, c in self.components.instances.items():
+            if (
+                set(net_signals).intersection(c.nets)
+                and c.is_enabled
+                and c.model_type in ["SParameterModel", "SpiceModel", "NetlistModel"]
+            ):
+                for pin in c.pins:
+                    locations.append(pin.position)
+        return _polys
+
+    @pyaedt_function_handler()
+    def _create_convex_hull(
+        self, net_signals, expansion_size, tolerance, round_corner, round_extension, smart_cut=False, reference_list=[]
+    ):
         names = []
         _polys = []
         for net in net_signals:
@@ -1365,6 +1416,8 @@ class Edb(object):
         for prim in self.modeler.primitives:
             if prim.net_name in names:
                 _polys.append(prim.primitive_object.GetPolygonData())
+        if smart_cut:
+            _polys.extend(self._smart_cut(net_signals, reference_list))
         _poly = self.edb.Geometry.PolygonData.GetConvexHullOfPolygons(convert_py_list_to_net_list(_polys))
         _poly = _poly.Expand(expansion_size, tolerance, round_corner, round_extension)[0]
         return _poly
@@ -1388,6 +1441,7 @@ class Edb(object):
         custom_extent_units="mm",
         include_partial_instances=False,
         keep_voids=True,
+        check_terminals=False,
     ):
         """Create a cutout using an approach entirely based on pyaedt.
         This new method replaces all legacy cutout methods in pyaedt.
@@ -1425,7 +1479,7 @@ class Edb(object):
         extent_defeature : float, optional
             Defeature the cutout before applying it to produce simpler geometry for mesh (Experimental).
             It applies only to Conforming bounding box. Default value is ``0`` which disable it.
-         remove_single_pin_components : bool, optional
+        remove_single_pin_components : bool, optional
             Remove all Single Pin RLC after the cutout is completed. Default is `False`.
         custom_extent : list
             Points list defining the cutout shape. This setting will override `extent_type` field.
@@ -1438,6 +1492,9 @@ class Edb(object):
         keep_voids : bool
             Boolean used for keep or not the voids intersecting the polygon used for clipping the layout.
             Default value is ``True``, ``False`` will remove the voids.Valid only if `custom_extend` is provided.
+        check_terminals : bool, optional
+            Whether to check for all reference terminals and increase extent to include them into the cutout.
+            This applies to pingroups and components which have a model (spice, touchstone or netlist) associated.
 
         Returns
         -------
@@ -1491,6 +1548,7 @@ class Edb(object):
                 output_aedb_path=output_aedb_path,
                 open_cutout_at_end=open_cutout_at_end,
                 use_pyaedt_extent_computing=use_pyaedt_extent_computing,
+                check_terminals=check_terminals,
             )
         else:
             legacy_path = self.edbpath
@@ -1507,6 +1565,7 @@ class Edb(object):
                 use_pyaedt_extent_computing=use_pyaedt_extent_computing,
                 extent_defeature=extent_defeature,
                 custom_extent_units=custom_extent_units,
+                check_terminals=check_terminals,
             )
             if result and not open_cutout_at_end:
                 self.save_edb()
@@ -1527,6 +1586,7 @@ class Edb(object):
         open_cutout_at_end=True,
         use_pyaedt_extent_computing=False,
         remove_single_pin_components=False,
+        check_terminals=False,
     ):
         expansion_size = self.edb_value(expansion_size).ToDouble()
 
@@ -1545,6 +1605,8 @@ class Edb(object):
             expansion_size,
             use_round_corner,
             use_pyaedt_extent_computing,
+            smart_cut=check_terminals,
+            reference_list=reference_list,
         )
 
         # Create new cutout cell/design
@@ -1704,6 +1766,7 @@ class Edb(object):
         use_pyaedt_extent_computing=False,
         extent_defeature=0.0,
         custom_extent_units="mm",
+        check_terminals=False,
     ):
         if is_ironpython:  # pragma: no cover
             self.logger.error("Method working only in Cpython")
@@ -1761,7 +1824,13 @@ class Edb(object):
                 [net for net in list(self.active_layout.Nets) if net.GetName() in signal_list]
             )
             _poly = self._create_extent(
-                net_signals, extent_type, expansion_size, use_round_corner, use_pyaedt_extent_computing
+                net_signals,
+                extent_type,
+                expansion_size,
+                use_round_corner,
+                use_pyaedt_extent_computing,
+                smart_cut=check_terminals,
+                reference_list=reference_list,
             )
             if extent_type in ["Conforming", self.edb.Geometry.ExtentType.Conforming, 1] and extent_defeature > 0:
                 _poly = _poly.Defeature(extent_defeature)
