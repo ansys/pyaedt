@@ -1067,7 +1067,7 @@ class TestClass(BasisTest, object):
         new_obj = self.aedtapp.modeler.duplicate_along_line("Solid", [100, 0, 0])
         rad = self.aedtapp.assign_radiation_boundary_to_objects("Solid")
         obj1 = self.aedtapp.modeler[new_obj[1][0]]
-        exc = self.aedtapp.create_wave_port_from_sheet(obj1.faces[0])
+        exc = self.aedtapp.wave_port(obj1.faces[0])
         self.aedtapp["test_variable"] = "20mm"
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, "test_variable", 30])
         box2 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 100, 30])
