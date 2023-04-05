@@ -520,7 +520,9 @@ class Primitives(object):
 
         """
         o = self._resolve_object(obj)
-        o._update()
+        name = o.name
+        del self.objects[name]
+        o = self._create_object(name)
         return o
 
     @pyaedt_function_handler()
@@ -2842,7 +2844,10 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _get_commands(self, name):
-        return self.oeditor.GetChildObject(name).GetChildNames()
+        try:
+            return self.oeditor.GetChildObject(name).GetChildNames()
+        except:
+            return []
 
     @pyaedt_function_handler()
     def _create_user_defined_component(self, name):
