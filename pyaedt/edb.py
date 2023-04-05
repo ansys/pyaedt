@@ -1386,10 +1386,10 @@ class Edb(object):
             elif term.GetTerminalType().ToString() == "PointTerminal" and term.GetNet().GetName() in reference_list:
                 pd = term.GetParameters()[1]
                 locations.append([pd.X.ToDouble(), pd.Y.ToDouble()])
-        for pingroup in self.padstacks.pingroups:
-            for pin in list(pingroup.GetPins()):
-                if pin.GetNet().GetName() in reference_list:
-                    locations.append(self.padstacks.instances[pin.GetId()].position)
+        for reference in reference_list:
+            for pin in self.nets.nets[reference].padstack_instances:
+                if pin.pingroups:
+                    locations.append(pin.position)
         for point in locations:
             pointA = self.edb.Geometry.PointData(self.edb_value(point[0] - 1e-12), self.edb_value(point[1] - 1e-12))
             pointB = self.edb.Geometry.PointData(self.edb_value(point[0] + 1e-12), self.edb_value(point[1] + 1e-12))
@@ -1558,7 +1558,7 @@ class Edb(object):
             legacy_path = self.edbpath
             if delta_expansion > 0:
                 self.save_edb()
-                dummy_path = self.edbpath.replace(".aedb", "_cutout.aedb")
+                dummy_path = self.edbpath.replace(".aedb", "_smart_cutout_temp.aedb")
                 working_cutout = False
                 while not working_cutout:
                     result = self._create_cutout_multithread(
