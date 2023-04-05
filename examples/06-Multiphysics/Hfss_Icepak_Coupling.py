@@ -125,13 +125,13 @@ aedtapp.mesh.assign_length_mesh(names=o2.faces, isinside=False, maxlength=1, max
 
 aedtapp.wave_port(signal="inner",
                   reference="outer",
-                  integration_line_location=1,
+                  integration_line=1,
                   create_port_sheet=True,
                   add_pec_cap=True,
                   name="P1")
 aedtapp.wave_port(signal="inner",
                   reference="outer",
-                  integration_line_location=4,
+                  integration_line=4,
                   add_pec_cap=True,
                   create_port_sheet=True,
                   name="P2")

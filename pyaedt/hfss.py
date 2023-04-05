@@ -2194,7 +2194,7 @@ class Hfss(FieldAnalysis3D, object):
         return self.wave_port(
             signal=startobj,
             reference=endobject,
-            integration_line_location=axisdir,
+            integration_line=axisdir,
             create_port_sheet=True,
             impedance=impedance,
             num_modes=nummodes,
@@ -2643,7 +2643,7 @@ class Hfss(FieldAnalysis3D, object):
         return self.wave_port(
             signal=startobj,
             reference=endobject,
-            integration_line_location=axisdir,
+            integration_line=axisdir,
             create_port_sheet=True,
             impedance=impedance,
             num_modes=nummodes,
@@ -3210,7 +3210,7 @@ class Hfss(FieldAnalysis3D, object):
         return self.wave_port(
             signal=sheet,
             reference=terminal_references,
-            integration_line_location=axisdir,
+            integration_line=axisdir,
             create_port_sheet=False,
             impedance=impedance,
             num_modes=nummodes,
@@ -3292,7 +3292,7 @@ class Hfss(FieldAnalysis3D, object):
         return self.wave_port(
             signal=port_item,
             reference=terminal_references,
-            integration_line_location=[int_start, int_stop],
+            integration_line=[int_start, int_stop],
             create_port_sheet=True,
             impedance=impedance,
             num_modes=nummodes,
@@ -3361,7 +3361,7 @@ class Hfss(FieldAnalysis3D, object):
         return self.lumped_port(
             signal=sheet_name,
             reference=reference_object_list,
-            integration_line_location=axisdir,
+            integration_line=axisdir,
             create_port_sheet=False,
             impedance=impedance,
             name=portname,
@@ -6059,7 +6059,7 @@ class Hfss(FieldAnalysis3D, object):
         reference=None,
         create_port_sheet=False,
         port_on_plane=True,
-        integration_line_location=0,
+        integration_line=0,
         impedance=50,
         name=None,
         renormalize=True,
@@ -6076,7 +6076,7 @@ class Hfss(FieldAnalysis3D, object):
             Ending object for the integration line or reference for Terminal solution. Can be multiple objects.
         create_port_sheet : bool, optional
             Whether to create a port sheet or use given start_object as port shee.
-        integration_line_location : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
+        integration_line : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -6123,7 +6123,7 @@ class Hfss(FieldAnalysis3D, object):
                 self.logger.error("One or both objects do not exist. Check and retry.")
                 return False
             sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
-                signal, reference, integration_line_location, port_on_plane
+                signal, reference, integration_line, port_on_plane
             )
         else:
             if isinstance(signal, list):
@@ -6137,16 +6137,14 @@ class Hfss(FieldAnalysis3D, object):
                     self.logger.error("No Faces found on given location.")
                     return False
             sheet_name = self.modeler.convert_to_selections(signal, False)
-            if isinstance(integration_line_location, list):
-                if len(integration_line_location) != 2 or len(integration_line_location[0]) != len(
-                    integration_line_location[1]
-                ):
+            if isinstance(integration_line, list):
+                if len(integration_line) != 2 or len(integration_line[0]) != len(integration_line[1]):
                     self.logger.error("List of coordinates is not set correctly")
                     return False
-                point0 = integration_line_location[0]
-                point1 = integration_line_location[1]
+                point0 = integration_line[0]
+                point1 = integration_line[1]
             else:
-                point0, point1 = self.modeler.get_mid_points_on_dir(sheet_name, integration_line_location)
+                point0, point1 = self.modeler.get_mid_points_on_dir(sheet_name, integration_line)
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             name = self._get_unique_source_name(name, "Port")
 
@@ -6176,7 +6174,7 @@ class Hfss(FieldAnalysis3D, object):
         reference=None,
         create_port_sheet=False,
         create_pec_cap=False,
-        integration_line_location=0,
+        integration_line=0,
         port_on_plane=True,
         num_modes=1,
         impedance=50,
@@ -6200,7 +6198,7 @@ class Hfss(FieldAnalysis3D, object):
             Whether to create a port sheet or use given start_object as port shee.
         create_pec_cap : bool, False
             Whether to create a port cap or not.
-        integration_line_location : list or int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
+        integration_line : list or int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the integration. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``
             The default is ``Application.AxisDir.XNeg``.
@@ -6250,7 +6248,7 @@ class Hfss(FieldAnalysis3D, object):
         ...                               name="GND1", matname="FR4_epoxy")
         >>> port = hfss.wave_port("GND1", "MS1",
         ...                       name="MS1",
-        ...                        integration_line_location=1)
+        ...                        integration_line=1)
         pyaedt INFO: Connection correctly created.
 
         """
@@ -6262,11 +6260,11 @@ class Hfss(FieldAnalysis3D, object):
                 return False
             if is_microstrip:
                 sheet_name, int_start, int_stop = self.modeler._create_microstrip_sheet_from_object_closest_edge(
-                    signal, reference, integration_line_location, vfactor, hfactor
+                    signal, reference, integration_line, vfactor, hfactor
                 )
             else:
                 sheet_name, int_start, int_stop = self.modeler._create_sheet_from_object_closest_edge(
-                    signal, reference, integration_line_location, port_on_plane
+                    signal, reference, integration_line, port_on_plane
                 )
         else:
             if isinstance(signal, list):
@@ -6287,19 +6285,17 @@ class Hfss(FieldAnalysis3D, object):
                     oname = ""
             if reference:
                 reference = self.modeler.convert_to_selections(reference, True)
-            if integration_line_location:
-                if isinstance(integration_line_location, list):
-                    if len(integration_line_location) != 2 or len(integration_line_location[0]) != len(
-                        integration_line_location[1]
-                    ):
+            if integration_line:
+                if isinstance(integration_line, list):
+                    if len(integration_line) != 2 or len(integration_line[0]) != len(integration_line[1]):
                         self.logger.error("List of coordinates is not set correctly")
                         return False
-                    int_start = integration_line_location[0]
-                    int_stop = integration_line_location[1]
+                    int_start = integration_line[0]
+                    int_stop = integration_line[1]
                 else:
                     try:
                         _, int_start, int_stop = self._get_reference_and_integration_points(
-                            sheet_name, integration_line_location, oname
+                            sheet_name, integration_line, oname
                         )
                     except (IndexError, TypeError):
                         int_start = int_stop = None

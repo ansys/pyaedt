@@ -102,7 +102,7 @@ class TestClass(BasisTest, object):
         port = self.aedtapp.wave_port(
             signal=o5,
             deembed=5,
-            integration_line_location=self.aedtapp.AxisDir.XNeg,
+            integration_line=self.aedtapp.AxisDir.XNeg,
             impedance=40,
             num_modes=2,
             name="sheet1_Port",
@@ -118,7 +118,7 @@ class TestClass(BasisTest, object):
         port = self.aedtapp.wave_port(
             signal=o6,
             deembed=0,
-            integration_line_location=self.aedtapp.AxisDir.XNeg,
+            integration_line=self.aedtapp.AxisDir.XNeg,
             impedance=40,
             num_modes=2,
             name="sheet1a_Port",
@@ -135,7 +135,7 @@ class TestClass(BasisTest, object):
         port = self.aedtapp.wave_port(
             signal=o6,
             deembed=5,
-            integration_line_location=self.aedtapp.AxisDir.XPos,
+            integration_line=self.aedtapp.AxisDir.XPos,
             impedance=40,
             num_modes=2,
             name="sheet2_Port",
@@ -151,7 +151,7 @@ class TestClass(BasisTest, object):
         ports = self.aedtapp.wave_port(
             signal=rect,
             deembed=5,
-            integration_line_location=self.aedtapp.AxisDir.ZNeg,
+            integration_line=self.aedtapp.AxisDir.ZNeg,
             impedance=30,
             num_modes=1,
             name="sheet3_Port",
@@ -343,7 +343,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.wave_port(
             signal="box_sweep",
             reference="box_sweep2",
-            integration_line_location=self.aedtapp.AxisDir.XNeg,
+            integration_line=self.aedtapp.AxisDir.XNeg,
             create_port_sheet=True,
             impedance=75,
             num_modes=1,
@@ -369,7 +369,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.wave_port(
             signal="box_sweep3",
             reference="box_sweep4",
-            integration_line_location=self.aedtapp.AxisDir.XNeg,
+            integration_line=self.aedtapp.AxisDir.XNeg,
             create_port_sheet=True,
             impedance=50,
             num_modes=1,
@@ -488,7 +488,7 @@ class TestClass(BasisTest, object):
         port = self.aedtapp.wave_port(
             signal="BoxWG1",
             reference="BoxWG2",
-            integration_line_location=self.aedtapp.AxisDir.XNeg,
+            integration_line=self.aedtapp.AxisDir.XNeg,
             create_port_sheet=True,
             impedance=50,
             num_modes=1,
@@ -499,7 +499,7 @@ class TestClass(BasisTest, object):
         port2 = self.aedtapp.wave_port(
             signal="BoxWG1",
             reference="BoxWG2",
-            integration_line_location=self.aedtapp.AxisDir.XPos,
+            integration_line=self.aedtapp.AxisDir.XPos,
             create_port_sheet=True,
             impedance=25,
             num_modes=2,
@@ -513,7 +513,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.wave_port(
             signal="BoxWG1",
             reference="BoxWG2",
-            integration_line_location=self.aedtapp.AxisDir.XPos,
+            integration_line=self.aedtapp.AxisDir.XPos,
             create_port_sheet=True,
             impedance=25,
             num_modes=2,
@@ -525,7 +525,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.wave_port(
             signal="BoxWG1",
             reference="BoxWG2",
-            integration_line_location=self.aedtapp.AxisDir.XPos,
+            integration_line=self.aedtapp.AxisDir.XPos,
             create_port_sheet=True,
             impedance=25,
             num_modes=2,
@@ -545,7 +545,7 @@ class TestClass(BasisTest, object):
         port1 = self.aedtapp.wave_port(
             signal=o1.name,
             reference=o3.name,
-            integration_line_location=self.aedtapp.AxisDir.XNeg,
+            integration_line=self.aedtapp.AxisDir.XNeg,
             create_port_sheet=True,
             create_pec_cap=True,
             name="P1",
@@ -560,7 +560,7 @@ class TestClass(BasisTest, object):
         port = self.aedtapp.lumped_port(
             signal="BoxLumped1",
             reference="BoxLumped2",
-            integration_line_location=self.aedtapp.AxisDir.XNeg,
+            integration_line=self.aedtapp.AxisDir.XNeg,
             create_port_sheet=True,
             impedance=50,
             renormalize=True,
@@ -569,7 +569,7 @@ class TestClass(BasisTest, object):
         assert not self.aedtapp.lumped_port(
             signal="BoxLumped1111",
             reference="BoxLumped2",
-            integration_line_location=self.aedtapp.AxisDir.XNeg,
+            integration_line=self.aedtapp.AxisDir.XNeg,
             create_port_sheet=True,
             impedance=50,
             renormalize=True,
@@ -579,7 +579,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.lumped_port(
             signal="BoxLumped1",
             reference="BoxLumped2",
-            integration_line_location=self.aedtapp.AxisDir.XPos,
+            integration_line=self.aedtapp.AxisDir.XPos,
             create_port_sheet=True,
             impedance=50,
         )
@@ -590,7 +590,7 @@ class TestClass(BasisTest, object):
         port = self.aedtapp.lumped_port(
             signal="BoxLumped1",
             reference="BoxLumped2",
-            integration_line_location=self.aedtapp.AxisDir.XNeg,
+            integration_line=self.aedtapp.AxisDir.XNeg,
             create_port_sheet=True,
             impedance=50,
             renormalize=False,
@@ -709,7 +709,7 @@ class TestClass(BasisTest, object):
         )
         port = self.aedtapp.lumped_port(
             signal=rect.name,
-            integration_line_location=self.aedtapp.AxisDir.XNeg,
+            integration_line=self.aedtapp.AxisDir.XNeg,
             create_port_sheet=False,
             impedance=50,
             renormalize=True,
@@ -719,7 +719,7 @@ class TestClass(BasisTest, object):
         assert port.name + ":1" in self.aedtapp.excitations
         port2 = self.aedtapp.lumped_port(
             signal=rect.name,
-            integration_line_location=self.aedtapp.AxisDir.XNeg,
+            integration_line=self.aedtapp.AxisDir.XNeg,
             create_port_sheet=False,
             impedance=50,
             renormalize=True,
@@ -730,7 +730,7 @@ class TestClass(BasisTest, object):
         assert port2.name + ":1" in self.aedtapp.excitations
         port3 = self.aedtapp.lumped_port(
             signal=rect.name,
-            integration_line_location=[rect.bottom_edge_x.midpoint, rect.bottom_edge_y.midpoint],
+            integration_line=[rect.bottom_edge_x.midpoint, rect.bottom_edge_y.midpoint],
             create_port_sheet=False,
             impedance=50,
             renormalize=True,
@@ -741,7 +741,7 @@ class TestClass(BasisTest, object):
         assert port3.name + ":1" in self.aedtapp.excitations
         assert not self.aedtapp.lumped_port(
             signal=rect.name,
-            integration_line_location=[rect.bottom_edge_x.midpoint],
+            integration_line=[rect.bottom_edge_x.midpoint],
             create_port_sheet=False,
             impedance=50,
             renormalize=True,
@@ -937,7 +937,7 @@ class TestClass(BasisTest, object):
         port = self.aedtapp.wave_port(
             signal=gnd.name,
             reference=ms.name,
-            integration_line_location=1,
+            integration_line=1,
             create_port_sheet=True,
             is_microstrip=True,
             name="MS1",
@@ -948,7 +948,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.wave_port(
             signal=gnd.name,
             reference=ms.name,
-            integration_line_location=1,
+            integration_line=1,
             create_port_sheet=True,
             is_microstrip=True,
             name="MS2",
@@ -956,7 +956,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.wave_port(
             signal=gnd.name,
             reference=ms.name,
-            integration_line_location=1,
+            integration_line=1,
             create_port_sheet=True,
             is_microstrip=True,
             name="MS3",
@@ -1128,7 +1128,7 @@ class TestClass(BasisTest, object):
         port = self.aedtapp.lumped_port(
             signal=box1,
             reference=box2.name,
-            integration_line_location=self.aedtapp.AxisDir.XNeg,
+            integration_line=self.aedtapp.AxisDir.XNeg,
             create_port_sheet=True,
             impedance=75,
             renormalize=True,
@@ -1139,7 +1139,7 @@ class TestClass(BasisTest, object):
         port2 = self.aedtapp.lumped_port(
             signal=sheet.name,
             reference=box1,
-            integration_line_location=self.aedtapp.AxisDir.XNeg,
+            integration_line=self.aedtapp.AxisDir.XNeg,
             create_port_sheet=False,
             impedance=33,
             renormalize=True,
@@ -1149,7 +1149,7 @@ class TestClass(BasisTest, object):
         port3 = self.aedtapp.lumped_port(
             signal=box1,
             reference=box2.name,
-            integration_line_location=self.aedtapp.AxisDir.XNeg,
+            integration_line=self.aedtapp.AxisDir.XNeg,
             create_port_sheet=True,
             impedance=50,
             renormalize=False,

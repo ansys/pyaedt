@@ -97,7 +97,7 @@ p.create_rectangle(csPlane=pyaedt.constants.PLANE.YZ,
                    dimension_list=(width, -Tsub + gap),
                    name="port1"
                    )
-hfss.lumped_port(signal="port1", integration_line_location=pyaedt.constants.AXIS.Z)
+hfss.lumped_port(signal="port1", integration_line=pyaedt.constants.AXIS.Z)
 
 ################################################################
 # Create port 2
@@ -106,7 +106,7 @@ hfss.lumped_port(signal="port1", integration_line_location=pyaedt.constants.AXIS
 
 create_line([(x1 + width / 2, y1, 0), (x1 - 5, y1, 0)])
 p.create_rectangle(pyaedt.constants.PLANE.YZ, (x1 - 5, y1 - width / 2, -thickness / 2), (width, -Tsub), name="port2")
-hfss.lumped_port(signal="port2", integration_line_location=pyaedt.constants.AXIS.Z)
+hfss.lumped_port(signal="port2", integration_line=pyaedt.constants.AXIS.Z)
 
 ################################################################
 # Create silicon substrate and ground plane

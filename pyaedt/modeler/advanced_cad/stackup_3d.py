@@ -2391,7 +2391,7 @@ class Patch(CommonObject, object):
         if self.application.solution_type == "Modal":
             if axisdir is None:
                 axisdir = self.application.AxisDir.ZPos
-            port = self.application.lumped_port(rect.name, name=port_name, integration_line_location=axisdir)
+            port = self.application.lumped_port(rect.name, name=port_name, integration_line=axisdir)
         elif self.application.solution_type == "Terminal":
             port = self.application.lumped_port(rect.name, name=port_name, reference=[reference_layer.name])
         return port
