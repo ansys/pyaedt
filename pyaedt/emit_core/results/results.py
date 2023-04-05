@@ -148,7 +148,7 @@ class Results:
         Parameters
         ----------
         revision_name : str
-            Revision to load. If revision_name = None, the 
+            Revision to load. If revision_name = None, the
             latest revision will be returned.
 
         Returns
@@ -161,7 +161,7 @@ class Results:
         >>> rev = aedtapp.results.get_revision("Revision 15")
         >>> interferers = rev.get_interferer_names()
         >>> receivers = rev.get_receiver_names()
-        """        
+        """
         # no revisions to load, create a new one
         if len(self.revisions) == 0:
             return self.analyze()
@@ -181,7 +181,7 @@ class Results:
             else:
                 warnings.warn("{} not found.".format(revision_name))
         return self.current_revision
-    
+
     @pyaedt_function_handler()
     def analyze(self):
         """

@@ -309,7 +309,7 @@ class Revision:
             freqs = None
             self.result_mode_error()
         return freqs
-    
+
     @pyaedt_function_handler
     def set_notes(self, notes):
         """
@@ -318,7 +318,7 @@ class Revision:
         Parameters
         ----------
         notes : str
-            Notes to add to the revision.        
+            Notes to add to the revision.
 
         Returns
         -------
@@ -340,12 +340,12 @@ class Revision:
 
         Parameters
         ----------
-        None  
+        None
 
         Returns
         -------
         notes : str
-            Notes to add to the revision.     
+            Notes to add to the revision.
 
         Examples
         ----------
