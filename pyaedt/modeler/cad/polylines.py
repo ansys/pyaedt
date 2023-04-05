@@ -385,7 +385,7 @@ class Polyline(Object3d):
         segments = []
         points = []
         try:
-            history = self.history
+            history = self.history()
             h_segments = history.segments
         except:  # pragma: no cover
             history = None

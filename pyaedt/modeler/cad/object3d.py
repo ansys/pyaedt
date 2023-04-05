@@ -1304,7 +1304,7 @@ class Object3d(object):
         self._change_property(vWireframe)
         self._wireframe = fWireframe
 
-    @property
+    @pyaedt_function_handler()
     def history(self):
         """Object history.
 

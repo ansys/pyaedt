@@ -1331,6 +1331,7 @@ class Line3dLayout(Geometries3DLayout, object):
     def __init__(self, primitives, name, is_void=False):
         Geometries3DLayout.__init__(self, primitives, name, "line", is_void)
         self._points = []
+        self._center_line = {}
 
     @property
     def bend_type(self):
@@ -1442,15 +1443,15 @@ class Line3dLayout(Geometries3DLayout, object):
             Points.
         """
         props = [i for i in list(self.m_Editor.GetProperties("BaseElementTab", self.name)) if i.startswith("Pt")]
-        points = {}
+        self._center_line = {}
         for i in props:
-            points[i] = [
+            self._center_line[i] = [
                 i.strip()
                 for i in _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, i).split(
                     ","
                 )
             ]
-        return points
+        return self._center_line
 
     @center_line.setter
     def center_line(self, points):
@@ -1458,6 +1459,7 @@ class Line3dLayout(Geometries3DLayout, object):
         for point_name, value in points.items():
             vpoint = ["NAME:{}".format(point_name), "X:=", _dim_arg(value[0], u), "Y:=", _dim_arg(value[1], u)]
             self.change_property(vpoint)
+        self._center_line = {}
 
 
 class Points3dLayout(object):

@@ -549,31 +549,32 @@ class TestClass(BasisTest, object):
         box_subtract = box_clone.subtract(cylinder)
         box_subtract.rotate(cs_axis="Y", angle=180)
         box_subtract.split("XY")
-
-        assert box.history.node == "box_history"
-        assert box.history.command == "CreateBox"
-        assert box.history.props["Command"] == "CreateBox"
-        assert box.history.children == {}
-        assert box_clone.history.node == "box_history1"
-        assert box_clone.history.command == box.history.command
-        assert box_clone.history.props["Command"] == box.history.props["Command"]
-        assert box_clone.history.props["Position/X"] == box.history.props["Position/X"]
-        assert box_clone.history.props["Position/Y"] == box.history.props["Position/Y"]
-        assert box_clone.history.props["Position/Z"] == box.history.props["Position/Z"]
-        assert box_clone.history.props["XSize"] == box.history.props["XSize"]
-        assert box_clone.history.props["YSize"] == box.history.props["YSize"]
-        assert box_clone.history.props["ZSize"] == box.history.props["ZSize"]
-        assert len(box_clone.history.children) == 3
-        assert "Subtract:1" in box_clone.history.children.keys()
-        assert "Rotate:1" in box_clone.history.children.keys()
-        assert "SplitEdit:1" in box_clone.history.children.keys()
-        assert box_clone.history.children["Subtract:1"].command == "Subtract"
-        assert box_clone.history.children["Rotate:1"].command == "Rotate"
-        assert box_clone.history.children["SplitEdit:1"].command == "SplitEdit"
+        box_history = box.history()
+        box_clone_history = box_clone.history()
+        assert box_history.node == "box_history"
+        assert box_history.command == "CreateBox"
+        assert box_history.props["Command"] == "CreateBox"
+        assert box_history.children == {}
+        assert box_clone_history.node == "box_history1"
+        assert box_clone_history.command == box_history.command
+        assert box_clone_history.props["Command"] == box_history.props["Command"]
+        assert box_clone_history.props["Position/X"] == box_history.props["Position/X"]
+        assert box_clone_history.props["Position/Y"] == box_history.props["Position/Y"]
+        assert box_clone_history.props["Position/Z"] == box_history.props["Position/Z"]
+        assert box_clone_history.props["XSize"] == box_history.props["XSize"]
+        assert box_clone_history.props["YSize"] == box_history.props["YSize"]
+        assert box_clone_history.props["ZSize"] == box_history.props["ZSize"]
+        assert len(box_clone_history.children) == 3
+        assert "Subtract:1" in box_clone_history.children.keys()
+        assert "Rotate:1" in box_clone_history.children.keys()
+        assert "SplitEdit:1" in box_clone_history.children.keys()
+        assert box_clone_history.children["Subtract:1"].command == "Subtract"
+        assert box_clone_history.children["Rotate:1"].command == "Rotate"
+        assert box_clone_history.children["SplitEdit:1"].command == "SplitEdit"
         project_path = self.aedtapp.project_file
         self.aedtapp.close_project(save_project=True)
         self.aedtapp.load_project(project_path)
-        subtract = self.aedtapp.modeler["box_history1"].history.children["Subtract:1"].children
+        subtract = self.aedtapp.modeler["box_history1"].history().children["Subtract:1"].children
         assert len(subtract) == 1
         for key in subtract.keys():
             assert subtract[key].command == subtract[key].props["Command"]
@@ -584,21 +585,22 @@ class TestClass(BasisTest, object):
 
     def test_27b_object_suppress(self):
         box = self.aedtapp.modeler.get_object_from_name("box_history1")
-        assert box.history.suppress_all(self.aedtapp)
-        assert box.history.unsuppress_all(self.aedtapp)
+        assert box_history.suppress_all(self.aedtapp)
+        assert box_history.unsuppress_all(self.aedtapp)
 
     def test_27c_object_jsonalize(self):
         box = self.aedtapp.modeler.get_object_from_name("box_history1")
-        assert box.history.jsonalize_tree()
+        assert box_history.jsonalize_tree()
 
     def test_28_set_object_history_properties(self):
-        assert self.aedtapp.modeler["box_history1"].history.props["Position/X"] == "10meter"
-        self.aedtapp.modeler["box_history1"].history.props["Position/X"] = "15meter"
-        assert self.aedtapp.modeler["box_history1"].history.props["Position/X"] == "15meter"
-        assert self.aedtapp.modeler["box_history1"].history.props["ZSize"] == "15meter"
-        self.aedtapp.modeler["box_history1"].history.props["ZSize"] = "10meter"
-        assert self.aedtapp.modeler["box_history1"].history.props["ZSize"] == "10meter"
-        subtract = self.aedtapp.modeler["box_history1"].history.children["Subtract:1"].children
+        history = self.aedtapp.modeler["box_history1"].history()
+        assert history.props["Position/X"] == "10meter"
+        history.props["Position/X"] = "15meter"
+        assert history.props["Position/X"] == "15meter"
+        assert history.props["ZSize"] == "15meter"
+        history.props["ZSize"] = "10meter"
+        assert history.props["ZSize"] == "10meter"
+        subtract = history.children["Subtract:1"].children
         for key in subtract.keys():
             subtract_child = subtract[key].children
             for child in subtract_child.keys():
