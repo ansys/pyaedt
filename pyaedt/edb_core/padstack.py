@@ -661,7 +661,7 @@ class EdbPadstacks(object):
             Ending layer. The default is ``None``, in which case the bottom
             is the ending layer.
         pad_shape : str, optional
-            SHape of the pad. The default is ``"Circle``. Options are ``"Circle"`` and ``"Rectangle"``.
+            Shape of the pad. The default is ``"Circle``. Options are ``"Circle"`` and ``"Rectangle"``.
         antipad_shape : str, optional
             Shape of the antipad. The default is ``"Circle"``. Options are ``"Circle"`` and ``"Bullet"``.
         x_size : str, optional
