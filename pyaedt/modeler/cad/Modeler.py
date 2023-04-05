@@ -1099,7 +1099,7 @@ class Lists(PropsManager, object):
                         object_list_new.append(int(element))
                     else:
                         if element in self._modeler.object_names:
-                            obj_id = self._modeler.object_id_dict[element]
+                            obj_id = self._modeler._object_id_to_names[element]
                             for sel in self._modeler.object_list:
                                 if sel.id == obj_id:
                                     for f in sel.faces:
@@ -1181,6 +1181,15 @@ class GeometryModeler(Modeler, object):
         self._user_lists = None
         self._planes = None
         self._is3d = is3d
+        self._solids = []
+        self._sheets = []
+        self._lines = []
+        self._points = []
+        self._unclassified = []
+        self._all_object_names = []
+        self.objects = {}
+        self.user_defined_components = {}
+        self._object_id_to_names = {}
 
     @property
     def coordinate_systems(self):
@@ -1224,46 +1233,6 @@ class GeometryModeler(Modeler, object):
 
         """
         return self._app.materials
-
-    @pyaedt_function_handler()
-    def _convert_list_to_ids(self, input_list, convert_objects_ids_to_name=True):
-        """Convert a list to IDs.
-
-        .. deprecated:: 0.5.0
-           Use :func:`pyaedt.application.modeler.convert_to_selections` instead.
-
-        Parameters
-        ----------
-        input_list : list
-           List of object IDs.
-        convert_objects_ids_to_name : bool, optional
-             Whether to convert the object IDs to object names.
-             The default is ``True``.
-
-        Returns
-        -------
-        list
-            List of object names.
-
-        """
-        warnings.warn("`_convert_list_to_ids` is deprecated. Use `convert_to_selections` instead.", DeprecationWarning)
-
-        output_list = []
-        if type(input_list) is not list:
-            input_list = [input_list]
-        for el in input_list:
-            if type(el) is Object3d:
-                output_list = [i.name for i in input_list]
-            elif type(el) is EdgePrimitive or type(el) is FacePrimitive or type(el) is VertexPrimitive:
-                output_list = [i.id for i in input_list]
-            elif type(el) is int and convert_objects_ids_to_name:
-                if el in list(self.objects.keys()):
-                    output_list.append(self.objects[el].name)
-                else:
-                    output_list.append(el)
-            else:
-                output_list.append(el)
-        return output_list
 
     def _get_coordinates_data(self):
         coord = []
@@ -2526,15 +2495,11 @@ class GeometryModeler(Modeler, object):
            Name of the objects corresponding to the one or more object IDs passed as arguments.
 
         """
-        if "netref.builtins.list" in str(type(object_id)):
-            list_new = []
-            for i in range(len(object_id)):
-                list_new.append(object_id[i])
-        elif not isinstance(object_id, list):
+        if not isinstance(object_id, list):
             object_id = [object_id]
         objnames = []
         for el in object_id:
-            if isinstance(el, int) and el in list(self.objects.keys()):
+            if isinstance(el, int) and el in self.objects:
                 objnames.append(self.objects[el].name)
             elif isinstance(el, int):
                 objnames.append(el)
@@ -2544,8 +2509,6 @@ class GeometryModeler(Modeler, object):
                 objnames.append(el.id)
             elif isinstance(el, str):
                 objnames.append(el)
-            else:
-                return False
         if return_list:
             return objnames
         else:
@@ -4388,7 +4351,7 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.GetEdgeIDsFromObject
         """
-        for object in list(self.object_id_dict.keys()):
+        for object in list(self._object_id_to_names.keys()):
             try:
                 oEdgeIDs = self.oeditor.GetEdgeIDsFromObject(object)
                 if str(edge_id) in oEdgeIDs:

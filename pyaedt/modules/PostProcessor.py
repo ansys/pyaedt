@@ -3564,12 +3564,9 @@ class PostProcessor(PostProcessorCommon, object):
         face_lists = []
         obj_list = self._app.modeler.object_names
         for el in obj_list:
-            obj_id = self._app.modeler.get_obj_id(el)
-            if not self._app.modeler.objects[obj_id].is3d or (
-                self._app.modeler.objects[obj_id].material_name != "vacuum"
-                and self._app.modeler.objects[obj_id].material_name != "air"
-            ):
-                face_lists += self._app.modeler.get_object_faces(obj_id)
+            object3d = self._app.modeler[el]
+            if not object3d.is3d or object3d.material_name not in ["vacuum", "air"]:
+                face_lists += [i.id for i in object3d.faces]
         plot = self.create_fieldplot_surface(face_lists, "Mesh", setup_name, intrinsic_dict)
         if plot:
             file_to_add = self.export_field_plot(plot.name, project_path)

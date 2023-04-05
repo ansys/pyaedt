@@ -1099,6 +1099,7 @@ class Primitives3D(Primitives, object):
         )
         if name:
             p1.name = name
+            self._create_object(name)
         return p1
 
     @pyaedt_function_handler()

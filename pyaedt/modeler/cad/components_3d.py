@@ -380,7 +380,9 @@ class UserDefinedComponent(object):
         """
         component_parts = list(self._primitives.oeditor.GetChildObject(self.name).GetChildNames())
         parts_id = [
-            self._primitives.object_id_dict[part] for part in self._primitives.object_id_dict if part in component_parts
+            self._primitives._object_id_to_names[part]
+            for part in self._primitives._object_id_to_names
+            if part in component_parts
         ]
         parts_dict = {part_id: self._primitives.objects[part_id] for part_id in parts_id}
         return parts_dict
