@@ -631,12 +631,12 @@ class Stackup(object):
         Parameters
         ----------
         fpath : str
-            File path to csv or json file.
+            File path to CSV or JSON file.
         file_format : str, optional
-            Format of the file to export. The default is ``"csv"``. Options are ``"csv"``, ``"xlsx"``,
-            ``"json"``.
+            Format of the file to export. The default is ``"csv"``. Options are ``"csv"``, ``"xlsx"``
+            and ``"json"``.
         include_material_with_layer : bool, optional.
-            Whether to include the material definition inside layer ones. This parameter is only used
+            Whether to include the material definition inside layer objects. This parameter is only used
             when a JSON file is exported. The default is ``False``, which keeps the material definition
             section in the JSON file. If ``True``, the material definition is included inside the layer ones.
 
@@ -1746,8 +1746,6 @@ class Stackup(object):
     def load(self, file_path):
         """Import stackup from a file. The file format can be XML, CSV, or JSON.
 
-        .. deprecated:: 0.6.61
-           Use :func:`import` instead.
 
         Parameters
         ----------
