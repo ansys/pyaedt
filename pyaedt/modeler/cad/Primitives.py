@@ -1387,7 +1387,7 @@ class Primitives(object):
         obj_dict = {}
         for _, v in self.objects.items():
             obj_dict[v._m_name] = v
-        return v
+        return obj_dict
 
     @pyaedt_function_handler()
     def cleanup_objects(self):
