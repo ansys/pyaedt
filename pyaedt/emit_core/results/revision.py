@@ -32,8 +32,9 @@ class Revision:
     def __init__(self, parent_results, emit_obj, name=""):
         design = emit_obj.odesktop.GetActiveProject().GetActiveDesign()
         subfolder = ""
+        proj_name = emit_obj.oproject.GetName()
         for f in os.scandir(emit_obj.oproject.GetPath()):
-            if os.path.splitext(f.name)[1].lower() == ".aedtresults":
+            if os.path.splitext(f.name)[0] == proj_name and os.path.splitext(f.name)[1].lower() == ".aedtresults":
                 subfolder = os.path.join(f.path, "EmitDesign1")
         default_behaviour = not os.path.exists(os.path.join(subfolder, "{}.emit".format(name)))
         if default_behaviour:
@@ -61,6 +62,11 @@ class Revision:
 
         self.revision_number = design.GetRevision()
         """Unique revision number from the Emit design"""
+
+        result_props = design.GetResultProperties(name)
+        # Strip off the 'Timestamp='
+        self.timestamp = result_props[1][10:]
+        """Unique timestamp for the revision"""
 
         self.parent_results = parent_results
         """Parent Results object"""
@@ -126,6 +132,8 @@ class Revision:
         self._load_revision()
         engine = self.emit_project._emit_api.get_engine()
         interaction = engine.run(domain)
+        # save the revision
+        self.emit_project._emit_api.save_project()
         return interaction
 
     @pyaedt_function_handler()
@@ -301,3 +309,47 @@ class Revision:
             freqs = None
             self.result_mode_error()
         return freqs
+    
+    @pyaedt_function_handler
+    def set_notes(self, notes):
+        """
+        Add notes to the revision.
+
+        Parameters
+        ----------
+        notes : str
+            Notes to add to the revision.        
+
+        Returns
+        -------
+        None
+
+        Examples
+        ----------
+        >>> notes = "Added a filter to the WiFi Radio."
+        >>> freqs = aedtapp.results.current_revision.set_notes(notes)
+        """
+        design = self.emit_project.odesktop.GetActiveProject().GetActiveDesign()
+        design.SetResultNotes(self.name, notes)
+        self.emit_project._emit_api.save_project()
+
+    @pyaedt_function_handler
+    def get_notes(self):
+        """
+        Get the current revision's notes.
+
+        Parameters
+        ----------
+        None  
+
+        Returns
+        -------
+        notes : str
+            Notes to add to the revision.     
+
+        Examples
+        ----------
+        >>> notes = aedtapp.results.current_revision.get_notes()
+        """
+        design = self.emit_project.odesktop.GetActiveProject().GetActiveDesign()
+        return design.GetResultNotes(self.name)
