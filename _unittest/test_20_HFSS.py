@@ -29,7 +29,7 @@ else:
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, "Test_20")
+        self.aedtapp = BasisTest.add_app(self, "Test_20", "test_20")
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -496,26 +496,8 @@ class TestClass(BasisTest, object):
             "BoxLumped1", "BoxLumped2", self.aedtapp.AxisDir.XNeg, 50, "Lump2", False, True
         )
 
-    def test_10_1_create_lumped_ports_on_object_driven_terminal(self):
-        hfss = Hfss()
-        hfss.solution_type = "Terminal"
-        box1 = hfss.modeler.create_box([0, 0, 50], [10, 10, 5], "BoxLumped1")
-        box1.material_name = "Copper"
-        box2 = hfss.modeler.create_box([0, 0, 60], [10, 10, 5], "BoxLumped2")
-        box2.material_name = "Copper"
-        port = hfss.create_lumped_port_between_objects(
-            "BoxLumped1", "BoxLumped2", self.aedtapp.AxisDir.XNeg, 50, "Lump1xx", True, False
-        )
-        hfss.save_project()
-        hfss.boundaries.__init__()
-        term = [term for term in hfss.boundaries if term.type == "Terminal"][0]
-        assert term
-        term.name = "test"
-        assert term.name == "test"
-        term.props["TerminalResistance"] = "1ohm"
-        assert term.props["TerminalResistance"] == "1ohm"
-
     def test_11_create_circuit_on_objects(self):
+        self.aedtapp.set_active_design("test_20")
         box1 = self.aedtapp.modeler.create_box([0, 0, 80], [10, 10, 5], "BoxCircuit1", "Copper")
         box2 = self.aedtapp.modeler.create_box([0, 0, 100], [10, 10, 5], "BoxCircuit2", "copper")
         box2.material_name = "Copper"
@@ -1339,3 +1321,23 @@ class TestClass(BasisTest, object):
         self.aedtapp["var_test"] = "234"
         assert "var_test" in self.aedtapp.variable_manager.design_variable_names
         assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
+
+    def test_61_create_lumped_ports_on_object_driven_terminal(self):
+        self.aedtapp.insert_design("test_61")
+        self.aedtapp.solution_type = "Terminal"
+        box1 = self.aedtapp.modeler.create_box([0, 0, 50], [10, 10, 5], "BoxLumped1")
+        box1.material_name = "Copper"
+        box2 = self.aedtapp.modeler.create_box([0, 0, 60], [10, 10, 5], "BoxLumped2")
+        box2.material_name = "Copper"
+        port = self.aedtapp.create_lumped_port_between_objects(
+            "BoxLumped1", "BoxLumped2", self.aedtapp.AxisDir.XNeg, 50, "Lump1xx", True, False
+        )
+
+        self.aedtapp.save_project()
+        self.aedtapp.boundaries.__init__()
+        term = [term for term in self.aedtapp.boundaries if term.type == "Terminal"][0]
+        assert term
+        term.name = "test"
+        assert term.name == "test"
+        term.props["TerminalResistance"] = "1ohm"
+        assert term.props["TerminalResistance"] == "1ohm"
