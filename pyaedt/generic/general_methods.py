@@ -1589,6 +1589,7 @@ class Settings(object):
         self._lsf_timeout = 3600
         self._lsf_queue = None
         self._use_pyedb = False
+        self._rpc_server_path = None
 
     @property
     def use_pyedb(self):
@@ -1598,6 +1599,15 @@ class Settings(object):
     @use_pyedb.setter
     def use_pyedb(self, value):
         self._use_pyedb = value
+
+    @property
+    def rpc_server_path(self):
+        return self._rpc_server_path
+
+    @rpc_server_path.setter
+    def rpc_server_path(self, value):
+        if os.path.exists(value):
+            self._rpc_server_path = value
 
     @property
     def lsf_queue(self):

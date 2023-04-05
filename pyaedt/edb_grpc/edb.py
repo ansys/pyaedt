@@ -1,6 +1,6 @@
 """This module contains the ``Edb`` class.
 
-This module is implicitily loaded in HFSS 3D Layout when launched.
+This module is implicitly loaded in HFSS 3D Layout when launched.
 
 """
 import gc
@@ -149,7 +149,7 @@ class Edb(object):
         self.edbversion = edbversion
         self.isaedtowned = isaedtowned
         name = sys.modules["ansys.edb.session"]
-        self._init_dlls()
+        self._init_rpc_server()
         if name.current_session is None:
             self.session = launch_session(self.base_path, port_num=port)
         else:
@@ -298,12 +298,12 @@ class Edb(object):
         return names
 
     @pyaedt_function_handler()
-    def _init_dlls(self):
+    def _init_rpc_server(self):
         """Initialize DLLs."""
         if is_linux:
-            if env_value(self.edbversion) in os.environ or settings.edb_dll_path:
-                if settings.edb_dll_path:
-                    self.base_path = settings.edb_dll_path
+            if env_value(self.edbversion) in os.environ or settings.rpc_server_path:
+                if settings.rpc_server_path:
+                    self.base_path = settings.rpc_server_path
                 else:
                     self.base_path = env_path(self.edbversion)
                 sys.path.append(self.base_path)
@@ -320,8 +320,8 @@ class Edb(object):
                         sys.path.append(edb_path)
                         os.environ[env_value(self.edbversion)] = self.base_path
         else:
-            if settings.edb_dll_path:
-                self.base_path = settings.edb_dll_path
+            if settings.rpc_server_path:
+                self.base_path = settings.rpc_server_path
             elif self.student_version:
                 self.base_path = env_path_student(self.edbversion)
             else:
