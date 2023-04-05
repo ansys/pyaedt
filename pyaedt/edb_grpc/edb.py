@@ -13,6 +13,10 @@ import time
 import traceback
 import warnings
 
+from ansys.edb.database import Database
+from ansys.edb.layout.cell import Cell
+from ansys.edb.layout.cell import CellType
+
 # from ansys.edb.database import Database
 # from ansys.edb.layout.cell import Cell
 # from ansys.edb.layout.cell import CellType
@@ -402,7 +406,7 @@ class Edb(object):
         return {ter.GetName(): ExcitationProbes(self, ter) for ter in terms}
 
     @pyaedt_function_handler()
-    def open_edb(self, init_dlls=False):
+    def open_edb(self, init_rpc_server=False):
         """Open EDB.
 
         Parameters
@@ -414,14 +418,17 @@ class Edb(object):
         -------
 
         """
-        if init_dlls:
-            self._init_dlls()
+        if init_rpc_server:
+            self._init_rpc_server()
+            self.session = launch_session(self.base_path, 50051)
         self.logger.info("EDB Path %s", self.edbpath)
         self.logger.info("EDB Version %s", self.edbversion)
-        self.edb.Database.SetRunAsStandAlone(self.standalone)
+
+        # pyedb run on standalone only for now
+        # self.edb.Database.SetRunAsStandAlone(self.standalone)
         self.logger.info("EDB Standalone %s", self.standalone)
         try:
-            db = self.edb.Database.Open(self.edbpath, self.isreadonly)
+            db = Database.open(self.edbpath, self.isreadonly)
         except Exception as e:
             db = None
             self.logger.error("Builder is not Initialized.")
@@ -441,21 +448,23 @@ class Edb(object):
                     self._active_cell = cell
         # if self._active_cell is still None, set it to default cell
         if self._active_cell is None:
-            self._active_cell = list(self._db.TopCircuitCells)[0]
+            self._active_cell = self._db.circuit_cells[0]
         self.logger.info("Cell %s Opened", self._active_cell.GetName())
         if self._db and self._active_cell:
-            self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
-            self._init_objects()
-            self.logger.info("Builder was initialized.")
-        else:
-            self.builder = None
-            self.logger.error("Builder was not initialized.")
+            # removing edbutils with Pyedb
+            self.builder = EdbBuilder(self._db, self._active_cell)
+            # self._init_objects()
+            # self.logger.info("Builder was initialized.")
+            pass
+        # else:
+        #     self.builder = None
+        #     self.logger.error("Builder was not initialized.")
 
         return self.builder
 
     @pyaedt_function_handler()
-    def open_edb_inside_aedt(self, init_dlls=False):
-        """Open EDB inside of AEDT.
+    def open_edb_inside_aedt(self):
+        """Open EDB inside of AEDT not supported currently with Pyedb.
 
         Parameters
         ----------
@@ -466,55 +475,56 @@ class Edb(object):
         -------
 
         """
-        if init_dlls:
-            self._init_dlls()
-        self.logger.info("Opening EDB from HDL")
-        self.edb.Database.SetRunAsStandAlone(False)
-        if self.oproject.GetEDBHandle():
-            hdl = Convert.ToUInt64(self.oproject.GetEDBHandle())
-            db = self.edb.Database.Attach(hdl)
-            if not db:
-                self.logger.warning("Error getting the database.")
-                self._db = None
-                self._active_cell = None
-                self.builder = None
-                return None
-            self._db = db
-            self._active_cell = self.edb.Cell.Cell.FindByName(
-                self.db, self.edb.Cell.CellType.CircuitCell, self.cellname
-            )
-            if self._active_cell is None:
-                self._active_cell = list(self._db.TopCircuitCells)[0]
-            if self._db and self._active_cell:
-                if not os.path.exists(self.edbpath):
-                    os.makedirs(self.edbpath)
-                time.sleep(3)
-                self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
-                self._init_objects()
-                return self.builder
-            else:
-                self.builder = None
-                return None
-        else:
-            self._db = None
-            self._active_cell = None
-            self.builder = None
-            return None
+        pass
+        # if init_dlls:
+        #     self._init_dlls()
+        # self.logger.info("Opening EDB from HDL")
+        # self.edb.Database.SetRunAsStandAlone(False)
+        # if self.oproject.GetEDBHandle():
+        #     hdl = Convert.ToUInt64(self.oproject.GetEDBHandle())
+        #     db = self.edb.Database.Attach(hdl)
+        #     if not db:
+        #         self.logger.warning("Error getting the database.")
+        #         self._db = None
+        #         self._active_cell = None
+        #         self.builder = None
+        #         return None
+        #     self._db = db
+        #     self._active_cell = self.edb.Cell.Cell.FindByName(
+        #         self.db, self.edb.Cell.CellType.CircuitCell, self.cellname
+        #     )
+        #     if self._active_cell is None:
+        #         self._active_cell = list(self._db.TopCircuitCells)[0]
+        #     if self._db and self._active_cell:
+        #         if not os.path.exists(self.edbpath):
+        #             os.makedirs(self.edbpath)
+        #         time.sleep(3)
+        #         self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
+        #         self._init_objects()
+        #         return self.builder
+        #     else:
+        #         self.builder = None
+        #         return None
+        # else:
+        #     self._db = None
+        #     self._active_cell = None
+        #     self.builder = None
+        #     return None
 
     @pyaedt_function_handler()
-    def create_edb(self, init_dlls=False):
+    def create_edb(self, init_rpc_server=False):
         """Create EDB.
 
         Parameters
         ----------
-        init_dlls : bool, optional
-            Whether to initialize DLLs. The default is ``False``.
+        init_rpc_server : bool, optional
+            Whether to initialize RPC server connection. The default is ``False``.
 
         """
-        if init_dlls:
-            self._init_dlls()
-        self.edb.Database.SetRunAsStandAlone(self.standalone)
-        db = self.edb.Database.Create(self.edbpath)
+        if init_rpc_server:
+            self._init_rpc_server()
+        # self.edb.Database.SetRunAsStandAlone(self.standalone)
+        db = Database.create(self.edbpath)
         if not db:
             self.logger.warning("Error creating the database.")
             self._db = None
@@ -524,9 +534,9 @@ class Edb(object):
         self._db = db
         if not self.cellname:
             self.cellname = generate_unique_name("Cell")
-        self._active_cell = self.edb.Cell.Cell.Create(self._db, self.edb.Cell.CellType.CircuitCell, self.cellname)
+        self._active_cell = Cell.create(self._db, CellType.CIRCUIT_CELL, self.cellname)
         if self._db and self._active_cell:
-            self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
+            self.builder = EdbBuilder(self._db, self._active_cell)
             self._init_objects()
             return self.builder
         self.builder = None
@@ -534,7 +544,13 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def import_layout_pcb(
-        self, input_file, working_dir, init_dlls=False, anstranslator_full_path="", use_ppe=False, control_file=None
+        self,
+        input_file,
+        working_dir,
+        init_rcp_server=False,
+        anstranslator_full_path="",
+        use_ppe=False,
+        control_file=None,
     ):
         """Import a board file and generate an ``edb.def`` file in the working directory.
 
@@ -547,8 +563,8 @@ class Edb(object):
         working_dir : str
             Directory in which to create the ``aedb`` folder. The name given to the AEDB file
             is the same as the name of the board file.
-        init_dlls : bool
-            Whether to initialize DLLs. The default is ``False``.
+        init_rcp_server : bool
+            Whether to initialize grpc server. The default is ``False``.
         anstranslator_full_path : str, optional
             Full path to the Ansys translator. The default is ``""``.
         use_ppe : bool
@@ -571,8 +587,8 @@ class Edb(object):
         self._hfss = None
         self._nets = None
         self._db = None
-        if init_dlls:
-            self._init_dlls()
+        if init_rcp_server:
+            self._init_rpc_server()
         aedb_name = os.path.splitext(os.path.basename(input_file))[0] + ".aedb"
         if anstranslator_full_path and os.path.exists(anstranslator_full_path):
             command = anstranslator_full_path
@@ -630,9 +646,9 @@ class Edb(object):
         bool
             ``True`` if successful, ``False`` if failed.
         """
-        if is_ironpython:  # pragma no cover
-            self.logger.error("This method is not supported in Ironpython")
-            return False
+        # if is_ironpython:  # pragma no cover
+        #    self.logger.error("This method is not supported in Ironpython")
+        #    return False
         if units.lower() not in ["millimeter", "inch", "micron"]:  # pragma no cover
             self.logger.warning("The wrong unit is entered. Setting to the default, millimeter.")
             units = "millimeter"
