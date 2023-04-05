@@ -521,7 +521,9 @@ class Primitives(object):
         """
         o = self._resolve_object(obj)
         name = o.name
-        del self.objects[name]
+
+        del self.objects[self.object_id_dict[name]]
+        del self.object_id_dict[name]
         o = self._create_object(name)
         return o
 
