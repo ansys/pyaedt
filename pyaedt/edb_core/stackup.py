@@ -1889,6 +1889,7 @@ class Stackup(object):
         # create the data for the plot
         diel_alpha = 0.4
         signal_alpha = 0.6
+        zero_thickness_alpha = 1.0
         annotation_fontsize = 14
         legend_fontsize = 10
         annotation_x_margin = 0.05
@@ -1901,9 +1902,11 @@ class Stackup(object):
                 if ly[3] > 0:
                     le = ly[1]  # lower elevation
                     ue = ly[2]  # upper elevation
+                    corrected_signal_alpha = signal_alpha
                 else:
                     le = ly[1] - min_thickness * 0.1  # make the zero thickness layers more visible
                     ue = ly[2] + min_thickness * 0.1
+                    corrected_signal_alpha = zero_thickness_alpha
                 y = [le, ue, ue, le]
                 x = [0, 0, 1, 1]
 
@@ -1916,7 +1919,7 @@ class Stackup(object):
                     f"Thick: {layer.thickness * 1e6:.3f}um,  "
                     f"Elev:{layer.lower_elevation * 1e6:.3f}um"
                 )
-                plot_data.append([x, y, color, label, signal_alpha, "fill"])
+                plot_data.append([x, y, color, label, corrected_signal_alpha, "fill"])
 
                 if ly.type == "dielectric":
                     x_pos = -annotation_x_margin
@@ -1933,15 +1936,23 @@ class Stackup(object):
                 le = ly[1]  # lower elevation
                 t = ly[3]  # thickness
                 put_in_column = 0
+                cell_position = 0
                 for c in columns:
                     uep = c[-1][2]  # upper elevation of the last entry of that column
                     tp = c[-1][3]  # thickness of the last entry of that column
                     if le < uep or (abs(le - uep) < 1e-15 and tp == 0 and t == 0):
                         put_in_column += 1
+                        cell_position = len(c)
                     else:
                         break
                 if len(columns) < put_in_column + 1:  # add a new column
                     columns.append([])
+
+                if cell_position != 0:
+                    fill_cells = cell_position - 1 - len(columns[put_in_column])
+                    for i in range(fill_cells):
+                        columns[put_in_column].append(0)
+
                 columns[put_in_column].append(ly)
 
                 x = [put_in_column + 1, put_in_column + 1, put_in_column + 2, put_in_column + 2]
@@ -1949,9 +1960,11 @@ class Stackup(object):
                 if ly[3] > 0:
                     le = ly[1]  # lower elevation
                     ue = ly[2]  # upper elevation
+                    corrected_signal_alpha = signal_alpha
                 else:
                     le = ly[1] - min_thickness * 0.1  # make the zero thickness layers more visible
                     ue = ly[2] + min_thickness * 0.1
+                    corrected_signal_alpha = zero_thickness_alpha
                 y = [le, ue, ue, le]
 
                 # set color, label and annotation
@@ -1963,11 +1976,29 @@ class Stackup(object):
                     f"Thick: {layer.thickness * 1e6:.3f}um,  "
                     f"Elev:{layer.lower_elevation * 1e6:.3f}um"
                 )
-                plot_data.append([x, y, color, label, signal_alpha, "fill"])
+                plot_data.append([x, y, color, label, corrected_signal_alpha, "fill"])
 
                 x_pos = 1.0
                 y_pos = (le + ue) / 2
                 annotations.append([x_pos, y_pos, layer.name, {"fontsize": annotation_fontsize}])
+
+            # fill the columns matrix with zeros on top
+            n_rows = max([len(i) for i in columns])
+            for c in columns:
+                while len(c) < n_rows:
+                    c.append(0)
+            # expand the fill for the signals that have nothing overlapping
+            width = len(columns) + 1
+            for k, d in enumerate(plot_data):
+                dname = annotations[k][2]
+                for i, c in enumerate(columns[:-1]):
+                    for j, r in enumerate(c):
+                        if r != 0 and dname == r[0].name:
+                            if columns[i + 1][j] == 0:
+                                # nothing on the left, so expand the fill
+                                x = d[0]
+                                d[0] = [x[0], x[0], width, width]
+                            break
 
             # move the annotations to the final x
             width = len(columns) + 1
