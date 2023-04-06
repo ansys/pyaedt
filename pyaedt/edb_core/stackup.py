@@ -1906,7 +1906,7 @@ class Stackup(object):
                     color = [0.9, 0.9, 0.9]
                 label = (
                     f"{layer.name}, {layer.material}, "
-                    f"Thick: {layer.thickness * 1e6:.3f}um,  "
+                    f"Thick: {layer.thickness * 1e6:.3f}um, "
                     f"Elev:{layer.lower_elevation * 1e6:.3f}um"
                 )
 
@@ -1988,7 +1988,7 @@ class Stackup(object):
                             color = [0.9, 0.9, 0.9]
                         label = (
                             f"{layer.name}, {layer.material}, "
-                            f"Thick: {layer.thickness * 1e6:.3f}um,  "
+                            f"Thick: {layer.thickness * 1e6:.3f}um, "
                             f"Elev:{layer.lower_elevation * 1e6:.3f}um"
                         )
 
@@ -2024,7 +2024,7 @@ class Stackup(object):
                     color = [0.9, 0.9, 0.9]
                 label = (
                     f"{layer.name}, {layer.material}, "
-                    f"Thick: {layer.thickness * 1e6:.3f}um,  "
+                    f"Thick: {layer.thickness * 1e6:.3f}um, "
                     f"Elev:{layer.lower_elevation * 1e6:.3f}um"
                 )
                 # create the patch
@@ -2040,6 +2040,23 @@ class Stackup(object):
                 annotations.append(
                     [x_pos, y_pos, layer.name, {"fontsize": annotation_fontsize, "horizontalalignment": "right"}]
                 )
+
+            # evaluate the legend reorder (use the annotations list instead of the columns because is faster)
+            legend_order = []
+            for ly in dielectric_layers:
+                name = ly[0].name
+                for i, a in enumerate(plot_data):
+                    iname = a[3].split(",")[0]
+                    if name == iname:
+                        legend_order.append(i)
+                        break
+            for ly in signal_layers:
+                name = ly[0].name
+                for i, a in enumerate(plot_data):
+                    iname = a[3].split(",")[0]
+                    if name == iname:
+                        legend_order.append(i)
+                        break
 
         # calculate the extremities of the plot
         min_x = 0.0
@@ -2079,7 +2096,18 @@ class Stackup(object):
         plt.title("Stackup\n ", fontsize=28)
         # evaluates the number of legend column based on the layer name max length
         ncol = 3 if max([len(n) for n in layer_names]) < 15 else 2
-        plt.legend(bbox_to_anchor=(0, -0.05), loc="upper left", borderaxespad=0, ncol=ncol)
+        if self.stackup_mode == "Overlapping":
+            handles, labels = plt.gca().get_legend_handles_labels()
+            plt.legend(
+                [handles[idx] for idx in legend_order],
+                [labels[idx] for idx in legend_order],
+                bbox_to_anchor=(0, -0.05),
+                loc="upper left",
+                borderaxespad=0,
+                ncol=ncol,
+            )
+        else:
+            plt.legend(bbox_to_anchor=(0, -0.05), loc="upper left", borderaxespad=0, ncol=ncol)
         plt.tight_layout()
         plt.show()
 
