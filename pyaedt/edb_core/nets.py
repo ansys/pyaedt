@@ -728,7 +728,7 @@ class EdbNets(object):
         return False
 
     @pyaedt_function_handler()
-    def get_dcconnected_net_list(self, ground_nets=["GND"]):
+    def get_dcconnected_net_list(self, ground_nets=["GND"], res_value=0.001):
         """Retrieve the nets connected to DC through inductors.
 
         .. note::
@@ -754,7 +754,15 @@ class EdbNets(object):
                     temp_list.append(set(nets))
                 else:
                     pass
+        for _, comp_obj in self._pedb.components.resistors.items():
+            numpins = comp_obj.numpins
 
+            if numpins == 2 and self._pedb._decompose_variable_value(comp_obj.res_value) <= res_value:
+                nets = comp_obj.nets
+                if not set(nets).intersection(set(ground_nets)):
+                    temp_list.append(set(nets))
+                else:
+                    pass
         dcconnected_net_list = []
 
         while not not temp_list:

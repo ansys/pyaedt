@@ -961,3 +961,23 @@ class ExcitationDifferential(ExcitationBundle):
 
     def __init__(self, pedb, edb_boundle_terminal):
         ExcitationBundle.__init__(self, pedb, edb_boundle_terminal)
+
+    @property
+    def net_name(self):
+        """Net Name.
+
+        Returns
+        -------
+        str
+        """
+        return self._edb_bundle_terminal.GetNet().GetName()
+
+    @property
+    def net(self):
+        """Net Object.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.nets_data.EDBNetsData`
+        """
+        return EDBNetsData(self._edb_bundle_terminal.GetNet(), self._pedb)
