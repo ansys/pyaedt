@@ -1887,7 +1887,8 @@ class Stackup(object):
                 signal_layers = compressed_signals
 
         # create the data for the plot
-        alpha = 0.5
+        diel_alpha = 0.4
+        signal_alpha = 0.6
         annotation_fontsize = 14
         legend_fontsize = 10
         annotation_x_margin = 0.05
@@ -1915,7 +1916,7 @@ class Stackup(object):
                     f"Thick: {layer.thickness * 1e6:.3f}um,  "
                     f"Elev:{layer.lower_elevation * 1e6:.3f}um"
                 )
-                plot_data.append([x, y, color, label, alpha, "fill"])
+                plot_data.append([x, y, color, label, signal_alpha, "fill"])
 
                 if ly.type == "dielectric":
                     x_pos = -annotation_x_margin
@@ -1930,13 +1931,21 @@ class Stackup(object):
             for ly in signal_layers:
                 layer = ly[0]
                 le = ly[1]  # lower elevation
+                t = ly[3]  # thickness
                 put_in_column = 0
                 for c in columns:
-                    uep = c[-1][1]  # upper elevation of the last entry of that column
-                    if abs(le - uep) < 1e-15 or le >= uep:
-                        break
-                    else:
+                    uep = c[-1][2]  # upper elevation of the last entry of that column
+                    tp = c[-1][3]  # thickness of the last entry of that column
+                    if le < uep or (abs(le - uep) < 1e-15 and tp == 0 and t == 0):
                         put_in_column += 1
+                    else:
+                        break
+                if len(columns) < put_in_column + 1:  # add a new column
+                    columns.append([])
+                columns[put_in_column].append(ly)
+
+                x = [put_in_column + 1, put_in_column + 1, put_in_column + 2, put_in_column + 2]
+
                 if ly[3] > 0:
                     le = ly[1]  # lower elevation
                     ue = ly[2]  # upper elevation
@@ -1944,11 +1953,6 @@ class Stackup(object):
                     le = ly[1] - min_thickness * 0.1  # make the zero thickness layers more visible
                     ue = ly[2] + min_thickness * 0.1
                 y = [le, ue, ue, le]
-                if len(columns) < put_in_column + 1:  # add a new column
-                    columns.append([])
-                columns[put_in_column].append(y)
-
-                x = [put_in_column + 1, put_in_column + 1, put_in_column + 2, put_in_column + 2]
 
                 # set color, label and annotation
                 color = [float(i) / 256 for i in layer.color]
@@ -1959,7 +1963,7 @@ class Stackup(object):
                     f"Thick: {layer.thickness * 1e6:.3f}um,  "
                     f"Elev:{layer.lower_elevation * 1e6:.3f}um"
                 )
-                plot_data.append([x, y, color, label, alpha, "fill"])
+                plot_data.append([x, y, color, label, signal_alpha, "fill"])
 
                 x_pos = 1.0
                 y_pos = (le + ue) / 2
@@ -1986,7 +1990,7 @@ class Stackup(object):
                     f"Thick: {layer.thickness * 1e6:.3f}um,  "
                     f"Elev:{layer.lower_elevation * 1e6:.3f}um"
                 )
-                plot_data.insert(0, [x, y, color, label, alpha, "fill"])
+                plot_data.insert(0, [x, y, color, label, diel_alpha, "fill"])
 
                 x_pos = -annotation_x_margin
                 y_pos = (le + ue) / 2
@@ -2030,7 +2034,9 @@ class Stackup(object):
         plt.axis("off")
         plt.box(False)
         plt.title("Stackup\n ", fontsize=28)
-        plt.legend(bbox_to_anchor=(0, -0.05), loc="upper left", borderaxespad=0, ncol=3)
+        # evaluates the number of legend column based on the layer name max length
+        ncol = 3 if max([len(n) for n in layer_names]) < 15 else 2
+        plt.legend(bbox_to_anchor=(0, -0.05), loc="upper left", borderaxespad=0, ncol=ncol)
         plt.tight_layout()
         plt.show()
 
