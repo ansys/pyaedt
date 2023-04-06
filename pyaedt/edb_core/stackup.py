@@ -531,7 +531,7 @@ class Stackup(object):
         Returns
         -------
         bool
-            "True" if succeeded.
+            "True" if successful, ``False`` if failed.
         """
         outlineLayer = self._pedb.edb.Cell.Layer.FindByName(self._pedb.active_layout.GetLayerCollection(), outline_name)
         if outlineLayer.IsNull():

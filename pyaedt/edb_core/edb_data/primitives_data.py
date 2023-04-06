@@ -35,11 +35,12 @@ class EDBPrimitives(object):
 
     @property
     def width(self):
-        """Get the path width. Return None otherwise.
+        """Path width.
 
         Returns
         -------
         float
+            Path width or None.
         """
         if self.type == "Path":
             return self.primitive_object.GetWidth()

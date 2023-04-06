@@ -759,14 +759,14 @@ class ExcitationPorts(CommonExcitation):
     Parameters
     ----------
     pedb : pyaedt.edb.Edb
-        Edb object from Edblib.
+        EDB object from the ``Edblib`` library.
     edb_terminal : Ansys.Ansoft.Edb.Cell.Terminal.EdgeTerminal
-        Edge terminal instance from Edb.
+        Edge terminal instance from EDB.
 
 
     Examples
     --------
-    This example shows how to access this class.
+    This example shows how to access the ``ExcitationPorts`` class.
     >>> from pyaedt import Edb
     >>> edb = Edb("myaedb.aedb")
     >>> exc = edb.excitations
@@ -783,31 +783,31 @@ class ExcitationPorts(CommonExcitation):
 
     @property
     def hfss_type(self):
-        """Get hfss port type."""
+        """HFSS port type."""
         txt = re.search(r"'HFSS Type'='.*?'", self._edb_properties).group()
         return txt.split("=")[1].replace("'", "")
 
     @property
     def horizontal_extent_factor(self):
-        """Get horizontal extent factor."""
+        """Horizontal extent factor."""
         txt = re.search(r"'Horizontal Extent Factor'='.*?'", self._edb_properties).group()
         return float(txt.split("=")[1].replace("'", ""))
 
     @property
     def vertical_extent_factor(self):
-        """Get vertical extent factor."""
+        """Vvertical extent factor."""
         txt = re.search(r"'Vertical Extent Factor'='.*?'", self._edb_properties).group()
         return float(txt.split("=")[1].replace("'", ""))
 
     @property
     def radial_extent_factor(self):
-        """Get radial extent factor."""
+        """Radial extent factor."""
         txt = re.search(r"'Radial Extent Factor'='.*?'", self._edb_properties).group()
         return float(txt.split("=")[1].replace("'", ""))
 
     @property
     def pec_launch_width(self):
-        """Get pec launch width."""
+        """Launch width for the printed electronic component (PEC)."""
         txt = re.search(r"'PEC Launch Width'='.*?'", self._edb_properties).group()
         return txt.split("=")[1].replace("'", "")
 
@@ -818,7 +818,7 @@ class ExcitationPorts(CommonExcitation):
 
     @property
     def is_circuit(self):
-        """Return ``True`` if is a circuit port."""
+        """Whether it is a circuit port."""
         return self._edb_terminal.GetIsCircuitPort()
 
     @property
@@ -833,17 +833,17 @@ class ExcitationPorts(CommonExcitation):
 
     @property
     def renormalize(self):
-        """Either if renormalize is active or not."""
+        """Whether renormalize is active."""
         return self._edb_terminal.GetPortPostProcessingProp().DoRenormalize
 
     @property
     def deembed(self):
-        """Either if deembed is active or not."""
+        """Whether deembed is active."""
         return self._edb_terminal.GetPortPostProcessingProp().DoDeembed
 
     @property
     def deembed_gapport_inductance(self):
-        """Deembed Gap Port Inductance value."""
+        """Inductance value of the deembed gap port."""
         return self._edb_terminal.GetPortPostProcessingProp().DoDeembedGapL
 
     @property
@@ -964,17 +964,18 @@ class ExcitationDifferential(ExcitationBundle):
 
     @property
     def net_name(self):
-        """Net Name.
+        """Net name.
 
         Returns
         -------
         str
+             Name of the net.
         """
         return self._edb_bundle_terminal.GetNet().GetName()
 
     @property
     def net(self):
-        """Net Object.
+        """Net object.
 
         Returns
         -------

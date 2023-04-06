@@ -729,7 +729,7 @@ class EdbNets(object):
 
     @pyaedt_function_handler()
     def get_dcconnected_net_list(self, ground_nets=["GND"], res_value=0.001):
-        """Retrieve the nets connected to DC through inductors.
+        """Get the nets connected to the direct current through inductors.
 
         .. note::
            Only inductors are considered.
