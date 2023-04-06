@@ -1935,16 +1935,15 @@ class Stackup(object):
         elif self.stackup_mode == "Overlapping":
             min_thickness = min([i[3] for i in signal_layers if i[3] != 0])
             columns = []  # first column is x=[0,1], second column is x=[1,2] and so on...
-            plot_data_tmp = []
             for ly in signal_layers:
-                layer = ly[0]
+                # layer = ly[0]
                 le = ly[1]  # lower elevation
                 t = ly[3]  # thickness
                 put_in_column = 0
                 cell_position = 0
                 for c in columns:
-                    uep = c[-1][2]  # upper elevation of the last entry of that column
-                    tp = c[-1][3]  # thickness of the last entry of that column
+                    uep = c[-1][0][2]  # upper elevation of the last entry of that column
+                    tp = c[-1][0][3]  # thickness of the last entry of that column
                     if le < uep or (abs(le - uep) < 1e-15 and tp == 0 and t == 0):
                         put_in_column += 1
                         cell_position = len(c)
@@ -1958,11 +1957,8 @@ class Stackup(object):
                     for i in range(fill_cells):
                         columns[put_in_column].append(0)
                 # append the layer to the proper column and row
-                columns[put_in_column].append(ly)
-
                 x = [put_in_column + 1, put_in_column + 1, put_in_column + 2, put_in_column + 2]
-
-                plot_data_tmp.append([ly, x])
+                columns[put_in_column].append([ly, x])
 
             # fill the columns matrix with zeros on top
             n_rows = max([len(i) for i in columns])
@@ -1971,49 +1967,50 @@ class Stackup(object):
                     c.append(0)
             # expand to the right the fill for the signals that have no overlap on the right
             width = len(columns) + 1
-            for k, d in enumerate(plot_data_tmp):
-                dname = d[0][0].name
-                for i, c in enumerate(columns[:-1]):
-                    for j, r in enumerate(c):
-                        if r != 0 and dname == r[0].name:
-                            if columns[i + 1][j] == 0:
-                                # nothing on the right, so expand the fill
-                                x = d[1]
-                                d[1] = [x[0], x[0], width, width]
-                            break
+            for i, c in enumerate(columns[:-1]):
+                for j, r in enumerate(c):
+                    if r != 0:  # and dname == r[0].name:
+                        if columns[i + 1][j] == 0:
+                            # nothing on the right, so expand the fill
+                            x = r[1]
+                            r[1] = [x[0], x[0], width, width]
 
-            for pd in plot_data_tmp:
-                ly = pd[0]
-                layer = ly[0]
-                x = pd[1]
+            for c in columns:
+                for r in c:
+                    if r != 0:
+                        ly = r[0]
+                        layer = ly[0]
+                        x = r[1]
 
-                # set color and label
-                color = [float(i) / 256 for i in layer.color]
-                if color == [1.0, 1.0, 1.0]:
-                    color = [0.9, 0.9, 0.9]
-                label = (
-                    f"{layer.name}, {layer.material}, "
-                    f"Thick: {layer.thickness * 1e6:.3f}um,  "
-                    f"Elev:{layer.lower_elevation * 1e6:.3f}um"
-                )
+                        # set color and label
+                        color = [float(i) / 256 for i in layer.color]
+                        if color == [1.0, 1.0, 1.0]:
+                            color = [0.9, 0.9, 0.9]
+                        label = (
+                            f"{layer.name}, {layer.material}, "
+                            f"Thick: {layer.thickness * 1e6:.3f}um,  "
+                            f"Elev:{layer.lower_elevation * 1e6:.3f}um"
+                        )
 
-                if ly[3] > 0:
-                    le = ly[1]  # lower elevation
-                    ue = ly[2]  # upper elevation
-                    y = [le, ue, ue, le]
-                    plot_data.insert(0, [x, y, color, label, signal_alpha, "fill"])
-                else:
-                    le = ly[1] - min_thickness * 0.1  # make the zero thickness layers more visible
-                    ue = ly[2] + min_thickness * 0.1
-                    y = [le, ue, ue, le]
-                    # put the zero thickness layers on top
-                    plot_data.append([x, y, color, label, zero_thickness_alpha, "fill"])
+                        if ly[3] > 0:
+                            le = ly[1]  # lower elevation
+                            ue = ly[2]  # upper elevation
+                            y = [le, ue, ue, le]
+                            plot_data.insert(0, [x, y, color, label, signal_alpha, "fill"])
+                        else:
+                            le = ly[1] - min_thickness * 0.1  # make the zero thickness layers more visible
+                            ue = ly[2] + min_thickness * 0.1
+                            y = [le, ue, ue, le]
+                            # put the zero thickness layers on top
+                            plot_data.append([x, y, color, label, zero_thickness_alpha, "fill"])
 
-                # create annotation
-                x_pos = 1.0
-                y_pos = (le + ue) / 2
-                annotations.append([x_pos, y_pos, layer.name, {"fontsize": annotation_fontsize}])
+                        # create annotation
+                        x_pos = 1.0
+                        y_pos = (le + ue) / 2
+                        annotations.append([x_pos, y_pos, layer.name, {"fontsize": annotation_fontsize}])
 
+            # order the annotations based on y_pos
+            annotations.sort(key=lambda e: e[1])
             # move all the annotations to the final x (it could be larger than 1 due to additional columns)
             width = len(columns) + 1
             for i, a in enumerate(annotations):
