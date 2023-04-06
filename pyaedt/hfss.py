@@ -5960,9 +5960,9 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        signal : int, list or :class:`pyaedt.modeler.object3d.Object3d` or
+        signal : str, int, list or :class:`pyaedt.modeler.object3d.Object3d` or
          :class:`pyaedt.modeler.elements3d.FacePrimitive`
-            Starting object for the integration line.
+            Main object for port creation or starting object for the integration line.
         reference : int, list or :class:`pyaedt.modeler.object3d.Object3d`
             Ending object for the integration line or reference for Terminal solution. Can be multiple objects.
         create_port_sheet : bool, optional
@@ -6080,10 +6080,10 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        signal : int, list or :class:`pyaedt.modeler.object3d.Object3d` or
+        signal : int, str, :class:`pyaedt.modeler.object3d.Object3d` or
          :class:`pyaedt.modeler.elements3d.FacePrimitive`
-            Starting object for the integration line.
-        reference : int, list or :class:`pyaedt.modeler.object3d.Object3d`
+            Main object for port creation or starting object for the integration line.
+        reference : int, str, list or :class:`pyaedt.modeler.object3d.Object3d`
             Ending object for the integration line or reference for Terminal solution. Can be multiple objects.
         create_port_sheet : bool, optional
             Whether to create a port sheet or use given start_object as port shee.
