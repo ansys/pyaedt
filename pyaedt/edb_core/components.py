@@ -953,7 +953,7 @@ class Components(object):
         if not component:
             return False
         if isinstance(component, str):
-            component = self.components[component]
+            component = self.instances[component]
             if not component:
                 self._logger.error("component %s not found.", component)
                 return False
@@ -965,11 +965,10 @@ class Components(object):
         ):
             self._logger.info("Component %s passed to deactivate is not an RLC.", component.refdes)
             return False
+        component.is_enabled = False
         if create_circuit_port:
-            self.add_port_on_rlc_component(component.refdes)
-            return True
-        else:
-            return self.set_component_rlc(component.refdes)
+            return self.add_port_on_rlc_component(component.refdes)
+        return True
 
     @pyaedt_function_handler()
     def add_port_on_rlc_component(self, component=None):
@@ -987,7 +986,7 @@ class Components(object):
             ``True`` when successful, ``False`` when failed.
         """
         if isinstance(component, str):  # pragma: no cover
-            component = self.components[component]
+            component = self.instances[component]
         if not isinstance(component, EDBComponent):  # pragma: no cover
             return False
         self.set_component_rlc(component.refdes)
@@ -1683,6 +1682,10 @@ class Components(object):
         ... )
 
         """
+        if res_value is None and ind_value is None and cap_value is None:
+            self.instances[componentname].is_enabled = False
+            self._logger.info("No parameters passed, component %s  is disabled.", componentname)
+            return True
         edb_component = self.get_component_by_name(componentname)
         edb_rlc_component_property = self._edb.Cell.Hierarchy.RLCComponentProperty()
         component_pins = self.get_pin_from_component(componentname)
@@ -1722,7 +1725,7 @@ class Components(object):
                 componentname,
             )
             return False
-        self._logger.warning("RLC properties for Component %s has been assigned.", componentname)
+        self._logger.info("RLC properties for Component %s has been assigned.", componentname)
         return True
 
     @pyaedt_function_handler()
