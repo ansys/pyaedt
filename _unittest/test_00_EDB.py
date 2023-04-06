@@ -112,6 +112,9 @@ class TestClass(BasisTest, object):
         assert poly0.type == "Polygon"
         assert self.edbapp.modeler.paths[0].type == "Path"
         assert self.edbapp.modeler.paths[0].clone()
+        assert isinstance(self.edbapp.modeler.paths[0].width, float)
+        self.edbapp.modeler.paths[0].width = "1mm"
+        assert self.edbapp.modeler.paths[0].width == 0.001
         assert self.edbapp.modeler.rectangles[0].type == "Rectangle"
         assert self.edbapp.modeler.circles[0].type == "Circle"
         assert not poly0.is_arc(poly0.points_raw()[0])
@@ -1566,6 +1569,7 @@ class TestClass(BasisTest, object):
         edbapp = Edb(target_path, edbversion=desktop_version)
         assert isinstance(edbapp.stackup.layers, dict)
         assert isinstance(edbapp.stackup.signal_layers, dict)
+        assert isinstance(edbapp.stackup.dielectric_layers, dict)
         assert isinstance(edbapp.stackup.stackup_layers, dict)
         assert isinstance(edbapp.stackup.non_stackup_layers, dict)
         assert not edbapp.stackup["Outline"].is_stackup_layer
