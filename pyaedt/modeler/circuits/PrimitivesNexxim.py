@@ -270,18 +270,6 @@ class NexximComponents(CircuitComponents):
         return True
 
     @pyaedt_function_handler()
-    def create_3dlayout_subcircuit(self, sourcename):
-        """Add a subcircuit from a HFSS 3DLayout.
-
-        .. deprecated:: 0.4.0
-           Use :func:`Circuit.modeler.schematic.add_subcircuit_3dlayout` instead.
-        """
-        warnings.warn(
-            "`create_3dlayout_subcircuit` is deprecated. Use `add_subcircuit_3dlayout` instead.", DeprecationWarning
-        )
-        return self.add_subcircuit_3dlayout(sourcename)
-
-    @pyaedt_function_handler()
     def add_subcircuit_3dlayout(self, sourcename):
         """Add a subcircuit from a HFSS 3DLayout.
 
@@ -1315,68 +1303,6 @@ class NexximComponents(CircuitComponents):
         return res
 
     @pyaedt_function_handler()
-    def add_subcircuit_hfss_link(
-        self,
-        comp_name,
-        pin_names,
-        source_project_path,
-        source_design_name,
-        solution_name="Setup1 : Sweep",
-        image_subcircuit_path=None,
-        variables=None,
-    ):
-        """Add a subcircuit HFSS link.
-
-        .. deprecated:: 0.4.27
-           Use :func:`pyaedt.modeler.circuits.PrimitivesNexxim.NexximComponents.add_subcircuit_dynamic_link.` instead.
-
-        Parameters
-        ----------
-        comp_name : str
-            Name of the subcircuit HFSS link.
-        pin_names : list
-            List of the pin names.
-        source_project_path : str
-            Path to the source project.
-        source_design_name : str
-            Name of the design.
-        solution_name : str, optional
-            Name of the solution and sweep. The
-            default is ``"Setup1 : Sweep"``.
-        image_subcircuit_path : str, optional
-            Path of the Picture used in Circuit.
-            Default is an HFSS Picture exported automatically.
-        variables : dict, optional.
-            Dictionary of design variables of linked object if any. Key is name, value is default value.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
-            Circuit Component Object.
-
-        References
-        ----------
-
-        >>> oModelManager.Add
-        >>> oComponentManager.Add
-        >>> oDesign.AddCompInstance
-        """
-        warnings.warn(
-            "`add_subcircuit_hfss_link` is deprecated. Use `add_subcircuit_dynamic_link` instead.",
-            DeprecationWarning,
-        )
-        return self._add_subcircuit_link(
-            comp_name=comp_name,
-            pin_names=pin_names,
-            source_project_path=source_project_path,
-            source_design_name=source_design_name,
-            solution_name=solution_name,
-            image_subcircuit_path=image_subcircuit_path,
-            model_type="Hfss",
-            variables=variables,
-        )
-
-    @pyaedt_function_handler()
     def add_subcircuit_dynamic_link(
         self,
         pyaedt_app=None,
@@ -1857,33 +1783,6 @@ class NexximComponents(CircuitComponents):
         component_name = component_name.split(";")[0]
         self.o_component_manager.UpdateDynamicLink(component_name)
         return True
-
-    @pyaedt_function_handler()
-    def push_excitations(self, instance_name, thevenin_calculation=False, setup_name="LinearFrequency"):
-        """Push excitations.
-
-        .. deprecated:: 0.4.0
-           Use :func:`Circuit.push_excitations` instead.
-        """
-        warnings.warn(
-            "`circuit.modeler.schematic.push_excitation` is deprecated. " "Use `circuit.push_excitation` instead.",
-            DeprecationWarning,
-        )
-        return self._app.push_excitations(instance_name, thevenin_calculation, setup_name)
-
-    @pyaedt_function_handler()
-    def assign_sin_excitation2ports(self, ports, settings):
-        """Assign a voltage sinusoidal excitation to circuit ports.
-
-        .. deprecated:: 0.4.0
-           Use :func:`Circuit.modeler.schematic.assign_voltage_sinusoidal_excitation_to_ports` instead.
-        """
-        warnings.warn(
-            "`assign_sin_excitation2ports` is deprecated. "
-            "Use `assign_voltage_sinusoidal_excitation_to_ports` instead.",
-            DeprecationWarning,
-        )
-        return self._app.assign_voltage_sinusoidal_excitation_to_ports(ports)
 
     @pyaedt_function_handler()
     def _parse_spice_model(self, model_path):

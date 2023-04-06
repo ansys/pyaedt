@@ -232,16 +232,6 @@ class CircuitComponents(object):
         return True
 
     @pyaedt_function_handler()
-    def create_iport(self, name, posx=0.1, posy=0.1, angle=0):
-        """Create an interface port.
-
-        .. deprecated:: 0.4.0
-           Use :func:`Circuit.modeler.schematic.create_interface_port` instead.
-        """
-        warnings.warn("`create_iport` is deprecated. Use `create_interface_port` instead.", DeprecationWarning)
-        return self.create_interface_port(name, [posx, posy], angle)
-
-    @pyaedt_function_handler()
     def create_interface_port(self, name, location=[], angle=0):
         """Create an interface port.
 
@@ -608,36 +598,6 @@ class CircuitComponents(object):
 
         self.o_component_manager.Add(arg)
         return model_name
-
-    @pyaedt_function_handler()
-    def create_component_from_touchstonmodel(
-        self,
-        model_name,
-        location=[],
-        angle=0,
-    ):
-        """Create a component from a Touchstone model.
-
-        .. deprecated:: 0.4.14
-           Use :func:`create_touchsthone_component` instead.
-
-        Parameters
-        ----------
-        model_name : str
-            Name of the Touchstone model or full path to touchstone file.
-            If full touchstone is provided then, new model will be created.
-        location : list of float, optional
-            Position on the X  and Y axis.
-        angle : float, optional
-            Angle rotation in degrees. The default is ``0``.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
-            Circuit Component Object.
-
-        """
-        return self.create_touchsthone_component(model_name, location, angle)
 
     @pyaedt_function_handler()
     def create_touchsthone_component(
