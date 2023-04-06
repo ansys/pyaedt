@@ -3239,7 +3239,7 @@ class Edb(object):
         Parameters
         ----------
         expansion_factor : float
-            The number of 'widths' multiplier
+            Value for the width multiplier (nW factor).
         """
         nets = []
         for port in self.excitations.values():
