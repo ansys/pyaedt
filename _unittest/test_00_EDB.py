@@ -620,7 +620,7 @@ class TestClass(BasisTest, object):
                 extent_defeature=0.001,
             )
             assert "A0_N" not in edbapp.nets.nets
-            assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND"), list)
+            assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND", order_by_area=True), list)
             assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND", keep_only_main_net=True), list)
             assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND", clean_disjoints_less_than=0.005), list)
         edbapp.close_edb()

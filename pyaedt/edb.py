@@ -1944,7 +1944,9 @@ class Edb(object):
             return prim.primitive_object.GetPolygonData()
 
         def intersect(poly1, poly2):
-            return list(poly1.Intersect(poly2))
+            if not isinstance(poly2, list):
+                poly2 = [poly2]
+            return list(poly1.Intersect(convert_py_list_to_net_list(poly1), convert_py_list_to_net_list(poly2)))
 
         def subtract(poly, voids):
             return poly.Subtract(convert_py_list_to_net_list(poly), convert_py_list_to_net_list(voids))
@@ -1952,9 +1954,11 @@ class Edb(object):
         def clean_prim(prim_1):  # pragma: no cover
             pdata = get_polygon_data(prim_1)
             int_data = _poly.GetIntersectionType(pdata)
-            if int_data == 0:
+            if int_data == 2:
+                return
+            elif int_data == 0:
                 prims_to_delete.append(prim_1)
-            elif int_data != 2:
+            else:
                 list_poly = intersect(_poly, pdata)
                 if list_poly:
                     net = prim_1.net_name
@@ -1962,26 +1966,24 @@ class Edb(object):
                     for p in list_poly:
                         if p.IsNull():
                             continue
+                        points = list(p.Points)
                         list_void = []
-                        void_to_subtract = []
                         if voids:
-                            for void in voids:
-                                void_pdata = get_polygon_data(void)
-                                int_data2 = p.GetIntersectionType(void_pdata)
-                                if int_data2 > 2 or int_data2 == 1:
-                                    void_to_subtract.append(void_pdata)
-                                elif int_data2 == 2:
-                                    list_void.append(void_pdata)
-                            if void_to_subtract:
-                                polys_cleans = subtract(p, void_to_subtract)
-                                for polys_clean in polys_cleans:
-                                    if not polys_clean.IsNull():
-                                        void_to_append = [
-                                            v for v in list_void if polys_clean.GetIntersectionType(v) == 2
-                                        ]
-                                        poly_to_create.append([polys_clean, prim_1.layer_name, net, void_to_append])
-                            else:
-                                poly_to_create.append([p, prim_1.layer_name, net, list_void])
+                            voids_data = [get_polygon_data(void) for void in voids]
+                            list_prims = subtract(p, voids_data)
+                            for prim in list_prims:
+                                if not prim.IsNull():
+                                    poly_to_create.append([prim, prim_1.layer_name, net, list_void])
+                            #
+                            # list_voids = intersect(p, voids_data)
+                            # for void_intersected in list_voids:
+                            #     if not void_intersected.IsNull():
+                            #         int_data_2 = p.GetIntersectionType(void_intersected)
+                            #         if int_data_2 == 2:
+                            #             list_void.append(void_intersected)
+                            #         elif int_data == 1 or int_data_2 > 2:
+                            #             p = subtract(p, void_intersected)[0]
+                            # poly_to_create.append([p, prim_1.layer_name, net, list_void])
                         else:
                             poly_to_create.append([p, prim_1.layer_name, net, list_void])
 
