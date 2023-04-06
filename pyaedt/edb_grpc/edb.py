@@ -34,6 +34,8 @@ from pyaedt.edb_grpc.core import EdbSiwave
 from pyaedt.edb_grpc.core import EdbStackup
 from pyaedt.edb_grpc.core.edb_data.design_options import EdbDesignOptions
 from pyaedt.edb_grpc.core.edb_data.edb_builder import EdbBuilder
+
+# from pyaedt.edb_grpc.core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_grpc.core.edb_data.hfss_simulation_setup_data import HfssSimulationSetup
 from pyaedt.edb_grpc.core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_grpc.core.edb_data.simulation_configuration import SimulationConfiguration
@@ -260,8 +262,6 @@ class Edb(object):
         self._setups = {}
         self._layout_instance = None
         self._variables = None
-        # time.sleep(2)
-        # gc.collect()
 
     @pyaedt_function_handler()
     def _init_objects(self):
@@ -296,8 +296,8 @@ class Edb(object):
         list of str, cell names.
         """
         names = []
-        for cell in list(self._db.TopCircuitCells):
-            names.append(cell.GetName())
+        for cell in self._db.top_circuit_cells:
+            names.append(cell.name)
         return names
 
     @pyaedt_function_handler()
