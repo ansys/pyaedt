@@ -30,7 +30,7 @@ import pyaedt.emit_core.EmitConstants as econsts
 
 non_graphical = False
 NewThread = True
-desktop_version = "2023.2"
+desktop_version = "2023.1"
 scratch_path = pyaedt.generate_unique_folder_name()
 
 ###############################################################################
