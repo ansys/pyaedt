@@ -51,12 +51,13 @@ def main():
         command = [
             term,
             "-e",
-            "{}".format(python_exe),
+            python_exe,
             "-i",
-            "{}".format(pyaedt_script),
+            pyaedt_script,
             str(oDesktop.GetProcessID()),
             str(oDesktop.GetVersion()[:6]),
         ]
+        subprocess.Popen(command)
     else:
         command = [
             '"{}"'.format(python_exe),
@@ -65,7 +66,7 @@ def main():
             str(oDesktop.GetProcessID()),
             str(oDesktop.GetVersion()[:6]),
         ]
-    subprocess.Popen(" ".join(command))
+        subprocess.Popen(" ".join(command))
 
 
 def get_linux_terminal():

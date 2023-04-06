@@ -93,12 +93,10 @@ if edb:
 # Create the first patch of the linear array.
 
 first_patch = Patch(width=1.4e-3, height=1.2e-3, position=0.0)
-first_patch_poly = edb.core_primitives.Shape("polygon", points=first_patch.points)
-edb.core_primitives.create_polygon(first_patch_poly, "TOP", net_name="Array_antenna")
+edb.modeler.create_polygon(first_patch.points, "TOP", net_name="Array_antenna")
 # First line
 first_line = Line(length=2.4e-3, width=0.3e-3, position=first_patch.width)
-first_line_poly = edb.core_primitives.Shape("polygon", points=first_line.points)
-edb.core_primitives.create_polygon(first_line_poly, "TOP", net_name="Array_antenna")
+edb.modeler.create_polygon(first_line.points, "TOP", net_name="Array_antenna")
 
 ###############################################################################
 # Patch linear array
@@ -114,13 +112,11 @@ current_position = first_line.position + first_line.length
 
 while current_patch <= linear_array.nbpatch:
     patch.position = current_position
-    patch_shape = edb.core_primitives.Shape("polygon", points=patch.points)
-    edb.core_primitives.create_polygon(patch_shape, "TOP", net_name="Array_antenna")
+    edb.modeler.create_polygon(patch.points, "TOP", net_name="Array_antenna")
     current_position += patch.width
     if current_patch < linear_array.nbpatch:
         line.position = current_position
-        line_shape = edb.core_primitives.Shape("polygon", points=line.points)
-        edb.core_primitives.create_polygon(line_shape, "TOP", net_name="Array_antenna")
+        edb.modeler.create_polygon(line.points, "TOP", net_name="Array_antenna")
         current_position += line.length
     current_patch += 1
 
@@ -132,8 +128,7 @@ linear_array.length = current_position
 # ~~~~~~~~~~
 # Add a ground.
 
-gnd_shape = edb.core_primitives.Shape("polygon", points=linear_array.points)
-edb.core_primitives.create_polygon(gnd_shape, "GND", net_name="GND")
+edb.modeler.create_polygon(linear_array.points, "GND", net_name="GND")
 
 
 ###############################################################################
@@ -141,8 +136,8 @@ edb.core_primitives.create_polygon(gnd_shape, "GND", net_name="GND")
 # ~~~~~~~~~~~~~~~~~
 # Add a central connector pin.
 
-edb.core_padstack.create_padstack(padstackname="Connector_pin", holediam="100um", paddiam="0", antipaddiam="200um")
-con_pin = edb.core_padstack.place_padstack(
+edb.padstacks.create(padstackname="Connector_pin", holediam="100um", paddiam="0", antipaddiam="200um")
+con_pin = edb.padstacks.place(
     [first_patch.width / 4, 0],
     "Connector_pin",
     net_name="Array_antenna",
@@ -157,31 +152,30 @@ con_pin = edb.core_padstack.place_padstack(
 # ~~~~~~~~~~~~~~~~~~~~
 # Add a connector ground.
 
-virt_gnd_shape = edb.core_primitives.Shape("polygon", points=first_patch.points)
-edb.core_primitives.create_polygon(virt_gnd_shape, "Virt_GND", net_name="GND")
-edb.core_padstack.create_padstack("gnd_via", "100um", "0", "0", "GND", "Virt_GND")
-con_ref1 = edb.core_padstack.place_padstack(
+edb.modeler.create_polygon(first_patch.points, "Virt_GND", net_name="GND")
+edb.padstacks.create("gnd_via", "100um", "0", "0", "GND", "Virt_GND")
+con_ref1 = edb.padstacks.place(
     [first_patch.points[0][0] + 0.2e-3, first_patch.points[0][1] + 0.2e-3],
     "gnd_via",
     fromlayer="GND",
     tolayer="Virt_GND",
     net_name="GND",
 )
-con_ref2 = edb.core_padstack.place_padstack(
+con_ref2 = edb.padstacks.place(
     [first_patch.points[1][0] - 0.2e-3, first_patch.points[1][1] + 0.2e-3],
     "gnd_via",
     fromlayer="GND",
     tolayer="Virt_GND",
     net_name="GND",
 )
-con_ref3 = edb.core_padstack.place_padstack(
+con_ref3 = edb.padstacks.place(
     [first_patch.points[2][0] - 0.2e-3, first_patch.points[2][1] - 0.2e-3],
     "gnd_via",
     fromlayer="GND",
     tolayer="Virt_GND",
     net_name="GND",
 )
-con_ref4 = edb.core_padstack.place_padstack(
+con_ref4 = edb.padstacks.place(
     [first_patch.points[3][0] + 0.2e-3, first_patch.points[3][1] - 0.2e-3],
     "gnd_via",
     fromlayer="GND",
@@ -195,8 +189,8 @@ con_ref4 = edb.core_padstack.place_padstack(
 # ~~~~~~~~~~~~~~~~~~~
 # Add an excitation port.
 
-edb.core_padstack.set_solderball(con_pin, "Virt_GND", isTopPlaced=False, ballDiam=0.1e-3)
-port_name = edb.core_padstack.create_coax_port(con_pin)
+edb.padstacks.set_solderball(con_pin, "Virt_GND", isTopPlaced=False, ballDiam=0.1e-3)
+port_name = edb.padstacks.create_coax_port(con_pin)
 
 
 ###############################################################################
@@ -204,7 +198,7 @@ port_name = edb.core_padstack.create_coax_port(con_pin)
 # ~~~~~~~~~~~~~
 # Plot the geometry.
 
-edb.core_nets.plot(None)
+edb.nets.plot(None)
 
 ###############################################################################
 # Save and close Edb instance prior to opening it in Electronics Desktop.
@@ -227,7 +221,7 @@ h3d = pyaedt.Hfss3dLayout(projectname=aedb_path, specified_version="2023.1", new
 # ~~~~~~~~~~~~~~~~~
 # Plot the geometry. The EDB methods are also accessible from the ``Hfss3dlayout`` class.
 
-h3d.modeler.edb.core_nets.plot(None)
+h3d.modeler.edb.nets.plot(None)
 
 ###############################################################################
 # Create setup and sweeps

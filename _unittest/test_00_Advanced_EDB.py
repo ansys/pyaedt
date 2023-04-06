@@ -114,16 +114,16 @@ class TestClass(BasisTest, object):
 
     def test_03_get_placement_vector(self):
         edb2 = Edb(self.target_path4, edbversion=desktop_version)
-        for cmpname, cmp in edb2.core_components.components.items():
+        for cmpname, cmp in edb2.components.components.items():
             assert isinstance(cmp.solder_ball_placement, int)
-        mounted_cmp = edb2.core_components.get_component_by_name("BGA")
-        hosting_cmp = self.edbapp.core_components.get_component_by_name("U2A5")
+        mounted_cmp = edb2.components.get_component_by_name("BGA")
+        hosting_cmp = self.edbapp.components.get_component_by_name("U2A5")
         (
             result,
             vector,
             rotation,
             solder_ball_height,
-        ) = self.edbapp.core_components.get_component_placement_vector(
+        ) = self.edbapp.components.get_component_placement_vector(
             mounted_component=mounted_cmp,
             hosting_component=hosting_cmp,
             mounted_component_pin1="A10",
@@ -140,7 +140,7 @@ class TestClass(BasisTest, object):
             vector,
             rotation,
             solder_ball_height,
-        ) = self.edbapp.core_components.get_component_placement_vector(
+        ) = self.edbapp.components.get_component_placement_vector(
             mounted_component=mounted_cmp,
             hosting_component=hosting_cmp,
             mounted_component_pin1="A10",
@@ -173,7 +173,7 @@ class TestClass(BasisTest, object):
             edbversion=desktop_version,
             isreadonly=True,
         )
-        for test_prop in (edb.core_padstack.instances, edb.core_padstack.padstack_instances):
+        for test_prop in (edb.padstacks.instances, edb.padstacks.padstack_instances):
             padstack_instances = list(test_prop.values())
             for padstack_instance in padstack_instances:
                 result = padstack_instance.create_rectangle_in_pad("s", partition_max_order=8)
@@ -713,7 +713,7 @@ class TestClass(BasisTest, object):
         out_edb = os.path.join(self.local_scratch.path, "Galileo_to_be_solved.aedb")
         self.local_scratch.copyfolder(target_path, out_edb)
         edbapp = Edb(out_edb, edbversion=desktop_version)
-        edbapp.core_siwave.create_exec_file(add_dc=True)
+        edbapp.siwave.create_exec_file(add_dc=True)
         out = edbapp.solve_siwave()
         assert os.path.exists(out)
         res = edbapp.export_siwave_dc_results(out, "myDCIR_4")
@@ -729,12 +729,13 @@ class TestClass(BasisTest, object):
         spice_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC.mod")
 
         edbapp = Edb(target_path, edbversion=desktop_version)
-        comp = edbapp.core_components.components["R6"]
-        comp.assign_rlc_model(1, 2, 3, False)
+        comp = edbapp.components.components["R6"]
+        assert not comp.assign_rlc_model()
+        comp.assign_rlc_model(1, None, 3, False)
         assert (
             not comp.is_parallel_rlc
             and float(comp.res_value) == 1
-            and float(comp.ind_value) == 2
+            and float(comp.ind_value) == 0
             and float(comp.cap_value) == 3
         )
         comp.assign_rlc_model(1, 2, 3, True)
@@ -751,7 +752,7 @@ class TestClass(BasisTest, object):
         assert comp.s_param_model
         assert comp.assign_spice_model(spice_path) and comp.value
         assert comp.spice_model
-        assert edbapp.core_components.nport_comp_definition
+        assert edbapp.components.nport_comp_definition
         comp.type = "Inductor"
         comp.value = 10  # This command set the model back to ideal RLC
         assert comp.type == "Inductor" and comp.value == 10 and float(comp.ind_value) == 10
@@ -914,18 +915,18 @@ class TestClass(BasisTest, object):
         out_edb = os.path.join(self.local_scratch.path, "Galileo_get_comp_bbox.aedb")
         self.local_scratch.copyfolder(target_path, out_edb)
         edbapp = Edb(out_edb, edbversion=desktop_version)
-        component = edbapp.core_components.components["U2A5"]
+        component = edbapp.components.components["U2A5"]
         assert component.bounding_box
         assert isinstance(component.rotation, float)
 
     def test_22_eligible_power_nets(self):
-        assert "GND" in [i.name for i in self.edbapp.core_nets.eligible_power_nets]
+        assert "GND" in [i.name for i in self.edbapp.nets.eligible_power_nets()]
 
     @pytest.mark.skipif(is_ironpython, reason="This test uses Matplotlib, which is not supported by IronPython.")
     def test_023_plot_on_matplotlib(self):
         edb_plot = Edb(self.target_path3, edbversion=desktop_version)
         local_png1 = os.path.join(self.local_scratch.path, "test1.png")
-        edb_plot.core_nets.plot(
+        edb_plot.nets.plot(
             nets=None,
             layers=None,
             save_plot=local_png1,
@@ -936,7 +937,7 @@ class TestClass(BasisTest, object):
         assert os.path.exists(local_png1)
 
         local_png2 = os.path.join(self.local_scratch.path, "test2.png")
-        edb_plot.core_nets.plot(
+        edb_plot.nets.plot(
             nets="V3P3_S5",
             layers=None,
             save_plot=local_png2,
@@ -945,7 +946,7 @@ class TestClass(BasisTest, object):
         )
         assert os.path.exists(local_png2)
         local_png3 = os.path.join(self.local_scratch.path, "test3.png")
-        edb_plot.core_nets.plot(
+        edb_plot.nets.plot(
             nets=["LVL_I2C_SCL", "V3P3_S5", "GATE_V5_USB"],
             layers="TOP",
             color_by_net=True,
@@ -958,13 +959,13 @@ class TestClass(BasisTest, object):
 
         edb_plot.stackup.plot(
             save_plot=local_png4,
-            plot_definitions=list(edb_plot.core_padstack.definitions.keys())[0],
+            plot_definitions=list(edb_plot.padstacks.definitions.keys())[0],
         )
         assert os.path.exists(local_png4)
 
     def test_24_convert_net_to_polygon(self):
         target_path = os.path.join(local_path, "example_models", "convert_and_merge_path.aedb")
         edb = Edb(target_path, edbversion=desktop_version)
-        for path in edb.core_primitives.paths:
+        for path in edb.modeler.paths:
             assert path.convert_to_polygon()
-        assert edb.core_nets.merge_nets_polygons("test")
+        assert edb.nets.merge_nets_polygons("test")

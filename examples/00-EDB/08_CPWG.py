@@ -58,10 +58,10 @@ edbapp.stackup.create_symmetric_stackup(2)
 plane_lw_pt = ["0mm", "-3mm"]
 plane_up_pt = ["$ms_length", "3mm"]
 
-top_layer_obj = edbapp.core_primitives.create_rectangle("TOP", net_name="gnd",
+top_layer_obj = edbapp.modeler.create_rectangle("TOP", net_name="gnd",
                                                         lower_left_point=plane_lw_pt,
                                                         upper_right_point=plane_up_pt)
-bot_layer_obj = edbapp.core_primitives.create_rectangle("BOTTOM", net_name="gnd",
+bot_layer_obj = edbapp.modeler.create_rectangle("BOTTOM", net_name="gnd",
                                                         lower_left_point=plane_lw_pt,
                                                         upper_right_point=plane_up_pt)
 layer_dict = {"TOP": top_layer_obj,
@@ -73,7 +73,7 @@ layer_dict = {"TOP": top_layer_obj,
 # Draw a trace.
 
 trace_path = [["0", "0"], ["$ms_length", "0"]]
-edbapp.core_primitives.create_trace(trace_path,
+edbapp.modeler.create_trace(trace_path,
                                     layer_name="TOP",
                                     width="$ms_width",
                                     net_name="sig",
@@ -86,18 +86,18 @@ edbapp.core_primitives.create_trace(trace_path,
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a trace to the plane clearance.
 
-poly_void = edbapp.core_primitives.create_trace(trace_path, layer_name="TOP", net_name="gnd",
+poly_void = edbapp.modeler.create_trace(trace_path, layer_name="TOP", net_name="gnd",
                                                 width="{}+2*{}".format("$ms_width", "$ms_clearance"),
                                                 start_cap_style="Flat",
                                                 end_cap_style="Flat")
-edbapp.core_primitives.add_void(layer_dict["TOP"], poly_void)
+edbapp.modeler.add_void(layer_dict["TOP"], poly_void)
 
 ###############################################################################
 # Create ground via padstack and place ground stitching vias
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a ground via padstack and place ground stitching vias.
 
-edbapp.core_padstack.create_padstack(padstackname="GVIA",
+edbapp.padstacks.create(padstackname="GVIA",
                                      holediam="0.3mm",
                                      paddiam="0.5mm",
                                      )
@@ -106,8 +106,8 @@ yloc_u = "$ms_width/2+$ms_clearance+0.25mm"
 yloc_l = "-$ms_width/2-$ms_clearance-0.25mm"
 
 for i in np.arange(1, 20):
-    edbapp.core_padstack.place_padstack([str(i) + "mm", yloc_u], "GVIA", net_name="GND")
-    edbapp.core_padstack.place_padstack([str(i) + "mm", yloc_l], "GVIA", net_name="GND")
+    edbapp.padstacks.place([str(i) + "mm", yloc_u], "GVIA", net_name="GND")
+    edbapp.padstacks.place([str(i) + "mm", yloc_l], "GVIA", net_name="GND")
 
 ###############################################################################
 # Save and close EDB
@@ -166,7 +166,7 @@ h3d.create_linear_count_sweep(
 # ~~~~~~~~~~~
 # Plot layout
 
-h3d.modeler.edb.core_nets.plot(None, None, color_by_net=True)
+h3d.modeler.edb.nets.plot(None, None, color_by_net=True)
 
 
 ###############################################################################

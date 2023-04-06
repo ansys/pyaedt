@@ -585,7 +585,7 @@ class Stackup(object):
         return result
 
     @pyaedt_function_handler
-    def export_stackup(self, fpath, file_format="xml", include_material_with_layer=False):
+    def export(self, fpath, file_format="xml", include_material_with_layer=False):
         """Export stackup definition to a CSV or JSON file.
 
         Parameters
@@ -604,7 +604,7 @@ class Stackup(object):
         --------
         >>> from pyaedt import Edb
         >>> edb = Edb()
-        >>> edb.stackup.export_stackup("stackup.xml")
+        >>> edb.stackup.export("stackup.xml")
         """
         if len(fpath.split(".")) == 1:
             fpath = "{}.{}".format(fpath, file_format)
@@ -620,6 +620,35 @@ class Stackup(object):
         else:
             self._logger.warning("Layer stackup format is not supported. Skipping import.")
             return False
+
+    @pyaedt_function_handler
+    def export_stackup(self, fpath, file_format="xml", include_material_with_layer=False):
+        """Export stackup definition to a CSV or JSON file.
+
+        .. deprecated:: 0.6.61
+           Use :func:`export` instead.
+
+        Parameters
+        ----------
+        fpath : str
+            File path to CSV or JSON file.
+        file_format : str, optional
+            Format of the file to export. The default is ``"csv"``. Options are ``"csv"``, ``"xlsx"``
+            and ``"json"``.
+        include_material_with_layer : bool, optional.
+            Whether to include the material definition inside layer objects. This parameter is only used
+            when a JSON file is exported. The default is ``False``, which keeps the material definition
+            section in the JSON file. If ``True``, the material definition is included inside the layer ones.
+
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> edb = Edb()
+        >>> edb.stackup.export_stackup("stackup.xml")
+        """
+
+        self._logger.warning("Method export_stackup is deprecated. Use .export.")
+        return self.export(fpath, file_format=file_format, include_material_with_layer=include_material_with_layer)
 
     @pyaedt_function_handler()
     def _export_layer_stackup_to_csv_xlsx(self, fpath=None, file_format=None):
@@ -733,6 +762,26 @@ class Stackup(object):
     def stackup_limits(self, only_metals=False):
         """Retrieve stackup limits.
 
+        .. deprecated:: 0.6.62
+           Use :func:`Edb.stackup.limits` function instead.
+
+        Parameters
+        ----------
+        only_metals : bool, optional
+            Whether to retrieve only metals. The default is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        warnings.warn("`stackup_limits` is deprecated. Use `limits` property instead.", DeprecationWarning)
+        return self.limits(only_metals=only_metals)
+
+    @pyaedt_function_handler()
+    def limits(self, only_metals=False):
+        """Retrieve stackup limits.
+
         Parameters
         ----------
         only_metals : bool, optional
@@ -831,7 +880,7 @@ class Stackup(object):
             if not self._pedb.active_layout.SetLayerCollection(new_lc):
                 self._pedb.logger.error("Failed to Flip Stackup.")
                 return False
-            for pyaedt_cmp in list(self._pedb.core_components.components.values()):
+            for pyaedt_cmp in list(self._pedb.components.components.values()):
                 cmp = pyaedt_cmp.edbcomponent
                 cmp_type = cmp.GetComponentType()
                 cmp_prop = cmp.GetComponentProperty().Clone()
@@ -864,7 +913,7 @@ class Stackup(object):
                 cmp.SetComponentProperty(cmp_prop)
 
             lay_list = list(new_lc.Layers(self._pedb.edb.Cell.LayerTypeSet.SignalLayerSet))
-            for padstack in list(self._pedb.core_padstack.instances.values()):
+            for padstack in list(self._pedb.padstacks.instances.values()):
                 start_layer_id = [lay.GetLayerId() for lay in list(lay_list) if lay.GetName() == padstack.start_layer]
                 stop_layer_id = [lay.GetLayerId() for lay in list(lay_list) if lay.GetName() == padstack.stop_layer]
                 layer_map = padstack._edb_padstackinstance.GetLayerMap()
@@ -892,14 +941,14 @@ class Stackup(object):
 
     @pyaedt_function_handler()
     def _get_solder_height(self, layer_name):
-        for el, val in self._pedb.core_components.components.items():
+        for _, val in self._pedb.components.components.items():
             if val.solder_ball_height and val.placement_layer == layer_name:
                 return val.solder_ball_height
         return 0
 
     @pyaedt_function_handler()
     def _remove_solder_pec(self, layer_name):
-        for el, val in self._pedb.core_components.components.items():
+        for _, val in self._pedb.components.components.items():
             if val.solder_ball_height and val.placement_layer == layer_name:
                 comp_prop = val.component_property
                 port_property = comp_prop.GetPortProperty().Clone()
@@ -918,7 +967,7 @@ class Stackup(object):
         -------
         bool
         """
-        for el, val in self._pedb.core_components.components.items():
+        for el, val in self._pedb.components.components.items():
             if val.solder_ball_height:
                 layer = val.placement_layer
                 if layer == list(self.stackup_layers.keys())[0]:
@@ -984,10 +1033,10 @@ class Stackup(object):
         >>> edb1 = Edb(edbpath=targetfile1,  edbversion="2021.2")
         >>> edb2 = Edb(edbpath=targetfile2, edbversion="2021.2")
 
-        >>> hosting_cmp = edb1.core_components.get_component_by_name("U100")
-        >>> mounted_cmp = edb2.core_components.get_component_by_name("BGA")
+        >>> hosting_cmp = edb1.components.get_component_by_name("U100")
+        >>> mounted_cmp = edb2.components.get_component_by_name("BGA")
 
-        >>> vector, rotation, solder_ball_height = edb1.core_components.get_component_placement_vector(
+        >>> vector, rotation, solder_ball_height = edb1.components.get_component_placement_vector(
         ...                                                     mounted_component=mounted_cmp,
         ...                                                     hosting_component=hosting_cmp,
         ...                                                     mounted_component_pin1="A12",
@@ -1082,8 +1131,8 @@ class Stackup(object):
         --------
         >>> edb1 = Edb(edbpath=targetfile1,  edbversion="2021.2")
         >>> edb2 = Edb(edbpath=targetfile2, edbversion="2021.2")
-        >>> hosting_cmp = edb1.core_components.get_component_by_name("U100")
-        >>> mounted_cmp = edb2.core_components.get_component_by_name("BGA")
+        >>> hosting_cmp = edb1.components.get_component_by_name("U100")
+        >>> mounted_cmp = edb2.components.get_component_by_name("BGA")
         >>> edb2.stackup.place_in_layout(edb1.active_cell, angle=0.0, offset_x="1mm",
         ...                                   offset_y="2mm", flipped_stackup=False, place_on_top=True,
         ...                                   )
@@ -1272,7 +1321,7 @@ class Stackup(object):
         """
         temp_data = {name: 0 for name, _ in self.signal_layers.items()}
         outline_area = 0
-        for i in self._pedb.core_primitives.primitives:
+        for i in self._pedb.modeler.primitives:
             layer_name = i.GetLayer().GetName()
             if layer_name.lower() == "outline":
                 if i.area() > outline_area:
@@ -1694,8 +1743,41 @@ class Stackup(object):
         return True
 
     @pyaedt_function_handler
+    def load(self, file_path):
+        """Import stackup from a file. The file format can be XML, CSV, or JSON.
+
+
+        Parameters
+        ----------
+        file_path : str
+            Path to stackup file.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> edb = Edb()
+        >>> edb.stackup.load("stackup.xml")
+        """
+
+        if file_path.endswith(".csv"):
+            return self._import_csv(file_path)
+        elif file_path.endswith(".json"):
+            return self._import_json(file_path)
+        elif file_path.endswith(".xml"):
+            return self._import_xml(file_path)
+        else:
+            return False
+
+    @pyaedt_function_handler
     def import_stackup(self, file_path):
         """Import stackup from a file. The file format can be XML, CSV, or JSON.
+
+        .. deprecated:: 0.6.61
+           Use :func:`load` instead.
 
         Parameters
         ----------
@@ -1713,14 +1795,8 @@ class Stackup(object):
         >>> edb.stackup.import_stackup("stackup.xml")
         """
 
-        if file_path.endswith(".csv"):
-            return self._import_csv(file_path)
-        elif file_path.endswith(".json"):
-            return self._import_json(file_path)
-        elif file_path.endswith(".xml"):
-            return self._import_xml(file_path)
-        else:
-            return False
+        self._logger.warning("Method export_stackup is deprecated. Use .export.")
+        return self.load(file_path)
 
     @pyaedt_function_handler()
     def plot(
@@ -1807,7 +1883,7 @@ class Stackup(object):
 
             for definition in plot_definitions:
                 if isinstance(definition, str):
-                    definition = self._pedb.core_padstack.definitions[definition]
+                    definition = self._pedb.padstacks.definitions[definition]
                 min_lel = 1e12
                 max_lel = -1e12
                 max_x = 0
@@ -2267,10 +2343,10 @@ class EdbStackup(object):
         >>> edb1 = Edb(edbpath=targetfile1,  edbversion="2021.2")
         >>> edb2 = Edb(edbpath=targetfile2, edbversion="2021.2")
 
-        >>> hosting_cmp = edb1.core_components.get_component_by_name("U100")
-        >>> mounted_cmp = edb2.core_components.get_component_by_name("BGA")
+        >>> hosting_cmp = edb1.components.get_component_by_name("U100")
+        >>> mounted_cmp = edb2.components.get_component_by_name("BGA")
 
-        >>> vector, rotation, solder_ball_height = edb1.core_components.get_component_placement_vector(
+        >>> vector, rotation, solder_ball_height = edb1.components.get_component_placement_vector(
         ...                                                     mounted_component=mounted_cmp,
         ...                                                     hosting_component=hosting_cmp,
         ...                                                     mounted_component_pin1="A12",
@@ -2337,8 +2413,8 @@ class EdbStackup(object):
         --------
         >>> edb1 = Edb(edbpath=targetfile1,  edbversion="2021.2")
         >>> edb2 = Edb(edbpath=targetfile2, edbversion="2021.2")
-        >>> hosting_cmp = edb1.core_components.get_component_by_name("U100")
-        >>> mounted_cmp = edb2.core_components.get_component_by_name("BGA")
+        >>> hosting_cmp = edb1.components.get_component_by_name("U100")
+        >>> mounted_cmp = edb2.components.get_component_by_name("BGA")
         >>> edb2.core_stackup.place_in_layout(edb1.active_cell, angle=0.0, offset_x="1mm",
         ...                                   offset_y="2mm", flipped_stackup=False, place_on_top=True,
         ...                                   )

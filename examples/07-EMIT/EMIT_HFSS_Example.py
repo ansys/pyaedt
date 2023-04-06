@@ -30,7 +30,7 @@ import pyaedt.emit_core.EmitConstants as econsts
 
 non_graphical = False
 NewThread = True
-desktop_version = "2023.1"
+desktop_version = "2023.2"
 scratch_path = pyaedt.generate_unique_folder_name()
 
 ###############################################################################
@@ -116,7 +116,7 @@ if desktop_version > "2023.1":
     tx_bands = rev.get_band_names(rad2.name, modeTx) 
     domain = aedtapp.results.interaction_domain()
     domain.set_receiver(rad1.name, rx_bands[0], -1)
-    domain.set_interferer([rad2.name],[tx_bands[0]],[-1])
+    domain.set_interferer(rad2.name,tx_bands[0])
     interaction = rev.run(domain)
     worst = interaction.get_worst_instance(modeEmi)
     if worst.has_valid_values():

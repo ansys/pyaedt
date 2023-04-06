@@ -167,7 +167,7 @@ for n, z in enumerate(wg_z):
     u_start = [0, hfss.variable_manager["u_start"].evaluated_value,  z]
     u_end = [0, hfss.variable_manager["u_end"].evaluated_value, z]
 
-    ports.append(hfss.create_wave_port(face_id, u_start, u_end, portname="P" + str(n + 1), renorm=False))
+    ports.append(hfss.wave_port(face_id, u_start, u_end, portname="P" + str(n + 1), renorm=False))
 
 ###############################################################################
 # Insert the mesh adaptation setup using refinement at two frequencies.

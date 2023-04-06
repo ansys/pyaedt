@@ -131,7 +131,7 @@ mech.assign_em_losses(
 )
 diels = ["1_pd", "2_pd", "3_pd", "4_pd", "5_pd"]
 for el in diels:
-    mech.assign_uniform_convection(object_list=[mech.modeler[el].top_face_y, mech.modeler[el].bottom_face_y],
+    mech.assign_uniform_convection(objects_list=[mech.modeler[el].top_face_y, mech.modeler[el].bottom_face_y],
                                    convection_value=3)
 
 ###############################################################################

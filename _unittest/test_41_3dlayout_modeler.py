@@ -287,6 +287,10 @@ class TestClass(BasisTest, object):
             "Bottom", [[0, 0], [10, 30], [20, 30]], lw=1, name="line1", net_name="VCC"
         )
         assert line.name == "line1"
+        assert isinstance(line.center_line, dict)
+        line.center_line = {"Pt0": [1, "0mm"]}
+        assert line.center_line["Pt0"] == ["1", "0"]
+        line.center_line = {"Pt0": ["0mm", "0mm"]}
 
     def test_13a_create_edge_port(self):
         port_wave = self.aedtapp.create_edge_port("line1", 3, False, True, 6, 4, "2mm")
