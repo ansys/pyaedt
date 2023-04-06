@@ -3305,7 +3305,7 @@ class VRTFieldPlot:
             if isinstance(self.ray_box, int):
                 box_id = self.ray_box
             elif isinstance(self.ray_box, str):
-                box_id = self._postprocessor._primitives._object_id_to_names[self.ray_box]
+                box_id = self._postprocessor._primitives._object_names_to_ids[self.ray_box]
             else:
                 box_id = self.ray_box.id
             args.extend("FilterBoxID:=", box_id)

@@ -1099,7 +1099,7 @@ class Lists(PropsManager, object):
                         object_list_new.append(int(element))
                     else:
                         if element in self._modeler.object_names:
-                            obj_id = self._modeler._object_id_to_names[element]
+                            obj_id = self._modeler._object_names_to_ids[element]
                             for sel in self._modeler.object_list:
                                 if sel.id == obj_id:
                                     for f in sel.faces:
@@ -1189,7 +1189,7 @@ class GeometryModeler(Modeler, object):
         self._all_object_names = []
         self.objects = {}
         self.user_defined_components = {}
-        self._object_id_to_names = {}
+        self._object_names_to_ids = {}
 
     @property
     def coordinate_systems(self):
@@ -4351,7 +4351,7 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.GetEdgeIDsFromObject
         """
-        for object in list(self._object_id_to_names.keys()):
+        for object in list(self._object_names_to_ids.keys()):
             try:
                 oEdgeIDs = self.oeditor.GetEdgeIDsFromObject(object)
                 if str(edge_id) in oEdgeIDs:

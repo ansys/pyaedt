@@ -2634,9 +2634,9 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         solid_bodies = self.modeler.solid_bodies
         if objectfilter:
-            solid_ids = [i for i, j in self.modeler._object_id_to_names.items() if j.name in objectfilter]
+            solid_ids = [i for i, j in self.modeler._object_names_to_ids.items() if j.name in objectfilter]
         else:
-            solid_ids = [i for i in list(self.modeler._object_id_to_names.keys())]
+            solid_ids = [i for i in list(self.modeler._object_names_to_ids.keys())]
         self.design_data = {
             "Project Directory": self.project_path,
             "Working Directory": self.working_directory,

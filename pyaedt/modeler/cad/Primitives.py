@@ -311,10 +311,10 @@ class Primitives(object):
         obj_names = self.object_names
         missing = []
         for name in obj_names:
-            if name not in self._object_id_to_names:
+            if name not in self._object_names_to_ids:
                 missing.append(name)
         non_existent = []
-        for name in self._object_id_to_names:
+        for name in self._object_names_to_ids:
             if name not in obj_names and name not in self.unclassified_names:
                 non_existent.append(name)
         report = {"Missing Objects": missing, "Non-Existent Objects": non_existent}
@@ -522,8 +522,8 @@ class Primitives(object):
         o = self._resolve_object(obj)
         name = o.name
 
-        del self.objects[self._object_id_to_names[name]]
-        del self._object_id_to_names[name]
+        del self.objects[self._object_names_to_ids[name]]
+        del self._object_names_to_ids[name]
         o = self._create_object(name)
         return o
 
@@ -572,12 +572,12 @@ class Primitives(object):
             return numeric_list
 
     @pyaedt_function_handler()
-    def does_object_exists(self, object):
+    def does_object_exists(self, obj_to_check):
         """Check to see if an object exists.
 
         Parameters
         ----------
-        object : str, int
+        obj_to_check : str, int
             Object name or object ID.
 
         Returns
@@ -586,16 +586,12 @@ class Primitives(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if isinstance(object, int):
-            if object in self.objects:
-                return True
-            else:
-                return False
+        if isinstance(obj_to_check, int) and obj_to_check in self.objects:
+            return True
+        elif obj_to_check in self.objects_by_name:
+            return True
         else:
-            if object in self.objects_by_name:
-                return True
-            else:
-                return False
+            return False
 
     @pyaedt_function_handler()
     def create_region(self, pad_percent=300, is_percentage=True):
@@ -1263,7 +1259,7 @@ class Primitives(object):
         >>> oEditor.Delete
 
         """
-        objnames = self._object_id_to_names
+        objnames = self._object_names_to_ids
         num_del = 0
         for el in objnames:
             if case_sensitive:
@@ -1309,8 +1305,8 @@ class Primitives(object):
             Object ID.
 
         """
-        if objname in self._object_id_to_names:
-            return self._object_id_to_names[objname]
+        if objname in self._object_names_to_ids:
+            return self._object_names_to_ids[objname]
         return None
 
     @pyaedt_function_handler()
@@ -1328,7 +1324,7 @@ class Primitives(object):
             3D object returned.
 
         """
-        if objname in self._object_id_to_names:
+        if objname in self._object_names_to_ids:
             object_id = self.get_obj_id(objname)
             return self.objects[object_id]
 
@@ -1370,7 +1366,7 @@ class Primitives(object):
         self._all_object_names = []
         self.objects = {}
         self.user_defined_components = {}
-        self._object_id_to_names = {}
+        self._object_names_to_ids = {}
         self._currentId = 0
         self._refresh_object_types()
         self._refresh_all_ids_from_aedt_file()
@@ -1421,7 +1417,7 @@ class Primitives(object):
             if obj.name in self._points:
                 new_points_dict[obj.name] = obj
         self.objects = new_object_dict
-        self._object_id_to_names = new_object_id_dict
+        self._object_names_to_ids = new_object_id_dict
         self.points = new_points_dict
 
     @pyaedt_function_handler()
@@ -1437,7 +1433,7 @@ class Primitives(object):
         """
         new_objects = []
         for obj_name in self.object_names:
-            if obj_name not in self._object_id_to_names:
+            if obj_name not in self._object_names_to_ids:
                 new_objects.append(obj_name)
         return new_objects
 
@@ -1455,11 +1451,11 @@ class Primitives(object):
         added_objects = []
 
         for obj_name in self.object_names:
-            if obj_name not in self._object_id_to_names:
+            if obj_name not in self._object_names_to_ids:
                 self._create_object(obj_name)
                 added_objects.append(obj_name)
         for obj_name in self.unclassified_names:
-            if obj_name not in self._object_id_to_names:
+            if obj_name not in self._object_names_to_ids:
                 self._create_object(obj_name)
                 added_objects.append(obj_name)
         return added_objects
@@ -1800,7 +1796,7 @@ class Primitives(object):
 
         """
         oFaceIDs = []
-        if isinstance(partId, str) and partId in self._object_id_to_names:
+        if isinstance(partId, str) and partId in self._object_names_to_ids:
             oFaceIDs = self.oeditor.GetFaceIDs(partId)
             oFaceIDs = [int(i) for i in oFaceIDs]
         elif partId in self.objects:
@@ -1831,7 +1827,7 @@ class Primitives(object):
 
         """
         oEdgeIDs = []
-        if isinstance(partId, str) and partId in self._object_id_to_names:
+        if isinstance(partId, str) and partId in self._object_names_to_ids:
             oEdgeIDs = self.oeditor.GetEdgeIDsFromObject(partId)
             oEdgeIDs = [int(i) for i in oEdgeIDs]
         elif partId in self.objects:
@@ -1885,7 +1881,7 @@ class Primitives(object):
 
         """
         oVertexIDs = []
-        if isinstance(partID, str) and partID in self._object_id_to_names:
+        if isinstance(partID, str) and partID in self._object_names_to_ids:
             oVertexIDs = self.oeditor.GetVertexIDsFromObject(partID)
             oVertexIDs = [int(i) for i in oVertexIDs]
         elif partID in self.objects:
@@ -2107,8 +2103,8 @@ class Primitives(object):
             two vertices, an empty list is returned.
         """
 
-        if isinstance(partID, str) and partID in self._object_id_to_names:
-            partID = self._object_id_to_names[partID]
+        if isinstance(partID, str) and partID in self._object_names_to_ids:
+            partID = self._object_names_to_ids[partID]
 
         if partID in self.objects and self.objects[partID].object_type == "Line":
             vertices = self.get_object_vertices(partID)
@@ -2841,7 +2837,7 @@ class Primitives(object):
                 new_id = o.id
             o = self.get_existing_polyline(o)
             self.objects[new_id] = o
-            self._object_id_to_names[o.name] = new_id
+            self._object_names_to_ids[o.name] = new_id
         else:
             o = Object3d(self, name)
             commands = self._get_commands(name)
@@ -2852,7 +2848,7 @@ class Primitives(object):
             else:
                 new_id = o.id
             self.objects[new_id] = o
-            self._object_id_to_names[o.name] = new_id
+            self._object_names_to_ids[o.name] = new_id
         return o
 
     @pyaedt_function_handler()
@@ -3183,8 +3179,8 @@ class Primitives(object):
         if isinstance(partId, int):
             if partId in self.objects:
                 return self.objects[partId]
-        elif partId in self._object_id_to_names:
-            return self.objects[self._object_id_to_names[partId]]
+        elif partId in self._object_names_to_ids:
+            return self.objects[self._object_names_to_ids[partId]]
         elif partId in self.user_defined_components:
             return self.user_defined_components[partId]
         elif isinstance(partId, Object3d) or isinstance(partId, UserDefinedComponent):
