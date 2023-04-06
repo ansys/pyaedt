@@ -23,7 +23,6 @@ from pyaedt.edb_core import EdbSiwave
 from pyaedt.edb_core import EdbStackup
 from pyaedt.edb_core.edb_data.design_options import EdbDesignOptions
 from pyaedt.edb_core.edb_data.edb_builder import EdbBuilder
-from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import HfssSimulationSetup
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
@@ -2374,20 +2373,11 @@ class Edb(object):
             It returns a booleand to check if the variable exists and the variable
             server that should contain the variable.
         """
-        if "$" in variable_name:
-            if variable_name.index("$") == 0:
-                var_server = self.db.GetVariableServer()
-
-            else:
-                var_server = self.active_cell.GetVariableServer()
-
-        else:
-            var_server = self.active_cell.GetVariableServer()
-
-        variables = var_server.GetAllVariableNames()
-        if variable_name in list(variables):
-            return True, var_server
-        return False, var_server
+        if variable_name in self.db.get_all_variable_names():
+            return True
+        if variable_name in self.active_cell.get_all_variable_names():
+            return True
+        return False
 
     @pyaedt_function_handler()
     def get_variable(self, variable_name):
@@ -2401,15 +2391,15 @@ class Edb(object):
         -------
         :class:`pyaedt.edb_core.edb_data.edbvalue.EdbValue`
         """
-        var_server = self.variable_exists(variable_name)
-        if var_server[0]:
-            tuple_value = var_server[1].GetVariableValue(variable_name)
-            return EdbValue(tuple_value[1])
+        if variable_name in self.db.get_all_variable_names():
+            return self.db.get_variable_value(variable_name)
+        if variable_name in self.active_cell.get_all_variable_names():
+            return self.active_cell.get_variable_value(variable_name)
         self.logger.info("Variable %s doesn't exists.", variable_name)
         return None
 
     @pyaedt_function_handler()
-    def add_project_variable(self, variable_name, variable_value):
+    def add_project_variable(self, variable_name, variable_value, is_parameter=False):
         """Add a variable to edb database (project). The variable will have the prefix `$`.
 
         ..note::
@@ -2439,7 +2429,13 @@ class Edb(object):
         """
         if not variable_name.startswith("$"):
             variable_name = "${}".format(variable_name)
-        return self.add_design_variable(variable_name=variable_name, variable_value=variable_value)
+        if not variable_name in self.db.get_all_variable_names():
+            self.db.add_design_variable(
+                variable_name=variable_name, variable_value=variable_value, is_parameter=is_parameter
+            )
+            return True
+        self.logger.error("Variable %s already exists.", variable_name)
+        return False
 
     @pyaedt_function_handler()
     def add_design_variable(self, variable_name, variable_value, is_parameter=False):
@@ -2477,12 +2473,11 @@ class Edb(object):
 
 
         """
-        var_server = self.variable_exists(variable_name)
-        if not var_server[0]:
-            var_server[1].AddVariable(variable_name, self.edb_value(variable_value), is_parameter)
-            return True, var_server[1]
+        if not variable_name in self.active_cell.get_all_variable_names():
+            self.active_cell.add_variable(variable_name, variable_value, is_parameter)
+            return True
         self.logger.error("Variable %s already exists.", variable_name)
-        return False, var_server[1]
+        return False
 
     @pyaedt_function_handler()
     def change_design_variable_value(self, variable_name, variable_value):
@@ -2511,12 +2506,14 @@ class Edb(object):
         >>> boolean, ant_length = edb_app.change_design_variable_value("ant_length", "1m")
         >>> print(edb_app["ant_length"])    #using getitem
         """
-        var_server = self.variable_exists(variable_name)
-        if var_server[0]:
-            var_server[1].SetVariableValue(variable_name, self.edb_value(variable_value))
-            return True, var_server[1]
+        if variable_name in self.db.get_all_variable_names():
+            self.db.set_variable_value(variable_name, variable_value)
+            return True
+        if variable_name in self.active_cell.get_all_variable_names():
+            self.active_cell.set_variable_value(variable_name, variable_value)
+            return True
         self.logger.error("Variable %s does not exists.", variable_name)
-        return False, var_server[1]
+        return False
 
     @pyaedt_function_handler()
     def get_bounding_box(self):
