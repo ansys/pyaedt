@@ -15,12 +15,12 @@ import warnings
 from pyaedt import __version__
 from pyaedt import pyaedt_logger
 from pyaedt import settings
+from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.edb_core import Components
 from pyaedt.edb_core import EdbHfss
 from pyaedt.edb_core import EdbLayout
 from pyaedt.edb_core import EdbNets
 from pyaedt.edb_core import EdbSiwave
-from pyaedt.edb_core import EdbStackup
 from pyaedt.edb_core.edb_data.design_options import EdbDesignOptions
 from pyaedt.edb_core.edb_data.edb_builder import EdbBuilder
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
@@ -42,8 +42,10 @@ from pyaedt.edb_core.padstack import EdbPadstacks
 from pyaedt.edb_core.stackup import Stackup
 from pyaedt.generic.clr_module import Convert
 from pyaedt.generic.clr_module import List
+from pyaedt.generic.clr_module import Tuple
 from pyaedt.generic.clr_module import _clr
 from pyaedt.generic.clr_module import edb_initialized
+from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.general_methods import env_path
 from pyaedt.generic.general_methods import env_path_student
@@ -288,13 +290,13 @@ class Edb(object):
     def _init_objects(self):
         time.sleep(1)
         self._components = Components(self)
-        self._stackup = EdbStackup(self)
+        self._stackup = Stackup(self)
         self._padstack = EdbPadstacks(self)
         self._siwave = EdbSiwave(self)
         self._hfss = EdbHfss(self)
         self._nets = EdbNets(self)
         self._core_primitives = EdbLayout(self)
-        self._stackup2 = Stackup(self)
+        self._stackup2 = self._stackup
         self._materials = Materials(self)
 
         self.logger.info("Objects Initialized")
@@ -753,7 +755,7 @@ class Edb(object):
 
         Returns
         -------
-        Instance of :class:`pyaedt.edb_core.Components.Components`
+        :class:`pyaedt.edb_core.Components.Components`
 
         Examples
         --------
@@ -776,7 +778,7 @@ class Edb(object):
         mess += " Use `app.stackup` directly to instantiate new stackup methods."
         warnings.warn(mess, DeprecationWarning)
         if not self._stackup and self.builder:
-            self._stackup = EdbStackup(self)
+            self._stackup = Stackup(self)
         return self._stackup
 
     @property
@@ -935,7 +937,7 @@ class Edb(object):
 
         Returns
         -------
-        Instance of :class:`pyaedt.edb_core.hfss.EdbHfss`
+        :class:`pyaedt.edb_core.hfss.EdbHfss`
 
         Examples
         --------
@@ -1317,10 +1319,22 @@ class Edb(object):
         expansion_size,
         use_round_corner,
         use_pyaedt_extent=False,
+        smart_cut=False,
+        reference_list=[],
+        include_pingroups=True,
     ):
         if extent_type in ["Conforming", self.edb.Geometry.ExtentType.Conforming, 1]:
             if use_pyaedt_extent:
-                _poly = self._create_conformal(net_signals, expansion_size, 1e-12, use_round_corner, expansion_size)
+                _poly = self._create_conformal(
+                    net_signals,
+                    expansion_size,
+                    1e-12,
+                    use_round_corner,
+                    expansion_size,
+                    smart_cut,
+                    reference_list,
+                    include_pingroups,
+                )
             else:
                 _poly = self.active_layout.GetExpandedExtentFromNets(
                     net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
@@ -1331,7 +1345,16 @@ class Edb(object):
             )
         else:
             if use_pyaedt_extent:
-                _poly = self._create_convex_hull(net_signals, expansion_size, 1e-12, use_round_corner, expansion_size)
+                _poly = self._create_convex_hull(
+                    net_signals,
+                    expansion_size,
+                    1e-12,
+                    use_round_corner,
+                    expansion_size,
+                    smart_cut,
+                    reference_list,
+                    include_pingroups,
+                )
             else:
                 _poly = self.active_layout.GetExpandedExtentFromNets(
                     net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
@@ -1341,7 +1364,17 @@ class Edb(object):
         return _poly
 
     @pyaedt_function_handler()
-    def _create_conformal(self, net_signals, expansion_size, tolerance, round_corner, round_extension):
+    def _create_conformal(
+        self,
+        net_signals,
+        expansion_size,
+        tolerance,
+        round_corner,
+        round_extension,
+        smart_cutout=False,
+        reference_list=[],
+        include_pingroups=True,
+    ):
         names = []
         _polys = []
         for net in net_signals:
@@ -1353,11 +1386,55 @@ class Edb(object):
                 )
                 if obj_data:
                     _polys.extend(list(obj_data))
+        if smart_cutout:
+            _polys.extend(self._smart_cut(net_signals, reference_list, include_pingroups))
         _poly = self.edb.Geometry.PolygonData.Unite(convert_py_list_to_net_list(_polys))[0]
         return _poly
 
     @pyaedt_function_handler()
-    def _create_convex_hull(self, net_signals, expansion_size, tolerance, round_corner, round_extension):
+    def _smart_cut(self, net_signals, reference_list=[], include_pingroups=True):
+        _polys = []
+        terms = [term for term in list(self.active_layout.Terminals) if int(term.GetBoundaryType()) in [0, 3, 4, 7, 8]]
+        locations = []
+        for term in terms:
+            if term.GetTerminalType().ToString() == "PadstackInstanceTerminal":
+                if term.GetParameters()[1].GetNet().GetName() in reference_list:
+                    locations.append(self.padstacks.instances[term.GetParameters()[1].GetId()].position)
+            elif term.GetTerminalType().ToString() == "PointTerminal" and term.GetNet().GetName() in reference_list:
+                pd = term.GetParameters()[1]
+                locations.append([pd.X.ToDouble(), pd.Y.ToDouble()])
+        if include_pingroups:
+            for reference in reference_list:
+                for pin in self.nets.nets[reference].padstack_instances:
+                    if pin.pingroups:
+                        locations.append(pin.position)
+        for point in locations:
+            pointA = self.edb.Geometry.PointData(self.edb_value(point[0] - 1e-12), self.edb_value(point[1] - 1e-12))
+            pointB = self.edb.Geometry.PointData(self.edb_value(point[0] + 1e-12), self.edb_value(point[1] + 1e-12))
+            points = Tuple[self.edb.Geometry.PointData, self.edb.Geometry.PointData](pointA, pointB)
+            _polys.append(self.edb.Geometry.PolygonData.CreateFromBBox(points))
+        for cname, c in self.components.instances.items():
+            if (
+                set(net_signals).intersection(c.nets)
+                and c.is_enabled
+                and c.model_type in ["SParameterModel", "SpiceModel", "NetlistModel"]
+            ):
+                for pin in c.pins:
+                    locations.append(pin.position)
+        return _polys
+
+    @pyaedt_function_handler()
+    def _create_convex_hull(
+        self,
+        net_signals,
+        expansion_size,
+        tolerance,
+        round_corner,
+        round_extension,
+        smart_cut=False,
+        reference_list=[],
+        include_pingroups=True,
+    ):
         names = []
         _polys = []
         for net in net_signals:
@@ -1365,6 +1442,8 @@ class Edb(object):
         for prim in self.modeler.primitives:
             if prim.net_name in names:
                 _polys.append(prim.primitive_object.GetPolygonData())
+        if smart_cut:
+            _polys.extend(self._smart_cut(net_signals, reference_list, include_pingroups))
         _poly = self.edb.Geometry.PolygonData.GetConvexHullOfPolygons(convert_py_list_to_net_list(_polys))
         _poly = _poly.Expand(expansion_size, tolerance, round_corner, round_extension)[0]
         return _poly
@@ -1388,6 +1467,10 @@ class Edb(object):
         custom_extent_units="mm",
         include_partial_instances=False,
         keep_voids=True,
+        check_terminals=False,
+        include_pingroups=False,
+        expansion_factor=4,
+        maximum_iterations=10,
     ):
         """Create a cutout using an approach entirely based on pyaedt.
         This new method replaces all legacy cutout methods in pyaedt.
@@ -1425,7 +1508,7 @@ class Edb(object):
         extent_defeature : float, optional
             Defeature the cutout before applying it to produce simpler geometry for mesh (Experimental).
             It applies only to Conforming bounding box. Default value is ``0`` which disable it.
-         remove_single_pin_components : bool, optional
+        remove_single_pin_components : bool, optional
             Remove all Single Pin RLC after the cutout is completed. Default is `False`.
         custom_extent : list
             Points list defining the cutout shape. This setting will override `extent_type` field.
@@ -1438,6 +1521,20 @@ class Edb(object):
         keep_voids : bool
             Boolean used for keep or not the voids intersecting the polygon used for clipping the layout.
             Default value is ``True``, ``False`` will remove the voids.Valid only if `custom_extend` is provided.
+        check_terminals : bool, optional
+            Whether to check for all reference terminals and increase extent to include them into the cutout.
+            This applies to components which have a model (spice, touchstone or netlist) associated.
+        include_pingroups : bool, optional
+            Whether to check for all pingroups terminals and increase extent to include them into the cutout.
+            It requires ``check_terminals``.
+        expansion_factor : int, optional
+            The method computes a float representing the largest number between
+            the dielectric thickness or trace width multiplied by the expansion_factor factor.
+            The trace width search is limited to nets with ports attached. Works only if `use_pyaedt_cutout`.
+            Default is `0` to disable the search.
+        maximum_iterations : int, optional
+            Maximum number of iterations before stopping in searching for a cutout with an error.
+            Default is `10`.
 
         Returns
         -------
@@ -1465,6 +1562,8 @@ class Edb(object):
 
 
         """
+        if expansion_factor > 0:
+            expansion_size = self.calculate_initial_extent(expansion_factor)
         if signal_list is None:
             signal_list = []
         if isinstance(reference_list, str):
@@ -1491,23 +1590,74 @@ class Edb(object):
                 output_aedb_path=output_aedb_path,
                 open_cutout_at_end=open_cutout_at_end,
                 use_pyaedt_extent_computing=use_pyaedt_extent_computing,
+                check_terminals=check_terminals,
+                include_pingroups=include_pingroups,
             )
         else:
             legacy_path = self.edbpath
-            result = self._create_cutout_multithread(
-                signal_list=signal_list,
-                reference_list=reference_list,
-                extent_type=extent_type,
-                expansion_size=expansion_size,
-                use_round_corner=use_round_corner,
-                number_of_threads=number_of_threads,
-                custom_extent=custom_extent,
-                output_aedb_path=output_aedb_path,
-                remove_single_pin_components=remove_single_pin_components,
-                use_pyaedt_extent_computing=use_pyaedt_extent_computing,
-                extent_defeature=extent_defeature,
-                custom_extent_units=custom_extent_units,
-            )
+            if expansion_factor > 0 and not custom_extent:
+                start = time.time()
+                self.save_edb()
+                dummy_path = self.edbpath.replace(".aedb", "_smart_cutout_temp.aedb")
+                working_cutout = False
+                i = 1
+                expansion = expansion_size
+                while i <= maximum_iterations:
+                    self.logger.info("-----------------------------------------")
+                    self.logger.info("Trying cutout with {}mm expansion size".format(expansion * 1e3))
+                    self.logger.info("-----------------------------------------")
+                    result = self._create_cutout_multithread(
+                        signal_list=signal_list,
+                        reference_list=reference_list,
+                        extent_type=extent_type,
+                        expansion_size=expansion,
+                        use_round_corner=use_round_corner,
+                        number_of_threads=number_of_threads,
+                        custom_extent=custom_extent,
+                        output_aedb_path=dummy_path,
+                        remove_single_pin_components=remove_single_pin_components,
+                        use_pyaedt_extent_computing=use_pyaedt_extent_computing,
+                        extent_defeature=extent_defeature,
+                        custom_extent_units=custom_extent_units,
+                        check_terminals=check_terminals,
+                        include_pingroups=include_pingroups,
+                    )
+                    if self.are_port_reference_terminals_connected():
+                        if output_aedb_path:
+                            self.save_edb_as(output_aedb_path)
+                        else:
+                            self.save_edb_as(legacy_path)
+                        working_cutout = True
+                        break
+                    self.close_edb()
+                    self.edbpath = legacy_path
+                    self.open_edb(True)
+                    i += 1
+                    expansion = expansion_size * i
+                if working_cutout:
+                    msg = "Cutout completed in {} iterations with expansion size of {}mm".format(i, expansion * 1e3)
+                    self.logger.info_timer(msg, start)
+                else:
+                    msg = "Cutout failed after {} iterations and expansion size of {}mm".format(i, expansion * 1e3)
+                    self.logger.info_timer(msg, start)
+                    return False
+            else:
+                result = self._create_cutout_multithread(
+                    signal_list=signal_list,
+                    reference_list=reference_list,
+                    extent_type=extent_type,
+                    expansion_size=expansion_size,
+                    use_round_corner=use_round_corner,
+                    number_of_threads=number_of_threads,
+                    custom_extent=custom_extent,
+                    output_aedb_path=output_aedb_path,
+                    remove_single_pin_components=remove_single_pin_components,
+                    use_pyaedt_extent_computing=use_pyaedt_extent_computing,
+                    extent_defeature=extent_defeature,
+                    custom_extent_units=custom_extent_units,
+                    check_terminals=check_terminals,
+                    include_pingroups=include_pingroups,
+                )
             if result and not open_cutout_at_end:
                 self.save_edb()
                 self.close_edb()
@@ -1527,6 +1677,8 @@ class Edb(object):
         open_cutout_at_end=True,
         use_pyaedt_extent_computing=False,
         remove_single_pin_components=False,
+        check_terminals=False,
+        include_pingroups=True,
     ):
         expansion_size = self.edb_value(expansion_size).ToDouble()
 
@@ -1545,6 +1697,9 @@ class Edb(object):
             expansion_size,
             use_round_corner,
             use_pyaedt_extent_computing,
+            smart_cut=check_terminals,
+            reference_list=reference_list,
+            include_pingroups=include_pingroups,
         )
 
         # Create new cutout cell/design
@@ -1704,6 +1859,8 @@ class Edb(object):
         use_pyaedt_extent_computing=False,
         extent_defeature=0.0,
         custom_extent_units="mm",
+        check_terminals=False,
+        include_pingroups=True,
     ):
         if is_ironpython:  # pragma: no cover
             self.logger.error("Method working only in Cpython")
@@ -1761,7 +1918,14 @@ class Edb(object):
                 [net for net in list(self.active_layout.Nets) if net.GetName() in signal_list]
             )
             _poly = self._create_extent(
-                net_signals, extent_type, expansion_size, use_round_corner, use_pyaedt_extent_computing
+                net_signals,
+                extent_type,
+                expansion_size,
+                use_round_corner,
+                use_pyaedt_extent_computing,
+                smart_cut=check_terminals,
+                reference_list=reference_list,
+                include_pingroups=include_pingroups,
             )
             if extent_type in ["Conforming", self.edb.Geometry.ExtentType.Conforming, 1] and extent_defeature > 0:
                 _poly = _poly.Defeature(extent_defeature)
@@ -2045,6 +2209,13 @@ class Edb(object):
         """
         warnings.warn("Use :func:`number_with_units` instead.", DeprecationWarning)
         return self.number_with_units(Value, sUnits)
+
+    def _decompose_variable_value(self, value, unit_system=None):
+        val, units = decompose_variable_value(value)
+        if units and unit_system and units in AEDT_UNITS[unit_system]:
+            return AEDT_UNITS[unit_system][units] * val
+        else:
+            return val
 
     @pyaedt_function_handler()
     def _create_cutout_on_point_list(
@@ -2853,19 +3024,56 @@ class Edb(object):
         >>> edb.cutout(["Net1"])
         >>> assert edb.are_port_reference_terminals_connected()
         """
+        all_sources = [i for i in self.excitations.values() if not isinstance(i, ExcitationPorts)]
+        all_sources.extend([i for i in self.sources.values()])
+        if not all_sources:
+            return True
         self.logger.reset_timer()
         if not common_reference:
-            common_reference = list(
-                set([i.reference_net_name for i in self.excitations.values() if i.reference_net_name])
-            )
+            common_reference = list(set([i.reference_net_name for i in all_sources if i.reference_net_name]))
             if len(common_reference) > 1:
                 self.logger.error("More than 1 reference found.")
+                return False
+            if not common_reference:
+                self.logger.error("No Reference found.")
+                return False
+
             common_reference = common_reference[0]
+        all_sources = [i for i in all_sources if i.net_name != common_reference]
+
         setList = [
             set(i.reference_object.get_connected_object_id_set())
-            for i in self.excitations.values()
-            if i.reference_net_name == common_reference
+            for i in all_sources
+            if i.reference_object and i.reference_net_name == common_reference
         ]
+        if len(setList) != len(all_sources):
+            self.logger.error("No Reference found.")
+            return False
+        cmps = [
+            i
+            for i in list(self.components.resistors.values())
+            if i.numpins == 2 and common_reference in i.nets and self._decompose_variable_value(i.res_value) <= 1
+        ]
+        cmps.extend(
+            [i for i in list(self.components.inductors.values()) if i.numpins == 2 and common_reference in i.nets]
+        )
+
+        for cmp in cmps:
+            found = False
+            ids = [i.GetId() for i in cmp.pinlist]
+            for list_obj in setList:
+                if len(set(ids).intersection(list_obj)) == 1:
+                    for list_obj2 in setList:
+                        if list_obj2 != list_obj and len(set(ids).intersection(list_obj)) == 1:
+                            if (ids[0] in list_obj and ids[1] in list_obj2) or (
+                                ids[1] in list_obj and ids[0] in list_obj2
+                            ):
+                                setList[setList.index(list_obj)] = list_obj.union(list_obj2)
+                                setList[setList.index(list_obj2)] = list_obj.union(list_obj2)
+                                found = True
+                                break
+                    if found:
+                        break
 
         # Get the set intersections for all the ID sets.
         iDintersection = set.intersection(*setList)
@@ -3022,3 +3230,32 @@ class Edb(object):
         setup = SiwaveDCSimulationSetup(self, name)
         self._setups[name] = setup
         return setup
+
+    @pyaedt_function_handler()
+    def calculate_initial_extent(self, expansion_factor):
+        """Compute a float representing the larger number between the dielectric thickness or trace width
+        multiplied by the nW factor. The trace width search is limited to nets with ports attached.
+
+        Parameters
+        ----------
+        expansion_factor : float
+            Value for the width multiplier (nW factor).
+        """
+        nets = []
+        for port in self.excitations.values():
+            nets.append(port.net_name)
+        for port in self.sources.values():
+            nets.append(port.net_name)
+        nets = list(set(nets))
+        max_width = 0
+        for net in nets:
+            for primitive in self.nets[net].primitives:
+                if primitive.type == "Path":
+                    max_width = max(max_width, primitive.width)
+
+        for layer in list(self.stackup.dielectric_layers.values()):
+            max_width = max(max_width, layer.thickness)
+
+        max_width = max_width * expansion_factor
+        self.logger.info("The W factor is {}, The initial extent = {:e}".format(expansion_factor, max_width))
+        return max_width

@@ -134,12 +134,9 @@ edb.hfss.create_coax_port_on_component("U2A5", "V1P0_S0")
 # Edit the stackup layers and material. You can change stackup layer
 # properties with assignment and create materials and assign them to layers.
 
-edb.core_stackup.stackup_layers.layers["TOP"].thickness = "75um"
-# edb.core_stackup.stackup_layers.layers["Diel1"].material_name = "Fr4_epoxy"
-edb.core_stackup.create_debye_material("My_Debye", 5, 3, 0.02, 0.05, 1e5, 1e9)
-# edb.core_stackup.stackup_layers.layers['BOTTOM'].material_name = "My_Debye"
-# edb.core_stackup.stackup_layers.remove_layer("Signal3")
-# edb.core_stackup.stackup_layers.remove_layer("Signal1")
+edb.stackup["TOP"].thickness = "75um"
+edb.materials.add_debye_material("My_Debye", 5, 3, 0.02, 0.05, 1e5, 1e9)
+
 
 
 ###############################################################################

@@ -112,6 +112,9 @@ class TestClass(BasisTest, object):
         assert poly0.type == "Polygon"
         assert self.edbapp.modeler.paths[0].type == "Path"
         assert self.edbapp.modeler.paths[0].clone()
+        assert isinstance(self.edbapp.modeler.paths[0].width, float)
+        self.edbapp.modeler.paths[0].width = "1mm"
+        assert self.edbapp.modeler.paths[0].width == 0.001
         assert self.edbapp.modeler.rectangles[0].type == "Rectangle"
         assert self.edbapp.modeler.circles[0].type == "Circle"
         assert not poly0.is_arc(poly0.points_raw()[0])
@@ -133,19 +136,7 @@ class TestClass(BasisTest, object):
         assert isinstance(poly0.arcs[0].points_raw, list)
         assert isinstance(poly0.arcs[0].points, tuple)
 
-    def test_006_get_stackup(self):
-        stackup = self.edbapp.core_stackup.stackup_layers
-        assert len(stackup.layers) > 2
-        assert self.edbapp.core_stackup.stackup_layers["TOP"]._builder
-        assert self.edbapp.core_stackup.stackup_layers["TOP"].id
-        assert (
-            isinstance(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type, int)
-            or str(type(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type)) == "<type 'LayerType'>"
-        )
-
     def test_007_get_signal_layers(self):
-        signal_layers = self.edbapp.core_stackup.signal_layers
-        assert len(list(signal_layers.values()))
         assert self.edbapp.stackup.residual_copper_area_per_layer()
 
     def test_008_component_lists(self):
@@ -214,58 +205,6 @@ class TestClass(BasisTest, object):
     def test_011_assign_rlc(self):
         assert self.edbapp.components.set_component_rlc("C3B14", res_value=1e-3, cap_value="10e-6", isparallel=False)
         assert self.edbapp.components.set_component_rlc("L3A1", res_value=1e-3, ind_value="10e-6", isparallel=True)
-
-    def test_012_add_layer(self):
-        layers = self.edbapp.core_stackup.stackup_layers
-        assert layers.add_layer("NewLayer", "TOP", "copper", "air", "10um", 0, roughness_enabled=True)
-        assert layers.add_layer("NewLayer2", None, "pec", "air", "0um", 0)
-        assert layers.add_layer("NewLayer3", None, "copper", "air", "0um", 0, negative_layer=True)
-        top = layers.layers["TOP"]
-        top.roughness_enabled = True
-        assert top.assign_roughness_model_top(huray_radius="1um")
-        assert top.assign_roughness_model_bottom(model_type="groisse")
-        assert top.assign_roughness_model_side(huray_surface_ratio=5)
-
-    def test_013_add_dielectric(self):
-        diel = self.edbapp.core_stackup.create_dielectric("MyDiel", 3.3, 0.02)
-        assert diel
-
-    def test_014_add_conductor(self):
-        cond = self.edbapp.core_stackup.create_conductor("MyCond", 55e8)
-        assert cond
-
-    def test_015_add_djordievic(self):
-        diel = self.edbapp.core_stackup.create_djordjevicsarkar_material("MyDjord", 3.3, 0.02, 3.3)
-        assert diel
-
-    def test_016_add_debye(self):
-        diel = self.edbapp.core_stackup.create_debye_material("My_Debye", 3, 2.5, 0.02, 0.04, 1e6, 1e9)
-        assert diel
-
-    def test_017_add_multipole_debye(self):
-        freq = [0, 2, 3, 4, 5, 6]
-        rel_perm = [1e9, 1.1e9, 1.2e9, 1.3e9, 1.5e9, 1.6e9]
-        loss_tan = [0.025, 0.026, 0.027, 0.028, 0.029, 0.030]
-        diel = self.edbapp.core_stackup.create_multipole_debye_material("My_MP_Debye", freq, rel_perm, loss_tan)
-        assert diel
-
-    def test_018_update_layer(self):
-        tol = 1e-12
-        assert "LYR_1" in self.edbapp.core_stackup.stackup_layers.layers.keys()
-        assert self.edbapp.core_stackup.stackup_layers["LYR_1"].name
-        self.edbapp.core_stackup.stackup_layers["LYR_1"].thickness_value = "100um"
-        assert abs(self.edbapp.core_stackup.stackup_layers["LYR_1"].thickness_value - 10e-5) < tol
-        self.edbapp.core_stackup.stackup_layers["LYR_2"].material_name = "MyCond"
-        assert self.edbapp.core_stackup.stackup_layers["LYR_2"].material_name == "MyCond"
-        assert self.edbapp.core_stackup.stackup_layers["LYR_1"].filling_material_name is not None or False
-        assert self.edbapp.core_stackup.stackup_layers["LYR_1"].top_bottom_association is not None or False
-        assert self.edbapp.core_stackup.stackup_layers["LYR_1"].lower_elevation is not None or False
-        assert self.edbapp.core_stackup.stackup_layers["LYR_1"].upper_elevation is not None or False
-        assert self.edbapp.core_stackup.stackup_layers["LYR_1"].etch_factor is not None or False
-
-    def test_019_remove_layer(self):
-        layers = self.edbapp.core_stackup.stackup_layers
-        assert layers.remove_layer("BOTTOM")
 
     def test_020_components(self):
         assert "R1" in list(self.edbapp.components.components.keys())
@@ -719,13 +658,76 @@ class TestClass(BasisTest, object):
         self.local_scratch.copyfolder(source_path, target_path)
 
         edbapp = Edb(target_path, edbversion=desktop_version)
-
+        edbapp.components.create_port_on_component(
+            "U2A5",
+            ["V3P3_S0"],
+            reference_net="GND",
+            port_type=SourceType.CircPort,
+        )
+        edbapp.components.create_port_on_component("U2A5", ["VREF"], reference_net="GND")
+        edbapp.hfss.create_voltage_source_on_net("U1B5", "VREF", "U1B5", "GND")
+        legacy_name = edbapp.edbpath
         assert edbapp.cutout(
-            signal_list=["V3P3_S0"],
+            signal_list=["V3P3_S0", "VREF"],
             reference_list=["GND"],
             number_of_threads=4,
             extent_type="ConvexHull",
             use_pyaedt_extent_computing=True,
+            check_terminals=True,
+        )
+        assert edbapp.edbpath == legacy_name
+        assert edbapp.are_port_reference_terminals_connected(common_reference="GND")
+
+        edbapp.close_edb()
+
+    @pytest.mark.skipif(sys.version_info < (3, 8), reason="Method works in CPython only")
+    def test_065B_smart_cutout(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo_JTAG.aedb")
+        target_path = os.path.join(self.local_scratch.path, "Galileo_JTAG.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+
+        edbapp = Edb(target_path, edbversion=desktop_version)
+
+        assert edbapp.cutout(
+            signal_list=["JTAG_TDO"],
+            reference_list=["GND"],
+            number_of_threads=4,
+            extent_type="ConvexHull",
+            use_pyaedt_extent_computing=True,
+            check_terminals=True,
+            expansion_factor=4,
+        )
+        edbapp.close_edb()
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "MicrostripSpliGnd.aedb")
+        target_path = os.path.join(self.local_scratch.path, "MicrostripSpliGnd.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+
+        edbapp = Edb(target_path, edbversion=desktop_version)
+
+        assert edbapp.cutout(
+            signal_list=["trace_n"],
+            reference_list=["ground"],
+            number_of_threads=4,
+            extent_type="Conformal",
+            use_pyaedt_extent_computing=True,
+            check_terminals=True,
+            expansion_factor=2,
+        )
+        edbapp.close_edb()
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "Multizone_GroundVoids.aedb")
+        target_path = os.path.join(self.local_scratch.path, "Multizone_GroundVoids.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+
+        edbapp = Edb(target_path, edbversion=desktop_version)
+
+        assert edbapp.cutout(
+            signal_list=["DIFF_N", "DIFF_P"],
+            reference_list=["GND"],
+            number_of_threads=4,
+            extent_type="Conformal",
+            use_pyaedt_extent_computing=True,
+            check_terminals=True,
+            expansion_factor=3,
         )
         edbapp.close_edb()
 
@@ -733,7 +735,6 @@ class TestClass(BasisTest, object):
         assert resistor_value_parser("100meg")
 
     def test_067_stackup_limits(self):
-        assert self.edbapp.core_stackup.stackup_limits()
         assert self.edbapp.stackup.limits()
 
     def test_068_create_polygon(self):
@@ -782,12 +783,16 @@ class TestClass(BasisTest, object):
         assert isinstance(trace.get_center_line(True), list)
 
     def test_070_create_outline(self):
-        assert self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
-        assert not self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
-        self.edbapp.stackup.add_layer("new_layer_1", "TOP", "insert_below")
-        assert self.edbapp.stackup.layers["TOP"].thickness == 4.826e-05
-        self.edbapp.stackup.layers["TOP"].thickness = 4e-5
-        assert self.edbapp.stackup.layers["TOP"].thickness == 4e-05
+        edbapp = Edb(
+            edbversion=desktop_version,
+        )
+        assert edbapp.stackup.add_outline_layer("Outline1")
+        assert not edbapp.stackup.add_outline_layer("Outline1")
+        edbapp.stackup.add_layer("TOP")
+        assert edbapp.stackup.layers["TOP"].thickness == 3.5e-05
+        edbapp.stackup.layers["TOP"].thickness = 4e-5
+        assert edbapp.stackup.layers["TOP"].thickness == 4e-05
+        edbapp.close_edb()
 
     def test_071_create_edb(self):
         edb = Edb(os.path.join(self.local_scratch.path, "temp.aedb"))
@@ -916,15 +921,6 @@ class TestClass(BasisTest, object):
     def test_088_create_symmetric_stackup(self):
         if not is_ironpython:
             app_edb = Edb(edbversion=desktop_version)
-            assert not app_edb.core_stackup.create_symmetric_stackup(9)
-            assert app_edb.core_stackup.create_symmetric_stackup(8)
-            app_edb.close_edb()
-
-            app_edb = Edb(edbversion=desktop_version)
-            assert app_edb.core_stackup.create_symmetric_stackup(8, soldermask=False)
-            app_edb.close_edb()
-
-            app_edb = Edb(edbversion=desktop_version)
             assert not app_edb.stackup.create_symmetric_stackup(9)
             assert app_edb.stackup.create_symmetric_stackup(8)
             app_edb.close_edb()
@@ -963,47 +959,6 @@ class TestClass(BasisTest, object):
         assert len(intersection) == 1
         circle2 = self.edbapp.modeler.create_circle("TOP", 20, 20, 15)
         assert circle2.unite(intersection)
-
-    def test_090_negative_properties(self):
-        layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
-        layer.negative_layer = True
-        assert layer.negative_layer
-
-    def test_091_roughness_property(self):
-        layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
-        layer.roughness_enabled = True
-        assert layer.roughness_enabled
-
-    def test_092_thickness_property(self):
-        layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
-        layer.thickness_value = 35e-6
-        assert layer.thickness_value == 35e-6
-
-    def test_093_filling_material_property(self):
-        layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
-        layer.filling_material_name = "air"
-        assert layer.filling_material_name == "air"
-
-    def test_094_material_property(self):
-        layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
-        layer.material_name = "copper"
-        assert layer.material_name == "copper"
-
-    def test_095_layer_type_property(self):
-        layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
-        layer.layer_type = 1
-        assert layer.layer_type == 1
-        layer.layer_type = 0
-        assert layer.layer_type == 0
-
-    def test_096_loggers(self):
-        core_stackup = self.edbapp.core_stackup
-        layers = self.edbapp.core_stackup.stackup_layers
-        layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
-        self.edbapp.logger.warning("Is it working?")
-        core_stackup._logger.warning("Is it working?")
-        layers._logger.warning("Is it working?")
-        layer._logger.warning("Is it working?")
 
     def test_097_change_design_variable_value(self):
         self.edbapp.add_design_variable("ant_length", "1cm")
@@ -1064,21 +1019,8 @@ class TestClass(BasisTest, object):
                 assert self.edbapp[key].value == 0.1
                 assert self.edbapp.project_variables[key].delete()
 
-    def test_098_etch_factor(self):
-        layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
-        added_layer = self.edbapp.core_stackup.stackup_layers.add_layer(layerName="added_layer", etchMap=1.1)
-        assert layer.etch_factor == 0
-        layer.etch_factor = "1"
-        print(type(layer._etch_factor))
-        assert layer.etch_factor == 1
-        layer.etch_factor = 1.1
-        assert layer.etch_factor == 1.1
-        layer.etch_factor = None
-        assert layer.etch_factor == 0.00000
-        assert added_layer.etch_factor == 1.1
-
     def test_099_int_to_layer_types(self):
-        stackup = self.edbapp.core_stackup.stackup_layers
+        stackup = self.edbapp.stackup
         signal_layer = stackup._int_to_layer_types(0)
         assert signal_layer == stackup.layer_types.SignalLayer
         dielectric_layer = stackup._int_to_layer_types(1)
@@ -1113,7 +1055,7 @@ class TestClass(BasisTest, object):
         assert outline_layer == stackup.layer_types.OutlineLayer
 
     def test_100_layer_types_to_int(self):
-        stackup = self.edbapp.core_stackup.stackup_layers
+        stackup = self.edbapp.stackup
         signal_layer = stackup._layer_types_to_int(stackup.layer_types.SignalLayer)
         assert signal_layer == 0
         dielectric_layer = stackup._layer_types_to_int(stackup.layer_types.DielectricLayer)
@@ -1161,49 +1103,6 @@ class TestClass(BasisTest, object):
         assert test_0import.arc_angle == "90deg"
         assert test_0import._filename == json_file
 
-    def test_102_duplicate_material(self):
-        stack_up = self.edbapp.core_stackup
-        duplicated_copper = stack_up.duplicate_material("copper", "my_new_copper")
-        assert duplicated_copper
-        duplicated_fr4_epoxy = stack_up.duplicate_material("FR4_epoxy", "my_new_FR4")
-        assert duplicated_fr4_epoxy
-        duplicated_pec = stack_up.duplicate_material("pec", "my_new_pec")
-        assert duplicated_pec
-        cloned_permittivity = stack_up.get_property_by_material_name("permittivity", "my_new_pec")
-        permittivity = stack_up.get_property_by_material_name("permittivity", "pec")
-        cloned_permeability = stack_up.get_property_by_material_name("permeability", "my_new_pec")
-        permeability = stack_up.get_property_by_material_name("permeability", "pec")
-        cloned_conductivity = stack_up.get_property_by_material_name("conductivity", "my_new_pec")
-        conductivity = stack_up.get_property_by_material_name("conductivity", "pec")
-        cloned_dielectric_loss = stack_up.get_property_by_material_name("dielectric_loss_tangent", "my_new_pec")
-        dielectric_loss = stack_up.get_property_by_material_name("dielectric_loss_tangent", "pec")
-        cloned_magnetic_loss = stack_up.get_property_by_material_name("magnetic_loss_tangent", "my_new_pec")
-        magnetic_loss = stack_up.get_property_by_material_name("magnetic_loss_tangent", "pec")
-        assert cloned_permittivity == permittivity
-        assert cloned_permeability == permeability
-        assert cloned_conductivity == conductivity
-        assert cloned_dielectric_loss == dielectric_loss
-        assert cloned_magnetic_loss == magnetic_loss
-        non_duplicated = stack_up.duplicate_material("my_nonexistent_mat", "nothing")
-        assert not non_duplicated
-
-    def test_103_get_property_by_material_name(self):
-        stack_up = self.edbapp.core_stackup
-        permittivity = stack_up.get_property_by_material_name("permittivity", "FR4_epoxy")
-        permeability = stack_up.get_property_by_material_name("permeability", "FR4_epoxy")
-        conductivity = stack_up.get_property_by_material_name("conductivity", "copper")
-        dielectric_loss = stack_up.get_property_by_material_name("dielectric_loss_tangent", "FR4_epoxy")
-        magnetic_loss = stack_up.get_property_by_material_name("magnetic_loss_tangent", "FR4_epoxy")
-        assert permittivity == 4.4
-        assert permeability == 0
-        assert conductivity == 59590000
-        assert dielectric_loss == 0.02
-        assert magnetic_loss == 0
-        failing_test_01 = stack_up.get_property_by_material_name("magnetic_loss_tangent", "inexistent_material")
-        assert not failing_test_01
-        failing_test_02 = stack_up.get_property_by_material_name("none_property", "copper")
-        assert not failing_test_02
-
     def test_104_classify_nets(self):
         assert self.edbapp.nets.classify_nets(["RSVD_0", "RSVD_1"], ["V3P3_S0"])
 
@@ -1217,7 +1116,7 @@ class TestClass(BasisTest, object):
             layout = laminate_edb.active_layout
             cell_instances = list(layout.CellInstances)
             assert len(cell_instances) == 0
-            assert laminate_edb.core_stackup.place_a3dcomp_3d_placement(
+            assert laminate_edb.stackup.place_a3dcomp_3d_placement(
                 chip_a3dcomp,
                 angle=0.0,
                 offset_x=0.0,
@@ -1273,7 +1172,7 @@ class TestClass(BasisTest, object):
             layout = laminate_edb.active_layout
             cell_instances = list(layout.CellInstances)
             assert len(cell_instances) == 0
-            assert laminate_edb.core_stackup.place_a3dcomp_3d_placement(
+            assert laminate_edb.stackup.place_a3dcomp_3d_placement(
                 chip_a3dcomp,
                 angle=90.0,
                 offset_x=0.5e-3,
@@ -1415,7 +1314,7 @@ class TestClass(BasisTest, object):
         assert len(sim_config.sources) == 2
 
     def test_110_layout_tchickness(self):
-        assert self.edbapp.core_stackup.get_layout_thickness()
+        assert self.edbapp.stackup.get_layout_thickness()
 
     def test_112_edb_stats(self):
         example_project = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
@@ -1640,11 +1539,6 @@ class TestClass(BasisTest, object):
         assert edb.hfss.create_bundle_wave_port(traces, paths)
         edb.close_edb()
 
-    def test_121_insert_layer(self):
-        layers = self.edbapp.core_stackup.stackup_layers
-        layer = layers.insert_layer_above("NewLayer", "TOP", "copper", "air", "10um", 0, roughness_enabled=True)
-        assert layer.name in layers.layers
-
     def test_122_build_hfss_project_from_config_file(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
         target_path = os.path.join(self.local_scratch.path, "test_0122.aedb")
@@ -1675,6 +1569,7 @@ class TestClass(BasisTest, object):
         edbapp = Edb(target_path, edbversion=desktop_version)
         assert isinstance(edbapp.stackup.layers, dict)
         assert isinstance(edbapp.stackup.signal_layers, dict)
+        assert isinstance(edbapp.stackup.dielectric_layers, dict)
         assert isinstance(edbapp.stackup.stackup_layers, dict)
         assert isinstance(edbapp.stackup.non_stackup_layers, dict)
         assert not edbapp.stackup["Outline"].is_stackup_layer

@@ -12,7 +12,6 @@ import math
 import os.path
 import warnings
 
-from pyaedt.edb_core.edb_data.layer_data import EDBLayers
 from pyaedt.edb_core.edb_data.layer_data import LayerEdbClass
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import ET
@@ -97,9 +96,49 @@ class Stackup(object):
         elif int(val) == 17:
             return self.layer_types.PostprocessingLayer
         elif int(val) == 18:
+            return self.layer_types.OutlineLayer
+        elif int(val) == 16:
             return self.layer_types.LayerTypesCount
         elif int(val) == -1:
             return self.layer_types.UndefinedLayerType
+
+    @pyaedt_function_handler()
+    def _layer_types_to_int(self, layer_type):
+        if not isinstance(layer_type, int):
+            if layer_type == self.layer_types.SignalLayer:
+                return 0
+            elif layer_type == self.layer_types.DielectricLayer:
+                return 1
+            elif layer_type == self.layer_types.ConductingLayer:
+                return 2
+            elif layer_type == self.layer_types.AirlinesLayer:
+                return 3
+            elif layer_type == self.layer_types.ErrorsLayer:
+                return 4
+            elif layer_type == self.layer_types.SymbolLayer:
+                return 5
+            elif layer_type == self.layer_types.MeasureLayer:
+                return 6
+            elif layer_type == self.layer_types.AssemblyLayer:
+                return 8
+            elif layer_type == self.layer_types.SilkscreenLayer:
+                return 9
+            elif layer_type == self.layer_types.SolderMaskLayer:
+                return 10
+            elif layer_type == self.layer_types.SolderPasteLayer:
+                return 11
+            elif layer_type == self.layer_types.GlueLayer:
+                return 12
+            elif layer_type == self.layer_types.WirebondLayer:
+                return 13
+            elif layer_type == self.layer_types.UserLayer:
+                return 14
+            elif layer_type == self.layer_types.SIwaveHFSSSolverRegions:
+                return 16
+            elif layer_type == self.layer_types.OutlineLayer:
+                return 18
+        elif isinstance(layer_type, int):
+            return
 
     @pyaedt_function_handler()
     def create_symmetric_stackup(
@@ -341,6 +380,22 @@ class Stackup(object):
         return _lays
 
     @property
+    def dielectric_layers(self):
+        """Dielectric layers.
+
+        Returns
+        -------
+        dict[str, :class:`pyaedt.edb_core.edb_data.layer_data.EDBLayer`]
+            Dictionary of dielectric layers.
+        """
+        layer_type = self._pedb.edb.Cell.LayerType.DielectricLayer
+        _lays = OrderedDict()
+        for name, obj in self.layers.items():
+            if obj._edb_layer.GetLayerType() == layer_type:
+                _lays[name] = obj
+        return _lays
+
+    @property
     def non_stackup_layers(self):
         """Retrieve the dictionary of signal layers.
 
@@ -407,6 +462,8 @@ class Stackup(object):
             _lc.AddLayerBottom(layer_clone)
         elif operation == "add_at_elevation":
             _lc.AddStackupLayerAtElevation(layer_clone)
+        elif operation == "non_stackup":
+            _lc.AddLayerBottom(layer_clone)
         result = self._pedb._active_layout.SetLayerCollection(_lc)
         self.refresh_layer_collection()
         return result
@@ -466,6 +523,27 @@ class Stackup(object):
         result = self._pedb.edb.Cell.Layer(layer_name, _layer_type)
         self.refresh_layer_collection()
         return result
+
+    @pyaedt_function_handler()
+    def add_outline_layer(self, outline_name="Outline"):
+        """
+        Add an outline layer named ``"Outline"`` if it is not present.
+        Returns
+        -------
+        bool
+            "True" if successful, ``False`` if failed.
+        """
+        outlineLayer = self._pedb.edb.Cell.Layer.FindByName(self._pedb.active_layout.GetLayerCollection(), outline_name)
+        if outlineLayer.IsNull():
+            return self.add_layer(
+                outline_name,
+                layer_type="outline",
+                material="",
+                fillMaterial="",
+                thickness="",
+            )
+        else:
+            return False
 
     @pyaedt_function_handler()
     def add_layer(
@@ -1928,679 +2006,4 @@ class Stackup(object):
             save_plot,
             x_limits=x_limits,
             y_limits=limits,
-        )
-
-
-class EdbStackup(object):
-    """Manages EDB methods for stackup and material management accessible from the
-     ``Edb.core_stackup`` property (deprecated).
-
-    .. deprecated:: 0.6.5
-        This class has been deprecated and replaced by the ``Stackup`` class.
-
-    Examples
-    --------
-    >>> from pyaedt import Edb
-    >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
-    >>> edb_stackup = edbapp.core_stackup
-    """
-
-    def __init__(self, p_edb):
-        self._pedb = p_edb
-        self._layer_dict = None
-
-    @property
-    def _builder(self):
-        """ """
-        return self._pedb.builder
-
-    def _get_edb_value(self, value):
-        return self._pedb.edb_value(value)
-
-    @property
-    def _edb(self):
-        """ """
-        return self._pedb.edb
-
-    @property
-    def _active_layout(self):
-        """ """
-        return self._pedb.active_layout
-
-    @property
-    def _cell(self):
-        """ """
-        return self._pedb.cell
-
-    @property
-    def _db(self):
-        """ """
-        return self._pedb.db
-
-    @property
-    def _logger(self):
-        """ """
-        return self._pedb.logger
-
-    @property
-    def stackup_layers(self):
-        """Stackup layers.
-
-        Returns
-        -------
-        :class:`pyaedt.edb_core.EDBData.EDBLayers`
-            Dictionary of stackup layers.
-        """
-        if not self._layer_dict:
-            self._layer_dict = EDBLayers(self)
-        return self._layer_dict
-
-    @property
-    def signal_layers(self):
-        """Dictionary of all signal layers.
-
-        Returns
-        -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBLayer`]
-            List of signal layers.
-        """
-        return self.stackup_layers.signal_layers
-
-    @property
-    def layer_types(self):
-        """Layer types.
-
-        Returns
-        -------
-        type
-            Types of layers.
-        """
-        return self._pedb.edb.Cell.LayerType
-
-    @property
-    def materials(self):
-        """Materials.
-
-        Returns
-        -------
-        dict
-            Dictionary of materials.
-        """
-        return self._pedb.materials
-
-    @pyaedt_function_handler()
-    def create_dielectric(self, name, permittivity=1, loss_tangent=0):
-        """Create a dielectric with simple properties.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.materials.create_dielectric` function instead.
-
-        Parameters
-        ----------
-        name : str
-            Name of the dielectric.
-        permittivity : float, optional
-            Permittivity of the dielectric. The default is ``1``.
-        loss_tangent : float, optional
-            Loss tangent for the material. The default is ``0``.
-
-        Returns
-        -------
-        type
-            Material definition.
-        """
-        warnings.warn("Use `Edb.materials.create_dielectric` function instead.", DeprecationWarning)
-        return self._pedb.materials.add_dielectric_material(name, permittivity=permittivity, loss_tangent=loss_tangent)
-
-    @pyaedt_function_handler()
-    def create_conductor(self, name, conductivity=1e6):
-        """Create a conductor with simple properties.
-
-        .. deprecated:: 0.6.27
-           Use the :func:`Edb.materials.add_conductor_material` function instead.
-
-        Parameters
-        ----------
-        name : str
-            Name of the conductor.
-        conductivity : float, optional
-            Conductivity of the conductor. The default is ``1e6``.
-
-        Returns
-        -------
-        :class:`pyaedt.edb_core.materials.Material`
-            Material definition.
-        """
-        warnings.warn("Use `Edb.materials.add_conductor_material` function instead.", DeprecationWarning)
-
-        return self._pedb.materials.add_conductor_material(name, conductivity=conductivity)
-
-    @pyaedt_function_handler()
-    def create_debye_material(
-        self,
-        name,
-        relative_permittivity_low,
-        relative_permittivity_high,
-        loss_tangent_low,
-        loss_tangent_high,
-        lower_freqency,
-        higher_frequency,
-    ):
-        """Create a dielectric with the Debye model.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.materials.add_debye_material` function instead.
-
-        Parameters
-        ----------
-        name : str
-            Name of the dielectric.
-        relative_permittivity_low : float
-            Relative permittivity of the dielectric at the frequency specified
-            for ``lower_frequency``.
-        relative_permittivity_high : float
-            Relative permittivity of the dielectric at the frequency specified
-            for ``higher_frequency``.
-        loss_tangent_low : float
-            Loss tangent for the material at the frequency specified
-            for ``lower_frequency``.
-        loss_tangent_high : float
-            Loss tangent for the material at the frequency specified
-            for ``higher_frequency``.
-        lower_freqency : float
-            Value for the lower frequency.
-        higher_frequency : float
-            Value for the higher frequency.
-
-        Returns
-        -------
-        type
-            Material definition.
-        """
-        warnings.warn("Use `Edb.materials.add_debye_material` function instead.", DeprecationWarning)
-
-        return self._pedb.materials.add_debye_material(
-            name=name,
-            permittivity_low=relative_permittivity_low,
-            permittivity_high=relative_permittivity_high,
-            loss_tangent_low=loss_tangent_low,
-            loss_tangent_high=loss_tangent_high,
-            lower_freqency=lower_freqency,
-            higher_frequency=higher_frequency,
-        )
-
-    @pyaedt_function_handler()
-    def create_multipole_debye_material(
-        self,
-        name,
-        frequencies,
-        relative_permittivities,
-        loss_tangents,
-    ):
-        """Create a dielectric with the Multipole Debye model.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.materials.add_multipole_debye_material` function instead.
-
-        Parameters
-        ----------
-        name : str
-            Name of the dielectic.
-        frequencies : list
-            Frequencies in GHz.
-        relative_permittivities : list
-            Relative permittivities at each frequency.
-        loss_tangents : list
-            Loss tangents at each frequency.
-
-        Returns
-        -------
-        type
-            Material definition.
-
-        Examples
-        --------
-        >>> from pyaedt import Edb
-        >>> edb = Edb()
-        >>> freq = [0, 2, 3, 4, 5, 6]
-        >>> rel_perm = [1e9, 1.1e9, 1.2e9, 1.3e9, 1.5e9, 1.6e9]
-        >>> loss_tan = [0.025, 0.026, 0.027, 0.028, 0.029, 0.030]
-        >>> diel = edb.core_stackup.create_multipole_debye_material("My_MP_Debye", freq, rel_perm, loss_tan)
-        """
-        warnings.warn("Use `Edb.materials.add_multipole_debye_material` function instead.", DeprecationWarning)
-
-        return self._pedb.materials.add_multipole_debye_material(
-            name=name,
-            frequencies=frequencies,
-            permittivities=relative_permittivities,
-            loss_tangents=loss_tangents,
-        )
-
-    @pyaedt_function_handler()
-    def get_layout_thickness(self):
-        """Return the layout thickness.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.stackup.get_layout_thickness` function instead.
-
-        Returns
-        -------
-        float
-            The thickness value.
-        """
-        warnings.warn("Use `Edb.materials.get_layout_thickness` function instead.", DeprecationWarning)
-
-        return self._pedb.stackup.get_layout_thickness()
-
-    @pyaedt_function_handler()
-    def duplicate_material(self, material_name, new_material_name):
-        """Duplicate a material from the database.
-        It duplicates these five properties: ``permittivity``, ``permeability``, ``conductivity``,
-        ``dielectriclosstangent``, and ``magneticlosstangent``.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.stackup.duplicate` function instead.
-
-        Parameters
-        ----------
-        material_name : str
-            Name of the existing material.
-        new_material_name : str
-            Name of the new duplicated material.
-
-        Returns
-        -------
-        EDB material : class: 'Ansys.Ansoft.Edb.Definition.MaterialDef'
-
-
-        Examples
-        --------
-
-        >>> from pyaedt import Edb
-        >>> edb_app = Edb()
-        >>> my_material = edb_app.core_stackup.duplicate_material("copper", "my_new_copper")
-
-        """
-        warnings.warn("Use `Edb.materials.duplicate` function instead.", DeprecationWarning)
-
-        return self._pedb.materials.duplicate(material_name, new_material_name)
-
-    @pyaedt_function_handler
-    def material_name_to_id(self, property_name):
-        """Convert a material property name to a material property ID.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.materials.material_name_to_id` function instead.
-
-        Parameters
-        ----------
-        property_name : str
-            Name of the material property.
-
-        Returns
-        -------
-        ID of the material property.
-        """
-        warnings.warn("Use `Edb.materials.material_name_to_id` function instead.", DeprecationWarning)
-
-        return self._pedb.materials.material_name_to_id(property_name)
-
-    @pyaedt_function_handler()
-    def get_property_by_material_name(self, property_name, material_name):
-        """Get the property of a material. If it is executed in IronPython,
-         you must only use the first element of the returned tuple, which is a float.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.materials.get_property_by_material_name` function instead.
-
-        Parameters
-        ----------
-        material_name : str
-            Name of the existing material.
-        property_name : str
-            Name of the material property.
-            ``permittivity``
-            ``permeability``
-            ``conductivity``
-            ``dielectric_loss_tangent``
-            ``magnetic_loss_tangent``
-
-        Returns
-        -------
-        float
-            The float value of the property.
-
-
-        Examples
-        --------
-        >>> from pyaedt import Edb
-        >>> edb_app = Edb()
-        >>> returned_tuple = edb_app.core_stackup.get_property_by_material_name("conductivity", "copper")
-        >>> edb_value = returned_tuple[0]
-        >>> float_value = returned_tuple[1]
-
-        """
-        warnings.warn("Use `Edb.materials.get_property_by_material_name` function instead.", DeprecationWarning)
-
-        return self._pedb.materials.get_property_by_material_name(property_name, material_name)
-
-    @pyaedt_function_handler()
-    def adjust_solder_dielectrics(self):
-        """Adjust the stack-up by adding or modifying dielectric layers that contains Solder Balls.
-        This method identifies the solder-ball height and adjust the dielectric thickness on top (or bottom) to fit
-        the thickness in order to merge another layout.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.stackup.adjust_solder_dielectrics` function instead.
-
-        Returns
-        -------
-        bool
-        """
-        warnings.warn("Use `Edb.stackup.adjust_solder_dielectrics` function instead.", DeprecationWarning)
-
-        return self._pedb.stackup.adjust_solder_dielectrics()
-
-    @pyaedt_function_handler()
-    def place_in_layout(
-        self,
-        edb,
-        angle=0.0,
-        offset_x=0.0,
-        offset_y=0.0,
-        flipped_stackup=True,
-        place_on_top=True,
-    ):
-        """Place current Cell into another cell using layer placement method.
-        Flip the current layer stackup of a layout if requested. Transform parameters currently not supported.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.stackup.place_in_layout` function instead.
-
-        Parameters
-        ----------
-        edb : Edb
-            Cell on which to place the current layout. If None the Cell will be applied on an empty new Cell.
-        angle : double, optional
-            The rotation angle applied on the design.
-        offset_x : double, optional
-            The x offset value.
-        offset_y : double, optional
-            The y offset value.
-        flipped_stackup : bool, optional
-            Either if the current layout is inverted.
-            If `True` and place_on_top is `True` the stackup will be flipped before the merge.
-        place_on_top : bool, optional
-            Either if place the current layout on Top or Bottom of destination Layout.
-
-        Returns
-        -------
-        bool
-            ``True`` when succeed ``False`` if not.
-
-        Examples
-        --------
-        >>> edb1 = Edb(edbpath=targetfile1,  edbversion="2021.2")
-        >>> edb2 = Edb(edbpath=targetfile2, edbversion="2021.2")
-
-        >>> hosting_cmp = edb1.components.get_component_by_name("U100")
-        >>> mounted_cmp = edb2.components.get_component_by_name("BGA")
-
-        >>> vector, rotation, solder_ball_height = edb1.components.get_component_placement_vector(
-        ...                                                     mounted_component=mounted_cmp,
-        ...                                                     hosting_component=hosting_cmp,
-        ...                                                     mounted_component_pin1="A12",
-        ...                                                     mounted_component_pin2="A14",
-        ...                                                     hosting_component_pin1="A12",
-        ...                                                     hosting_component_pin2="A14")
-        >>> edb2.core_stackup.place_in_layout(edb1.active_cell, angle=0.0, offset_x=vector[0],
-        ...                                   offset_y=vector[1], flipped_stackup=False, place_on_top=True,
-        ...                                   )
-        """
-        warnings.warn("Use `Edb.stackup.place_in_layout` function instead.", DeprecationWarning)
-
-        return self._pedb.stackup.place_in_layout(
-            edb=edb,
-            angle=angle,
-            offset_x=offset_x,
-            offset_y=offset_y,
-            flipped_stackup=flipped_stackup,
-            place_on_top=place_on_top,
-        )
-
-    @pyaedt_function_handler()
-    def place_in_layout_3d_placement(
-        self,
-        edb,
-        angle=0.0,
-        offset_x=0.0,
-        offset_y=0.0,
-        flipped_stackup=True,
-        place_on_top=True,
-        solder_height=0,
-    ):
-        """Place current Cell into another cell using 3d placement method.
-        Flip the current layer stackup of a layout if requested. Transform parameters currently not supported.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.stackup.place_in_layout_3d_placement` function instead.
-
-        Parameters
-        ----------
-        edb : Edb
-            Cell on which to place the current layout. If None the Cell will be applied on an empty new Cell.
-        angle : double, optional
-            The rotation angle applied on the design.
-        offset_x : double, optional
-            The x offset value.
-        offset_y : double, optional
-            The y offset value.
-        flipped_stackup : bool, optional
-            Either if the current layout is inverted.
-            If `True` and place_on_top is `True` the stackup will be flipped before the merge.
-        place_on_top : bool, optional
-            Either if place the current layout on Top or Bottom of destination Layout.
-        solder_height : float, optional
-            Solder Ball or Bumps eight.
-            This value will be added to the elevation to align the two layouts.
-
-        Returns
-        -------
-        bool
-            ``True`` when succeed ``False`` if not.
-
-        Examples
-        --------
-        >>> edb1 = Edb(edbpath=targetfile1,  edbversion="2021.2")
-        >>> edb2 = Edb(edbpath=targetfile2, edbversion="2021.2")
-        >>> hosting_cmp = edb1.components.get_component_by_name("U100")
-        >>> mounted_cmp = edb2.components.get_component_by_name("BGA")
-        >>> edb2.core_stackup.place_in_layout(edb1.active_cell, angle=0.0, offset_x="1mm",
-        ...                                   offset_y="2mm", flipped_stackup=False, place_on_top=True,
-        ...                                   )
-        """
-        warnings.warn("Use `Edb.stackup.place_in_layout_3d_placement` function instead.", DeprecationWarning)
-
-        return self._pedb.stackup.place_in_layout_3d_placement(
-            edb=edb,
-            angle=angle,
-            offset_x=offset_x,
-            offset_y=offset_y,
-            flipped_stackup=flipped_stackup,
-            place_on_top=place_on_top,
-            solder_height=solder_height,
-        )
-
-    @pyaedt_function_handler()
-    def place_a3dcomp_3d_placement(self, a3dcomp_path, angle=0.0, offset_x=0.0, offset_y=0.0, place_on_top=True):
-        """Place a 3D Component into current layout.
-         3D Component ports are not visible via EDB. They will be visible after the EDB has been opened in Ansys
-         Electronics Desktop as a project.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.stackup.place_a3dcomp_3d_placement` function instead.
-
-        Parameters
-        ----------
-        a3dcomp_path : str
-            Path to the 3D Component file (\\*.a3dcomp) to place.
-        angle : double, optional
-            Clockwise rotation angle applied to the a3dcomp.
-        offset_x : double, optional
-            The x offset value.
-            The default value is ``0.0``.
-        offset_y : double, optional
-            The y offset value.
-            The default value is ``0.0``.
-        place_on_top : bool, optional
-            Whether to place the 3D Component on the top or the bottom of this layout.
-            If ``False`` then the 3D Component will also be flipped over around its X axis.
-
-        Returns
-        -------
-        bool
-            ``True`` if successful and ``False`` if not.
-
-        Examples
-        --------
-        >>> edb1 = Edb(edbpath=targetfile1,  edbversion="2021.2")
-        >>> a3dcomp_path = "connector.a3dcomp"
-        >>> edb1.core_stackup.place_a3dcomp_3d_placement(a3dcomp_path, angle=0.0, offset_x="1mm",
-        ...                                   offset_y="2mm", flipped_stackup=False, place_on_top=True,
-        ...                                   )
-        """
-        warnings.warn("Use `Edb.stackup.place_a3dcomp_3d_placement` function instead.", DeprecationWarning)
-
-        return self._pedb.stackup.place_a3dcomp_3d_placement(
-            a3dcomp_path=a3dcomp_path, angle=angle, offset_x=offset_x, offset_y=offset_y, place_on_top=place_on_top
-        )
-
-    @pyaedt_function_handler()
-    def flip_design(self):
-        """Flip the current design of a layout.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.stackup.flip_design` function instead.
-
-        Returns
-        -------
-        bool
-            ``True`` when succeed ``False`` if not.
-
-        Examples
-        --------
-        >>> edb = Edb(edbpath=targetfile,  edbversion="2021.2")
-        >>> edb.core_stackup.flip_design()
-        >>> edb.save()
-        >>> edb.close_edb()
-        """
-        warnings.warn("Use `Edb.stackup.flip_design` function instead.", DeprecationWarning)
-
-        return self._pedb.stackup.flip_design()
-
-    @pyaedt_function_handler()
-    def create_djordjevicsarkar_material(
-        self, name, relative_permittivity, loss_tangent, test_frequency, dc_permittivity=None, dc_conductivity=None
-    ):
-        """Create a Djordjevic_Sarkar dielectric.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.materials.add_djordjevicsarkar_material` function instead.
-
-        Parameters
-        ----------
-        name : str
-            Name of the dielectic.
-        relative_permittivity : float
-            Relative permittivity of the dielectric.
-        loss_tangent : float
-            Loss tangent for the material.
-        test_frequency : float
-            Test frequency in GHz for the dielectric.
-        dc_permittivity : float, optional
-            DC Relative permittivity of the dielectric.
-        dc_conductivity : float, optional
-            DC Conductivity of the dielectric.
-        Returns
-        -------
-        type
-            Material definition.
-        """
-        warnings.warn("Use `Edb.materials.add_djordjevicsarkar_material` function instead.", DeprecationWarning)
-
-        return self._pedb.materials.add_djordjevicsarkar_material(
-            name=name,
-            permittivity=relative_permittivity,
-            loss_tangent=loss_tangent,
-            test_frequency=test_frequency,
-            dc_permittivity=dc_permittivity,
-            dc_conductivity=dc_conductivity,
-        )
-
-    @pyaedt_function_handler()
-    def stackup_limits(self, only_metals=False):
-        """Retrieve stackup limits.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.stackup.stackup_limits` function instead.
-
-        Parameters
-        ----------
-        only_metals : bool, optional
-            Whether to retrieve only metals. The default is ``False``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        warnings.warn("Use `Edb.stackup.stackup_limits` function instead.", DeprecationWarning)
-
-        return self._pedb.stackup.stackup_limits(only_metals=only_metals)
-
-    def create_symmetric_stackup(
-        self,
-        layer_count,
-        inner_layer_thickness="17um",
-        outer_layer_thickness="50um",
-        dielectric_thickness="100um",
-        dielectric_material="FR4_epoxy",
-        soldermask=True,
-        soldermask_thickness="20um",
-    ):
-        """Create a symmetric stackup.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.stackup.create_symmetric_stackup` function instead.
-
-        Parameters
-        ----------
-        layer_count : int
-            Number of layer count.
-        inner_layer_thickness : str, float, optional
-            Thickness of inner conductor layer.
-        outer_layer_thickness : str, float, optional
-            Thickness of outer conductor layer.
-        dielectric_thickness : str, float, optional
-            Thickness of dielectric layer.
-        dielectric_material : str, optional
-            Material of dielectric layer.
-        soldermask : bool, optional
-            Whether to create soldermask layers. The default is``True``.
-        soldermask_thickness : str, optional
-            Thickness of soldermask layer.
-        Returns
-        -------
-        bool
-        """
-        warnings.warn("Use `Edb.stackup.create_symmetric_stackup` function instead.", DeprecationWarning)
-
-        return self._pedb.stackup.create_symmetric_stackup(
-            layer_count=layer_count,
-            inner_layer_thickness=inner_layer_thickness,
-            outer_layer_thickness=outer_layer_thickness,
-            dielectric_thickness=dielectric_thickness,
-            dielectric_material=dielectric_material,
-            soldermask=soldermask,
-            soldermask_thickness=soldermask_thickness,
         )

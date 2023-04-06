@@ -55,7 +55,7 @@ class TestClass(BasisTest, object):
         edb1 = Edb(edb_path, edbversion=desktop_version)
 
         edb2 = Edb(self.target_path, edbversion=desktop_version)
-        assert edb2.core_stackup.place_in_layout_3d_placement(
+        assert edb2.stackup.place_in_layout_3d_placement(
             edb1,
             angle=0.0,
             offset_x="41.783mm",
@@ -66,7 +66,7 @@ class TestClass(BasisTest, object):
         )
         edb2.close_edb()
         edb2 = Edb(self.target_path, edbversion=desktop_version)
-        assert edb2.core_stackup.place_in_layout_3d_placement(
+        assert edb2.stackup.place_in_layout_3d_placement(
             edb1,
             angle=0.0,
             offset_x="41.783mm",
@@ -77,7 +77,7 @@ class TestClass(BasisTest, object):
         )
         edb2.close_edb()
         edb2 = Edb(self.target_path, edbversion=desktop_version)
-        assert edb2.core_stackup.place_in_layout_3d_placement(
+        assert edb2.stackup.place_in_layout_3d_placement(
             edb1,
             angle=0.0,
             offset_x="41.783mm",
@@ -88,7 +88,7 @@ class TestClass(BasisTest, object):
         )
         edb2.close_edb()
         edb2 = Edb(self.target_path, edbversion=desktop_version)
-        assert edb2.core_stackup.place_in_layout_3d_placement(
+        assert edb2.stackup.place_in_layout_3d_placement(
             edb1,
             angle=0.0,
             offset_x="41.783mm",
@@ -102,7 +102,7 @@ class TestClass(BasisTest, object):
 
     def test_02_flip_layer_stackup_2(self):
         edb2 = Edb(self.target_path, edbversion=desktop_version)
-        assert edb2.core_stackup.place_in_layout(
+        assert edb2.stackup.place_in_layout(
             self.edbapp,
             angle=0.0,
             offset_x="41.783mm",
@@ -204,7 +204,7 @@ class TestClass(BasisTest, object):
             layout = laminateEdb.active_layout
             cellInstances = list(layout.CellInstances)
             assert len(cellInstances) == 0
-            assert chipEdb.core_stackup.place_in_layout_3d_placement(
+            assert chipEdb.stackup.place_in_layout_3d_placement(
                 laminateEdb,
                 angle=0.0,
                 offset_x=0.0,
@@ -267,7 +267,7 @@ class TestClass(BasisTest, object):
             layout = laminateEdb.active_layout
             cellInstances = list(layout.CellInstances)
             assert len(cellInstances) == 0
-            assert chipEdb.core_stackup.place_in_layout_3d_placement(
+            assert chipEdb.stackup.place_in_layout_3d_placement(
                 laminateEdb,
                 angle=0.0,
                 offset_x=0.0,
@@ -330,7 +330,7 @@ class TestClass(BasisTest, object):
             layout = laminateEdb.active_layout
             cellInstances = list(layout.CellInstances)
             assert len(cellInstances) == 0
-            assert chipEdb.core_stackup.place_in_layout_3d_placement(
+            assert chipEdb.stackup.place_in_layout_3d_placement(
                 laminateEdb,
                 angle=0.0,
                 offset_x=0.0,
@@ -393,7 +393,7 @@ class TestClass(BasisTest, object):
             layout = laminateEdb.active_layout
             cellInstances = list(layout.CellInstances)
             assert len(cellInstances) == 0
-            assert chipEdb.core_stackup.place_in_layout_3d_placement(
+            assert chipEdb.stackup.place_in_layout_3d_placement(
                 laminateEdb,
                 angle=0.0,
                 offset_x=0.0,
@@ -456,7 +456,7 @@ class TestClass(BasisTest, object):
             layout = laminateEdb.active_layout
             cellInstances = list(layout.CellInstances)
             assert len(cellInstances) == 0
-            assert chipEdb.core_stackup.place_in_layout_3d_placement(
+            assert chipEdb.stackup.place_in_layout_3d_placement(
                 laminateEdb,
                 angle=0.0,
                 offset_x=0.0,
@@ -519,7 +519,7 @@ class TestClass(BasisTest, object):
             layout = laminateEdb.active_layout
             cellInstances = list(layout.CellInstances)
             assert len(cellInstances) == 0
-            assert chipEdb.core_stackup.place_in_layout_3d_placement(
+            assert chipEdb.stackup.place_in_layout_3d_placement(
                 laminateEdb,
                 angle=0.0,
                 offset_x=0.0,
@@ -582,7 +582,7 @@ class TestClass(BasisTest, object):
             layout = laminateEdb.active_layout
             cellInstances = list(layout.CellInstances)
             assert len(cellInstances) == 0
-            assert chipEdb.core_stackup.place_in_layout_3d_placement(
+            assert chipEdb.stackup.place_in_layout_3d_placement(
                 laminateEdb,
                 angle=0.0,
                 offset_x=0.0,
@@ -645,7 +645,7 @@ class TestClass(BasisTest, object):
             layout = laminateEdb.active_layout
             cellInstances = list(layout.CellInstances)
             assert len(cellInstances) == 0
-            assert chipEdb.core_stackup.place_in_layout_3d_placement(
+            assert chipEdb.stackup.place_in_layout_3d_placement(
                 laminateEdb,
                 angle=0.0,
                 offset_x=0.0,
