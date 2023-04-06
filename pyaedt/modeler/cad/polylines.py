@@ -324,11 +324,9 @@ class Polyline(Object3d):
                 flag = ""
             varg2 = self._primitives._default_object_attributes(name=name, matname=matname, flags=flag)
 
-            new_object_name = _retry_ntimes(10, self.m_Editor.CreatePolyline, varg1, varg2)
-
+            new_object_name = _retry_ntimes(10, self._oeditor.CreatePolyline, varg1, varg2)
             Object3d.__init__(self, primitives, name=new_object_name)
-            self._primitives.objects[self.id] = self
-            self._primitives.object_id_dict[self.name] = self.id
+            self._primitives._create_object(self.name)
 
     @property
     def start_point(self):
@@ -722,9 +720,7 @@ class Polyline(Object3d):
         new_name = new_objects[0]
         new_polyline = Polyline(self._primitives, src_object=self, name=new_name)
         new_polyline._id = None
-        self._primitives.objects[new_polyline.id] = new_polyline
-        self._primitives.object_id_dict[new_name] = new_polyline.id
-        return new_polyline
+        return self._primitives._create_object(new_name)
 
     @pyaedt_function_handler()
     def remove_vertex(self, position, abstol=1e-9):

@@ -898,42 +898,6 @@ class SETUPS(object):
     ) = range(0, 52)
 
 
-class CoordinateSystemAxis(object):
-    """CoordinateSystemAxis class.
-
-    .. deprecated:: 0.4.8
-        Use :func:`AXIS` instead."""
-
-    (XAxis, YAxis, ZAxis) = range(0, 3)
-
-
-class CoordinateSystemPlane(object):
-    """CoordinateSystemPlane class.
-
-    .. deprecated:: 0.4.8
-        Use :func:`PLANE` instead."""
-
-    (YZPlane, ZXPlane, XYPlane) = range(0, 3)
-
-
-class Plane(object):
-    """Plane class.
-
-    .. deprecated:: 0.4.8
-        Use :func:`VIEW` instead."""
-
-    (XYPlane, YZPlane, ZXPlane, ISO) = ("XY", "YZ", "ZX", "iso")
-
-
-class GravityDirection(object):
-    """GravityDirection class.
-
-    .. deprecated:: 0.4.8
-        Use :func:`GRAVITY` instead."""
-
-    (XNeg, YNeg, ZNeg, XPos, YPos, ZPos) = range(0, 6)
-
-
 CSS4_COLORS = {
     "chocolate": "#D2691E",
     "darkgreen": "#006400",

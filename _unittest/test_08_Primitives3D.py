@@ -881,6 +881,7 @@ class TestClass(BasisTest, object):
         assert P2.id != P1.id
 
     def test_54a_create_spiral_and_add_segments(self):
+        self.aedtapp.insert_design("spiral_test")
         save_model_units = self.aedtapp.modeler.model_units
         self.aedtapp.modeler.model_units = "um"
         innerRadius = 20
@@ -1031,6 +1032,7 @@ class TestClass(BasisTest, object):
         assert float(vol) > 0
 
     def test_59_lines(self):
+        self.aedtapp.modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]], close_surface=True)
         assert self.aedtapp.modeler.vertex_data_of_lines()
 
     @pytest.mark.skipif("UNITTEST_CURRENT_TEST" in os.environ, reason="Issue in IronPython")

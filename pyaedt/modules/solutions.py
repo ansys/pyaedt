@@ -469,34 +469,6 @@ class SolutionData(object):
         return sol
 
     @pyaedt_function_handler()
-    def data_db(self, expression=None, convert_to_SI=False):
-        """Retrieve the data in the database for an expression and convert in db10.
-
-        .. deprecated:: 0.4.8
-           Use :func:`data_db10` instead.
-
-        Parameters
-        ----------
-        expression : str, optional
-            Name of the expression. The default is ``None``,
-            in which case the active expression is used.
-        convert_to_SI : bool, optional
-            Whether to convert the data to the SI unit system.
-            The default is ``False``.
-
-        Returns
-        -------
-        list
-            List of the data in the database for the expression.
-
-        """
-        if not expression:
-            expression = self.active_expression
-        if self.enable_pandas_output:
-            return 10 * np.log10(self.data_magnitude(expression, convert_to_SI))
-        return [db10(i) for i in self.data_magnitude(expression, convert_to_SI)]
-
-    @pyaedt_function_handler()
     def data_db10(self, expression=None, convert_to_SI=False):
         """Retrieve the data in the database for an expression and convert in db10.
 
@@ -3305,7 +3277,7 @@ class VRTFieldPlot:
             if isinstance(self.ray_box, int):
                 box_id = self.ray_box
             elif isinstance(self.ray_box, str):
-                box_id = self._postprocessor._primitives.object_id_dict[self.ray_box]
+                box_id = self._postprocessor._primitives._object_names_to_ids[self.ray_box]
             else:
                 box_id = self.ray_box.id
             args.extend("FilterBoxID:=", box_id)

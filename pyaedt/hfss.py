@@ -550,49 +550,6 @@ class Hfss(FieldAnalysis3D, object):
         return self._create_boundary(portname, props, "Wave Port")
 
     @pyaedt_function_handler()
-    def assigncoating(
-        self,
-        obj,
-        mat=None,
-        cond=58000000,
-        perm=1,
-        usethickness=False,
-        thickness="0.1mm",
-        roughness="0um",
-        isinfgnd=False,
-        istwoside=False,
-        isInternal=True,
-        issheelElement=False,
-        usehuray=False,
-        radius="0.5um",
-        ratio="2.9",
-    ):
-        """Assign finite conductivity to one or more objects of a given material.
-
-        .. deprecated:: 0.4.5
-           Use :func:`Hfss.assign_coating` instead.
-
-        """
-
-        warnings.warn("`assigncoating` is deprecated. Use `assign_coating` instead.", DeprecationWarning)
-        self.assign_coating(
-            obj,
-            mat,
-            cond,
-            perm,
-            usethickness,
-            thickness,
-            roughness,
-            isinfgnd,
-            istwoside,
-            isInternal,
-            issheelElement,
-            usehuray,
-            radius,
-            ratio,
-        )
-
-    @pyaedt_function_handler()
     def assign_coating(
         self,
         obj,
@@ -788,46 +745,6 @@ class Hfss(FieldAnalysis3D, object):
         setup.auto_update = True
         setup.update()
         return setup
-
-    @pyaedt_function_handler()
-    def create_frequency_sweep(
-        self,
-        setupname,
-        unit="GHz",
-        freqstart=1e-3,
-        freqstop=10,
-        sweepname=None,
-        num_of_freq_points=451,
-        sweeptype="Interpolating",
-        interpolation_tol=0.5,
-        interpolation_max_solutions=250,
-        save_fields=True,
-        save_rad_fields=False,
-    ):
-        """Create a frequency sweep.
-
-        .. deprecated:: 0.4.0
-           Use :func:`Hfss.create_linear_count_sweep` instead.
-
-        """
-        warnings.warn(
-            "`create_frequency_sweep` is deprecated. Use `create_linear_count_sweep` instead.",
-            DeprecationWarning,
-        )
-
-        return self.create_linear_count_sweep(
-            setupname=setupname,
-            unit=unit,
-            freqstart=freqstart,
-            freqstop=freqstop,
-            num_of_freq_points=num_of_freq_points,
-            sweepname=sweepname,
-            save_fields=save_fields,
-            save_rad_fields=save_rad_fields,
-            sweep_type=sweeptype,
-            interpolation_tol=interpolation_tol,
-            interpolation_max_solutions=interpolation_max_solutions,
-        )
 
     @pyaedt_function_handler()
     def create_linear_count_sweep(
@@ -1894,7 +1811,7 @@ class Hfss(FieldAnalysis3D, object):
 
         spiral = self.modeler.create_spiral_on_face(closest_faces[0], spiral_width, filling_factor=filling)
         spiral.name = name
-        spiral.translate(move_vector_mid)
+        spiral.move(move_vector_mid)
         spiral_center = GeometryOperators.get_mid_point(closest_faces[0].center, closest_faces[1].center)
 
         # get the polyline center point (before width operation). They need to be moved as well.
@@ -2784,17 +2701,6 @@ class Hfss(FieldAnalysis3D, object):
         return None
 
     @pyaedt_function_handler()
-    def SARSetup(self, Tissue_object_List_ID, TissueMass=1, MaterialDensity=1, voxel_size=1, Average_SAR_method=0):
-        """Define SAR settings.
-
-        .. deprecated:: 0.4.5
-           Use :func:`Hfss.sar_setup` instead.
-
-        """
-        warnings.warn("`SARSetup` is deprecated. Use `sar_setup` instead.", DeprecationWarning)
-        self.sar_setup(Tissue_object_List_ID, TissueMass, MaterialDensity, voxel_size, Average_SAR_method)
-
-    @pyaedt_function_handler()
     def sar_setup(self, Tissue_object_List_ID, TissueMass=1, MaterialDensity=1, voxel_size=1, Average_SAR_method=0):
         """Define SAR settings.
 
@@ -3368,21 +3274,6 @@ class Hfss(FieldAnalysis3D, object):
             renormalize=renorm,
             deembed=deemb,
         )
-
-    @pyaedt_function_handler()
-    def assig_voltage_source_to_sheet(self, sheet_name, axisdir=0, sourcename=None):
-        """Create a voltage source taking one sheet.
-
-        .. deprecated:: 0.4.0
-           Use :func:`Hfss.assign_voltage_source_to_sheet` instead.
-
-        """
-
-        warnings.warn(
-            "`assig_voltage_source_to_sheet` is deprecated. Use `assign_voltage_source_to_sheet` instead.",
-            DeprecationWarning,
-        )
-        self.assign_voltage_source_to_sheet(sheet_name, axisdir, sourcename)
 
     @pyaedt_function_handler()
     def assign_voltage_source_to_sheet(self, sheet_name, axisdir=0, sourcename=None):
@@ -6069,9 +5960,9 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        signal : int, list or :class:`pyaedt.modeler.object3d.Object3d` or
+        signal : str, int, list or :class:`pyaedt.modeler.object3d.Object3d` or
          :class:`pyaedt.modeler.elements3d.FacePrimitive`
-            Starting object for the integration line.
+            Main object for port creation or starting object for the integration line.
         reference : int, list or :class:`pyaedt.modeler.object3d.Object3d`
             Ending object for the integration line or reference for Terminal solution. Can be multiple objects.
         create_port_sheet : bool, optional
@@ -6189,10 +6080,10 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        signal : int, list or :class:`pyaedt.modeler.object3d.Object3d` or
+        signal : int, str, :class:`pyaedt.modeler.object3d.Object3d` or
          :class:`pyaedt.modeler.elements3d.FacePrimitive`
-            Starting object for the integration line.
-        reference : int, list or :class:`pyaedt.modeler.object3d.Object3d`
+            Main object for port creation or starting object for the integration line.
+        reference : int, str, list or :class:`pyaedt.modeler.object3d.Object3d`
             Ending object for the integration line or reference for Terminal solution. Can be multiple objects.
         create_port_sheet : bool, optional
             Whether to create a port sheet or use given start_object as port shee.

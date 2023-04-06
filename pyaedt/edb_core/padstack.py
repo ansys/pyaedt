@@ -777,6 +777,7 @@ class EdbPadstacks(object):
         antipaddiam="600um",
         startlayer=None,
         endlayer=None,
+        pad_shape="Circle",
         antipad_shape="Circle",
         x_size="600um",
         y_size="600um",
@@ -807,6 +808,8 @@ class EdbPadstacks(object):
         endlayer : str, optional
             Ending layer. The default is ``None``, in which case the bottom
             is the ending layer.
+        pad_shape : str, optional
+            Shape of the pad. The default is ``"Circle``. Options are ``"Circle"`` and ``"Rectangle"``.
         antipad_shape : str, optional
             Shape of the antipad. The default is ``"Circle"``. Options are ``"Circle"`` and ``"Bullet"``.
         x_size : str, optional
@@ -870,7 +873,12 @@ class EdbPadstacks(object):
             startlayer = layers[0]
         if not endlayer:
             endlayer = layers[len(layers) - 1]
-
+        if pad_shape == "Circle":
+            pad_array = Array[type(paddiam)]([paddiam])
+            pad_shape = self._edb.Definition.PadGeometryType.Circle
+        elif pad_shape == "Rectangle":
+            pad_array = Array[type(x_size)]([x_size, y_size])
+            pad_shape = self._edb.Definition.PadGeometryType.Rectangle
         if antipad_shape == "Bullet":
             antipad_array = Array[type(x_size)]([x_size, y_size, corner_radius])
             antipad_shape = self._edb.Definition.PadGeometryType.Bullet
@@ -879,12 +887,12 @@ class EdbPadstacks(object):
             antipad_shape = self._edb.Definition.PadGeometryType.Circle
 
         for layer in ["Default"] + layers:
-            padparam_array = Array[type(paddiam)]([paddiam])
+            # padparam_array = Array[type(paddiam)]([paddiam])
             padstackData.SetPadParameters(
                 layer,
                 self._edb.Definition.PadType.RegularPad,
-                self._edb.Definition.PadGeometryType.Circle,
-                padparam_array,
+                pad_shape,
+                pad_array,
                 pad_offset_x,
                 pad_offset_y,
                 pad_rotation,
