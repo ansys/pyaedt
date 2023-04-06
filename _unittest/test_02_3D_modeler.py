@@ -200,7 +200,7 @@ class TestClass(BasisTest, object):
         id1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, udp, [5, 10])
         id2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, udp, [3, 12])
         udp2 = self.aedtapp.modeler.Position(0, 20, 5)
-        assert self.aedtapp.modeler.translate([id1, id2], udp2)
+        assert self.aedtapp.modeler.move([id1, id2], udp2)
 
     def test_24_check_plane(self):
         udp = [0, 0, 0]

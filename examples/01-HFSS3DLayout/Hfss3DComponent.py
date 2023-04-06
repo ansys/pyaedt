@@ -111,7 +111,7 @@ p2.add_via(0, 0)
 # The trace will connect the pin to the port on layer L1.
 
 t1 = s1.add_trace(trace_width, trace_length)
-rect1 = hfss.modeler.create_rectangle(csPlane=hfss.PLANE.YZPlane,
+rect1 = hfss.modeler.create_rectangle(csPlane=hfss.PLANE.YZ,
                                                  position=["0.75*dielectric_length", "-5*" + t1.width.name, "0mm"],
                                                  dimension_list=["15*" + t1.width.name, "-3*" + stackup.thickness.name])
 p1 = hfss.wave_port(signal=rect1, references="G1", name="P1")

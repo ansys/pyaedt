@@ -89,7 +89,7 @@ class TestClass(BasisTest, object):
         assert len(pin_names) == 4
         assert "usb_P_pcb" in pin_names
 
-        hfss_comp = self.aedtapp.modeler.schematic.add_subcircuit_hfss_link(
+        hfss_comp = self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
             "uUSB", pin_names, source_project_path, src_design_name
         )
         assert hfss_comp.id == 87
