@@ -1899,18 +1899,8 @@ class Stackup(object):
             min_thickness = min([i[3] for i in layers_data if i[3] != 0])
             for ly in layers_data:
                 layer = ly[0]
-                if ly[3] > 0:
-                    le = ly[1]  # lower elevation
-                    ue = ly[2]  # upper elevation
-                    corrected_signal_alpha = signal_alpha
-                else:
-                    le = ly[1] - min_thickness * 0.1  # make the zero thickness layers more visible
-                    ue = ly[2] + min_thickness * 0.1
-                    corrected_signal_alpha = zero_thickness_alpha
-                y = [le, ue, ue, le]
-                x = [0, 0, 1, 1]
 
-                # set color, label and annotation
+                # set color and label
                 color = [float(i) / 256 for i in layer.color]
                 if color == [1.0, 1.0, 1.0]:
                     color = [0.9, 0.9, 0.9]
@@ -1919,8 +1909,22 @@ class Stackup(object):
                     f"Thick: {layer.thickness * 1e6:.3f}um,  "
                     f"Elev:{layer.lower_elevation * 1e6:.3f}um"
                 )
-                plot_data.append([x, y, color, label, corrected_signal_alpha, "fill"])
 
+                # create patch
+                x = [0, 0, 1, 1]
+                if ly[3] > 0:
+                    le = ly[1]  # lower elevation
+                    ue = ly[2]  # upper elevation
+                    y = [le, ue, ue, le]
+                    plot_data.insert(0, [x, y, color, label, signal_alpha, "fill"])
+                else:
+                    le = ly[1] - min_thickness * 0.1  # make the zero thickness layers more visible
+                    ue = ly[2] + min_thickness * 0.1
+                    y = [le, ue, ue, le]
+                    # put the zero thickness layers on top
+                    plot_data.append([x, y, color, label, zero_thickness_alpha, "fill"])
+
+                # create annotation
                 if ly.type == "dielectric":
                     x_pos = -annotation_x_margin
                 elif ly.type == "signal":
@@ -1931,6 +1935,7 @@ class Stackup(object):
         elif self.stackup_mode == "Overlapping":
             min_thickness = min([i[3] for i in signal_layers if i[3] != 0])
             columns = []  # first column is x=[0,1], second column is x=[1,2] and so on...
+            plot_data_tmp = []
             for ly in signal_layers:
                 layer = ly[0]
                 le = ly[1]  # lower elevation
@@ -1945,74 +1950,44 @@ class Stackup(object):
                         cell_position = len(c)
                     else:
                         break
-                if len(columns) < put_in_column + 1:  # add a new column
+                if len(columns) < put_in_column + 1:  # add a new column if required
                     columns.append([])
-
+                # put zeros at the beginning of the column until there is the first layer
                 if cell_position != 0:
                     fill_cells = cell_position - 1 - len(columns[put_in_column])
                     for i in range(fill_cells):
                         columns[put_in_column].append(0)
-
+                # append the layer to the proper column and row
                 columns[put_in_column].append(ly)
 
                 x = [put_in_column + 1, put_in_column + 1, put_in_column + 2, put_in_column + 2]
 
-                if ly[3] > 0:
-                    le = ly[1]  # lower elevation
-                    ue = ly[2]  # upper elevation
-                    corrected_signal_alpha = signal_alpha
-                else:
-                    le = ly[1] - min_thickness * 0.1  # make the zero thickness layers more visible
-                    ue = ly[2] + min_thickness * 0.1
-                    corrected_signal_alpha = zero_thickness_alpha
-                y = [le, ue, ue, le]
-
-                # set color, label and annotation
-                color = [float(i) / 256 for i in layer.color]
-                if color == [1.0, 1.0, 1.0]:
-                    color = [0.9, 0.9, 0.9]
-                label = (
-                    f"{layer.name}, {layer.material}, "
-                    f"Thick: {layer.thickness * 1e6:.3f}um,  "
-                    f"Elev:{layer.lower_elevation * 1e6:.3f}um"
-                )
-                plot_data.append([x, y, color, label, corrected_signal_alpha, "fill"])
-
-                x_pos = 1.0
-                y_pos = (le + ue) / 2
-                annotations.append([x_pos, y_pos, layer.name, {"fontsize": annotation_fontsize}])
+                plot_data_tmp.append([ly, x])
 
             # fill the columns matrix with zeros on top
             n_rows = max([len(i) for i in columns])
             for c in columns:
                 while len(c) < n_rows:
                     c.append(0)
-            # expand the fill for the signals that have nothing overlapping
+            # expand to the right the fill for the signals that have no overlap on the right
             width = len(columns) + 1
-            for k, d in enumerate(plot_data):
-                dname = annotations[k][2]
+            for k, d in enumerate(plot_data_tmp):
+                dname = d[0][0].name
                 for i, c in enumerate(columns[:-1]):
                     for j, r in enumerate(c):
                         if r != 0 and dname == r[0].name:
                             if columns[i + 1][j] == 0:
-                                # nothing on the left, so expand the fill
-                                x = d[0]
-                                d[0] = [x[0], x[0], width, width]
+                                # nothing on the right, so expand the fill
+                                x = d[1]
+                                d[1] = [x[0], x[0], width, width]
                             break
 
-            # move the annotations to the final x
-            width = len(columns) + 1
-            for i, a in enumerate(annotations):
-                a[0] = width + annotation_x_margin
-
-            for ly in dielectric_layers:
+            for pd in plot_data_tmp:
+                ly = pd[0]
                 layer = ly[0]
-                le = ly[1]  # lower elevation
-                ue = ly[2]  # upper elevation
-                y = [le, ue, ue, le]
-                x = [0, 0, width, width]
+                x = pd[1]
 
-                # set color, label and annotation
+                # set color and label
                 color = [float(i) / 256 for i in layer.color]
                 if color == [1.0, 1.0, 1.0]:
                     color = [0.9, 0.9, 0.9]
@@ -2021,8 +1996,48 @@ class Stackup(object):
                     f"Thick: {layer.thickness * 1e6:.3f}um,  "
                     f"Elev:{layer.lower_elevation * 1e6:.3f}um"
                 )
+
+                if ly[3] > 0:
+                    le = ly[1]  # lower elevation
+                    ue = ly[2]  # upper elevation
+                    y = [le, ue, ue, le]
+                    plot_data.insert(0, [x, y, color, label, signal_alpha, "fill"])
+                else:
+                    le = ly[1] - min_thickness * 0.1  # make the zero thickness layers more visible
+                    ue = ly[2] + min_thickness * 0.1
+                    y = [le, ue, ue, le]
+                    # put the zero thickness layers on top
+                    plot_data.append([x, y, color, label, zero_thickness_alpha, "fill"])
+
+                # create annotation
+                x_pos = 1.0
+                y_pos = (le + ue) / 2
+                annotations.append([x_pos, y_pos, layer.name, {"fontsize": annotation_fontsize}])
+
+            # move all the annotations to the final x (it could be larger than 1 due to additional columns)
+            width = len(columns) + 1
+            for i, a in enumerate(annotations):
+                a[0] = width + annotation_x_margin
+
+            for ly in dielectric_layers:
+                layer = ly[0]
+                # set color and label
+                color = [float(i) / 256 for i in layer.color]
+                if color == [1.0, 1.0, 1.0]:
+                    color = [0.9, 0.9, 0.9]
+                label = (
+                    f"{layer.name}, {layer.material}, "
+                    f"Thick: {layer.thickness * 1e6:.3f}um,  "
+                    f"Elev:{layer.lower_elevation * 1e6:.3f}um"
+                )
+                # create the patch
+                le = ly[1]  # lower elevation
+                ue = ly[2]  # upper elevation
+                y = [le, ue, ue, le]
+                x = [0, 0, width, width]
                 plot_data.insert(0, [x, y, color, label, diel_alpha, "fill"])
 
+                # create annotation
                 x_pos = -annotation_x_margin
                 y_pos = (le + ue) / 2
                 annotations.append(
@@ -2039,7 +2054,7 @@ class Stackup(object):
             min_y = min(dielectric_layers[0][1], signal_layers[0][1])
             max_y = max(dielectric_layers[-1][2], signal_layers[-1][2])
 
-        # move the annotations to avoid overlapping
+        # move the annotations to avoid text overlapping
         new_annotations = []
         for i, a in enumerate(annotations):
             if i > 0 and abs(a[1] - annotations[i - 1][1]) < (max_y - min_y) / 75:
