@@ -916,7 +916,11 @@ class TestClass(BasisTest, object):
 
     def test_087_deactivate_rlc(self):
         assert self.edbapp.components.deactivate_rlc_component(component="C1", create_circuit_port=True)
-        assert self.edbapp.components.deactivate_rlc_component(component="C2", create_circuit_port=False)
+        assert self.edbapp.components["C1"].is_enabled is False
+        self.edbapp.components["C2"].is_enabled = False
+        assert self.edbapp.components["C2"].is_enabled is False
+        self.edbapp.components["C2"].is_enabled = True
+        assert self.edbapp.components["C2"].is_enabled is True
 
     def test_088_create_symmetric_stackup(self):
         if not is_ironpython:
