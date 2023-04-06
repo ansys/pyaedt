@@ -2729,7 +2729,7 @@ class GeometryModeler(Modeler, object):
         objid : list, str, int, Object3d or UserDefinedComponent
             Name or ID of the object.
         cs_axis :
-            Coordinate system axis or the Application.CoordinateSystemAxis object.
+            Coordinate system axis or the Application.AXIS object.
         angle : float, optional
             Angle rotation in degees. The default is ``90``.
         nclones : int, optional
@@ -3019,7 +3019,7 @@ class GeometryModeler(Modeler, object):
         objid : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
         cs_axis :
-            Coordinate system axis or the Application.CoordinateSystemAxis object.
+            Coordinate system axis or the Application.AXIS object.
         sweep_angle : float
             Sweep angle in degrees. The default is ``360``.
         draft_angle : float
@@ -3154,7 +3154,7 @@ class GeometryModeler(Modeler, object):
         objid :  list, str, int, or  :class:`pyaedt.modeler.Object3d.Object3d`
              ID of the object.
         cs_axis
-            Coordinate system axis or the Application.CoordinateSystemAxis object.
+            Coordinate system axis or the Application.AXIS object.
         angle : float
             Angle of rotation. The units, defined by ``unit``, can be either
             degrees or radians. The default is ``90.0``.
@@ -3557,45 +3557,6 @@ class GeometryModeler(Modeler, object):
             return objects_list_after_connection
         except:
             return False
-
-    @pyaedt_function_handler()
-    def translate(self, objid, vector):
-        """Translate objects from a list.
-
-        .. deprecated:: 0.4.0
-           Use :func:`move` instead.
-
-        Parameters
-        ----------
-        objid : list, Position object
-            List of object IDs.
-        vector : list
-            Vector of the direction move. It can be a list of the ``[x, y, z]``
-            coordinates or a Position object.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-
-        >>> oEditor.Move
-        """
-        warnings.warn("`translate` is deprecated. Use `move` instead.", DeprecationWarning)
-        Xvec, Yvec, Zvec = self._pos_with_arg(vector)
-        szSelections = self.convert_to_selections(objid)
-
-        vArg1 = ["NAME:Selections", "Selections:=", szSelections, "NewPartsModelFlag:=", "Model"]
-        vArg2 = ["NAME:TranslateParameters"]
-        vArg2.append("TranslateVectorX:="), vArg2.append(Xvec)
-        vArg2.append("TranslateVectorY:="), vArg2.append(Yvec)
-        vArg2.append("TranslateVectorZ:="), vArg2.append(Zvec)
-
-        if self.oeditor is not None:
-            self.oeditor.Move(vArg1, vArg2)
-        return True
 
     @pyaedt_function_handler()
     def chassis_subtraction(self, chassis_part):
@@ -4265,39 +4226,6 @@ class GeometryModeler(Modeler, object):
         return faces
 
     @pyaedt_function_handler()
-    def load_objects_bytype(self, obj_type):
-        """Load all objects of a specified type.
-
-        .. deprecated:: 0.5.0
-           Use :func:`get_objects_in_group` property instead.
-
-        Parameters
-        ----------
-        obj_type : str
-            Type of the objects to load. Options are
-            ``"Solids"`` and ``"Sheets"``.
-
-        Returns
-        -------
-        list
-            List of the object names for the specified type.
-
-        References
-        ----------
-
-        >>> oEditor.GetObjectsInGroup
-        """
-
-        warnings.warn(
-            "`load_objects_bytype` is deprecated and will be removed in version 0.5.0. "
-            "Use `get_objects_in_group` method instead.",
-            DeprecationWarning,
-        )
-
-        objNames = list(self.oeditor.GetObjectsInGroup(obj_type))
-        return objNames
-
-    @pyaedt_function_handler()
     def get_line_ids(self):
         """Create a dictionary of object IDs for the lines in the design with the line name as the key."""
         line_ids = {}
@@ -4805,32 +4733,6 @@ class GeometryModeler(Modeler, object):
         """
         self.import_spaceclaim_document(SpaceClaimFile)
         self.break_spaceclaim_connection()
-        return True
-
-    @pyaedt_function_handler()
-    def load_hfss(self, cadfile):
-        """Load HFSS.
-
-        .. deprecated:: 0.4.41
-           Use :func:`import_3d_cad` property instead.
-
-        Parameters
-        ----------
-        cadfile : str
-            Name of the CAD file to load in HFSS.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-
-        >>> oEditor.Import
-        """
-        warnings.warn("`load_hfss` is deprecated. Use `import_3d_cad` method instead.", DeprecationWarning)
-        self.import_3d_cad(cadfile, healing=True)
         return True
 
     @pyaedt_function_handler()

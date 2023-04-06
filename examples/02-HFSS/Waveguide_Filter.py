@@ -103,7 +103,7 @@ def place_iris(zpos, dz, n):
     iris = []  # Return a list of the two objects that make up the iris.
     if this_name in hfss.modeler.object_names:
         this_name = this_name.replace("a", "c")
-    iris.append(hfss.modeler.primitives.create_box(['-b/2', '-a/2', zpos], ['(b - ' + w_str + ')/2', 'a',  dz],
+    iris.append(hfss.modeler.create_box(['-b/2', '-a/2', zpos], ['(b - ' + w_str + ')/2', 'a',  dz],
                                                     name=this_name, matname="silver"))
     iris.append(iris[0].mirror([0, 0, 0], [1, 0, 0], duplicate=True))
     return iris
@@ -167,7 +167,7 @@ for n, z in enumerate(wg_z):
     u_start = [0, hfss.variable_manager["u_start"].evaluated_value,  z]
     u_end = [0, hfss.variable_manager["u_end"].evaluated_value, z]
 
-    ports.append(hfss.wave_port(face_id, u_start, u_end, portname="P" + str(n + 1), renorm=False))
+    ports.append(hfss.wave_port(face_id, integration_line=[u_start, u_end], name="P" + str(n + 1), renormalize=False))
 
 ###############################################################################
 # Insert the mesh adaptation setup using refinement at two frequencies.

@@ -1,5 +1,4 @@
 import os
-import warnings
 
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import is_ironpython
@@ -140,26 +139,6 @@ class FieldAnalysis3DLayout(Analysis):
         >>> oModule.GetExcitations
         """
         return list(self.oboundary.GetAllPortsList())
-
-    @property
-    def get_excitations_name(self):
-        """Excitation names.
-
-        .. deprecated:: 0.4.27
-           Use :func:`excitations` property instead.
-
-        Returns
-        -------
-        list
-            list of all excitation
-
-        References
-        ----------
-
-        >>> oModule.GetAllPortsList
-        """
-        warnings.warn("`get_excitations_name` is deprecated. Use `excitations` property instead.", DeprecationWarning)
-        return self.excitations
 
     @property
     def get_all_sparameter_list(self, excitation_names=[]):

@@ -13,7 +13,6 @@ from __future__ import absolute_import  # noreorder
 
 import os
 import re
-import warnings
 
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import _retry_ntimes
@@ -1465,7 +1464,7 @@ class Object3d(object):
         Parameters
         ----------
         cs_axis : int
-            Coordinate system axis or the Application.CoordinateSystemAxis object.
+            Coordinate system axis or the Application.AXIS object.
         angle : float, optional
             Angle of rotation. The units, defined by ``unit``, can be either
             degrees or radians. The default is ``90.0``.
@@ -1518,7 +1517,7 @@ class Object3d(object):
 
         Parameters
         ----------
-        cs_axis : Application.CoordinateSystemAxis object
+        cs_axis : Application.AXIS object
             Coordinate system axis of the object.
         angle : float
             Angle of rotation in degrees. The default is ``90``.
@@ -1569,28 +1568,6 @@ class Object3d(object):
         """
         ret, added_objects = self._primitives.modeler.duplicate_along_line(self, vector, nclones, attachObject)
         return added_objects
-
-    @pyaedt_function_handler()
-    def translate(self, vector):
-        """Translate the object and return the 3D object.
-
-        .. deprecated:: 0.4.0
-           Use :func:`move` instead.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
-            3D object.
-
-        References
-        ----------
-
-        >>> oEditor.Move
-
-        """
-        warnings.warn("`translate` is deprecated. Use `move` instead.", DeprecationWarning)
-        self.move(vector)
-        return self
 
     @pyaedt_function_handler()
     def sweep_along_vector(self, sweep_vector, draft_angle=0, draft_type="Round"):
@@ -1662,7 +1639,7 @@ class Object3d(object):
 
         Parameters
         ----------
-        cs_axis : :class:`pyaedt.generic.constants.CoordinateSystemAxis`
+        cs_axis : :class:`pyaedt.generic.constants.AXIS`
             Coordinate system of the axis.
         sweep_angle : float, optional
              Sweep angle in degrees. The default is ``360``.
