@@ -280,21 +280,46 @@ class TestClass(BasisTest, object):
         ant3 = self.aedtapp.modeler.components.create_component("Antenna")
         if rad3 and ant3:
             ant3.move_and_connect_to(rad3)
-        self.aedtapp.results.analyze()
+        rev = self.aedtapp.results.analyze()
         assert len(self.aedtapp.results.revisions) == 1
+        assert rev.name == "Revision 10"
+        assert rev.revision_number == 10
+        rev_timestamp = rev.timestamp
+        assert rev_timestamp
         self.aedtapp.results.analyze()
         assert len(self.aedtapp.results.revisions) == 1
         rad4 = self.aedtapp.modeler.components.create_component("Bluetooth")
         ant4 = self.aedtapp.modeler.components.create_component("Antenna")
         if rad4 and ant4:
             ant4.move_and_connect_to(rad4)
-        self.aedtapp.results.analyze()
+        rev2 = self.aedtapp.results.analyze()
         assert len(self.aedtapp.results.revisions) == 2
         rad5 = self.aedtapp.modeler.components.create_component("HAVEQUICK Airborne")
         ant5 = self.aedtapp.modeler.components.create_component("Antenna")
         if rad5 and ant5:
             ant4.move_and_connect_to(rad5)
         assert len(self.aedtapp.results.revisions) == 2
+        # validate notes can be get/set
+        rev2.set_notes("Added Bluetooth and an antenna")
+        notes = rev2.get_notes()
+        assert rev2.name == "Revision 13"
+        assert notes == "Added Bluetooth and an antenna"
+        # get the initial revision
+        rev3 = self.aedtapp.results.get_revision("Revision 10")
+        assert rev3.name == "Revision 10"
+        assert rev3.revision_number == 10
+        assert rev_timestamp == rev3.timestamp
+        # get the most recent revision
+        # there are changes, so it should be a new revision
+        rev4 = self.aedtapp.results.analyze()
+        assert rev4.name == "Revision 16"
+        # get the initial revision
+        rev5 = self.aedtapp.results.get_revision("Revision 10")
+        assert rev5.name == "Revision 10"
+        # get the most recent revision
+        # no changes, so it should be the most recent revision
+        rev6 = self.aedtapp.results.analyze()
+        assert rev6.name == "Revision 16"
 
     @pytest.mark.skipif(
         not (sys.version_info.major == 3 and sys.version_info.minor == 7)
