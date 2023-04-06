@@ -1891,8 +1891,7 @@ class Stackup(object):
         signal_alpha = 0.6
         zero_thickness_alpha = 1.0
         annotation_fontsize = 14
-        legend_fontsize = 10
-        annotation_x_margin = 0.05
+        annotation_x_margin = 0.01
         annotations = []
         plot_data = []
         if self.stackup_mode == "Laminate":
@@ -1925,18 +1924,30 @@ class Stackup(object):
                     plot_data.append([x, y, color, label, zero_thickness_alpha, "fill"])
 
                 # create annotation
-                if ly.type == "dielectric":
-                    x_pos = -annotation_x_margin
-                elif ly.type == "signal":
-                    x_pos = 1.0 + annotation_x_margin
                 y_pos = (le + ue) / 2
-                annotations.append([x_pos, y_pos, layer.name, {"fontsize": annotation_fontsize}])
+                if layer.type == "dielectric":
+                    x_pos = -annotation_x_margin
+                    annotations.append(
+                        [x_pos, y_pos, layer.name, {"fontsize": annotation_fontsize, "horizontalalignment": "right"}]
+                    )
+                elif layer.type == "signal":
+                    x_pos = 1.0 + annotation_x_margin
+                    annotations.append([x_pos, y_pos, layer.name, {"fontsize": annotation_fontsize}])
+
+            # evaluate the legend reorder
+            legend_order = []
+            for ly in layers_data:
+                name = ly[0].name
+                for i, a in enumerate(plot_data):
+                    iname = a[3].split(",")[0]
+                    if name == iname:
+                        legend_order.append(i)
+                        break
 
         elif self.stackup_mode == "Overlapping":
             min_thickness = min([i[3] for i in signal_layers if i[3] != 0])
             columns = []  # first column is x=[0,1], second column is x=[1,2] and so on...
             for ly in signal_layers:
-                # layer = ly[0]
                 le = ly[1]  # lower elevation
                 t = ly[3]  # thickness
                 put_in_column = 0
@@ -2009,12 +2020,12 @@ class Stackup(object):
                         y_pos = (le + ue) / 2
                         annotations.append([x_pos, y_pos, layer.name, {"fontsize": annotation_fontsize}])
 
-            # order the annotations based on y_pos
+            # order the annotations based on y_pos (it is necessary later to move them to avoid text overlapping)
             annotations.sort(key=lambda e: e[1])
             # move all the annotations to the final x (it could be larger than 1 due to additional columns)
             width = len(columns) + 1
             for i, a in enumerate(annotations):
-                a[0] = width + annotation_x_margin
+                a[0] = width + annotation_x_margin * width
 
             for ly in dielectric_layers:
                 layer = ly[0]
@@ -2035,13 +2046,13 @@ class Stackup(object):
                 plot_data.insert(0, [x, y, color, label, diel_alpha, "fill"])
 
                 # create annotation
-                x_pos = -annotation_x_margin
+                x_pos = -annotation_x_margin * width
                 y_pos = (le + ue) / 2
                 annotations.append(
                     [x_pos, y_pos, layer.name, {"fontsize": annotation_fontsize, "horizontalalignment": "right"}]
                 )
 
-            # evaluate the legend reorder (use the annotations list instead of the columns because is faster)
+            # evaluate the legend reorder
             legend_order = []
             for ly in dielectric_layers:
                 name = ly[0].name
@@ -2096,18 +2107,15 @@ class Stackup(object):
         plt.title("Stackup\n ", fontsize=28)
         # evaluates the number of legend column based on the layer name max length
         ncol = 3 if max([len(n) for n in layer_names]) < 15 else 2
-        if self.stackup_mode == "Overlapping":
-            handles, labels = plt.gca().get_legend_handles_labels()
-            plt.legend(
-                [handles[idx] for idx in legend_order],
-                [labels[idx] for idx in legend_order],
-                bbox_to_anchor=(0, -0.05),
-                loc="upper left",
-                borderaxespad=0,
-                ncol=ncol,
-            )
-        else:
-            plt.legend(bbox_to_anchor=(0, -0.05), loc="upper left", borderaxespad=0, ncol=ncol)
+        handles, labels = plt.gca().get_legend_handles_labels()
+        plt.legend(
+            [handles[idx] for idx in legend_order],
+            [labels[idx] for idx in legend_order],
+            bbox_to_anchor=(0, -0.05),
+            loc="upper left",
+            borderaxespad=0,
+            ncol=ncol,
+        )
         plt.tight_layout()
         plt.show()
 
