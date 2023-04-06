@@ -1464,7 +1464,7 @@ class Object3d(object):
         Parameters
         ----------
         cs_axis : int
-            Coordinate system axis or the Application.CoordinateSystemAxis object.
+            Coordinate system axis or the Application.AXIS object.
         angle : float, optional
             Angle of rotation. The units, defined by ``unit``, can be either
             degrees or radians. The default is ``90.0``.
@@ -1517,7 +1517,7 @@ class Object3d(object):
 
         Parameters
         ----------
-        cs_axis : Application.CoordinateSystemAxis object
+        cs_axis : Application.AXIS object
             Coordinate system axis of the object.
         angle : float
             Angle of rotation in degrees. The default is ``90``.
@@ -1639,7 +1639,7 @@ class Object3d(object):
 
         Parameters
         ----------
-        cs_axis : :class:`pyaedt.generic.constants.CoordinateSystemAxis`
+        cs_axis : :class:`pyaedt.generic.constants.AXIS`
             Coordinate system of the axis.
         sweep_angle : float, optional
              Sweep angle in degrees. The default is ``360``.

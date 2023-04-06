@@ -2729,7 +2729,7 @@ class GeometryModeler(Modeler, object):
         objid : list, str, int, Object3d or UserDefinedComponent
             Name or ID of the object.
         cs_axis :
-            Coordinate system axis or the Application.CoordinateSystemAxis object.
+            Coordinate system axis or the Application.AXIS object.
         angle : float, optional
             Angle rotation in degees. The default is ``90``.
         nclones : int, optional
@@ -3019,7 +3019,7 @@ class GeometryModeler(Modeler, object):
         objid : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
         cs_axis :
-            Coordinate system axis or the Application.CoordinateSystemAxis object.
+            Coordinate system axis or the Application.AXIS object.
         sweep_angle : float
             Sweep angle in degrees. The default is ``360``.
         draft_angle : float
@@ -3154,7 +3154,7 @@ class GeometryModeler(Modeler, object):
         objid :  list, str, int, or  :class:`pyaedt.modeler.Object3d.Object3d`
              ID of the object.
         cs_axis
-            Coordinate system axis or the Application.CoordinateSystemAxis object.
+            Coordinate system axis or the Application.AXIS object.
         angle : float
             Angle of rotation. The units, defined by ``unit``, can be either
             degrees or radians. The default is ``90.0``.
