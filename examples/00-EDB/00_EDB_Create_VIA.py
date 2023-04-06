@@ -39,12 +39,12 @@ if edb:
         [0.0, 0],
         [100e-3, 0.0],
     ]
-    edb.core_primitives.create_trace(points, "TOP", width=1e-3)
+    edb.modeler.create_trace(points, "TOP", width=1e-3)
     points = [[0.0, 1e-3], [0.0, 10e-3], [100e-3, 10e-3], [100e-3, 1e-3], [0.0, 1e-3]]
-    edb.core_primitives.create_polygon_from_points(points, "TOP")
+    edb.modeler.create_polygon_from_points(points, "TOP")
 
     points = [[0.0, -1e-3], [0.0, -10e-3], [100e-3, -10e-3], [100e-3, -1e-3], [0.0, -1e-3]]
-    edb.core_primitives.create_polygon_from_points(points, "TOP")
+    edb.modeler.create_polygon_from_points(points, "TOP")
 
 #######################################
 # Create vias with parametric positions
@@ -52,17 +52,17 @@ if edb:
 # Create vias with parametric positions.
 
 if edb:
-    edb.core_padstack.create_padstack("MyVia")
-    edb.core_padstack.place_padstack([5e-3, 5e-3], "MyVia")
-    edb.core_padstack.place_padstack([15e-3, 5e-3], "MyVia")
-    edb.core_padstack.place_padstack([35e-3, 5e-3], "MyVia")
-    edb.core_padstack.place_padstack([45e-3, 5e-3], "MyVia")
-    edb.core_padstack.place_padstack([5e-3, -5e-3], "MyVia")
-    edb.core_padstack.place_padstack([15e-3, -5e-3], "MyVia")
-    edb.core_padstack.place_padstack([35e-3, -5e-3], "MyVia")
-    edb.core_padstack.place_padstack([45e-3, -5e-3], "MyVia")
+    edb.padstacks.create("MyVia")
+    edb.padstacks.place([5e-3, 5e-3], "MyVia")
+    edb.padstacks.place([15e-3, 5e-3], "MyVia")
+    edb.padstacks.place([35e-3, 5e-3], "MyVia")
+    edb.padstacks.place([45e-3, 5e-3], "MyVia")
+    edb.padstacks.place([5e-3, -5e-3], "MyVia")
+    edb.padstacks.place([15e-3, -5e-3], "MyVia")
+    edb.padstacks.place([35e-3, -5e-3], "MyVia")
+    edb.padstacks.place([45e-3, -5e-3], "MyVia")
 
-edb.core_nets.plot(None, color_by_net=True)
+edb.nets.plot(None, color_by_net=True)
 
 ####################
 # Save and close EDB

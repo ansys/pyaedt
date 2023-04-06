@@ -22,7 +22,7 @@ package_temp_name, qfp_temp_name = downloads.download_icepak_3d_component(temp_f
 # Open a new project in non-graphical mode.
 
 ipk = Icepak(projectname=os.path.join(temp_folder, "Heatsink.aedt"), specified_version="2023.1", non_graphical=True,
-             close_on_exit=True)
+             close_on_exit=True, new_desktop_session=True)
 
 # Remove air region created by default because it is not needed as the heatsink will be exported as a 3dcomponent
 ipk.modeler.get_object_from_name("Region").delete()
@@ -221,4 +221,4 @@ ipk.modeler.create_3dcomponent(
 
 ipk.plot(show=False, export_path=os.path.join(temp_folder, "main_assembly.jpg"))
 ipk.close_project(save_project=True)
-ipk.close_desktop()
+ipk.release_desktop()

@@ -1304,7 +1304,7 @@ class Object3d(object):
         self._change_property(vWireframe)
         self._wireframe = fWireframe
 
-    @property
+    @pyaedt_function_handler()
     def history(self):
         """Object history.
 
@@ -1888,10 +1888,6 @@ class Object3d(object):
     @pyaedt_function_handler()
     def _change_property(self, vPropChange):
         return self._primitives._change_geometry_property(vPropChange, self._m_name)
-
-    def _update(self):
-        # self._object3d._refresh_object_types()
-        self._primitives.cleanup_objects()
 
     def __str__(self):
         return """

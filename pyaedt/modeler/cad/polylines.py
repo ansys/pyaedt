@@ -211,8 +211,8 @@ class Polyline(Object3d):
                 # add the points
                 self._positions = [list(i) for i in position_list]
             elif isinstance(segment_type, str):
-                if segment_type not in ["Line", "Arc"]:
-                    raise TypeError('segment must be either "Line", "Arc" or PolylineSegment object')
+                if segment_type not in ["Line", "Arc", "Spline"]:
+                    raise TypeError('segment must be either "Line", "Arc", "Spline" or PolylineSegment object')
                 # add the segment
                 self._segment_types = [PolylineSegment(segment_type)]
                 # add the points (discard the points in excess)
@@ -228,6 +228,13 @@ class Polyline(Object3d):
                             "The position_list argument must contain at least 3 points for segment of type Arc."
                         )
                     self._positions = [list(i) for i in position_list[:3]]
+                elif self._segment_types[0].type == "Spline":
+                    if len(position_list) < 4:
+                        raise ValueError(
+                            "The position_list argument must contain at least 4 points for segment of type Spline."
+                        )
+                    self._positions = [list(i) for i in position_list[::]]
+                    self._segment_types[0].num_points = len(position_list)
             elif isinstance(segment_type, PolylineSegment):
                 # add the segment
                 self._segment_types = [segment_type]
@@ -259,8 +266,8 @@ class Polyline(Object3d):
                 for i, seg in enumerate(segment_type):
                     # add the segments
                     if isinstance(seg, str):
-                        if seg not in ["Line", "Arc"]:
-                            raise TypeError('segment must be either "Line", "Arc" or PolylineSegment object')
+                        if seg not in ["Line", "Arc", "Spline"]:
+                            raise TypeError('segment must be either "Line", "Arc", "Spline" or PolylineSegment object')
                         # Convert all string-type entries in the segment_types list to PolylineSegments
                         self._segment_types.append(PolylineSegment(seg))
                     elif isinstance(seg, PolylineSegment):
@@ -378,7 +385,7 @@ class Polyline(Object3d):
         segments = []
         points = []
         try:
-            history = self.history
+            history = self.history()
             h_segments = history.segments
         except:  # pragma: no cover
             history = None
@@ -971,8 +978,7 @@ class Polyline(Object3d):
         arg2.append(arg3)
         arg1.append(arg2)
         self._primitives.oeditor.ChangeProperty(arg1)
-        self._update()
-        return True
+        return self._primitives.update_object(self.name)
 
     @pyaedt_function_handler()
     def _get_point_slice_from_segment_id(self, segment_id, at_start=True):

@@ -32,6 +32,13 @@ class IcepakMesh(object):
         self.meshregions = self._get_design_mesh_regions()
         self._priorities_args = []
 
+    @pyaedt_function_handler()
+    def _refresh_mesh_operations(self):
+        """Refresh all mesh operations."""
+
+        self._meshoperations = self._get_design_mesh_operations()
+        return len(self.meshoperations)
+
     @property
     def omeshmodule(self):
         """Icepak Mesh Module.

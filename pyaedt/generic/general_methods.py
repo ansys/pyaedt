@@ -204,6 +204,32 @@ def pyaedt_function_handler(direct_func=None):
 
 
 @pyaedt_function_handler()
+def check_numeric_equivalence(a, b, relative_tolerance=1e-7):
+    """Check if two numeric values are equivalent to within a relative tolerance.
+
+    Paraemters
+    ----------
+    a : int, float
+        Reference value to compare to.
+    b : int, float
+        Secondary value for the comparison.
+    relative_tolerance : float, optional
+        Relative tolerance for the equivalence test. The difference is relative to the first value.
+        The default is ``1E-7``.
+
+    Returns
+    -------
+    bool
+        ``True`` if the two passed values are equivalent.
+    """
+    if abs(a) > 0.0:
+        reldiff = abs(a - b) / a
+    else:
+        reldiff = abs(b)
+    return True if reldiff < relative_tolerance else False
+
+
+@pyaedt_function_handler()
 def check_and_download_file(local_path, remote_path, overwrite=True):
     """Check if a file is remote and either download it or return the path.
 

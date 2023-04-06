@@ -164,6 +164,7 @@ class UserDefinedComponent(object):
             self.native_properties = self._props["NativeComponentDefinitionProvider"]
             self.auto_update = True
 
+    @pyaedt_function_handler()
     def history(self):
         """Component history.
 

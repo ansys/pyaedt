@@ -1446,3 +1446,96 @@ class Desktop(object):
             return True
         except:
             return False
+
+    @pyaedt_function_handler()
+    def get_available_toolkits(self):
+        """Get toolkit ready for installation.
+
+        Returns
+        -------
+        list
+            List of toolkit names.
+        """
+        from pyaedt.misc.install_extra_toolkits import available_toolkits
+
+        return list(available_toolkits.keys())
+
+    @pyaedt_function_handler()
+    def add_custom_toolkit(self, toolkit_name):  # pragma: no cover
+        """Add toolkit to AEDT Automation Tab.
+
+        Parameters
+        ----------
+        toolkit_name : str
+            Name of toolkit to add.
+
+        Returns
+        -------
+        bool
+        """
+        from pyaedt.misc.install_extra_toolkits import available_toolkits
+        from pyaedt.misc.install_extra_toolkits import write_toolkit_config
+
+        toolkit = available_toolkits[toolkit_name]
+        toolkit_name = toolkit_name.replace("_", "")
+
+        def install(package_path, package_name=None):
+            executable = '"{}"'.format(sys.executable) if is_windows else sys.executable
+
+            commands = []
+            if package_path.startswith("git") and package_name:
+                commands.append([executable, "-m", "pip", "uninstall", "--yes", package_name])
+
+            commands.append([executable, "-m", "pip", "install", "--upgrade", package_path])
+
+            for command in commands:
+                if is_linux:
+                    p = subprocess.Popen(command)
+                else:
+                    p = subprocess.Popen(" ".join(command))
+                p.wait()
+
+        install(toolkit["pip"], toolkit.get("package_name", None))
+        import site
+
+        packages = site.getsitepackages()
+        full_path = None
+        for pkg in packages:
+            if os.path.exists(os.path.join(pkg, toolkit["toolkit_script"])):
+                full_path = os.path.join(pkg, toolkit["toolkit_script"])
+                break
+        if not full_path:
+            raise FileNotFoundError("Error finding the package.")
+        product = toolkit["installation_path"]
+        toolkit_dir = os.path.join(self.personallib, "Toolkits")
+        aedt_version = self.aedt_version_id
+        tool_dir = os.path.join(toolkit_dir, product, toolkit_name)
+        lib_dir = os.path.join(tool_dir, "Lib")
+        toolkit_rel_lib_dir = os.path.relpath(lib_dir, tool_dir)
+        if is_linux and aedt_version <= "2023.1":
+            toolkit_rel_lib_dir = os.path.join("Lib", toolkit_name)
+            lib_dir = os.path.join(toolkit_dir, toolkit_rel_lib_dir)
+            toolkit_rel_lib_dir = "../../" + toolkit_rel_lib_dir
+        os.makedirs(lib_dir, exist_ok=True)
+        os.makedirs(tool_dir, exist_ok=True)
+        files_to_copy = ["Run_PyAEDT_Toolkit_Script"]
+        executable_version_agnostic = sys.executable
+        for file_name in files_to_copy:
+            src = os.path.join(pathname, "misc", file_name + ".py_build")
+            dst = os.path.join(tool_dir, file_name.replace("_", " ") + ".py")
+            if not os.path.isfile(src):
+                raise FileNotFoundError("File not found: {}".format(src))
+            with open(src, "r") as build_file:
+                with open(dst, "w") as out_file:
+                    self.logger.info("Building to " + dst)
+                    build_file_data = build_file.read()
+                    build_file_data = (
+                        build_file_data.replace("##TOOLKIT_REL_LIB_DIR##", toolkit_rel_lib_dir)
+                        .replace("##PYTHON_EXE##", executable_version_agnostic)
+                        .replace("##PYTHON_SCRIPT##", full_path)
+                    )
+                    build_file_data = build_file_data.replace(" % version", "")
+                    out_file.write(build_file_data)
+        if aedt_version >= "2023.2":
+            write_toolkit_config(os.path.join(toolkit_dir, product), lib_dir, toolkit_name, toolkit=toolkit)
+        self.logger.info("{} toolkit installed.".format(toolkit_name))

@@ -2381,7 +2381,7 @@ class Patch(CommonObject, object):
             + " - "
             + reference_layer.elevation.name
         )
-        port = self.application.modeler.create_rectangle(
+        rect = self.application.modeler.create_rectangle(
             csPlane=constants.PLANE.YZ,
             position=[string_position_x, string_position_y, string_position_z],
             dimension_list=[string_width, string_length],
@@ -2391,11 +2391,9 @@ class Patch(CommonObject, object):
         if self.application.solution_type == "Modal":
             if axisdir is None:
                 axisdir = self.application.AxisDir.ZPos
-            port = self.application.create_lumped_port_to_sheet(port.name, portname=port_name, axisdir=axisdir)
+            port = self.application.lumped_port(rect.name, name=port_name, integration_line=axisdir)
         elif self.application.solution_type == "Terminal":
-            port = self.application.create_lumped_port_to_sheet(
-                port.name, portname=port_name, reference_object_list=[reference_layer.name]
-            )
+            port = self.application.lumped_port(rect.name, name=port_name, reference=[reference_layer.name])
         return port
 
     def quarter_wave_feeding_line(self, impedance_to_adapt=50):

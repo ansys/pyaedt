@@ -279,6 +279,7 @@ class PinGroup(object):
     def net_name(self):
         return self._edb_pin_group.GetNet().GetName()
 
+    @pyaedt_function_handler()
     def _create_terminal(self, is_reference=False):
         pg_term = self._edb_pin_group.GetPinGroupTerminal()
         pin_group_net = self._edb_pin_group.GetNet()
@@ -295,6 +296,7 @@ class PinGroup(object):
         else:
             return pg_term
 
+    @pyaedt_function_handler()
     def create_current_source_terminal(self, magnitude=1, phase=0):
         terminal = self._create_terminal()
         terminal.SetBoundaryType(self._pedb.edb.Cell.Terminal.BoundaryType.kCurrentSource)
@@ -302,6 +304,7 @@ class PinGroup(object):
         terminal.SetSourcePhase(self._pedb.edb.Utility.Value(phase))
         return terminal
 
+    @pyaedt_function_handler()
     def create_voltage_source_terminal(self, magnitude=1, phase=0):
         terminal = self._create_terminal()
         terminal.SetBoundaryType(self._pedb.edb.Cell.Terminal.BoundaryType.kVoltageSource)
@@ -309,12 +312,27 @@ class PinGroup(object):
         terminal.SetSourcePhase(self._pedb.edb.Utility.Value(phase))
         return terminal
 
+    @pyaedt_function_handler()
     def create_port_terminal(self, impedance=50):
         terminal = self._create_terminal()
         terminal.SetBoundaryType(self._pedb.edb.Cell.Terminal.BoundaryType.PortBoundary)
         terminal.SetImpedance(self._pedb.edb_value(impedance))
         terminal.SetIsCircuitPort(True)
         return terminal
+
+    @pyaedt_function_handler()
+    def delete(self):
+        """Delete active pin group.
+
+        Returns
+        -------
+        bool
+
+        """
+        terminals = self._edb_pin_group.GetPinGroupTerminal()
+        self._edb_pin_group.Delete()
+        terminals.Delete()
+        return True
 
 
 class CircuitPort(Source, object):
@@ -688,7 +706,7 @@ class ExcitationPorts(CommonExcitation):
 
         # Get the pastack instance of the terminal
         compInst = self._edb_terminal.GetComponent()
-        pins = self._pedb.core_components.get_pin_from_component(compInst.GetName())
+        pins = self._pedb.components.get_pin_from_component(compInst.GetName())
         return self._get_closest_pin(padStackInstance, pins, gnd_net_name_preference)
 
     @pyaedt_function_handler()
@@ -770,12 +788,12 @@ class ExcitationPorts(CommonExcitation):
                 prim_shape_data = primitive.GetPolygonData()
                 if prim_shape_data.PointInPolygon(shape_pd):
                     return EDBPrimitives(primitive, self._pedb)
-        for vias in self._pedb.core_padstack.instances.values():
+        for vias in self._pedb.padstacks.instances.values():
             if layer_name in vias.layer_range_names:
-                plane = self._pedb.core_primitives.Shape(
+                plane = self._pedb.modeler.Shape(
                     "rectangle", pointA=vias.position, pointB=vias.padstack_definition.bounding_box[1]
                 )
-                rectangle_data = vias._pedb.core_primitives.shape_to_polygon_data(plane)
+                rectangle_data = vias._pedb.modeler.shape_to_polygon_data(plane)
                 if rectangle_data.PointInPolygon(shape_pd):
                     return vias
         return None
@@ -794,7 +812,7 @@ class ExcitationPorts(CommonExcitation):
         :class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`
         """
         comp_inst = self._edb_terminal.GetComponent()
-        pins = self._pedb.core_components.get_pin_from_component(comp_inst.GetName())
+        pins = self._pedb.components.get_pin_from_component(comp_inst.GetName())
         try:
             edges = self._edb_terminal.GetEdges()
         except AttributeError:
@@ -808,7 +826,7 @@ class ExcitationPorts(CommonExcitation):
         if gnd_net is not None:
             power_ground_net_names = [gnd_net]
         else:
-            power_ground_net_names = [net for net in self._pedb.core_nets.power_nets.keys()]
+            power_ground_net_names = [net for net in self._pedb.nets.power_nets.keys()]
         comp_ref_pins = [i for i in pin_list if i.GetNet().GetName() in power_ground_net_names]
         if len(comp_ref_pins) == 0:
             self._pedb.logger.error(

@@ -209,4 +209,4 @@ a.plot()
 
 home = os.path.expanduser("~")
 q.save_project(os.path.join(home, "Downloads", "pyaedt_example", q.project_name + ".aedt"))
-q.close_desktop()
+q.release_desktop()

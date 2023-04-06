@@ -434,7 +434,7 @@ class EDBLayer(object):
             Image size in pixel (width, height).
         """
 
-        self._pedblayers._pedbstackup._pedb.core_nets.plot(
+        self._pedblayers._pedbstackup._pedb.nets.plot(
             nets=nets,
             layers=self.name,
             color_by_net=True,
