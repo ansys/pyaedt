@@ -177,7 +177,7 @@ class TestClass(BasisTest, object):
         for el in self.aedtapp.available_variations.nominal_w_values_dict:
             families[el] = self.aedtapp.available_variations.nominal_w_values_dict[el]
 
-        my_data = self.aedtapp.post.get_solution_data(expression=trace_names, families_dict=families)
+        my_data = self.aedtapp.post.get_solution_data(expressions=trace_names, variations=families)
         assert my_data
         assert my_data.expressions
         assert len(my_data.data_db(trace_names[0])) > 0
@@ -442,7 +442,7 @@ class TestClass(BasisTest, object):
             families[el] = self.aedtapp.available_variations.nominal_w_values_dict[el]
 
         # get solution data and save in .csv file
-        my_data = self.aedtapp.post.get_solution_data(expression=trace_names, families_dict=families)
+        my_data = self.aedtapp.post.get_solution_data(expressions=trace_names, variations=families)
         my_data.export_data_to_csv(os.path.join(self.local_scratch.path, "output.csv"))
         csv_solution_data_file_path = os.path.join(self.local_scratch.path, "output.csv")
         assert not new_report.import_traces(csv_solution_data_file_path, plot_name)
