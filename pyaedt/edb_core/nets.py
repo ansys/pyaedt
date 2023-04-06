@@ -7,6 +7,7 @@ import warnings
 
 from pyaedt.edb_core.edb_data.nets_data import EDBNetsData
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
+from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.general_methods import generate_unique_name
@@ -995,7 +996,9 @@ class EdbNets(object):
         return False
 
     @pyaedt_function_handler()
-    def find_and_fix_disjoint_nets(self, net_list=None, keep_only_main_net=False, clean_disjoints_less_than=0.0):
+    def find_and_fix_disjoint_nets(
+        self, net_list=None, keep_only_main_net=False, clean_disjoints_less_than=0.0, order_by_area=False
+    ):
         """Find and fix disjoint nets from a given netlist.
 
         Parameters
@@ -1006,7 +1009,9 @@ class EdbNets(object):
             Remove all secondary nets other than principal one (the one with more objects in it). Default is `False`.
         clean_disjoints_less_than : bool, optional
             Clean all disjoint nets with area less than specified area in square meters. Default is `0.0` to disable it.
-
+        order_by_area : bool, optional
+            Whether if the naming order has to be by number of objects (fastest) or area (slowest but more accurate).
+            Default is ``False``.
         Returns
         -------
         List
@@ -1052,11 +1057,33 @@ class EdbNets(object):
             while l > 0:
                 l1 = objs[0].get_connected_object_id_set()
                 l1.append(objs[0].id)
-                net_groups.append(l1)
+                repetition = False
+                for net_list in net_groups:
+                    if set(l1).intersection(net_list):
+                        net_groups.append([i for i in l1 if i not in net_list])
+                        repetition = True
+                if not repetition:
+                    net_groups.append(l1)
                 objs = [i for i in objs if i.id not in l1]
                 l = len(objs)
             if len(net_groups) > 1:
-                sorted_list = sorted(net_groups, key=len, reverse=True)
+
+                def area_calc(elem):
+                    sum = 0
+                    for el in elem:
+                        try:
+                            if isinstance(obj_dict[el], EDBPrimitives):
+                                if not obj_dict[el].is_void:
+                                    sum += obj_dict[el].area()
+                        except:
+                            pass
+                    return sum
+
+                if order_by_area:
+                    areas = [area_calc(i) for i in net_groups]
+                    sorted_list = [x for _, x in sorted(zip(areas, net_groups), reverse=True)]
+                else:
+                    sorted_list = sorted(net_groups, key=len, reverse=True)
                 for disjoints in sorted_list[1:]:
                     if keep_only_main_net:
                         for geo in disjoints:
