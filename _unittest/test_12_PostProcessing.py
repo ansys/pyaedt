@@ -180,7 +180,7 @@ class TestClass(BasisTest, object):
         my_data = self.aedtapp.post.get_solution_data(expressions=trace_names, variations=families)
         assert my_data
         assert my_data.expressions
-        assert len(my_data.data_db(trace_names[0])) > 0
+        assert len(my_data.data_db10(trace_names[0])) > 0
         assert len(my_data.data_imag(trace_names[0])) > 0
         assert len(my_data.data_real(trace_names[0])) > 0
         assert len(my_data.data_magnitude(trace_names[0])) > 0
