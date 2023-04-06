@@ -1825,7 +1825,7 @@ class Stackup(object):
         if scale_elevation:
             min_thickness = min([i[3] for i in layers_data if i[3] != 0])
             max_thickness = max([i[3] for i in layers_data])
-            c = 4  # max_thickness = c * min_thickness
+            c = 3  # max_thickness = c * min_thickness
 
             def _compress_t(y):
                 m = min_thickness
@@ -1861,30 +1861,52 @@ class Stackup(object):
                     else:
                         lp = compressed_diels[-1]
                         compressed_diels.append([li[0], lp[2], lp[2] + ct, ct])
+
+                def _convert_elevation(el):
+                    inside = False
+                    for i, li in enumerate(dielectric_layers):
+                        if li[1] <= el <= li[2]:
+                            inside = True
+                            break
+                    if inside:
+                        u = (el - li[1]) / (li[2] - li[1])
+                        cli = compressed_diels[i]
+                        cel = cli[1] + u * (cli[2] - cli[1])
+                    else:
+                        cel = el
+                    return cel
+
                 compressed_signals = []
                 for li in signal_layers:
-                    if li[1] > 0:
-                        lile = _compress_t(li[1])
-                    else:
-                        lile = 0.0
-                    ct = _compress_t(li[3])
-                    compressed_signals.append([li[0], lile, lile + ct, ct])
+                    cle = _convert_elevation(li[1])
+                    cue = _convert_elevation(li[2])
+                    ct = cue - cle
+                    compressed_signals.append([li[0], cle, cue, ct])
+
                 dielectric_layers = compressed_diels
                 signal_layers = compressed_signals
 
         # create the data for the plot
+        alpha = 0.5
+        annotation_fontsize = 14
+        legend_fontsize = 10
+        annotation_x_margin = 0.05
         annotations = []
-        alpha = 0.7
         plot_data = []
         if self.stackup_mode == "Laminate":
+            min_thickness = min([i[3] for i in layers_data if i[3] != 0])
             for ly in layers_data:
                 layer = ly[0]
-                le = ly[1]  # lower elevation
-                ue = ly[2]  # upper elevation
+                if ly[3] > 0:
+                    le = ly[1]  # lower elevation
+                    ue = ly[2]  # upper elevation
+                else:
+                    le = ly[1] - min_thickness * 0.1  # make the zero thickness layers more visible
+                    ue = ly[2] + min_thickness * 0.1
                 y = [le, ue, ue, le]
                 x = [0, 0, 1, 1]
 
-                # set color and label
+                # set color, label and annotation
                 color = [float(i) / 256 for i in layer.color]
                 if color == [1.0, 1.0, 1.0]:
                     color = [0.9, 0.9, 0.9]
@@ -1895,13 +1917,19 @@ class Stackup(object):
                 )
                 plot_data.append([x, y, color, label, alpha, "fill"])
 
+                if ly.type == "dielectric":
+                    x_pos = -annotation_x_margin
+                elif ly.type == "signal":
+                    x_pos = 1.0 + annotation_x_margin
+                y_pos = (le + ue) / 2
+                annotations.append([x_pos, y_pos, layer.name, {"fontsize": annotation_fontsize}])
+
         elif self.stackup_mode == "Overlapping":
+            min_thickness = min([i[3] for i in signal_layers if i[3] != 0])
             columns = []  # first column is x=[0,1], second column is x=[1,2] and so on...
             for ly in signal_layers:
                 layer = ly[0]
                 le = ly[1]  # lower elevation
-                ue = ly[2]  # upper elevation
-                y = [le, ue, ue, le]
                 put_in_column = 0
                 for c in columns:
                     uep = c[-1][1]  # upper elevation of the last entry of that column
@@ -1909,13 +1937,20 @@ class Stackup(object):
                         break
                     else:
                         put_in_column += 1
+                if ly[3] > 0:
+                    le = ly[1]  # lower elevation
+                    ue = ly[2]  # upper elevation
+                else:
+                    le = ly[1] - min_thickness * 0.1  # make the zero thickness layers more visible
+                    ue = ly[2] + min_thickness * 0.1
+                y = [le, ue, ue, le]
                 if len(columns) < put_in_column + 1:  # add a new column
                     columns.append([])
                 columns[put_in_column].append(y)
 
                 x = [put_in_column + 1, put_in_column + 1, put_in_column + 2, put_in_column + 2]
 
-                # set color and label
+                # set color, label and annotation
                 color = [float(i) / 256 for i in layer.color]
                 if color == [1.0, 1.0, 1.0]:
                     color = [0.9, 0.9, 0.9]
@@ -1926,7 +1961,15 @@ class Stackup(object):
                 )
                 plot_data.append([x, y, color, label, alpha, "fill"])
 
+                x_pos = 1.0
+                y_pos = (le + ue) / 2
+                annotations.append([x_pos, y_pos, layer.name, {"fontsize": annotation_fontsize}])
+
+            # move the annotations to the final x
             width = len(columns) + 1
+            for i, a in enumerate(annotations):
+                a[0] = width + annotation_x_margin
+
             for ly in dielectric_layers:
                 layer = ly[0]
                 le = ly[1]  # lower elevation
@@ -1934,7 +1977,7 @@ class Stackup(object):
                 y = [le, ue, ue, le]
                 x = [0, 0, width, width]
 
-                # set color and label
+                # set color, label and annotation
                 color = [float(i) / 256 for i in layer.color]
                 if color == [1.0, 1.0, 1.0]:
                     color = [0.9, 0.9, 0.9]
@@ -1945,34 +1988,50 @@ class Stackup(object):
                 )
                 plot_data.insert(0, [x, y, color, label, alpha, "fill"])
 
-        # plot the stackup
-        x_limits = [0, max([max(i[0]) for i in plot_data]) * 1.0]
+                x_pos = -annotation_x_margin
+                y_pos = (le + ue) / 2
+                annotations.append(
+                    [x_pos, y_pos, layer.name, {"fontsize": annotation_fontsize, "horizontalalignment": "right"}]
+                )
+
+        # calculate the extremities of the plot
+        min_x = 0.0
+        max_x = max([max(i[0]) for i in plot_data])
         if self.stackup_mode == "Laminate":
             min_y = layers_data[0][1]
-            max_y = layers_data[-1][2] + layers_data[-1][3]
+            max_y = layers_data[-1][2]
         elif self.stackup_mode == "Overlapping":
             min_y = min(dielectric_layers[0][1], signal_layers[0][1])
-            max_y = max(
-                (dielectric_layers[-1][2] + dielectric_layers[-1][3]), (signal_layers[-1][2] + signal_layers[-1][3])
-            )
-        y_limits = [min_y, max_y * 1.0]
+            max_y = max(dielectric_layers[-1][2], signal_layers[-1][2])
 
+        # move the annotations to avoid overlapping
+        new_annotations = []
+        for i, a in enumerate(annotations):
+            if i > 0 and abs(a[1] - annotations[i - 1][1]) < (max_y - min_y) / 75:
+                new_annotations[-1][2] = str(new_annotations[-1][2]) + f", {a[2]}"
+            else:
+                new_annotations.append(a)
+        annotations = new_annotations
+
+        # plot the stackup
         plt = plot_matplotlib(
             plot_data,
-            size,
-            True if self.stackup_mode != "Laminate" else False,
-            "X (um)",
-            "Y (um)",
-            "Stackup",
-            save_plot,
-            x_limits=x_limits,
-            y_limits=y_limits,
+            size=size,
+            show_legend=False,
+            xlabel="",
+            ylabel="",
+            title="",
+            snapshot_path=save_plot,
+            x_limits=[min_x, max_x],
+            y_limits=[min_y, max_y],
             annotations=annotations,
             show=False,
         )
         plt.axis("off")
         plt.box(False)
-        plt.title("Stackup", fontsize=40)
+        plt.title("Stackup\n ", fontsize=28)
+        plt.legend(bbox_to_anchor=(0, -0.05), loc="upper left", borderaxespad=0, ncol=3)
+        plt.tight_layout()
         plt.show()
 
         return plt
