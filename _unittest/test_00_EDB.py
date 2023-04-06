@@ -2336,7 +2336,7 @@ class TestClass(BasisTest, object):
         edb.stackup.add_layer(layer_name="top", fillMaterial="AIR", thickness="30um")
         edb.stackup.add_layer(layer_name="contact", fillMaterial="AIR", thickness="100um", base_layer="top")
 
-        pad = edb.core_padstack.create_padstack(
+        pad = edb.padstacks.create(
             pad_shape="Rectangle",
             padstackname="pad",
             x_size="350um",
@@ -2345,17 +2345,15 @@ class TestClass(BasisTest, object):
             endlayer="top",
             holediam=0,
         )
-        pad_instance1 = edb.core_padstack.place_padstack(position=["-0.65mm", "-0.665mm"], definition_name="pad")
+        pad_instance1 = edb.padstacks.place(position=["-0.65mm", "-0.665mm"], definition_name="pad")
         assert pad_instance1
         pad_instance1.start_layer = "top"
         pad_instance1.stop_layer = "top"
         assert pad_instance1.start_layer == "top"
         assert pad_instance1.stop_layer == "top"
 
-        assert edb.core_padstack.create_padstack(
-            pad_shape="Circle", padstackname="pad2", paddiam="350um", holediam="15um"
-        )
-        pad_instance2 = edb.core_padstack.place_padstack(position=["-0.65mm", "-0.665mm"], definition_name="pad2")
+        assert edb.padstacks.create(pad_shape="Circle", padstackname="pad2", paddiam="350um", holediam="15um")
+        pad_instance2 = edb.padstacks.place(position=["-0.65mm", "-0.665mm"], definition_name="pad2")
         assert pad_instance2
         pad_instance2.start_layer = "top"
         pad_instance2.stop_layer = "top"
