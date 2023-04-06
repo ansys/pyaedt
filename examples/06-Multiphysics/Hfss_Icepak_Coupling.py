@@ -127,12 +127,12 @@ aedtapp.wave_port(signal="inner",
                   reference="outer",
                   integration_line=1,
                   create_port_sheet=True,
-                  add_pec_cap=True,
+                  create_pec_cap=True,
                   name="P1")
 aedtapp.wave_port(signal="inner",
                   reference="outer",
                   integration_line=4,
-                  add_pec_cap=True,
+                  create_pec_cap=True,
                   create_port_sheet=True,
                   name="P2")
 
