@@ -452,7 +452,7 @@ class Materials(object):
             Permittivity of the new material.
         loss_tangent : float
             Loss tangent of the new material.
-        permeability: float
+        permeability : float
             Permeability of the new material.
 
         Returns

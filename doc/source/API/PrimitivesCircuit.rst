@@ -13,7 +13,7 @@ They are accessible through the ``modeler`` module and ``modeler.objects`` prope
 
 
     from pyaedt import TwinBuilder
-    app = TwinBuilder(specified_version="2022.2",
+    app = TwinBuilder(specified_version="2023.1",
                non_graphical=False, new_desktop_session=True,
                close_on_exit=True, student_version=False)
 
@@ -64,7 +64,7 @@ They contain all getters and setters to simplify object manipulation.
 .. code:: python
 
     from pyaedt import Circuit
-    app = Circuit(specified_version="2022.2",
+    app = Circuit(specified_version="2023.1",
                non_graphical=False, new_desktop_session=True,
                close_on_exit=True, student_version=False)
 
