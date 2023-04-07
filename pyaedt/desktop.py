@@ -62,6 +62,38 @@ else:
     settings.use_grpc_api = True
 
 
+@pyaedt_function_handler()
+def launch_aedt(full_path, non_graphical, port, first_run=True):
+    """Launch AEDT in gRPC mode."""
+
+    def launch_desktop_on_port():
+        command = [full_path, "-grpcsrv", str(port)]
+        if non_graphical:
+            command.append("-ng")
+        my_env = os.environ.copy()
+        for env, val in settings.aedt_environment_variables.items():
+            my_env[env] = val
+        if is_linux:  # pragma: no cover
+            subprocess.Popen(command, env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        else:
+            subprocess.Popen(" ".join(command), env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+
+    _aedt_process_thread = threading.Thread(target=launch_desktop_on_port)
+    _aedt_process_thread.daemon = True
+    _aedt_process_thread.start()
+    timeout = settings.desktop_launch_timeout
+    k = 0
+    while not _check_grpc_port(port):
+        if k > timeout:  # pragma: no cover
+            if first_run:
+                port = _find_free_port()
+                return launch_aedt(full_path, non_graphical, port, first_run=False)
+            return False, port
+        time.sleep(1)
+        k += 1
+    return True, port
+
+
 def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
     """Launch AEDT in LSF in GRPC mode."""
     if settings.lsf_queue:
@@ -888,7 +920,7 @@ class Desktop(object):
             installer = os.path.join(base_path, "ansysedt")
             if not is_linux:
                 installer = os.path.join(base_path, "ansysedt.exe")
-            out, self.port = self._launch_aedt(installer, non_graphical, self.port)
+            out, self.port = launch_aedt(installer, non_graphical, self.port)
             if out:
                 ScriptEnv._doInitialize(version, None, False, non_graphical, self.machine, self.port)
             else:
@@ -1536,34 +1568,3 @@ class Desktop(object):
         if aedt_version >= "2023.2":
             write_toolkit_config(os.path.join(toolkit_dir, product), lib_dir, toolkit_name, toolkit=toolkit)
         self.logger.info("{} toolkit installed.".format(toolkit_name))
-
-    @pyaedt_function_handler()
-    def _launch_aedt(self, full_path, non_graphical, port, first_run=True):
-        """Launch AEDT in gRPC mode."""
-
-        def launch_desktop_on_port():
-            command = [full_path, "-grpcsrv", str(port)]
-            if non_graphical:
-                command.append("-ng")
-            my_env = os.environ.copy()
-            for env, val in settings.aedt_environment_variables.items():
-                my_env[env] = val
-            if is_linux:  # pragma: no cover
-                subprocess.Popen(command, env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
-            else:
-                subprocess.Popen(" ".join(command), env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
-
-        self._aedt_process_thread = threading.Thread(target=launch_desktop_on_port)
-        self._aedt_process_thread.daemon = True
-        self._aedt_process_thread.start()
-        timeout = settings.desktop_launch_timeout
-        k = 0
-        while not _check_grpc_port(port):
-            if k > timeout:  # pragma: no cover
-                if first_run:
-                    port = _find_free_port()
-                    return self._launch_aedt(full_path, non_graphical, port, first_run=False)
-                return False, port
-            time.sleep(1)
-            k += 1
-        return True, port
