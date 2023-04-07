@@ -525,8 +525,8 @@ class Stackup(object):
 
     @pyaedt_function_handler()
     def add_outline_layer(self, outline_name="Outline"):
-        """
-        Add an outline layer named ``"Outline"`` if it is not present.
+        """Add an outline layer named ``"Outline"`` if it is not present.
+
         Returns
         -------
         bool
