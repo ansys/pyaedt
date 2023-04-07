@@ -199,7 +199,6 @@ class TestClass(BasisTest, object):
         assert Setup.props["UseCacheFor"] == ["Pass", "Freq"]
         assert Setup.disable()
         assert Setup.enable()
-        assert self.aedtapp.setup_ctrlprog(Setup.name)
 
     def test_07b_create_parametrics(self):
         self.aedtapp["w1"] = "10mm"
@@ -224,10 +223,6 @@ class TestClass(BasisTest, object):
         transient_setup.props["Frequency"] = "200Hz"
         transient_setup.update()
         transient_setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
-
-        # Test the creation of the control program file
-        with tempfile.TemporaryFile("w+") as fp:
-            assert self.aedtapp.setup_ctrlprog(transient_setup.name, file_str=fp.name)
 
     def test_22_create_length_mesh(self):
         assert self.aedtapp.mesh.assign_length_mesh(["Plate"])
@@ -756,6 +751,9 @@ class TestClass(BasisTest, object):
         assert self.m3dtransient.setups[0].add_mesh_link(
             design_name=self.m3dtransient.design_list[0], project_name=example_project_copy
         )
+        # Test the creation of the control program file
+        with tempfile.TemporaryFile("w+") as fp:
+            assert self.aedtapp.setup_ctrlprog(self.m3dtransient.setups[0].name, file_str=fp.name)
 
     def test_46_set_variable(self):
         self.aedtapp.variable_manager.set_variable("var_test", expression="123")

@@ -58,6 +58,7 @@ class Maxwell(object):
     @pyaedt_function_handler()
     def change_symmetry_multiplier(self, value=1):
         """Set the Design Symmetry Multiplier to a specified value.
+        The symmetry multiplier will be automatically applied to all input quantities.
 
         Parameters
         ----------
@@ -67,6 +68,12 @@ class Maxwell(object):
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.SetDesignSettings
         """
         return self.change_design_settings({"Multiplier": value})
 
@@ -101,7 +108,9 @@ class Maxwell(object):
     def set_core_losses(self, objects, value=True):
         """Whether to enable core losses for a set of objects.
 
-        This method works only on ``EddyCurrent`` and ``Transient`` solutions.
+        For``EddyCurrent`` and ``Transient`` solver design, core losses calulcations
+        may be included in the simulation on any object that has corresponding
+        core loss definition (with core loss coefficient settings) in the material library.
 
         Parameters
         ----------
@@ -136,7 +145,7 @@ class Maxwell(object):
             return True
         else:
             raise Exception("Core losses is only available with `EddyCurrent` and `Transient` solutions.")
-        return False
+            return False
 
     @pyaedt_function_handler()
     def assign_matrix(
@@ -149,6 +158,11 @@ class Maxwell(object):
         branches=None,
     ):
         """Assign a matrix to the selection.
+
+        Matrix assignment can be calculated based upon the solver type.
+        For 2D/3D solvers the available solution types are: ``Magnetostatic``,
+        ``Electrostatic``, ``Eddy Current``, ``DC Conduction`` and ``AC Conduction``.
+
 
         Parameters
         ----------
@@ -322,10 +336,13 @@ class Maxwell(object):
     ):
         """Configure the transient design setup to run a specific control program.
 
+        The control program is executed from a temp directory that Maxwell creates for every setup run.
+
         Parameters
         ----------
         setupname : str
             Name of the setup.
+            It will become the name of the python file.
         file_str : str, optional
             Name of the file. The default value is ``None``.
         keep_modifications : bool, optional
@@ -341,61 +358,66 @@ class Maxwell(object):
             ``True`` when successful and ``False`` when failed.
         """
 
-        self._py_file = setupname + ".py"
-        ctl_path = self.working_directory
-        ctl_file_compute = os.path.join(ctl_path, self._py_file)
-        ctl_file = os.path.join(self.working_directory, self._py_file)
+        if self.solution_type in ["Transient"]:
+            self._py_file = setupname + ".py"
+            ctl_file_path = os.path.join(self.working_directory, self._py_file)
 
-        if aedt_lib_dir:
-            source_dir = aedt_lib_dir
+            if aedt_lib_dir:
+                source_dir = aedt_lib_dir
+            else:
+                source_dir = self.pyaedt_dir
+
+            if os.path.exists(ctl_file_path) and keep_modifications:
+                with open(ctl_file_path, "r") as fi:
+                    existing_data = fi.readlines()
+                with open(ctl_file_path, "w") as fo:
+                    first_line = True
+                    for line in existing_data:
+                        if first_line:
+                            first_line = False
+                            if python_interpreter:
+                                fo.write("#!{0}\n".format(python_interpreter))
+                        if line.startswith("work_dir"):
+                            fo.write("work_dir = r'{0}'\n".format(self.working_directory))
+                        elif line.startswith("lib_dir"):
+                            fo.write("lib_dir = r'{0}'\n".format(source_dir))
+                        else:
+                            fo.write(line)
+            else:
+                if file_str is not None:
+                    with io.open(ctl_file_path, "w", newline="\n") as fo:
+                        fo.write(file_str)
+                    assert os.path.exists(ctl_file_path), "Control program file could not be created."
+
+            try:
+                self.oanalysis.EditSetup(
+                    setupname,
+                    [
+                        "NAME:" + setupname,
+                        "Enabled:=",
+                        True,
+                        "UseControlProgram:=",
+                        True,
+                        "ControlProgramName:=",
+                        ctl_file_path,
+                        "ControlProgramArg:=",
+                        "",
+                        "CallCtrlProgAfterLastStep:=",
+                        True,
+                    ],
+                )
+                return True
+            except:
+                return False
         else:
-            source_dir = self.pyaedt_dir
+            self.logger.error("Control Program is only available in Maxwell 2D and 3D Transient solutions.")
+            return False
 
-        if os.path.exists(ctl_file) and keep_modifications:
-            with open(ctl_file, "r") as fi:
-                existing_data = fi.readlines()
-            with open(ctl_file, "w") as fo:
-                first_line = True
-                for line in existing_data:
-                    if first_line:
-                        first_line = False
-                        if python_interpreter:
-                            fo.write("#!{0}\n".format(python_interpreter))
-                    if line.startswith("work_dir"):
-                        fo.write("work_dir = r'{0}'\n".format(ctl_path))
-                    elif line.startswith("lib_dir"):
-                        fo.write("lib_dir = r'{0}'\n".format(source_dir))
-                    else:
-                        fo.write(line)
-        else:
-            if file_str is not None:
-                with io.open(ctl_file, "w", newline="\n") as fo:
-                    fo.write(file_str)
-                assert os.path.exists(ctl_file), "Control program file could not be created."
-
-        self.oanalysis.EditSetup(
-            setupname,
-            [
-                "NAME:" + setupname,
-                "Enabled:=",
-                True,
-                "UseControlProgram:=",
-                True,
-                "ControlProgramName:=",
-                ctl_file_compute,
-                "ControlProgramArg:=",
-                "",
-                "CallCtrlProgAfterLastStep:=",
-                True,
-            ],
-        )
-
-        return True
-
-    # Set eddy effects
     @pyaedt_function_handler()
     def eddy_effects_on(self, object_list, activate_eddy_effects=True, activate_displacement_current=True):
-        """Assign eddy effects on objects.
+        """Assign eddy effects on a list of objects.
+
+        For Eddy Current solvers only, user has to specify the displacement current on the model objects.
 
         Parameters
         ----------
@@ -405,6 +427,7 @@ class Maxwell(object):
             Whether to activate eddy effects. The default is ``True``.
         activate_displacement_current : bool, optional
             Whether to activate the displacement current. The default is ``True``.
+            Valid only for Eddy Current solvers.
 
         Returns
         -------
@@ -492,8 +515,12 @@ class Maxwell(object):
                         ]
                     )
 
-        self.oboundary.SetEddyEffect(["NAME:Eddy Effect Setting", EddyVector])
-        return True
+        try:
+            self.oboundary.SetEddyEffect(["NAME:Eddy Effect Setting", EddyVector])
+            return True
+        except:
+            self.logger.error("Set Eddy effects failed.")
+            return False
 
     @pyaedt_function_handler()
     def setup_y_connection(self, windings_name=None):
@@ -501,7 +528,7 @@ class Maxwell(object):
 
         Parameters
         ----------
-        winding_name : list, optional
+        windings_name : list, optional
             List of windings. For example, ``["PhaseA", "PhaseB", "PhaseC"]``.
             The default value is ``None``, in which case the design has no Y connection.
 
@@ -526,16 +553,21 @@ class Maxwell(object):
         >>> aedtapp.setup_y_connection(["PhaseA", "PhaseB", "PhaseC"])
         """
 
-        if windings_name:
-            connection = ["NAME:YConnection"]
-            connection.append("Windings:=")
-            connection.append(",".join(windings_name))
-            windings = ["NAME:YConnection"]
-            windings.append(connection)
-            self.oboundary.SetupYConnection(windings)
+        if self.solution_type in ["Transient"]:
+            try:
+                if windings_name:
+                    connection = ["NAME:YConnection", "Windings:=", ",".join(windings_name)]
+                    windings = ["NAME:YConnection", connection]
+                    self.oboundary.SetupYConnection(windings)
+                else:
+                    self.oboundary.SetupYConnection()
+                return True
+            except:
+                self.logger.error("Setup Y connection failed.")
+                return False
         else:
-            self.oboundary.SetupYConnection()
-        return True
+            self.logger.error("Setup Y connections only available for transient solutions.")
+            return False
 
     @pyaedt_function_handler()
     def assign_current(self, object_list, amplitude=1, phase="0deg", solid=True, swap_direction=False, name=None):
@@ -548,13 +580,18 @@ class Maxwell(object):
         amplitude : float or str, optional
             Current amplitude. The default is ``1A``.
         phase : str, optional
+            Current phase.
             The default is ``"0deg"``.
         solid : bool, optional
-            The default is ``True``.
+            Specify the type of conductor.
+            It can be ``Solid`` or ``Stranded``.
+            The default is ``True`` which means ``solid``, in the other case it means ``stranded``.
         swap_direction : bool, optional
+            Reference direction.
             The default is ``False``.
         name : str, optional
-            The default is ``None``.
+            Name of the current excitation.
+            The default is ``None`` in which case a generic name will be given.
 
         Returns
         -------
@@ -640,6 +677,8 @@ class Maxwell(object):
     ):
         """Assign a translation motion to an object container.
 
+        For both rotational and translational problems, the band objects must always enclose all the moving objects.
+
         Parameters
         ----------
         band_object : str
@@ -663,8 +702,8 @@ class Maxwell(object):
             Positive limit of the movement. The default is ``0``. If a float
             value is used, the default modeler units are applied.
         velocity : float or str, optional
-            Movement velocity. The default is ``0``. If a float value
-            is used, "m_per_sec" units are applied.
+            Initial velocity.
+            The default is ``0``. If a float value is used, "m_per_sec" units are applied.
         mechanical_transient : bool, optional
             Whether to consider the mechanical movement. The default is ``False``.
         mass : float or str, optional
@@ -673,8 +712,9 @@ class Maxwell(object):
         damping : float, optional
             Damping factor. The default is ``0``.
         load_force : float or str, optional
-            Load force. The default is ``0``. If a float value is used, "newton"
-            units are applied.
+            Load force is positive if it's applied in the same direction as the moving vector and negative
+            in the opposite direction.
+            The default is ``0``. If a float value is used, "newton" units are applied.
         motion_name : str, optional
             Motion name. The default is ``None``.
 
@@ -771,8 +811,8 @@ class Maxwell(object):
         damping : float, optional
             Damping factor. The default is ``0``.
         load_torque : float or str, optional
-            Load force. The default is ``"0newton"``. If a float value is used,
-            "NewtonMeter" units are applied.
+            Load torque sign is determined based on the moving vector, using the right-hand rule.
+            The default is ``"0newton"``. If a float value is used "NewtonMeter" units are applied.
 
         Returns
         -------
@@ -830,6 +870,7 @@ class Maxwell(object):
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
+            ``False`` when failed.
 
         References
         ----------
@@ -843,8 +884,6 @@ class Maxwell(object):
             name = generate_unique_name("Voltage")
         face_list = self.modeler.convert_to_selections(face_list, True)
 
-        # if type(face_list) is not list and type(face_list) is not tuple:
-        #     face_list = [face_list]
         if self.design_type == "Maxwell 2D":
             props = OrderedDict({"Objects": face_list, "Value": amplitude})
         else:
@@ -858,6 +897,8 @@ class Maxwell(object):
     @pyaedt_function_handler()
     def assign_voltage_drop(self, face_list, amplitude=1, swap_direction=False, name=None):
         """Assign a voltage drop to a list of faces.
+
+        The voltage drop applies only to sheet objects.
 
         Parameters
         ----------
@@ -874,6 +915,7 @@ class Maxwell(object):
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
+            ``False`` when failed.
 
         References
         ----------
@@ -937,6 +979,7 @@ class Maxwell(object):
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Bounding object for the winding, otherwise only the bounding object.
+            ``False`` when failed.
 
         References
         ----------
@@ -998,11 +1041,15 @@ class Maxwell(object):
         >>> oModule.AddWindingTerminals
         >>> oModule.AddWindingCoils
         """
-        if self.modeler._is3d:
-            self.oboundary.AddWindingTerminals(windingname, coil_names)
-        else:
-            self.oboundary.AddWindingCoils(windingname, coil_names)
-        return True
+        try:
+            if self.modeler._is3d:
+                self.oboundary.AddWindingTerminals(windingname, coil_names)
+            else:
+                self.oboundary.AddWindingCoils(windingname, coil_names)
+            return True
+        except:
+            self.logger.error("Add winding coils failed.")
+            return False
 
     @pyaedt_function_handler()
     def assign_coil(self, input_object, conductor_number=1, polarity="Positive", name=None):
@@ -1021,8 +1068,9 @@ class Maxwell(object):
 
         Returns
         -------
-        CoilObject
-            Coil object.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Bounding object for the winding, otherwise only the bounding object.
+            ``False`` when failed.
 
         References
         ----------
@@ -1072,6 +1120,12 @@ class Maxwell(object):
     @pyaedt_function_handler()
     def assign_force(self, input_object, reference_cs="Global", is_virtual=True, force_name=None):
         """Assign a force to one or more objects.
+
+        Force assignment can be calculated based upon the solver type.
+        For 3D solvers the available solution types are: ``Magnetostatic``,
+        ``Electrostatic``, ``Eddy Current``, ``Transient`` and ``Electric Transient``.
+        For 2D solvers the available solution types are: ``Magnetostatic``,
+        ``Electrostatic``, ``Eddy Current`` and ``Transient``.
 
         Parameters
         ----------
@@ -1130,6 +1184,12 @@ class Maxwell(object):
         self, input_object, reference_cs="Global", is_positive=True, is_virtual=True, axis="Z", torque_name=None
     ):
         """Assign a torque to one or more objects.
+
+        Torque assignment can be calculated based upon the solver type.
+        For 3D solvers the available solution types are: ``Magnetostatic``,
+        ``Electrostatic``, ``Eddy Current``, ``Transient`` and ``Electric Transient``.
+        For 2D solvers the available solution types are: ``Magnetostatic``,
+        ``Electrostatic``, ``Eddy Current`` and ``Transient``.
 
         Parameters
         ----------
@@ -1194,7 +1254,7 @@ class Maxwell(object):
 
     @pyaedt_function_handler()
     def solve_inside(self, name, activate=True):
-        """Solve inside.
+        """Solve inside to generate a solution inside an object.
 
         Parameters
         ----------
