@@ -1764,6 +1764,7 @@ class Stackup(object):
             Image size in pixel (width, height). Default value is ``(2000, 1500)``
         plot_definitions : str, list, optional
             List of padstack definitions to plot on the stackup.
+            It is supported only for Laminate mode.
         first_layer : str or :class:`pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`
             First layer to plot from the bottom. Default is `None` to start plotting from bottom.
         last_layer : str or :class:`pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`
@@ -1780,8 +1781,6 @@ class Stackup(object):
             return False
         from pyaedt.generic.constants import CSS4_COLORS
         from pyaedt.generic.plot import plot_matplotlib
-
-        ###################
 
         layer_names = list(self.stackup_layers.keys())
         if first_layer is None or first_layer not in layer_names:
@@ -2089,6 +2088,9 @@ class Stackup(object):
         annotations = new_annotations
 
         if plot_definitions:
+            if self.stackup_mode == "Overlapping":
+                self._logger.warning("Plot of padstacks are supported only for Laminate mode.")
+
             max_plots = 10
 
             if not isinstance(plot_definitions, list):
@@ -2118,8 +2120,6 @@ class Stackup(object):
                     max_padstak_size = max(hole_d, max_padstak_size)
             scaling_f_pad = (2 / ((max_plots + 1) * 3)) / max_padstak_size
 
-            padstack_data = []
-
             for definition in plot_definitions:
                 if isinstance(definition, str):
                     definition = self._pedb.padstacks.definitions[definition]
@@ -2133,7 +2133,7 @@ class Stackup(object):
                 via_stop_layer = definition.via_stop_layer
 
                 if self.stackup_mode == "Overlapping":
-                    # cerca qui la colonna in base al primo e ultimo layer. sarà la colonna con il max indice
+                    # here search the column using the first and last layer. Pick the column with max index.
                     pass
 
                 for layer, defs in definition.pad_by_layer.items():
@@ -2159,8 +2159,8 @@ class Stackup(object):
                         # create the patch for that signal layer
                         plot_data.append([x, y, color_keys[color_index], None, 1.0, "fill"])
                     elif self.stackup_mode == "Overlapping":
+                        # here evaluate the x based on the column evaluated before and the pad size
                         pass
-                        # qui mette le x a seconda della colonna calcolata prima e del pad size
 
                     min_le = min(le, min_le)
                     max_ue = max(ue, max_ue)
