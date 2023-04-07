@@ -2823,6 +2823,7 @@ class Edb(object):
     @pyaedt_function_handler()
     def change_design_variable_value(self, variable_name, variable_value):
         """Change a variable value.
+
         ..note::
             User can use also the getitem to read the variable value. See example below.
 

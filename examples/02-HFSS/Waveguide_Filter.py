@@ -1,6 +1,6 @@
 """
 HFSS: Inductive Iris waveguide filter
----------------------------------------
+-------------------------------------
 This example shows how to build and analyze a 4-pole
 X-Band waveguide filter using inductive irises.
 
@@ -27,7 +27,7 @@ from pyaedt import general_methods
 
 ###############################################################################
 # Define parameters and values for waveguide iris filter
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # l: Length of the cavity from the mid-point of one iris
 #    to the midpoint of the next iris.
 # w: Width of the iris opening.

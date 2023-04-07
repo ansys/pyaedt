@@ -32,7 +32,6 @@ if not is_ironpython:
     except ImportError:
         pd = None
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -526,8 +525,8 @@ class Stackup(object):
 
     @pyaedt_function_handler()
     def add_outline_layer(self, outline_name="Outline"):
-        """
-        Add an outline layer named ``"Outline"`` if it is not present.
+        """Add an outline layer named ``"Outline"`` if it is not present.
+
         Returns
         -------
         bool
@@ -1879,32 +1878,33 @@ class Stackup(object):
     @pyaedt_function_handler()
     def plot(
         self,
-        show_legend=True,
         save_plot=None,
         size=(2000, 1500),
         plot_definitions=None,
         first_layer=None,
         last_layer=None,
+        scale_elevation=True,
     ):
-        """Plot actual stackup and, optionally, overlap padstack definitions.
+        """Plot current stackup and, optionally, overlap padstack definitions.
+        Plot supports only 'Laminate' and 'Overlapping' stackup types.
 
         Parameters
         ----------
-        show_legend : bool, optional
-            If ``True`` the legend is shown in the plot. (default)
-            If ``False`` the legend is not shown.
         save_plot : str, optional
             If ``None`` the plot will be shown.
             If a file path is specified the plot will be saved to such file.
-
         size : tuple, optional
             Image size in pixel (width, height). Default value is ``(2000, 1500)``
         plot_definitions : str, list, optional
             List of padstack definitions to plot on the stackup.
+            It is supported only for Laminate mode.
         first_layer : str or :class:`pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`
             First layer to plot from the bottom. Default is `None` to start plotting from bottom.
         last_layer : str or :class:`pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`
             Last layer to plot from the bottom. Default is `None` to plot up to top layer.
+        scale_elevation : bool, optional
+            The real layer thickness is scaled so that max_thickness = 3 * min_thickness.
+            Default is `True`.
 
         Returns
         -------
@@ -1915,95 +1915,434 @@ class Stackup(object):
         from pyaedt.generic.constants import CSS4_COLORS
         from pyaedt.generic.plot import plot_matplotlib
 
-        thick = abs(self.get_layout_thickness()) * 1e6
-        x_min = -3 * thick
-        x_max = 3 * thick
-        objects_lists = []
-
-        layers_name = list(self.stackup_layers.keys())
-        bottom_layer = self.stackup_layers[layers_name[-1]]
-        top_layer = self.stackup_layers[layers_name[0]]
-        start_plot = False
-        if not last_layer:
-            last_layer = top_layer
-        elif isinstance(last_layer, str):
-            last_layer = self.layers[last_layer]
-        if not first_layer:
-            first_layer = bottom_layer
+        layer_names = list(self.stackup_layers.keys())
+        if first_layer is None or first_layer not in layer_names:
+            bottom_layer = layer_names[-1]
         elif isinstance(first_layer, str):
-            first_layer = self.layers[first_layer]
-        limits = [first_layer.lower_elevation * 1e6, (last_layer.lower_elevation + last_layer.thickness) * 1e6]
+            bottom_layer = first_layer
+        elif isinstance(first_layer, LayerEdbClass):
+            bottom_layer = first_layer.name
+        else:
+            raise AttributeError("first_layer must be str or class `pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`")
+        if last_layer is None or last_layer not in layer_names:
+            top_layer = layer_names[0]
+        elif isinstance(last_layer, str):
+            top_layer = last_layer
+        elif isinstance(last_layer, LayerEdbClass):
+            top_layer = last_layer.name
+        else:
+            raise AttributeError("last_layer must be str or class `pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`")
 
-        for layername, layerval in self.layers.items():
-            if layername == last_layer.name:
-                start_plot = True
-            if start_plot and layerval.thickness is not None:
-                x = [x_min, x_min, x_max, x_max]
-                lel = layerval.lower_elevation * 1e6
-                uel = layerval.upper_elevation * 1e6
-                y = [lel, uel, uel, lel]
-                color = [float(i) / 256 for i in layerval.color]
+        stackup_mode = self.stackup_mode
+        if stackup_mode not in ["Laminate", "Overlapping"]:
+            raise AttributeError("stackup plot supports only 'Laminate' and 'Overlapping' stackup types.")
+
+        # build the layers data
+        layers_data = []
+        skip_flag = True
+        for layer in self.stackup_layers.values():  # start from top
+            if layer.name != top_layer and skip_flag:
+                continue
+            else:
+                skip_flag = False
+            layers_data.append([layer, layer.lower_elevation, layer.upper_elevation, layer.thickness])
+            if layer.name == bottom_layer:
+                break
+        layers_data.reverse()  # let's start from the bottom
+
+        # separate dielectric and signal if overlapping stackup
+        if stackup_mode == "Overlapping":
+            dielectric_layers = [l for l in layers_data if l[0].type == "dielectric"]
+            signal_layers = [l for l in layers_data if l[0].type == "signal"]
+
+        # compress the thicknesses if required
+        if scale_elevation:
+            min_thickness = min([i[3] for i in layers_data if i[3] != 0])
+            max_thickness = max([i[3] for i in layers_data])
+            c = 3  # max_thickness = c * min_thickness
+
+            def _compress_t(y):
+                m = min_thickness
+                M = max_thickness
+                k = (c - 1) * m / (M - m)
+                if y > 0:
+                    return (y - m) * k + m
+                else:
+                    return 0.0
+
+            if stackup_mode == "Laminate":
+                l0 = layers_data[0]
+                compressed_layers_data = [[l0[0], l0[1], _compress_t(l0[3]), _compress_t(l0[3])]]  # the first row
+                lp = compressed_layers_data[0]
+                for li in layers_data[1:]:  # the other rows
+                    ct = _compress_t(li[3])
+                    compressed_layers_data.append([li[0], lp[2], lp[2] + ct, ct])
+                    lp = compressed_layers_data[-1]
+                layers_data = compressed_layers_data
+
+            elif stackup_mode == "Overlapping":
+                compressed_diels = []
+                first_diel = True
+                for li in dielectric_layers:
+                    ct = _compress_t(li[3])
+                    if first_diel:
+                        if li[1] > 0:
+                            l0le = _compress_t(li[1])
+                        else:
+                            l0le = li[1]
+                        compressed_diels.append([li[0], l0le, l0le + ct, ct])
+                        first_diel = False
+                    else:
+                        lp = compressed_diels[-1]
+                        compressed_diels.append([li[0], lp[2], lp[2] + ct, ct])
+
+                def _convert_elevation(el):
+                    inside = False
+                    for i, li in enumerate(dielectric_layers):
+                        if li[1] <= el <= li[2]:
+                            inside = True
+                            break
+                    if inside:
+                        u = (el - li[1]) / (li[2] - li[1])
+                        cli = compressed_diels[i]
+                        cel = cli[1] + u * (cli[2] - cli[1])
+                    else:
+                        cel = el
+                    return cel
+
+                compressed_signals = []
+                for li in signal_layers:
+                    cle = _convert_elevation(li[1])
+                    cue = _convert_elevation(li[2])
+                    ct = cue - cle
+                    compressed_signals.append([li[0], cle, cue, ct])
+
+                dielectric_layers = compressed_diels
+                signal_layers = compressed_signals
+
+        # create the data for the plot
+        diel_alpha = 0.4
+        signal_alpha = 0.6
+        zero_thickness_alpha = 1.0
+        annotation_fontsize = 14
+        annotation_x_margin = 0.01
+        annotations = []
+        plot_data = []
+        if stackup_mode == "Laminate":
+            min_thickness = min([i[3] for i in layers_data if i[3] != 0])
+            for ly in layers_data:
+                layer = ly[0]
+
+                # set color and label
+                color = [float(i) / 256 for i in layer.color]
                 if color == [1.0, 1.0, 1.0]:
                     color = [0.9, 0.9, 0.9]
-                objects_lists.append(
-                    [x, y, color, "{} {}um".format(layername, round(layerval.thickness * 1e6, 2)), 0.4, "fill"]
+                label = "{}, {}, thick: {:.3f}um, elev: {:.3f}um".format(
+                    layer.name, layer.material, layer.thickness * 1e6, layer.lower_elevation * 1e6
                 )
-            if layername == first_layer.name:
-                start_plot = False
-        delta = (x_max - x_min) / 20
-        x_start = x_min + delta
+
+                # create patch
+                x = [0, 0, 1, 1]
+                if ly[3] > 0:
+                    le = ly[1]  # lower elevation
+                    ue = ly[2]  # upper elevation
+                    y = [le, ue, ue, le]
+                    plot_data.insert(0, [x, y, color, label, signal_alpha, "fill"])
+                else:
+                    le = ly[1] - min_thickness * 0.1  # make the zero thickness layers more visible
+                    ue = ly[2] + min_thickness * 0.1
+                    y = [le, ue, ue, le]
+                    # put the zero thickness layers on top
+                    plot_data.append([x, y, color, label, zero_thickness_alpha, "fill"])
+
+                # create annotation
+                y_pos = (le + ue) / 2
+                if layer.type == "dielectric":
+                    x_pos = -annotation_x_margin
+                    annotations.append(
+                        [x_pos, y_pos, layer.name, {"fontsize": annotation_fontsize, "horizontalalignment": "right"}]
+                    )
+                elif layer.type == "signal":
+                    x_pos = 1.0 + annotation_x_margin
+                    annotations.append([x_pos, y_pos, layer.name, {"fontsize": annotation_fontsize}])
+
+            # evaluate the legend reorder
+            legend_order = []
+            for ly in layers_data:
+                name = ly[0].name
+                for i, a in enumerate(plot_data):
+                    iname = a[3].split(",")[0]
+                    if name == iname:
+                        legend_order.append(i)
+                        break
+
+        elif stackup_mode == "Overlapping":
+            min_thickness = min([i[3] for i in signal_layers if i[3] != 0])
+            columns = []  # first column is x=[0,1], second column is x=[1,2] and so on...
+            for ly in signal_layers:
+                le = ly[1]  # lower elevation
+                t = ly[3]  # thickness
+                put_in_column = 0
+                cell_position = 0
+                for c in columns:
+                    uep = c[-1][0][2]  # upper elevation of the last entry of that column
+                    tp = c[-1][0][3]  # thickness of the last entry of that column
+                    if le < uep or (abs(le - uep) < 1e-15 and tp == 0 and t == 0):
+                        put_in_column += 1
+                        cell_position = len(c)
+                    else:
+                        break
+                if len(columns) < put_in_column + 1:  # add a new column if required
+                    columns.append([])
+                # put zeros at the beginning of the column until there is the first layer
+                if cell_position != 0:
+                    fill_cells = cell_position - 1 - len(columns[put_in_column])
+                    for i in range(fill_cells):
+                        columns[put_in_column].append(0)
+                # append the layer to the proper column and row
+                x = [put_in_column + 1, put_in_column + 1, put_in_column + 2, put_in_column + 2]
+                columns[put_in_column].append([ly, x])
+
+            # fill the columns matrix with zeros on top
+            n_rows = max([len(i) for i in columns])
+            for c in columns:
+                while len(c) < n_rows:
+                    c.append(0)
+            # expand to the right the fill for the signals that have no overlap on the right
+            width = len(columns) + 1
+            for i, c in enumerate(columns[:-1]):
+                for j, r in enumerate(c):
+                    if r != 0:  # and dname == r[0].name:
+                        if columns[i + 1][j] == 0:
+                            # nothing on the right, so expand the fill
+                            x = r[1]
+                            r[1] = [x[0], x[0], width, width]
+
+            for c in columns:
+                for r in c:
+                    if r != 0:
+                        ly = r[0]
+                        layer = ly[0]
+                        x = r[1]
+
+                        # set color and label
+                        color = [float(i) / 256 for i in layer.color]
+                        if color == [1.0, 1.0, 1.0]:
+                            color = [0.9, 0.9, 0.9]
+                        label = "{}, {}, thick: {:.3f}um, elev: {:.3f}um".format(
+                            layer.name, layer.material, layer.thickness * 1e6, layer.lower_elevation * 1e6
+                        )
+
+                        if ly[3] > 0:
+                            le = ly[1]  # lower elevation
+                            ue = ly[2]  # upper elevation
+                            y = [le, ue, ue, le]
+                            plot_data.insert(0, [x, y, color, label, signal_alpha, "fill"])
+                        else:
+                            le = ly[1] - min_thickness * 0.1  # make the zero thickness layers more visible
+                            ue = ly[2] + min_thickness * 0.1
+                            y = [le, ue, ue, le]
+                            # put the zero thickness layers on top
+                            plot_data.append([x, y, color, label, zero_thickness_alpha, "fill"])
+
+                        # create annotation
+                        x_pos = 1.0
+                        y_pos = (le + ue) / 2
+                        annotations.append([x_pos, y_pos, layer.name, {"fontsize": annotation_fontsize}])
+
+            # order the annotations based on y_pos (it is necessary later to move them to avoid text overlapping)
+            annotations.sort(key=lambda e: e[1])
+            # move all the annotations to the final x (it could be larger than 1 due to additional columns)
+            width = len(columns) + 1
+            for i, a in enumerate(annotations):
+                a[0] = width + annotation_x_margin * width
+
+            for ly in dielectric_layers:
+                layer = ly[0]
+                # set color and label
+                color = [float(i) / 256 for i in layer.color]
+                if color == [1.0, 1.0, 1.0]:
+                    color = [0.9, 0.9, 0.9]
+                label = "{}, {}, thick: {:.3f}um, elev: {:.3f}um".format(
+                    layer.name, layer.material, layer.thickness * 1e6, layer.lower_elevation * 1e6
+                )
+                # create the patch
+                le = ly[1]  # lower elevation
+                ue = ly[2]  # upper elevation
+                y = [le, ue, ue, le]
+                x = [0, 0, width, width]
+                plot_data.insert(0, [x, y, color, label, diel_alpha, "fill"])
+
+                # create annotation
+                x_pos = -annotation_x_margin * width
+                y_pos = (le + ue) / 2
+                annotations.append(
+                    [x_pos, y_pos, layer.name, {"fontsize": annotation_fontsize, "horizontalalignment": "right"}]
+                )
+
+            # evaluate the legend reorder
+            legend_order = []
+            for ly in dielectric_layers:
+                name = ly[0].name
+                for i, a in enumerate(plot_data):
+                    iname = a[3].split(",")[0]
+                    if name == iname:
+                        legend_order.append(i)
+                        break
+            for ly in signal_layers:
+                name = ly[0].name
+                for i, a in enumerate(plot_data):
+                    iname = a[3].split(",")[0]
+                    if name == iname:
+                        legend_order.append(i)
+                        break
+
+        # calculate the extremities of the plot
+        x_min = 0.0
+        x_max = max([max(i[0]) for i in plot_data])
+        if stackup_mode == "Laminate":
+            y_min = layers_data[0][1]
+            y_max = layers_data[-1][2]
+        elif stackup_mode == "Overlapping":
+            y_min = min(dielectric_layers[0][1], signal_layers[0][1])
+            y_max = max(dielectric_layers[-1][2], signal_layers[-1][2])
+
+        # move the annotations to avoid text overlapping
+        new_annotations = []
+        for i, a in enumerate(annotations):
+            if i > 0 and abs(a[1] - annotations[i - 1][1]) < (y_max - y_min) / 75:
+                new_annotations[-1][2] = str(new_annotations[-1][2]) + ", " + str(a[2])
+            else:
+                new_annotations.append(a)
+        annotations = new_annotations
+
         if plot_definitions:
+            if stackup_mode == "Overlapping":
+                self._logger.warning("Plot of padstacks are supported only for Laminate mode.")
+
+            max_plots = 10
+
             if not isinstance(plot_definitions, list):
                 plot_definitions = [plot_definitions]
             color_index = 0
             color_keys = list(CSS4_COLORS.keys())
-            max_plots = 20
+            delta = 1 / (max_plots + 1)  # padstack spacing in plot coordinates
+            x_start = delta
+
+            # find the max padstack size to calculate the scaling factor
+            max_padstak_size = 0
+            for definition in plot_definitions:
+                if isinstance(definition, str):
+                    definition = self._pedb.padstacks.definitions[definition]
+                for layer, defs in definition.pad_by_layer.items():
+                    pad_shape = defs.geometry_type
+                    params = defs.parameters_values
+                    if pad_shape in [1, 2, 6]:
+                        pad_size = params[0]
+                    elif pad_shape in [3, 4, 5]:
+                        pad_size = max(params[0], params[1])
+                    else:
+                        pad_size = 1e-4
+                    max_padstak_size = max(pad_size, max_padstak_size)
+                if definition.hole_properties:
+                    hole_d = definition.hole_properties[0]
+                    max_padstak_size = max(hole_d, max_padstak_size)
+            scaling_f_pad = (2 / ((max_plots + 1) * 3)) / max_padstak_size
 
             for definition in plot_definitions:
                 if isinstance(definition, str):
                     definition = self._pedb.padstacks.definitions[definition]
-                min_lel = 1e12
-                max_lel = -1e12
+                min_le = 1e12
+                max_ue = -1e12
                 max_x = 0
-                name_assigned = definition.name
+                padstack_name = definition.name
+                annotations.append([x_start, y_max, padstack_name, {"rotation": 45}])
+
+                via_start_layer = definition.via_start_layer
+                via_stop_layer = definition.via_stop_layer
+
+                if stackup_mode == "Overlapping":
+                    # here search the column using the first and last layer. Pick the column with max index.
+                    pass
+
                 for layer, defs in definition.pad_by_layer.items():
-                    vals = defs.parameters_values
-                    if vals:
-                        pad = 0.5 * vals[0] * 1e6
-                        max_x = max(pad, max_x)
-                        x = [x_start - pad, x_start - pad, x_start + pad, x_start + pad]
-                        lel = self[layer].lower_elevation * 1e6
-                        uel = self[layer].upper_elevation * 1e6
-                        min_lel = min(lel, min_lel)
-                        max_lel = max(uel, max_lel)
-                        y = [lel, uel, uel, lel]
-                        objects_lists.append([x, y, color_keys[color_index], name_assigned, 1.0, "fill"])
-                        name_assigned = None
+                    pad_shape = defs.geometry_type
+                    params = defs.parameters_values
+                    if pad_shape in [1, 2, 6]:
+                        pad_size = params[0]
+                    elif pad_shape in [3, 4, 5]:
+                        pad_size = max(params[0], params[1])
+                    else:
+                        pad_size = 1e-4
+
+                    if stackup_mode == "Laminate":
+                        x = [
+                            x_start - pad_size / 2 * scaling_f_pad,
+                            x_start - pad_size / 2 * scaling_f_pad,
+                            x_start + pad_size / 2 * scaling_f_pad,
+                            x_start + pad_size / 2 * scaling_f_pad,
+                        ]
+                        le = [e[1] for e in layers_data if e[0].name == layer][0]
+                        ue = [e[2] for e in layers_data if e[0].name == layer][0]
+                        y = [le, ue, ue, le]
+                        # create the patch for that signal layer
+                        plot_data.append([x, y, color_keys[color_index], None, 1.0, "fill"])
+                    elif stackup_mode == "Overlapping":
+                        # here evaluate the x based on the column evaluated before and the pad size
+                        pass
+
+                    min_le = min(le, min_le)
+                    max_ue = max(ue, max_ue)
                 if definition.hole_properties:
-                    hole_rad = definition.hole_properties[0] * 1e6
-                    x = [x_start - hole_rad, x_start - hole_rad, x_start + hole_rad, x_start + hole_rad]
-                    y = [min_lel, max_lel, max_lel, min_lel]
-                    objects_lists.append([x, y, color_keys[color_index], name_assigned, 0.7, "fill"])
-                    max_x = max(max_x, hole_rad)
-                    rad = hole_rad * (100 - definition.hole_plating_ratio) / 100
+                    # create patch for the hole
+                    hole_radius = definition.hole_properties[0] / 2 * scaling_f_pad
+                    x = [x_start - hole_radius, x_start - hole_radius, x_start + hole_radius, x_start + hole_radius]
+                    y = [min_le, max_ue, max_ue, min_le]
+                    plot_data.append([x, y, color_keys[color_index], None, 0.7, "fill"])
+                    # create patch for the dielectric
+                    max_x = max(max_x, hole_radius)
+                    rad = hole_radius * (100 - definition.hole_plating_ratio) / 100
                     x = [x_start - rad, x_start - rad, x_start + rad, x_start + rad]
-                    y = [min_lel, max_lel, max_lel, min_lel]
-                    objects_lists.append([x, y, color_keys[color_index], name_assigned, 1.0, "fill"])
+                    plot_data.append([x, y, color_keys[color_index], None, 1.0, "fill"])
+
                 color_index += 1
                 if color_index == max_plots:
-                    self._logger.warning("Maximum number of definition plotted.")
+                    self._logger.warning("Maximum number of definitions plotted.")
                     break
-                x_start += max(delta, 2.5 * max_x)
+                x_start += delta
 
-        x_limits = [x_min, 2 * x_max]
-        plot_matplotlib(
-            objects_lists,
-            size,
-            show_legend,
-            "X (um)",
-            "Y (um)",
-            "Stackup",
-            save_plot,
-            x_limits=x_limits,
-            y_limits=limits,
+        # plot the stackup
+        plt = plot_matplotlib(
+            plot_data,
+            size=size,
+            show_legend=False,
+            xlabel="",
+            ylabel="",
+            title="",
+            snapshot_path=None,
+            x_limits=[x_min, x_max],
+            y_limits=[y_min, y_max],
+            annotations=annotations,
+            show=False,
         )
+        # we have to customize some defaults, so we plot or save the figure here
+        plt.axis("off")
+        plt.box(False)
+        plt.title("Stackup\n ", fontsize=28)
+        # evaluates the number of legend column based on the layer name max length
+        ncol = 3 if max([len(n) for n in layer_names]) < 15 else 2
+        handles, labels = plt.gca().get_legend_handles_labels()
+        plt.legend(
+            [handles[idx] for idx in legend_order],
+            [labels[idx] for idx in legend_order],
+            bbox_to_anchor=(0, -0.05),
+            loc="upper left",
+            borderaxespad=0,
+            ncol=ncol,
+        )
+        plt.tight_layout()
+        if save_plot:
+            plt.savefig(save_plot)
+        else:
+            plt.show()
+        return plt

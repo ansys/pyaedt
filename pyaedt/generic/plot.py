@@ -469,6 +469,8 @@ def plot_matplotlib(
     snapshot_path=None,
     x_limits=None,
     y_limits=None,
+    annotations=None,
+    show=True,
 ):
     """Create a matplotlib plot based on a list of data.
 
@@ -492,9 +494,13 @@ def plot_matplotlib(
     snapshot_path : str
         Full path to image file if a snapshot is needed.
     x_limits : list, optional
-        List of x limits (bottom and top).
+        List of x limits (left and right).
     y_limits : list, optional
         List of y limits (bottom and top).
+    annotations : list, optional
+        List of annotations to add to the plot. [x,y,string, dictionary of font options]
+    show : bool, optional
+        Whether to show the plot or return the matplotlib object. Default is `True`.
 
 
     Returns
@@ -523,15 +529,19 @@ def plot_matplotlib(
 
     ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
     if show_legend:
-        ax.legend()
+        ax.legend(loc="upper right")
     # ax.axis("equal")
     if x_limits:
         ax.set_xlim(x_limits)
     if y_limits:
         ax.set_ylim(y_limits)
+    if annotations:
+        for annotation in annotations:
+            plt.text(annotation[0], annotation[1], annotation[2], **annotation[3])
+
     if snapshot_path:
         plt.savefig(snapshot_path)
-    else:
+    elif show:
         plt.show()
     return plt
 
