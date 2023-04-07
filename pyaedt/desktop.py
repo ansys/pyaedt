@@ -1548,7 +1548,7 @@ class Desktop(object):
             my_env = os.environ.copy()
             for env, val in settings.aedt_environment_variables.items():
                 my_env[env] = val
-            if is_linux:
+            if is_linux:  # pragma: no cover
                 subprocess.Popen(command, env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
             else:
                 subprocess.Popen(" ".join(command), env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
@@ -1556,10 +1556,10 @@ class Desktop(object):
         self._aedt_process_thread = threading.Thread(target=launch_desktop_on_port)
         self._aedt_process_thread.daemon = True
         self._aedt_process_thread.start()
-        timeout = 180
+        timeout = settings.desktop_launch_timeout
         k = 0
         while not _check_grpc_port(port):
-            if k > timeout:
+            if k > timeout:  # pragma: no cover
                 if first_run:
                     port = _find_free_port()
                     return self._launch_aedt(full_path, non_graphical, port, first_run=False)

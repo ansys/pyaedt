@@ -1623,6 +1623,21 @@ class Settings(object):
         }
         if is_linux:
             self._aedt_environment_variables["ANS_NODEPCHECK"] = "1"
+        self._desktop_launch_timeout = 90
+
+    @property
+    def desktop_launch_timeout(self):
+        """Set the desktop launcher max timeout. Default is ``90`` seconds.
+
+        Returns
+        -------
+        int
+        """
+        return self._desktop_launch_timeout
+
+    @aedt_environment_variables.setter
+    def desktop_launch_timeout(self, value):
+        self._desktop_launch_timeout = int(value)
 
     @property
     def aedt_environment_variables(self):
