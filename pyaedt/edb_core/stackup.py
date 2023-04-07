@@ -1759,7 +1759,6 @@ class Stackup(object):
         save_plot : str, optional
             If ``None`` the plot will be shown.
             If a file path is specified the plot will be saved to such file.
-
         size : tuple, optional
             Image size in pixel (width, height). Default value is ``(2000, 1500)``
         plot_definitions : str, list, optional
@@ -1799,7 +1798,9 @@ class Stackup(object):
             top_layer = last_layer.name
         else:
             raise AttributeError("last_layer must be str or class `pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`")
-        if self.stackup_mode not in ["Laminate", "Overlapping"]:
+
+        stackup_mode = self.stackup_mode
+        if stackup_mode not in ["Laminate", "Overlapping"]:
             raise AttributeError("stackup plot supports only 'Laminate' and 'Overlapping' stackup types.")
 
         # build the layers data
@@ -1816,7 +1817,7 @@ class Stackup(object):
         layers_data.reverse()  # let's start from the bottom
 
         # separate dielectric and signal if overlapping stackup
-        if self.stackup_mode == "Overlapping":
+        if stackup_mode == "Overlapping":
             dielectric_layers = [l for l in layers_data if l[0].type == "dielectric"]
             signal_layers = [l for l in layers_data if l[0].type == "signal"]
 
@@ -1835,7 +1836,7 @@ class Stackup(object):
                 else:
                     return 0.0
 
-            if self.stackup_mode == "Laminate":
+            if stackup_mode == "Laminate":
                 l0 = layers_data[0]
                 compressed_layers_data = [[l0[0], l0[1], _compress_t(l0[3]), _compress_t(l0[3])]]  # the first row
                 lp = compressed_layers_data[0]
@@ -1845,7 +1846,7 @@ class Stackup(object):
                     lp = compressed_layers_data[-1]
                 layers_data = compressed_layers_data
 
-            elif self.stackup_mode == "Overlapping":
+            elif stackup_mode == "Overlapping":
                 compressed_diels = []
                 first_diel = True
                 for li in dielectric_layers:
@@ -1893,7 +1894,7 @@ class Stackup(object):
         annotation_x_margin = 0.01
         annotations = []
         plot_data = []
-        if self.stackup_mode == "Laminate":
+        if stackup_mode == "Laminate":
             min_thickness = min([i[3] for i in layers_data if i[3] != 0])
             for ly in layers_data:
                 layer = ly[0]
@@ -1943,7 +1944,7 @@ class Stackup(object):
                         legend_order.append(i)
                         break
 
-        elif self.stackup_mode == "Overlapping":
+        elif stackup_mode == "Overlapping":
             min_thickness = min([i[3] for i in signal_layers if i[3] != 0])
             columns = []  # first column is x=[0,1], second column is x=[1,2] and so on...
             for ly in signal_layers:
@@ -2071,10 +2072,10 @@ class Stackup(object):
         # calculate the extremities of the plot
         x_min = 0.0
         x_max = max([max(i[0]) for i in plot_data])
-        if self.stackup_mode == "Laminate":
+        if stackup_mode == "Laminate":
             y_min = layers_data[0][1]
             y_max = layers_data[-1][2]
-        elif self.stackup_mode == "Overlapping":
+        elif stackup_mode == "Overlapping":
             y_min = min(dielectric_layers[0][1], signal_layers[0][1])
             y_max = max(dielectric_layers[-1][2], signal_layers[-1][2])
 
@@ -2088,7 +2089,7 @@ class Stackup(object):
         annotations = new_annotations
 
         if plot_definitions:
-            if self.stackup_mode == "Overlapping":
+            if stackup_mode == "Overlapping":
                 self._logger.warning("Plot of padstacks are supported only for Laminate mode.")
 
             max_plots = 10
@@ -2132,7 +2133,7 @@ class Stackup(object):
                 via_start_layer = definition.via_start_layer
                 via_stop_layer = definition.via_stop_layer
 
-                if self.stackup_mode == "Overlapping":
+                if stackup_mode == "Overlapping":
                     # here search the column using the first and last layer. Pick the column with max index.
                     pass
 
@@ -2146,7 +2147,7 @@ class Stackup(object):
                     else:
                         pad_size = 1e-4
 
-                    if self.stackup_mode == "Laminate":
+                    if stackup_mode == "Laminate":
                         x = [
                             x_start - pad_size / 2 * scaling_f_pad,
                             x_start - pad_size / 2 * scaling_f_pad,
@@ -2158,7 +2159,7 @@ class Stackup(object):
                         y = [le, ue, ue, le]
                         # create the patch for that signal layer
                         plot_data.append([x, y, color_keys[color_index], None, 1.0, "fill"])
-                    elif self.stackup_mode == "Overlapping":
+                    elif stackup_mode == "Overlapping":
                         # here evaluate the x based on the column evaluated before and the pad size
                         pass
 
@@ -2190,12 +2191,13 @@ class Stackup(object):
             xlabel="",
             ylabel="",
             title="",
-            snapshot_path=save_plot,
+            snapshot_path=None,
             x_limits=[x_min, x_max],
             y_limits=[y_min, y_max],
             annotations=annotations,
             show=False,
         )
+        # we have to customize some defaults, so we plot or save the figure here
         plt.axis("off")
         plt.box(False)
         plt.title("Stackup\n ", fontsize=28)
@@ -2211,8 +2213,10 @@ class Stackup(object):
             ncol=ncol,
         )
         plt.tight_layout()
-        plt.show()
-
+        if save_plot:
+            plt.savefig(save_plot)
+        else:
+            plt.show()
         return plt
 
 
