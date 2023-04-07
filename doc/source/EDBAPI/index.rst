@@ -32,10 +32,12 @@ Example:
    :maxdepth: 2
 
    CoreEdb
-   DataEdb
    LayerData
-   SourcesEdb
+   PrimitivesEdb
+   ComponentsEdb
+   NetsEdb
    PadstackEdb
+   SourcesEdb
    SimulationEdb
    SimulationConfigurationEdb
    SiWave

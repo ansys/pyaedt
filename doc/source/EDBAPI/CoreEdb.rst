@@ -39,13 +39,21 @@ to AEDB files.
    :toctree: _autosummary
    :nosignatures:
 
-   components.Components
+
    hfss.EdbHfss
    siwave.EdbSiwave
-   nets.EdbNets
-   padstack.EdbPadstacks
-   layout.EdbLayout
-   stackup.Stackup
+   materials.Materials
+
+
+
+.. currentmodule:: pyaedt.edb_core.edb_data.edbvalue
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+
+   EdbValue
 
 
 .. code:: python
@@ -54,18 +62,24 @@ to AEDB files.
     edb = Edb(myedb, edbversion="2022.2")
 
     # this call returns the EdbHfss Class
-    comp = edb.core_hfss
+    comp = edb.hfss
 
     # this call returns the Components Class
-    comp = edb.core_components
+    comp = edb.components
 
     # this call returns the EdbSiwave Class
-    comp = edb.core_siwave
+    comp = edb.siwave
 
     # this call returns the EdbPadstacks Class
-    comp = edb.core_padstack
+    comp = edb.padstacks
 
-    # this call returns the EdbStackup Class
-    comp = edb.core_stackup
+    # this call returns the Stackup Class
+    comp = edb.stackup
+
+    # this call returns the Materials Class
+    comp = edb.materials
+
+    # this call returns the EdbNets Class
+    comp = edb.nets
 
     ...

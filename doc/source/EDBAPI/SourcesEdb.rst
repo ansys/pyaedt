@@ -1,5 +1,5 @@
-EDB sources
-===========
+Sources and excitations
+=======================
 These classes are the containers of sources methods of the EDB for both HFSS and Siwave.
 
 

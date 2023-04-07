@@ -1,5 +1,5 @@
-EDB setup
-=========
+Simulation setups
+=================
 These classes are the containers of ``setup`` classes in EDB for both HFSS and Siwave.
 
 

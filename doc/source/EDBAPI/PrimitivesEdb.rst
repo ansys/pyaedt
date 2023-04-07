@@ -1,0 +1,45 @@
+Modeler & Primitives
+====================
+These classes are the containers of primitives and all relative methods.
+Primitives are planes, lines, rectangles, and circles.
+
+
+.. code:: python
+
+    from pyaedt import Edb
+    edb = Edb(myedb, edbversion="2022.2")
+
+    top_layer_obj = edb.modeler.create_rectangle("TOP", net_name="gnd",
+                                                 lower_left_point=plane_lw_pt,
+                                                 upper_right_point=plane_up_pt)
+
+    ...
+
+
+
+Primitives properties
+---------------------
+These classes are the containers of data management for primitives and arcs.
+
+.. currentmodule:: pyaedt.edb_core.edb_data.primitives_data
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+
+
+   primitives_data.EDBPrimitives
+   primitives_data.EDBArcs
+
+
+.. code:: python
+
+    from pyaedt import Edb
+    edb = Edb(myedb, edbversion="2022.2")
+
+    polygon = edbapp.modeler.polygons[0]
+    polygon.is_void
+    poly2 = polygon.clone()
+
+    ...
