@@ -1902,7 +1902,7 @@ class Stackup(object):
             First layer to plot from the bottom. Default is `None` to start plotting from bottom.
         last_layer : str or :class:`pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`
             Last layer to plot from the bottom. Default is `None` to plot up to top layer.
-        scale_elevation :bool, optional
+        scale_elevation : bool, optional
             The real layer thickness is scaled so that max_thickness = 3 * min_thickness.
             Default is `True`.
 
@@ -2037,10 +2037,8 @@ class Stackup(object):
                 color = [float(i) / 256 for i in layer.color]
                 if color == [1.0, 1.0, 1.0]:
                     color = [0.9, 0.9, 0.9]
-                label = (
-                    f"{layer.name}, {layer.material}, "
-                    f"Thick: {layer.thickness * 1e6:.3f}um, "
-                    f"Elev:{layer.lower_elevation * 1e6:.3f}um"
+                label = "{}, {}, thick: {:.3f}um, elev: {:.3f}um".format(
+                    layer.name, layer.material, layer.thickness * 1e6, layer.lower_elevation * 1e6
                 )
 
                 # create patch
@@ -2131,10 +2129,8 @@ class Stackup(object):
                         color = [float(i) / 256 for i in layer.color]
                         if color == [1.0, 1.0, 1.0]:
                             color = [0.9, 0.9, 0.9]
-                        label = (
-                            f"{layer.name}, {layer.material}, "
-                            f"Thick: {layer.thickness * 1e6:.3f}um, "
-                            f"Elev:{layer.lower_elevation * 1e6:.3f}um"
+                        label = "{}, {}, thick: {:.3f}um, elev: {:.3f}um".format(
+                            layer.name, layer.material, layer.thickness * 1e6, layer.lower_elevation * 1e6
                         )
 
                         if ly[3] > 0:
@@ -2167,10 +2163,8 @@ class Stackup(object):
                 color = [float(i) / 256 for i in layer.color]
                 if color == [1.0, 1.0, 1.0]:
                     color = [0.9, 0.9, 0.9]
-                label = (
-                    f"{layer.name}, {layer.material}, "
-                    f"Thick: {layer.thickness * 1e6:.3f}um, "
-                    f"Elev:{layer.lower_elevation * 1e6:.3f}um"
+                label = "{}, {}, thick: {:.3f}um, elev: {:.3f}um".format(
+                    layer.name, layer.material, layer.thickness * 1e6, layer.lower_elevation * 1e6
                 )
                 # create the patch
                 le = ly[1]  # lower elevation
@@ -2217,7 +2211,7 @@ class Stackup(object):
         new_annotations = []
         for i, a in enumerate(annotations):
             if i > 0 and abs(a[1] - annotations[i - 1][1]) < (y_max - y_min) / 75:
-                new_annotations[-1][2] = str(new_annotations[-1][2]) + f", {a[2]}"
+                new_annotations[-1][2] = str(new_annotations[-1][2]) + ", " + str(a[2])
             else:
                 new_annotations.append(a)
         annotations = new_annotations
