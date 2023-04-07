@@ -1,5 +1,5 @@
-AEDT apps
-=========
+Application and solvers
+=======================
 The PyAEDT API includes classes for different applications available in Ansys Electronics Desktop (AEDT).
 You must initialize AEDT to get access to all PyAEDT modules and methods.
 

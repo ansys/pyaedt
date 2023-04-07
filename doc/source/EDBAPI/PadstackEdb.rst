@@ -22,7 +22,7 @@ The main padstack object is called directly from main application using the prop
    :toctree: _autosummary
    :nosignatures:
 
-   padstack.EdbPadstacks
+   EdbPadstacks
 
 
 Instances and definitions

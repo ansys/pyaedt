@@ -29,8 +29,8 @@ These classes are the containers of data management for primitives and arcs.
 
 
 
-   primitives_data.EDBPrimitives
-   primitives_data.EDBArcs
+   EDBPrimitives
+   EDBArcs
 
 
 .. code:: python
