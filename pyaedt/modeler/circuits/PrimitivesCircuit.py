@@ -916,7 +916,9 @@ class CircuitComponents(object):
         ----------
 
         >>> oEditor.GetAllElements()"""
-        obj = list(self.oeditor.GetAllElements())
+        obj = self.oeditor.GetAllElements()
+        if not obj:
+            obj = []
         obj = [i for i in obj if "Wire" not in i[:4]]
         for el in obj:
             if not self.get_obj_id(el):
