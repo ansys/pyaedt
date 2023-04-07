@@ -1267,21 +1267,6 @@ class Desktop(object):
         self.odesktop = None
         return result
 
-    def force_close_desktop(self):
-        """Forcibly close all projects and shut down AEDT.
-
-        .. deprecated:: 0.4.0
-           Use :func:`desktop.close_desktop` instead.
-
-        """
-
-        warnings.warn(
-            "`force_close_desktop` is deprecated. Use `close_desktop` instead.",
-            DeprecationWarning,
-        )
-
-        force_close_desktop()
-
     def close_desktop(self):
         """Close all projects and shut down AEDT.
 

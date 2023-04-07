@@ -108,8 +108,8 @@ class EdgeTypePrimitive(object):
         vArg2.append("Vertices:="), vArg2.append(vertex_id_list)
         vArg2.append("Radius:="), vArg2.append(self._object3d._primitives._arg_with_dim(radius))
         vArg2.append("Setback:="), vArg2.append(self._object3d._primitives._arg_with_dim(setback))
-        self._object3d.m_Editor.Fillet(vArg1, ["NAME:Parameters", vArg2])
-        if self._object3d.name in list(self._object3d.m_Editor.GetObjectsInGroup("UnClassified")):
+        self._object3d._oeditor.Fillet(vArg1, ["NAME:Parameters", vArg2])
+        if self._object3d.name in list(self._object3d._oeditor.GetObjectsInGroup("UnClassified")):
             self._object3d._primitives._odesign.Undo()
             self._object3d.logger.error("Operation failed, generating an unclassified object. Check and retry.")
             return False
@@ -181,8 +181,8 @@ class EdgeTypePrimitive(object):
         else:
             self._object3d.logger.error("Wrong Type Entered. Type must be integer from 0 to 3")
             return False
-        self._object3d.m_Editor.Chamfer(vArg1, ["NAME:Parameters", vArg2])
-        if self._object3d.name in list(self._object3d.m_Editor.GetObjectsInGroup("UnClassified")):
+        self._object3d._oeditor.Chamfer(vArg1, ["NAME:Parameters", vArg2])
+        if self._object3d.name in list(self._object3d._oeditor.GetObjectsInGroup("UnClassified")):
             self._object3d.odesign.Undo()
             self._object3d.logger.error("Operation Failed generating Unclassified object. Check and retry")
             return False
@@ -204,7 +204,7 @@ class VertexPrimitive(EdgeTypePrimitive, object):
     def __init__(self, object3d, objid, position=None):
         self.id = objid
         self._object3d = object3d
-        self.oeditor = object3d.m_Editor
+        self.oeditor = object3d._oeditor
         self._position = position
 
     @property
@@ -254,7 +254,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
     def __init__(self, object3d, edge_id):
         self.id = edge_id
         self._object3d = object3d
-        self.oeditor = object3d.m_Editor
+        self.oeditor = object3d._oeditor
 
     @property
     def segment_info(self):
@@ -444,7 +444,7 @@ class FacePrimitive(object):
     @property
     def oeditor(self):
         """Oeditor Module."""
-        return self._object3d.m_Editor
+        return self._object3d._oeditor
 
     @property
     def logger(self):
@@ -964,7 +964,7 @@ class Point(object):
         self._all_props = None
 
     @property
-    def m_Editor(self):
+    def _oeditor(self):
         """Pointer to the oEditor object in the AEDT API. This property is
         intended primarily for use by FacePrimitive, EdgePrimitive, and
         VertexPrimitive child objects.
@@ -1028,13 +1028,13 @@ class Point(object):
         >>> oEditor.GetProperties
         """
         if not self._all_props:
-            self._all_props = _retry_ntimes(10, self.m_Editor.GetProperties, "Geometry3DPointTab", self._name)
+            self._all_props = _retry_ntimes(10, self._oeditor.GetProperties, "Geometry3DPointTab", self._name)
         return self._all_props
 
     # Note: We currently cannot get the color property value because
     # when we try to access it, we only get access to the 'edit' button.
     # Following is the line that we would use but it currently returns 'edit'.
-    # color = _retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DPointTab", self._name, "Color")
+    # color = _retry_ntimes(10, self._oeditor.GetPropertyValue, "Geometry3DPointTab", self._name, "Color")
     def set_color(self, color_value):
         """Set symbol color.
 
@@ -1102,7 +1102,7 @@ class Point(object):
             return self._point_coordinate_system
         if "Orientation" in self.valid_properties:
             self._point_coordinate_system = _retry_ntimes(
-                10, self.m_Editor.GetPropertyValue, "Geometry3DPointTab", self._name, "Orientation"
+                10, self._oeditor.GetPropertyValue, "Geometry3DPointTab", self._name, "Orientation"
             )
             return self._point_coordinate_system
 
@@ -1123,7 +1123,7 @@ class Point(object):
         >>> oEditor.Delete
         """
         arg = ["NAME:Selections", "Selections:=", self._name]
-        self.m_Editor.Delete(arg)
+        self._oeditor.Delete(arg)
         self._primitives.cleanup_objects()
         self.__dict__ = {}
 
@@ -1166,7 +1166,7 @@ class Plane(object):
         self._all_props = None
 
     @property
-    def m_Editor(self):
+    def _oeditor(self):
         """Pointer to the oEditor object in the AEDT API. This property is
         intended primarily for use by FacePrimitive, EdgePrimitive, and
         VertexPrimitive child objects.
@@ -1233,13 +1233,13 @@ class Plane(object):
         >>> oEditor.GetProperties
         """
         if not self._all_props:
-            self._all_props = _retry_ntimes(10, self.m_Editor.GetProperties, "Geometry3DPlaneTab", self._name)
+            self._all_props = _retry_ntimes(10, self._oeditor.GetProperties, "Geometry3DPlaneTab", self._name)
         return self._all_props
 
     # Note: You currently cannot get the color property value because
     # when you try to access it, you only get access to the 'edit' button.
     # Following is the line that you would use, but it currently returns 'edit'.
-    # color = _retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DPlaneTab", self._name, "Color")
+    # color = _retry_ntimes(10, self._oeditor.GetPropertyValue, "Geometry3DPlaneTab", self._name, "Color")
     @pyaedt_function_handler()
     def set_color(self, color_value):
         """Set symbol color.
@@ -1308,7 +1308,7 @@ class Plane(object):
             return self._plane_coordinate_system
         if "Orientation" in self.valid_properties:
             self._plane_coordinate_system = _retry_ntimes(
-                10, self.m_Editor.GetPropertyValue, "Geometry3DPlaneTab", self._name, "Orientation"
+                10, self._oeditor.GetPropertyValue, "Geometry3DPlaneTab", self._name, "Orientation"
             )
             return self._plane_coordinate_system
 
@@ -1329,7 +1329,7 @@ class Plane(object):
         >>> oEditor.Delete
         """
         arg = ["NAME:Selections", "Selections:=", self._name]
-        self.m_Editor.Delete(arg)
+        self._oeditor.Delete(arg)
         self._primitives.cleanup_objects()
         self.__dict__ = {}
 

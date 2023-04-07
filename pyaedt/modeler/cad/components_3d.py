@@ -164,6 +164,7 @@ class UserDefinedComponent(object):
             self.native_properties = self._props["NativeComponentDefinitionProvider"]
             self.auto_update = True
 
+    @pyaedt_function_handler()
     def history(self):
         """Component history.
 
@@ -379,7 +380,9 @@ class UserDefinedComponent(object):
         """
         component_parts = list(self._primitives.oeditor.GetChildObject(self.name).GetChildNames())
         parts_id = [
-            self._primitives.object_id_dict[part] for part in self._primitives.object_id_dict if part in component_parts
+            self._primitives._object_names_to_ids[part]
+            for part in self._primitives._object_names_to_ids
+            if part in component_parts
         ]
         parts_dict = {part_id: self._primitives.objects[part_id] for part_id in parts_id}
         return parts_dict
@@ -513,7 +516,7 @@ class UserDefinedComponent(object):
         Parameters
         ----------
         cs_axis
-            Coordinate system axis or the Application.CoordinateSystemAxis object.
+            Coordinate system axis or the Application.AXIS object.
         angle : float, optional
             Angle of rotation. The units, defined by ``unit``, can be either
             degrees or radians. The default is ``90.0``.
@@ -575,7 +578,7 @@ class UserDefinedComponent(object):
 
         Parameters
         ----------
-        cs_axis : Application.CoordinateSystemAxis object
+        cs_axis : Application.AXIS object
             Coordinate system axis of the object.
         angle : float, optional
             Angle of rotation in degrees. The default is ``90``.

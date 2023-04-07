@@ -312,7 +312,7 @@ class EdbSiwave(object):
                         reference_net,
                         "{}_ref".format(term_name),
                         position,
-                        self._pedb.core_stackup.signal_layers[layer_name]._layer,
+                        self._pedb.stackup.signal_layers[layer_name]._edb_layer,
                     )
                     negative_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
                     negative_terminal.SetImpedance(self._edb.Utility.Value(impedance))

@@ -168,9 +168,9 @@ points_list = [
     [patch.position_x.name, patch.position_y.name, signal.elevation.name],
     [patch.position_x.name, patch.position_y.name, signal.elevation.name + " + " + patch.length.name],
 ]
-hfss.modeler.primitives.create_polyline(position_list=points_list, name="adjust_airbox")
+hfss.modeler.create_polyline(position_list=points_list, name="adjust_airbox")
 pad_percent = [50, 50, 300, 50, 50, 10]
-region = hfss.modeler.primitives.create_region(pad_percent)
+region = hfss.modeler.create_region(pad_percent)
 hfss.assign_radiation_boundary_to_objects(region)
 
 ###############################################################################

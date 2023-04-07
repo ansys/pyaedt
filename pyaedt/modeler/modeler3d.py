@@ -557,7 +557,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             List of ``[x, y, z]`` coordinates for the starting position.
         axis : int
             Coordinate system AXIS (integer ``0`` for X, ``1`` for Y, ``2`` for Z) or
-            the :class:`Application.CoordinateSystemAxis` enumerator.
+            the :class:`Application.AXIS` enumerator.
         innerradius : float, optional
             Inner coax radius. The default is ``1``.
         outerradius : float, optional
@@ -639,7 +639,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             List of ``[x, y, z]`` coordinates for the original position.
         wg_direction_axis : int
             Coordinate system axis (integer ``0`` for X, ``1`` for Y, ``2`` for Z) or
-            the :class:`Application.CoordinateSystemAxis` enumerator.
+            the :class:`Application.AXIS` enumerator.
         wgmodel : str, optional
             Waveguide model. The default is ``"WG0"``.
         wg_length : float, optional

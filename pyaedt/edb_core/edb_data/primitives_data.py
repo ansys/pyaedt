@@ -33,6 +33,27 @@ class EDBPrimitives(object):
         self._core_net = core_app.nets
         self.primitive_object = raw_primitive
 
+    @property
+    def width(self):
+        """Path width.
+
+        Returns
+        -------
+        float
+            Path width or None.
+        """
+        if self.type == "Path":
+            return self.primitive_object.GetWidth()
+        return
+
+    @width.setter
+    def width(self, value):
+        if self.type == "Path":
+            if isinstance(value, (int, str, float)):
+                self.primitive_object.SetWidth(self._app.edb_value(value))
+            else:
+                self.primitive_object.SetWidth(value)
+
     @pyaedt_function_handler()
     def area(self, include_voids=True):
         """Return the total area.

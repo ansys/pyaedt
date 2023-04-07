@@ -646,6 +646,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.EditEndConnection(self._boundary_name, self._get_args())
         elif self.type == "Hybrid":
             self._app.oboundary.EditHybridRegion(self._boundary_name, self._get_args())
+        elif self.type == "Terminal":
+            self._app.oboundary.EditTerminal(self._boundary_name, self._get_args())
         else:
             return False  # pragma: no cover
         self._boundary_name = self.name

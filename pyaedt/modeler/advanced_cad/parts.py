@@ -95,16 +95,18 @@ class Part(object):
             y = "0"
             p = "0"
             r = "0"
+            kr = 0
             for a in rotations:
-                if rotations_axis[rotations.index(a)].lower() == "x":  # roll
+                if rotations_axis[kr].lower() == "x":  # roll
                     r = a
                     self.rot_axis[2] = True
-                elif rotations_axis[rotations.index(a)].lower() == "y":  # pitch
+                elif rotations_axis[kr].lower() == "y":  # pitch
                     p = a
                     self.rot_axis[1] = True
-                elif rotations_axis[rotations.index(a)].lower() == "z":  # yaw
+                elif rotations_axis[kr].lower() == "z":  # yaw
                     y = a
                     self.rot_axis[0] = True
+                kr += 1
 
             self._yaw = y
             self._pitch = p
