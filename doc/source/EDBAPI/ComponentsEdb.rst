@@ -1,6 +1,6 @@
 Components
 ==========
-This sections contains API references for component management.
+This section contains API references for component management.
 The main component object is called directly from main application using the property ``components``.
 
 .. code:: python
