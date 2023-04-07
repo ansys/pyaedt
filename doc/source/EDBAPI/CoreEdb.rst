@@ -21,8 +21,8 @@ It can be opened and edited using the ``Edb`` class.
 .. code:: python
 
     from pyaedt import Edb
-    # this call returns the Edb class initialized on 2022 R2
-    edb = Edb(myedb, edbversion="2022.2")
+    # this call returns the Edb class initialized on 2023 R1
+    edb = Edb(myedb, edbversion="2023.1")
 
     ...
 
@@ -59,7 +59,7 @@ to AEDB files.
 .. code:: python
 
     from pyaedt import Edb
-    edb = Edb(myedb, edbversion="2022.2")
+    edb = Edb(myedb, edbversion="2023.1")
 
     # this call returns the EdbHfss Class
     comp = edb.hfss

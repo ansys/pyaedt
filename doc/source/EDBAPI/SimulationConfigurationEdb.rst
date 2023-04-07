@@ -19,7 +19,7 @@ These classes are the containers of simulation configuration constructors for th
 .. code:: python
 
     from pyaedt import Edb
-    edbapp = Edb(myedb, edbversion="2022.2")
+    edbapp = Edb(myedb, edbversion="2023.1")
 
     sim_setup = edbapp.new_simulation_configuration()
     sim_setup.solver_type = sim_setup.SOLVER_TYPE.SiwaveSYZ

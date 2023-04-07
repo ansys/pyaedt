@@ -1469,7 +1469,7 @@ class Edb(object):
         keep_voids=True,
         check_terminals=False,
         include_pingroups=False,
-        expansion_factor=4,
+        expansion_factor=0,
         maximum_iterations=10,
     ):
         """Create a cutout using an approach entirely based on pyaedt.
