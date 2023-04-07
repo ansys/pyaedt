@@ -15,17 +15,16 @@ import warnings
 from pyaedt import __version__
 from pyaedt import pyaedt_logger
 from pyaedt import settings
+from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.edb_core import Components
 from pyaedt.edb_core import EdbHfss
 from pyaedt.edb_core import EdbLayout
 from pyaedt.edb_core import EdbNets
 from pyaedt.edb_core import EdbSiwave
-from pyaedt.edb_core import EdbStackup
 from pyaedt.edb_core.edb_data.design_options import EdbDesignOptions
 from pyaedt.edb_core.edb_data.edb_builder import EdbBuilder
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import HfssSimulationSetup
-from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveDCSimulationSetup
 from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveSYZSimulationSetup
@@ -35,6 +34,7 @@ from pyaedt.edb_core.edb_data.sources import ExcitationProbes
 from pyaedt.edb_core.edb_data.sources import ExcitationSources
 from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.edb_data.variables import Variable
+import pyaedt.edb_core.general
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.ipc2581.ipc2581 import Ipc2581
 from pyaedt.edb_core.materials import Materials
@@ -42,8 +42,10 @@ from pyaedt.edb_core.padstack import EdbPadstacks
 from pyaedt.edb_core.stackup import Stackup
 from pyaedt.generic.clr_module import Convert
 from pyaedt.generic.clr_module import List
+from pyaedt.generic.clr_module import Tuple
 from pyaedt.generic.clr_module import _clr
 from pyaedt.generic.clr_module import edb_initialized
+from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.general_methods import env_path
 from pyaedt.generic.general_methods import env_path_student
@@ -99,11 +101,21 @@ class Edb(object):
     >>> app = Edb()
 
     Add a new variable named "s1" to the ``Edb`` instance.
+
     >>> app['s1'] = "0.25 mm"
     >>> app['s1'].tofloat
     >>> 0.00025
     >>> app['s1'].tostring
     >>> "0.25mm"
+
+    or add a new parameter with description:
+
+    >>> app['s2'] = ["20um", "Spacing between traces"]
+    >>> app['s2'].value
+    >>> 1.9999999999999998e-05
+    >>> app['s2'].description
+    >>> 'Spacing between traces'
+
 
     Create an ``Edb`` object and open the specified project.
 
@@ -231,10 +243,26 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def __setitem__(self, variable_name, variable_value):
-        if self.variable_exists(variable_name)[0]:
-            self.change_design_variable_value(variable_name, variable_value)
+        type_error_message = "Allowed values are str, numeric or two-item list with variable description."
+        if type(variable_value) in [list, tuple]:  # Two-item list or tuple. 2nd argument is a str description.
+            if len(variable_value) == 2:
+                if type(variable_value[1]) is str:
+                    description = variable_value[1] if len(variable_value[1]) > 0 else None
+                else:
+                    description = None
+                    pyaedt.edb_core.general.logger.warning("Invalid type for Edb variable desciprtion is ignored.")
+                val = variable_value[0]
+            else:
+                raise TypeError(type_error_message)
         else:
-            self.add_design_variable(variable_name, variable_value)
+            description = None
+            val = variable_value
+        if self.variable_exists(variable_name)[0]:
+            self.change_design_variable_value(variable_name, val)
+        else:
+            self.add_design_variable(variable_name, val)
+        if description:  # Add the variable description if a two-item list is passed for variable_value.
+            self.__getitem__(variable_name).description = description
 
     def _clean_variables(self):
         """Initialize internal variables and perform garbage collection."""
@@ -262,13 +290,13 @@ class Edb(object):
     def _init_objects(self):
         time.sleep(1)
         self._components = Components(self)
-        self._stackup = EdbStackup(self)
+        self._stackup = Stackup(self)
         self._padstack = EdbPadstacks(self)
         self._siwave = EdbSiwave(self)
         self._hfss = EdbHfss(self)
         self._nets = EdbNets(self)
         self._core_primitives = EdbLayout(self)
-        self._stackup2 = Stackup(self)
+        self._stackup2 = self._stackup
         self._materials = Materials(self)
 
         self.logger.info("Objects Initialized")
@@ -703,8 +731,11 @@ class Edb(object):
         return self._active_cell
 
     @property
-    def core_components(self):
+    def core_components(self):  # pragma: no cover
         """Edb Components methods and properties.
+
+        .. deprecated:: 0.6.62
+           Use new property :func:`components` instead.
 
         Returns
         -------
@@ -713,7 +744,23 @@ class Edb(object):
         Examples
         --------
         >>> edbapp = pyaedt.Edb("myproject.aedb")
-        >>> comp = self.edbapp.core_components.get_component_by_name("J1")
+        >>> comp = self.edbapp.components.get_component_by_name("J1")
+        """
+        warnings.warn("Use new property :func:`components` instead.", DeprecationWarning)
+        return self.components
+
+    @property
+    def components(self):
+        """Edb Components methods and properties.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.Components.Components`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> comp = self.edbapp.components.get_component_by_name("J1")
         """
         if not self._components and self.builder:
             self._components = Components(self)
@@ -731,7 +778,7 @@ class Edb(object):
         mess += " Use `app.stackup` directly to instantiate new stackup methods."
         warnings.warn(mess, DeprecationWarning)
         if not self._stackup and self.builder:
-            self._stackup = EdbStackup(self)
+            self._stackup = Stackup(self)
         return self._stackup
 
     @property
@@ -784,7 +831,31 @@ class Edb(object):
         return self._materials
 
     @property
-    def core_padstack(self):
+    def core_padstack(self):  # pragma: no cover
+        """Core padstack.
+
+
+        .. deprecated:: 0.6.62
+           Use new property :func:`padstacks` instead.
+
+        Returns
+        -------
+        Instance of :class: `pyaedt.edb_core.padstack.EdbPadstack`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> p = edbapp.padstacks.create(padstackname="myVia_bullet", antipad_shape="Bullet")
+        >>> edbapp.padstacks.get_pad_parameters(
+        >>> ... p, "TOP", self.edbapp.padstacks.pad_type.RegularPad
+        >>> ... )
+        """
+
+        warnings.warn("Use new property :func:`padstacks` instead.", DeprecationWarning)
+        return self.padstacks
+
+    @property
+    def padstacks(self):
         """Core padstack.
 
 
@@ -795,9 +866,9 @@ class Edb(object):
         Examples
         --------
         >>> edbapp = pyaedt.Edb("myproject.aedb")
-        >>> p = edbapp.core_padstack.create_padstack(padstackname="myVia_bullet", antipad_shape="Bullet")
-        >>> edbapp.core_padstack.get_pad_parameters(
-        >>> ... p, "TOP", self.edbapp.core_padstack.pad_type.RegularPad
+        >>> p = edbapp.padstacks.create(padstackname="myVia_bullet", antipad_shape="Bullet")
+        >>> edbapp.padstacks.get_pad_parameters(
+        >>> ... p, "TOP", self.edbapp.padstacks.pad_type.RegularPad
         >>> ... )
         """
 
@@ -806,7 +877,26 @@ class Edb(object):
         return self._padstack
 
     @property
-    def core_siwave(self):
+    def core_siwave(self):  # pragma: no cover
+        """Core SIWave methods and properties.
+
+        .. deprecated:: 0.6.62
+           Use new property :func:`siwave` instead.
+
+        Returns
+        -------
+        Instance of :class: `pyaedt.edb_core.siwave.EdbSiwave`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> p2 = edbapp.siwave.create_circuit_port_on_net("U2A5", "V3P3_S0", "U2A5", "GND", 50, "test")
+        """
+        warnings.warn("Use new property :func:`siwave` instead.", DeprecationWarning)
+        return self.siwave
+
+    @property
+    def siwave(self):
         """Core SIWave methods and properties.
 
         Returns
@@ -816,16 +906,18 @@ class Edb(object):
         Examples
         --------
         >>> edbapp = pyaedt.Edb("myproject.aedb")
-        >>> p2 = edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V3P3_S0", "U2A5", "GND", 50, "test")
+        >>> p2 = edbapp.siwave.create_circuit_port_on_net("U2A5", "V3P3_S0", "U2A5", "GND", 50, "test")
         """
-
         if not self._siwave and self.builder:
             self._siwave = EdbSiwave(self)
         return self._siwave
 
     @property
-    def core_hfss(self):
+    def core_hfss(self):  # pragma: no cover
         """Core HFSS methods and properties.
+
+        .. deprecated:: 0.6.62
+           Use new property :func:`hfss` instead.
 
         Returns
         -------
@@ -834,14 +926,50 @@ class Edb(object):
         Examples
         --------
         >>> edbapp = pyaedt.Edb("myproject.aedb")
-        >>> edbapp.core_hfss.configure_hfss_analysis_setup(sim_config)
+        >>> edbapp.hfss.configure_hfss_analysis_setup(sim_config)
+        """
+        warnings.warn("Use new property :func:`hfss` instead.", DeprecationWarning)
+        return self.hfss
+
+    @property
+    def hfss(self):
+        """Core HFSS methods and properties.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.hfss.EdbHfss`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> edbapp.hfss.configure_hfss_analysis_setup(sim_config)
         """
         if not self._hfss and self.builder:
             self._hfss = EdbHfss(self)
         return self._hfss
 
     @property
-    def core_nets(self):
+    def core_nets(self):  # pragma: no cover
+        """Core nets.
+
+        .. deprecated:: 0.6.62
+           Use new property :func:`nets` instead.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.nets.EdbNets`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> edbapp.nets.find_or_create_net("GND")
+        >>> edbapp.nets.find_and_fix_disjoint_nets("GND", keep_only_main_net=True)
+        """
+        warnings.warn("Use new property :func:`nets` instead.", DeprecationWarning)
+        return self.nets
+
+    @property
+    def nets(self):
         """Core nets.
 
         Returns
@@ -851,8 +979,8 @@ class Edb(object):
         Examples
         --------
         >>> edbapp = pyaedt.Edb("myproject.aedb")
-        >>> edbapp.core_nets.find_or_create_net("GND")
-        >>> edbapp.core_nets.find_and_fix_disjoint_nets("GND", keep_only_main_net=True)
+        >>> edbapp.nets.find_or_create_net("GND")
+        >>> edbapp.nets.find_and_fix_disjoint_nets("GND", keep_only_main_net=True)
         """
 
         if not self._nets and self.builder:
@@ -860,8 +988,12 @@ class Edb(object):
         return self._nets
 
     @property
-    def core_primitives(self):
+    def core_primitives(self):  # pragma: no cover
         """Core primitives.
+
+
+        .. deprecated:: 0.6.62
+           Use new property :func:`modeler` instead.
 
         Returns
         -------
@@ -870,7 +1002,23 @@ class Edb(object):
         Examples
         --------
         >>> edbapp = pyaedt.Edb("myproject.aedb")
-        >>> top_prims = edbapp.core_primitives.primitives_by_layer["TOP"]
+        >>> top_prims = edbapp.modeler.primitives_by_layer["TOP"]
+        """
+        warnings.warn("Use new property :func:`modeler` instead.", DeprecationWarning)
+        return self.modeler
+
+    @property
+    def modeler(self):
+        """Core primitives modeler.
+
+        Returns
+        -------
+        Instance of :class: `pyaedt.edb_core.layout.EdbLayout`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> top_prims = edbapp.modeler.primitives_by_layer["TOP"]
         """
         if not self._core_primitives and self.builder:
             self._core_primitives = EdbLayout(self)
@@ -900,6 +1048,9 @@ class Edb(object):
     def pins(self):
         """EDBPadstackInstance of Component.
 
+        .. deprecated:: 0.6.62
+           Use new method :func:`edb.padstacks.pins` instead.
+
         Returns
         -------
         dic[str, :class:`pyaedt.edb_core.edb_data.definitions.EDBPadstackInstance`]
@@ -911,18 +1062,8 @@ class Edb(object):
         >>> edbapp = pyaedt.Edb("myproject.aedb")
         >>> pin_net_name = edbapp.pins[424968329].netname
         """
-        pins = {}
-        if self.core_components:
-            for el in self.core_components.components:
-                comp = self.edb.Cell.Hierarchy.Component.FindByName(self.active_layout, el)
-                temp = [
-                    p
-                    for p in comp.LayoutObjs
-                    if p.GetObjType() == self.edb.Cell.LayoutObjType.PadstackInstance and p.IsLayoutPin()
-                ]
-                for p in temp:
-                    pins[p.GetId()] = EDBPadstackInstance(p, self)
-        return pins
+        warnings.warn("Use new method :func:`edb.padstacks.pins` instead.", DeprecationWarning)
+        return self.padstacks.pins
 
     class Boundaries:
         """Boundaries Enumerator.
@@ -1178,10 +1319,22 @@ class Edb(object):
         expansion_size,
         use_round_corner,
         use_pyaedt_extent=False,
+        smart_cut=False,
+        reference_list=[],
+        include_pingroups=True,
     ):
         if extent_type in ["Conforming", self.edb.Geometry.ExtentType.Conforming, 1]:
             if use_pyaedt_extent:
-                _poly = self._create_conformal(net_signals, expansion_size, 1e-12, use_round_corner, expansion_size)
+                _poly = self._create_conformal(
+                    net_signals,
+                    expansion_size,
+                    1e-12,
+                    use_round_corner,
+                    expansion_size,
+                    smart_cut,
+                    reference_list,
+                    include_pingroups,
+                )
             else:
                 _poly = self.active_layout.GetExpandedExtentFromNets(
                     net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
@@ -1192,7 +1345,16 @@ class Edb(object):
             )
         else:
             if use_pyaedt_extent:
-                _poly = self._create_convex_hull(net_signals, expansion_size, 1e-12, use_round_corner, expansion_size)
+                _poly = self._create_convex_hull(
+                    net_signals,
+                    expansion_size,
+                    1e-12,
+                    use_round_corner,
+                    expansion_size,
+                    smart_cut,
+                    reference_list,
+                    include_pingroups,
+                )
             else:
                 _poly = self.active_layout.GetExpandedExtentFromNets(
                     net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
@@ -1202,30 +1364,86 @@ class Edb(object):
         return _poly
 
     @pyaedt_function_handler()
-    def _create_conformal(self, net_signals, expansion_size, tolerance, round_corner, round_extension):
+    def _create_conformal(
+        self,
+        net_signals,
+        expansion_size,
+        tolerance,
+        round_corner,
+        round_extension,
+        smart_cutout=False,
+        reference_list=[],
+        include_pingroups=True,
+    ):
         names = []
         _polys = []
         for net in net_signals:
             names.append(net.GetName())
-        for prim in self.core_primitives.primitives:
+        for prim in self.modeler.primitives:
             if prim.net_name in names:
                 obj_data = prim.primitive_object.GetPolygonData().Expand(
                     expansion_size, tolerance, round_corner, round_extension
                 )
                 if obj_data:
                     _polys.extend(list(obj_data))
+        if smart_cutout:
+            _polys.extend(self._smart_cut(net_signals, reference_list, include_pingroups))
         _poly = self.edb.Geometry.PolygonData.Unite(convert_py_list_to_net_list(_polys))[0]
         return _poly
 
     @pyaedt_function_handler()
-    def _create_convex_hull(self, net_signals, expansion_size, tolerance, round_corner, round_extension):
+    def _smart_cut(self, net_signals, reference_list=[], include_pingroups=True):
+        _polys = []
+        terms = [term for term in list(self.active_layout.Terminals) if int(term.GetBoundaryType()) in [0, 3, 4, 7, 8]]
+        locations = []
+        for term in terms:
+            if term.GetTerminalType().ToString() == "PadstackInstanceTerminal":
+                if term.GetParameters()[1].GetNet().GetName() in reference_list:
+                    locations.append(self.padstacks.instances[term.GetParameters()[1].GetId()].position)
+            elif term.GetTerminalType().ToString() == "PointTerminal" and term.GetNet().GetName() in reference_list:
+                pd = term.GetParameters()[1]
+                locations.append([pd.X.ToDouble(), pd.Y.ToDouble()])
+        if include_pingroups:
+            for reference in reference_list:
+                for pin in self.nets.nets[reference].padstack_instances:
+                    if pin.pingroups:
+                        locations.append(pin.position)
+        for point in locations:
+            pointA = self.edb.Geometry.PointData(self.edb_value(point[0] - 1e-12), self.edb_value(point[1] - 1e-12))
+            pointB = self.edb.Geometry.PointData(self.edb_value(point[0] + 1e-12), self.edb_value(point[1] + 1e-12))
+            points = Tuple[self.edb.Geometry.PointData, self.edb.Geometry.PointData](pointA, pointB)
+            _polys.append(self.edb.Geometry.PolygonData.CreateFromBBox(points))
+        for cname, c in self.components.instances.items():
+            if (
+                set(net_signals).intersection(c.nets)
+                and c.is_enabled
+                and c.model_type in ["SParameterModel", "SpiceModel", "NetlistModel"]
+            ):
+                for pin in c.pins:
+                    locations.append(pin.position)
+        return _polys
+
+    @pyaedt_function_handler()
+    def _create_convex_hull(
+        self,
+        net_signals,
+        expansion_size,
+        tolerance,
+        round_corner,
+        round_extension,
+        smart_cut=False,
+        reference_list=[],
+        include_pingroups=True,
+    ):
         names = []
         _polys = []
         for net in net_signals:
             names.append(net.GetName())
-        for prim in self.core_primitives.primitives:
+        for prim in self.modeler.primitives:
             if prim.net_name in names:
                 _polys.append(prim.primitive_object.GetPolygonData())
+        if smart_cut:
+            _polys.extend(self._smart_cut(net_signals, reference_list, include_pingroups))
         _poly = self.edb.Geometry.PolygonData.GetConvexHullOfPolygons(convert_py_list_to_net_list(_polys))
         _poly = _poly.Expand(expansion_size, tolerance, round_corner, round_extension)[0]
         return _poly
@@ -1234,13 +1452,13 @@ class Edb(object):
     def cutout(
         self,
         signal_list=None,
-        reference_list=["GND"],
+        reference_list=None,
         extent_type="ConvexHull",
         expansion_size=0.002,
         use_round_corner=False,
         output_aedb_path=None,
         open_cutout_at_end=True,
-        use_legacy_cutout=False,
+        use_pyaedt_cutout=True,
         number_of_threads=4,
         use_pyaedt_extent_computing=True,
         extent_defeature=0,
@@ -1249,6 +1467,10 @@ class Edb(object):
         custom_extent_units="mm",
         include_partial_instances=False,
         keep_voids=True,
+        check_terminals=False,
+        include_pingroups=False,
+        expansion_factor=0,
+        maximum_iterations=10,
     ):
         """Create a cutout using an approach entirely based on pyaedt.
         This new method replaces all legacy cutout methods in pyaedt.
@@ -1276,17 +1498,17 @@ class Edb(object):
             Full path and name for the new AEDB file. If None, then current aedb will be cutout.
         open_cutout_at_end : bool, optional
             Whether to open the cutout at the end. The default is ``True``.
-        use_legacy_cutout : bool, optional
+        use_pyaedt_cutout : bool, optional
             Whether to use new PyAEDT cutout method or EDB API method.
             New method is faster than native API method since it benefits of multithread.
         number_of_threads : int, optional
-            Number of thread to use. Default is 4. Valid only if `use_legacy_cutout` is set to `False`.
+            Number of thread to use. Default is 4. Valid only if ``use_pyaedt_cutout`` is set to ``True``.
         use_pyaedt_extent_computing : bool, optional
             Whether to use pyaedt extent computing (experimental) or EDB API.
         extent_defeature : float, optional
             Defeature the cutout before applying it to produce simpler geometry for mesh (Experimental).
             It applies only to Conforming bounding box. Default value is ``0`` which disable it.
-         remove_single_pin_components : bool, optional
+        remove_single_pin_components : bool, optional
             Remove all Single Pin RLC after the cutout is completed. Default is `False`.
         custom_extent : list
             Points list defining the cutout shape. This setting will override `extent_type` field.
@@ -1294,10 +1516,25 @@ class Edb(object):
             Units of the point list. The default is ``"mm"``. Valid only if `custom_extend` is provided.
         include_partial_instances : bool, optional
             Whether to include padstack instances that have bounding boxes intersecting with point list polygons.
-            This operation may slow down the cutout export.Valid only if `custom_extend` is provided.
+            This operation may slow down the cutout export.Valid only if `custom_extend` and
+            `use_pyaedt_cutout` is provided.
         keep_voids : bool
             Boolean used for keep or not the voids intersecting the polygon used for clipping the layout.
             Default value is ``True``, ``False`` will remove the voids.Valid only if `custom_extend` is provided.
+        check_terminals : bool, optional
+            Whether to check for all reference terminals and increase extent to include them into the cutout.
+            This applies to components which have a model (spice, touchstone or netlist) associated.
+        include_pingroups : bool, optional
+            Whether to check for all pingroups terminals and increase extent to include them into the cutout.
+            It requires ``check_terminals``.
+        expansion_factor : int, optional
+            The method computes a float representing the largest number between
+            the dielectric thickness or trace width multiplied by the expansion_factor factor.
+            The trace width search is limited to nets with ports attached. Works only if `use_pyaedt_cutout`.
+            Default is `0` to disable the search.
+        maximum_iterations : int, optional
+            Maximum number of iterations before stopping in searching for a cutout with an error.
+            Default is `10`.
 
         Returns
         -------
@@ -1311,35 +1548,39 @@ class Edb(object):
         >>> edb.logger.reset_timer()
         >>> start = time.time()
         >>> signal_list = []
-        >>> for net in edb.core_nets.nets.keys():
+        >>> for net in edb.nets.netlist:
         >>>      if "3V3" in net:
         >>>           signal_list.append(net)
         >>> power_list = ["PGND"]
         >>> edb.cutout(signal_list=signal_list, reference_list=power_list, extent_type="Conforming")
         >>> end_time = str((time.time() - start)/60)
         >>> edb.logger.info("Total pyaedt cutout time in min %s", end_time)
-        >>> edb.core_nets.plot(signal_list, None, color_by_net=True)
-        >>> edb.core_nets.plot(power_list, None, color_by_net=True)
+        >>> edb.nets.plot(signal_list, None, color_by_net=True)
+        >>> edb.nets.plot(power_list, None, color_by_net=True)
         >>> edb.save_edb()
         >>> edb.close_edb()
 
 
         """
+        if expansion_factor > 0:
+            expansion_size = self.calculate_initial_extent(expansion_factor)
         if signal_list is None:
             signal_list = []
         if isinstance(reference_list, str):
             reference_list = [reference_list]
-        if use_legacy_cutout and custom_extent:
+        elif reference_list is None:
+            reference_list = []
+        if not use_pyaedt_cutout and custom_extent:
             return self._create_cutout_on_point_list(
                 custom_extent,
                 units=custom_extent_units,
                 output_aedb_path=output_aedb_path,
                 open_cutout_at_end=open_cutout_at_end,
-                nets_to_include=signal_list,
+                nets_to_include=signal_list + reference_list,
                 include_partial_instances=include_partial_instances,
                 keep_voids=keep_voids,
             )
-        elif use_legacy_cutout:
+        elif not use_pyaedt_cutout:
             return self._create_cutout_legacy(
                 signal_list=signal_list,
                 reference_list=reference_list,
@@ -1349,26 +1590,79 @@ class Edb(object):
                 output_aedb_path=output_aedb_path,
                 open_cutout_at_end=open_cutout_at_end,
                 use_pyaedt_extent_computing=use_pyaedt_extent_computing,
+                check_terminals=check_terminals,
+                include_pingroups=include_pingroups,
             )
         else:
             legacy_path = self.edbpath
-            result = self._create_cutout_multithread(
-                signal_list=signal_list,
-                reference_list=reference_list,
-                extent_type=extent_type,
-                expansion_size=expansion_size,
-                use_round_corner=use_round_corner,
-                number_of_threads=number_of_threads,
-                custom_extent=custom_extent,
-                output_aedb_path=output_aedb_path,
-                remove_single_pin_components=remove_single_pin_components,
-                use_pyaedt_extent_computing=use_pyaedt_extent_computing,
-                extent_defeature=extent_defeature,
-            )
-            if result and not open_cutout_at_end:
+            if expansion_factor > 0 and not custom_extent:
+                start = time.time()
+                self.save_edb()
+                dummy_path = self.edbpath.replace(".aedb", "_smart_cutout_temp.aedb")
+                working_cutout = False
+                i = 1
+                expansion = expansion_size
+                while i <= maximum_iterations:
+                    self.logger.info("-----------------------------------------")
+                    self.logger.info("Trying cutout with {}mm expansion size".format(expansion * 1e3))
+                    self.logger.info("-----------------------------------------")
+                    result = self._create_cutout_multithread(
+                        signal_list=signal_list,
+                        reference_list=reference_list,
+                        extent_type=extent_type,
+                        expansion_size=expansion,
+                        use_round_corner=use_round_corner,
+                        number_of_threads=number_of_threads,
+                        custom_extent=custom_extent,
+                        output_aedb_path=dummy_path,
+                        remove_single_pin_components=remove_single_pin_components,
+                        use_pyaedt_extent_computing=use_pyaedt_extent_computing,
+                        extent_defeature=extent_defeature,
+                        custom_extent_units=custom_extent_units,
+                        check_terminals=check_terminals,
+                        include_pingroups=include_pingroups,
+                    )
+                    if self.are_port_reference_terminals_connected():
+                        if output_aedb_path:
+                            self.save_edb_as(output_aedb_path)
+                        else:
+                            self.save_edb_as(legacy_path)
+                        working_cutout = True
+                        break
+                    self.close_edb()
+                    self.edbpath = legacy_path
+                    self.open_edb(True)
+                    i += 1
+                    expansion = expansion_size * i
+                if working_cutout:
+                    msg = "Cutout completed in {} iterations with expansion size of {}mm".format(i, expansion * 1e3)
+                    self.logger.info_timer(msg, start)
+                else:
+                    msg = "Cutout failed after {} iterations and expansion size of {}mm".format(i, expansion * 1e3)
+                    self.logger.info_timer(msg, start)
+                    return False
+            else:
+                result = self._create_cutout_multithread(
+                    signal_list=signal_list,
+                    reference_list=reference_list,
+                    extent_type=extent_type,
+                    expansion_size=expansion_size,
+                    use_round_corner=use_round_corner,
+                    number_of_threads=number_of_threads,
+                    custom_extent=custom_extent,
+                    output_aedb_path=output_aedb_path,
+                    remove_single_pin_components=remove_single_pin_components,
+                    use_pyaedt_extent_computing=use_pyaedt_extent_computing,
+                    extent_defeature=extent_defeature,
+                    custom_extent_units=custom_extent_units,
+                    check_terminals=check_terminals,
+                    include_pingroups=include_pingroups,
+                )
+            if result and not open_cutout_at_end and self.edbpath != legacy_path:
                 self.save_edb()
                 self.close_edb()
-                self.open_edb(legacy_path)
+                self.edbpath = legacy_path
+                self.open_edb(init_dlls=True)
             return result
 
     @pyaedt_function_handler()
@@ -1383,6 +1677,8 @@ class Edb(object):
         open_cutout_at_end=True,
         use_pyaedt_extent_computing=False,
         remove_single_pin_components=False,
+        check_terminals=False,
+        include_pingroups=True,
     ):
         expansion_size = self.edb_value(expansion_size).ToDouble()
 
@@ -1401,6 +1697,9 @@ class Edb(object):
             expansion_size,
             use_round_corner,
             use_pyaedt_extent_computing,
+            smart_cut=check_terminals,
+            reference_list=reference_list,
+            include_pingroups=include_pingroups,
         )
 
         # Create new cutout cell/design
@@ -1449,9 +1748,9 @@ class Edb(object):
                 self.edbpath = self._db.GetDirectory()
                 self._init_objects()
                 if remove_single_pin_components:
-                    self.core_components.delete_single_pin_rlc()
+                    self.components.delete_single_pin_rlc()
                     self.logger.info_timer("Single Pins components deleted")
-                    self.core_components.refresh_components()
+                    self.components.refresh_components()
             else:
                 if remove_single_pin_components:
                     try:
@@ -1478,9 +1777,9 @@ class Edb(object):
             self._active_cell = _cutout
             self._init_objects()
             if remove_single_pin_components:
-                self.core_components.delete_single_pin_rlc()
+                self.components.delete_single_pin_rlc()
                 self.logger.info_timer("Single Pins components deleted")
-                self.core_components.refresh_components()
+                self.components.refresh_components()
         return True
 
     @pyaedt_function_handler()
@@ -1558,7 +1857,10 @@ class Edb(object):
         output_aedb_path=None,
         remove_single_pin_components=False,
         use_pyaedt_extent_computing=False,
-        extent_defeature=0,
+        extent_defeature=0.0,
+        custom_extent_units="mm",
+        check_terminals=False,
+        include_pingroups=True,
     ):
         if is_ironpython:  # pragma: no cover
             self.logger.error("Method working only in Cpython")
@@ -1572,22 +1874,26 @@ class Edb(object):
 
         timer_start = self.logger.reset_timer()
         if custom_extent:
-            reference_list = reference_list + signal_list
-            all_list = reference_list
+            if not reference_list and not signal_list:
+                reference_list = self.nets.netlist[::]
+                all_list = reference_list
+            else:
+                reference_list = reference_list + signal_list
+                all_list = reference_list
         else:
             all_list = signal_list + reference_list
-        for i in self.core_nets.nets.values():
+        for i in self.nets.nets.values():
             if i.name not in all_list:
                 i.net_object.Delete()
         reference_pinsts = []
         reference_prims = []
-        for i in self.core_padstack.instances.values():
+        for i in self.padstacks.instances.values():
             net_name = i.net_name
             if net_name not in all_list:
                 i.delete()
             elif net_name in reference_list:
                 reference_pinsts.append(i)
-        for i in self.core_primitives.primitives:
+        for i in self.modeler.primitives:
             net_name = i.net_name
             if net_name not in all_list:
                 i.delete()
@@ -1597,8 +1903,14 @@ class Edb(object):
         self.logger.reset_timer()
 
         if custom_extent and isinstance(custom_extent, list):
-            plane = self.core_primitives.Shape("polygon", points=custom_extent)
-            _poly = self.core_primitives.shape_to_polygon_data(plane)
+            if custom_extent[0] != custom_extent[-1]:
+                custom_extent.append(custom_extent[0])
+            custom_extent = [
+                [self.number_with_units(i[0], custom_extent_units), self.number_with_units(i[1], custom_extent_units)]
+                for i in custom_extent
+            ]
+            plane = self.modeler.Shape("polygon", points=custom_extent)
+            _poly = self.modeler.shape_to_polygon_data(plane)
         elif custom_extent:
             _poly = custom_extent
         else:
@@ -1606,7 +1918,14 @@ class Edb(object):
                 [net for net in list(self.active_layout.Nets) if net.GetName() in signal_list]
             )
             _poly = self._create_extent(
-                net_signals, extent_type, expansion_size, use_round_corner, use_pyaedt_extent_computing
+                net_signals,
+                extent_type,
+                expansion_size,
+                use_round_corner,
+                use_pyaedt_extent_computing,
+                smart_cut=check_terminals,
+                reference_list=reference_list,
+                include_pingroups=include_pingroups,
             )
             if extent_type in ["Conforming", self.edb.Geometry.ExtentType.Conforming, 1] and extent_defeature > 0:
                 _poly = _poly.Defeature(extent_defeature)
@@ -1625,7 +1944,9 @@ class Edb(object):
             return prim.primitive_object.GetPolygonData()
 
         def intersect(poly1, poly2):
-            return list(poly1.Intersect(poly2))
+            if not isinstance(poly2, list):
+                poly2 = [poly2]
+            return list(poly1.Intersect(convert_py_list_to_net_list(poly1), convert_py_list_to_net_list(poly2)))
 
         def subtract(poly, voids):
             return poly.Subtract(convert_py_list_to_net_list(poly), convert_py_list_to_net_list(voids))
@@ -1633,9 +1954,11 @@ class Edb(object):
         def clean_prim(prim_1):  # pragma: no cover
             pdata = get_polygon_data(prim_1)
             int_data = _poly.GetIntersectionType(pdata)
-            if int_data == 0:
+            if int_data == 2:
+                return
+            elif int_data == 0:
                 prims_to_delete.append(prim_1)
-            elif int_data != 2:
+            else:
                 list_poly = intersect(_poly, pdata)
                 if list_poly:
                     net = prim_1.net_name
@@ -1643,26 +1966,24 @@ class Edb(object):
                     for p in list_poly:
                         if p.IsNull():
                             continue
+                        points = list(p.Points)
                         list_void = []
-                        void_to_subtract = []
                         if voids:
-                            for void in voids:
-                                void_pdata = get_polygon_data(void)
-                                int_data2 = p.GetIntersectionType(void_pdata)
-                                if int_data2 > 2 or int_data2 == 1:
-                                    void_to_subtract.append(void_pdata)
-                                elif int_data2 == 2:
-                                    list_void.append(void_pdata)
-                            if void_to_subtract:
-                                polys_cleans = subtract(p, void_to_subtract)
-                                for polys_clean in polys_cleans:
-                                    if not polys_clean.IsNull():
-                                        void_to_append = [
-                                            v for v in list_void if polys_clean.GetIntersectionType(v) == 2
-                                        ]
-                                        poly_to_create.append([polys_clean, prim_1.layer_name, net, void_to_append])
-                            else:
-                                poly_to_create.append([p, prim_1.layer_name, net, list_void])
+                            voids_data = [get_polygon_data(void) for void in voids]
+                            list_prims = subtract(p, voids_data)
+                            for prim in list_prims:
+                                if not prim.IsNull():
+                                    poly_to_create.append([prim, prim_1.layer_name, net, list_void])
+                            #
+                            # list_voids = intersect(p, voids_data)
+                            # for void_intersected in list_voids:
+                            #     if not void_intersected.IsNull():
+                            #         int_data_2 = p.GetIntersectionType(void_intersected)
+                            #         if int_data_2 == 2:
+                            #             list_void.append(void_intersected)
+                            #         elif int_data == 1 or int_data_2 > 2:
+                            #             p = subtract(p, void_intersected)[0]
+                            # poly_to_create.append([p, prim_1.layer_name, net, list_void])
                         else:
                             poly_to_create.append([p, prim_1.layer_name, net, list_void])
 
@@ -1685,7 +2006,7 @@ class Edb(object):
             pool.map(lambda item: clean_prim(item), reference_prims)
 
         for el in poly_to_create:
-            self.core_primitives.create_polygon(el[0], el[1], net_name=el[2], voids=el[3])
+            self.modeler.create_polygon(el[0], el[1], net_name=el[2], voids=el[3])
 
         for prim in prims_to_delete:
             prim.delete()
@@ -1693,16 +2014,16 @@ class Edb(object):
         self.logger.reset_timer()
 
         i = 0
-        for comp, val in self.core_components.components.items():
+        for _, val in self.components.components.items():
             if val.numpins == 0:
                 val.edbcomponent.Delete()
                 i += 1
         self.logger.info("Deleted {} additional components".format(i))
         if remove_single_pin_components:
-            self.core_components.delete_single_pin_rlc()
+            self.components.delete_single_pin_rlc()
             self.logger.info_timer("Single Pins components deleted")
 
-        self.core_components.refresh_components()
+        self.components.refresh_components()
 
         self.logger.info_timer("Cutout completed.", timer_start)
         self.logger.reset_timer()
@@ -1775,15 +2096,15 @@ class Edb(object):
         >>> edb.logger.reset_timer()
         >>> start = time.time()
         >>> signal_list = []
-        >>> for net in edb.core_nets.nets.keys():
+        >>> for net in edb.nets.nets.keys():
         >>>      if "3V3" in net:
         >>>           signal_list.append(net)
         >>> power_list = ["PGND"]
         >>> edb.create_cutout_multithread(signal_list=signal_list, reference_list=power_list, extent_type="Conforming")
         >>> end_time = str((time.time() - start)/60)
         >>> edb.logger.info("Total pyaedt cutout time in min %s", end_time)
-        >>> edb.core_nets.plot(signal_list, None, color_by_net=True)
-        >>> edb.core_nets.plot(power_list, None, color_by_net=True)
+        >>> edb.nets.plot(signal_list, None, color_by_net=True)
+        >>> edb.nets.plot(power_list, None, color_by_net=True)
         >>> edb.save_edb()
         >>> edb.close_edb()
 
@@ -1822,7 +2143,7 @@ class Edb(object):
         temp_edb_path = self.edbpath[:-5] + "_temp_aedb.aedb"
         shutil.copytree(self.edbpath, temp_edb_path)
         temp_edb = Edb(temp_edb_path)
-        for via in list(temp_edb.core_padstack.instances.values()):
+        for via in list(temp_edb.padstacks.instances.values()):
             via.pin.Delete()
         if netlist:
             nets = convert_py_list_to_net_list(
@@ -1891,6 +2212,13 @@ class Edb(object):
         warnings.warn("Use :func:`number_with_units` instead.", DeprecationWarning)
         return self.number_with_units(Value, sUnits)
 
+    def _decompose_variable_value(self, value, unit_system=None):
+        val, units = decompose_variable_value(value)
+        if units and unit_system and units in AEDT_UNITS[unit_system]:
+            return AEDT_UNITS[unit_system][units] * val
+        else:
+            return val
+
     @pyaedt_function_handler()
     def _create_cutout_on_point_list(
         self,
@@ -1905,8 +2233,8 @@ class Edb(object):
         if point_list[0] != point_list[-1]:
             point_list.append(point_list[0])
         point_list = [[self.number_with_units(i[0], units), self.number_with_units(i[1], units)] for i in point_list]
-        plane = self.core_primitives.Shape("polygon", points=point_list)
-        polygonData = self.core_primitives.shape_to_polygon_data(plane)
+        plane = self.modeler.Shape("polygon", points=point_list)
+        polygonData = self.modeler.shape_to_polygon_data(plane)
         _ref_nets = []
         if nets_to_include:
             self.logger.info("Creating cutout on {} nets.".format(len(nets_to_include)))
@@ -1917,22 +2245,22 @@ class Edb(object):
         pinstance_to_add = []
         if include_partial_instances:
             if nets_to_include:
-                pinst = [i for i in list(self.core_padstack.instances.values()) if i.net_name in nets_to_include]
+                pinst = [i for i in list(self.padstacks.instances.values()) if i.net_name in nets_to_include]
             else:
-                pinst = [i for i in list(self.core_padstack.instances.values())]
+                pinst = [i for i in list(self.padstacks.instances.values())]
             for p in pinst:
                 if p.in_polygon(polygonData):
                     pinstance_to_add.append(p)
         # validate references in layout
-        for _ref in self.core_nets.nets:
+        for _ref in self.nets.nets:
             if nets_to_include:
                 if _ref in nets_to_include:
-                    _ref_nets.append(self.core_nets.nets[_ref].net_object)
+                    _ref_nets.append(self.nets.nets[_ref].net_object)
             else:
-                _ref_nets.append(self.core_nets.nets[_ref].net_object)  # pragma: no cover
+                _ref_nets.append(self.nets.nets[_ref].net_object)  # pragma: no cover
         if keep_voids:
-            voids = [p for p in self.core_primitives.circles if p.is_void]
-            voids2 = [p for p in self.core_primitives.polygons if p.is_void]
+            voids = [p for p in self.modeler.circles if p.is_void]
+            voids2 = [p for p in self.modeler.polygons if p.is_void]
             voids.extend(voids2)
         else:
             voids = []
@@ -1956,7 +2284,7 @@ class Edb(object):
             self.logger.info("Added {} padstack instances after cutout".format(len(p_missing)))
             for p in p_missing:
                 position = self.edb.Geometry.PointData(self.edb_value(p.position[0]), self.edb_value(p.position[1]))
-                net = self.core_nets.find_or_create_net(p.net_name)
+                net = self.nets.find_or_create_net(p.net_name)
                 rotation = self.edb_value(p.rotation)
                 sign_layers = list(self.stackup.signal_layers.keys())
                 if not p.start_layer:  # pragma: no cover
@@ -1969,9 +2297,9 @@ class Edb(object):
                 else:
                     tolayer = self.stackup.signal_layers[p.stop_layer]._edb_layer
                 padstack = None
-                for pad in list(self.core_padstack.definitions.keys()):
+                for pad in list(self.padstacks.definitions.keys()):
                     if pad == p.padstack_definition:
-                        padstack = self.core_padstack.definitions[pad].edb_padstack
+                        padstack = self.padstacks.definitions[pad].edb_padstack
                         padstack_instance = self.edb.Cell.Primitive.PadstackInstance.Create(
                             _cutout.GetLayout(),
                             net,
@@ -2009,9 +2337,9 @@ class Edb(object):
                 cloned_polygon.SetIsNegative(True)
         layers = [i for i in list(self.stackup.signal_layers.keys())]
         for layer in layers:
-            layer_primitves = self.core_primitives.get_primitives(layer_name=layer)
+            layer_primitves = self.modeler.get_primitives(layer_name=layer)
             if len(layer_primitves) == 0:
-                self.core_primitives.create_polygon(plane, layer, net_name="DUMMY")
+                self.modeler.create_polygon(plane, layer, net_name="DUMMY")
         self.logger.info("Cutout %s created correctly", _cutout.GetName())
         id = 1
         for _setup in self.active_cell.SimulationSetups:
@@ -2107,7 +2435,7 @@ class Edb(object):
 
         """
         warnings.warn("Use new method `cutout` instead.", DeprecationWarning)
-        return self._create_cutout_multithread(
+        return self._create_cutout_on_point_list(
             point_list=point_list,
             units=units,
             output_aedb_path=output_aedb_path,
@@ -2487,6 +2815,7 @@ class Edb(object):
     @pyaedt_function_handler()
     def change_design_variable_value(self, variable_name, variable_value):
         """Change a variable value.
+
         ..note::
             User can use also the getitem to read the variable value. See example below.
 
@@ -2570,7 +2899,7 @@ class Edb(object):
                         if len(simulation_setup.etching_factor_instances) > idx:
                             self.stackup[layer].etch_factor = float(simulation_setup.etching_factor_instances[idx])
 
-            self.core_nets.classify_nets(simulation_setup.power_nets, simulation_setup.signal_nets)
+            self.nets.classify_nets(simulation_setup.power_nets, simulation_setup.signal_nets)
             if simulation_setup.do_cutout_subdesign:
                 self.logger.info("Cutting out using method: {0}".format(simulation_setup.cutout_subdesign_type))
                 if simulation_setup.use_default_cutout:
@@ -2581,7 +2910,7 @@ class Edb(object):
                         expansion_size=simulation_setup.cutout_subdesign_expansion,
                         use_round_corner=simulation_setup.cutout_subdesign_round_corner,
                         extent_type=simulation_setup.cutout_subdesign_type,
-                        use_legacy_cutout=True,
+                        use_pyaedt_cutout=False,
                         use_pyaedt_extent_computing=False,
                     ):
                         self.logger.info("Cutout processed.")
@@ -2600,6 +2929,7 @@ class Edb(object):
                         expansion_size=simulation_setup.cutout_subdesign_expansion,
                         use_round_corner=simulation_setup.cutout_subdesign_round_corner,
                         extent_type=simulation_setup.cutout_subdesign_type,
+                        use_pyaedt_cutout=True,
                         use_pyaedt_extent_computing=True,
                         remove_single_pin_components=True,
                     )
@@ -2610,16 +2940,16 @@ class Edb(object):
             if simulation_setup.solver_type == SolverType.Hfss3dLayout:
                 self.logger.info("Creating HFSS ports for signal nets.")
                 for cmp in simulation_setup.components:
-                    self.core_components.create_port_on_component(
+                    self.components.create_port_on_component(
                         cmp,
                         net_list=simulation_setup.signal_nets,
                         do_pingroup=False,
                         reference_net=simulation_setup.power_nets,
                         port_type=SourceType.CoaxPort,
                     )
-                if not self.core_hfss.set_coax_port_attributes(simulation_setup):  # pragma: no cover
+                if not self.hfss.set_coax_port_attributes(simulation_setup):  # pragma: no cover
                     self.logger.error("Failed to configure coaxial port attributes.")
-                self.logger.info("Number of ports: {}".format(self.core_hfss.get_ports_number()))
+                self.logger.info("Number of ports: {}".format(self.hfss.get_ports_number()))
                 self.logger.info("Configure HFSS extents.")
                 if simulation_setup.trim_reference_size:  # pragma: no cover
                     self.logger.info(
@@ -2627,13 +2957,13 @@ class Edb(object):
                             bool(simulation_setup.trim_reference_size)
                         )
                     )
-                    self.core_hfss.trim_component_reference_size(simulation_setup)  # pragma: no cover
-                self.core_hfss.configure_hfss_extents(simulation_setup)
-                if not self.core_hfss.configure_hfss_analysis_setup(simulation_setup):
+                    self.hfss.trim_component_reference_size(simulation_setup)  # pragma: no cover
+                self.hfss.configure_hfss_extents(simulation_setup)
+                if not self.hfss.configure_hfss_analysis_setup(simulation_setup):
                     self.logger.error("Failed to configure HFSS simulation setup.")
             if simulation_setup.solver_type == SolverType.SiwaveSYZ:
                 for cmp in simulation_setup.components:
-                    self.core_components.create_port_on_component(
+                    self.components.create_port_on_component(
                         cmp,
                         net_list=simulation_setup.signal_nets,
                         do_pingroup=simulation_setup.do_pingroup,
@@ -2641,14 +2971,14 @@ class Edb(object):
                         port_type=SourceType.CircPort,
                     )
                 self.logger.info("Configuring analysis setup.")
-                if not self.core_siwave.configure_siw_analysis_setup(simulation_setup):  # pragma: no cover
+                if not self.siwave.configure_siw_analysis_setup(simulation_setup):  # pragma: no cover
                     self.logger.error("Failed to configure Siwave simulation setup.")
 
             if simulation_setup.solver_type == SolverType.SiwaveDC:
-                self.core_components.create_source_on_component(simulation_setup.sources)
-                if not self.core_siwave.configure_siw_analysis_setup(simulation_setup):  # pragma: no cover
+                self.components.create_source_on_component(simulation_setup.sources)
+                if not self.siwave.configure_siw_analysis_setup(simulation_setup):  # pragma: no cover
                     self.logger.error("Failed to configure Siwave simulation setup.")
-            self.core_padstack.check_and_fix_via_plating()
+            self.padstacks.check_and_fix_via_plating()
             self.save_edb()
             if not simulation_setup.open_edb_after_build and simulation_setup.output_aedb:
                 self.close_edb()
@@ -2666,7 +2996,7 @@ class Edb(object):
         -------
         EDBStatistics object from the loaded layout.
         """
-        return self.core_primitives.get_layout_statistics(evaluate_area=compute_area, net_list=None)
+        return self.modeler.get_layout_statistics(evaluate_area=compute_area, net_list=None)
 
     @pyaedt_function_handler()
     def are_port_reference_terminals_connected(self, common_reference=None):
@@ -2689,27 +3019,64 @@ class Edb(object):
         Examples
         --------
         >>>edb = Edb()
-        >>> edb.core_hfss.create_edge_port_vertical(prim_1_id, ["-66mm", "-4mm"], "port_ver")
-        >>> edb.core_hfss.create_edge_port_horizontal(
+        >>> edb.hfss.create_edge_port_vertical(prim_1_id, ["-66mm", "-4mm"], "port_ver")
+        >>> edb.hfss.create_edge_port_horizontal(
         >>> ... prim_1_id, ["-60mm", "-4mm"], prim_2_id, ["-59mm", "-4mm"], "port_hori", 30, "Lower"
         >>> ... )
-        >>> edb.core_hfss.create_wave_port(traces[0].id, trace_paths[0][0], "wave_port")
+        >>> edb.hfss.create_wave_port(traces[0].id, trace_paths[0][0], "wave_port")
         >>> edb.cutout(["Net1"])
         >>> assert edb.are_port_reference_terminals_connected()
         """
+        all_sources = [i for i in self.excitations.values() if not isinstance(i, ExcitationPorts)]
+        all_sources.extend([i for i in self.sources.values()])
+        if not all_sources:
+            return True
         self.logger.reset_timer()
         if not common_reference:
-            common_reference = list(
-                set([i.reference_net_name for i in self.excitations.values() if i.reference_net_name])
-            )
+            common_reference = list(set([i.reference_net_name for i in all_sources if i.reference_net_name]))
             if len(common_reference) > 1:
                 self.logger.error("More than 1 reference found.")
+                return False
+            if not common_reference:
+                self.logger.error("No Reference found.")
+                return False
+
             common_reference = common_reference[0]
+        all_sources = [i for i in all_sources if i.net_name != common_reference]
+
         setList = [
             set(i.reference_object.get_connected_object_id_set())
-            for i in self.excitations.values()
-            if i.reference_net_name == common_reference
+            for i in all_sources
+            if i.reference_object and i.reference_net_name == common_reference
         ]
+        if len(setList) != len(all_sources):
+            self.logger.error("No Reference found.")
+            return False
+        cmps = [
+            i
+            for i in list(self.components.resistors.values())
+            if i.numpins == 2 and common_reference in i.nets and self._decompose_variable_value(i.res_value) <= 1
+        ]
+        cmps.extend(
+            [i for i in list(self.components.inductors.values()) if i.numpins == 2 and common_reference in i.nets]
+        )
+
+        for cmp in cmps:
+            found = False
+            ids = [i.GetId() for i in cmp.pinlist]
+            for list_obj in setList:
+                if len(set(ids).intersection(list_obj)) == 1:
+                    for list_obj2 in setList:
+                        if list_obj2 != list_obj and len(set(ids).intersection(list_obj)) == 1:
+                            if (ids[0] in list_obj and ids[1] in list_obj2) or (
+                                ids[1] in list_obj and ids[0] in list_obj2
+                            ):
+                                setList[setList.index(list_obj)] = list_obj.union(list_obj2)
+                                setList[setList.index(list_obj2)] = list_obj.union(list_obj2)
+                                found = True
+                                break
+                    if found:
+                        break
 
         # Get the set intersections for all the ID sets.
         iDintersection = set.intersection(*setList)
@@ -2866,3 +3233,32 @@ class Edb(object):
         setup = SiwaveDCSimulationSetup(self, name)
         self._setups[name] = setup
         return setup
+
+    @pyaedt_function_handler()
+    def calculate_initial_extent(self, expansion_factor):
+        """Compute a float representing the larger number between the dielectric thickness or trace width
+        multiplied by the nW factor. The trace width search is limited to nets with ports attached.
+
+        Parameters
+        ----------
+        expansion_factor : float
+            Value for the width multiplier (nW factor).
+        """
+        nets = []
+        for port in self.excitations.values():
+            nets.append(port.net_name)
+        for port in self.sources.values():
+            nets.append(port.net_name)
+        nets = list(set(nets))
+        max_width = 0
+        for net in nets:
+            for primitive in self.nets[net].primitives:
+                if primitive.type == "Path":
+                    max_width = max(max_width, primitive.width)
+
+        for layer in list(self.stackup.dielectric_layers.values()):
+            max_width = max(max_width, layer.thickness)
+
+        max_width = max_width * expansion_factor
+        self.logger.info("The W factor is {}, The initial extent = {:e}".format(expansion_factor, max_width))
+        return max_width

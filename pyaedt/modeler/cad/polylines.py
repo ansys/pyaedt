@@ -324,11 +324,9 @@ class Polyline(Object3d):
                 flag = ""
             varg2 = self._primitives._default_object_attributes(name=name, matname=matname, flags=flag)
 
-            new_object_name = _retry_ntimes(10, self.m_Editor.CreatePolyline, varg1, varg2)
-
+            new_object_name = _retry_ntimes(10, self._oeditor.CreatePolyline, varg1, varg2)
             Object3d.__init__(self, primitives, name=new_object_name)
-            self._primitives.objects[self.id] = self
-            self._primitives.object_id_dict[self.name] = self.id
+            self._primitives._create_object(self.name)
 
     @property
     def start_point(self):
@@ -385,7 +383,7 @@ class Polyline(Object3d):
         segments = []
         points = []
         try:
-            history = self.history
+            history = self.history()
             h_segments = history.segments
         except:  # pragma: no cover
             history = None
@@ -722,9 +720,7 @@ class Polyline(Object3d):
         new_name = new_objects[0]
         new_polyline = Polyline(self._primitives, src_object=self, name=new_name)
         new_polyline._id = None
-        self._primitives.objects[new_polyline.id] = new_polyline
-        self._primitives.object_id_dict[new_name] = new_polyline.id
-        return new_polyline
+        return self._primitives._create_object(new_name)
 
     @pyaedt_function_handler()
     def remove_vertex(self, position, abstol=1e-9):
@@ -978,8 +974,7 @@ class Polyline(Object3d):
         arg2.append(arg3)
         arg1.append(arg2)
         self._primitives.oeditor.ChangeProperty(arg1)
-        self._update()
-        return True
+        return self._primitives.update_object(self.name)
 
     @pyaedt_function_handler()
     def _get_point_slice_from_segment_id(self, segment_id, at_start=True):

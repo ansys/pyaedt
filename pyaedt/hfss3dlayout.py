@@ -7,7 +7,6 @@ import fnmatch
 import io
 import os
 import re
-import warnings
 
 from pyaedt import is_ironpython
 from pyaedt import settings
@@ -881,55 +880,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         settings.append(use_alternative_fallback)
         self.odesign.DesignOptions(settings, 0)
         return True
-
-    @pyaedt_function_handler()
-    def create_frequency_sweep(
-        self,
-        setupname,
-        unit,
-        freqstart,
-        freqstop,
-        num_of_freq_points,
-        sweepname=None,
-        sweeptype="Interpolating",
-        interpolation_tol_percent=0.5,
-        interpolation_max_solutions=250,
-        save_fields=True,
-        save_rad_fields_only=False,
-        use_q3d_for_dc=False,
-    ):
-        """Create a frequency sweep.
-
-        .. deprecated:: 0.4.0
-           Use :func:`Hfss3dLayout.create_linear_count_sweep` instead.
-
-        """
-
-        warnings.warn(
-            "`create_frequency_sweep` is deprecated. Use `create_linear_count_sweep` instead.",
-            DeprecationWarning,
-        )
-        if sweeptype == "interpolating":
-            sweeptype = "Interpolating"
-        elif sweeptype == "discrete":
-            sweeptype = "Discrete"
-        elif sweeptype == "fast":
-            sweeptype = "Fast"
-
-        return self.create_linear_count_sweep(
-            setupname=setupname,
-            unit=unit,
-            freqstart=freqstart,
-            freqstop=freqstop,
-            num_of_freq_points=num_of_freq_points,
-            sweepname=sweepname,
-            save_fields=save_fields,
-            save_rad_fields_only=save_rad_fields_only,
-            sweep_type=sweeptype,
-            interpolation_tol_percent=interpolation_tol_percent,
-            interpolation_max_solutions=interpolation_max_solutions,
-            use_q3d_for_dc=use_q3d_for_dc,
-        )
 
     @pyaedt_function_handler()
     def create_linear_count_sweep(

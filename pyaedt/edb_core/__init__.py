@@ -6,4 +6,3 @@ from pyaedt.edb_core.layout import EdbLayout
 from pyaedt.edb_core.nets import EdbNets
 from pyaedt.edb_core.padstack import EdbPadstacks
 from pyaedt.edb_core.siwave import EdbSiwave
-from pyaedt.edb_core.stackup import EdbStackup

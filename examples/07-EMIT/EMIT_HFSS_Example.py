@@ -54,7 +54,10 @@ example_dir = os.path.join(d.install_path, "Examples\\EMIT")
 example_project = os.path.join(example_dir, example_aedt)
 example_pdf = os.path.join(example_dir, example_pdf_file)
 
-# If the ``Cell Phone RFT Defense`` example is not in the installation directory, exit from this example.
+########################################################################################################
+# If the ``Cell Phone RFT Defense`` example is not
+# in the installation directory, exit from this example.
+
 if not os.path.exists(example_project):
     msg = """
         Cell phone RFT Desense example file is not in the
@@ -116,7 +119,7 @@ if desktop_version > "2023.1":
     tx_bands = rev.get_band_names(rad2.name, modeTx) 
     domain = aedtapp.results.interaction_domain()
     domain.set_receiver(rad1.name, rx_bands[0], -1)
-    domain.set_interferer([rad2.name],[tx_bands[0]],[-1])
+    domain.set_interferer(rad2.name,tx_bands[0])
     interaction = rev.run(domain)
     worst = interaction.get_worst_instance(modeEmi)
     if worst.has_valid_values():

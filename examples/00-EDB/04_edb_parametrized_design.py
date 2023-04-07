@@ -80,7 +80,7 @@ for layer in layers:
 # Create a parametrized padstack for the signal via.
 
 signal_via_padstack = "automated_via"
-edb.core_padstack.create_padstack(
+edb.padstacks.create(
             padstackname=signal_via_padstack,
             holediam="$via_diam",
             paddiam="$pad_diam",
@@ -106,7 +106,7 @@ net_n = "n"
 # ~~~~~~~~~~~~~~~~~
 # Place signal vias.
 
-edb.core_padstack.place_padstack(
+edb.padstacks.place(
             position=["$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing)/2"],
             definition_name=signal_via_padstack,
             net_name=net_p,
@@ -115,7 +115,7 @@ edb.core_padstack.place_padstack(
             fromlayer=layers[-1]["name"],
             tolayer=layers[0]["name"],)
 
-edb.core_padstack.place_padstack(
+edb.padstacks.place(
             position=["2*$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing)/2"],
             definition_name=signal_via_padstack,
             net_name=net_p,
@@ -124,7 +124,7 @@ edb.core_padstack.place_padstack(
             fromlayer=layers[-1]["name"],
             tolayer=layers[0]["name"],)
 
-edb.core_padstack.place_padstack(
+edb.padstacks.place(
             position=["$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing)/2"],
             definition_name=signal_via_padstack,
             net_name=net_n,
@@ -133,7 +133,7 @@ edb.core_padstack.place_padstack(
             fromlayer=layers[-1]["name"],
             tolayer=layers[0]["name"],)
 
-edb.core_padstack.place_padstack(
+edb.padstacks.place(
             position=["2*$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing)/2"],
             definition_name=signal_via_padstack,
             net_name=net_n,
@@ -204,18 +204,18 @@ points_n = [
 trace_p = []
 trace_n = []
 for n in range(len(points_p)):
-    trace_p.append(edb.core_primitives.create_trace(points_p[n], route_layer[n], width[n], net_p, "Flat", "Flat"))
-    trace_n.append(edb.core_primitives.create_trace(points_n[n], route_layer[n], width[n], net_n, "Flat", "Flat"))
+    trace_p.append(edb.modeler.create_trace(points_p[n], route_layer[n], width[n], net_p, "Flat", "Flat"))
+    trace_n.append(edb.modeler.create_trace(points_n[n], route_layer[n], width[n], net_n, "Flat", "Flat"))
 
 ###############################################################################
 # Create wave ports
 # ~~~~~~~~~~~~~~~~~
 # Create wave ports:
 
-edb.core_hfss.create_differential_wave_port(trace_p[0].id, ["0.0", "($ms_width+$ms_spacing)/2"],
+edb.hfss.create_differential_wave_port(trace_p[0].id, ["0.0", "($ms_width+$ms_spacing)/2"],
                                             trace_n[0].id, ["0.0", "-($ms_width+$ms_spacing)/2"],
                                             "wave_port_1")
-edb.core_hfss.create_differential_wave_port(trace_p[2].id, ["$pcb_len", "($ms_width+$ms_spacing)/2"],
+edb.hfss.create_differential_wave_port(trace_p[2].id, ["$pcb_len", "($ms_width+$ms_spacing)/2"],
                                             trace_n[2].id, ["$pcb_len", "-($ms_width + $ms_spacing)/2"],
                                             "wave_port_2")
 
@@ -228,7 +228,7 @@ gnd_poly = [[0.0, "-$pcb_w/2"],
             ["$pcb_len", "-$pcb_w/2"],
             ["$pcb_len", "$pcb_w/2"],
             [0.0, "$pcb_w/2"]]
-gnd_shape = edb.core_primitives.Shape("polygon", points=gnd_poly)
+gnd_shape = edb.modeler.Shape("polygon", points=gnd_poly)
 
 # Void in ground for traces on the signal routing layer
 
@@ -249,7 +249,7 @@ void_poly = [["$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam
              ["$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2+$via_spacing/2"],
              ["$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2"]]
 
-void_shape = edb.core_primitives.Shape("polygon", points=void_poly)
+void_shape = edb.modeler.Shape("polygon", points=void_poly)
 
 # Add ground layers
 
@@ -258,7 +258,7 @@ for layer in layers[1:-1]:
     # add void if the layer is the signal routing layer.
     void = [void_shape] if layer["name"] == route_layer[1] else []
 
-    edb.core_primitives.create_polygon(main_shape=gnd_shape,
+    edb.modeler.create_polygon(main_shape=gnd_shape,
                                        layer_name=layer["name"],
                                        voids=void,
                                        net_name="gnd")
@@ -269,7 +269,7 @@ for layer in layers[1:-1]:
 # ~~~~~~~~
 # Plot EDB.
 
-edb.core_nets.plot(None)
+edb.nets.plot(None)
 
 ###############################################################################
 # Save EDB

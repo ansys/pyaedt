@@ -330,7 +330,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.modeler.create_box([1, 2, 3], [10, 10, 10], "network_box", "copper")
         self.aedtapp.modeler.create_box([4, 5, 6], [5, 5, 5], "network_box2", "copper")
         result = self.aedtapp.create_network_blocks(
-            [["network_box", 20, 10, 3], ["network_box2", 4, 10, 3]], self.aedtapp.GravityDirection.ZNeg, 1.05918, False
+            [["network_box", 20, 10, 3], ["network_box2", 4, 10, 3]], self.aedtapp.GRAVITY.ZNeg, 1.05918, False
         )
         assert (
             len(result[0].props["Nodes"]) == 3 and len(result[1].props["Nodes"]) == 3
@@ -874,7 +874,12 @@ class TestClass(BasisTest, object):
         )
 
     def test_56_mesh_priority(self):
-        app = Icepak(designname="IDF")
-        assert app.mesh.add_priority(entity_type=1, obj_list=app.modeler.object_names, priority=3)
-        assert app.mesh.add_priority(entity_type=2, comp_name=app.modeler.user_defined_component_names[1], priority=1)
-        assert app.mesh.add_priority(entity_type=2, comp_name=app.modeler.user_defined_component_names[0], priority=2)
+        self.aedtapp.insert_design("mesh_priority")
+        b = self.aedtapp.modeler.create_box([0, 0, 0], [20, 50, 80])
+        self.aedtapp.create_ipk_3dcomponent_pcb(
+            "Board", link_data, solution_freq, resolution, custom_x_resolution=400, custom_y_resolution=500
+        )
+        assert self.aedtapp.mesh.add_priority(entity_type=1, obj_list=self.aedtapp.modeler.object_names, priority=2)
+        assert self.aedtapp.mesh.add_priority(
+            entity_type=2, comp_name=self.aedtapp.modeler.user_defined_component_names[0], priority=1
+        )

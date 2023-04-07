@@ -12,7 +12,6 @@ import math
 import os.path
 import warnings
 
-from pyaedt.edb_core.edb_data.layer_data import EDBLayers
 from pyaedt.edb_core.edb_data.layer_data import LayerEdbClass
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import ET
@@ -32,7 +31,6 @@ if not is_ironpython:
         import pandas as pd
     except ImportError:
         pd = None
-
 
 logger = logging.getLogger(__name__)
 
@@ -97,9 +95,49 @@ class Stackup(object):
         elif int(val) == 17:
             return self.layer_types.PostprocessingLayer
         elif int(val) == 18:
+            return self.layer_types.OutlineLayer
+        elif int(val) == 16:
             return self.layer_types.LayerTypesCount
         elif int(val) == -1:
             return self.layer_types.UndefinedLayerType
+
+    @pyaedt_function_handler()
+    def _layer_types_to_int(self, layer_type):
+        if not isinstance(layer_type, int):
+            if layer_type == self.layer_types.SignalLayer:
+                return 0
+            elif layer_type == self.layer_types.DielectricLayer:
+                return 1
+            elif layer_type == self.layer_types.ConductingLayer:
+                return 2
+            elif layer_type == self.layer_types.AirlinesLayer:
+                return 3
+            elif layer_type == self.layer_types.ErrorsLayer:
+                return 4
+            elif layer_type == self.layer_types.SymbolLayer:
+                return 5
+            elif layer_type == self.layer_types.MeasureLayer:
+                return 6
+            elif layer_type == self.layer_types.AssemblyLayer:
+                return 8
+            elif layer_type == self.layer_types.SilkscreenLayer:
+                return 9
+            elif layer_type == self.layer_types.SolderMaskLayer:
+                return 10
+            elif layer_type == self.layer_types.SolderPasteLayer:
+                return 11
+            elif layer_type == self.layer_types.GlueLayer:
+                return 12
+            elif layer_type == self.layer_types.WirebondLayer:
+                return 13
+            elif layer_type == self.layer_types.UserLayer:
+                return 14
+            elif layer_type == self.layer_types.SIwaveHFSSSolverRegions:
+                return 16
+            elif layer_type == self.layer_types.OutlineLayer:
+                return 18
+        elif isinstance(layer_type, int):
+            return
 
     @pyaedt_function_handler()
     def create_symmetric_stackup(
@@ -341,6 +379,22 @@ class Stackup(object):
         return _lays
 
     @property
+    def dielectric_layers(self):
+        """Dielectric layers.
+
+        Returns
+        -------
+        dict[str, :class:`pyaedt.edb_core.edb_data.layer_data.EDBLayer`]
+            Dictionary of dielectric layers.
+        """
+        layer_type = self._pedb.edb.Cell.LayerType.DielectricLayer
+        _lays = OrderedDict()
+        for name, obj in self.layers.items():
+            if obj._edb_layer.GetLayerType() == layer_type:
+                _lays[name] = obj
+        return _lays
+
+    @property
     def non_stackup_layers(self):
         """Retrieve the dictionary of signal layers.
 
@@ -407,6 +461,8 @@ class Stackup(object):
             _lc.AddLayerBottom(layer_clone)
         elif operation == "add_at_elevation":
             _lc.AddStackupLayerAtElevation(layer_clone)
+        elif operation == "non_stackup":
+            _lc.AddLayerBottom(layer_clone)
         result = self._pedb._active_layout.SetLayerCollection(_lc)
         self.refresh_layer_collection()
         return result
@@ -466,6 +522,27 @@ class Stackup(object):
         result = self._pedb.edb.Cell.Layer(layer_name, _layer_type)
         self.refresh_layer_collection()
         return result
+
+    @pyaedt_function_handler()
+    def add_outline_layer(self, outline_name="Outline"):
+        """Add an outline layer named ``"Outline"`` if it is not present.
+
+        Returns
+        -------
+        bool
+            "True" if successful, ``False`` if failed.
+        """
+        outlineLayer = self._pedb.edb.Cell.Layer.FindByName(self._pedb.active_layout.GetLayerCollection(), outline_name)
+        if outlineLayer.IsNull():
+            return self.add_layer(
+                outline_name,
+                layer_type="outline",
+                material="",
+                fillMaterial="",
+                thickness="",
+            )
+        else:
+            return False
 
     @pyaedt_function_handler()
     def add_layer(
@@ -585,7 +662,7 @@ class Stackup(object):
         return result
 
     @pyaedt_function_handler
-    def export_stackup(self, fpath, file_format="xml", include_material_with_layer=False):
+    def export(self, fpath, file_format="xml", include_material_with_layer=False):
         """Export stackup definition to a CSV or JSON file.
 
         Parameters
@@ -604,7 +681,7 @@ class Stackup(object):
         --------
         >>> from pyaedt import Edb
         >>> edb = Edb()
-        >>> edb.stackup.export_stackup("stackup.xml")
+        >>> edb.stackup.export("stackup.xml")
         """
         if len(fpath.split(".")) == 1:
             fpath = "{}.{}".format(fpath, file_format)
@@ -620,6 +697,35 @@ class Stackup(object):
         else:
             self._logger.warning("Layer stackup format is not supported. Skipping import.")
             return False
+
+    @pyaedt_function_handler
+    def export_stackup(self, fpath, file_format="xml", include_material_with_layer=False):
+        """Export stackup definition to a CSV or JSON file.
+
+        .. deprecated:: 0.6.61
+           Use :func:`export` instead.
+
+        Parameters
+        ----------
+        fpath : str
+            File path to CSV or JSON file.
+        file_format : str, optional
+            Format of the file to export. The default is ``"csv"``. Options are ``"csv"``, ``"xlsx"``
+            and ``"json"``.
+        include_material_with_layer : bool, optional.
+            Whether to include the material definition inside layer objects. This parameter is only used
+            when a JSON file is exported. The default is ``False``, which keeps the material definition
+            section in the JSON file. If ``True``, the material definition is included inside the layer ones.
+
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> edb = Edb()
+        >>> edb.stackup.export_stackup("stackup.xml")
+        """
+
+        self._logger.warning("Method export_stackup is deprecated. Use .export.")
+        return self.export(fpath, file_format=file_format, include_material_with_layer=include_material_with_layer)
 
     @pyaedt_function_handler()
     def _export_layer_stackup_to_csv_xlsx(self, fpath=None, file_format=None):
@@ -733,6 +839,26 @@ class Stackup(object):
     def stackup_limits(self, only_metals=False):
         """Retrieve stackup limits.
 
+        .. deprecated:: 0.6.62
+           Use :func:`Edb.stackup.limits` function instead.
+
+        Parameters
+        ----------
+        only_metals : bool, optional
+            Whether to retrieve only metals. The default is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        warnings.warn("`stackup_limits` is deprecated. Use `limits` property instead.", DeprecationWarning)
+        return self.limits(only_metals=only_metals)
+
+    @pyaedt_function_handler()
+    def limits(self, only_metals=False):
+        """Retrieve stackup limits.
+
         Parameters
         ----------
         only_metals : bool, optional
@@ -831,7 +957,7 @@ class Stackup(object):
             if not self._pedb.active_layout.SetLayerCollection(new_lc):
                 self._pedb.logger.error("Failed to Flip Stackup.")
                 return False
-            for pyaedt_cmp in list(self._pedb.core_components.components.values()):
+            for pyaedt_cmp in list(self._pedb.components.components.values()):
                 cmp = pyaedt_cmp.edbcomponent
                 cmp_type = cmp.GetComponentType()
                 cmp_prop = cmp.GetComponentProperty().Clone()
@@ -864,7 +990,7 @@ class Stackup(object):
                 cmp.SetComponentProperty(cmp_prop)
 
             lay_list = list(new_lc.Layers(self._pedb.edb.Cell.LayerTypeSet.SignalLayerSet))
-            for padstack in list(self._pedb.core_padstack.instances.values()):
+            for padstack in list(self._pedb.padstacks.instances.values()):
                 start_layer_id = [lay.GetLayerId() for lay in list(lay_list) if lay.GetName() == padstack.start_layer]
                 stop_layer_id = [lay.GetLayerId() for lay in list(lay_list) if lay.GetName() == padstack.stop_layer]
                 layer_map = padstack._edb_padstackinstance.GetLayerMap()
@@ -892,14 +1018,14 @@ class Stackup(object):
 
     @pyaedt_function_handler()
     def _get_solder_height(self, layer_name):
-        for el, val in self._pedb.core_components.components.items():
+        for _, val in self._pedb.components.components.items():
             if val.solder_ball_height and val.placement_layer == layer_name:
                 return val.solder_ball_height
         return 0
 
     @pyaedt_function_handler()
     def _remove_solder_pec(self, layer_name):
-        for el, val in self._pedb.core_components.components.items():
+        for _, val in self._pedb.components.components.items():
             if val.solder_ball_height and val.placement_layer == layer_name:
                 comp_prop = val.component_property
                 port_property = comp_prop.GetPortProperty().Clone()
@@ -918,7 +1044,7 @@ class Stackup(object):
         -------
         bool
         """
-        for el, val in self._pedb.core_components.components.items():
+        for el, val in self._pedb.components.components.items():
             if val.solder_ball_height:
                 layer = val.placement_layer
                 if layer == list(self.stackup_layers.keys())[0]:
@@ -984,10 +1110,10 @@ class Stackup(object):
         >>> edb1 = Edb(edbpath=targetfile1,  edbversion="2021.2")
         >>> edb2 = Edb(edbpath=targetfile2, edbversion="2021.2")
 
-        >>> hosting_cmp = edb1.core_components.get_component_by_name("U100")
-        >>> mounted_cmp = edb2.core_components.get_component_by_name("BGA")
+        >>> hosting_cmp = edb1.components.get_component_by_name("U100")
+        >>> mounted_cmp = edb2.components.get_component_by_name("BGA")
 
-        >>> vector, rotation, solder_ball_height = edb1.core_components.get_component_placement_vector(
+        >>> vector, rotation, solder_ball_height = edb1.components.get_component_placement_vector(
         ...                                                     mounted_component=mounted_cmp,
         ...                                                     hosting_component=hosting_cmp,
         ...                                                     mounted_component_pin1="A12",
@@ -1082,8 +1208,8 @@ class Stackup(object):
         --------
         >>> edb1 = Edb(edbpath=targetfile1,  edbversion="2021.2")
         >>> edb2 = Edb(edbpath=targetfile2, edbversion="2021.2")
-        >>> hosting_cmp = edb1.core_components.get_component_by_name("U100")
-        >>> mounted_cmp = edb2.core_components.get_component_by_name("BGA")
+        >>> hosting_cmp = edb1.components.get_component_by_name("U100")
+        >>> mounted_cmp = edb2.components.get_component_by_name("BGA")
         >>> edb2.stackup.place_in_layout(edb1.active_cell, angle=0.0, offset_x="1mm",
         ...                                   offset_y="2mm", flipped_stackup=False, place_on_top=True,
         ...                                   )
@@ -1272,7 +1398,7 @@ class Stackup(object):
         """
         temp_data = {name: 0 for name, _ in self.signal_layers.items()}
         outline_area = 0
-        for i in self._pedb.core_primitives.primitives:
+        for i in self._pedb.modeler.primitives:
             layer_name = i.GetLayer().GetName()
             if layer_name.lower() == "outline":
                 if i.area() > outline_area:
@@ -1694,8 +1820,41 @@ class Stackup(object):
         return True
 
     @pyaedt_function_handler
+    def load(self, file_path):
+        """Import stackup from a file. The file format can be XML, CSV, or JSON.
+
+
+        Parameters
+        ----------
+        file_path : str
+            Path to stackup file.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> edb = Edb()
+        >>> edb.stackup.load("stackup.xml")
+        """
+
+        if file_path.endswith(".csv"):
+            return self._import_csv(file_path)
+        elif file_path.endswith(".json"):
+            return self._import_json(file_path)
+        elif file_path.endswith(".xml"):
+            return self._import_xml(file_path)
+        else:
+            return False
+
+    @pyaedt_function_handler
     def import_stackup(self, file_path):
         """Import stackup from a file. The file format can be XML, CSV, or JSON.
+
+        .. deprecated:: 0.6.61
+           Use :func:`load` instead.
 
         Parameters
         ----------
@@ -1713,44 +1872,39 @@ class Stackup(object):
         >>> edb.stackup.import_stackup("stackup.xml")
         """
 
-        if file_path.endswith(".csv"):
-            return self._import_csv(file_path)
-        elif file_path.endswith(".json"):
-            return self._import_json(file_path)
-        elif file_path.endswith(".xml"):
-            return self._import_xml(file_path)
-        else:
-            return False
+        self._logger.warning("Method export_stackup is deprecated. Use .export.")
+        return self.load(file_path)
 
     @pyaedt_function_handler()
     def plot(
         self,
-        show_legend=True,
         save_plot=None,
         size=(2000, 1500),
         plot_definitions=None,
         first_layer=None,
         last_layer=None,
+        scale_elevation=True,
     ):
-        """Plot actual stackup and, optionally, overlap padstack definitions.
+        """Plot current stackup and, optionally, overlap padstack definitions.
+        Plot supports only 'Laminate' and 'Overlapping' stackup types.
 
         Parameters
         ----------
-        show_legend : bool, optional
-            If ``True`` the legend is shown in the plot. (default)
-            If ``False`` the legend is not shown.
         save_plot : str, optional
             If ``None`` the plot will be shown.
             If a file path is specified the plot will be saved to such file.
-
         size : tuple, optional
             Image size in pixel (width, height). Default value is ``(2000, 1500)``
         plot_definitions : str, list, optional
             List of padstack definitions to plot on the stackup.
+            It is supported only for Laminate mode.
         first_layer : str or :class:`pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`
             First layer to plot from the bottom. Default is `None` to start plotting from bottom.
         last_layer : str or :class:`pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`
             Last layer to plot from the bottom. Default is `None` to plot up to top layer.
+        scale_elevation : bool, optional
+            The real layer thickness is scaled so that max_thickness = 3 * min_thickness.
+            Default is `True`.
 
         Returns
         -------
@@ -1761,770 +1915,434 @@ class Stackup(object):
         from pyaedt.generic.constants import CSS4_COLORS
         from pyaedt.generic.plot import plot_matplotlib
 
-        thick = abs(self.get_layout_thickness()) * 1e6
-        x_min = -3 * thick
-        x_max = 3 * thick
-        objects_lists = []
-
-        layers_name = list(self.stackup_layers.keys())
-        bottom_layer = self.stackup_layers[layers_name[-1]]
-        top_layer = self.stackup_layers[layers_name[0]]
-        start_plot = False
-        if not last_layer:
-            last_layer = top_layer
-        elif isinstance(last_layer, str):
-            last_layer = self.layers[last_layer]
-        if not first_layer:
-            first_layer = bottom_layer
+        layer_names = list(self.stackup_layers.keys())
+        if first_layer is None or first_layer not in layer_names:
+            bottom_layer = layer_names[-1]
         elif isinstance(first_layer, str):
-            first_layer = self.layers[first_layer]
-        limits = [first_layer.lower_elevation * 1e6, (last_layer.lower_elevation + last_layer.thickness) * 1e6]
+            bottom_layer = first_layer
+        elif isinstance(first_layer, LayerEdbClass):
+            bottom_layer = first_layer.name
+        else:
+            raise AttributeError("first_layer must be str or class `pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`")
+        if last_layer is None or last_layer not in layer_names:
+            top_layer = layer_names[0]
+        elif isinstance(last_layer, str):
+            top_layer = last_layer
+        elif isinstance(last_layer, LayerEdbClass):
+            top_layer = last_layer.name
+        else:
+            raise AttributeError("last_layer must be str or class `pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`")
 
-        for layername, layerval in self.layers.items():
-            if layername == last_layer.name:
-                start_plot = True
-            if start_plot and layerval.thickness is not None:
-                x = [x_min, x_min, x_max, x_max]
-                lel = layerval.lower_elevation * 1e6
-                uel = layerval.upper_elevation * 1e6
-                y = [lel, uel, uel, lel]
-                color = [float(i) / 256 for i in layerval.color]
+        stackup_mode = self.stackup_mode
+        if stackup_mode not in ["Laminate", "Overlapping"]:
+            raise AttributeError("stackup plot supports only 'Laminate' and 'Overlapping' stackup types.")
+
+        # build the layers data
+        layers_data = []
+        skip_flag = True
+        for layer in self.stackup_layers.values():  # start from top
+            if layer.name != top_layer and skip_flag:
+                continue
+            else:
+                skip_flag = False
+            layers_data.append([layer, layer.lower_elevation, layer.upper_elevation, layer.thickness])
+            if layer.name == bottom_layer:
+                break
+        layers_data.reverse()  # let's start from the bottom
+
+        # separate dielectric and signal if overlapping stackup
+        if stackup_mode == "Overlapping":
+            dielectric_layers = [l for l in layers_data if l[0].type == "dielectric"]
+            signal_layers = [l for l in layers_data if l[0].type == "signal"]
+
+        # compress the thicknesses if required
+        if scale_elevation:
+            min_thickness = min([i[3] for i in layers_data if i[3] != 0])
+            max_thickness = max([i[3] for i in layers_data])
+            c = 3  # max_thickness = c * min_thickness
+
+            def _compress_t(y):
+                m = min_thickness
+                M = max_thickness
+                k = (c - 1) * m / (M - m)
+                if y > 0:
+                    return (y - m) * k + m
+                else:
+                    return 0.0
+
+            if stackup_mode == "Laminate":
+                l0 = layers_data[0]
+                compressed_layers_data = [[l0[0], l0[1], _compress_t(l0[3]), _compress_t(l0[3])]]  # the first row
+                lp = compressed_layers_data[0]
+                for li in layers_data[1:]:  # the other rows
+                    ct = _compress_t(li[3])
+                    compressed_layers_data.append([li[0], lp[2], lp[2] + ct, ct])
+                    lp = compressed_layers_data[-1]
+                layers_data = compressed_layers_data
+
+            elif stackup_mode == "Overlapping":
+                compressed_diels = []
+                first_diel = True
+                for li in dielectric_layers:
+                    ct = _compress_t(li[3])
+                    if first_diel:
+                        if li[1] > 0:
+                            l0le = _compress_t(li[1])
+                        else:
+                            l0le = li[1]
+                        compressed_diels.append([li[0], l0le, l0le + ct, ct])
+                        first_diel = False
+                    else:
+                        lp = compressed_diels[-1]
+                        compressed_diels.append([li[0], lp[2], lp[2] + ct, ct])
+
+                def _convert_elevation(el):
+                    inside = False
+                    for i, li in enumerate(dielectric_layers):
+                        if li[1] <= el <= li[2]:
+                            inside = True
+                            break
+                    if inside:
+                        u = (el - li[1]) / (li[2] - li[1])
+                        cli = compressed_diels[i]
+                        cel = cli[1] + u * (cli[2] - cli[1])
+                    else:
+                        cel = el
+                    return cel
+
+                compressed_signals = []
+                for li in signal_layers:
+                    cle = _convert_elevation(li[1])
+                    cue = _convert_elevation(li[2])
+                    ct = cue - cle
+                    compressed_signals.append([li[0], cle, cue, ct])
+
+                dielectric_layers = compressed_diels
+                signal_layers = compressed_signals
+
+        # create the data for the plot
+        diel_alpha = 0.4
+        signal_alpha = 0.6
+        zero_thickness_alpha = 1.0
+        annotation_fontsize = 14
+        annotation_x_margin = 0.01
+        annotations = []
+        plot_data = []
+        if stackup_mode == "Laminate":
+            min_thickness = min([i[3] for i in layers_data if i[3] != 0])
+            for ly in layers_data:
+                layer = ly[0]
+
+                # set color and label
+                color = [float(i) / 256 for i in layer.color]
                 if color == [1.0, 1.0, 1.0]:
                     color = [0.9, 0.9, 0.9]
-                objects_lists.append(
-                    [x, y, color, "{} {}um".format(layername, round(layerval.thickness * 1e6, 2)), 0.4, "fill"]
+                label = "{}, {}, thick: {:.3f}um, elev: {:.3f}um".format(
+                    layer.name, layer.material, layer.thickness * 1e6, layer.lower_elevation * 1e6
                 )
-            if layername == first_layer.name:
-                start_plot = False
-        delta = (x_max - x_min) / 20
-        x_start = x_min + delta
+
+                # create patch
+                x = [0, 0, 1, 1]
+                if ly[3] > 0:
+                    le = ly[1]  # lower elevation
+                    ue = ly[2]  # upper elevation
+                    y = [le, ue, ue, le]
+                    plot_data.insert(0, [x, y, color, label, signal_alpha, "fill"])
+                else:
+                    le = ly[1] - min_thickness * 0.1  # make the zero thickness layers more visible
+                    ue = ly[2] + min_thickness * 0.1
+                    y = [le, ue, ue, le]
+                    # put the zero thickness layers on top
+                    plot_data.append([x, y, color, label, zero_thickness_alpha, "fill"])
+
+                # create annotation
+                y_pos = (le + ue) / 2
+                if layer.type == "dielectric":
+                    x_pos = -annotation_x_margin
+                    annotations.append(
+                        [x_pos, y_pos, layer.name, {"fontsize": annotation_fontsize, "horizontalalignment": "right"}]
+                    )
+                elif layer.type == "signal":
+                    x_pos = 1.0 + annotation_x_margin
+                    annotations.append([x_pos, y_pos, layer.name, {"fontsize": annotation_fontsize}])
+
+            # evaluate the legend reorder
+            legend_order = []
+            for ly in layers_data:
+                name = ly[0].name
+                for i, a in enumerate(plot_data):
+                    iname = a[3].split(",")[0]
+                    if name == iname:
+                        legend_order.append(i)
+                        break
+
+        elif stackup_mode == "Overlapping":
+            min_thickness = min([i[3] for i in signal_layers if i[3] != 0])
+            columns = []  # first column is x=[0,1], second column is x=[1,2] and so on...
+            for ly in signal_layers:
+                le = ly[1]  # lower elevation
+                t = ly[3]  # thickness
+                put_in_column = 0
+                cell_position = 0
+                for c in columns:
+                    uep = c[-1][0][2]  # upper elevation of the last entry of that column
+                    tp = c[-1][0][3]  # thickness of the last entry of that column
+                    if le < uep or (abs(le - uep) < 1e-15 and tp == 0 and t == 0):
+                        put_in_column += 1
+                        cell_position = len(c)
+                    else:
+                        break
+                if len(columns) < put_in_column + 1:  # add a new column if required
+                    columns.append([])
+                # put zeros at the beginning of the column until there is the first layer
+                if cell_position != 0:
+                    fill_cells = cell_position - 1 - len(columns[put_in_column])
+                    for i in range(fill_cells):
+                        columns[put_in_column].append(0)
+                # append the layer to the proper column and row
+                x = [put_in_column + 1, put_in_column + 1, put_in_column + 2, put_in_column + 2]
+                columns[put_in_column].append([ly, x])
+
+            # fill the columns matrix with zeros on top
+            n_rows = max([len(i) for i in columns])
+            for c in columns:
+                while len(c) < n_rows:
+                    c.append(0)
+            # expand to the right the fill for the signals that have no overlap on the right
+            width = len(columns) + 1
+            for i, c in enumerate(columns[:-1]):
+                for j, r in enumerate(c):
+                    if r != 0:  # and dname == r[0].name:
+                        if columns[i + 1][j] == 0:
+                            # nothing on the right, so expand the fill
+                            x = r[1]
+                            r[1] = [x[0], x[0], width, width]
+
+            for c in columns:
+                for r in c:
+                    if r != 0:
+                        ly = r[0]
+                        layer = ly[0]
+                        x = r[1]
+
+                        # set color and label
+                        color = [float(i) / 256 for i in layer.color]
+                        if color == [1.0, 1.0, 1.0]:
+                            color = [0.9, 0.9, 0.9]
+                        label = "{}, {}, thick: {:.3f}um, elev: {:.3f}um".format(
+                            layer.name, layer.material, layer.thickness * 1e6, layer.lower_elevation * 1e6
+                        )
+
+                        if ly[3] > 0:
+                            le = ly[1]  # lower elevation
+                            ue = ly[2]  # upper elevation
+                            y = [le, ue, ue, le]
+                            plot_data.insert(0, [x, y, color, label, signal_alpha, "fill"])
+                        else:
+                            le = ly[1] - min_thickness * 0.1  # make the zero thickness layers more visible
+                            ue = ly[2] + min_thickness * 0.1
+                            y = [le, ue, ue, le]
+                            # put the zero thickness layers on top
+                            plot_data.append([x, y, color, label, zero_thickness_alpha, "fill"])
+
+                        # create annotation
+                        x_pos = 1.0
+                        y_pos = (le + ue) / 2
+                        annotations.append([x_pos, y_pos, layer.name, {"fontsize": annotation_fontsize}])
+
+            # order the annotations based on y_pos (it is necessary later to move them to avoid text overlapping)
+            annotations.sort(key=lambda e: e[1])
+            # move all the annotations to the final x (it could be larger than 1 due to additional columns)
+            width = len(columns) + 1
+            for i, a in enumerate(annotations):
+                a[0] = width + annotation_x_margin * width
+
+            for ly in dielectric_layers:
+                layer = ly[0]
+                # set color and label
+                color = [float(i) / 256 for i in layer.color]
+                if color == [1.0, 1.0, 1.0]:
+                    color = [0.9, 0.9, 0.9]
+                label = "{}, {}, thick: {:.3f}um, elev: {:.3f}um".format(
+                    layer.name, layer.material, layer.thickness * 1e6, layer.lower_elevation * 1e6
+                )
+                # create the patch
+                le = ly[1]  # lower elevation
+                ue = ly[2]  # upper elevation
+                y = [le, ue, ue, le]
+                x = [0, 0, width, width]
+                plot_data.insert(0, [x, y, color, label, diel_alpha, "fill"])
+
+                # create annotation
+                x_pos = -annotation_x_margin * width
+                y_pos = (le + ue) / 2
+                annotations.append(
+                    [x_pos, y_pos, layer.name, {"fontsize": annotation_fontsize, "horizontalalignment": "right"}]
+                )
+
+            # evaluate the legend reorder
+            legend_order = []
+            for ly in dielectric_layers:
+                name = ly[0].name
+                for i, a in enumerate(plot_data):
+                    iname = a[3].split(",")[0]
+                    if name == iname:
+                        legend_order.append(i)
+                        break
+            for ly in signal_layers:
+                name = ly[0].name
+                for i, a in enumerate(plot_data):
+                    iname = a[3].split(",")[0]
+                    if name == iname:
+                        legend_order.append(i)
+                        break
+
+        # calculate the extremities of the plot
+        x_min = 0.0
+        x_max = max([max(i[0]) for i in plot_data])
+        if stackup_mode == "Laminate":
+            y_min = layers_data[0][1]
+            y_max = layers_data[-1][2]
+        elif stackup_mode == "Overlapping":
+            y_min = min(dielectric_layers[0][1], signal_layers[0][1])
+            y_max = max(dielectric_layers[-1][2], signal_layers[-1][2])
+
+        # move the annotations to avoid text overlapping
+        new_annotations = []
+        for i, a in enumerate(annotations):
+            if i > 0 and abs(a[1] - annotations[i - 1][1]) < (y_max - y_min) / 75:
+                new_annotations[-1][2] = str(new_annotations[-1][2]) + ", " + str(a[2])
+            else:
+                new_annotations.append(a)
+        annotations = new_annotations
+
         if plot_definitions:
+            if stackup_mode == "Overlapping":
+                self._logger.warning("Plot of padstacks are supported only for Laminate mode.")
+
+            max_plots = 10
+
             if not isinstance(plot_definitions, list):
                 plot_definitions = [plot_definitions]
             color_index = 0
             color_keys = list(CSS4_COLORS.keys())
-            max_plots = 20
+            delta = 1 / (max_plots + 1)  # padstack spacing in plot coordinates
+            x_start = delta
+
+            # find the max padstack size to calculate the scaling factor
+            max_padstak_size = 0
+            for definition in plot_definitions:
+                if isinstance(definition, str):
+                    definition = self._pedb.padstacks.definitions[definition]
+                for layer, defs in definition.pad_by_layer.items():
+                    pad_shape = defs.geometry_type
+                    params = defs.parameters_values
+                    if pad_shape in [1, 2, 6]:
+                        pad_size = params[0]
+                    elif pad_shape in [3, 4, 5]:
+                        pad_size = max(params[0], params[1])
+                    else:
+                        pad_size = 1e-4
+                    max_padstak_size = max(pad_size, max_padstak_size)
+                if definition.hole_properties:
+                    hole_d = definition.hole_properties[0]
+                    max_padstak_size = max(hole_d, max_padstak_size)
+            scaling_f_pad = (2 / ((max_plots + 1) * 3)) / max_padstak_size
 
             for definition in plot_definitions:
                 if isinstance(definition, str):
-                    definition = self._pedb.core_padstack.definitions[definition]
-                min_lel = 1e12
-                max_lel = -1e12
+                    definition = self._pedb.padstacks.definitions[definition]
+                min_le = 1e12
+                max_ue = -1e12
                 max_x = 0
-                name_assigned = definition.name
+                padstack_name = definition.name
+                annotations.append([x_start, y_max, padstack_name, {"rotation": 45}])
+
+                via_start_layer = definition.via_start_layer
+                via_stop_layer = definition.via_stop_layer
+
+                if stackup_mode == "Overlapping":
+                    # here search the column using the first and last layer. Pick the column with max index.
+                    pass
+
                 for layer, defs in definition.pad_by_layer.items():
-                    vals = defs.parameters_values
-                    if vals:
-                        pad = 0.5 * vals[0] * 1e6
-                        max_x = max(pad, max_x)
-                        x = [x_start - pad, x_start - pad, x_start + pad, x_start + pad]
-                        lel = self[layer].lower_elevation * 1e6
-                        uel = self[layer].upper_elevation * 1e6
-                        min_lel = min(lel, min_lel)
-                        max_lel = max(uel, max_lel)
-                        y = [lel, uel, uel, lel]
-                        objects_lists.append([x, y, color_keys[color_index], name_assigned, 1.0, "fill"])
-                        name_assigned = None
+                    pad_shape = defs.geometry_type
+                    params = defs.parameters_values
+                    if pad_shape in [1, 2, 6]:
+                        pad_size = params[0]
+                    elif pad_shape in [3, 4, 5]:
+                        pad_size = max(params[0], params[1])
+                    else:
+                        pad_size = 1e-4
+
+                    if stackup_mode == "Laminate":
+                        x = [
+                            x_start - pad_size / 2 * scaling_f_pad,
+                            x_start - pad_size / 2 * scaling_f_pad,
+                            x_start + pad_size / 2 * scaling_f_pad,
+                            x_start + pad_size / 2 * scaling_f_pad,
+                        ]
+                        le = [e[1] for e in layers_data if e[0].name == layer][0]
+                        ue = [e[2] for e in layers_data if e[0].name == layer][0]
+                        y = [le, ue, ue, le]
+                        # create the patch for that signal layer
+                        plot_data.append([x, y, color_keys[color_index], None, 1.0, "fill"])
+                    elif stackup_mode == "Overlapping":
+                        # here evaluate the x based on the column evaluated before and the pad size
+                        pass
+
+                    min_le = min(le, min_le)
+                    max_ue = max(ue, max_ue)
                 if definition.hole_properties:
-                    hole_rad = definition.hole_properties[0] * 1e6
-                    x = [x_start - hole_rad, x_start - hole_rad, x_start + hole_rad, x_start + hole_rad]
-                    y = [min_lel, max_lel, max_lel, min_lel]
-                    objects_lists.append([x, y, color_keys[color_index], name_assigned, 0.7, "fill"])
-                    max_x = max(max_x, hole_rad)
-                    rad = hole_rad * (100 - definition.hole_plating_ratio) / 100
+                    # create patch for the hole
+                    hole_radius = definition.hole_properties[0] / 2 * scaling_f_pad
+                    x = [x_start - hole_radius, x_start - hole_radius, x_start + hole_radius, x_start + hole_radius]
+                    y = [min_le, max_ue, max_ue, min_le]
+                    plot_data.append([x, y, color_keys[color_index], None, 0.7, "fill"])
+                    # create patch for the dielectric
+                    max_x = max(max_x, hole_radius)
+                    rad = hole_radius * (100 - definition.hole_plating_ratio) / 100
                     x = [x_start - rad, x_start - rad, x_start + rad, x_start + rad]
-                    y = [min_lel, max_lel, max_lel, min_lel]
-                    objects_lists.append([x, y, color_keys[color_index], name_assigned, 1.0, "fill"])
+                    plot_data.append([x, y, color_keys[color_index], None, 1.0, "fill"])
+
                 color_index += 1
                 if color_index == max_plots:
-                    self._logger.warning("Maximum number of definition plotted.")
+                    self._logger.warning("Maximum number of definitions plotted.")
                     break
-                x_start += max(delta, 2.5 * max_x)
+                x_start += delta
 
-        x_limits = [x_min, 2 * x_max]
-        plot_matplotlib(
-            objects_lists,
-            size,
-            show_legend,
-            "X (um)",
-            "Y (um)",
-            "Stackup",
-            save_plot,
-            x_limits=x_limits,
-            y_limits=limits,
+        # plot the stackup
+        plt = plot_matplotlib(
+            plot_data,
+            size=size,
+            show_legend=False,
+            xlabel="",
+            ylabel="",
+            title="",
+            snapshot_path=None,
+            x_limits=[x_min, x_max],
+            y_limits=[y_min, y_max],
+            annotations=annotations,
+            show=False,
         )
-
-
-class EdbStackup(object):
-    """Manages EDB methods for stackup and material management accessible from the
-     ``Edb.core_stackup`` property (deprecated).
-
-    .. deprecated:: 0.6.5
-        This class has been deprecated and replaced by the ``Stackup`` class.
-
-    Examples
-    --------
-    >>> from pyaedt import Edb
-    >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
-    >>> edb_stackup = edbapp.core_stackup
-    """
-
-    def __init__(self, p_edb):
-        self._pedb = p_edb
-        self._layer_dict = None
-
-    @property
-    def _builder(self):
-        """ """
-        return self._pedb.builder
-
-    def _get_edb_value(self, value):
-        return self._pedb.edb_value(value)
-
-    @property
-    def _edb(self):
-        """ """
-        return self._pedb.edb
-
-    @property
-    def _active_layout(self):
-        """ """
-        return self._pedb.active_layout
-
-    @property
-    def _cell(self):
-        """ """
-        return self._pedb.cell
-
-    @property
-    def _db(self):
-        """ """
-        return self._pedb.db
-
-    @property
-    def _logger(self):
-        """ """
-        return self._pedb.logger
-
-    @property
-    def stackup_layers(self):
-        """Stackup layers.
-
-        Returns
-        -------
-        :class:`pyaedt.edb_core.EDBData.EDBLayers`
-            Dictionary of stackup layers.
-        """
-        if not self._layer_dict:
-            self._layer_dict = EDBLayers(self)
-        return self._layer_dict
-
-    @property
-    def signal_layers(self):
-        """Dictionary of all signal layers.
-
-        Returns
-        -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBLayer`]
-            List of signal layers.
-        """
-        return self.stackup_layers.signal_layers
-
-    @property
-    def layer_types(self):
-        """Layer types.
-
-        Returns
-        -------
-        type
-            Types of layers.
-        """
-        return self._pedb.edb.Cell.LayerType
-
-    @property
-    def materials(self):
-        """Materials.
-
-        Returns
-        -------
-        dict
-            Dictionary of materials.
-        """
-        return self._pedb.materials
-
-    @pyaedt_function_handler()
-    def create_dielectric(self, name, permittivity=1, loss_tangent=0):
-        """Create a dielectric with simple properties.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.materials.create_dielectric` function instead.
-
-        Parameters
-        ----------
-        name : str
-            Name of the dielectric.
-        permittivity : float, optional
-            Permittivity of the dielectric. The default is ``1``.
-        loss_tangent : float, optional
-            Loss tangent for the material. The default is ``0``.
-
-        Returns
-        -------
-        type
-            Material definition.
-        """
-        warnings.warn("Use `Edb.materials.create_dielectric` function instead.", DeprecationWarning)
-        return self._pedb.materials.add_dielectric_material(name, permittivity=permittivity, loss_tangent=loss_tangent)
-
-    @pyaedt_function_handler()
-    def create_conductor(self, name, conductivity=1e6):
-        """Create a conductor with simple properties.
-
-        .. deprecated:: 0.6.27
-           Use the :func:`Edb.materials.add_conductor_material` function instead.
-
-        Parameters
-        ----------
-        name : str
-            Name of the conductor.
-        conductivity : float, optional
-            Conductivity of the conductor. The default is ``1e6``.
-
-        Returns
-        -------
-        :class:`pyaedt.edb_core.materials.Material`
-            Material definition.
-        """
-        warnings.warn("Use `Edb.materials.add_conductor_material` function instead.", DeprecationWarning)
-
-        return self._pedb.materials.add_conductor_material(name, conductivity=conductivity)
-
-    @pyaedt_function_handler()
-    def create_debye_material(
-        self,
-        name,
-        relative_permittivity_low,
-        relative_permittivity_high,
-        loss_tangent_low,
-        loss_tangent_high,
-        lower_freqency,
-        higher_frequency,
-    ):
-        """Create a dielectric with the Debye model.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.materials.add_debye_material` function instead.
-
-        Parameters
-        ----------
-        name : str
-            Name of the dielectric.
-        relative_permittivity_low : float
-            Relative permittivity of the dielectric at the frequency specified
-            for ``lower_frequency``.
-        relative_permittivity_high : float
-            Relative permittivity of the dielectric at the frequency specified
-            for ``higher_frequency``.
-        loss_tangent_low : float
-            Loss tangent for the material at the frequency specified
-            for ``lower_frequency``.
-        loss_tangent_high : float
-            Loss tangent for the material at the frequency specified
-            for ``higher_frequency``.
-        lower_freqency : float
-            Value for the lower frequency.
-        higher_frequency : float
-            Value for the higher frequency.
-
-        Returns
-        -------
-        type
-            Material definition.
-        """
-        warnings.warn("Use `Edb.materials.add_debye_material` function instead.", DeprecationWarning)
-
-        return self._pedb.materials.add_debye_material(
-            name=name,
-            permittivity_low=relative_permittivity_low,
-            permittivity_high=relative_permittivity_high,
-            loss_tangent_low=loss_tangent_low,
-            loss_tangent_high=loss_tangent_high,
-            lower_freqency=lower_freqency,
-            higher_frequency=higher_frequency,
+        # we have to customize some defaults, so we plot or save the figure here
+        plt.axis("off")
+        plt.box(False)
+        plt.title("Stackup\n ", fontsize=28)
+        # evaluates the number of legend column based on the layer name max length
+        ncol = 3 if max([len(n) for n in layer_names]) < 15 else 2
+        handles, labels = plt.gca().get_legend_handles_labels()
+        plt.legend(
+            [handles[idx] for idx in legend_order],
+            [labels[idx] for idx in legend_order],
+            bbox_to_anchor=(0, -0.05),
+            loc="upper left",
+            borderaxespad=0,
+            ncol=ncol,
         )
-
-    @pyaedt_function_handler()
-    def create_multipole_debye_material(
-        self,
-        name,
-        frequencies,
-        relative_permittivities,
-        loss_tangents,
-    ):
-        """Create a dielectric with the Multipole Debye model.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.materials.add_multipole_debye_material` function instead.
-
-        Parameters
-        ----------
-        name : str
-            Name of the dielectic.
-        frequencies : list
-            Frequencies in GHz.
-        relative_permittivities : list
-            Relative permittivities at each frequency.
-        loss_tangents : list
-            Loss tangents at each frequency.
-
-        Returns
-        -------
-        type
-            Material definition.
-
-        Examples
-        --------
-        >>> from pyaedt import Edb
-        >>> edb = Edb()
-        >>> freq = [0, 2, 3, 4, 5, 6]
-        >>> rel_perm = [1e9, 1.1e9, 1.2e9, 1.3e9, 1.5e9, 1.6e9]
-        >>> loss_tan = [0.025, 0.026, 0.027, 0.028, 0.029, 0.030]
-        >>> diel = edb.core_stackup.create_multipole_debye_material("My_MP_Debye", freq, rel_perm, loss_tan)
-        """
-        warnings.warn("Use `Edb.materials.add_multipole_debye_material` function instead.", DeprecationWarning)
-
-        return self._pedb.materials.add_multipole_debye_material(
-            name=name,
-            frequencies=frequencies,
-            permittivities=relative_permittivities,
-            loss_tangents=loss_tangents,
-        )
-
-    @pyaedt_function_handler()
-    def get_layout_thickness(self):
-        """Return the layout thickness.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.stackup.get_layout_thickness` function instead.
-
-        Returns
-        -------
-        float
-            The thickness value.
-        """
-        warnings.warn("Use `Edb.materials.get_layout_thickness` function instead.", DeprecationWarning)
-
-        return self._pedb.stackup.get_layout_thickness()
-
-    @pyaedt_function_handler()
-    def duplicate_material(self, material_name, new_material_name):
-        """Duplicate a material from the database.
-        It duplicates these five properties: ``permittivity``, ``permeability``, ``conductivity``,
-        ``dielectriclosstangent``, and ``magneticlosstangent``.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.stackup.duplicate` function instead.
-
-        Parameters
-        ----------
-        material_name : str
-            Name of the existing material.
-        new_material_name : str
-            Name of the new duplicated material.
-
-        Returns
-        -------
-        EDB material : class: 'Ansys.Ansoft.Edb.Definition.MaterialDef'
-
-
-        Examples
-        --------
-
-        >>> from pyaedt import Edb
-        >>> edb_app = Edb()
-        >>> my_material = edb_app.core_stackup.duplicate_material("copper", "my_new_copper")
-
-        """
-        warnings.warn("Use `Edb.materials.duplicate` function instead.", DeprecationWarning)
-
-        return self._pedb.materials.duplicate(material_name, new_material_name)
-
-    @pyaedt_function_handler
-    def material_name_to_id(self, property_name):
-        """Convert a material property name to a material property ID.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.materials.material_name_to_id` function instead.
-
-        Parameters
-        ----------
-        property_name : str
-            Name of the material property.
-
-        Returns
-        -------
-        ID of the material property.
-        """
-        warnings.warn("Use `Edb.materials.material_name_to_id` function instead.", DeprecationWarning)
-
-        return self._pedb.materials.material_name_to_id(property_name)
-
-    @pyaedt_function_handler()
-    def get_property_by_material_name(self, property_name, material_name):
-        """Get the property of a material. If it is executed in IronPython,
-         you must only use the first element of the returned tuple, which is a float.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.materials.get_property_by_material_name` function instead.
-
-        Parameters
-        ----------
-        material_name : str
-            Name of the existing material.
-        property_name : str
-            Name of the material property.
-            ``permittivity``
-            ``permeability``
-            ``conductivity``
-            ``dielectric_loss_tangent``
-            ``magnetic_loss_tangent``
-
-        Returns
-        -------
-        float
-            The float value of the property.
-
-
-        Examples
-        --------
-        >>> from pyaedt import Edb
-        >>> edb_app = Edb()
-        >>> returned_tuple = edb_app.core_stackup.get_property_by_material_name("conductivity", "copper")
-        >>> edb_value = returned_tuple[0]
-        >>> float_value = returned_tuple[1]
-
-        """
-        warnings.warn("Use `Edb.materials.get_property_by_material_name` function instead.", DeprecationWarning)
-
-        return self._pedb.materials.get_property_by_material_name(property_name, material_name)
-
-    @pyaedt_function_handler()
-    def adjust_solder_dielectrics(self):
-        """Adjust the stack-up by adding or modifying dielectric layers that contains Solder Balls.
-        This method identifies the solder-ball height and adjust the dielectric thickness on top (or bottom) to fit
-        the thickness in order to merge another layout.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.stackup.adjust_solder_dielectrics` function instead.
-
-        Returns
-        -------
-        bool
-        """
-        warnings.warn("Use `Edb.stackup.adjust_solder_dielectrics` function instead.", DeprecationWarning)
-
-        return self._pedb.stackup.adjust_solder_dielectrics()
-
-    @pyaedt_function_handler()
-    def place_in_layout(
-        self,
-        edb,
-        angle=0.0,
-        offset_x=0.0,
-        offset_y=0.0,
-        flipped_stackup=True,
-        place_on_top=True,
-    ):
-        """Place current Cell into another cell using layer placement method.
-        Flip the current layer stackup of a layout if requested. Transform parameters currently not supported.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.stackup.place_in_layout` function instead.
-
-        Parameters
-        ----------
-        edb : Edb
-            Cell on which to place the current layout. If None the Cell will be applied on an empty new Cell.
-        angle : double, optional
-            The rotation angle applied on the design.
-        offset_x : double, optional
-            The x offset value.
-        offset_y : double, optional
-            The y offset value.
-        flipped_stackup : bool, optional
-            Either if the current layout is inverted.
-            If `True` and place_on_top is `True` the stackup will be flipped before the merge.
-        place_on_top : bool, optional
-            Either if place the current layout on Top or Bottom of destination Layout.
-
-        Returns
-        -------
-        bool
-            ``True`` when succeed ``False`` if not.
-
-        Examples
-        --------
-        >>> edb1 = Edb(edbpath=targetfile1,  edbversion="2021.2")
-        >>> edb2 = Edb(edbpath=targetfile2, edbversion="2021.2")
-
-        >>> hosting_cmp = edb1.core_components.get_component_by_name("U100")
-        >>> mounted_cmp = edb2.core_components.get_component_by_name("BGA")
-
-        >>> vector, rotation, solder_ball_height = edb1.core_components.get_component_placement_vector(
-        ...                                                     mounted_component=mounted_cmp,
-        ...                                                     hosting_component=hosting_cmp,
-        ...                                                     mounted_component_pin1="A12",
-        ...                                                     mounted_component_pin2="A14",
-        ...                                                     hosting_component_pin1="A12",
-        ...                                                     hosting_component_pin2="A14")
-        >>> edb2.core_stackup.place_in_layout(edb1.active_cell, angle=0.0, offset_x=vector[0],
-        ...                                   offset_y=vector[1], flipped_stackup=False, place_on_top=True,
-        ...                                   )
-        """
-        warnings.warn("Use `Edb.stackup.place_in_layout` function instead.", DeprecationWarning)
-
-        return self._pedb.stackup.place_in_layout(
-            edb=edb,
-            angle=angle,
-            offset_x=offset_x,
-            offset_y=offset_y,
-            flipped_stackup=flipped_stackup,
-            place_on_top=place_on_top,
-        )
-
-    @pyaedt_function_handler()
-    def place_in_layout_3d_placement(
-        self,
-        edb,
-        angle=0.0,
-        offset_x=0.0,
-        offset_y=0.0,
-        flipped_stackup=True,
-        place_on_top=True,
-        solder_height=0,
-    ):
-        """Place current Cell into another cell using 3d placement method.
-        Flip the current layer stackup of a layout if requested. Transform parameters currently not supported.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.stackup.place_in_layout_3d_placement` function instead.
-
-        Parameters
-        ----------
-        edb : Edb
-            Cell on which to place the current layout. If None the Cell will be applied on an empty new Cell.
-        angle : double, optional
-            The rotation angle applied on the design.
-        offset_x : double, optional
-            The x offset value.
-        offset_y : double, optional
-            The y offset value.
-        flipped_stackup : bool, optional
-            Either if the current layout is inverted.
-            If `True` and place_on_top is `True` the stackup will be flipped before the merge.
-        place_on_top : bool, optional
-            Either if place the current layout on Top or Bottom of destination Layout.
-        solder_height : float, optional
-            Solder Ball or Bumps eight.
-            This value will be added to the elevation to align the two layouts.
-
-        Returns
-        -------
-        bool
-            ``True`` when succeed ``False`` if not.
-
-        Examples
-        --------
-        >>> edb1 = Edb(edbpath=targetfile1,  edbversion="2021.2")
-        >>> edb2 = Edb(edbpath=targetfile2, edbversion="2021.2")
-        >>> hosting_cmp = edb1.core_components.get_component_by_name("U100")
-        >>> mounted_cmp = edb2.core_components.get_component_by_name("BGA")
-        >>> edb2.core_stackup.place_in_layout(edb1.active_cell, angle=0.0, offset_x="1mm",
-        ...                                   offset_y="2mm", flipped_stackup=False, place_on_top=True,
-        ...                                   )
-        """
-        warnings.warn("Use `Edb.stackup.place_in_layout_3d_placement` function instead.", DeprecationWarning)
-
-        return self._pedb.stackup.place_in_layout_3d_placement(
-            edb=edb,
-            angle=angle,
-            offset_x=offset_x,
-            offset_y=offset_y,
-            flipped_stackup=flipped_stackup,
-            place_on_top=place_on_top,
-            solder_height=solder_height,
-        )
-
-    @pyaedt_function_handler()
-    def place_a3dcomp_3d_placement(self, a3dcomp_path, angle=0.0, offset_x=0.0, offset_y=0.0, place_on_top=True):
-        """Place a 3D Component into current layout.
-         3D Component ports are not visible via EDB. They will be visible after the EDB has been opened in Ansys
-         Electronics Desktop as a project.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.stackup.place_a3dcomp_3d_placement` function instead.
-
-        Parameters
-        ----------
-        a3dcomp_path : str
-            Path to the 3D Component file (\\*.a3dcomp) to place.
-        angle : double, optional
-            Clockwise rotation angle applied to the a3dcomp.
-        offset_x : double, optional
-            The x offset value.
-            The default value is ``0.0``.
-        offset_y : double, optional
-            The y offset value.
-            The default value is ``0.0``.
-        place_on_top : bool, optional
-            Whether to place the 3D Component on the top or the bottom of this layout.
-            If ``False`` then the 3D Component will also be flipped over around its X axis.
-
-        Returns
-        -------
-        bool
-            ``True`` if successful and ``False`` if not.
-
-        Examples
-        --------
-        >>> edb1 = Edb(edbpath=targetfile1,  edbversion="2021.2")
-        >>> a3dcomp_path = "connector.a3dcomp"
-        >>> edb1.core_stackup.place_a3dcomp_3d_placement(a3dcomp_path, angle=0.0, offset_x="1mm",
-        ...                                   offset_y="2mm", flipped_stackup=False, place_on_top=True,
-        ...                                   )
-        """
-        warnings.warn("Use `Edb.stackup.place_a3dcomp_3d_placement` function instead.", DeprecationWarning)
-
-        return self._pedb.stackup.place_a3dcomp_3d_placement(
-            a3dcomp_path=a3dcomp_path, angle=angle, offset_x=offset_x, offset_y=offset_y, place_on_top=place_on_top
-        )
-
-    @pyaedt_function_handler()
-    def flip_design(self):
-        """Flip the current design of a layout.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.stackup.flip_design` function instead.
-
-        Returns
-        -------
-        bool
-            ``True`` when succeed ``False`` if not.
-
-        Examples
-        --------
-        >>> edb = Edb(edbpath=targetfile,  edbversion="2021.2")
-        >>> edb.core_stackup.flip_design()
-        >>> edb.save()
-        >>> edb.close_edb()
-        """
-        warnings.warn("Use `Edb.stackup.flip_design` function instead.", DeprecationWarning)
-
-        return self._pedb.stackup.flip_design()
-
-    @pyaedt_function_handler()
-    def create_djordjevicsarkar_material(
-        self, name, relative_permittivity, loss_tangent, test_frequency, dc_permittivity=None, dc_conductivity=None
-    ):
-        """Create a Djordjevic_Sarkar dielectric.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.materials.add_djordjevicsarkar_material` function instead.
-
-        Parameters
-        ----------
-        name : str
-            Name of the dielectic.
-        relative_permittivity : float
-            Relative permittivity of the dielectric.
-        loss_tangent : float
-            Loss tangent for the material.
-        test_frequency : float
-            Test frequency in GHz for the dielectric.
-        dc_permittivity : float, optional
-            DC Relative permittivity of the dielectric.
-        dc_conductivity : float, optional
-            DC Conductivity of the dielectric.
-        Returns
-        -------
-        type
-            Material definition.
-        """
-        warnings.warn("Use `Edb.materials.add_djordjevicsarkar_material` function instead.", DeprecationWarning)
-
-        return self._pedb.materials.add_djordjevicsarkar_material(
-            name=name,
-            permittivity=relative_permittivity,
-            loss_tangent=loss_tangent,
-            test_frequency=test_frequency,
-            dc_permittivity=dc_permittivity,
-            dc_conductivity=dc_conductivity,
-        )
-
-    @pyaedt_function_handler()
-    def stackup_limits(self, only_metals=False):
-        """Retrieve stackup limits.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.stackup.stackup_limits` function instead.
-
-        Parameters
-        ----------
-        only_metals : bool, optional
-            Whether to retrieve only metals. The default is ``False``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        warnings.warn("Use `Edb.stackup.stackup_limits` function instead.", DeprecationWarning)
-
-        return self._pedb.stackup.stackup_limits(only_metals=only_metals)
-
-    def create_symmetric_stackup(
-        self,
-        layer_count,
-        inner_layer_thickness="17um",
-        outer_layer_thickness="50um",
-        dielectric_thickness="100um",
-        dielectric_material="FR4_epoxy",
-        soldermask=True,
-        soldermask_thickness="20um",
-    ):
-        """Create a symmetric stackup.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.stackup.create_symmetric_stackup` function instead.
-
-        Parameters
-        ----------
-        layer_count : int
-            Number of layer count.
-        inner_layer_thickness : str, float, optional
-            Thickness of inner conductor layer.
-        outer_layer_thickness : str, float, optional
-            Thickness of outer conductor layer.
-        dielectric_thickness : str, float, optional
-            Thickness of dielectric layer.
-        dielectric_material : str, optional
-            Material of dielectric layer.
-        soldermask : bool, optional
-            Whether to create soldermask layers. The default is``True``.
-        soldermask_thickness : str, optional
-            Thickness of soldermask layer.
-        Returns
-        -------
-        bool
-        """
-        warnings.warn("Use `Edb.stackup.create_symmetric_stackup` function instead.", DeprecationWarning)
-
-        return self._pedb.stackup.create_symmetric_stackup(
-            layer_count=layer_count,
-            inner_layer_thickness=inner_layer_thickness,
-            outer_layer_thickness=outer_layer_thickness,
-            dielectric_thickness=dielectric_thickness,
-            dielectric_material=dielectric_material,
-            soldermask=soldermask,
-            soldermask_thickness=soldermask_thickness,
-        )
+        plt.tight_layout()
+        if save_plot:
+            plt.savefig(save_plot)
+        else:
+            plt.show()
+        return plt

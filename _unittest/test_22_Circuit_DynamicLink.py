@@ -81,37 +81,35 @@ class TestClass(BasisTest, object):
         assert hfss3Dlayout_comp.id == 86
         assert hfss3Dlayout_comp
 
-    @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(is_linux, reason="Skipped because Desktop is crashing")
     def test_03_add_subcircuits_hfss_link(self):
         source_project_path = os.path.join(self.local_scratch.path, src_project_name + ".aedt")
         pin_names = self.aedtapp.get_source_pin_names(src_design_name, src_project_name, source_project_path, 2)
 
         assert len(pin_names) == 4
         assert "usb_P_pcb" in pin_names
-
-        hfss_comp = self.aedtapp.modeler.schematic.add_subcircuit_hfss_link(
-            "uUSB", pin_names, source_project_path, src_design_name
-        )
+        hfss = Hfss(designname="uUSB", projectname=source_project_path)
+        hfss_comp = self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(hfss, comp_name="uUSB")
         assert hfss_comp.id == 87
         assert hfss_comp.composed_name == "CompInst@uUSB;87;3"
 
-    @pytest.mark.skipif(config.get("skip_circuits", False) or is_linux, reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(is_linux, reason="Skipped because Desktop is crashing")
     def test_04_refresh_dynamic_link(self):
         assert self.aedtapp.modeler.schematic.refresh_dynamic_link("uUSB")
 
-    @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(is_linux, reason="Skipped because Desktop is crashing")
     def test_05_set_sim_option_on_hfss_subcircuit(self):
         hfss_comp = "CompInst@uUSB;87;3"
         assert self.aedtapp.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp)
         assert self.aedtapp.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp, option="interpolate")
         assert not self.aedtapp.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp, option="not_good")
 
-    @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(is_linux, reason="Skipped because Desktop is crashing")
     def test_06_set_sim_solution_on_hfss_subcircuit(self):
         hfss_comp = "CompInst@uUSB;87;3"
         assert self.aedtapp.modeler.schematic.set_sim_solution_on_hfss_subcircuit(hfss_comp)
 
-    @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(is_linux, reason="Skipped because Desktop is crashing")
     def test_07_create_page_port_and_interface_port(self):
         hfss_comp_id = 87
         hfss3Dlayout_comp_id = 86
@@ -183,7 +181,7 @@ class TestClass(BasisTest, object):
 
         assert "Port_remove" not in self.aedtapp.excitation_names
 
-    @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(is_linux, reason="Skipped because Desktop is crashing")
     def test_08_assign_excitations(self):
         filepath = os.path.join(local_path, "example_models", test_subfloder, "frequency_dependent_source.fds")
         ports_list = ["Excitation_1", "Excitation_2"]

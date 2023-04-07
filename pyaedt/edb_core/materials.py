@@ -452,7 +452,7 @@ class Materials(object):
             Permittivity of the new material.
         loss_tangent : float
             Loss tangent of the new material.
-        permeability: float
+        permeability : float
             Permeability of the new material.
 
         Returns
@@ -766,7 +766,7 @@ class Materials(object):
         --------
         >>> from pyaedt import Edb
         >>> edb_app = Edb()
-        >>> returned_tuple = edb_app.core_stackup.get_property_by_material_name("conductivity", "copper")
+        >>> returned_tuple = edb_app.materials.get_property_by_material_name("conductivity", "copper")
         >>> edb_value = returned_tuple[0]
         >>> float_value = returned_tuple[1]
 

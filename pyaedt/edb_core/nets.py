@@ -3,9 +3,11 @@ from __future__ import absolute_import  # noreorder
 import math
 import os
 import time
+import warnings
 
 from pyaedt.edb_core.edb_data.nets_data import EDBNetsData
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
+from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.general_methods import generate_unique_name
@@ -15,14 +17,32 @@ from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
 class EdbNets(object):
-    """Manages EDB methods for nets management accessible from `Edb.core_nets` property.
+    """Manages EDB methods for nets management accessible from `Edb.nets` property.
 
     Examples
     --------
     >>> from pyaedt import Edb
     >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
-    >>> edb_nets = edbapp.core_nets
+    >>> edb_nets = edbapp.nets
     """
+
+    @pyaedt_function_handler()
+    def __getitem__(self, name):
+        """Get  a net from the Edb project.
+
+        Parameters
+        ----------
+        name : str, int
+
+        Returns
+        -------
+        :class:` :class:`pyaedt.edb_core.edb_data.nets_data.EDBNetsData`
+
+        """
+        if name in self.nets:
+            return self.nets[name]
+        self._pedb.logger.error("Component or definition not found.")
+        return
 
     def __init__(self, p_edb):
         self._pedb = p_edb
@@ -72,7 +92,48 @@ class EdbNets(object):
         return nets
 
     @property
+    def netlist(self):
+        """Return the cell netlist.
+
+        Returns
+        -------
+        list
+            Net names.
+        """
+        return list(self.nets.keys())
+
+    @property
     def signal_nets(self):
+        """Signal nets.
+
+        .. deprecated:: 0.6.62
+           Use :func:`signal` instead.
+
+        Returns
+        -------
+        dict[str, :class:`pyaedt.edb_core.edb_data.EDBNetsData`]
+            Dictionary of signal nets.
+        """
+        warnings.warn("Use :func:`signal` instead.", DeprecationWarning)
+        return self.signal
+
+    @property
+    def power_nets(self):
+        """Power nets.
+
+        .. deprecated:: 0.6.62
+           Use :func:`power` instead.
+
+        Returns
+        -------
+        dict[str, :class:`pyaedt.edb_core.edb_data.EDBNetsData`]
+            Dictionary of power nets.
+        """
+        warnings.warn("Use :func:`power` instead.", DeprecationWarning)
+        return self.power
+
+    @property
+    def signal(self):
         """Signal nets.
 
         Returns
@@ -87,7 +148,7 @@ class EdbNets(object):
         return nets
 
     @property
-    def power_nets(self):
+    def power(self):
         """Power nets.
 
         Returns
@@ -101,7 +162,7 @@ class EdbNets(object):
                 nets[net] = value
         return nets
 
-    @property
+    @pyaedt_function_handler()
     def eligible_power_nets(self, threshold=0.3):
         """Return a list of nets calculated by area to be eligible for PWR/Ground net classification.
             It uses the same algorithm implemented in SIwave.
@@ -306,7 +367,7 @@ class EdbNets(object):
         bottom_layer = list(self._pedb.stackup.signal_layers.keys())[-1]
         if plot_components_on_top or plot_components_on_bottom:
             nc = 0
-            for comp in self._pedb.core_components.components.values():
+            for comp in self._pedb.components.components.values():
                 if not comp.is_enabled:
                     continue
                 net_names = comp.nets
@@ -340,7 +401,7 @@ class EdbNets(object):
                 nc += 1
             self._logger.debug("Plotted {} component(s)".format(nc))
 
-        for path in self._pedb.core_primitives.paths:
+        for path in self._pedb.modeler.paths:
             if path.is_void:
                 continue
             net_name = path.net_name
@@ -386,7 +447,7 @@ class EdbNets(object):
             else:
                 objects_lists.append([x, y, label_colors[label], None, 0.4, "fill"])
 
-        for poly in self._pedb.core_primitives.polygons:
+        for poly in self._pedb.modeler.polygons:
             if poly.is_void:
                 continue
             net_name = poly.net_name
@@ -454,7 +515,7 @@ class EdbNets(object):
                 else:
                     objects_lists.append([vertices, codes, label_colors[label], None, 0.4, "path"])
 
-        for circle in self._pedb.core_primitives.circles:
+        for circle in self._pedb.modeler.circles:
             if circle.is_void:
                 continue
             net_name = circle.net_name
@@ -497,7 +558,7 @@ class EdbNets(object):
             else:
                 objects_lists.append([x, y, label_colors[label], None, 0.4, "fill"])
 
-        for rect in self._pedb.core_primitives.rectangles:
+        for rect in self._pedb.modeler.rectangles:
             if rect.is_void:
                 continue
             net_name = rect.net_name
@@ -668,8 +729,8 @@ class EdbNets(object):
         return False
 
     @pyaedt_function_handler()
-    def get_dcconnected_net_list(self, ground_nets=["GND"]):
-        """Retrieve the nets connected to DC through inductors.
+    def get_dcconnected_net_list(self, ground_nets=["GND"], res_value=0.001):
+        """Get the nets connected to the direct current through inductors.
 
         .. note::
            Only inductors are considered.
@@ -685,7 +746,7 @@ class EdbNets(object):
             List of nets connected to DC through inductors.
         """
         temp_list = []
-        for refdes, comp_obj in self._pedb.core_components.inductors.items():
+        for _, comp_obj in self._pedb.components.inductors.items():
             numpins = comp_obj.numpins
 
             if numpins == 2:
@@ -694,7 +755,15 @@ class EdbNets(object):
                     temp_list.append(set(nets))
                 else:
                     pass
+        for _, comp_obj in self._pedb.components.resistors.items():
+            numpins = comp_obj.numpins
 
+            if numpins == 2 and self._pedb._decompose_variable_value(comp_obj.res_value) <= res_value:
+                nets = comp_obj.nets
+                if not set(nets).intersection(set(ground_nets)):
+                    temp_list.append(set(nets))
+                else:
+                    pass
         dcconnected_net_list = []
 
         while not not temp_list:
@@ -737,7 +806,7 @@ class EdbNets(object):
             net_group.append(power_net_name)
 
         component_list = []
-        rats = self._pedb.core_components.get_rats()
+        rats = self._pedb.components.get_rats()
         for net in net_group:
             for el in rats:
                 if net in el["net_name"]:
@@ -751,13 +820,13 @@ class EdbNets(object):
         component_type = []
         for el in component_list:
             refdes = el[0]
-            comp_type = self._pedb.core_components._cmp[refdes].type
+            comp_type = self._pedb.components._cmp[refdes].type
             component_type.append(comp_type)
             el.append(comp_type)
 
-            comp_partname = self._pedb.core_components._cmp[refdes].partname
+            comp_partname = self._pedb.components._cmp[refdes].partname
             el.append(comp_partname)
-            pins = self._pedb.core_components.get_pin_from_component(component=refdes, netName=el[2])
+            pins = self._pedb.components.get_pin_from_component(component=refdes, netName=el[2])
             el.append("-".join([i.GetName() for i in pins]))
 
         component_list_columns = [
@@ -781,6 +850,9 @@ class EdbNets(object):
     def delete_nets(self, netlist):
         """Delete one or more nets from EDB.
 
+        .. deprecated:: 0.6.62
+           Use :func:`delete` method instead.
+
         Parameters
         ----------
         netlist : str or list
@@ -794,17 +866,39 @@ class EdbNets(object):
         Examples
         --------
 
-        >>> deleted_nets = edb_core.core_nets.delete_nets(["Net1","Net2"])
+        >>> deleted_nets = edb_core.nets.delete(["Net1","Net2"])
+        """
+        warnings.warn("Use :func:`delete` method instead.", DeprecationWarning)
+        return self.delete(netlist=netlist)
+
+    @pyaedt_function_handler()
+    def delete(self, netlist):
+        """Delete one or more nets from EDB.
+
+        Parameters
+        ----------
+        netlist : str or list
+            One or more nets to delete.
+
+        Returns
+        -------
+        list
+            List of nets that were deleted.
+
+        Examples
+        --------
+
+        >>> deleted_nets = edb_core.nets.delete(["Net1","Net2"])
         """
         if isinstance(netlist, str):
             netlist = [netlist]
 
-        self._pedb.core_primitives.delete_primitives(netlist)
-        self._pedb.core_padstack.delete_padstack_instances(netlist)
+        self._pedb.modeler.delete_primitives(netlist)
+        self._pedb.padstacks.delete_padstack_instances(netlist)
 
         nets_deleted = []
 
-        for i in self._pedb.core_nets.nets.values():
+        for i in self._pedb.nets.nets.values():
             if i.name in netlist:
                 i.net_object.Delete()
                 nets_deleted.append(i.name)
@@ -902,15 +996,17 @@ class EdbNets(object):
             ``True`` if the net is found in component pins.
 
         """
-        if component_name not in self._pedb.core_components.components:
+        if component_name not in self._pedb.components.components:
             return False
-        for net in self._pedb.core_components.components[component_name].nets:
+        for net in self._pedb.components.components[component_name].nets:
             if net_name == net:
                 return True
         return False
 
     @pyaedt_function_handler()
-    def find_and_fix_disjoint_nets(self, net_list=None, keep_only_main_net=False, clean_disjoints_less_than=0.0):
+    def find_and_fix_disjoint_nets(
+        self, net_list=None, keep_only_main_net=False, clean_disjoints_less_than=0.0, order_by_area=False
+    ):
         """Find and fix disjoint nets from a given netlist.
 
         Parameters
@@ -921,7 +1017,9 @@ class EdbNets(object):
             Remove all secondary nets other than principal one (the one with more objects in it). Default is `False`.
         clean_disjoints_less_than : bool, optional
             Clean all disjoint nets with area less than specified area in square meters. Default is `0.0` to disable it.
-
+        order_by_area : bool, optional
+            Whether if the naming order has to be by number of objects (fastest) or area (slowest but more accurate).
+            Default is ``False``.
         Returns
         -------
         List
@@ -930,7 +1028,7 @@ class EdbNets(object):
         Examples
         --------
 
-        >>> renamed_nets = edb_core.core_nets.find_and_fix_disjoint_nets(["GND","Net2"])
+        >>> renamed_nets = edb_core.nets.find_and_fix_disjoint_nets(["GND","Net2"])
         """
         timer_start = self._logger.reset_timer()
 
@@ -940,13 +1038,13 @@ class EdbNets(object):
             net_list = [net_list]
         _objects_list = {}
         _padstacks_list = {}
-        for prim in self._pedb.core_primitives.primitives:
+        for prim in self._pedb.modeler.primitives:
             n_name = prim.net_name
             if n_name in _objects_list:
                 _objects_list[n_name].append(prim)
             else:
                 _objects_list[n_name] = [prim]
-        for pad in list(self._pedb.core_padstack.instances.values()):
+        for pad in list(self._pedb.padstacks.instances.values()):
             n_name = pad.net_name
             if n_name in _padstacks_list:
                 _padstacks_list[n_name].append(pad)
@@ -967,11 +1065,33 @@ class EdbNets(object):
             while l > 0:
                 l1 = objs[0].get_connected_object_id_set()
                 l1.append(objs[0].id)
-                net_groups.append(l1)
+                repetition = False
+                for net_list in net_groups:
+                    if set(l1).intersection(net_list):
+                        net_groups.append([i for i in l1 if i not in net_list])
+                        repetition = True
+                if not repetition:
+                    net_groups.append(l1)
                 objs = [i for i in objs if i.id not in l1]
                 l = len(objs)
             if len(net_groups) > 1:
-                sorted_list = sorted(net_groups, key=len, reverse=True)
+
+                def area_calc(elem):
+                    sum = 0
+                    for el in elem:
+                        try:
+                            if isinstance(obj_dict[el], EDBPrimitives):
+                                if not obj_dict[el].is_void:
+                                    sum += obj_dict[el].area()
+                        except:
+                            pass
+                    return sum
+
+                if order_by_area:
+                    areas = [area_calc(i) for i in net_groups]
+                    sorted_list = [x for _, x in sorted(zip(areas, net_groups), reverse=True)]
+                else:
+                    sorted_list = sorted(net_groups, key=len, reverse=True)
                 for disjoints in sorted_list[1:]:
                     if keep_only_main_net:
                         for geo in disjoints:

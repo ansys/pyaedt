@@ -2,7 +2,6 @@ import os
 import warnings
 
 import pyaedt.emit_core.EmitConstants as emitConsts
-import pyaedt.generic.constants as consts
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -33,8 +32,9 @@ class Revision:
     def __init__(self, parent_results, emit_obj, name=""):
         design = emit_obj.odesktop.GetActiveProject().GetActiveDesign()
         subfolder = ""
+        proj_name = emit_obj.oproject.GetName()
         for f in os.scandir(emit_obj.oproject.GetPath()):
-            if os.path.splitext(f.name)[1].lower() == ".aedtresults":
+            if os.path.splitext(f.name)[0] == proj_name and os.path.splitext(f.name)[1].lower() == ".aedtresults":
                 subfolder = os.path.join(f.path, "EmitDesign1")
         default_behaviour = not os.path.exists(os.path.join(subfolder, "{}.emit".format(name)))
         if default_behaviour:
@@ -63,6 +63,11 @@ class Revision:
         self.revision_number = design.GetRevision()
         """Unique revision number from the Emit design"""
 
+        result_props = design.GetResultProperties(name)
+        # Strip off the 'Timestamp='
+        self.timestamp = result_props[1][10:]
+        """Unique timestamp for the revision"""
+
         self.parent_results = parent_results
         """Parent Results object"""
 
@@ -87,7 +92,6 @@ class Revision:
         >>> aedtapp.results.revision.load_revision()
         """
         if self.revision_loaded:
-            print("Specified result already loaded.")
             return
         self.parent_results._unload_revisions()
         self.emit_project._emit_api.load_project(self.path)
@@ -127,39 +131,9 @@ class Revision:
         self._load_revision()
         engine = self.emit_project._emit_api.get_engine()
         interaction = engine.run(domain)
+        # save the revision
+        self.emit_project._emit_api.save_project()
         return interaction
-
-    @pyaedt_function_handler()
-    def get_max_simultaneous_interferers(self):
-        """
-        Get the number of maximum simultaneous interferers.
-
-        Returns
-        -------
-        max_interferers : int
-            Maximum number of simultaneous interferers associated with engine
-
-        Examples
-        ----------
-        >>> max_num = aedtapp.results.current_revision.get_max_simultaneous_interferers()
-        """
-        self._load_revision()
-        engine = self.emit_project._emit_api.get_engine()
-        max_interferers = engine.max_simultaneous_interferers
-        return max_interferers
-
-    @pyaedt_function_handler()
-    def set_max_simultaneous_interferers(self, val):
-        """
-        Set the number of maximum simultaneous interferers.
-
-        Examples
-        ----------
-        >>> max_num = aedtapp.results.current_revision.set_max_simultaneous_interferers(3)
-        """
-        self._load_revision()
-        engine = self.emit_project._emit_api.get_engine()
-        engine.max_simultaneous_interferers = val
 
     @pyaedt_function_handler()
     def is_domain_valid(self, domain):
@@ -320,7 +294,7 @@ class Revision:
 
         Returns
         -------
-        freq:class:`list of float`
+        freqs : List of float
             List of ``tx`` or ``rx`` radio/emitter frequencies.
 
         Examples
@@ -329,12 +303,52 @@ class Revision:
                 'Bluetooth', 'Rx - Base Data Rate', Emit.tx_rx_mode.rx)
         """
         if self.revision_loaded:
-            freq = self.emit_project._emit_api.get_active_frequencies(radio_name, band_name, tx_rx_mode)
-            # Emit api returns freqs in Hz, convert to user's desired units.
-            if not units or units not in emitConsts.EMIT_VALID_UNITS["Frequency"]:
-                units = self.emit_project._units["Frequency"]
-            freq = consts.unit_converter(freq, "Freq", "Hz", units)
+            freqs = self.emit_project._emit_api.get_active_frequencies(radio_name, band_name, tx_rx_mode, units)
         else:
-            freq = None
+            freqs = None
             self.result_mode_error()
-        return freq
+        return freqs
+
+    @pyaedt_function_handler
+    def set_notes(self, notes):
+        """
+        Add notes to the revision.
+
+        Parameters
+        ----------
+        notes : str
+            Notes to add to the revision.
+
+        Returns
+        -------
+        None
+
+        Examples
+        ----------
+        >>> notes = "Added a filter to the WiFi Radio."
+        >>> freqs = aedtapp.results.current_revision.set_notes(notes)
+        """
+        design = self.emit_project.odesktop.GetActiveProject().GetActiveDesign()
+        design.SetResultNotes(self.name, notes)
+        self.emit_project._emit_api.save_project()
+
+    @pyaedt_function_handler
+    def get_notes(self):
+        """
+        Get the current revision's notes.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        notes : str
+            Notes to add to the revision.
+
+        Examples
+        ----------
+        >>> notes = aedtapp.results.current_revision.get_notes()
+        """
+        design = self.emit_project.odesktop.GetActiveProject().GetActiveDesign()
+        return design.GetResultNotes(self.name)
