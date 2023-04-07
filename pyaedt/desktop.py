@@ -1539,7 +1539,7 @@ class Desktop(object):
 
     @pyaedt_function_handler()
     def _launch_aedt(self, full_path, non_graphical, port, first_run=True):
-        """Launch AEDT in GRPC mode."""
+        """Launch AEDT in gRPC mode."""
 
         def launch_desktop_on_port():
             command = [full_path, "-grpcsrv", str(port)]
