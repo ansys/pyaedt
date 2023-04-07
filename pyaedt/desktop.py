@@ -892,7 +892,7 @@ class Desktop(object):
             if out:
                 ScriptEnv._doInitialize(version, None, False, non_graphical, self.machine, self.port)
             else:
-                self.logger.error("Failed to start AEDT on port ", self.port)
+                self.logger.error("Failed to start AEDT on port %s", self.port)
                 return
         else:
             ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, self.machine, self.port)
