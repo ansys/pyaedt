@@ -1180,7 +1180,7 @@ class Edb(object):
         timeout = 4
         time.sleep(2)
         while gc.collect() != 0 and timeout > 0:
-            time.sleep(1)
+            time.sleep(0.25)
             timeout -= 1
         return True
 
