@@ -18,6 +18,7 @@ import re
 import socket
 import sys
 import tempfile
+import threading
 import time
 import traceback
 import warnings
@@ -863,6 +864,7 @@ class Desktop(object):
                             )
                     self.port = _find_free_port()
                     self.logger.info("New AEDT session is starting on gRPC port %s", self.port)
+                    new_aedt_session = True
         elif new_aedt_session and not _check_grpc_port(self.port, self.machine):
             self.logger.info("New AEDT session is starting on gRPC port %s", self.port)
         elif new_aedt_session:
@@ -881,6 +883,16 @@ class Desktop(object):
                 ScriptEnv._doInitialize(version, None, False, non_graphical, self.machine, self.port)
             else:
                 self.logger.error("Failed to start LSF job on machine: %s.", self.machine)
+                return
+        elif new_aedt_session:
+            installer = os.path.join(base_path, "ansysedt")
+            if not is_linux:
+                installer = os.path.join(base_path, "ansysedt.exe")
+            out = self._launch_aedt(installer, non_graphical, self.port)
+            if out:
+                ScriptEnv._doInitialize(version, None, False, non_graphical, self.machine, self.port)
+            else:
+                self.logger.error("Failed to start AEDT on port ", self.port)
                 return
         else:
             ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, self.machine, self.port)
@@ -1524,3 +1536,25 @@ class Desktop(object):
         if aedt_version >= "2023.2":
             write_toolkit_config(os.path.join(toolkit_dir, product), lib_dir, toolkit_name, toolkit=toolkit)
         self.logger.info("{} toolkit installed.".format(toolkit_name))
+
+    @pyaedt_function_handler()
+    def _launch_aedt(self, full_path, non_graphical, port):
+        """Launch AEDT in  GRPC mode."""
+
+        def launch_desktop_on_port():
+            command = [full_path, "-grpcsrv", str(port)]
+            if non_graphical:
+                command.append("-ng")
+            subprocess.Popen(" ".join(command), stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+
+        self._aedt_process_thread = threading.Thread(target=launch_desktop_on_port)
+        self._aedt_process_thread.daemon = True
+        self._aedt_process_thread.start()
+        timeout = 120
+        k = 0
+        while not _check_grpc_port(port):
+            if k > timeout:
+                return False
+            time.sleep(1)
+            k += 1
+        return True
