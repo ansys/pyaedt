@@ -15,6 +15,14 @@ Primitives are planes, lines, rectangles, and circles.
 
     ...
 
+.. currentmodule:: pyaedt.edb_core.layout
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+
+   EdbLayout
 
 
 Primitives properties
