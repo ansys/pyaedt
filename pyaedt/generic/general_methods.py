@@ -1614,6 +1614,28 @@ class Settings(object):
         self._lsf_aedt_command = "ansysedt"
         self._lsf_timeout = 3600
         self._lsf_queue = None
+        self._aedt_environment_variables = {
+            "ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3": "1",
+            "ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE": "1",
+            "ANSYSEM_FEATURE_SF159726_SCRIPTOBJECT_ENABLE": "1",
+            "ANSYSEM_FEATURE_SF222134_CABLE_MODELING_ENHANCEMENTS_ENABLE": "1",
+            "ANSYSEM_FEATURE_F395486_RIGID_FLEX_BENDING_ENABLE": "1",
+        }
+
+    @property
+    def aedt_environment_variables(self):
+        """Set environment variables to be set before launching a new aedt session.
+        This includes beta features enablemement.
+
+        Returns
+        -------
+        dict
+        """
+        return self._aedt_environment_variables
+
+    @aedt_environment_variables.setter
+    def aedt_environment_variables(self, value):
+        self._aedt_environment_variables = value
 
     @property
     def lsf_queue(self):

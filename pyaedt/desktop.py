@@ -1545,10 +1545,13 @@ class Desktop(object):
             command = [full_path, "-grpcsrv", str(port)]
             if non_graphical:
                 command.append("-ng")
+            my_env = os.environ.copy()
+            for env, val in settings.aedt_environment_variables:
+                my_env[env] = val
             if is_linux:
-                subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+                subprocess.Popen(command, env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
             else:
-                subprocess.Popen(" ".join(command), stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+                subprocess.Popen(" ".join(command), env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
 
         self._aedt_process_thread = threading.Thread(target=launch_desktop_on_port)
         self._aedt_process_thread.daemon = True
