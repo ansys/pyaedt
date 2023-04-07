@@ -1,4 +1,4 @@
-Padstacks and vias
+Vias and padstacks
 ==================
 This sections contains API references for padstack management.
 The main padstack object is called directly from main application using the property ``padstacks``.
