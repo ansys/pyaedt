@@ -1635,7 +1635,7 @@ class Settings(object):
         """
         return self._desktop_launch_timeout
 
-    @aedt_environment_variables.setter
+    @desktop_launch_timeout.setter
     def desktop_launch_timeout(self, value):
         self._desktop_launch_timeout = int(value)
 
