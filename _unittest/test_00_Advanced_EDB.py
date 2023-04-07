@@ -925,6 +925,7 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(is_ironpython, reason="This test uses Matplotlib, which is not supported by IronPython.")
     def test_023_plot_on_matplotlib(self):
         edb_plot = Edb(self.target_path3, edbversion=desktop_version)
+
         local_png1 = os.path.join(self.local_scratch.path, "test1.png")
         edb_plot.nets.plot(
             nets=None,
@@ -945,6 +946,7 @@ class TestClass(BasisTest, object):
             plot_components_on_bottom=True,
         )
         assert os.path.exists(local_png2)
+
         local_png3 = os.path.join(self.local_scratch.path, "test3.png")
         edb_plot.nets.plot(
             nets=["LVL_I2C_SCL", "V3P3_S5", "GATE_V5_USB"],
@@ -955,10 +957,18 @@ class TestClass(BasisTest, object):
             plot_components_on_bottom=True,
         )
         assert os.path.exists(local_png3)
-        local_png4 = os.path.join(self.local_scratch.path, "test4.png")
 
+        local_png4 = os.path.join(self.local_scratch.path, "test4.png")
         edb_plot.stackup.plot(
             save_plot=local_png4,
+            plot_definitions=list(edb_plot.padstacks.definitions.keys())[0],
+        )
+        assert os.path.exists(local_png4)
+
+        local_png5 = os.path.join(self.local_scratch.path, "test5.png")
+        edb_plot.stackup.plot(
+            scale_elevation=False,
+            save_plot=local_png5,
             plot_definitions=list(edb_plot.padstacks.definitions.keys())[0],
         )
         assert os.path.exists(local_png4)
