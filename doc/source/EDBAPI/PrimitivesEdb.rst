@@ -1,4 +1,4 @@
-Modeler & Primitives
+Modeler & primitives
 ====================
 These classes are the containers of primitives and all relative methods.
 Primitives are planes, lines, rectangles, and circles.

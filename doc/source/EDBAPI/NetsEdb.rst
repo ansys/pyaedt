@@ -22,7 +22,7 @@ The main component object is called directly from main application using the pro
    EdbNets
 
 
-Net Properties
+Net properties
 --------------
 The following class is the container of data management for nets.
 
