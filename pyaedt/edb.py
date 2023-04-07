@@ -1658,7 +1658,7 @@ class Edb(object):
                     check_terminals=check_terminals,
                     include_pingroups=include_pingroups,
                 )
-            if result and not open_cutout_at_end:
+            if result and not open_cutout_at_end and self.edbpath != legacy_path:
                 self.save_edb()
                 self.close_edb()
                 self.edbpath = legacy_path
