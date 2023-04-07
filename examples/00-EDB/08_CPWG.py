@@ -123,7 +123,7 @@ edbapp.close_edb()
 # ~~~~~~~~~~~~~~~~
 # Open EDB in AEDT.
 
-h3d = pyaedt.Hfss3dLayout(projectname=aedb_path, specified_version="2023.2",
+h3d = pyaedt.Hfss3dLayout(projectname=aedb_path, specified_version="2023.1",
                           non_graphical=non_graphical)
 
 ###############################################################################
