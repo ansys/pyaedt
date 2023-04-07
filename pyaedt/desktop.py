@@ -1539,7 +1539,7 @@ class Desktop(object):
 
     @pyaedt_function_handler()
     def _launch_aedt(self, full_path, non_graphical, port):
-        """Launch AEDT in  GRPC mode."""
+        """Launch AEDT in GRPC mode."""
 
         def launch_desktop_on_port():
             command = [full_path, "-grpcsrv", str(port)]
@@ -1550,7 +1550,7 @@ class Desktop(object):
         self._aedt_process_thread = threading.Thread(target=launch_desktop_on_port)
         self._aedt_process_thread.daemon = True
         self._aedt_process_thread.start()
-        timeout = 120
+        timeout = 180
         k = 0
         while not _check_grpc_port(port):
             if k > timeout:
