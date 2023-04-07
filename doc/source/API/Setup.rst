@@ -26,7 +26,7 @@ The ``Setup`` object is accessible through the ``create_setup`` method and ``set
 .. code:: python
 
     from pyaedt import Hfss
-    app = Hfss(specified_version="2022.2",
+    app = Hfss(specified_version="2023.1",
                non_graphical=False, new_desktop_session=True,
                close_on_exit=True, student_version=False)
 
