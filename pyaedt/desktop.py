@@ -1546,7 +1546,7 @@ class Desktop(object):
             if non_graphical:
                 command.append("-ng")
             my_env = os.environ.copy()
-            for env, val in settings.aedt_environment_variables:
+            for env, val in settings.aedt_environment_variables.items():
                 my_env[env] = val
             if is_linux:
                 subprocess.Popen(command, env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
