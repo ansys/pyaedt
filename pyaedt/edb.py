@@ -1469,7 +1469,7 @@ class Edb(object):
         keep_voids=True,
         check_terminals=False,
         include_pingroups=False,
-        expansion_factor=4,
+        expansion_factor=0,
         maximum_iterations=10,
     ):
         """Create a cutout using an approach entirely based on pyaedt.
@@ -1658,7 +1658,7 @@ class Edb(object):
                     check_terminals=check_terminals,
                     include_pingroups=include_pingroups,
                 )
-            if result and not open_cutout_at_end:
+            if result and not open_cutout_at_end and self.edbpath != legacy_path:
                 self.save_edb()
                 self.close_edb()
                 self.edbpath = legacy_path
