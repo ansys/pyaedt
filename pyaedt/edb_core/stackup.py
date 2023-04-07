@@ -1749,7 +1749,6 @@ class Stackup(object):
         plot_definitions=None,
         first_layer=None,
         last_layer=None,
-        ignore_elevations=False,
         scale_elevation=True,
     ):
         """Plot current stackup and, optionally, overlap padstack definitions.
@@ -1769,8 +1768,9 @@ class Stackup(object):
             First layer to plot from the bottom. Default is `None` to start plotting from bottom.
         last_layer : str or :class:`pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`
             Last layer to plot from the bottom. Default is `None` to plot up to top layer.
-        ignore_elevations :bool, optional
-            Whether to ignore or not the real layer elevation. Default is `False`.
+        scale_elevation :bool, optional
+            The real layer thickness is scaled so that max_thickness = 3 * min_thickness.
+            Default is `True`.
 
         Returns
         -------
@@ -2070,23 +2070,117 @@ class Stackup(object):
                         break
 
         # calculate the extremities of the plot
-        min_x = 0.0
-        max_x = max([max(i[0]) for i in plot_data])
+        x_min = 0.0
+        x_max = max([max(i[0]) for i in plot_data])
         if self.stackup_mode == "Laminate":
-            min_y = layers_data[0][1]
-            max_y = layers_data[-1][2]
+            y_min = layers_data[0][1]
+            y_max = layers_data[-1][2]
         elif self.stackup_mode == "Overlapping":
-            min_y = min(dielectric_layers[0][1], signal_layers[0][1])
-            max_y = max(dielectric_layers[-1][2], signal_layers[-1][2])
+            y_min = min(dielectric_layers[0][1], signal_layers[0][1])
+            y_max = max(dielectric_layers[-1][2], signal_layers[-1][2])
 
         # move the annotations to avoid text overlapping
         new_annotations = []
         for i, a in enumerate(annotations):
-            if i > 0 and abs(a[1] - annotations[i - 1][1]) < (max_y - min_y) / 75:
+            if i > 0 and abs(a[1] - annotations[i - 1][1]) < (y_max - y_min) / 75:
                 new_annotations[-1][2] = str(new_annotations[-1][2]) + f", {a[2]}"
             else:
                 new_annotations.append(a)
         annotations = new_annotations
+
+        if plot_definitions:
+            max_plots = 10
+
+            if not isinstance(plot_definitions, list):
+                plot_definitions = [plot_definitions]
+            color_index = 0
+            color_keys = list(CSS4_COLORS.keys())
+            delta = 1 / (max_plots + 1)  # padstack spacing in plot coordinates
+            x_start = delta
+
+            # find the max padstack size to calculate the scaling factor
+            max_padstak_size = 0
+            for definition in plot_definitions:
+                if isinstance(definition, str):
+                    definition = self._pedb.padstacks.definitions[definition]
+                for layer, defs in definition.pad_by_layer.items():
+                    pad_shape = defs.geometry_type
+                    params = defs.parameters_values
+                    if pad_shape in [1, 2, 6]:
+                        pad_size = params[0]
+                    elif pad_shape in [3, 4, 5]:
+                        pad_size = max(params[0], params[1])
+                    else:
+                        pad_size = 1e-4
+                    max_padstak_size = max(pad_size, max_padstak_size)
+                if definition.hole_properties:
+                    hole_d = definition.hole_properties[0]
+                    max_padstak_size = max(hole_d, max_padstak_size)
+            scaling_f_pad = (2 / ((max_plots + 1) * 3)) / max_padstak_size
+
+            padstack_data = []
+
+            for definition in plot_definitions:
+                if isinstance(definition, str):
+                    definition = self._pedb.padstacks.definitions[definition]
+                min_le = 1e12
+                max_ue = -1e12
+                max_x = 0
+                padstack_name = definition.name
+                annotations.append([x_start, y_max, padstack_name, {"rotation": 45}])
+
+                via_start_layer = definition.via_start_layer
+                via_stop_layer = definition.via_stop_layer
+
+                if self.stackup_mode == "Overlapping":
+                    # cerca qui la colonna in base al primo e ultimo layer. sarà la colonna con il max indice
+                    pass
+
+                for layer, defs in definition.pad_by_layer.items():
+                    pad_shape = defs.geometry_type
+                    params = defs.parameters_values
+                    if pad_shape in [1, 2, 6]:
+                        pad_size = params[0]
+                    elif pad_shape in [3, 4, 5]:
+                        pad_size = max(params[0], params[1])
+                    else:
+                        pad_size = 1e-4
+
+                    if self.stackup_mode == "Laminate":
+                        x = [
+                            x_start - pad_size / 2 * scaling_f_pad,
+                            x_start - pad_size / 2 * scaling_f_pad,
+                            x_start + pad_size / 2 * scaling_f_pad,
+                            x_start + pad_size / 2 * scaling_f_pad,
+                        ]
+                        le = [e[1] for e in layers_data if e[0].name == layer][0]
+                        ue = [e[2] for e in layers_data if e[0].name == layer][0]
+                        y = [le, ue, ue, le]
+                        # create the patch for that signal layer
+                        plot_data.append([x, y, color_keys[color_index], None, 1.0, "fill"])
+                    elif self.stackup_mode == "Overlapping":
+                        pass
+                        # qui mette le x a seconda della colonna calcolata prima e del pad size
+
+                    min_le = min(le, min_le)
+                    max_ue = max(ue, max_ue)
+                if definition.hole_properties:
+                    # create patch for the hole
+                    hole_radius = definition.hole_properties[0] / 2 * scaling_f_pad
+                    x = [x_start - hole_radius, x_start - hole_radius, x_start + hole_radius, x_start + hole_radius]
+                    y = [min_le, max_ue, max_ue, min_le]
+                    plot_data.append([x, y, color_keys[color_index], None, 0.7, "fill"])
+                    # create patch for the dielectric
+                    max_x = max(max_x, hole_radius)
+                    rad = hole_radius * (100 - definition.hole_plating_ratio) / 100
+                    x = [x_start - rad, x_start - rad, x_start + rad, x_start + rad]
+                    plot_data.append([x, y, color_keys[color_index], None, 1.0, "fill"])
+
+                color_index += 1
+                if color_index == max_plots:
+                    self._logger.warning("Maximum number of definitions plotted.")
+                    break
+                x_start += delta
 
         # plot the stackup
         plt = plot_matplotlib(
@@ -2097,8 +2191,8 @@ class Stackup(object):
             ylabel="",
             title="",
             snapshot_path=save_plot,
-            x_limits=[min_x, max_x],
-            y_limits=[min_y, max_y],
+            x_limits=[x_min, x_max],
+            y_limits=[y_min, y_max],
             annotations=annotations,
             show=False,
         )
@@ -2119,130 +2213,6 @@ class Stackup(object):
         plt.tight_layout()
         plt.show()
 
-        return plt
-        ###########################
-
-        stackup_elevation = abs(self.get_layout_thickness()) * 1e6
-        x_min = -3 * stackup_elevation
-        x_max = 3 * stackup_elevation
-        objects_lists = []
-
-        layers_name = list(self.stackup_layers.keys())
-        bottom_layer = self.stackup_layers[layers_name[-1]]
-        top_layer = self.stackup_layers[layers_name[0]]
-        start_plot = False
-        if not last_layer:
-            last_layer = top_layer
-        elif isinstance(last_layer, str):
-            last_layer = self.layers[last_layer]
-        if not first_layer:
-            first_layer = bottom_layer
-        elif isinstance(first_layer, str):
-            first_layer = self.layers[first_layer]
-        limits = [first_layer.lower_elevation * 1e6, (last_layer.lower_elevation + last_layer.thickness) * 1e6 * 1.1]
-        annotations = []
-        upper_limit = 0
-        if ignore_elevations:
-            layer_thickness = (limits[1] / 1.1 - limits[0]) / len(self.stackup_layers)
-        uel = None
-        x = [x_min, x_min, x_max, x_max]
-        for layername, layerval in self.stackup_layers.items():
-            if layername == last_layer.name:
-                start_plot = True
-            if start_plot and layerval.thickness is not None:
-                if ignore_elevations:
-                    if uel is None:
-                        uel = limits[1] / 1.1
-                        lel = uel - layer_thickness
-                    else:
-                        lel -= layer_thickness
-                        uel -= layer_thickness
-                else:
-                    lel = layerval.lower_elevation * 1e6
-                    uel = layerval.upper_elevation * 1e6
-                y = [lel, uel, uel, lel]
-                color = [float(i) / 256 for i in layerval.color]
-                if color == [1.0, 1.0, 1.0]:
-                    color = [0.9, 0.9, 0.9]
-                label = "{} {} Thick: {}um Elev:{}um".format(
-                    layername, layerval.material, round(layerval.thickness * 1e6, 3), round(lel, 3)
-                )
-                objects_lists.append([x, y, color, label, 0.4, "fill"])
-                if self.stackup_mode == "Laminate":
-                    annotations.append([x_max, (uel + lel) / 2, label, {}])
-                upper_limit = max(uel, upper_limit, lel)
-            if layername == first_layer.name:
-                start_plot = False
-        delta = (x_max - x_min) / 20
-        x_start = x_min + delta
-
-        if plot_definitions:
-            if not isinstance(plot_definitions, list):
-                plot_definitions = [plot_definitions]
-            color_index = 0
-            color_keys = list(CSS4_COLORS.keys())
-            max_plots = 10
-
-            for definition in plot_definitions:
-                if isinstance(definition, str):
-                    definition = self._pedb.padstacks.definitions[definition]
-                min_lel = 1e12
-                max_lel = -1e12
-                max_x = 0
-                name_assigned = definition.name
-                annotations.append([x_start, upper_limit, definition.name, {"rotation": 45}])
-
-                for layer, defs in definition.pad_by_layer.items():
-                    vals = defs.parameters_values
-                    if vals:
-                        pad = vals[0] * 1e6
-                        max_x = max(pad, max_x)
-                        x = [x_start - pad, x_start - pad, x_start + pad, x_start + pad]
-                        if ignore_elevations:
-                            lel = limits[1] / 1.1 - layers_name.index(layer) * layer_thickness
-                            uel = lel - layer_thickness
-                        else:
-                            lel = self[layer].lower_elevation * 1e6
-                            uel = self[layer].upper_elevation * 1e6
-                        min_lel = min(lel, min_lel)
-                        max_lel = max(uel, max_lel)
-                        y = [lel, uel, uel, lel]
-                        objects_lists.append([x, y, color_keys[color_index], name_assigned, 1.0, "fill"])
-                        name_assigned = None
-                if definition.hole_properties:
-                    hole_rad = definition.hole_properties[0] * 1e6
-                    x = [x_start - hole_rad, x_start - hole_rad, x_start + hole_rad, x_start + hole_rad]
-                    y = [min_lel, max_lel, max_lel, min_lel]
-                    objects_lists.append([x, y, color_keys[color_index], name_assigned, 0.7, "fill"])
-                    max_x = max(max_x, hole_rad)
-                    rad = hole_rad * (100 - definition.hole_plating_ratio) / 100
-                    x = [x_start - rad, x_start - rad, x_start + rad, x_start + rad]
-                    y = [min_lel, max_lel, max_lel, min_lel]
-                    objects_lists.append([x, y, color_keys[color_index], name_assigned, 1.0, "fill"])
-                color_index += 1
-                if color_index == max_plots:
-                    self._logger.warning("Maximum number of definition plotted.")
-                    break
-                x_start += max(delta, 4 * max_x)
-
-        x_limits = [x_min * 1.2, x_max * 1.5]
-        plt = plot_matplotlib(
-            objects_lists,
-            size,
-            True if self.stackup_mode != "Laminate" else False,
-            "X (um)",
-            "Y (um)",
-            "Stackup",
-            save_plot,
-            x_limits=x_limits,
-            y_limits=limits,
-            annotations=annotations,
-            show=False,
-        )
-        plt.axis("off")
-        plt.box(False)
-        plt.title("Stackup", fontsize=40)
-        plt.show()
         return plt
 
 
