@@ -1864,7 +1864,7 @@ class Analysis(Design, object):
             self.logger.info("Batch job finished.")
 
         if machine == "localhost":
-            while not os.path.exists(queue_file_completed):
+            while not os.path.exists(queue_file):
                 time.sleep(0.5)
             with open(queue_file, "r") as f:
                 lines = f.readlines()
@@ -1873,6 +1873,8 @@ class Analysis(Design, object):
                         ls = line.split("=")[1].strip().strip("'")
                         self.last_run_job = ls
                         self.last_run_log = os.path.join(filename + ".batchinfo", project_name + "-" + ls + ".log")
+            while not os.path.exists(queue_file_completed):
+                time.sleep(0.5)
         return True
 
     @pyaedt_function_handler()
