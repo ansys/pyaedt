@@ -9,6 +9,8 @@ as a coupling link in the EMIT design.
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
+#
+# sphinx_gallery_thumbnail_path = "Resources/emit_hfss.png"
 
 import os
 
