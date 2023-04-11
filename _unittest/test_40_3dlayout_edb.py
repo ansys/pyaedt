@@ -217,6 +217,17 @@ class TestClass(BasisTest, object):
         brd = Hfss3dLayout(hfss3d.project_name, "Dummy_Board", specified_version=desktop_version)
         comp = brd.modeler.merge_design(hfss3d, rotation=90)
         assert comp.location[0] == 0.0
+        assert comp.rotation_axis == "Z"
+        comp.rotation_axis = "X"
+        assert comp.rotation_axis == "X"
+        comp.rotation_axis = "Z"
+        comp.rotation_axis_direction = [0, 0, 1.2]
+        assert comp.rotation_axis_direction == [0, 0, 1.2]
+        assert not comp.is_flipped
+        comp.is_flipped = True
+        assert comp.is_flipped
+        com.is_flipped = False
+        assert comp.location[0] == 0.0
         assert comp.location[1] == 0.0
         assert comp.angle == "90deg"
         comp.location = [0.1, 0.2]
