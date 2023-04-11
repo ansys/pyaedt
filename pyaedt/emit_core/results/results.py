@@ -148,8 +148,8 @@ class Results:
         Parameters
         ----------
         revision_name : str
-            Revision to load. If revision_name = None, the
-            latest revision will be returned.
+            Revision to load. The default is  ``None`` in which
+            case the latest revision will be returned.
 
         Returns
         -------
@@ -186,10 +186,7 @@ class Results:
     def analyze(self):
         """
         Analyze the current revision or create a new revision if
-         the design has changed.
-
-        Parameters
-        ----------
+        the design has changed.
 
         Returns
         -------
