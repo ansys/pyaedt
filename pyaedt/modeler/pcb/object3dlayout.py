@@ -1462,13 +1462,6 @@ class Line3dLayout(Geometries3DLayout, object):
         self._center_line = {}
 
     @pyaedt_function_handler()
-    def remove_points(self, point_name):
-        if isinstance(point_name, str):
-            point_name = [point_name]
-        cl = [j for i, j in self.center_line.items() if i not in point_name]
-        self._edit(cl)
-
-    @pyaedt_function_handler()
     def _edit(self, points):
         name = self.name
         arg = ["NAME:Contents", "lineGeometry:="]
