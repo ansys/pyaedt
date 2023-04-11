@@ -912,10 +912,10 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
     @pyaedt_function_handler()
     def clip_plane(self):
-        """Create a clip plane in Layout.
+        """Create a clip plane in the layout.
 
         .. note::
-            It works only in AEDT from 2022R2.
+            This method works only in AEDT 2022 R2 and later.
 
         Returns
         -------
