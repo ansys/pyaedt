@@ -5,7 +5,6 @@ This module is implicitly loaded in HFSS 3D Layout when launched.
 """
 import gc
 import os
-import re
 import shutil
 import subprocess
 import sys
@@ -14,6 +13,7 @@ import traceback
 import warnings
 
 from ansys.edb.database import Database
+from ansys.edb.geometry import ExtentType
 from ansys.edb.layout.cell import Cell
 from ansys.edb.layout.cell import CellType
 
@@ -46,7 +46,6 @@ from pyaedt.edb_grpc.core.edb_data.sources import ExcitationPorts
 from pyaedt.edb_grpc.core.edb_data.sources import ExcitationProbes
 from pyaedt.edb_grpc.core.edb_data.sources import ExcitationSources
 from pyaedt.edb_grpc.core.edb_data.sources import SourceType
-from pyaedt.edb_grpc.core.edb_data.variables import Variable
 from pyaedt.edb_grpc.core.general import convert_py_list_to_net_list
 from pyaedt.edb_grpc.core.ipc2581.ipc2581 import Ipc2581
 from pyaedt.edb_grpc.core.materials import Materials
@@ -232,20 +231,19 @@ class Edb(object):
         :class:`pyaedt.edb_grpc.core.edb_data.variables.Variable`
 
         """
-        if self.variable_exists(variable_name)[0]:
+        if self.variable_exists(variable_name):
             return self.variables[variable_name]
         return
 
     @pyaedt_function_handler()
     def __setitem__(self, variable_name, variable_value):
-        if self.variable_exists(variable_name)[0]:
+        if self.variable_exists(variable_name):
             self.change_design_variable_value(variable_name, variable_value)
         else:
             self.add_design_variable(variable_name, variable_value)
 
     def _clean_variables(self):
         """Initialize internal variables and perform garbage collection."""
-
         self._components = None
         self._core_primitives = None
         self._stackup = None
@@ -275,7 +273,6 @@ class Edb(object):
         self._core_primitives = EdbLayout(self)
         self._stackup2 = Stackup(self)
         self._materials = Materials(self)
-
         self.logger.info("Objects Initialized")
 
     @property
@@ -340,8 +337,8 @@ class Edb(object):
         Dict[str, :class:`pyaedt.edb_grpc.core.edb_data.variables.Variable`]
         """
         d_var = dict()
-        for i in self.active_cell.GetVariableServer().GetAllVariableNames():
-            d_var[i] = Variable(self, i)
+        for var_name in self.active_cell.get_all_variable_names():
+            d_var[var_name] = self.active_cell.get_varaiable_value(var_name)
         return d_var
 
     @property
@@ -354,8 +351,8 @@ class Edb(object):
 
         """
         p_var = dict()
-        for i in self.db.GetVariableServer().GetAllVariableNames():
-            p_var[i] = Variable(self, i)
+        for var_name in self.db.get_all_variable_names():
+            p_var[var_name] = self.db.get_variable_value(var_name)
         return p_var
 
     @property
@@ -377,32 +374,35 @@ class Edb(object):
     @property
     def excitations(self):
         """Get all layout excitations."""
-        terms = [term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) == 0]
-        terms = [i for i in terms if not i.IsReferenceTerminal()]
+        terms = [
+            term
+            for term in list(self._active_layout.terminals)
+            if term.boundary_type.name == "PORT" and not term.is_reference_terminal
+        ]
         temp = {}
-        for ter in terms:
-            if "BundleTerminal" in ter.GetType().ToString():
-                temp[ter.GetName()] = ExcitationDifferential(self, ter)
+        for term in terms:
+            if "BundleTerminal" in term.type:
+                temp[term.name] = ExcitationDifferential(self, term)
             else:
-                temp[ter.GetName()] = ExcitationPorts(self, ter)
+                temp[term.name] = ExcitationPorts(self, term)
         return temp
 
     @property
     def excitations_nets(self):
         """Get all excitations net names."""
-        return list(set([i.GetNet().GetName() for i in list(self._active_layout.Terminals)]))
+        return list(set([i.net.name for i in self._active_layout.terminals]))
 
     @property
     def sources(self):
         """Get all layout sources."""
-        terms = [term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) in [3, 4, 7]]
-        return {ter.GetName(): ExcitationSources(self, ter) for ter in terms}
+        terms = [term for term in self._active_layout.terminals if term.boundary_type.value in [3, 4, 7]]
+        return {term.name: ExcitationSources(self, term) for term in terms}
 
     @property
     def probes(self):
         """Get all layout sources."""
-        terms = [term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) in [8]]
-        return {ter.GetName(): ExcitationProbes(self, ter) for ter in terms}
+        terms = [term for term in self._active_layout.terminals if term.boundary_type.value in [8]]
+        return {term.GetName(): ExcitationProbes(self, term) for term in terms}
 
     @pyaedt_function_handler()
     def open_edb(self, init_rpc_server=False):
@@ -439,7 +439,6 @@ class Edb(object):
             return None
         self._db = db
         self.logger.info("Database Opened")
-
         self._active_cell = None
         if self.cellname:
             for cell in list(self._db.TopCircuitCells):
@@ -450,15 +449,7 @@ class Edb(object):
             self._active_cell = self._db.circuit_cells[0]
         self.logger.info("Cell %s Opened", self._active_cell.GetName())
         if self._db and self._active_cell:
-            # removing edbutils with Pyedb
             self.builder = EdbBuilder(self._db, self._active_cell)
-            # self._init_objects()
-            # self.logger.info("Builder was initialized.")
-            pass
-        # else:
-        #     self.builder = None
-        #     self.logger.error("Builder was not initialized.")
-
         return self.builder
 
     @pyaedt_function_handler()
@@ -474,6 +465,7 @@ class Edb(object):
         -------
 
         """
+        # not yet supported with pyedb
         pass
         # if init_dlls:
         #     self._init_dlls()
@@ -716,21 +708,6 @@ class Edb(object):
         return self._components
 
     @property
-    def core_stackup(self):
-        """Core stackup.
-
-        .. deprecated:: 0.6.5
-            There is no need to use the ``core_stackup`` property anymore.
-            You can instantiate a new ``stackup`` class directly from the ``Edb`` class.
-        """
-        mess = "`core_stackup` is deprecated.\n"
-        mess += " Use `app.stackup` directly to instantiate new stackup methods."
-        warnings.warn(mess, DeprecationWarning)
-        if not self._stackup and self.builder:
-            self._stackup = EdbStackup(self)
-        return self._stackup
-
-    @property
     def design_options(self):
         """Edb Design Settings and Options.
 
@@ -882,14 +859,14 @@ class Edb(object):
         """
         self._active_layout = None
         if self._active_cell:
-            self._active_layout = self.active_cell.GetLayout()
+            self._active_layout = self.active_cell.layout
         return self._active_layout
 
     @property
     def layout_instance(self):
         """Edb Layout Instance."""
         if not self._layout_instance:
-            self._layout_instance = self.active_layout.GetLayoutInstance()
+            self._layout_instance = self.active_layout.layout_instance
         return self._layout_instance
 
     @property
@@ -909,15 +886,12 @@ class Edb(object):
         """
         pins = {}
         if self.core_components:
-            for el in self.core_components.components:
-                comp = self.edb.Cell.Hierarchy.Component.FindByName(self.active_layout, el)
-                temp = [
-                    p
-                    for p in comp.LayoutObjs
-                    if p.GetObjType() == self.edb.Cell.LayoutObjType.PadstackInstance and p.IsLayoutPin()
+            for component in self.active_layout.groups:
+                pins = [
+                    pin for pin in component.members if pin.obj_type.name == "PADSTACK_INSTANCE" and pin.is_layout_pin
                 ]
-                for p in temp:
-                    pins[p.GetId()] = EDBPadstackInstance(p, self)
+                for pin in pins:
+                    pins[pin.id] = EDBPadstackInstance(pin, self)
         return pins
 
     class Boundaries:
@@ -929,37 +903,6 @@ class Edb(object):
         """
 
         (Port, Pec, RLC, CurrentSource, VoltageSource, NexximGround, NexximPort, DcTerminal, VoltageProbe) = range(0, 9)
-
-    @pyaedt_function_handler()
-    def edb_value(self, val):
-        """Convert a value to an EDB value. Value can be a string, float or integer. Mainly used in internal calls.
-
-        Parameters
-        ----------
-        val : str, float, int
-
-
-        Returns
-        -------
-        Instance of `Edb.Utility.Value`
-
-        """
-        if isinstance(val, (int, float)):
-            return self.edb.Utility.Value(val)
-        m1 = re.findall(r"(?<=[/+-/*//^/(/[])([a-z_A-Z/$]\w*)", str(val).replace(" ", ""))
-        m2 = re.findall(r"^([a-z_A-Z/$]\w*)", str(val).replace(" ", ""))
-        val_decomposed = list(set(m1).union(m2))
-        if not val_decomposed:
-            return self.edb.Utility.Value(val)
-        var_server_db = self.db.GetVariableServer()
-        var_names = var_server_db.GetAllVariableNames()
-        var_server_cell = self.active_cell.GetVariableServer()
-        var_names_cell = var_server_cell.GetAllVariableNames()
-        if set(val_decomposed).intersection(var_names_cell):
-            return self.edb.Utility.Value(val, var_server_cell)
-        if set(val_decomposed).intersection(var_names):
-            return self.edb.Utility.Value(val, var_server_db)
-        return self.edb.Utility.Value(val)
 
     @pyaedt_function_handler()
     def _is_file_existing_and_released(self, filename):
@@ -1022,7 +965,8 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._db.Close()
+        self._db.close()
+        self.session.disconnect()
         if self.log_name and settings.enable_local_log_file:
             self._global_logger.remove_file_logger(os.path.splitext(os.path.split(self.log_name)[-1])[0])
             self._logger = self._global_logger
@@ -1049,7 +993,7 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._db.Save()
+        self._db.save()
         return True
 
     @pyaedt_function_handler()
@@ -1067,8 +1011,8 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._db.SaveAs(fname)
-        self.edbpath = self._db.GetDirectory()
+        self._db.save_as(fname)
+        self.edbpath = self._db.directory
         if self.log_name:
             self._global_logger.remove_file_logger(os.path.splitext(os.path.split(self.log_name)[-1])[0])
             self._logger = self._global_logger
@@ -1096,7 +1040,7 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        return self.edb.Utility.Command.Execute(func)
+        return self.db.utility.Command.Execute(func)
 
     @pyaedt_function_handler()
     def import_cadence_file(self, inputBrd, WorkDir=None, anstranslator_full_path="", use_ppe=False):
@@ -1179,8 +1123,13 @@ class Edb(object):
             if use_pyaedt_extent:
                 _poly = self._create_conformal(net_signals, expansion_size, 1e-12, use_round_corner, expansion_size)
             else:
-                _poly = self.active_layout.GetExpandedExtentFromNets(
-                    net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
+                _poly = self.active_layout.expanded_extent(
+                    nets=net_signals,
+                    extent=ExtentType.CONFORMING,
+                    expansion_factor=expansion_size,
+                    expansion_unitless=False,
+                    use_round_corner=True,
+                    num_increments=1,
                 )
         elif extent_type in ["Bounding", self.edb.Geometry.ExtentType.BoundingBox, 0]:
             _poly = self.active_layout.GetExpandedExtentFromNets(

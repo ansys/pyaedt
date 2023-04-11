@@ -1,5 +1,3 @@
-import re
-
 from pyaedt import pyaedt_function_handler
 from pyaedt.edb_grpc.core.edb_data.nets_data import EDBNetsData
 from pyaedt.edb_grpc.core.edb_data.padstacks_data import EDBPadstackInstance
@@ -567,85 +565,97 @@ class ExcitationPorts(CommonExcitation):
 
     @property
     def _edb_properties(self):
-        p = self._edb_terminal.GetProductSolverOption(self._edb.ProductId.Designer, "HFSS")
-        return p
+        # not yet supported in pyedb
+        # p = self._edb_terminal.GetProductSolverOption(self._edb.ProductId.Designer, "HFSS")
+        # return p
+        pass
 
     @property
     def hfss_type(self):
         """Get hfss port type."""
-        txt = re.search(r"'HFSS Type'='.*?'", self._edb_properties).group()
-        return txt.split("=")[1].replace("'", "")
+        # not supported in Pyedb
+        # txt = re.search(r"'HFSS Type'='.*?'", self._edb_properties).group()
+        # return txt.split("=")[1].replace("'", "")
+        pass
 
     @property
     def horizontal_extent_factor(self):
         """Get horizontal extent factor."""
-        txt = re.search(r"'Horizontal Extent Factor'='.*?'", self._edb_properties).group()
-        return float(txt.split("=")[1].replace("'", ""))
+        # not yet supported in pyedb
+        # txt = re.search(r"'Horizontal Extent Factor'='.*?'", self._edb_properties).group()
+        # return float(txt.split("=")[1].replace("'", ""))
+        pass
 
     @property
     def vertical_extent_factor(self):
         """Get vertical extent factor."""
-        txt = re.search(r"'Vertical Extent Factor'='.*?'", self._edb_properties).group()
-        return float(txt.split("=")[1].replace("'", ""))
+        # not yet supported in pyedb
+        # txt = re.search(r"'Vertical Extent Factor'='.*?'", self._edb_properties).group()
+        # return float(txt.split("=")[1].replace("'", ""))
+        pass
 
     @property
     def radial_extent_factor(self):
         """Get radial extent factor."""
-        txt = re.search(r"'Radial Extent Factor'='.*?'", self._edb_properties).group()
-        return float(txt.split("=")[1].replace("'", ""))
+        # not yet supported in pyedb
+        # txt = re.search(r"'Radial Extent Factor'='.*?'", self._edb_properties).group()
+        # return float(txt.split("=")[1].replace("'", ""))
+        pass
 
     @property
     def pec_launch_width(self):
         """Get pec launch width."""
-        txt = re.search(r"'PEC Launch Width'='.*?'", self._edb_properties).group()
-        return txt.split("=")[1].replace("'", "")
+        # Not yet supported in pyedb
+        # txt = re.search(r"'PEC Launch Width'='.*?'", self._edb_properties).group()
+        # return txt.split("=")[1].replace("'", "")
+        pass
 
     @property
     def impedance(self):
         """Impedance of the port."""
-        return self._edb_terminal.GetImpedance().ToDouble()
+        return self._edb_terminal.impedance.double
 
     @property
     def is_circuit(self):
         """Return ``True`` if is a circuit port."""
-        return self._edb_terminal.GetIsCircuitPort()
+        return self._edb_terminal.is_circuit_port
 
     @property
     def magnitude(self):
         """Magnitude."""
-        return self._edb_terminal.GetSourceAmplitude().ToDouble()
+        return self._edb_terminal.source_amplitude.double
 
     @property
     def phase(self):
         """Phase."""
-        return self._edb_terminal.GetSourcePhase().ToDouble()
+        return self._edb_terminal.source_phase.double
 
     @property
     def renormalize(self):
         """Either if renormalize is active or not."""
-        return self._edb_terminal.GetPortPostProcessingProp().DoRenormalize
+        return self._edb_terminal.port_post_processing_prop.do_renormalize
 
     @property
     def deembed(self):
         """Either if deembed is active or not."""
-        return self._edb_terminal.GetPortPostProcessingProp().DoDeembed
+        return self._edb_terminal.port_post_processing_prop.do_deembed
 
     @property
     def deembed_gapport_inductance(self):
         """Deembed Gap Port Inductance value."""
-        return self._edb_terminal.GetPortPostProcessingProp().DoDeembedGapL
+        return self._edb_terminal.port_post_processing_prop.do_deembed_gap_l
 
     @property
     def deembed_length(self):
         """Deembed Length."""
-        return self._edb_terminal.GetPortPostProcessingProp().DeembedLength.ToDouble()
+        return self._edb_terminal.port_post_processing_prop.deembed_length.double
 
     @property
     def renormalize_z0(self):
         """Renormalize Z0 value (real, imag)."""
         return (
-            self._edb_terminal.GetPortPostProcessingProp().RenormalizionZ0.ToComplex().Item1,
-            self._edb_terminal.GetPortPostProcessingProp().RenormalizionZ0.ToComplex().Item2,
+            self._edb_terminal.port_post_processing_prop.renormalization_impedance.complex.real,
+            self._edb_terminal.port_post_processing_prop.renormalization_impedance.complex.imag,
         )
 
     @property
@@ -930,7 +940,7 @@ class ExcitationBundle:
     @property
     def name(self):
         """Port Name."""
-        return self._edb_bundle_terminal.GetName()
+        return self._edb_bundle_terminal.name
 
     @property
     def edb(self):  # pragma: no cover
@@ -940,7 +950,7 @@ class ExcitationBundle:
     @property
     def terminals(self):
         """Get terminals belonging to this excitation."""
-        return {i.GetName(): ExcitationPorts(self._pedb, i) for i in list(self._edb_bundle_terminal.GetTerminals())}
+        return {i.name: ExcitationPorts(self._pedb, i) for i in self._edb_bundle_terminal.terminals}
 
     @property
     def reference_net_name(self):
