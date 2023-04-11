@@ -172,6 +172,9 @@ h3d.create_linear_count_sweep(
 
 h3d.modeler.edb.nets.plot(None, None, color_by_net=True)
 
+cp_name = h3d.modeler.clip_plane()
+
+h3d.save_project()
 
 ###############################################################################
 # Start HFSS solver
@@ -181,16 +184,13 @@ h3d.modeler.edb.nets.plot(None, None, color_by_net=True)
 h3d.analyze()
 
 # Save AEDT
-h3d.save_project()
 aedt_path = aedb_path.replace(".aedb", ".aedt")
 h3d.logger.info("Your AEDT project is saved to {}".format(aedt_path))
 solutions = h3d.get_touchstone_data()[0]
 solutions.log_x = False
 solutions.plot()
 
-h3d.close_project()
-h3d = pyaedt.Hfss3dLayout(projectname=aedb_path, specified_version="2023.1",
-                           non_graphical=non_graphical)
+h3d.post.create_fieldplot_cutplane(cp_name, "Mag_E", h3d.nominal_adaptive, intrinsincDict={"Freq":"3GHz", "Phase":"0deg"})
 
 # Release AEDT.
 h3d.release_desktop()
