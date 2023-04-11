@@ -911,22 +911,30 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         return True
 
     @pyaedt_function_handler()
-    def clip_plane(self, name=None):
-        """Create a clip plane in Layout.
+    def clip_plane(self):
+        """Create a clip plane in the layout.
 
         .. note::
-            It works only in AEDT from 2022R2.
-
-        Parameters
-        ----------
-        name : str, optional
-            Name of the clip plane.
+            This method works only in AEDT 2022 R2 and later.
 
         Returns
         -------
-
+        str
+            Name of newly created clip plane.
         """
-        if not name:
-            name = generate_unique_name("CS")
-        self.oeditor.ClipPlane(name)
-        return name
+        names = self.clip_planes[::]
+        new_name = generate_unique_name("VCP", n=3)
+        self.oeditor.ClipPlane(new_name)
+        new_cp = [i for i in self.clip_planes if i not in names]
+        return new_cp[0]
+
+    @property
+    def clip_planes(self):
+        """All available clip planes. To be considered a clip plane, the name must follow this
+        naming convention: "VCP_xxx".
+
+        Returns
+        -------
+        list
+        """
+        return [i for i in self.oeditor.FindObjects("Name", "VCP*")]
