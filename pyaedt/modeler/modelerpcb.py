@@ -930,7 +930,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
     @property
     def clip_planes(self):
-        """All available clip planes. Will considered clip planes only the one with naming convention of "VCP_xxx".
+        """All available clip planes. Will be considered clip planes only the one following the naming convention "VCP_xxx".
 
         Returns
         -------
