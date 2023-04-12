@@ -1458,6 +1458,10 @@ class Primitives(object):
             if obj_name not in self._object_names_to_ids:
                 self._create_object(obj_name)
                 added_objects.append(obj_name)
+        for obj_name in self.point_names:
+            if obj_name not in self.points.keys():
+                self._create_object(obj_name)
+                added_objects.append(obj_name)
         return added_objects
 
     @pyaedt_function_handler()
