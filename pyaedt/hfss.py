@@ -1560,6 +1560,9 @@ class Hfss(FieldAnalysis3D, object):
     ):
         """Create a circuit port taking the closest edges of two objects.
 
+        .. deprecated:: 0.6.70
+        Use :func:`circuit_port` method instead.
+
         Parameters
         ----------
         startobj :
@@ -1606,23 +1609,26 @@ class Hfss(FieldAnalysis3D, object):
         'CircuitExample'
 
         """
-
-        if not self.modeler.does_object_exists(startobj) or not self.modeler.does_object_exists(endobject):
-            self.logger.error("One or both objects do not exist. Check and retry.")
-            return False
-        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
-            out, parallel = self.modeler.find_closest_edges(startobj, endobject, axisdir)
-            port_edges = []
-            portname = self._get_unique_source_name(portname, "Port")
-
-            return self._create_circuit_port(out, impedance, portname, renorm, deemb, renorm_impedance=renorm_impedance)
-        return False  # pragma: no cover
+        warnings.warn("Use :func:`circuit_port` method instead.", DeprecationWarning)
+        return self.circuit_port(
+            signal=startobj,
+            reference=endobject,
+            port_location=axisdir,
+            impedance=impedance,
+            name=portname,
+            renormalize=renorm,
+            renorm_impedance=renorm_impedance,
+            deembed=deemb,
+        )
 
     @pyaedt_function_handler()
     def create_lumped_port_between_objects(
         self, startobj, endobject, axisdir=0, impedance=50, portname=None, renorm=True, deemb=False, port_on_plane=True
     ):
         """Create a lumped port taking the closest edges of two objects.
+
+        .. deprecated:: 0.6.70
+        Use :func:`lumped_port` method instead.
 
         Parameters
         ----------
@@ -1673,37 +1679,18 @@ class Hfss(FieldAnalysis3D, object):
         'LumpedPort'
 
         """
-        startobj = self.modeler.convert_to_selections(startobj)
-        endobject = self.modeler.convert_to_selections(endobject)
-        if not self.modeler.does_object_exists(startobj) or not self.modeler.does_object_exists(endobject):
-            self.logger.error("One or both objects do not exist. Check and retry.")
-            return False
-
-        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
-            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
-                startobj, endobject, axisdir, port_on_plane
-            )
-
-            portname = self._get_unique_source_name(portname, "Port")
-
-            if "Modal" in self.solution_type:
-                return self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
-            else:
-                faces = self.modeler.get_object_faces(sheet_name)
-                if deemb:
-                    deembed = 0
-                else:
-                    deembed = None
-                return self._create_port_terminal(
-                    faces[0],
-                    endobject,
-                    portname,
-                    renorm=renorm,
-                    deembed=deembed,
-                    iswaveport=False,
-                    impedance=impedance,
-                )
-        return False  # pragma: no cover
+        warnings.warn("Use :func:`lumped_port` method instead.", DeprecationWarning)
+        return self.lumped_port(
+            signal=startobj,
+            reference=endobject,
+            create_port_sheet=True,
+            port_on_plane=port_on_plane,
+            integration_line=axisdir,
+            impedance=impedance,
+            name=portname,
+            renormalize=renorm,
+            deembed=deemb,
+        )
 
     @pyaedt_function_handler()
     def create_spiral_lumped_port(self, start_object, end_object, port_width=None):
@@ -3630,8 +3617,10 @@ class Hfss(FieldAnalysis3D, object):
         deembed=False,
     ):
         """Create a circuit port from two edges.
-
         The integration line is from edge 2 to edge 1.
+
+        .. deprecated:: 0.6.70
+        Use :func:`circuit_port` method instead.
 
         Parameters
         ----------
@@ -3686,12 +3675,16 @@ class Hfss(FieldAnalysis3D, object):
         'PortExample'
 
         """
-
-        edge_list = [edge_signal, edge_gnd]
-        port_name = self._get_unique_source_name(port_name, "Port")
-
-        return self._create_circuit_port(
-            edge_list, port_impedance, port_name, renormalize, deembed, renorm_impedance=renorm_impedance
+        warnings.warn("Use :func:`circuit_port` method instead.", DeprecationWarning)
+        return self.circuit_port(
+            signal=edge_signal,
+            reference=edge_gnd,
+            port_location=0,
+            impedance=port_impedance,
+            name=port_name,
+            renormalize=renormalize,
+            renorm_impedance=renorm_impedance,
+            deembed=deembed,
         )
 
     @pyaedt_function_handler()
