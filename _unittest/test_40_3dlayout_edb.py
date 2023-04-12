@@ -134,6 +134,9 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.modeler.layers.drawing_layers) > 0
         assert len(self.aedtapp.modeler.layers.all_signal_layers) > 0
         assert len(self.aedtapp.modeler.layers.all_diel_layers) > 0
+        assert len(self.aedtapp.modeler.stackup.all_signal_layers) == len(self.aedtapp.modeler.stackup.signals)
+        assert len(self.aedtapp.modeler.stackup.all_diel_layers) == len(self.aedtapp.modeler.stackup.dielectrics)
+        assert len(self.aedtapp.modeler.stackup.stackup_layers) == len(self.aedtapp.modeler.stackup.drawings)
         assert len(self.aedtapp.modeler.layers.all_signal_layers) + len(
             self.aedtapp.modeler.layers.all_diel_layers
         ) == len(self.aedtapp.modeler.layers.stackup_layers)
@@ -216,6 +219,17 @@ class TestClass(BasisTest, object):
         hfss3d = Hfss3dLayout(self.package_file, "FlipChip_TopBot", specified_version=desktop_version)
         brd = Hfss3dLayout(hfss3d.project_name, "Dummy_Board", specified_version=desktop_version)
         comp = brd.modeler.merge_design(hfss3d, rotation=90)
+        assert comp.location[0] == 0.0
+        assert comp.rotation_axis == "Z"
+        comp.rotation_axis = "X"
+        assert comp.rotation_axis == "X"
+        comp.rotation_axis = "Z"
+        comp.rotation_axis_direction = [0, 0, 1.2]
+        assert comp.rotation_axis_direction == [0, 0, 1.2]
+        assert not comp.is_flipped
+        comp.is_flipped = True
+        assert comp.is_flipped
+        comp.is_flipped = False
         assert comp.location[0] == 0.0
         assert comp.location[1] == 0.0
         assert comp.angle == "90deg"
