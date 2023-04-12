@@ -1180,7 +1180,7 @@ class Edb(object):
         timeout = 4
         time.sleep(2)
         while gc.collect() != 0 and timeout > 0:
-            time.sleep(1)
+            time.sleep(0.25)
             timeout -= 1
         return True
 
@@ -1195,6 +1195,10 @@ class Edb(object):
 
         """
         self._db.Save()
+        start_time = time.time()
+        self._wait_for_file_release()
+        elapsed_time = time.time() - start_time
+        self.logger.info("EDB file save time: {0:.2f}ms".format(elapsed_time * 1000.0))
         return True
 
     @pyaedt_function_handler()
@@ -1213,6 +1217,10 @@ class Edb(object):
 
         """
         self._db.SaveAs(fname)
+        start_time = time.time()
+        self._wait_for_file_release()
+        elapsed_time = time.time() - start_time
+        self.logger.info("EDB file save time: {0:.2f}ms".format(elapsed_time * 1000.0))
         self.edbpath = self._db.GetDirectory()
         if self.log_name:
             self._global_logger.remove_file_logger(os.path.splitext(os.path.split(self.log_name)[-1])[0])
