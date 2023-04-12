@@ -50,6 +50,16 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self.rigid_flex = None
 
     @property
+    def stackup(self):
+        """Get the Stackup class and its methods.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.LayerStackup.Layers`
+        """
+        return self.layers
+
+    @property
     def oeditor(self):
         """Oeditor Module.
 
@@ -312,14 +322,14 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             return False
         comp = ComponentsSubCircuit3DLayout(self, comp_name)
         self.components_3d[comp_name] = comp
-        self.change_property(property_object=comp_name, property_name="3D Placement", property_value=True)
-        self.change_property(property_object=comp_name, property_name="Local Origin", property_value=[0.0, 0.0, 0.0])
+        comp.is_3d_placement = True
+        comp.local_origin = [0.0, 0.0, 0.0]
         pos_x = self._arg_with_dim(pos_x)
         pos_y = self._arg_with_dim(pos_y)
         pos_z = self._arg_with_dim(pos_z)
         rotation = self._arg_with_dim(rotation, "deg")
-        self.change_property(property_object=comp_name, property_name="Location", property_value=[pos_x, pos_y, pos_z])
-        self.change_property(property_object=comp_name, property_name="Rotation Angle", property_value=rotation)
+        comp.angle = rotation
+        comp.location = [pos_x, pos_y, pos_z]
         return comp
 
     @pyaedt_function_handler()
