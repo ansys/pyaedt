@@ -226,7 +226,7 @@ class TestClass(BasisTest, object):
         assert not comp.is_flipped
         comp.is_flipped = True
         assert comp.is_flipped
-        com.is_flipped = False
+        comp.is_flipped = False
         assert comp.location[0] == 0.0
         assert comp.location[1] == 0.0
         assert comp.angle == "90deg"
