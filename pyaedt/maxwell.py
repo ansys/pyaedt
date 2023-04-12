@@ -145,7 +145,7 @@ class Maxwell(object):
             return True
         else:
             raise Exception("Core losses is only available with `EddyCurrent` and `Transient` solutions.")
-            return False
+        return False
 
     @pyaedt_function_handler()
     def assign_matrix(
