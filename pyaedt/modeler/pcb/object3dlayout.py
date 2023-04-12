@@ -1632,7 +1632,7 @@ class ComponentsSubCircuit3DLayout(Objec3DLayout, object):
 
     @property
     def rotation_axis(self):
-        """Retrieve if the component is flipped or not."""
+        """Rotation axis around which the component is rotated."""
         if self.is_3d_placement:
             return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Rotation Axis")
         return False
