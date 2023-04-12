@@ -357,7 +357,6 @@ class Maxwell(object):
         bool
             ``True`` when successful and ``False`` when failed.
         """
-
         if self.solution_type in ["Transient"]:
             self._py_file = setupname + ".py"
             ctl_file_path = os.path.join(self.working_directory, self._py_file)
@@ -389,26 +388,23 @@ class Maxwell(object):
                         fo.write(file_str)
                     assert os.path.exists(ctl_file_path), "Control program file could not be created."
 
-            try:
-                self.oanalysis.EditSetup(
-                    setupname,
-                    [
-                        "NAME:" + setupname,
-                        "Enabled:=",
-                        True,
-                        "UseControlProgram:=",
-                        True,
-                        "ControlProgramName:=",
-                        ctl_file_path,
-                        "ControlProgramArg:=",
-                        "",
-                        "CallCtrlProgAfterLastStep:=",
-                        True,
-                    ],
-                )
-                return True
-            except:
-                return False
+            self.oanalysis.EditSetup(
+                setupname,
+                [
+                    "NAME:" + setupname,
+                    "Enabled:=",
+                    True,
+                    "UseControlProgram:=",
+                    True,
+                    "ControlProgramName:=",
+                    ctl_file_path,
+                    "ControlProgramArg:=",
+                    "",
+                    "CallCtrlProgAfterLastStep:=",
+                    True,
+                ],
+            )
+            return True
         else:
             self.logger.error("Control Program is only available in Maxwell 2D and 3D Transient solutions.")
             return False
@@ -514,13 +510,8 @@ class Maxwell(object):
                             bool(self.oboundary.GetEddyEffect(obj)),
                         ]
                     )
-
-        try:
-            self.oboundary.SetEddyEffect(["NAME:Eddy Effect Setting", EddyVector])
-            return True
-        except:
-            self.logger.error("Set Eddy effects failed.")
-            return False
+        self.oboundary.SetEddyEffect(["NAME:Eddy Effect Setting", EddyVector])
+        return True
 
     @pyaedt_function_handler()
     def setup_y_connection(self, windings_name=None):
@@ -553,21 +544,17 @@ class Maxwell(object):
         >>> aedtapp.setup_y_connection(["PhaseA", "PhaseB", "PhaseC"])
         """
 
-        if self.solution_type in ["Transient"]:
-            try:
-                if windings_name:
-                    connection = ["NAME:YConnection", "Windings:=", ",".join(windings_name)]
-                    windings = ["NAME:YConnection", connection]
-                    self.oboundary.SetupYConnection(windings)
-                else:
-                    self.oboundary.SetupYConnection()
-                return True
-            except:
-                self.logger.error("Setup Y connection failed.")
-                return False
-        else:
+        if self.solution_type not in ["Transient"]:
             self.logger.error("Setup Y connections only available for transient solutions.")
             return False
+
+        if windings_name:
+            connection = ["NAME:YConnection", "Windings:=", ",".join(windings_name)]
+            windings = ["NAME:YConnection", connection]
+            self.oboundary.SetupYConnection(windings)
+        else:
+            self.oboundary.SetupYConnection()
+        return True
 
     @pyaedt_function_handler()
     def assign_current(self, object_list, amplitude=1, phase="0deg", solid=True, swap_direction=False, name=None):
@@ -777,6 +764,8 @@ class Maxwell(object):
     ):
         """Assign a rotation motion to an object container.
 
+        For both rotational and translational problems, the band objects must always enclose all the moving objects.
+
         Parameters
         ----------
         band_object : str,
@@ -896,7 +885,7 @@ class Maxwell(object):
 
     @pyaedt_function_handler()
     def assign_voltage_drop(self, face_list, amplitude=1, swap_direction=False, name=None):
-        """Assign a voltage drop to a list of faces.
+        """Assign a voltage drop across a list of faces to a specific value.
 
         The voltage drop applies only to sheet objects.
 
@@ -1041,15 +1030,11 @@ class Maxwell(object):
         >>> oModule.AddWindingTerminals
         >>> oModule.AddWindingCoils
         """
-        try:
-            if self.modeler._is3d:
-                self.oboundary.AddWindingTerminals(windingname, coil_names)
-            else:
-                self.oboundary.AddWindingCoils(windingname, coil_names)
-            return True
-        except:
-            self.logger.error("Add winding coils failed.")
-            return False
+        if self.modeler._is3d:
+            self.oboundary.AddWindingTerminals(windingname, coil_names)
+        else:
+            self.oboundary.AddWindingCoils(windingname, coil_names)
+        return True
 
     @pyaedt_function_handler()
     def assign_coil(self, input_object, conductor_number=1, polarity="Positive", name=None):
@@ -1256,9 +1241,12 @@ class Maxwell(object):
     def solve_inside(self, name, activate=True):
         """Solve inside to generate a solution inside an object.
 
+        With this method, Maxwell will create a mesh inside the object and generate the solution from the mesh.
+
         Parameters
         ----------
         name : str
+            Name of the object to generate the solution into.
 
         activate : bool, optional
             The default value is ``True``.
@@ -1278,7 +1266,9 @@ class Maxwell(object):
 
     @pyaedt_function_handler()
     def analyze_from_zero(self):
-        """Analyze from zero.
+        """Forces the next solve to start from time 0 for a given setup.
+
+        Applies only to the Transient solution type.
 
         Returns
         -------
@@ -1290,6 +1280,9 @@ class Maxwell(object):
 
         >>> oModule.ResetSetupToTimeZero
         """
+        if self.solution_type != "Transient":
+            self.logger.error("This methods work only with Maxwell Transient Analysis.")
+            return False
         self.oanalysis.ResetSetupToTimeZero(self._setup)
         self.analyze()
         return True
@@ -1330,6 +1323,9 @@ class Maxwell(object):
     @pyaedt_function_handler()
     def assign_symmetry(self, entity_list, symmetry_name=None, is_odd=True):
         """Assign symmetry boundary.
+
+        This boundary condition defines a plane of geometric or magnetic symmetry in a structure.
+        Assign it only to the outer surfaces of the problem region.
 
         Parameters
         ----------
@@ -1390,6 +1386,8 @@ class Maxwell(object):
         coordinate_system_cartesian="Cartesian",
     ):
         """Assign current density to a single or list of entities.
+
+        This command specifies the x-, y-, and z-components of the current density in a conduction path.
 
         Parameters
         ----------
@@ -1525,20 +1523,24 @@ class Maxwell(object):
         Parameters
         ----------
         objects : list
-            Object list to enable force computation.
+            List of object names for force calculations.
         force_type : int, optional
-            Force Type. `0` for Objects, `1` for Surface, `2` for volumetric.
+            Force Type. ``0`` for Objects, ``1`` for Surface, ``2`` for volumetric.
         window_function : str, optional
-            Windowing function. Default is `"Rectangular"`.
+            Windowing function. Default is ``"Rectangular"``.
+            Available options are: ``"Rectangular"``, ``"Tri"``, ``"Van Hann"``, ``"Hamming"``,
+            ``"Blackman"``, ``"Lanczos"``, ``"Welch"``.
         use_number_of_last_cycles : bool, optional
-            Either to use or not the last cycle. Default is `True`.
+            Use number Of last cycles for force calculations. Default is ``True``.
         last_cycles_number : int, optional
-            Defines the number of cycles to compute if `use_number_of_last_cycle` is `True`.
+            Defines the number of cycles to compute if `use_number_of_last_cycle` is ``True``.
         calculate_force : sr, optional
-            Either `"Harmonic"` or `"Transient"`. Default is `"Harmonic"`.
+            Either ``"Harmonic"`` or ``"Transient"``. Default is ``"Harmonic"``.
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
         if self.solution_type != "Transient":
@@ -1582,18 +1584,18 @@ class Maxwell(object):
         stop_frequency=None,
         number_of_frequency=None,
     ):
-        """Export Element Based Harmonic Forces csv to file.
+        """Exports an element-based harmonic force data to a .csv file.
 
         Parameters
         ----------
         output_directory : str, optional
-            Path to export. If ``None`` pyaedt working dir will be used.
+            The path for the output directory. If ``None`` pyaedt working dir will be used.
         setup_name : str, optional
-            Setup name. If ``None`` pyaedt will use nominal setup.
+            The name of the solution setup. If ``None`` pyaedt will use nominal setup.
         start_frequency : float, optional
             When a float is entered the Start-Stop Frequency approach is used.
         stop_frequency : float, optional
-            A float must be entered when the Start-Stop Frequency approach is used.
+            When a float is entered the Start-Stop Frequency approach is used.
         number_of_frequency : int, optional
             When a number is entered, the number of frequencies approach is used.
 
@@ -1654,7 +1656,7 @@ class Maxwell(object):
         allowable_surface_area_change=5,
         allowable_volume_change=5,
     ):
-        """Analyze healing objects options.
+        """Repairs invalid geometry entities for the selected objects within the specified tolerance settings.
 
         Parameters
         ----------
@@ -1811,12 +1813,8 @@ class Maxwell(object):
             "AllowableVolumeChange:=",
             allowable_volume_change,
         ]
-        try:
-            self.oeditor.HealObject(selections_args, healing_parameters)
-            return True
-        except:
-            self.logger.error("Heal objects failed.")
-            return False
+        self.oeditor.HealObject(selections_args, healing_parameters)
+        return True
 
     @pyaedt_function_handler()
     def simplify_objects(
@@ -1833,7 +1831,7 @@ class Maxwell(object):
         length_threshold_percentage=25,
         create_group_for_new_objects=False,
     ):
-        """Analyze healing objects options.
+        """Simplify command to converts complex objects into simpler primitives which are easy to mesh and solve.
 
         Parameters
         ----------
@@ -1972,11 +1970,8 @@ class Maxwell(object):
                     sources_type_array.append(2)
                 elif source_type == "SPEED":
                     sources_type_array.append(3)
-        try:
-            self.oboundary.EditExternalCircuit(netlist_file_path, sources_array, sources_type_array, [], [])
-            return True
-        except:
-            return False
+        self.oboundary.EditExternalCircuit(netlist_file_path, sources_array, sources_type_array, [], [])
+        return True
 
     @pyaedt_function_handler()
     def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
@@ -2157,6 +2152,9 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     def assign_insulating(self, geometry_selection, insulation_name=None):
         """Create an insulating boundary condition.
 
+        This boundary condition is used to model very thin sheets of perfectly Insulating material between
+        touching conductors. Current cannot cross an insulating boundary.
+
         Parameters
         ----------
         geometry_selection : str or int
@@ -2217,7 +2215,10 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         non_linear_permeability=False,
         impedance_name=None,
     ):
-        """Create an impedance boundary condition.
+        """Create an impedance boundary condition for Transient or Eddy Current solvers.
+
+        This boundary condition is used to simulate the effect of induced currents in a conductor without
+        explicitly computing them.
 
         Parameters
         ----------
@@ -2286,7 +2287,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def assign_current_density_terminal(self, entities, current_density_name=None):
-        """Assign current density terminal to a single or list of entities.
+        """Assign current density terminal to a single or list of entities for Eddy Current and Magnetostatic solvers.
 
         Parameters
         ----------
@@ -2399,7 +2400,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         same_as_master=True,
         bound_name=None,
     ):
-        """Assign master and slave boundary conditions to two faces of the same object.
+        """Assign Dependent and Independent boundary conditions to two faces of the same object.
 
         Parameters
         ----------
@@ -2428,7 +2429,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`, :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Master and slave objects.
+            Master and slave objects. ``False`` if it fails.
 
         References
         ----------
@@ -2748,7 +2749,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object.
+            Boundary object. ``False`` if it fails.
 
         References
         ----------
@@ -2770,7 +2771,9 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def assign_vector_potential(self, input_edge, vectorvalue=0, bound_name=None):
-        """Assign a vector to a list of edges.
+        """Assign a vector potential boundary condition to the specified edges.
+
+        Method valid for Maxwell 2D Eddy Current, Magnetostatic, and Transient solvers.
 
         Parameters
         ----------
@@ -2785,7 +2788,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Vector Potential Object.
+            Vector Potential Object. ``False`` if it fails.
 
         References
         ----------
@@ -2811,7 +2814,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     def assign_master_slave(
         self, master_edge, slave_edge, reverse_master=False, reverse_slave=False, same_as_master=True, bound_name=None
     ):
-        """Assign master and slave boundary conditions to two edges of the same object.
+        """Assign Dependent and Independent boundary conditions to two edges of the same object.
 
         Parameters
         ----------
@@ -2832,7 +2835,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`, :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Master and slave objects.
+            Master and slave objects. ``False`` if it fails.
 
         References
         ----------
@@ -2889,7 +2892,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
-            New created object.
+            New created object. ``False`` if it fails.
 
         References
         ----------

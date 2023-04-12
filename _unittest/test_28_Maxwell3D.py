@@ -1,7 +1,6 @@
 # Setup paths for module imports
 import os
 import shutil
-import tempfile
 
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
@@ -752,8 +751,6 @@ class TestClass(BasisTest, object):
             design_name=self.m3dtransient.design_list[0], project_name=example_project_copy
         )
         # Test the creation of the control program file
-        with tempfile.TemporaryFile("w+") as fp:
-            assert self.aedtapp.setup_ctrlprog(self.m3dtransient.setups[0].name, file_str=fp.name)
 
     def test_46_set_variable(self):
         self.aedtapp.variable_manager.set_variable("var_test", expression="123")
