@@ -1620,7 +1620,7 @@ class ComponentsSubCircuit3DLayout(Objec3DLayout, object):
     @property
     def is_flipped(self):
         """Retrieve if the component is flipped or not."""
-        if self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Flipped") in ["true", "True"]:
+        if self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Flipped").lower() == "true":
             return True
         else:
             return False
@@ -1632,7 +1632,7 @@ class ComponentsSubCircuit3DLayout(Objec3DLayout, object):
 
     @property
     def rotation_axis(self):
-        """Retrieve if the component is flipped or not."""
+        """Rotation axis around which the component is rotated."""
         if self.is_3d_placement:
             return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Rotation Axis")
         return False
@@ -1645,7 +1645,7 @@ class ComponentsSubCircuit3DLayout(Objec3DLayout, object):
 
     @property
     def rotation_axis_direction(self):
-        """Retrieve if the component is flipped or not."""
+        """Axis direction of the rotation."""
         if self.is_3d_placement:
             return [
                 float(i)

@@ -328,8 +328,8 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         pos_y = self._arg_with_dim(pos_y)
         pos_z = self._arg_with_dim(pos_z)
         rotation = self._arg_with_dim(rotation, "deg")
-        comp.location = [pos_x, pos_y, pos_z]
         comp.angle = rotation
+        comp.location = [pos_x, pos_y, pos_z]
         return comp
 
     @pyaedt_function_handler()
