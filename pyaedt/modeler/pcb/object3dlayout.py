@@ -1620,7 +1620,7 @@ class ComponentsSubCircuit3DLayout(Objec3DLayout, object):
     @property
     def is_flipped(self):
         """Retrieve if the component is flipped or not."""
-        if self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Flipped") in ["true", "True"]:
+        if self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Flipped").lower() == "true":
             return True
         else:
             return False
