@@ -414,20 +414,20 @@ class Hfss(FieldAnalysis3D, object):
                         self.odesign.ChangeProperty(properties)
                     except:  # pragma: no cover
                         self.logger.warning("Failed to change normalization.")
-
-                new_name = portname + "_T" + str(count)
-                properties = [
-                    "NAME:AllTabs",
-                    [
-                        "NAME:HfssTab",
-                        ["NAME:PropServers", "BoundarySetup:" + terminal],
-                        ["NAME:ChangedProps", ["NAME:Name", "Value:=", new_name]],
-                    ],
-                ]
-                try:
-                    self.odesign.ChangeProperty(properties)
-                except:  # pragma: no cover
-                    self.logger.warning("Failed to rename terminal {}.".format(terminal))
+                if terminals_rename:
+                    new_name = portname + "_T" + str(count)
+                    properties = [
+                        "NAME:AllTabs",
+                        [
+                            "NAME:HfssTab",
+                            ["NAME:PropServers", "BoundarySetup:" + terminal],
+                            ["NAME:ChangedProps", ["NAME:Name", "Value:=", new_name]],
+                        ],
+                    ]
+                    try:
+                        self.odesign.ChangeProperty(properties)
+                    except:  # pragma: no cover
+                        self.logger.warning("Failed to rename terminal {}.".format(terminal))
 
             if iswaveport:
                 boundary.type = "Wave Port"
@@ -5955,6 +5955,7 @@ class Hfss(FieldAnalysis3D, object):
         name=None,
         renormalize=True,
         deembed=False,
+        terminals_rename=True,
     ):
         """Create a waveport taking the closest edges of two objects.
 
@@ -5984,6 +5985,8 @@ class Hfss(FieldAnalysis3D, object):
         deembed : float, optional
             Deembed distance in millimeters. The default is ``0``,
             in which case deembed is disabled.
+        terminals_rename : bool, optional
+            Modify terminals name with the port name plus the terminal number. The default value is ``True``.
 
         Returns
         -------
@@ -6055,6 +6058,7 @@ class Hfss(FieldAnalysis3D, object):
                     deembed=deembed,
                     iswaveport=False,
                     impedance=impedance,
+                    terminals_rename=terminals_rename,
                 )
         return False
 
@@ -6075,6 +6079,7 @@ class Hfss(FieldAnalysis3D, object):
         is_microstrip=False,
         vfactor=3,
         hfactor=5,
+        terminals_rename=True,
     ):
         """Create a waveport from a sheet (``start_object``) or taking the closest edges of two objects.
 
@@ -6115,6 +6120,8 @@ class Hfss(FieldAnalysis3D, object):
             Port vertical factor. Only valid if ``is_microstrip`` is enabled. The default is ``3``.
         hfactor : int, optional
             Port horizontal factor. Only valid if ``is_microstrip`` is enabled. The default is ``5``.
+        terminals_rename : bool, optional
+            Modify terminals name with the port name plus the terminal number. The default value is ``True``.
 
         Returns
         -------
@@ -6226,6 +6233,7 @@ class Hfss(FieldAnalysis3D, object):
                     deembed=deembed,
                     iswaveport=True,
                     impedance=impedance,
+                    terminals_rename=terminals_rename,
                 )
             else:
                 self.logger.error("Reference conductors are missing.")
