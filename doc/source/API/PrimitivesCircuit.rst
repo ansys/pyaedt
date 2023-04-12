@@ -48,7 +48,7 @@ modeler, including all primitives methods and properties:
 
 Schematic in Circuit
 ~~~~~~~~~~~~~~~~~~~~
-The following classes define the object properties for Schematic circuit.
+The following classes define the object properties for Circuit components.
 They contain all getters and setters to simplify object manipulation.
 
 .. currentmodule:: pyaedt.modeler.circuits.PrimitivesNexxim
@@ -112,7 +112,7 @@ They contain all getters and setters to simplify object manipulation.
 
 Schematic in Emit
 ~~~~~~~~~~~~~~~~~
-The following classes define the object properties for Emit.
+The following classes define the object properties for Emit components.
 They contain all getters and setters to simplify object manipulation.
 
 .. currentmodule:: pyaedt.modeler.circuits.PrimitivesEmit
@@ -126,7 +126,7 @@ They contain all getters and setters to simplify object manipulation.
 
 Schematic in TwinBuilder
 ~~~~~~~~~~~~~~~~~~~~~~~~
-The following classes define the object properties for TwinBuilder.
+The following classes define the object properties for TwinBuilder components.
 They contain all getters and setters to simplify object manipulation.
 
 .. currentmodule:: pyaedt.modeler.circuits.PrimitivesTwinBuilder
@@ -162,7 +162,7 @@ They contain all getters and setters to simplify object manipulation.
 
 Schematic in Maxwell Circuit
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The following classes define the object properties for Maxwell Circuit.
+The following classes define the object properties for Maxwell Circuit components.
 They contain all getters and setters to simplify object manipulation.
 
 .. currentmodule:: pyaedt.modeler.circuits.PrimitivesMaxwellCircuit
