@@ -1266,7 +1266,7 @@ class Maxwell(object):
 
     @pyaedt_function_handler()
     def analyze_from_zero(self):
-        """Forces the next solve to start from time 0 for a given setup.
+        """Force the next solve to start from time 0 for a given setup.
 
         Applies only to the Transient solution type.
 
@@ -1584,7 +1584,7 @@ class Maxwell(object):
         stop_frequency=None,
         number_of_frequency=None,
     ):
-        """Exports an element-based harmonic force data to a .csv file.
+        """Export an element-based harmonic force data to a .csv file.
 
         Parameters
         ----------
@@ -1656,7 +1656,7 @@ class Maxwell(object):
         allowable_surface_area_change=5,
         allowable_volume_change=5,
     ):
-        """Repairs invalid geometry entities for the selected objects within the specified tolerance settings.
+        """Repair invalid geometry entities for the selected objects within the specified tolerance settings.
 
         Parameters
         ----------
