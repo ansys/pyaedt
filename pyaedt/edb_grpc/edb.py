@@ -14,6 +14,7 @@ import warnings
 
 from ansys.edb.database import Database
 from ansys.edb.geometry import ExtentType
+from ansys.edb.geometry.polygon_data import PolygonData
 from ansys.edb.layout.cell import Cell
 from ansys.edb.layout.cell import CellType
 
@@ -63,10 +64,11 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.process import SiwaveSolve
 from pyaedt.misc.misc import list_installed_ansysem
 
+# from ansys.edb.simulation_setup import SimulationSetup
+
 
 class Edb(object):
     """Provides the EDB application interface.
-
     This module inherits all objects that belong to EDB.
 
     Parameters
@@ -454,53 +456,8 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def open_edb_inside_aedt(self):
-        """Open EDB inside of AEDT not supported currently with Pyedb.
-
-        Parameters
-        ----------
-        init_dlls : bool, optional
-            Whether to initialize DLLs. The default is ``False``.
-
-        Returns
-        -------
-
-        """
-        # not yet supported with pyedb
-        pass
-        # if init_dlls:
-        #     self._init_dlls()
-        # self.logger.info("Opening EDB from HDL")
-        # self.edb.Database.SetRunAsStandAlone(False)
-        # if self.oproject.GetEDBHandle():
-        #     hdl = Convert.ToUInt64(self.oproject.GetEDBHandle())
-        #     db = self.edb.Database.Attach(hdl)
-        #     if not db:
-        #         self.logger.warning("Error getting the database.")
-        #         self._db = None
-        #         self._active_cell = None
-        #         self.builder = None
-        #         return None
-        #     self._db = db
-        #     self._active_cell = self.edb.Cell.Cell.FindByName(
-        #         self.db, self.edb.Cell.CellType.CircuitCell, self.cellname
-        #     )
-        #     if self._active_cell is None:
-        #         self._active_cell = list(self._db.TopCircuitCells)[0]
-        #     if self._db and self._active_cell:
-        #         if not os.path.exists(self.edbpath):
-        #             os.makedirs(self.edbpath)
-        #         time.sleep(3)
-        #         self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
-        #         self._init_objects()
-        #         return self.builder
-        #     else:
-        #         self.builder = None
-        #         return None
-        # else:
-        #     self._db = None
-        #     self._active_cell = None
-        #     self.builder = None
-        #     return None
+        """Open EDB inside of AEDT not supported currently with Pyedb."""
+        self.logger.warning("Method not supported with EDB grpc for the moment")
 
     @pyaedt_function_handler()
     def create_edb(self, init_rpc_server=False):
@@ -1119,7 +1076,7 @@ class Edb(object):
         use_round_corner,
         use_pyaedt_extent=False,
     ):
-        if extent_type in ["Conforming", self.edb.Geometry.ExtentType.Conforming, 1]:
+        if extent_type in ["Conforming", ExtentType.CONFORMING, 1]:
             if use_pyaedt_extent:
                 _poly = self._create_conformal(net_signals, expansion_size, 1e-12, use_round_corner, expansion_size)
             else:
@@ -1131,19 +1088,18 @@ class Edb(object):
                     use_round_corner=True,
                     num_increments=1,
                 )
-        elif extent_type in ["Bounding", self.edb.Geometry.ExtentType.BoundingBox, 0]:
-            _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals, self.edb.Geometry.ExtentType.BoundingBox, expansion_size, False, use_round_corner, 1
+        elif extent_type in ["Bounding", ExtentType.BOUNDING_BOX, 0]:
+            _poly = self.active_layout.expanded_extent(
+                net_signals, ExtentType.BOUNDING_BOX, expansion_size, False, use_round_corner, 1
             )
         else:
             if use_pyaedt_extent:
                 _poly = self._create_convex_hull(net_signals, expansion_size, 1e-12, use_round_corner, expansion_size)
             else:
-                _poly = self.active_layout.GetExpandedExtentFromNets(
-                    net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
+                _poly = self.active_layout.expanded_extent(
+                    net_signals, ExtentType.CONFORMING, expansion_size, False, use_round_corner, 1
                 )
-                _poly_list = convert_py_list_to_net_list([_poly])
-                _poly = self.edb.Geometry.PolygonData.GetConvexHullOfPolygons(_poly_list)
+                _poly = PolygonData.convex_hull(_poly)
         return _poly
 
     @pyaedt_function_handler()
@@ -1154,12 +1110,12 @@ class Edb(object):
             names.append(net.GetName())
         for prim in self.core_primitives.primitives:
             if prim.net_name in names:
-                obj_data = prim.primitive_object.GetPolygonData().Expand(
+                obj_data = prim.primitive_object.polygon_data.expand(
                     expansion_size, tolerance, round_corner, round_extension
                 )
                 if obj_data:
                     _polys.extend(list(obj_data))
-        _poly = self.edb.Geometry.PolygonData.Unite(convert_py_list_to_net_list(_polys))[0]
+        _poly = PolygonData.unite(_polys)[0]
         return _poly
 
     @pyaedt_function_handler()
@@ -1170,9 +1126,9 @@ class Edb(object):
             names.append(net.GetName())
         for prim in self.core_primitives.primitives:
             if prim.net_name in names:
-                _polys.append(prim.primitive_object.GetPolygonData())
-        _poly = self.edb.Geometry.PolygonData.GetConvexHullOfPolygons(convert_py_list_to_net_list(_polys))
-        _poly = _poly.Expand(expansion_size, tolerance, round_corner, round_extension)[0]
+                _polys.append(prim.primitive_object.polygon_data)
+        _poly = PolygonData.convex_hull(_polys)
+        _poly = _poly.expand(expansion_size, tolerance, round_corner, round_extension)[0]
         return _poly
 
     @pyaedt_function_handler()
@@ -1329,17 +1285,10 @@ class Edb(object):
         use_pyaedt_extent_computing=False,
         remove_single_pin_components=False,
     ):
-        expansion_size = self.edb_value(expansion_size).ToDouble()
-
         # validate nets in layout
-        net_signals = convert_py_list_to_net_list(
-            [net for net in list(self.active_layout.Nets) if net.GetName() in signal_list]
-        )
+        net_signals = [net for net in self.active_layout.nets if net.name in signal_list]
         # validate references in layout
-        _netsClip = convert_py_list_to_net_list(
-            [net for net in list(self.active_layout.Nets) if net.GetName() in reference_list]
-        )
-
+        _netsClip = [net for net in self.active_layout.nets if net.name in reference_list]
         _poly = self._create_extent(
             net_signals,
             extent_type,
@@ -1350,28 +1299,11 @@ class Edb(object):
 
         # Create new cutout cell/design
         included_nets_list = signal_list + reference_list
-        included_nets = convert_py_list_to_net_list(
-            [net for net in list(self.active_layout.Nets) if net.GetName() in included_nets_list]
-        )
-        _cutout = self.active_cell.CutOut(included_nets, _netsClip, _poly, True)
-        # Analysis setups do not come over with the clipped design copy,
-        # so add the analysis setups from the original here.
-        id = 1
-        for _setup in self.active_cell.SimulationSetups:
-            # Empty string '' if coming from setup copy and don't set explicitly.
-            _setup_name = _setup.GetName()
-            if "GetSimSetupInfo" in dir(_setup):
-                # setup is an Ansys.Ansoft.Edb.Utility.HFSSSimulationSetup object
-                _hfssSimSetupInfo = _setup.GetSimSetupInfo()
-                _hfssSimSetupInfo.Name = "HFSS Setup " + str(id)  # Set name of analysis setup
-                # Write the simulation setup info into the cell/design setup
-                _setup.SetSimSetupInfo(_hfssSimSetupInfo)
-                _cutout.AddSimulationSetup(_setup)  # Add simulation setup to the cutout design
-                id += 1
-            else:
-                _cutout.AddSimulationSetup(_setup)  # Add simulation setup to the cutout design
-
-        _dbCells = [_cutout]
+        included_nets = [net for net in self.active_layout.nets if net.name in included_nets_list]
+        cutout_cell = self.active_cell.cutout(included_nets, _netsClip, _poly, True)
+        for setup in self.active_cell.simulation_setups:
+            cloned_setup = HfssSimulationSetup.create(cutout_cell, setup.name)
+            cloned_setup.enabled = True
 
         if output_aedb_path:
             db2 = self.edb.Database.Create(output_aedb_path)
