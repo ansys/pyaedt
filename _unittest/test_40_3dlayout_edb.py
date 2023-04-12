@@ -134,6 +134,9 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.modeler.layers.drawing_layers) > 0
         assert len(self.aedtapp.modeler.layers.all_signal_layers) > 0
         assert len(self.aedtapp.modeler.layers.all_diel_layers) > 0
+        assert len(self.aedtapp.modeler.stackup.all_signal_layers) == len(self.aedtapp.modeler.stackup.signals)
+        assert len(self.aedtapp.modeler.stackup.all_diel_layers) == len(self.aedtapp.modeler.stackup.dielectrics)
+        assert len(self.aedtapp.modeler.stackup.stackup_layers) == len(self.aedtapp.modeler.stackup.drawings)
         assert len(self.aedtapp.modeler.layers.all_signal_layers) + len(
             self.aedtapp.modeler.layers.all_diel_layers
         ) == len(self.aedtapp.modeler.layers.stackup_layers)
