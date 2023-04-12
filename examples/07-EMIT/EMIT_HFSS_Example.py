@@ -9,6 +9,8 @@ as a coupling link in the EMIT design.
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
+#
+# sphinx_gallery_thumbnail_path = "Resources/emit_hfss.png"
 
 import os
 
@@ -54,7 +56,10 @@ example_dir = os.path.join(d.install_path, "Examples\\EMIT")
 example_project = os.path.join(example_dir, example_aedt)
 example_pdf = os.path.join(example_dir, example_pdf_file)
 
-# If the ``Cell Phone RFT Defense`` example is not in the installation directory, exit from this example.
+########################################################################################################
+# If the ``Cell Phone RFT Defense`` example is not
+# in the installation directory, exit from this example.
+
 if not os.path.exists(example_project):
     msg = """
         Cell phone RFT Desense example file is not in the

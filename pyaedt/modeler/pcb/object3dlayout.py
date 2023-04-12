@@ -1461,6 +1461,38 @@ class Line3dLayout(Geometries3DLayout, object):
             self.change_property(vpoint)
         self._center_line = {}
 
+    @pyaedt_function_handler()
+    def _edit(self, points):
+        name = self.name
+        arg = ["NAME:Contents", "lineGeometry:="]
+        arg2 = [
+            "Name:=",
+            name,
+            "LayerName:=",
+            self.placement_layer,
+            "lw:=",
+            self._primitives.number_with_units(self.width),
+            "endstyle:=",
+            self.end_cap_type,
+            "StartCap:=",
+            self.start_cap_type,
+            "n:=",
+            len(points),
+            "U:=",
+            self.object_units,
+        ]
+        i = 0
+        for a in points:
+            arg2.append("x{}:=".format(i))
+            arg2.append(a[0])
+            arg2.append("y{}:=".format(i))
+            arg2.append(a[1])
+            i += 1
+        arg.append(arg2)
+        arg_edit = ["NAME:items", ["NAME:item", "name:" + self.name]]
+        arg_edit[1].append(arg)
+        self._oeditor.Edit(arg_edit)
+
 
 class Points3dLayout(object):
     """Manages HFSS 3D Layout points."""
@@ -1579,6 +1611,116 @@ class ComponentsSubCircuit3DLayout(Objec3DLayout, object):
             return True
         else:
             return False
+
+    @is_3d_placement.setter
+    def is_3d_placement(self, value):
+        props = ["NAME:3D Placement", "Value:=", value]
+        self.change_property(props)
+
+    @property
+    def is_flipped(self):
+        """Retrieve if the component is flipped or not."""
+        if self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Flipped").lower() == "true":
+            return True
+        else:
+            return False
+
+    @is_flipped.setter
+    def is_flipped(self, value):
+        props = ["NAME:Flipped", "Value:=", value]
+        self.change_property(props)
+
+    @property
+    def rotation_axis(self):
+        """Rotation axis around which the component is rotated."""
+        if self.is_3d_placement:
+            return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Rotation Axis")
+        return False
+
+    @rotation_axis.setter
+    def rotation_axis(self, value):
+        if self.is_3d_placement and value in ["X", "Y", "Z"]:
+            props = ["NAME:Rotation Axis", "Value:=", value]
+            self.change_property(props)
+
+    @property
+    def rotation_axis_direction(self):
+        """Axis direction of the rotation."""
+        if self.is_3d_placement:
+            return [
+                float(i)
+                for i in self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Rotation Axis Direction").split(
+                    ","
+                )
+            ]
+        return [0, 0, 1]
+
+    @rotation_axis_direction.setter
+    def rotation_axis_direction(self, value):
+        if self.is_3d_placement:
+            props = ["NAME:Rotation Axis Direction", "X:=", str(value[0]), "Y:=", str(value[1]), "Z:=", str(value[2])]
+            self.change_property(props)
+
+    @property
+    def local_origin(self):
+        """Retrieve if the component has 3d placement, the local origin.
+
+        Returns
+        -------
+        list
+            [x, y, z] position.
+        """
+        if self.is_3d_placement:
+            return [i for i in self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Local Origin").split(",")]
+        return [0, 0, 0]
+
+    @local_origin.setter
+    def local_origin(self, value):
+        if self.is_3d_placement:
+            value = [self._primitives._arg_with_dim(i) for i in value]
+            props = ["NAME:Local Origin", "X:=", value[0], "Y:=", value[1], "Z:=", value[2]]
+            self.change_property(props)
+
+    @property
+    def location(self):
+        """Retrieve/Set the absolute location in model units.
+        Location is computed with combination of 3d Layout location and model center.
+
+        Returns
+        -------
+        list
+           List of ``(x, y)`` coordinates for the component location.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        """
+        location = _retry_ntimes(
+            self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, "Location"
+        ).split(",")
+        locs = []
+        for i in location:
+            try:
+                locs.append(float(i))
+            except ValueError:  # pragma: no cover
+                locs.append(i)
+        return locs
+
+    @location.setter
+    def location(self, position):
+        props = [
+            "NAME:Location",
+            "X:=",
+            self._primitives.number_with_units(position[0]),
+            "Y:=",
+            self._primitives.number_with_units(position[1]),
+            "Z:=",
+            self._primitives.number_with_units(self.location[2])
+            if len(position) < 3
+            else self._primitives.number_with_units(position[2]),
+        ]
+        self.change_property(props)
 
 
 class Padstack(object):

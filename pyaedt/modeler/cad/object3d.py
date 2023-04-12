@@ -193,6 +193,8 @@ class Object3d(object):
         """
         if self.object_type == "Unclassified":
             return [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        if settings.aedt_version >= "2023.2":
+            return [float(i) for i in self._oeditor.GetObjectBoundingBox(self.name)]
         if not settings.disable_bounding_box_sat:
             bounding = self._bounding_box_sat()
             if bounding:

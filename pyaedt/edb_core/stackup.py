@@ -525,8 +525,8 @@ class Stackup(object):
 
     @pyaedt_function_handler()
     def add_outline_layer(self, outline_name="Outline"):
-        """
-        Add an outline layer named ``"Outline"`` if it is not present.
+        """Add an outline layer named ``"Outline"`` if it is not present.
+
         Returns
         -------
         bool
@@ -2282,8 +2282,8 @@ class Stackup(object):
                             x_start + pad_size / 2 * scaling_f_pad,
                             x_start + pad_size / 2 * scaling_f_pad,
                         ]
-                        le = [e[1] for e in layers_data if e[0].name == layer][0]
-                        ue = [e[2] for e in layers_data if e[0].name == layer][0]
+                        le = [e[1] for e in layers_data if e[0].name == layer or layer == "Default"][0]
+                        ue = [e[2] for e in layers_data if e[0].name == layer or layer == "Default"][0]
                         y = [le, ue, ue, le]
                         # create the patch for that signal layer
                         plot_data.append([x, y, color_keys[color_index], None, 1.0, "fill"])

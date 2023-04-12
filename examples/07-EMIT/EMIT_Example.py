@@ -8,6 +8,8 @@ the simulation of an antenna.
 # Perform required inputs
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
+#
+# sphinx_gallery_thumbnail_path = "Resources/emit_simple_cosite.png"
 
 import os
 import pyaedt
@@ -23,7 +25,7 @@ import pyaedt.emit_core.EmitConstants as econsts
 # of AEDT or try to connect to existing instance of it if one is available.
 
 non_graphical = False
-NewThread = False
+NewThread = True
 desktop_version = "2023.1"
 
 

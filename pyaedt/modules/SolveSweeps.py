@@ -461,7 +461,7 @@ class SweepHFSS3DLayout(object):
             Starting frequency.
         end : float, optional
             Stopping frequency. The default is ``None``. A value is
-           required for these subranges: ``"LinearCount"``, ``"LinearStep"``, and ``"LogScale"``.
+            required for these subranges: ``"LinearCount"``, ``"LinearStep"``, and ``"LogScale"``.
         count : int or float, optional
             Frequency count or frequency step. The default is ``None``.
             A value is required for these subranges: ``"LinearCount"``, ``"LinearStep"``,
