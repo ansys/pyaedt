@@ -34,16 +34,16 @@ class EDBComponentDef(object):
 
     @property
     def _comp_model(self):
-        return list(self._edb_comp_def.GetComponentModels())  # pragma: no cover
+        return self._edb_comp_def.component_models  # pragma: no cover
 
     @property
     def part_name(self):
         """Retrieve component definition name."""
-        return self._edb_comp_def.GetName()
+        return self._edb_comp_def.name
 
     @part_name.setter
     def part_name(self, name):
-        self._edb_comp_def.SetName(name)
+        self._edb_comp_def.name = name
 
     @property
     def type(self):
@@ -76,7 +76,7 @@ class EDBComponentDef(object):
         """
         comp_list = [
             EDBComponent(self._pcomponents, l)
-            for l in self._pcomponents._edb.Cell.Hierarchy.Component.FindByComponentDef(
+            for l in self._pcomponents._edb.hierarchy.component.find_by_def(
                 self._pcomponents._pedb.active_layout, self.part_name
             )
         ]
@@ -159,80 +159,76 @@ class EDBComponent(object):
             self._edb_model = edb_model
             self._edb_pin_pair = edb_pin_pair
 
-        def _edb_value(self, value):
-            return self._pedb_comp._get_edb_value(value)  # pragma: no cover
-
         @property
         def is_parallel(self):
-            return self._pin_pair_rlc.IsParallel  # pragma: no cover
+            return self._pin_pair_rlc.is_parallel  # pragma: no cover
 
         @is_parallel.setter
         def is_parallel(self, value):
-            rlc = self._pin_pair_rlc
-            rlc.IsParallel = value
+            self._pin_pair_rlc.is_parallel = value
             self._set_comp_prop()  # pragma: no cover
 
         @property
         def _pin_pair_rlc(self):
-            return self._edb_model.GetPinPairRlc(self._edb_pin_pair)
+            return self._edb_model.pin_pair_rlc
 
         @property
         def rlc_enable(self):
             rlc = self._pin_pair_rlc
-            return [rlc.REnabled, rlc.LEnabled, rlc.CEnabled]
+            return [rlc.r_enabled, rlc.l_enabled, rlc.c_enabled]
 
         @rlc_enable.setter
         def rlc_enable(self, value):
             rlc = self._pin_pair_rlc
-            rlc.REnabled = value[0]
-            rlc.LEnabled = value[1]
-            rlc.CEnabled = value[2]
+            rlc.r_enabled = value[0]
+            rlc.l_enabled = value[1]
+            rlc.c_enabled = value[2]
             self._set_comp_prop()  # pragma: no cover
 
         @property
         def resistance(self):
-            return self._pin_pair_rlc.R.ToDouble()  # pragma: no cover
+            return self._pin_pair_rlc.r  # pragma: no cover
 
         @resistance.setter
         def resistance(self, value):
-            self._pin_pair_rlc.R = value
+            self._pin_pair_rlc.r = value
             self._set_comp_prop(self._pin_pair_rlc)  # pragma: no cover
 
         @property
         def inductance(self):
-            return self._pin_pair_rlc.L.ToDouble()  # pragma: no cover
+            return self._pin_pair_rlc.l  # pragma: no cover
 
         @inductance.setter
         def inductance(self, value):
-            self._pin_pair_rlc.L = value
+            self._pin_pair_rlc.l = value
             self._set_comp_prop(self._pin_pair_rlc)  # pragma: no cover
 
         @property
         def capacitance(self):
-            return self._pin_pair_rlc.C.ToDouble()  # pragma: no cover
+            return self._pin_pair_rlc.c  # pragma: no cover
 
         @capacitance.setter
         def capacitance(self, value):
-            self._pin_pair_rlc.C = value
+            self._pin_pair_rlc.c = value
             self._set_comp_prop(self._pin_pair_rlc)  # pragma: no cover
 
         @property
         def rlc_values(self):  # pragma: no cover
             rlc = self._pin_pair_rlc
-            return [rlc.R.ToDouble(), rlc.L.ToDouble(), rlc.C.ToDouble()]
+            return [rlc.r, rlc.l, rlc.c]
 
         @rlc_values.setter
         def rlc_values(self, values):  # pragma: no cover
             rlc = self._pin_pair_rlc
-            rlc.R = self._edb_value(values[0])
-            rlc.L = self._edb_value(values[1])
-            rlc.C = self._edb_value(values[2])
+            rlc.R = values[0]
+            rlc.L = values[1]
+            rlc.C = values[2]
             self._set_comp_prop()  # pragma: no cover
 
         def _set_comp_prop(self):  # pragma: no cover
-            self._edb_model.SetPinPairRlc(self._edb_pin_pair, self._pin_pair_rlc)
-            self._edb_comp_prop.SetModel(self._edb_model)
-            self._edb_comp.SetComponentProperty(self._edb_comp_prop)
+            self._edb_model.set_rlc(self._edb_pin_pair, self._pin_pair_rlc)
+            self._edb_comp_prop.set_model(self._edb_model)  # to test
+            self._edb_comp.component_property = self._edb_comp_prop
 
     class _SpiceModel(object):  # pragma: no cover
         def __init__(self, edb_model):
@@ -240,11 +236,11 @@ class EDBComponent(object):
 
         @property
         def file_path(self):
-            return self._edb_model.GetSPICEFilePath()
+            return self._edb_model.model_path
 
         @property
         def name(self):
-            return self._edb_model.GetSPICEName()
+            return self._edb_model.model_name
 
     class _SparamModel(object):  # pragma: no cover
         def __init__(self, edb_model):
@@ -252,11 +248,11 @@ class EDBComponent(object):
 
         @property
         def name(self):
-            return self._edb_model.GetComponentModelName()
+            return self._edb_model.component_model
 
         @property
         def reference_net(self):
-            return self._edb_model.GetReferenceNet()
+            return self._edb_model.reference_net
 
     class _NetlistModel(object):  # pragma: no cover
         def __init__(self, edb_model):
@@ -264,7 +260,7 @@ class EDBComponent(object):
 
         @property
         def netlist(self):
-            return self._edb_model.GetNetlist()
+            return self._edb_model.netlist
 
     def __init__(self, components, cmp):
         self._pcomponents = components
@@ -283,7 +279,7 @@ class EDBComponent(object):
     def component_instance(self):
         """Edb component instance."""
         if self._comp_instance is None:
-            self._comp_instance = self.layout_instance.GetLayoutObjInstance(self.edbcomponent, None)
+            self._comp_instance = self.layout_instance.get_layout_obj_instance_in_context(self.edbcomponent, None)
         return self._comp_instance
 
     @property
@@ -297,11 +293,11 @@ class EDBComponent(object):
     @property
     def component_property(self):
         """``ComponentProperty`` object."""
-        return self.edbcomponent.GetComponentProperty().Clone()
+        return self.edbcomponent.component_property
 
     @property
     def _edb_model(self):  # pragma: no cover
-        return self.component_property.GetModel().Clone()
+        return self.component_property.model  # should not need clone() command
 
     @property  # pragma: no cover
     def _pin_pairs(self):
@@ -340,14 +336,14 @@ class EDBComponent(object):
     def solder_ball_height(self):
         """Solder ball height if available."""
         if "GetSolderBallProperty" in dir(self.component_property):
-            return self.component_property.GetSolderBallProperty().GetHeight()
+            return self.component_property.solder_ball_property.height
         return None
 
     @property
     def solder_ball_placement(self):
         """Solder ball placement if available.."""
         if "GetSolderBallProperty" in dir(self.component_property):
-            return int(self.component_property.GetSolderBallProperty().GetPlacement())
+            return int(self.component_property.solder_ball_property.placement)
         return 2
 
     @property
@@ -359,11 +355,11 @@ class EDBComponent(object):
         str
             Reference Designator Name.
         """
-        return self.edbcomponent.GetName()
+        return self.edbcomponent.name
 
     @refdes.setter
     def refdes(self, name):
-        self.edbcomponent.SetName(name)
+        self.edbcomponent.name = name
 
     @property
     def is_enabled(self):
@@ -375,7 +371,7 @@ class EDBComponent(object):
             ``True`` if current object is enabled, ``False`` otherwise.
         """
         if self.type in ["Resistor", "Capacitor", "Inductor"]:
-            return self.component_property.IsEnabled()
+            return self.component_property.is_enabled
         else:  # pragma: no cover
             return False
 
@@ -384,8 +380,8 @@ class EDBComponent(object):
         """Enables the current object."""
         if self.type in ["Resistor", "Capacitor", "Inductor"]:
             component_property = self.component_property
-            component_property.SetEnabled(enabled)
-            self.edbcomponent.SetComponentProperty(component_property)
+            component_property.is_enabled = enabled
+            self.edbcomponent.component_property = component_property
 
     @property
     def model_type(self):
