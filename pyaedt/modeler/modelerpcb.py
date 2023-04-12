@@ -51,7 +51,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
     @property
     def stackup(self):
-        """Get the Stackup class and it's methods.
+        """Get the Stackup class and its methods.
 
         Returns
         -------
