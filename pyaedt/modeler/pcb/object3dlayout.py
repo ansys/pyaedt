@@ -1461,6 +1461,38 @@ class Line3dLayout(Geometries3DLayout, object):
             self.change_property(vpoint)
         self._center_line = {}
 
+    @pyaedt_function_handler()
+    def _edit(self, points):
+        name = self.name
+        arg = ["NAME:Contents", "lineGeometry:="]
+        arg2 = [
+            "Name:=",
+            name,
+            "LayerName:=",
+            self.placement_layer,
+            "lw:=",
+            self._primitives.number_with_units(self.width),
+            "endstyle:=",
+            self.end_cap_type,
+            "StartCap:=",
+            self.start_cap_type,
+            "n:=",
+            len(points),
+            "U:=",
+            self.object_units,
+        ]
+        i = 0
+        for a in points:
+            arg2.append("x{}:=".format(i))
+            arg2.append(a[0])
+            arg2.append("y{}:=".format(i))
+            arg2.append(a[1])
+            i += 1
+        arg.append(arg2)
+        arg_edit = ["NAME:items", ["NAME:item", "name:" + self.name]]
+        arg_edit[1].append(arg)
+        self._oeditor.Edit(arg_edit)
+
 
 class Points3dLayout(object):
     """Manages HFSS 3D Layout points."""

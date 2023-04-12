@@ -8,6 +8,8 @@ the simulation of an antenna.
 # Perform required inputs
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
+#
+# sphinx_gallery_thumbnail_path = "Resources/emit_simple_cosite.png"
 
 import os
 import pyaedt
