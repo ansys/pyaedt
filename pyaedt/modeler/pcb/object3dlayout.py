@@ -1645,7 +1645,7 @@ class ComponentsSubCircuit3DLayout(Objec3DLayout, object):
 
     @property
     def rotation_axis_direction(self):
-        """Retrieve if the component is flipped or not."""
+        """Axis direction of the rotation."""
         if self.is_3d_placement:
             return [
                 float(i)
