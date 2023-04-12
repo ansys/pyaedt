@@ -937,7 +937,7 @@ class Layer(object):
                     [
                         "NAME:Sublayer",
                         "Thickness:=",
-                        self.thickness,
+                        self._arg_with_dim(self.thickness, self.thickness_units),
                         "LowerElevation:=",
                         self._arg_with_dim(self.lower_elevation, self.LengthUnit),
                         "Roughness:=",
@@ -1029,9 +1029,9 @@ class Layer(object):
                     [
                         "NAME:Sublayer",
                         "Thickness:=",
-                        self.thickness,
+                        self._arg_with_dim(self.thickness, self.thickness_units),
                         "LowerElevation:=",
-                        self.lower_elevation,
+                        self._arg_with_dim(self.lower_elevation, self.LengthUnit),
                         "Roughness:=",
                         0,
                         "BotRoughness:=",

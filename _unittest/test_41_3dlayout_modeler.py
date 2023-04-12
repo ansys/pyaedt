@@ -104,7 +104,7 @@ class TestClass(BasisTest, object):
         assert s1.pattern == 0
         s1.pattern = 1
 
-        assert s1.lower_elevation == "0mm"
+        assert s1.lower_elevation == "0mm" or s1.lower_elevation == 0.0
         s1.lower_elevation = 1
         assert s1.lower_elevation == 1
         s1.lower_elevation = 0
