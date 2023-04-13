@@ -2401,7 +2401,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         same_as_master=True,
         bound_name=None,
     ):
-        """Assign Dependent and Independent boundary conditions to two faces of the same object.
+        """Assign dependent and independent boundary conditions to two faces of the same object.
 
         Parameters
         ----------
