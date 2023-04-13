@@ -854,8 +854,11 @@ class Geometries3DLayout(Objec3DLayout, object):
     @name.setter
     def name(self, value):
         try:
+            del self._primitives._lines[self.name]
             vMaterial = ["NAME:Name", "Value:=", value]
             self.change_property(vMaterial)
+            self._name = value
+            self._primitives._lines[self._name] = self
         except:
             pass
 
