@@ -368,7 +368,15 @@ class Hfss(FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def _create_port_terminal(
-        self, objectname, int_line_stop, portname, renorm=True, deembed=None, iswaveport=False, impedance=None
+        self,
+        objectname,
+        int_line_stop,
+        portname,
+        renorm=True,
+        deembed=None,
+        iswaveport=False,
+        impedance=None,
+        terminals_rename=True,
     ):
         ref_conductors = self.modeler.convert_to_selections(int_line_stop, True)
         props = OrderedDict()
