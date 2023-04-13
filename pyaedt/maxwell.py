@@ -335,7 +335,6 @@ class Maxwell(object):
         self, setupname, file_str=None, keep_modifications=False, python_interpreter=None, aedt_lib_dir=None
     ):
         """Configure the transient design setup to run a specific control program.
-
         The control program is executed from a temp directory that Maxwell creates for every setup run.
 
         Parameters
@@ -357,57 +356,57 @@ class Maxwell(object):
         bool
             ``True`` when successful and ``False`` when failed.
         """
-        if self.solution_type in ["Transient"]:
-            self._py_file = setupname + ".py"
-            ctl_file_path = os.path.join(self.working_directory, self._py_file)
-
-            if aedt_lib_dir:
-                source_dir = aedt_lib_dir
-            else:
-                source_dir = self.pyaedt_dir
-
-            if os.path.exists(ctl_file_path) and keep_modifications:
-                with open(ctl_file_path, "r") as fi:
-                    existing_data = fi.readlines()
-                with open(ctl_file_path, "w") as fo:
-                    first_line = True
-                    for line in existing_data:
-                        if first_line:
-                            first_line = False
-                            if python_interpreter:
-                                fo.write("#!{0}\n".format(python_interpreter))
-                        if line.startswith("work_dir"):
-                            fo.write("work_dir = r'{0}'\n".format(self.working_directory))
-                        elif line.startswith("lib_dir"):
-                            fo.write("lib_dir = r'{0}'\n".format(source_dir))
-                        else:
-                            fo.write(line)
-            else:
-                if file_str is not None:
-                    with io.open(ctl_file_path, "w", newline="\n") as fo:
-                        fo.write(file_str)
-                    assert os.path.exists(ctl_file_path), "Control program file could not be created."
-
-            self.oanalysis.EditSetup(
-                setupname,
-                [
-                    "NAME:" + setupname,
-                    "Enabled:=",
-                    True,
-                    "UseControlProgram:=",
-                    True,
-                    "ControlProgramName:=",
-                    ctl_file_path,
-                    "ControlProgramArg:=",
-                    "",
-                    "CallCtrlProgAfterLastStep:=",
-                    True,
-                ],
-            )
-            return True
-        else:
+        if self.solution_type not in ["Transient"]:
             self.logger.error("Control Program is only available in Maxwell 2D and 3D Transient solutions.")
             return False
+
+        self._py_file = setupname + ".py"
+        ctl_file_path = os.path.join(self.working_directory, self._py_file)
+
+        if aedt_lib_dir:
+            source_dir = aedt_lib_dir
+        else:
+            source_dir = self.pyaedt_dir
+
+        if os.path.exists(ctl_file_path) and keep_modifications:
+            with open(ctl_file_path, "r") as fi:
+                existing_data = fi.readlines()
+            with open(ctl_file_path, "w") as fo:
+                first_line = True
+                for line in existing_data:
+                    if first_line:
+                        first_line = False
+                        if python_interpreter:
+                            fo.write("#!{0}\n".format(python_interpreter))
+                    if line.startswith("work_dir"):
+                        fo.write("work_dir = r'{0}'\n".format(self.working_directory))
+                    elif line.startswith("lib_dir"):
+                        fo.write("lib_dir = r'{0}'\n".format(source_dir))
+                    else:
+                        fo.write(line)
+        else:
+            if file_str is not None:
+                with io.open(ctl_file_path, "w", newline="\n") as fo:
+                    fo.write(file_str)
+                assert os.path.exists(ctl_file_path), "Control program file could not be created."
+
+        self.oanalysis.EditSetup(
+            setupname,
+            [
+                "NAME:" + setupname,
+                "Enabled:=",
+                True,
+                "UseControlProgram:=",
+                True,
+                "ControlProgramName:=",
+                ctl_file_path,
+                "ControlProgramArg:=",
+                "",
+                "CallCtrlProgAfterLastStep:=",
+                True,
+            ],
+        )
+        return True
 
     @pyaedt_function_handler()
     def eddy_effects_on(self, object_list, activate_eddy_effects=True, activate_displacement_current=True):
