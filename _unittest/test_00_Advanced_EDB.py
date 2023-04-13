@@ -374,8 +374,8 @@ class TestClass(BasisTest, object):
             layout = laminateEdb.active_layout
             cellInstances = list(layout.CellInstances)
             assert len(cellInstances) == 0
-            assert laminateEdb.stackup.place_in_layout_3d_placement(
-                chipEdb,
+            assert chipEdb.stackup.place_in_layout_3d_placement(
+                laminateEdb,
                 angle=0.0,
                 offset_x=0.0,
                 offset_y=0.0,
