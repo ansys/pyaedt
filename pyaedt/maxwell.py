@@ -335,7 +335,7 @@ class Maxwell(object):
         self, setupname, file_str=None, keep_modifications=False, python_interpreter=None, aedt_lib_dir=None
     ):
         """Configure the transient design setup to run a specific control program.
-        The control program is executed from a temp directory that Maxwell creates for every setup run.
+        The control program is executed from a temporary directory that Maxwell creates for every setup run.
 
         Parameters
         ----------
