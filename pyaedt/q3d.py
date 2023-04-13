@@ -1494,8 +1494,113 @@ class Q3d(QExtractor, object):
         return False
 
     @pyaedt_function_handler()
+    def source(self, objects=None, axisdir=0, name=None, net_name=None, terminal_type="voltage"):
+        """Generate a source on a face of an object or a group of faces or face ids.
+        The face ID is selected based on the axis direction. It is the face that
+        has the maximum/minimum in this axis direction.
+
+        Parameters
+        ----------
+        objects : str, int or list or :class:`pyaedt.modeler.object3d.Object3d`
+            Name of the object or face ID or face ID list.
+        axisdir : int, optional
+            Initial axis direction. Options are ``0`` to ``5``. The default is ``0``.
+        name : str, optional
+            Name of the source. The default is ``None``.
+        net_name : str, optional
+            Name of the net. The default is ``None``, in which case the ``object_name`` is considered.
+        terminal_type : str
+            Type of the terminal. Options are ``voltage`` and ``current``. The default is ``voltage``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Source object.
+
+        References
+        ----------
+
+        >>> oModule.AssignSource
+        """
+        return self._assign_source_or_sink(objects, axisdir, name, net_name, terminal_type, "Source")
+
+    @pyaedt_function_handler()
+    def sink(self, objects=None, axisdir=0, name=None, net_name=None, terminal_type="voltage"):
+        """Generate a sink on a face of an object or a group of faces or face ids.
+
+        The face ID is selected based on the axis direction. It is the face that
+        has the maximum/minimum in this axis direction.
+
+        Parameters
+        ----------
+        objects : str, int or list or :class:`pyaedt.modeler.object3d.Object3d`
+            Name of the object or face ID or face ID list.
+        axisdir : int, optional
+            Initial axis direction. Options are ``0`` to ``5``. The default is ``0``.
+        name : str, optional
+            Name of the source. The default is ``None``.
+        net_name : str, optional
+            Name of the net. The default is ``None``, in which case the ``object_name`` is considered.
+        terminal_type : str
+            Type of the terminal. Options are ``voltage`` and ``current``. The default is ``voltage``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Sink object.
+
+        References
+        ----------
+
+        >>> oModule.AssignSource
+        """
+        return self._assign_source_or_sink(objects, axisdir, name, net_name, terminal_type, "Sink")
+
+    @pyaedt_function_handler()
+    def _assign_source_or_sink(self, objects, axisdir, name, net_name, terminal_type, exc_type):
+        if not name:
+            name = generate_unique_name(exc_type)
+        objects = self.modeler.convert_to_selections(objects, True)
+        sheets = []
+        is_face = True
+        for object_name in objects:
+            if isinstance(object_name, str) and object_name in self.modeler.solid_names:
+                sheets.append(self.modeler._get_faceid_on_axis(object_name, axisdir))
+                if not net_name:
+                    for net in self.nets:
+                        if object_name in self.objects_from_nets(net):
+                            net_name = net
+            elif isinstance(object_name, str):
+                is_face = False
+                sheets.append(object_name)
+            else:
+                sheets.append(object_name)
+
+        if is_face:
+            props = OrderedDict({"Faces": sheets})
+        else:
+            props = OrderedDict({"Objects": sheets})
+
+        if terminal_type == "current":
+            terminal_str = "UniformCurrent"
+        else:
+            terminal_str = "ConstantVoltage"
+
+        props["TerminalType"] = terminal_str
+        if net_name:
+            props["Net"] = net_name
+        bound = BoundaryObject(self, name, props, exc_type)
+        if bound.create():
+            self.boundaries.append(bound)
+            return bound
+        return False
+
+    @pyaedt_function_handler()
     def assign_source_to_objectface(self, object_name, axisdir=0, source_name=None, net_name=None):
         """Generate a source on a face of an object.
+
+        .. deprecated:: 0.6.70
+           Use :func:`source` method instead.
 
         The face ID is selected based on the axis direction. It is the face that
         has the maximum/minimum in this axis direction.
@@ -1521,24 +1626,8 @@ class Q3d(QExtractor, object):
 
         >>> oModule.AssignSource
         """
-        object_name = self.modeler.convert_to_selections(object_name, True)[0]
-        if isinstance(object_name, int):
-            a = object_name
-        else:
-            a = self.modeler._get_faceid_on_axis(object_name, axisdir)
-        if not source_name:
-            source_name = generate_unique_name("Source")
-        if not net_name:
-            net_name = object_name
-        if a:
-            props = OrderedDict(
-                {"Faces": [a], "ParentBndID": object_name, "TerminalType": "ConstantVoltage", "Net": net_name}
-            )
-            bound = BoundaryObject(self, source_name, props, "Source")
-            if bound.create():
-                self.boundaries.append(bound)
-                return bound
-        return False
+        warnings.warn("Use :func:`source` method instead.", DeprecationWarning)
+        return self.source(objects=object_name, axisdir=0, name=source_name, net_name=net_name)
 
     @pyaedt_function_handler()
     def assign_source_to_sheet(
@@ -1546,10 +1635,13 @@ class Q3d(QExtractor, object):
     ):
         """Generate a source on a sheet.
 
+        .. deprecated:: 0.6.70
+           Use :func:`source` method instead.
+
         Parameters
         ----------
-        sheetname : str, int
-            Name of the sheet to create the source on.
+        sheetname : str, int or list
+            Name of the sheets to create the source on.
         objectname :  str, optional
             Name of the parent object. The default is ``None``.
         netname : str, optional
@@ -1569,30 +1661,8 @@ class Q3d(QExtractor, object):
 
         >>> oModule.AssignSource
         """
-        if not sourcename:
-            sourcename = generate_unique_name("Source")
-        sheetname = self.modeler.convert_to_selections(sheetname, True)[0]
-        if isinstance(sheetname, int):
-            props = OrderedDict({"Faces": [sheetname]})
-        else:
-            props = OrderedDict({"Objects": [sheetname]})
-
-        if objectname:
-            props["ParentBndID"] = objectname
-
-        if terminal_type == "current":
-            terminal_str = "UniformCurrent"
-        else:
-            terminal_str = "ConstantVoltage"
-
-        props["TerminalType"] = terminal_str
-        if netname:
-            props["Net"] = netname
-        bound = BoundaryObject(self, sourcename, props, "Source")
-        if bound.create():
-            self.boundaries.append(bound)
-            return bound
-        return False
+        warnings.warn("Use :func:`source` method instead.", DeprecationWarning)
+        return self.source(objects=sheetname, name=sourcename, net_name=netname, terminal_type=terminal_type)
 
     @pyaedt_function_handler()
     def assign_sink_to_objectface(self, object_name, axisdir=0, sink_name=None, net_name=None):
