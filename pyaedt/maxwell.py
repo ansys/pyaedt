@@ -2288,7 +2288,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def assign_current_density_terminal(self, entities, current_density_name=None):
-        """Assign current density terminal to a single or list of entities for Eddy Current and Magnetostatic solvers.
+        """Assign current density terminal to a single or list of entities for an Eddy Current or Magnetostatic solver.
 
         Parameters
         ----------
