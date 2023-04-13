@@ -3723,3 +3723,119 @@ class Icepak(FieldAnalysis3D):
         setup.auto_update = True
         setup.update()
         return setup
+
+    @pyaedt_function_handler()
+    def _parse_variation_data(self, quantity, variation_type, variation_value, function):
+        if variation_type != "Temp Dep" and self.solution_type == "Transient":
+            self.logger.error("A transient boundary condition cannot be assigned for a non-transient simulation.")
+            return None
+        if variation_type == "Temp Dep" and function != "Piecewise Linear":
+            self.logger.error("Temperature dependent assignment support only piecewise linear function.")
+            return None
+        out_dict = {"Variation Type": variation_type, "Variation Function": function}
+        if function == "Piecewise Linear" and not isinstance(variation_value, list):
+            variation_value = [1, "pwl({},Temp)".format(variation_value)]
+        out_dict["Variation Value"] = "[{}]".format(", ".join(['\\"' + str(i) + '\\"' for i in variation_value]))
+        return {"{} Variation Data".format(quantity): out_dict}
+
+    @pyaedt_function_handler()
+    def assign_source_power(
+        self,
+        assignment,
+        thermal_condition,
+        assignment_value,
+        boundary_name=None,
+        radiate=False,
+        voltage_current_choice=False,
+        voltage_current_value=None,
+    ):
+        """Create a source power for a face.
+
+        Parameters
+        ----------
+        assignment : int or str
+            If int, Face ID. If str, object name.
+        thermal_condition : str
+            Thermal condition. Accepted values are ``"Total Power"``, ``"Surface Heat"``,
+            ``"Temperature"``.
+        assignment_value : str or dict
+            Value and units of the input power, surface heat or temperature (depending on
+            ``thermal_condition``). A dictionary can be used for temperature dependent or transient
+             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"`` and
+             ``"Values"``. Accepted ``"Type"`` values are: ``"Temp Dep"`` and ``"Transient"``.
+             Accepted ``"Function"`` are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
+             ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``. ``"Temp Dep"`` only
+             support the latter. ``"Values"`` contains a list of strings containing the parameters
+            required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
+            the value of the variable at t=0 and the slope of the line). The parameters required by
+            each ``Function`` option is in Icepak documentation. The parameters must contain the
+            units where needed.
+        boundary_name : str, optional
+            Name of the source boundary. The default is ``None`` and the boundary name will be
+            generated automatically.
+        radiate : bool, optional
+            Whether to enable radiation. The default is ``False``.
+        voltage_current_choice : str or bool, optional
+            Whether to assign ``"Voltage"`` or ``"Current"`` or none of them. The default is
+            ``False`` (none of them is assigned).
+        voltage_current_value : str or dict, optional
+            Value and units of current or voltage assignment. A dictionary can be used for
+            transient assignment. The dictionary must be structured as described for the
+            ``assignment_value`` argument. The default is ``None``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignSourceBoundary
+
+        """
+        default_values = {"Total Power": "0W", "Surface Heat": "0irrad_W_per_m2", "Temperature": "AmbientTemp"}
+        if not boundary_name:
+            boundary_name = generate_unique_name("Source")
+        props = {}
+        if isinstance(assignment, int):
+            props["Faces"] = [assignment]
+        elif isinstance(assignment, str):
+            props["Objects"] = [assignment]
+        props["Thermal Condition"] = thermal_condition
+        for quantity, value in default_values.items():
+            if quantity == thermal_condition:
+                if isinstance(assignment_value, dict):
+                    assignment_value = self._parse_variation_data(
+                        quantity,
+                        assignment_value["Type"],
+                        variation_value=assignment_value["Values"],
+                        function=assignment_value["Function"],
+                    )
+                props[quantity] = assignment_value
+            else:
+                props[quantity] = value
+        props["Radiation"] = OrderedDict({"Radiate": radiate})
+        props["Voltage/Current - Enabled"] = bool(voltage_current_choice)
+        default_values = {"Current": "0A", "Voltage": "0V"}
+        props["Voltage/Current Option"] = voltage_current_choice
+        for quantity, value in default_values.items():
+            if voltage_current_choice == quantity:
+                if isinstance(voltage_current_value, dict):
+                    if voltage_current_value["Type"] == "Temp Dep":
+                        self.logger.error("Voltage or Current assignment does not support temperature dependence.")
+                        return None
+                    voltage_current_value = self._parse_variation_data(
+                        quantity,
+                        voltage_current_value["Type"],
+                        variation_value=voltage_current_value["Values"],
+                        function=voltage_current_value["Function"],
+                    )
+                props[quantity] = voltage_current_value
+            else:
+                props[quantity] = value
+
+        bound = BoundaryObject(self, boundary_name, props, "SourceIcepak")
+        if bound.create():
+            self.boundaries.append(bound)
+            return bound
