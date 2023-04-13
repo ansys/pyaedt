@@ -1592,7 +1592,7 @@ class Maxwell(object):
         output_directory : str, optional
             The path for the output directory. If ``None`` pyaedt working dir will be used.
         setup_name : str, optional
-            The name of the solution setup. If ``None`` pyaedt will use nominal setup.
+            Name of the solution setup. If ``None``, the nominal setup is used.
         start_frequency : float, optional
             When a float is entered the Start-Stop Frequency approach is used.
         stop_frequency : float, optional
