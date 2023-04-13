@@ -2,6 +2,12 @@ import logging
 import re
 import warnings
 
+from ansys.edb.hierarchy import PinPairModel
+
+# from ansys.edb.utility import PinPair
+# from ansys.edb.utility import PinPairRlc
+from ansys.edb.utility import Rlc
+
 from pyaedt.edb_grpc.core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.generic.general_methods import is_ironpython
 
@@ -386,7 +392,7 @@ class EDBComponent(object):
     @property
     def model_type(self):
         """Retrieve assigned model type."""
-        _model_type = self._edb_model.ToString().split(".")[-1]
+        _model_type = self._edb_model.type.split(".")[-1]  # to check the model has been refactored
         if _model_type == "PinPairModel":
             return "RLC"
         else:
@@ -403,16 +409,21 @@ class EDBComponent(object):
     @rlc_values.setter
     def rlc_values(self, value):
         if isinstance(value, list):  # pragma no cover
-            rlc_enabled = [True if i else False for i in value]
-            rlc_values = [self._get_edb_value(i) for i in value]
-            model = self._edb.Cell.Hierarchy.PinPairModel()
+            enabled = [True if i else False for i in value]
+            model = PinPairModel.create()
             pin_names = list(self.pins.keys())
             for idx, i in enumerate(np.arange(len(pin_names) // 2)):
-                pin_pair = self._edb.Utility.PinPair(pin_names[idx], pin_names[idx + 1])
-                rlc = self._edb.Utility.Rlc(
-                    rlc_values[0], rlc_enabled[0], rlc_values[1], rlc_enabled[1], rlc_values[2], rlc_enabled[2], False
+                pin_pair = (pin_names[idx], pin_names[idx + 1])
+                rlc = Rlc(
+                    r=value[0],
+                    r_enabled=enabled[0],
+                    l=value[1],
+                    l_enabled=enabled[1],
+                    c=value[2],
+                    c_enabled=enabled[2],
+                    is_parallel=False,
                 )
-                model.SetPinPairRlc(pin_pair, rlc)
+                model.set_rlc(pin_pair, rlc)
             self._set_model(model)
 
     @property
@@ -441,16 +452,21 @@ class EDBComponent(object):
     def value(self, value):
         rlc_enabled = [True if i == self.type else False for i in ["Resistor", "Inductor", "Capacitor"]]
         rlc_values = [value if i == self.type else 0 for i in ["Resistor", "Inductor", "Capacitor"]]
-        rlc_values = [self._get_edb_value(i) for i in rlc_values]
 
-        model = self._edb.Cell.Hierarchy.PinPairModel()
+        model = PinPairModel()
         pin_names = list(self.pins.keys())
         for idx, i in enumerate(np.arange(len(pin_names) // 2)):
-            pin_pair = self._edb.Utility.PinPair(pin_names[idx], pin_names[idx + 1])
-            rlc = self._edb.Utility.Rlc(
-                rlc_values[0], rlc_enabled[0], rlc_values[1], rlc_enabled[1], rlc_values[2], rlc_enabled[2], False
+            pin_pair = (pin_names[idx], pin_names[idx + 1])
+            rlc = Rlc(
+                r=rlc_values[0],
+                r_enabled=rlc_enabled[0],
+                l=rlc_values[1],
+                l_enabled=rlc_enabled[1],
+                c=rlc_values[2],
+                c_enabled=rlc_enabled[2],
+                is_parallel=False,
             )
-            model.SetPinPairRlc(pin_pair, rlc)
+            model.set_rlc(pin_pair, rlc)
         self._set_model(model)
 
     @property
