@@ -193,13 +193,16 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
     @pyaedt_function_handler()
     def _arg_with_dim(self, value, units=None):
-        if isinstance(value, str):
-            val = value
+        if units is None:
+            units = self.model_units
+        if type(value) is str:
+            try:
+                float(value)
+                val = "{0}{1}".format(value, units)
+            except:
+                val = value
         else:
-            if units is None:
-                units = self.model_units
             val = "{0}{1}".format(value, units)
-
         return val
 
     def _pos_with_arg(self, pos, units=None):
@@ -266,7 +269,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                     ],
                 ]
             )
-        elif isinstance(property_value, (str, float, int)):
+        elif isinstance(property_value, (float, int)):
             xpos = self._arg_with_dim(property_value, self.model_units)
             self.oeditor.ChangeProperty(
                 [
@@ -275,6 +278,17 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                         "NAME:" + property_tab,
                         ["NAME:PropServers", property_object],
                         ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", xpos]],
+                    ],
+                ]
+            )
+        elif isinstance(property_value, str):
+            self.oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:" + property_tab,
+                        ["NAME:PropServers", property_object],
+                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", property_value]],
                     ],
                 ]
             )

@@ -284,13 +284,16 @@ class TestClass(BasisTest, object):
 
     def test_12_create_line(self):
         line = self.aedtapp.modeler.create_line(
-            "Bottom", [[0, 0], [10, 30], [20, 30]], lw=1, name="line1", net_name="VCC"
+            "Bottom", [[0, 0], [10, 30], [20, 30]], lw=1, name="line2", net_name="VCC"
         )
-        assert line.name == "line1"
+        assert line.name == "line2"
+        line.name = "line1"
         assert isinstance(line.center_line, dict)
         line.center_line = {"Pt0": [1, "0mm"]}
         assert line.center_line["Pt0"] == ["1", "0"]
         line.center_line = {"Pt0": ["0mm", "0mm"]}
+        assert line.remove("Pt1")
+        assert line.add([1, 2], 1)
 
     def test_13a_create_edge_port(self):
         port_wave = self.aedtapp.create_edge_port("line1", 3, False, True, 6, 4, "2mm")

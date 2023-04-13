@@ -843,8 +843,21 @@ class Geometries3DLayout(Objec3DLayout, object):
 
     def __init__(self, primitives, name, prim_type="poly", is_void=False):
         Objec3DLayout.__init__(self, primitives, prim_type)
-        self.name = name
         self.is_void = is_void
+        self._name = name
+
+    @property
+    def name(self):
+        """Name of Primitive."""
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        try:
+            vMaterial = ["NAME:Name", "Value:=", value]
+            self.change_property(vMaterial)
+        except:
+            pass
 
     @property
     def is_closed(self):
@@ -1460,6 +1473,74 @@ class Line3dLayout(Geometries3DLayout, object):
             vpoint = ["NAME:{}".format(point_name), "X:=", _dim_arg(value[0], u), "Y:=", _dim_arg(value[1], u)]
             self.change_property(vpoint)
         self._center_line = {}
+
+    @pyaedt_function_handler()
+    def add(self, point, position=0):
+        """Add a new point to the center line.
+
+        Parameters
+        ----------
+        point : list
+            [x,y] coordinate point to add.
+        position : int, optional
+            Position of the new point.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.pcb.object3dlayout.Line3dLayout`
+        """
+        points = [
+            [self._primitives.number_with_units(j, self.object_units) for j in i] for i in (self.center_line.values())
+        ]
+        points.insert(position, [self._primitives.number_with_units(j, self.object_units) for j in point])
+        line = self._primitives.create_line(
+            self.placement_layer,
+            points,
+            lw=self.width,
+            start_style=self.start_cap_type,
+            end_style=self.end_cap_type,
+            net_name=self.net_name,
+        )
+        line_name = self.name
+        self._primitives.oeditor.Delete([self.name])
+        line.name = line_name
+        self._primitives._lines[self.name] = line
+        return line
+
+    @pyaedt_function_handler()
+    def remove(self, point):
+        """Remove one or more points from the center line.
+
+        Parameters
+        ----------
+        point : list, str
+            Name of points to remove in the form of ``"Ptx"``.
+
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.pcb.object3dlayout.Line3dLayout`
+        """
+        if isinstance(point, str):
+            point = [point]
+        points = [
+            [self._primitives.number_with_units(j, self.object_units) for j in v]
+            for i, v in self.center_line.items()
+            if i not in point
+        ]
+        line = self._primitives.create_line(
+            self.placement_layer,
+            points,
+            lw=self.width,
+            start_style=self.start_cap_type,
+            end_style=self.end_cap_type,
+            net_name=self.net_name,
+        )
+        line_name = self.name
+        self._primitives.oeditor.Delete([self.name])
+        line.name = line_name
+        self._primitives._lines[self.name] = line
+        return line
 
     @pyaedt_function_handler()
     def _edit(self, points):

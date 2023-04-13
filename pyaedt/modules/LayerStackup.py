@@ -886,13 +886,16 @@ class Layer(object):
         -------
 
         """
-        if isinstance(value, str):
-            val = value
+        if units is None:
+            units = self.LengthUnit
+        if type(value) is str:
+            try:
+                float(value)
+                val = "{0}{1}".format(value, units)
+            except:
+                val = value
         else:
-            if units is None:
-                units = self.LengthUnit
             val = "{0}{1}".format(value, units)
-
         return val
 
     @property
