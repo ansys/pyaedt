@@ -341,7 +341,7 @@ class Maxwell(object):
         ----------
         setupname : str
             Name of the setup.
-            It will become the name of the python file.
+            It will become the name of the Python file.
         file_str : str, optional
             Name of the file. The default value is ``None``.
         keep_modifications : bool, optional
