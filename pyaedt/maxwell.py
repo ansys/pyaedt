@@ -412,7 +412,7 @@ class Maxwell(object):
     def eddy_effects_on(self, object_list, activate_eddy_effects=True, activate_displacement_current=True):
         """Assign eddy effects on a list of objects.
 
-        For Eddy Current solvers only, user has to specify the displacement current on the model objects.
+        For Eddy Current solvers only, you must specify the displacement current on the model objects.
 
         Parameters
         ----------
