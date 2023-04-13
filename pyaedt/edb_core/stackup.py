@@ -42,6 +42,7 @@ class Stackup(object):
         return self.layers[item]
 
     def __init__(self, pedb):
+        # parent caller class
         self._pedb = pedb
         self._lc = None
 
@@ -1390,6 +1391,7 @@ class Stackup(object):
         for cell in list(self._pedb.db.TopCircuitCells):
             if cell.GetName() == edb_cell.GetName():
                 edb_cell = cell
+        # Keep Cell Independent
         edb_cell.SetBlackBox(True)
         rotation = self._edb_value(0.0)
         if flipped_stackup:
