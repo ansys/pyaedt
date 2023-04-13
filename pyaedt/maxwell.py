@@ -1536,7 +1536,7 @@ class Maxwell(object):
         calculate_force : sr, optional
             How to calculate force. The default is ``"Harmonic"``.
             Options are ``"Harmonic"`` and ``"Transient"``.
-            
+
 
         Returns
         -------
