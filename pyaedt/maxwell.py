@@ -2815,7 +2815,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     def assign_master_slave(
         self, master_edge, slave_edge, reverse_master=False, reverse_slave=False, same_as_master=True, bound_name=None
     ):
-        """Assign Dependent and Independent boundary conditions to two edges of the same object.
+        """Assign dependent and independent boundary conditions to two edges of the same object.
 
         Parameters
         ----------
