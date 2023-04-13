@@ -2,10 +2,14 @@ import logging
 import re
 import warnings
 
+from ansys.edb.definition import NPortComponentModel
 from ansys.edb.hierarchy import PinPairModel
+from ansys.edb.hierarchy import SParameterModel
+from ansys.edb.hierarchy.component_group import ComponentType
+from ansys.edb.hierarchy.spice_model import SPICEModel
 
-# from ansys.edb.utility import PinPair
 # from ansys.edb.utility import PinPairRlc
+# from ansys.edb.utility import PinPair
 from ansys.edb.utility import Rlc
 
 from pyaedt.edb_grpc.core.edb_data.padstacks_data import EDBPadstackInstance
@@ -609,10 +613,7 @@ class EDBComponent(object):
             coordinates in this order: [X lower left corner, Y lower left corner,
             X upper right corner, Y upper right corner].
         """
-        bbox = self.component_instance.GetBBox()
-        pt1 = bbox.Item1
-        pt2 = bbox.Item2
-        return [pt1.X.ToDouble(), pt1.Y.ToDouble(), pt2.X.ToDouble(), pt2.Y.ToDouble()]
+        return self.component_instance.get_bbox()
 
     @property
     def rotation(self):
@@ -622,7 +623,7 @@ class EDBComponent(object):
         -------
         float
         """
-        return self.edbcomponent.GetTransform().Rotation.ToDouble()
+        return self.edbcomponent.transform.rotation
 
     @property
     def pinlist(self):
@@ -633,14 +634,7 @@ class EDBComponent(object):
         list
             List of Pins of Component.
         """
-        pins = [
-            p
-            for p in self.edbcomponent.LayoutObjs
-            if p.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance
-            and p.IsLayoutPin()
-            and p.GetComponent().GetName() == self.refdes
-        ]
-        return pins
+        return [pin for pin in self.edbcomponent.members if pin.is_layout]
 
     @property
     def nets(self):
@@ -651,10 +645,7 @@ class EDBComponent(object):
         list
             List of Nets of Component.
         """
-        netlist = []
-        for pin in self.pinlist:
-            netlist.append(pin.GetNet().GetName())
-        return list(set(netlist))
+        return list(set([pin.net.name for pin in self.pinlist]))
 
     @property
     def pins(self):
@@ -667,7 +658,7 @@ class EDBComponent(object):
         """
         pins = {}
         for el in self.pinlist:
-            pins[el.GetName()] = EDBPadstackInstance(el, self._pcomponents._pedb)
+            pins[el.net] = EDBPadstackInstance(el, self._pcomponents._pedb)
         return pins
 
     @property
@@ -679,18 +670,18 @@ class EDBComponent(object):
         str
             Component type.
         """
-        cmp_type = int(self.edbcomponent.GetComponentType())
-        if cmp_type == 1:
+        cmp_type = self.edbcomponent.component_type
+        if cmp_type == ComponentType.RESISTOR:
             return "Resistor"
-        elif cmp_type == 2:
+        elif cmp_type == ComponentType.INDUCTOR:
             return "Inductor"
-        elif cmp_type == 3:
+        elif cmp_type == ComponentType.CAPACITOR:
             return "Capacitor"
-        elif cmp_type == 4:
+        elif cmp_type == ComponentType.IC:
             return "IC"
-        elif cmp_type == 5:
+        elif cmp_type == ComponentType.IO:
             return "IO"
-        elif cmp_type == 0:
+        elif cmp_type == ComponentType.OTHER:
             return "Other"
 
     @type.setter
@@ -704,20 +695,20 @@ class EDBComponent(object):
             ``"IC"``, ``"IO"`` and ``"Other"``.
         """
         if new_type == "Resistor":
-            type_id = self._edb.Definition.ComponentType.Resistor
+            type_id = ComponentType.RESISTOR
         elif new_type == "Inductor":
-            type_id = self._edb.Definition.ComponentType.Inductor
+            type_id = ComponentType.INDUCTOR
         elif new_type == "Capacitor":
-            type_id = self._edb.Definition.ComponentType.Capacitor
+            type_id = ComponentType.CAPACITOR
         elif new_type == "IC":
-            type_id = self._edb.Definition.ComponentType.IC
+            type_id = ComponentType.IC
         elif new_type == "IO":
-            type_id = self._edb.Definition.ComponentType.IO
+            type_id = ComponentType.IO
         elif new_type == "Other":
-            type_id = self._edb.Definition.ComponentType.Other
+            type_id = ComponentType.OTHER
         else:
             return
-        self.edbcomponent.SetComponentType(type_id)
+        self.edbcomponent.component_type = type_id
 
     @property
     def numpins(self):
@@ -728,7 +719,7 @@ class EDBComponent(object):
         int
             Number of Pins of Component.
         """
-        return self.edbcomponent.GetNumberOfPins()
+        return self.edbcomponent.num_pins
 
     @property
     def partname(self):  # pragma: no cover
@@ -755,12 +746,12 @@ class EDBComponent(object):
         str
             Component part name.
         """
-        return self.edbcomponent.GetComponentDef().GetName()
+        return self.edbcomponent.component_def.name
 
     @part_name.setter
     def part_name(self, name):  # pragma: no cover
         """Set component part name."""
-        self.edbcomponent.GetComponentDef().SetName(name)
+        self.edbcomponent.component_def.name = name
 
     @property
     def _edb(self):
@@ -775,7 +766,7 @@ class EDBComponent(object):
         str
            Name of the placement layer.
         """
-        return self.edbcomponent.GetPlacementLayer().Clone().GetName()
+        return self.edbcomponent.placement_layer.name
 
     @property
     def lower_elevation(self):
@@ -786,7 +777,7 @@ class EDBComponent(object):
         float
             Lower elevation of the placement layer.
         """
-        return self.edbcomponent.GetPlacementLayer().Clone().GetLowerElevation()
+        return self.edbcomponent.placement_layer.lower_elevation
 
     @property
     def upper_elevation(self):
@@ -798,7 +789,7 @@ class EDBComponent(object):
             Upper elevation of the placement layer.
 
         """
-        return self.edbcomponent.GetPlacementLayer().Clone().GetUpperElevation()
+        return self.edbcomponent.placement_layer.upper_elevation  # trying without cloning
 
     @property
     def top_bottom_association(self):
@@ -815,17 +806,14 @@ class EDBComponent(object):
             * 4 - Number of top/bottom associations.
             * -1 - Undefined
         """
-        return int(self.edbcomponent.GetPlacementLayer().GetTopBottomAssociation())
-
-    @pyaedt_function_handler
-    def _get_edb_value(self, value):
-        return self._pcomponents._get_edb_value(value)
+        return int(self.edbcomponent.placement_layer.top_bottom_association)
 
     @pyaedt_function_handler
     def _set_model(self, model):  # pragma: no cover
         comp_prop = self.component_property
-        comp_prop.SetModel(model)
-        if not self.edbcomponent.SetComponentProperty(comp_prop):
+        comp_prop.model = model
+        self.edbcomponent.model = comp_prop
+        if not self.edbcomponent.model:
             logging.error("Fail to assign model on {}.".format(self.refdes))
             return False
         return True
@@ -856,12 +844,12 @@ class EDBComponent(object):
                     pinNames.remove(pinNames[0])
                     break
         if len(pinNames) == self.numpins:
-            model = self._edb.Cell.Hierarchy.SPICEModel()
-            model.SetModelPath(file_path)
-            model.SetModelName(name)
+            model = SPICEModel()
+            model.model_path(file_path)
+            model.model_name(name)
             terminal = 1
             for pn in pinNames:
-                model.AddTerminalPinPair(pn, str(terminal))
+                model.add_terminal(pn, str(terminal))
                 terminal += 1
         else:  # pragma: no cover
             logging.error("Wrong number of Pins")
@@ -885,18 +873,13 @@ class EDBComponent(object):
         """
         if not name:
             name = get_filename_without_extension(file_path)
-
-        edbComponentDef = self.edbcomponent.GetComponentDef()
-        nPortModel = self._edb.Definition.NPortComponentModel.FindByName(edbComponentDef, name)
-        if nPortModel.IsNull():
-            nPortModel = self._edb.Definition.NPortComponentModel.Create(name)
-            nPortModel.SetReferenceFile(file_path)
-            edbComponentDef.AddComponentModel(nPortModel)
-
-        model = self._edb.Cell.Hierarchy.SParameterModel()
-        model.SetComponentModelName(name)
-        if reference_net:
-            model.SetReferenceNet(reference_net)
+        model_list = self.edbcomponent.component_def.component_models
+        nport_model = [model for model in model_list if model.reference_file == file_path]
+        if not nport_model:
+            nport_model = NPortComponentModel.create(name)
+            nport_model.reference_file = file_path
+            self.edbcomponent.component_def.component_models.add(nport_model)
+        model = SParameterModel.create(name, reference_net)
         return self._set_model(model)
 
     @pyaedt_function_handler
@@ -914,14 +897,11 @@ class EDBComponent(object):
         is_parallel : bool, optional
             Whether it is a parallel or series RLC component. The default is ``False``.
         """
-        res, ind, cap = self._get_edb_value(res), self._get_edb_value(ind), self._get_edb_value(cap)
-        model = self._edb.Cell.Hierarchy.PinPairModel()
-
+        model = PinPairModel.create()
         pin_names = list(self.pins.keys())
         for idx, i in enumerate(np.arange(len(pin_names) // 2)):
-            pin_pair = self._edb.Utility.PinPair(pin_names[idx], pin_names[idx + 1])
-            rlc = self._edb.Utility.Rlc(res, True, ind, True, cap, True, is_parallel)
-            model.SetPinPairRlc(pin_pair, rlc)
+            rlc = Rlc(res, True, ind, True, cap, True, is_parallel)
+            model.set_rlc((pin_names[idx], pin_names[idx + 1]), rlc)
         return self._set_model(model)
 
     @pyaedt_function_handler
