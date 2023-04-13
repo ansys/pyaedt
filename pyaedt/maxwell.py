@@ -1596,7 +1596,7 @@ class Maxwell(object):
         start_frequency : float, optional
             When a float is entered the Start-Stop Frequency approach is used.
         stop_frequency : float, optional
-            When a float is entered the Start-Stop Frequency approach is used.
+            When a float is entered, the Start-Stop Frequency approach is used.
         number_of_frequency : int, optional
             When a number is entered, the number of frequencies approach is used.
 
