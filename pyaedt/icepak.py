@@ -3739,7 +3739,7 @@ class Icepak(FieldAnalysis3D):
         return {"{} Variation Data".format(quantity): out_dict}
 
     @pyaedt_function_handler()
-    def assign_source_power(
+    def assign_source(
         self,
         assignment,
         thermal_condition,
