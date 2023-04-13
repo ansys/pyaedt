@@ -109,7 +109,7 @@ class Maxwell(object):
         """Whether to enable core losses for a set of objects.
 
         For``EddyCurrent`` and ``Transient`` solver design, core losses calulcations
-        may be included in the simulation on any object that has corresponding
+        may be included in the simulation on any object that has a corresponding
         core loss definition (with core loss coefficient settings) in the material library.
 
         Parameters
