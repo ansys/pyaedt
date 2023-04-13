@@ -569,9 +569,9 @@ class Maxwell(object):
             Current phase.
             The default is ``"0deg"``.
         solid : bool, optional
-            Specify the type of conductor.
-            It can be ``Solid`` or ``Stranded``.
-            The default is ``True`` which means ``solid``, in the other case it means ``stranded``.
+            Specifies the type of conductor, which can be solid or stranded.
+            The default is ``True``, which means the conductor is solid``.
+            When ``False``, it means the conductor is stranded.
         swap_direction : bool, optional
             Reference direction.
             The default is ``False``.
