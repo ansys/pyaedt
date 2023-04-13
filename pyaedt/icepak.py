@@ -3726,16 +3726,21 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def _parse_variation_data(self, quantity, variation_type, variation_value, function):
-        if variation_type != "Temp Dep" and self.solution_type == "Transient":
+        if variation_type == "Transient" and self.solution_type == "SteadyState":
             self.logger.error("A transient boundary condition cannot be assigned for a non-transient simulation.")
             return None
         if variation_type == "Temp Dep" and function != "Piecewise Linear":
             self.logger.error("Temperature dependent assignment support only piecewise linear function.")
             return None
         out_dict = {"Variation Type": variation_type, "Variation Function": function}
-        if function == "Piecewise Linear" and not isinstance(variation_value, list):
-            variation_value = [1, "pwl({},Temp)".format(variation_value)]
-        out_dict["Variation Value"] = "[{}]".format(", ".join(['\\"' + str(i) + '\\"' for i in variation_value]))
+        if function == "Piecewise Linear":
+            if not isinstance(variation_value, list):
+                variation_value = ["1", "pwl({},Temp)".format(variation_value)]
+            else:
+                variation_value = [variation_value[0], "pwl({},Temp)".format(variation_value[1])]
+            out_dict["Variation Value"] = "[{}]".format(", ".join(['"' + str(i) + '"' for i in variation_value]))
+        else:
+            out_dict["Variation Value"] = "[{}]".format(", ".join([str(i) for i in variation_value]))
         return {"{} Variation Data".format(quantity): out_dict}
 
     @pyaedt_function_handler()
@@ -3812,7 +3817,11 @@ class Icepak(FieldAnalysis3D):
                         variation_value=assignment_value["Values"],
                         function=assignment_value["Function"],
                     )
-                props[quantity] = assignment_value
+                    if assignment_value is None:
+                        return None
+                    props.update(assignment_value)
+                else:
+                    props[quantity] = assignment_value
             else:
                 props[quantity] = value
         props["Radiation"] = OrderedDict({"Radiate": radiate})
@@ -3831,7 +3840,11 @@ class Icepak(FieldAnalysis3D):
                         variation_value=voltage_current_value["Values"],
                         function=voltage_current_value["Function"],
                     )
-                props[quantity] = voltage_current_value
+                    if voltage_current_value == None:
+                        return None
+                    props.update(voltage_current_value)
+                else:
+                    props[quantity] = voltage_current_value
             else:
                 props[quantity] = value
 
