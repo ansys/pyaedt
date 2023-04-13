@@ -2151,7 +2151,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     def assign_insulating(self, geometry_selection, insulation_name=None):
         """Create an insulating boundary condition.
 
-        This boundary condition is used to model very thin sheets of perfectly Insulating material between
+        This boundary condition is used to model very thin sheets of perfectly insulating material between
         touching conductors. Current cannot cross an insulating boundary.
 
         Parameters
