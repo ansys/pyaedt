@@ -544,7 +544,7 @@ class Maxwell(object):
         """
 
         if self.solution_type not in ["Transient"]:
-            self.logger.error("Setup Y connections only available for transient solutions.")
+            self.logger.error("Y connections only available for Transient solutions.")
             return False
 
         if windings_name:
@@ -574,7 +574,7 @@ class Maxwell(object):
             The default is ``True`` which means ``solid``, in the other case it means ``stranded``.
         swap_direction : bool, optional
             Reference direction.
-            The default is ``False``.
+            The default is ``False`` which means that current is flowing inside the object.
         name : str, optional
             Name of the current excitation.
             The default is ``None`` in which case a generic name will be given.
@@ -2428,7 +2428,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`, :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Master and slave objects. ``False`` if it fails.
+            Master and slave objects. If the method fails to execute it returns ``False``.
 
         References
         ----------
@@ -2748,7 +2748,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object. ``False`` if it fails.
+            Boundary object. If the method fails to execute it returns ``False``.
 
         References
         ----------
@@ -2834,7 +2834,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`, :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Master and slave objects. ``False`` if it fails.
+            Master and slave objects. If the method fails to execute it returns ``False``.
 
         References
         ----------
