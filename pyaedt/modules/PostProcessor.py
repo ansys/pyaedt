@@ -3803,7 +3803,7 @@ class PostProcessor(PostProcessorCommon, object):
         ----------
 
         max_frequency : str, optional
-            Maximum Frequency. Default is ``"1GHz"``.
+            Maximum Frequency. Default is ``1GHz``.
         ray_density : int, optional
             Ray Density. Default is ``2``.
         number_of_bounces : int, optional
@@ -3817,15 +3817,15 @@ class PostProcessor(PostProcessorCommon, object):
         custom_location : list, optional
             List of x, y,z position of point source. Default is ``None`.
         shoot_filter_type : str, optional
-            Shooter Type. Default is ``"All Rays"``. Options are  ``"Rays by index"``,  ``"Rays in box"``.
+            Shooter Type. Default is ``"All Rays"``. Options are ``Rays by index``, ``Rays in box``.
         ray_index_start : int, optional
-            Ray index start. Valid only if ``"Rays by index"`` is chosen.  Default is ``0``.
+            Ray index start. Valid only if ``Rays by index`` is chosen.  Default is ``0``.
         ray_index_stop : int, optional
-            Ray index stop. Valid only if ``"Rays by index"`` is chosen.  Default is ``1``.
+            Ray index stop. Valid only if ``Rays by index`` is chosen.  Default is ``1``.
         ray_index_step : int, optional
-            Ray index step. Valid only if ``"Rays by index"`` is chosen.  Default is ``1``.
+            Ray index step. Valid only if ``Rays by index`` is chosen.  Default is ``1``.
         ray_box : int or str optional
-            Ray box name or id. Valid only if ``"Rays by box"`` is chosen.  Default is ``None``.
+            Ray box name or id. Valid only if ``Rays by box`` is chosen.  Default is ``None``.
 
         Returns
         -------
