@@ -57,8 +57,8 @@ class Maxwell(object):
 
     @pyaedt_function_handler()
     def change_symmetry_multiplier(self, value=1):
-        """Set the Design Symmetry Multiplier to a specified value.
-        The symmetry multiplier will be automatically applied to all input quantities.
+        """Set the design symmetry multiplier to a specified value.
+        The symmetry multiplier is automatically applied to all input quantities.
 
         Parameters
         ----------
@@ -109,7 +109,7 @@ class Maxwell(object):
         """Whether to enable core losses for a set of objects.
 
         For``EddyCurrent`` and ``Transient`` solver design, core losses calulcations
-        may be included in the simulation on any object that has corresponding
+        may be included in the simulation on any object that has a corresponding
         core loss definition (with core loss coefficient settings) in the material library.
 
         Parameters
@@ -335,13 +335,13 @@ class Maxwell(object):
         self, setupname, file_str=None, keep_modifications=False, python_interpreter=None, aedt_lib_dir=None
     ):
         """Configure the transient design setup to run a specific control program.
-        The control program is executed from a temp directory that Maxwell creates for every setup run.
+        The control program is executed from a temporary directory that Maxwell creates for every setup run.
 
         Parameters
         ----------
         setupname : str
             Name of the setup.
-            It will become the name of the python file.
+            It will become the name of the Python file.
         file_str : str, optional
             Name of the file. The default value is ``None``.
         keep_modifications : bool, optional
@@ -412,7 +412,7 @@ class Maxwell(object):
     def eddy_effects_on(self, object_list, activate_eddy_effects=True, activate_displacement_current=True):
         """Assign eddy effects on a list of objects.
 
-        For Eddy Current solvers only, user has to specify the displacement current on the model objects.
+        For Eddy Current solvers only, you must specify the displacement current on the model objects.
 
         Parameters
         ----------
@@ -569,9 +569,9 @@ class Maxwell(object):
             Current phase.
             The default is ``"0deg"``.
         solid : bool, optional
-            Specify the type of conductor.
-            It can be ``Solid`` or ``Stranded``.
-            The default is ``True`` which means ``solid``, in the other case it means ``stranded``.
+            Specifies the type of conductor, which can be solid or stranded.
+            The default is ``True``, which means the conductor is solid``.
+            When ``False``, it means the conductor is stranded.
         swap_direction : bool, optional
             Reference direction.
             The default is ``False`` which means that current is flowing inside the object.
@@ -800,7 +800,7 @@ class Maxwell(object):
             Damping factor. The default is ``0``.
         load_torque : float or str, optional
             Load torque sign is determined based on the moving vector, using the right-hand rule.
-            The default is ``"0newton"``. If a float value is used "NewtonMeter" units are applied.
+            The default is ``"0NewtonMeter"``. If a float value is used "NewtonMeter" units are applied.
 
         Returns
         -------
@@ -1267,7 +1267,7 @@ class Maxwell(object):
     def analyze_from_zero(self):
         """Force the next solve to start from time 0 for a given setup.
 
-        Applies only to the Transient solution type.
+        This method applies only to the Transient solution type.
 
         Returns
         -------
@@ -1386,7 +1386,7 @@ class Maxwell(object):
     ):
         """Assign current density to a single or list of entities.
 
-        This command specifies the x-, y-, and z-components of the current density in a conduction path.
+        This method specifies the x-, y-, and z-components of the current density in a conduction path.
 
         Parameters
         ----------
@@ -1534,7 +1534,9 @@ class Maxwell(object):
         last_cycles_number : int, optional
             Defines the number of cycles to compute if `use_number_of_last_cycle` is ``True``.
         calculate_force : sr, optional
-            Either ``"Harmonic"`` or ``"Transient"``. Default is ``"Harmonic"``.
+            How to calculate force. The default is ``"Harmonic"``.
+            Options are ``"Harmonic"`` and ``"Transient"``.
+
 
         Returns
         -------
@@ -1590,11 +1592,11 @@ class Maxwell(object):
         output_directory : str, optional
             The path for the output directory. If ``None`` pyaedt working dir will be used.
         setup_name : str, optional
-            The name of the solution setup. If ``None`` pyaedt will use nominal setup.
+            Name of the solution setup. If ``None``, the nominal setup is used.
         start_frequency : float, optional
             When a float is entered the Start-Stop Frequency approach is used.
         stop_frequency : float, optional
-            When a float is entered the Start-Stop Frequency approach is used.
+            When a float is entered, the Start-Stop Frequency approach is used.
         number_of_frequency : int, optional
             When a number is entered, the number of frequencies approach is used.
 
@@ -2151,7 +2153,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     def assign_insulating(self, geometry_selection, insulation_name=None):
         """Create an insulating boundary condition.
 
-        This boundary condition is used to model very thin sheets of perfectly Insulating material between
+        This boundary condition is used to model very thin sheets of perfectly insulating material between
         touching conductors. Current cannot cross an insulating boundary.
 
         Parameters
@@ -2286,7 +2288,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def assign_current_density_terminal(self, entities, current_density_name=None):
-        """Assign current density terminal to a single or list of entities for Eddy Current and Magnetostatic solvers.
+        """Assign current density terminal to a single or list of entities for an Eddy Current or Magnetostatic solver.
 
         Parameters
         ----------
@@ -2399,7 +2401,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         same_as_master=True,
         bound_name=None,
     ):
-        """Assign Dependent and Independent boundary conditions to two faces of the same object.
+        """Assign dependent and independent boundary conditions to two faces of the same object.
 
         Parameters
         ----------
@@ -2770,9 +2772,9 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def assign_vector_potential(self, input_edge, vectorvalue=0, bound_name=None):
-        """Assign a vector potential boundary condition to the specified edges.
+        """Assign a vector potential boundary condition to specified edges.
 
-        Method valid for Maxwell 2D Eddy Current, Magnetostatic, and Transient solvers.
+        This method is valid for Maxwell 2D Eddy Current, Magnetostatic, and Transient solvers.
 
         Parameters
         ----------
@@ -2813,7 +2815,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     def assign_master_slave(
         self, master_edge, slave_edge, reverse_master=False, reverse_slave=False, same_as_master=True, bound_name=None
     ):
-        """Assign Dependent and Independent boundary conditions to two edges of the same object.
+        """Assign dependent and independent boundary conditions to two edges of the same object.
 
         Parameters
         ----------
@@ -2891,7 +2893,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
-            New created object. ``False`` if it fails.
+            Newly created object. ``False`` if it fails.
 
         References
         ----------
