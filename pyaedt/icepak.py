@@ -630,6 +630,9 @@ class Icepak(FieldAnalysis3D):
     ):
         """Create a source power for a face.
 
+        .. deprecated:: 0.6.71
+            This method is replaced by `assign_source`.
+
         Parameters
         ----------
         face_id : int or str
