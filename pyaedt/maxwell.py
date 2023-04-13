@@ -1267,7 +1267,7 @@ class Maxwell(object):
     def analyze_from_zero(self):
         """Force the next solve to start from time 0 for a given setup.
 
-        Applies only to the Transient solution type.
+        This method applies only to the Transient solution type.
 
         Returns
         -------
