@@ -1534,7 +1534,9 @@ class Maxwell(object):
         last_cycles_number : int, optional
             Defines the number of cycles to compute if `use_number_of_last_cycle` is ``True``.
         calculate_force : sr, optional
-            Either ``"Harmonic"`` or ``"Transient"``. Default is ``"Harmonic"``.
+            How to calculate force. The default is ``"Harmonic"``.
+            Options are ``"Harmonic"`` and ``"Transient"``.
+            
 
         Returns
         -------
