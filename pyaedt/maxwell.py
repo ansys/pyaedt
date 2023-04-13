@@ -800,7 +800,7 @@ class Maxwell(object):
             Damping factor. The default is ``0``.
         load_torque : float or str, optional
             Load torque sign is determined based on the moving vector, using the right-hand rule.
-            The default is ``"0newton"``. If a float value is used "NewtonMeter" units are applied.
+            The default is ``"0NewtonMeter"``. If a float value is used "NewtonMeter" units are applied.
 
         Returns
         -------
