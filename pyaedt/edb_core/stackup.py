@@ -42,6 +42,7 @@ class Stackup(object):
         return self.layers[item]
 
     def __init__(self, pedb):
+        # parent caller class
         self._pedb = pedb
         self._lc = None
 
@@ -1259,6 +1260,152 @@ class Stackup(object):
 
         stackup_target = self._pedb.edb.Cell.LayerCollection(edb_cell.GetLayout().GetLayerCollection())
         stackup_source = self._pedb.edb.Cell.LayerCollection(self._pedb.active_layout.GetLayerCollection())
+
+        if place_on_top:
+            cell_inst2.SetPlacementLayer(
+                list(stackup_target.Layers(self._pedb.edb.Cell.LayerTypeSet.SignalLayerSet))[0]
+            )
+        else:
+            cell_inst2.SetPlacementLayer(
+                list(stackup_target.Layers(self._pedb.edb.Cell.LayerTypeSet.SignalLayerSet))[-1]
+            )
+        cell_inst2.SetIs3DPlacement(True)
+        sig_set = self._pedb.edb.Cell.LayerTypeSet.SignalLayerSet
+        res = stackup_target.GetTopBottomStackupLayers(sig_set)
+        target_top_elevation = res[2]
+        target_bottom_elevation = res[4]
+        res_s = stackup_source.GetTopBottomStackupLayers(sig_set)
+        source_stack_top_elevation = res_s[2]
+        source_stack_bot_elevation = res_s[4]
+
+        if place_on_top and flipped_stackup:
+            elevation = target_top_elevation + source_stack_top_elevation
+        elif place_on_top:
+            elevation = target_top_elevation - source_stack_bot_elevation
+        elif flipped_stackup:
+            elevation = target_bottom_elevation + source_stack_bot_elevation
+            solder_height = -solder_height
+        else:
+            elevation = target_bottom_elevation - source_stack_top_elevation
+            solder_height = -solder_height
+
+        h_stackup = self._edb_value(elevation + solder_height)
+
+        zero_data = self._edb_value(0.0)
+        one_data = self._edb_value(1.0)
+        point3d_t = self._pedb.edb.Geometry.Point3DData(_offset_x, _offset_y, h_stackup)
+        point_loc = self._pedb.edb.Geometry.Point3DData(zero_data, zero_data, zero_data)
+        point_from = self._pedb.edb.Geometry.Point3DData(one_data, zero_data, zero_data)
+        point_to = self._pedb.edb.Geometry.Point3DData(
+            self._edb_value(math.cos(_angle)), self._edb_value(-1 * math.sin(_angle)), zero_data
+        )
+        cell_inst2.Set3DTransformation(point_loc, point_from, point_to, rotation, point3d_t)
+        self.refresh_layer_collection()
+        return True
+
+    @pyaedt_function_handler()
+    def place_instance(
+        self,
+        component_edb,
+        angle=0.0,
+        offset_x=0.0,
+        offset_y=0.0,
+        flipped_stackup=True,
+        place_on_top=True,
+        solder_height=0,
+    ):
+        """Place current Cell into another cell using 3d placement method.
+        Flip the current layer stackup of a layout if requested. Transform parameters currently not supported.
+
+        Parameters
+        ----------
+        component_edb : Edb
+            Cell to place in the current layout.
+        angle : double, optional
+            The rotation angle applied on the design.
+        offset_x : double, optional
+            The x offset value.
+        offset_y : double, optional
+            The y offset value.
+        flipped_stackup : bool, optional
+            Either if the current layout is inverted.
+            If `True` and place_on_top is `True` the stackup will be flipped before the merge.
+        place_on_top : bool, optional
+            Either if place the component_edb layout on Top or Bottom of destination Layout.
+        solder_height : float, optional
+            Solder Ball or Bumps eight.
+            This value will be added to the elevation to align the two layouts.
+
+        Returns
+        -------
+        bool
+            ``True`` when succeed ``False`` if not.
+
+        Examples
+        --------
+        >>> edb1 = Edb(edbpath=targetfile1,  edbversion="2021.2")
+        >>> edb2 = Edb(edbpath=targetfile2, edbversion="2021.2")
+        >>> hosting_cmp = edb1.components.get_component_by_name("U100")
+        >>> mounted_cmp = edb2.components.get_component_by_name("BGA")
+        >>> edb1.stackup.place_instance(edb2, angle=0.0, offset_x="1mm",
+        ...                                   offset_y="2mm", flipped_stackup=False, place_on_top=True,
+        ...                                   )
+        """
+        _angle = angle * math.pi / 180.0
+
+        if solder_height <= 0:
+            if flipped_stackup and not place_on_top or (place_on_top and not flipped_stackup):
+                minimum_elevation = None
+                layers_from_the_bottom = sorted(
+                    component_edb.stackup.signal_layers.values(), key=lambda lay: lay.upper_elevation
+                )
+                for lay in layers_from_the_bottom:
+                    if minimum_elevation is None:
+                        minimum_elevation = lay.lower_elevation
+                    elif lay.lower_elevation > minimum_elevation:
+                        break
+                    lay_solder_height = component_edb.stackup._get_solder_height(lay.name)
+                    solder_height = max(lay_solder_height, solder_height)
+                    component_edb.stackup._remove_solder_pec(lay.name)
+            else:
+                maximum_elevation = None
+                layers_from_the_top = sorted(
+                    component_edb.stackup.signal_layers.values(), key=lambda lay: -lay.upper_elevation
+                )
+                for lay in layers_from_the_top:
+                    if maximum_elevation is None:
+                        maximum_elevation = lay.upper_elevation
+                    elif lay.upper_elevation < maximum_elevation:
+                        break
+                    lay_solder_height = component_edb.stackup._get_solder_height(lay.name)
+                    solder_height = max(lay_solder_height, solder_height)
+                    component_edb.stackup._remove_solder_pec(lay.name)
+        edb_cell = component_edb.active_cell
+        _offset_x = self._edb_value(offset_x)
+        _offset_y = self._edb_value(offset_y)
+
+        if edb_cell.GetName() not in self._pedb.cell_names:
+            _dbCell = convert_py_list_to_net_list([edb_cell])
+            list_cells = self._pedb.db.CopyCells(_dbCell)
+            edb_cell = list_cells[0]
+        for cell in list(self._pedb.db.TopCircuitCells):
+            if cell.GetName() == edb_cell.GetName():
+                edb_cell = cell
+        # Keep Cell Independent
+        edb_cell.SetBlackBox(True)
+        rotation = self._edb_value(0.0)
+        if flipped_stackup:
+            rotation = self._edb_value(math.pi)
+
+        _offset_x = self._edb_value(offset_x)
+        _offset_y = self._edb_value(offset_y)
+
+        cell_inst2 = self._pedb.edb.Cell.Hierarchy.CellInstance.Create(
+            self._pedb.active_layout, edb_cell.GetName(), edb_cell.GetLayout()
+        )
+
+        stackup_source = self._pedb.edb.Cell.LayerCollection(edb_cell.GetLayout().GetLayerCollection())
+        stackup_target = self._pedb.edb.Cell.LayerCollection(self._pedb.active_layout.GetLayerCollection())
 
         if place_on_top:
             cell_inst2.SetPlacementLayer(

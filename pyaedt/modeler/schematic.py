@@ -533,8 +533,7 @@ class ModelerNexxim(ModelerCircuit):
         pos : list
             Offset for the ``[x, y]`` axis.
         units : str
-            Units of the movement. The default is ``"meter"``. If ``None``,
-            ``schematic_units` are used.
+            Units of the movement. The default is ``meter``. If ``None``, ``schematic_units`` are used.
 
         Returns
         -------
