@@ -2774,7 +2774,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     def assign_vector_potential(self, input_edge, vectorvalue=0, bound_name=None):
         """Assign a vector potential boundary condition to the specified edges.
 
-        Method valid for Maxwell 2D Eddy Current, Magnetostatic, and Transient solvers.
+        This method is valid for Maxwell 2D Eddy Current, Magnetostatic, and Transient solvers.
 
         Parameters
         ----------
