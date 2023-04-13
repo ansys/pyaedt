@@ -1386,7 +1386,7 @@ class Maxwell(object):
     ):
         """Assign current density to a single or list of entities.
 
-        This command specifies the x-, y-, and z-components of the current density in a conduction path.
+        This method specifies the x-, y-, and z-components of the current density in a conduction path.
 
         Parameters
         ----------
