@@ -123,8 +123,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [10, 10, 10], 4, name="Sink1")
 
         source = self.aedtapp.source(["Source1", "Sink1"], net_name="GND", name="Cylinder1")
-        source.faces = ["Source1"]
-        source.update()
+        source.props["Objects"] = ["Source1"]
         sink = self.aedtapp.sink("Sink1", net_name="GND")
         assert source
         assert sink
