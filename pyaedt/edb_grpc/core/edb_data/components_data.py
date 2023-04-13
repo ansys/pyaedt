@@ -480,14 +480,13 @@ class EDBComponent(object):
         """
         cmp_type = int(self.edbcomponent.GetComponentType())
         if 0 < cmp_type < 4:
-            componentProperty = self.edbcomponent.GetComponentProperty()
-            model = componentProperty.GetModel().Clone()
-            pinpairs = model.PinPairs
+            model = self.edbcomponent.model.clone()
+            pinpairs = model.pin_pairs
             if not list(pinpairs):
                 return "0"
             for pinpair in pinpairs:
-                pair = model.GetPinPairRlc(pinpair)
-                return pair.R.ToString()
+                pair = pinpair.pin_pairs_rlc
+                return pair.r
         return None
 
     @res_value.setter
@@ -507,16 +506,15 @@ class EDBComponent(object):
         str
             Capacitance Value. ``None`` if not an RLC Type.
         """
-        cmp_type = int(self.edbcomponent.GetComponentType())
+        cmp_type = int(self.edbcomponent.obj_type)
         if 0 < cmp_type < 4:
-            componentProperty = self.edbcomponent.GetComponentProperty()
-            model = componentProperty.GetModel().Clone()
-            pinpairs = model.PinPairs
+            model = self.edbcomponent.model.clone()
+            pinpairs = model.pin_pairs
             if not list(pinpairs):
                 return "0"
             for pinpair in pinpairs:
-                pair = model.GetPinPairRlc(pinpair)
-                return pair.C.ToString()
+                pair = pinpair.pin_pairs_rlc
+                return pair.c
         return None
 
     @cap_value.setter
@@ -538,14 +536,13 @@ class EDBComponent(object):
         """
         cmp_type = int(self.edbcomponent.GetComponentType())
         if 0 < cmp_type < 4:
-            componentProperty = self.edbcomponent.GetComponentProperty()
-            model = componentProperty.GetModel().Clone()
-            pinpairs = model.PinPairs
+            model = self.edbcomponent.model.clone()
+            pinpairs = model.pin_pairs
             if not list(pinpairs):
                 return "0"
             for pinpair in pinpairs:
-                pair = model.GetPinPairRlc(pinpair)
-                return pair.L.ToString()
+                pair = pinpair.pin_pairs_rlc
+                return pair.l
         return None
 
     @ind_value.setter
@@ -565,13 +562,13 @@ class EDBComponent(object):
         bool
             ``True`` if it is a parallel rlc model. ``False`` for series RLC. ``None`` if not an RLC Type.
         """
-        cmp_type = int(self.edbcomponent.GetComponentType())
+        cmp_type = int(self.edbcomponent.obj_type)
         if 0 < cmp_type < 4:
-            model = self.component_property.GetModel().Clone()
+            model = self.edbcomponent.model.clone()
             pinpairs = model.PinPairs
             for pinpair in pinpairs:
-                pair = model.GetPinPairRlc(pinpair)
-                return pair.IsParallel
+                pair = pinpair.pin_pairs_rlc
+                return pair.is_parallel
         return None
 
     @is_parallel_rlc.setter
@@ -580,19 +577,16 @@ class EDBComponent(object):
             logging.warning(self.refdes, " has no pin pair.")
         else:
             if isinstance(value, bool):
-                componentProperty = self.edbcomponent.GetComponentProperty()
-                model = componentProperty.GetModel().Clone()
-                pinpairs = model.PinPairs
+                model = self.edbcomponent.model.clone()
+                pinpairs = model.pin_pairs
                 if not list(pinpairs):
                     return "0"
                 for pin_pair in pinpairs:
-                    pin_pair_rlc = model.GetPinPairRlc(pin_pair)
-                    pin_pair_rlc.IsParallel = value
+                    pin_pair_rlc = pin_pair.pin_pairs_rlc
+                    pin_pair_rlc.is_parallel = value
                     pin_pair_model = self._edb_model
-                    pin_pair_model.SetPinPairRlc(pin_pair, pin_pair_rlc)
-                    comp_prop = self.component_property
-                    comp_prop.SetModel(pin_pair_model)
-                    self.edbcomponent.SetComponentProperty(comp_prop)
+                    pin_pair_model.set_pin_pair_rlc(pin_pair, pin_pair_rlc)
+                    self.edbcomponent.component_property.set_model(pin_pair_model)
 
     @property
     def center(self):
@@ -602,8 +596,7 @@ class EDBComponent(object):
         -------
         list
         """
-        center = self.component_instance.GetCenter()
-        return [center.X.ToDouble(), center.Y.ToDouble()]
+        return self.edbcomponent.location
 
     @property
     def bounding_box(self):
