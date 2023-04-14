@@ -40,35 +40,37 @@ PyAEDT
 What is PyAEDT?
 ---------------
 PyAEDT is a Python library that interacts directly with the AEDT API
-to make scripting simpler for the end user. Its architecture
-can be reused for all AEDT 3D products (HFSS, Icepak, Maxwell 3D, and
-Q3D Extractor), 2D tools, and Ansys Mechanical. It also provides support for circuit
-tools like Nexxim and system simulation tools like Twin Builder. Finally it provides
-scripting capabilities in Ansys layout tools like HFSS 3D Layout and EDB. Its class
-and method structures simplify operation for the end user while reusing information
-as much as possible across the API.
+to make scripting simpler . Its architecture can be reused for all
+Ansys Electronics Desktop (AEDT) 3D products (HFSS, Icepak, Maxwell 3D,
+and Q3D Extractor), 2D tools, and Ansys Mechanical. PyAEDT also provides
+support for circuit tools like Nexxim and system simulation tools like
+Twin Builder. Finally, it provides scripting capabilities in Ansys layout
+tools like HFSS 3D Layout and EDB. The PyAEDT class and method structures
+simplify operation while reusing information as much as possible across
+the API.
 
 Install on CPython from PyPI
 ----------------------------
-You can install PyAEDT on CPython 3.7 through 3.10 from PyPI:
+You can install PyAEDT on CPython 3.7 through 3.10 from PyPI with this command:
 
 .. code:: python
 
     pip install pyaedt
 
-Install PyAEDT with all extra packages (matplotlib, numpy, pandas, pyvista):
+To install PyAEDT with all extra packages (Matplotlib, NumPy, Pandas, and PyVista),
+use this command:
 
 .. code:: python
 
     pip install pyaedt[full]
 
-You can also install PyAEDT from Conda-Forge:
+You can also install PyAEDT from Conda-Forge with this command:
 
 .. code:: python
 
     conda install -c conda-forge pyaedt
 
-PyAEDT remains compatible with Ironpython and can be still used in AEDT Framework.
+PyAEDT remains compatible with IronPython and can be still used in the AEDT Framework.
 
 About PyAnsys
 -------------
@@ -77,20 +79,20 @@ PyAEDT is part of the larger `PyAnsys <https://docs.pyansys.com>`_
 effort to facilitate the use of Ansys technologies directly from Python.
 
 PyAEDT is intended to consolidate and extend all existing
-functionalities around scripting for Ansys Electronics Desktop (AEDT)
-to allow reuse of existing code, sharing of best practices, and increased
-collaboration.
+functionalities around scripting for AEDT to allow reuse of existing code,
+sharing of best practices, and increased collaboration.
 
 
 About AEDT
 ----------
 
-The Ansys Electronics Desktop (AEDT) is a platform that enables true electronics system design.
-`AEDT <https://www.ansys.com/products/electronics>`_ provides access to the Ansys gold-standard
-electro-magnetics simulation solutions such as Ansys HFSS,
-Ansys Maxwell, Ansys Q3D Extractor, Ansys Siwave, and Ansys Icepak using electrical CAD (ECAD) and
+`AEDT <https://www.ansys.com/products/electronics>`_ is a platform that enables true
+electronics system design. AEDT provides access to the Ansys gold-standard
+electro-magnetics simulation solutions, such as Ansys HFSS, Ansys Maxwell,
+Ansys Q3D Extractor, Ansys Siwave, and Ansys Icepak using electrical CAD (ECAD) and
 Mechanical CAD (MCAD) workflows.
-In addition, it includes direct links to the complete Ansys portfolio of thermal, fluid,
+
+In addition, AEDT includes direct links to the complete Ansys portfolio of thermal, fluid,
 and Mechanical solvers for comprehensive multiphysics analysis.
 Tight integration among these solutions provides unprecedented ease of use for setup and
 faster resolution of complex simulations for design and optimization.
@@ -118,42 +120,46 @@ PyAEDT includes functionality for interacting with the following AEDT tools and 
 
 Documentation and issues
 ------------------------
-In addition to installation and usage information, the PyAEDT
-documentation provides `API reference <https://aedt.docs.pyansys.com/release/0.6/API/index.html>`_,
-`Examples <https://aedt.docs.pyansys.com/release/0.6/examples/index.html>`_, and `Contribute 
-<https://aedt.docs.pyansys.com/release/0.6/Contributing.html>`_ sections.
+Documentation for the latest stable release of PyAEDT is hosted at
+`PyAEDT Documentation <https://aedt.docs.pyansys.com/version/stable/>`_.
+
+In the upper right corner of the documentation's title bar, there is an option
+for switching from viewing the documentation for the latest stable release
+to viewing the documentation for the development version or previously
+released versions.
 
 On the `PyAEDT Issues <https://github.com/pyansys/PyAEDT/issues>`_ page, you can
-create issues to submit questions, report bugs, and request new features. To reach
-the project support team, email `pyansys.core@ansys.com <pyansys.core@ansys.com>`_.
+create issues to submit questions, report bugs, and request new features.
+
+To reach the project support team, email `pyansys.core@ansys.com <pyansys.core@ansys.com>`_.
 
 Dependencies
 ------------
-To run PyAEDT, you must have a local licenced copy of AEDT.
-PyAEDT supports AEDT versions 2022 R1 or newer.
+To run PyAEDT, you must have a local licensed copy of AEDT.
+PyAEDT supports AEDT versions 2022 R1 and later.
 
 Student version
 ---------------
 
-PyAEDT supports AEDT Student version 2022 R1 and later. For more information, see
-`Student Version page <https://www.ansys.com/academic/students/ansys-e
-lectronics-desktop-student>`_.
+PyAEDT supports AEDT Student versions 2022 R1 and later. For more information, see
+`Ansys Electronics Desktop Student  - Free Software Download <https://www.ansys.com/academic/students/ansys-e
+lectronics-desktop-student>`_ on the Ansys website.
 
 
 Why PyAEDT?
 -----------
 A quick and easy approach for automating a simple operation in the 
-AEDT UI is to record and reuse a script. However, disadvantages of 
-this approach are:
+AEDT UI is to record and reuse a script. However, here are some disadvantages of 
+this approach:
 
 - Recorded code is dirty and difficult to read and understand.
 - Recorded scripts are difficult to reuse and adapt.
 - Complex coding is required by many global users of AEDT.
 
-The main advantages of PyAEDT are:
+Here are the main advantages that PyAEDT provides:
 
 - Automatic initialization of all AEDT objects, such as desktop
-  objects like the editor, boundaries, and so on
+  objects like the editor, boundaries, and more
 - Error management
 - Log management
 - Variable management
@@ -171,9 +177,9 @@ Example workflow
 2. Initialize the application to use within AEDT.
 
 
-Connect to AEDT from Python IDE
--------------------------------
-PyAEDT works both inside AEDT and as a standalone application.
+Connect to AEDT from a Python IDE
+---------------------------------
+PyAEDT works both inside AEDT and as a standalone app.
 This Python library automatically detects whether it is running
 in an IronPython or CPython environment and initializes AEDT accordingly.
 PyAEDT also provides advanced error management. Usage examples follow.
@@ -219,7 +225,7 @@ Remote application call
 You can make a remote application call on a CPython server
 or any Windows client machine.
 
-On a CPython Server:
+On a CPython server:
 
 .. code:: python
 
@@ -272,5 +278,5 @@ an additional Python interface to AEDT without changing the core
 behavior or license of the original software. The use of the
 interactive control of PyAEDT requires a legally licensed
 local copy of AEDT. For more information about AEDT, 
-visit the `AEDT page <https://www.ansys.com/products/electronics>`_ 
-on the Ansys website.
+see the `Ansys Electronics <https://www.ansys.com/products/electronics>`_ 
+page on the Ansys website.
