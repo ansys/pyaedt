@@ -2555,7 +2555,9 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def add_project_variable(self, variable_name, variable_value, is_parameter=False):
-        """Add a variable to edb database (project). The variable will have the prefix `$`.
+        """Add a variable to the EDB database (project).
+        
+        A prefix of ``$`` is automatically added to the name specified for the variable.
 
         ..note::
             User can use also the setitem to create or assign a variable. See example below.
