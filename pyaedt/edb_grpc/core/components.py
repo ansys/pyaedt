@@ -142,7 +142,7 @@ class Components(object):
 
     @property
     def definitions(self):
-        """Retrieve component definition list.
+        """Component definition list.
 
         Returns
         -------
