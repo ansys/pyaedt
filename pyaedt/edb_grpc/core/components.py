@@ -195,7 +195,7 @@ class Components(object):
         Parameters
         ----------
         file_path : str
-            File path of json file.
+            File path of JSON file.
         Returns
         -------
 
