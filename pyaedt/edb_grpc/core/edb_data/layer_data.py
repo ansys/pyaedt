@@ -4,6 +4,9 @@ from collections import OrderedDict
 import re
 import time
 
+from ansys.edb.layer import RoughnessRegion
+from ansys.edb.layer.layer import LayerType
+
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.clr_module import List
 
@@ -45,7 +48,7 @@ class EDBLayer(object):
 
     @property
     def _cloned_layer(self):
-        return self._layer.Clone()
+        return self._layer.clone()
 
     @property
     def _builder(self):
@@ -55,10 +58,6 @@ class EDBLayer(object):
     def _logger(self):
         """Logger."""
         return self._pedblayers._logger
-
-    def _get_edb_value(self, value):
-        """Get Edb Value."""
-        return self._pedblayers._get_edb_value(value)
 
     @property
     def name(self):
@@ -70,7 +69,7 @@ class EDBLayer(object):
             Name of the layer.
         """
         if not self._name:
-            self._name = self._layer.GetName()
+            self._name = self._layer.name
         return self._name
 
     @property
@@ -83,7 +82,7 @@ class EDBLayer(object):
             ID of the layer.
         """
         if not self._id:
-            self._id = self._layer.GetLayerId()
+            self._id = self._layer.layer_id
         return self._id
 
     @property
@@ -96,13 +95,13 @@ class EDBLayer(object):
             Type of the layer.
         """
         if not self._layer_type:
-            self._layer_type = self._layer.GetLayerType()
-        return self._pedblayers._layer_types_to_int(self._layer_type)
+            self._layer_type = self._layer.type
+        return int(self._layer_type)
 
     @layer_type.setter
     def layer_type(self, value):
         if type(value) is not type(self._layer_type):
-            self._layer_type = self._pedblayers._int_to_layer_types(value)
+            self._layer_type = int(value)
             self.update_layers()
         else:
             self._layer_type = value
@@ -117,8 +116,9 @@ class EDBLayer(object):
         str
             Name of the material.
         """
+
         try:
-            self._material_name = self._cloned_layer.GetMaterial()
+            self._material_name = self._cloned_layer.material
         except:
             pass
         return self._material_name
@@ -138,7 +138,7 @@ class EDBLayer(object):
             Thickness value.
         """
         try:
-            self._thickness = self._cloned_layer.GetThicknessValue().ToDouble()
+            self._thickness = self._cloned_layer.thickness
         except:
             pass
         return self._thickness
@@ -157,12 +157,9 @@ class EDBLayer(object):
         str
             Name of the filling material if it exists.
         """
-        if (
-            self._layer_type == self._edb.Cell.LayerType.SignalLayer
-            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
-        ):
+        if self._layer_type == LayerType.SIGNAL_LAYER or self._layer_type == LayerType.CONDUCTING_LAYER:
             try:
-                self._filling_material_name = self._cloned_layer.GetFillMaterial()
+                self._filling_material_name = self._cloned_layer.get_fill_material()
             except:
                 pass
             return self._filling_material_name
@@ -170,10 +167,7 @@ class EDBLayer(object):
 
     @filling_material_name.setter
     def filling_material_name(self, value):
-        if (
-            self._layer_type == self._edb.Cell.LayerType.SignalLayer
-            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
-        ):
+        if self._layer_type == LayerType.SIGNAL_LAYER or self._layer_type == LayerType.CONDUCTING_LAYER:
             self._filling_material_name = value
             self.update_layers()
 
@@ -186,22 +180,16 @@ class EDBLayer(object):
         bool
             ``True`` when negative, ``False`` otherwise..
         """
-        if (
-            self._layer_type == self._edb.Cell.LayerType.SignalLayer
-            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
-        ):
+        if self._layer_type == LayerType.SIGNAL_LAYER or self._layer_type == LayerType.CONDUCTING_LAYER:
             try:
-                self._negative_layer = self._layer.GetNegative()
+                self._negative_layer = self._layer.negative
             except:
                 pass
         return self._negative_layer
 
     @negative_layer.setter
     def negative_layer(self, value):
-        if (
-            self._layer_type == self._edb.Cell.LayerType.SignalLayer
-            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
-        ):
+        if self._layer_type == LayerType.SIGNAL_LAYER or self._layer_type == LayerType.CONDUCTING_LAYER:
             self._negative_layer = value
             self.update_layers()
 
@@ -214,22 +202,16 @@ class EDBLayer(object):
         bool
             ``True`` if the layer has roughness, ``False`` otherwise.
         """
-        if (
-            self._layer_type == self._edb.Cell.LayerType.SignalLayer
-            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
-        ):
+        if self._layer_type == LayerType.SIGNAL_LAYER or self._layer_type == LayerType.CONDUCTING_LAYER:
             try:
-                self._roughness_enabled = self._layer.IsRoughnessEnabled()
+                self._roughness_enabled = self._layer.roughness_enabled
             except:
                 pass
         return self._roughness_enabled
 
     @roughness_enabled.setter
     def roughness_enabled(self, value):
-        if (
-            self._layer_type == self._edb.Cell.LayerType.SignalLayer
-            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
-        ):
+        if self._layer_type == LayerType.SIGNAL_LAYER or self._layer_type == LayerType.CONDUCTING_LAYER:
             self._roughness_enabled = value
             self.update_layers()
 
@@ -336,7 +318,7 @@ class EDBLayer(object):
             * -1 -  Undefined.
         """
         try:
-            self._top_bottom_association = int(self._layer.GetTopBottomAssociation())
+            self._top_bottom_association = int(self._layer.to_bottom_association)
         except:
             pass
         return self._top_bottom_association
@@ -351,7 +333,7 @@ class EDBLayer(object):
             Lower elevation.
         """
         try:
-            self._lower_elevation = self._cloned_layer.GetLowerElevation()
+            self._lower_elevation = self._cloned_layer.lower_elevation
         except:
             pass
         return self._lower_elevation
@@ -371,7 +353,7 @@ class EDBLayer(object):
             Upper elevation.
         """
         try:
-            self._upper_elevation = self._cloned_layer.GetUpperElevation()
+            self._upper_elevation = self._cloned_layer.upper_elevation
         except:
             pass
         return self._upper_elevation
@@ -385,12 +367,9 @@ class EDBLayer(object):
         float
             Etch factor if it exists, 0 otherwise.
         """
-        if (
-            self._layer_type == self._edb.Cell.LayerType.SignalLayer
-            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
-        ):
+        if self._layer_type == LayerType.SIGNAL_LAYER or self._layer_type == LayerType.CONDUCTING_LAYER:
             try:
-                self._etch_factor = float(self._cloned_layer.GetEtchFactor().ToString())
+                self._etch_factor = self._cloned_layer.etching_factor
                 return self._etch_factor
             except:
                 pass
@@ -404,7 +383,7 @@ class EDBLayer(object):
             self._layer_type == self._edb.Cell.LayerType.SignalLayer
             or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
-            self._etch_factor = float(value)
+            self._etch_factor = value
             self.update_layers()
 
     @pyaedt_function_handler()
@@ -448,21 +427,18 @@ class EDBLayer(object):
     def init_vals(self):
         """Initialize values."""
         try:
-            self._name = self._layer.GetName()
-            self._layer_type = self._layer.GetLayerType()
-            self._thickness = self._layer.GetThicknessValue().ToString()
-            if (
-                self._layer_type == self._edb.Cell.LayerType.SignalLayer
-                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
-            ):
-                self._etch_factor = float(self._layer.GetEtchFactor().ToString())
-                self._filling_material_name = self._layer.GetFillMaterial()
-                self._negative_layer = self._layer.GetNegative()
-                self._roughness_enabled = self._layer.IsRoughnessEnabled()
-            self._material_name = self._layer.GetMaterial()
-            self._lower_elevation = self._layer.GetLowerElevation()
-            self._upper_elevation = self._layer.GetUpperElevation()
-            self._top_bottom_association = self._layer.GetTopBottomAssociation()
+            self._name = self._layer.name
+            self._layer_type = self._layer.type
+            self._thickness = self._layer.thickness
+            if self._layer_type == LayerType.SIGNAL_LAYER or self._layer_type == LayerType.CONDUCTING_LAYER:
+                self._etch_factor = self._layer.etch_factor
+                self._filling_material_name = self._layer.fill_material
+                self._negative_layer = self._layer.negative
+                self._roughness_enabled = self._layer.roughness_enabled
+            self._material_name = self._layer.get_material()
+            self._lower_elevation = self._layer.lower_elevation
+            self._upper_elevation = self._layer.upper_elevation
+            self._top_bottom_association = self._layer.top_bottom_association
         except:
             pass
 
@@ -505,41 +481,43 @@ class EDBLayer(object):
             Layer object.
 
         """
-        newLayer.SetName(layerName)
+        newLayer.name = layerName
 
         try:
-            newLayer.SetLayerType(layerTypeMap)
+            newLayer.type = layerTypeMap
         except:
             self._logger.error("Layer %s has unknown type %s.", layerName, layerTypeMap)
             return False
         if thicknessMap:
-            newLayer.SetThickness(self._get_edb_value(thicknessMap))
+            newLayer.thickness = thicknessMap
         if materialMap:
-            newLayer.SetMaterial(materialMap)
+            newLayer.set_material(materialMap)
         if fillMaterialMap:
             newLayer.SetFillMaterial(fillMaterialMap)
         if negativeMap:
-            newLayer.SetNegative(negativeMap)
+            newLayer.set_fill_material(negativeMap)
         if roughnessMap:
-            newLayer.SetRoughnessEnabled(roughnessMap)
+            newLayer.roughness_enabled = roughnessMap
             models = [self._roughness_model_top, self._roughness_model_bottom, self._roughness_model_side]
             regions = [
-                self._edb.Cell.RoughnessModel.Region.Top,
-                self._edb.Cell.RoughnessModel.Region.Side,
-                self._edb.Cell.RoughnessModel.Region.Bottom,
+                RoughnessRegion.TOP,
+                RoughnessRegion.SIDE,
+                RoughnessRegion.BOTTOM,
             ]
             for mdl, region in zip(models, regions):
                 if not mdl:
                     continue
                 model_type = mdl[0]
                 if model_type == "huray":
-                    radius = self._get_edb_value(mdl[1])
-                    surface_ratio = self._get_edb_value(mdl[2])
-                    model = self._edb.Cell.HurrayRoughnessModel(radius, surface_ratio)
+                    radius = mdl[1]
+                    surface_ratio = mdl[2]
+                    # didn't find roughness model
+                    # model = self._edb.Cell.HurrayRoughnessModel(radius, surface_ratio)
                 else:
-                    roughness = self._get_edb_value(mdl[1])
-                    model = self._edb.Cell.GroisseRoughnessModel(roughness)
-                newLayer.SetRoughnessModel(region, model)
+                    roughness = mdl[1]
+                    # didn't find roughness model
+                    # model = self._edb.Cell.GroisseRoughnessModel(roughness)
+                # newLayer.SetRoughnessModel(region, model)
         if isinstance(etchMap, float) and int(layerTypeMap) in [0, 2]:
             etchVal = float(etchMap)
         else:

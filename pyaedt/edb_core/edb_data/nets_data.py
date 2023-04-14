@@ -39,11 +39,11 @@ class EDBNetsData(object):
         -------
         str
         """
-        return self.net_object.name
+        return self.net_object.GetName()
 
     @name.setter
     def name(self, val):
-        self.net_object.name = val
+        self.net_object.SetName(val)
 
     @property
     def primitives(self):
@@ -53,7 +53,7 @@ class EDBNetsData(object):
         -------
         list of :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`
         """
-        return [EDBPrimitives(i, self._app) for i in self.net_object.primitives]
+        return [EDBPrimitives(i, self._app) for i in self.net_object.Primitives]
 
     @property
     def padstack_instances(self):
@@ -63,7 +63,9 @@ class EDBNetsData(object):
         -------
         list of :class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`"""
         name = self.name
-        return [EDBPadstackInstance(i, self._app) for i in self.net_object.padstack_instances if i.net.name == name]
+        return [
+            EDBPadstackInstance(i, self._app) for i in self.net_object.PadstackInstances if i.GetNet().GetName() == name
+        ]
 
     @property
     def is_power_ground(self):
@@ -73,12 +75,12 @@ class EDBNetsData(object):
         -------
         bool
         """
-        return self.net_object.is_power_ground
+        return self.net_object.IsPowerGround()
 
     @is_power_ground.setter
     def is_power_ground(self, val):
         if isinstance(val, bool):
-            self.net_object.is_power_ground = val
+            self.net_object.SetIsPowerGround(val)
         else:
             raise AttributeError("Value has to be a boolean.")
 
@@ -99,7 +101,7 @@ class EDBNetsData(object):
     @pyaedt_function_handler
     def delete(self):
         """Delete this net from layout."""
-        self.net_object.delete()
+        self.net_object.Delete()
 
     @pyaedt_function_handler()
     def plot(
@@ -147,9 +149,9 @@ class EDBNetsData(object):
             Trace smallest width.
         """
         current_value = 1e10
-        for prim in self.net_object.primitives:
-            if prim.primitive_type.name == "PATH":
-                width = prim.width.double
+        for prim in self.net_object.Primitives:
+            if "GetWidth" in dir(prim):
+                width = prim.GetWidth()
                 if width < current_value:
                     current_value = width
         return current_value
