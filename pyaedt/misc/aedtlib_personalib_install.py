@@ -22,7 +22,11 @@ pid = 0
 
 def add_pyaedt_to_aedt(aedt_version, is_student_version=False, use_sys_lib=False, new_desktop_session=False):
     from pyaedt import Desktop
+    from pyaedt.generic.general_methods import grpc_active_sessions
 
+    sessions = grpc_active_sessions(aedt_version, is_student_version)
+    if not sessions:
+        new_desktop_session = True
     with Desktop(
         aedt_version, new_desktop_session, new_desktop_session=new_desktop_session, student_version=is_student_version
     ) as d:
