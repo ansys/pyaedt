@@ -1,3 +1,5 @@
+from ansys.edb.primitive import PrimitiveType
+
 from pyaedt.edb_grpc.core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_grpc.core.edb_data.primitives_data import EDBPrimitives
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -39,11 +41,11 @@ class EDBNetsData(object):
         -------
         str
         """
-        return self.net_object.GetName()
+        return self.net_object.name
 
     @name.setter
     def name(self, val):
-        self.net_object.SetName(val)
+        self.net_object.name = val
 
     @property
     def primitives(self):
@@ -53,7 +55,7 @@ class EDBNetsData(object):
         -------
         list of :class:`pyaedt.edb_grpc.core.edb_data.primitives_data.EDBPrimitives`
         """
-        return [EDBPrimitives(i, self._app) for i in self.net_object.Primitives]
+        return [EDBPrimitives(i, self._app) for i in self.net_object.primitives]
 
     @property
     def padstack_instances(self):
@@ -63,9 +65,7 @@ class EDBNetsData(object):
         -------
         list of :class:`pyaedt.edb_grpc.core.edb_data.padstacks_data.EDBPadstackInstance`"""
         name = self.name
-        return [
-            EDBPadstackInstance(i, self._app) for i in self.net_object.PadstackInstances if i.GetNet().GetName() == name
-        ]
+        return [EDBPadstackInstance(i, self._app) for i in self.net_object.padstack_instances if i.net.name == name]
 
     @property
     def is_power_ground(self):
@@ -75,12 +75,12 @@ class EDBNetsData(object):
         -------
         bool
         """
-        return self.net_object.IsPowerGround()
+        return self.net_object.is_power_ground
 
     @is_power_ground.setter
     def is_power_ground(self, val):
         if isinstance(val, bool):
-            self.net_object.SetIsPowerGround(val)
+            self.net_object.is_power_ground = val
         else:
             raise AttributeError("Value has to be a boolean.")
 
@@ -101,7 +101,7 @@ class EDBNetsData(object):
     @pyaedt_function_handler
     def delete(self):
         """Delete this net from layout."""
-        self.net_object.Delete()
+        self.net_object.delete()
 
     @pyaedt_function_handler()
     def plot(
@@ -149,9 +149,9 @@ class EDBNetsData(object):
             Trace smallest width.
         """
         current_value = 1e10
-        for prim in self.net_object.Primitives:
-            if "GetWidth" in dir(prim):
-                width = prim.GetWidth()
+        for prim in self.net_object.primitives:
+            if prim.obj_type == PrimitiveType.PATH:
+                width = prim.width
                 if width < current_value:
                     current_value = width
         return current_value
