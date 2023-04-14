@@ -428,7 +428,7 @@ class Components(object):
 
     @pyaedt_function_handler()
     def get_component_by_name(self, name):
-        """Retrieve a component by name.
+        """Get a component by name.
 
         Parameters
         ----------
