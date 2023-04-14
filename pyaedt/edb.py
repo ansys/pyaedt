@@ -2729,7 +2729,7 @@ class Edb(object):
     @pyaedt_function_handler()
     def add_project_variable(self, variable_name, variable_value, is_parameter=False):
         """Add a variable to the EDB database (project).
-        
+
         A prefix of ``$`` is automatically added to the name specified for the variable.
 
         ..note::

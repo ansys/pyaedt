@@ -1450,7 +1450,7 @@ class EDBPadstackInstance(object):
     @pyaedt_function_handler()
     def create_rectangle_in_pad(self, layer_name, return_points=False, partition_max_order=16):
         """Create a rectangle inscribed inside a padstack instance pad.
-        
+
         The rectangle is fully inscribed in the pad and has the maximum area.
         It is necessary to specify the layer to create the rectangle on.
 
