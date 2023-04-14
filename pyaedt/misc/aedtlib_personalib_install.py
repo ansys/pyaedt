@@ -30,7 +30,9 @@ def main():
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Install PyAEDT and setup PyAEDT toolkits in AEDT.")
-    parser.add_argument("--version", "-v", default="231", metavar="XY.Z", help="AEDT three-digit version (e.g. 231).")
+    parser.add_argument(
+        "--version", "-v", default="231", metavar="XY.Z", help="AEDT three-digit version (e.g. 231). Default=231"
+    )
     parser.add_argument("--student", action="store_true", help="Install toolkits for AEDT Student Version.")
     parser.add_argument("--sys_lib", action="store_true", help="Install toolkits in SysLib.")
     parser.add_argument(
