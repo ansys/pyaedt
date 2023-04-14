@@ -3,7 +3,6 @@
 This module is implicitily loaded in HFSS 3D Layout when launched.
 
 """
-import gc
 import os
 import re
 import shutil
@@ -288,7 +287,6 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def _init_objects(self):
-        time.sleep(1)
         self._components = Components(self)
         self._stackup = Stackup(self)
         self._padstack = EdbPadstacks(self)
@@ -1171,17 +1169,11 @@ class Edb(object):
         if self.log_name and settings.enable_local_log_file:
             self._global_logger.remove_file_logger(os.path.splitext(os.path.split(self.log_name)[-1])[0])
             self._logger = self._global_logger
-        time.sleep(2)
         start_time = time.time()
         self._wait_for_file_release()
         elapsed_time = time.time() - start_time
         self.logger.info("EDB file release time: {0:.2f}ms".format(elapsed_time * 1000.0))
         self._clean_variables()
-        timeout = 4
-        time.sleep(2)
-        while gc.collect() != 0 and timeout > 0:
-            time.sleep(0.25)
-            timeout -= 1
         return True
 
     @pyaedt_function_handler()
