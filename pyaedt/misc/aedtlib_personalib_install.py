@@ -33,7 +33,9 @@ def parse_arguments():
     parser.add_argument(
         "--version", "-v", default="231", metavar="XY.Z", help="AEDT three-digit version (e.g. 231). Default=231"
     )
-    parser.add_argument("--student", action="store_true", help="Install toolkits for AEDT Student Version.")
+    parser.add_argument(
+        "--student", "--student_version", action="store_true", help="Install toolkits for AEDT Student Version."
+    )
     parser.add_argument("--sys_lib", "--syslib", action="store_true", help="Install toolkits in SysLib.")
     parser.add_argument(
         "--new_session", action="store_true", help="Start a new session of AEDT after installing PyAEDT."
