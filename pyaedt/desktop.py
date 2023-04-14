@@ -1517,6 +1517,9 @@ class Desktop(object):
 
             commands.append([executable, "-m", "pip", "install", "--upgrade", package_path])
 
+            if self.aedt_version_id == "2023.1" and is_windows and "AnsysEM" in sys.base_prefix:
+                commands.append([executable, "-m", "pip", "uninstall", "--yes", "pywin32"])
+
             for command in commands:
                 if is_linux:
                     p = subprocess.Popen(command)

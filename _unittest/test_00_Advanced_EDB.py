@@ -100,6 +100,50 @@ class TestClass(BasisTest, object):
         edb2.close_edb()
         edb1.close_edb()
 
+    def test_01B_flip_layer_stackup(self):
+        edb_path = os.path.join(self.target_path2, "edb.def")
+        edb1 = Edb(edb_path, edbversion=desktop_version)
+
+        edb2 = Edb(self.target_path, edbversion=desktop_version)
+        assert edb1.stackup.place_instance(
+            edb2,
+            angle=0.0,
+            offset_x="41.783mm",
+            offset_y="35.179mm",
+            flipped_stackup=False,
+            place_on_top=False,
+            solder_height=0.0,
+        )
+        assert edb1.stackup.place_instance(
+            edb2,
+            angle=0.0,
+            offset_x="41.783mm",
+            offset_y="35.179mm",
+            flipped_stackup=True,
+            place_on_top=False,
+            solder_height=0.0,
+        )
+        assert edb1.stackup.place_instance(
+            edb2,
+            angle=0.0,
+            offset_x="41.783mm",
+            offset_y="35.179mm",
+            flipped_stackup=False,
+            place_on_top=True,
+            solder_height=0.0,
+        )
+        assert edb1.stackup.place_instance(
+            edb2,
+            angle=0.0,
+            offset_x="41.783mm",
+            offset_y="35.179mm",
+            flipped_stackup=True,
+            place_on_top=True,
+            solder_height=0.0,
+        )
+        edb2.close_edb()
+        edb1.close_edb()
+
     def test_02_flip_layer_stackup_2(self):
         edb2 = Edb(self.target_path, edbversion=desktop_version)
         assert edb2.stackup.place_in_layout(

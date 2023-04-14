@@ -40,16 +40,42 @@ modeler, including all primitives methods and properties:
    :toctree: _autosummary
    :nosignatures:
 
-
    schematic.ModelerNexxim
    schematic.ModelerTwinBuilder
    schematic.ModelerEmit
+   schematic.ModelerMaxwellCircuit
 
 
+Schematic in Circuit
+~~~~~~~~~~~~~~~~~~~~
+The following classes define the object properties for Circuit components.
+They contain all getters and setters to simplify object manipulation.
 
-Objects in Circuit tools
-~~~~~~~~~~~~~~~~~~~~~~~~
-The following classes define the object properties for Circuit tools.
+.. currentmodule:: pyaedt.modeler.circuits.PrimitivesNexxim
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   NexximComponents
+
+.. code:: python
+
+    from pyaedt import Circuit
+    app = Circuit(specified_version="2023.1",
+               non_graphical=False, new_desktop_session=True,
+               close_on_exit=True, student_version=False)
+
+    # This call returns a Schematic object
+    schematic = modeler.schematic
+
+    # This call returns an Object3d object
+    my_res = schematic.create_resistor("R1", 50)
+
+
+Objects in Circuit
+~~~~~~~~~~~~~~~~~~
+The following classes define the object properties for Circuit.
 They contain all getters and setters to simplify object manipulation.
 
 .. currentmodule:: pyaedt.modeler.circuits
@@ -60,6 +86,7 @@ They contain all getters and setters to simplify object manipulation.
 
    object3dcircuit.CircuitComponent
    object3dcircuit.CircuitPins
+   object3dcircuit.Wire
 
 .. code:: python
 
@@ -81,6 +108,67 @@ They contain all getters and setters to simplify object manipulation.
     my_res.location
     my_res.parameters["R"]=100
 
+    ...
+
+Schematic in Emit
+~~~~~~~~~~~~~~~~~
+The following classes define the object properties for Emit components.
+They contain all getters and setters to simplify object manipulation.
+
+.. currentmodule:: pyaedt.modeler.circuits.PrimitivesEmit
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   EmitComponents
+
+
+Schematic in TwinBuilder
+~~~~~~~~~~~~~~~~~~~~~~~~
+The following classes define the object properties for TwinBuilder components.
+They contain all getters and setters to simplify object manipulation.
+
+.. currentmodule:: pyaedt.modeler.circuits.PrimitivesTwinBuilder
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   TwinBuilderComponents
+
+.. code:: python
+
+    from pyaedt import TwinBuilder
+    app = TwinBuilder(specified_version="2023.1",
+               non_graphical=False, new_desktop_session=True,
+               close_on_exit=True, student_version=False)
+
+    # This call returns the Modeler class
+    modeler = app.modeler
+
+    # This call returns a Schematic object
+    schematic = modeler.schematic
+
+    # This call returns an Object3d object
+    my_res = schematic.create_resistor("R1", 50)
+
+    # Getter and setter
+    my_res.location
+    my_res.parameters["R"]=100
 
     ...
 
+
+Schematic in Maxwell Circuit
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The following classes define the object properties for Maxwell Circuit components.
+They contain all getters and setters to simplify object manipulation.
+
+.. currentmodule:: pyaedt.modeler.circuits.PrimitivesMaxwellCircuit
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   MaxwellCircuitComponents

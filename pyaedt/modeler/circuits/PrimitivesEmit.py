@@ -43,7 +43,7 @@ class EmitComponents(object):
 
     @property
     def o_model_manager(self):
-        """Aedt Model Manager"""
+        """Aedt Model Manager."""
         return self.modeler.o_model_manager
 
     @property
@@ -212,14 +212,10 @@ class EmitComponents(object):
 
     @pyaedt_function_handler()
     def get_radios(self):
-        """Return a dict of all the radios in the design.
+        """Get all radios in the design.
 
-        Parameters
-        ----------
-        None
-
-        Return
-        ------
+        Returns
+        -------
         Dict : radio_name : EmitRadioComponents
             Dict of all the radio_name and EmitRadioComponents in the
             design.
@@ -239,7 +235,7 @@ class EmitComponents(object):
 
     @pyaedt_function_handler()
     def get_obj_id(self, object_name):
-        """
+        """Get object ID.
 
         Parameters
         ----------

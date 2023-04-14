@@ -6,6 +6,8 @@ from pyaedt.generic.constants import AXIS
 from pyaedt.generic.constants import PLANE
 from pyaedt.generic.constants import SWEEPDRAFT
 from pyaedt.generic.constants import unit_converter
+from pyaedt.modeler.calculators import StandardWaveguide as wg
+from pyaedt.modeler.calculators import TransmissionLine as tl
 from pyaedt.modeler.geometry_operators import GeometryOperators as go
 
 try:
@@ -595,3 +597,17 @@ class TestClass(BasisTest, object):
             )
             < 1e-10
         )
+
+    def test_trasmission_line(self):
+        tr = tl(5)
+        assert (tr.differential_microstrip_analysis(50, 4.4, 10, 15, 1)[1] - 161) < 1
+        assert (tr.microstrip_analysis(50, 4.4, 10, 1) - 126) < 1
+        assert abs(tr.microstrip_synthesis(50, 4.4, 126)[0] - 10) < 1
+        assert abs(tr.stripline_synthesis(50, 4.4, 126) - 1) < 1
+        assert abs(tr.suspended_strip_synthesis(0.5, 4.4, 1) - 1) < 1
+
+    def test_wg(self):
+        wg_calc = wg()
+        assert len(wg_calc.get_waveguide_dimensions("WR-75", "in")) == 3
+        for f in range(1, 200):
+            assert isinstance(wg_calc.find_waveguide(f), str)
