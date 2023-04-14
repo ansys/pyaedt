@@ -125,7 +125,7 @@ documentation provides `API reference <https://aedt.docs.pyansys.com/release/0.6
 
 On the `PyAEDT Issues <https://github.com/pyansys/PyAEDT/issues>`_ page, you can
 create issues to submit questions, report bugs, and request new features. To reach
-the project support team, email `pyansys.support@ansys.com <pyansys.support@ansys.com>`_.
+the project support team, email `pyansys.core@ansys.com <pyansys.core@ansys.com>`_.
 
 Dependencies
 ------------
