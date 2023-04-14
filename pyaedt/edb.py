@@ -1388,8 +1388,12 @@ class Edb(object):
                     _polys.extend(list(obj_data))
         if smart_cutout:
             _polys.extend(self._smart_cut(net_signals, reference_list, include_pingroups))
-        _poly = self.edb.Geometry.PolygonData.Unite(convert_py_list_to_net_list(_polys))[0]
-        return _poly
+        _poly_unite = list(self.edb.Geometry.PolygonData.Unite(convert_py_list_to_net_list(_polys)))
+        if len(_poly_unite) == 1:
+            return _poly_unite[0]
+        else:
+            areas = [i.Area() for i in _poly_unite]
+            return _poly_unite[areas.index(max(areas))]
 
     @pyaedt_function_handler()
     def _smart_cut(self, net_signals, reference_list=[], include_pingroups=True):
