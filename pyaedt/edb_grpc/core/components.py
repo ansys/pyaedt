@@ -517,7 +517,7 @@ class Components(object):
         Returns
         -------
         tuple
-            Tuple of Vector offset, rotation and solder height.
+            Tuple of vector offset, rotation, and solder height.
 
         Examples
         --------
