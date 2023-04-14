@@ -190,7 +190,7 @@ class Components(object):
 
     @pyaedt_function_handler()
     def export_definition(self, file_path):
-        """Export component definitions to json file.
+        """Export component definitions to JSON file.
 
         Parameters
         ----------
