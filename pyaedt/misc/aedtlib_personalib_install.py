@@ -61,6 +61,8 @@ def add_pyaedt_to_aedt(aedt_version, is_student_version=False, use_sys_lib=False
 
     sessions = grpc_active_sessions(aedt_version, is_student_version)
     if not sessions:
+        if not new_desktop_session:
+            print("Launching new AEDT desktop session.")
         new_desktop_session = True
     with Desktop(
         specified_version=aedt_version,
@@ -73,7 +75,7 @@ def add_pyaedt_to_aedt(aedt_version, is_student_version=False, use_sys_lib=False
         pid = desktop.GetProcessID()
         # Linking pyaedt in PersonalLib for IronPython compatibility.
         if os.path.exists(pers1):
-            d.logger.info("PersonalLib already mapped")
+            d.logger.info("PersonalLib already mapped.")
         else:
             if is_windows:
                 os.system('mklink /D "{}" "{}"'.format(pers1, pyaedt_path))
@@ -102,16 +104,16 @@ def add_pyaedt_to_aedt(aedt_version, is_student_version=False, use_sys_lib=False
                 try:
                     sys_dir = os.path.join(d.syslib, "Toolkits")
                     install_toolkit(sys_dir, product, aedt_version)
-                    d.logger.info("Installed toolkit for {} in sys lib".format(product))
+                    d.logger.info("Installed toolkit for {} in sys lib.".format(product))
 
                 except IOError:
                     pers_dir = os.path.join(d.personallib, "Toolkits")
                     install_toolkit(pers_dir, product, aedt_version)
-                    d.logger.info("Installed toolkit for {} in personal lib".format(product))
+                    d.logger.info("Installed toolkit for {} in personal lib.".format(product))
             else:
                 pers_dir = os.path.join(d.personallib, "Toolkits")
                 install_toolkit(pers_dir, product, aedt_version)
-                d.logger.info("Installed toolkit for {} in personal lib".format(product))
+                d.logger.info("Installed toolkit for {} in personal lib.".format(product))
     if pid and new_desktop_session:
         try:
             os.kill(pid, 9)
