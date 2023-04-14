@@ -2525,7 +2525,7 @@ class Edb(object):
         Returns
         -------
         tuple of bool and VaribleServer
-            It returns a booleand to check if the variable exists and the variable
+            A Boolean indicating if the variable exists and the variable
             server that should contain the variable.
         """
         if variable_name in self.db.get_all_variable_names():
