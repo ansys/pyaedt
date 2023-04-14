@@ -31,7 +31,7 @@ modeler, including all primitives methods and properties:
 
 * ``ModelerNexxim`` for Circuit
 * ``ModelerTwinBuilder`` for Twin Builder
-* ``ModelerEmit`` for Emit
+* ``ModelerEmit`` for EMIT
 
 
 .. currentmodule:: pyaedt.modeler
@@ -110,9 +110,9 @@ They contain all getters and setters to simplify object manipulation.
 
     ...
 
-Schematic in Emit
+Schematic in EMIT
 ~~~~~~~~~~~~~~~~~
-The following classes define the object properties for Emit components.
+The following classes define the object properties for EMIT components.
 They contain all getters and setters to simplify object manipulation.
 
 .. currentmodule:: pyaedt.modeler.circuits.PrimitivesEmit
@@ -124,9 +124,9 @@ They contain all getters and setters to simplify object manipulation.
    EmitComponents
 
 
-Schematic in TwinBuilder
-~~~~~~~~~~~~~~~~~~~~~~~~
-The following classes define the object properties for TwinBuilder components.
+Schematic in Twin Builder
+~~~~~~~~~~~~~~~~~~~~~~~~~
+The following classes define the object properties for Twin Builder components.
 They contain all getters and setters to simplify object manipulation.
 
 .. currentmodule:: pyaedt.modeler.circuits.PrimitivesTwinBuilder
