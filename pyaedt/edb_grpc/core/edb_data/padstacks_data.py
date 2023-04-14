@@ -1361,14 +1361,14 @@ class EDBPadstackInstance(object):
 
     @pyaedt_function_handler()
     def in_voids(self, net_name=None, layer_name=None):
-        """Check if this padstack instance is in any void.
+        """Check if the padstack instance is in any voids.
 
         Parameters
         ----------
         net_name : str
-            Net name of the voids to be checked. Default is ``None``.
+            Net name of the voids to check. The default is ``None``.
         layer_name : str
-            Layer name of the voids to be checked. Default is ``None``.
+            Layer name of the voids to check. The default is ``None``.
 
         Returns
         -------
