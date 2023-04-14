@@ -93,7 +93,7 @@ Ansys Q3D Extractor, Ansys Siwave, and Ansys Icepak using electrical CAD (ECAD) 
 Mechanical CAD (MCAD) workflows.
 
 In addition, AEDT includes direct links to the complete Ansys portfolio of thermal, fluid,
-and Mechanical solvers for comprehensive multiphysics analysis.
+and mechanical solvers for comprehensive multiphysics analysis.
 Tight integration among these solutions provides unprecedented ease of use for setup and
 faster resolution of complex simulations for design and optimization.
 
