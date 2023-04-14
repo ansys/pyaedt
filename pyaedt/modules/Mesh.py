@@ -368,7 +368,7 @@ class Mesh(object):
         """Return the available mesh operations.
 
         Returns
-        ----------
+        -------
         List
             List of :class:`pyaedt.modules.Mesh.MeshOperation`
                         List of mesh operation object.
@@ -399,7 +399,7 @@ class Mesh(object):
         """Return the available mesh operation names.
 
         Returns
-        ----------
+        -------
         List
             List of mesh operation names.
 

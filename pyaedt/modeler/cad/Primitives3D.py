@@ -901,8 +901,10 @@ class Primitives3D(Primitives, object):
         vArg2.append("Thread:=")
         vArg2.append(self._arg_with_dim(thread))
 
-        new_name = self.oeditor.CreateHelix(vArg1, vArg2)
-        return self._create_object(new_name)
+        self.oeditor.CreateHelix(vArg1, vArg2)
+        if polyline_name in self._object_names_to_ids:
+            del self.objects[self._object_names_to_ids[polyline_name]]
+        return self._create_object(polyline_name)
 
     @pyaedt_function_handler()
     def convert_segments_to_line(self, object_name):
@@ -1097,6 +1099,7 @@ class Primitives3D(Primitives, object):
         )
         if name:
             p1.name = name
+            self._create_object(name)
         return p1
 
     @pyaedt_function_handler()
@@ -2080,7 +2083,7 @@ class Primitives3D(Primitives, object):
         import math
 
         teta_r = radians(teta)
-        points_list1 = [
+        points = [
             [in_rad * cos(teta_r), -in_rad * sin(teta_r), height / 2 - chamf],
             [(in_rad + chamf) * cos(teta_r), -(in_rad + chamf) * sin(teta_r), height / 2],
             [out_rad - chamf, 0, height / 2],
@@ -2091,21 +2094,22 @@ class Primitives3D(Primitives, object):
             [in_rad * cos(teta_r), in_rad * sin(teta_r), -height / 2 + chamf],
             [in_rad * cos(teta_r), in_rad * sin(teta_r), height / 2 - chamf],
         ]
-        list_positions = [i for i in points_list1[:]]
+
+        positions = [i for i in points[:]]
         import math
 
         angle = -2 * teta * math.pi / 180
         for i in range(1, turns):
-            for k in points_list1[1:]:
-                list_positions.append(
+            for point in points[1:]:
+                positions.append(
                     [
-                        k[0] * math.cos(i * angle) + k[1] * math.sin(i * angle),
-                        -k[0] * math.sin(i * angle) + k[1] * math.cos(i * angle),
-                        k[2],
+                        point[0] * math.cos(i * angle) + point[1] * math.sin(i * angle),
+                        -point[0] * math.sin(i * angle) + point[1] * math.cos(i * angle),
+                        point[2],
                     ]
                 )
 
-        polyline = self.create_polyline(position_list=points_list1, name=name, matname=material)
+        polyline = self.create_polyline(position_list=points, name=name, matname=material)
         union_polyline1 = [polyline.name]
         if turns > 1:
             union_polyline2 = polyline.duplicate_around_axis(
@@ -2125,15 +2129,15 @@ class Primitives3D(Primitives, object):
 
         if sep_layer:
             for i in range(4):
-                list_positions.pop()
-            list_positions.insert(0, [list_positions[0][0], list_positions[0][1], -height])
-            list_positions.append([list_positions[-1][0], list_positions[-1][1], -height])
-            true_polyline = self.create_polyline(position_list=list_positions, name=name, matname=material)
+                positions.pop()
+            positions.insert(0, [positions[0][0], positions[0][1], -height])
+            positions.append([positions[-1][0], positions[-1][1], -height])
+            true_polyline = self.create_polyline(position_list=positions, name=name, matname=material)
             true_polyline.rotate("Z", 180 - (turns - 1) * teta)
-            list_positions = self.get_vertices_of_line(true_polyline.name)
-            return [true_polyline, list_positions]
+            positions = self.get_vertices_of_line(true_polyline.name)
+            return [true_polyline, positions]
 
-        return list_positions
+        return positions
 
     @pyaedt_function_handler()
     def _make_double_linked_winding(

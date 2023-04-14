@@ -10,7 +10,7 @@ description = "Higher-Level Pythonic Ansys Electronics Desktop Framework"
 readme = "README.rst"
 requires-python = ">=3.7,<4"
 license = {file = "LICENSE"}
-authors = [{name = "ANSYS, Inc.", email = "pyansys.support@ansys.com"}]
+authors = [{name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"}]
 maintainers = [{name = "PyAEDT developers", email = "massimo.capodiferro@ansys.com"}]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -35,7 +35,6 @@ dependencies = [
 
 [project.optional-dependencies]
 tests = [
-    "codecov==2.1.12",
     "ipython==8.8.0",
     "joblib==1.2.0",
     "matplotlib==3.5.3; python_version <= '3.7'",

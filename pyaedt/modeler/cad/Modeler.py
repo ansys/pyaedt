@@ -1099,7 +1099,7 @@ class Lists(PropsManager, object):
                         object_list_new.append(int(element))
                     else:
                         if element in self._modeler.object_names:
-                            obj_id = self._modeler.object_id_dict[element]
+                            obj_id = self._modeler._object_names_to_ids[element]
                             for sel in self._modeler.object_list:
                                 if sel.id == obj_id:
                                     for f in sel.faces:
@@ -1181,6 +1181,15 @@ class GeometryModeler(Modeler, object):
         self._user_lists = None
         self._planes = None
         self._is3d = is3d
+        self._solids = []
+        self._sheets = []
+        self._lines = []
+        self._points = []
+        self._unclassified = []
+        self._all_object_names = []
+        self.objects = {}
+        self.user_defined_components = {}
+        self._object_names_to_ids = {}
 
     @property
     def coordinate_systems(self):
@@ -1224,46 +1233,6 @@ class GeometryModeler(Modeler, object):
 
         """
         return self._app.materials
-
-    @pyaedt_function_handler()
-    def _convert_list_to_ids(self, input_list, convert_objects_ids_to_name=True):
-        """Convert a list to IDs.
-
-        .. deprecated:: 0.5.0
-           Use :func:`pyaedt.application.modeler.convert_to_selections` instead.
-
-        Parameters
-        ----------
-        input_list : list
-           List of object IDs.
-        convert_objects_ids_to_name : bool, optional
-             Whether to convert the object IDs to object names.
-             The default is ``True``.
-
-        Returns
-        -------
-        list
-            List of object names.
-
-        """
-        warnings.warn("`_convert_list_to_ids` is deprecated. Use `convert_to_selections` instead.", DeprecationWarning)
-
-        output_list = []
-        if type(input_list) is not list:
-            input_list = [input_list]
-        for el in input_list:
-            if type(el) is Object3d:
-                output_list = [i.name for i in input_list]
-            elif type(el) is EdgePrimitive or type(el) is FacePrimitive or type(el) is VertexPrimitive:
-                output_list = [i.id for i in input_list]
-            elif type(el) is int and convert_objects_ids_to_name:
-                if el in list(self.objects.keys()):
-                    output_list.append(self.objects[el].name)
-                else:
-                    output_list.append(el)
-            else:
-                output_list.append(el)
-        return output_list
 
     def _get_coordinates_data(self):
         coord = []
@@ -2526,15 +2495,11 @@ class GeometryModeler(Modeler, object):
            Name of the objects corresponding to the one or more object IDs passed as arguments.
 
         """
-        if "netref.builtins.list" in str(type(object_id)):
-            list_new = []
-            for i in range(len(object_id)):
-                list_new.append(object_id[i])
-        elif not isinstance(object_id, list):
+        if not isinstance(object_id, list):
             object_id = [object_id]
         objnames = []
         for el in object_id:
-            if isinstance(el, int) and el in list(self.objects.keys()):
+            if isinstance(el, int) and el in self.objects:
                 objnames.append(self.objects[el].name)
             elif isinstance(el, int):
                 objnames.append(el)
@@ -2544,12 +2509,10 @@ class GeometryModeler(Modeler, object):
                 objnames.append(el.id)
             elif isinstance(el, str):
                 objnames.append(el)
-            else:
-                return False
         if return_list:
             return objnames
         else:
-            return ",".join(objnames)
+            return ",".join([str(i) for i in objnames])
 
     @pyaedt_function_handler()
     def split(self, objects, plane, sides="Both"):
@@ -2766,7 +2729,7 @@ class GeometryModeler(Modeler, object):
         objid : list, str, int, Object3d or UserDefinedComponent
             Name or ID of the object.
         cs_axis :
-            Coordinate system axis or the Application.CoordinateSystemAxis object.
+            Coordinate system axis or the Application.AXIS object.
         angle : float, optional
             Angle rotation in degees. The default is ``90``.
         nclones : int, optional
@@ -2908,6 +2871,12 @@ class GeometryModeler(Modeler, object):
         vArg2.append("BothSides:="), vArg2.append(bBothSides)
 
         self.oeditor.ThickenSheet(vArg1, vArg2)
+
+        if isinstance(objid, list):
+            obj_list = []
+            for objl in objid:
+                obj_list.append(self.update_object(objl))
+            return obj_list
         return self.update_object(objid)
 
     @pyaedt_function_handler()
@@ -3050,7 +3019,7 @@ class GeometryModeler(Modeler, object):
         objid : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
         cs_axis :
-            Coordinate system axis or the Application.CoordinateSystemAxis object.
+            Coordinate system axis or the Application.AXIS object.
         sweep_angle : float
             Sweep angle in degrees. The default is ``360``.
         draft_angle : float
@@ -3185,7 +3154,7 @@ class GeometryModeler(Modeler, object):
         objid :  list, str, int, or  :class:`pyaedt.modeler.Object3d.Object3d`
              ID of the object.
         cs_axis
-            Coordinate system axis or the Application.CoordinateSystemAxis object.
+            Coordinate system axis or the Application.AXIS object.
         angle : float
             Angle of rotation. The units, defined by ``unit``, can be either
             degrees or radians. The default is ``90.0``.
@@ -3588,45 +3557,6 @@ class GeometryModeler(Modeler, object):
             return objects_list_after_connection
         except:
             return False
-
-    @pyaedt_function_handler()
-    def translate(self, objid, vector):
-        """Translate objects from a list.
-
-        .. deprecated:: 0.4.0
-           Use :func:`move` instead.
-
-        Parameters
-        ----------
-        objid : list, Position object
-            List of object IDs.
-        vector : list
-            Vector of the direction move. It can be a list of the ``[x, y, z]``
-            coordinates or a Position object.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-
-        >>> oEditor.Move
-        """
-        warnings.warn("`translate` is deprecated. Use `move` instead.", DeprecationWarning)
-        Xvec, Yvec, Zvec = self._pos_with_arg(vector)
-        szSelections = self.convert_to_selections(objid)
-
-        vArg1 = ["NAME:Selections", "Selections:=", szSelections, "NewPartsModelFlag:=", "Model"]
-        vArg2 = ["NAME:TranslateParameters"]
-        vArg2.append("TranslateVectorX:="), vArg2.append(Xvec)
-        vArg2.append("TranslateVectorY:="), vArg2.append(Yvec)
-        vArg2.append("TranslateVectorZ:="), vArg2.append(Zvec)
-
-        if self.oeditor is not None:
-            self.oeditor.Move(vArg1, vArg2)
-        return True
 
     @pyaedt_function_handler()
     def chassis_subtraction(self, chassis_part):
@@ -4296,39 +4226,6 @@ class GeometryModeler(Modeler, object):
         return faces
 
     @pyaedt_function_handler()
-    def load_objects_bytype(self, obj_type):
-        """Load all objects of a specified type.
-
-        .. deprecated:: 0.5.0
-           Use :func:`get_objects_in_group` property instead.
-
-        Parameters
-        ----------
-        obj_type : str
-            Type of the objects to load. Options are
-            ``"Solids"`` and ``"Sheets"``.
-
-        Returns
-        -------
-        list
-            List of the object names for the specified type.
-
-        References
-        ----------
-
-        >>> oEditor.GetObjectsInGroup
-        """
-
-        warnings.warn(
-            "`load_objects_bytype` is deprecated and will be removed in version 0.5.0. "
-            "Use `get_objects_in_group` method instead.",
-            DeprecationWarning,
-        )
-
-        objNames = list(self.oeditor.GetObjectsInGroup(obj_type))
-        return objNames
-
-    @pyaedt_function_handler()
     def get_line_ids(self):
         """Create a dictionary of object IDs for the lines in the design with the line name as the key."""
         line_ids = {}
@@ -4382,7 +4279,7 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.GetEdgeIDsFromObject
         """
-        for object in list(self.object_id_dict.keys()):
+        for object in list(self._object_names_to_ids.keys()):
             try:
                 oEdgeIDs = self.oeditor.GetEdgeIDsFromObject(object)
                 if str(edge_id) in oEdgeIDs:
@@ -4836,32 +4733,6 @@ class GeometryModeler(Modeler, object):
         """
         self.import_spaceclaim_document(SpaceClaimFile)
         self.break_spaceclaim_connection()
-        return True
-
-    @pyaedt_function_handler()
-    def load_hfss(self, cadfile):
-        """Load HFSS.
-
-        .. deprecated:: 0.4.41
-           Use :func:`import_3d_cad` property instead.
-
-        Parameters
-        ----------
-        cadfile : str
-            Name of the CAD file to load in HFSS.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-
-        >>> oEditor.Import
-        """
-        warnings.warn("`load_hfss` is deprecated. Use `import_3d_cad` method instead.", DeprecationWarning)
-        self.import_3d_cad(cadfile, healing=True)
         return True
 
     @pyaedt_function_handler()

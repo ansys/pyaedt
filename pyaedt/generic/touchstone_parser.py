@@ -136,6 +136,31 @@ class TouchstoneData(rf.Network):
             plt.show()
         return temp_list
 
+    def plot(self, index_couples=None, show=True):
+        """Plot a list of curves.
+
+        Parameters
+        ----------
+        index_couples : list, optional
+            List of indexes couple to plot. Default is ``None`` to plot all ``port_tuples``.
+        show: bool
+            Whether to plot.
+
+        Returns
+        -------
+        :class:`matplotlib.plt`
+        """
+        temp_list = []
+        freq_idx = 0
+        if not index_couples:
+            index_couples = self.port_tuples[:]
+
+        for i in index_couples:
+            self.plot_s_db(*i, logx=self.log_x)
+        if show:
+            plt.show()
+        return plt
+
     def plot_return_losses(self):  # pragma: no cover
         """Plot all return losses.
 

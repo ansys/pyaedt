@@ -24,45 +24,54 @@ edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.1")
 # ~~~~~~~~~~~~~~~~~~
 # Add stackup layers.
 #
-if edb:
-    edb.stackup.add_layer("GND")
-    edb.stackup.add_layer("Diel", "GND", layer_type="dielectric", thickness="0.1mm", material="FR4_epoxy")
-    edb.stackup.add_layer("TOP", "Diel", thickness="0.05mm")
+edb.stackup.add_layer("GND")
+edb.stackup.add_layer("Diel", "GND", layer_type="dielectric", thickness="0.1mm", material="FR4_epoxy")
+edb.stackup.add_layer("TOP", "Diel", thickness="0.05mm")
 
 #####################################
 # Create signal net and ground planes
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a signal net and ground planes.
 
-if edb:
-    points = [
-        [0.0, 0],
-        [100e-3, 0.0],
-    ]
-    edb.core_primitives.create_trace(points, "TOP", width=1e-3)
-    points = [[0.0, 1e-3], [0.0, 10e-3], [100e-3, 10e-3], [100e-3, 1e-3], [0.0, 1e-3]]
-    edb.core_primitives.create_polygon_from_points(points, "TOP")
+points = [
+    [0.0, 0],
+    [100e-3, 0.0],
+]
+edb.modeler.create_trace(points, "TOP", width=1e-3)
+points = [[0.0, 1e-3], [0.0, 10e-3], [100e-3, 10e-3], [100e-3, 1e-3], [0.0, 1e-3]]
+edb.modeler.create_polygon_from_points(points, "TOP")
 
-    points = [[0.0, -1e-3], [0.0, -10e-3], [100e-3, -10e-3], [100e-3, -1e-3], [0.0, -1e-3]]
-    edb.core_primitives.create_polygon_from_points(points, "TOP")
+points = [[0.0, -1e-3], [0.0, -10e-3], [100e-3, -10e-3], [100e-3, -1e-3], [0.0, -1e-3]]
+edb.modeler.create_polygon_from_points(points, "TOP")
 
 #######################################
 # Create vias with parametric positions
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create vias with parametric positions.
 
-if edb:
-    edb.core_padstack.create_padstack("MyVia")
-    edb.core_padstack.place_padstack([5e-3, 5e-3], "MyVia")
-    edb.core_padstack.place_padstack([15e-3, 5e-3], "MyVia")
-    edb.core_padstack.place_padstack([35e-3, 5e-3], "MyVia")
-    edb.core_padstack.place_padstack([45e-3, 5e-3], "MyVia")
-    edb.core_padstack.place_padstack([5e-3, -5e-3], "MyVia")
-    edb.core_padstack.place_padstack([15e-3, -5e-3], "MyVia")
-    edb.core_padstack.place_padstack([35e-3, -5e-3], "MyVia")
-    edb.core_padstack.place_padstack([45e-3, -5e-3], "MyVia")
+edb.padstacks.create("MyVia")
+edb.padstacks.place([5e-3, 5e-3], "MyVia")
+edb.padstacks.place([15e-3, 5e-3], "MyVia")
+edb.padstacks.place([35e-3, 5e-3], "MyVia")
+edb.padstacks.place([45e-3, 5e-3], "MyVia")
+edb.padstacks.place([5e-3, -5e-3], "MyVia")
+edb.padstacks.place([15e-3, -5e-3], "MyVia")
+edb.padstacks.place([35e-3, -5e-3], "MyVia")
+edb.padstacks.place([45e-3, -5e-3], "MyVia")
 
-edb.core_nets.plot(None, color_by_net=True)
+
+#######################################
+# Geometry Plot
+# ~~~~~~~~~~~~~
+#
+edb.nets.plot(None, color_by_net=True)
+
+#######################################
+# Stackup Plot
+# ~~~~~~~~~~~~
+#
+edb.stackup.plot(plot_definitions="MyVia")
+
 
 ####################
 # Save and close EDB

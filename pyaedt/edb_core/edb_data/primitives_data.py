@@ -13,7 +13,7 @@ class EDBPrimitives(object):
     --------
     >>> from pyaedt import Edb
     >>> edb = Edb(myedb, edbversion="2021.2")
-    >>> edb_prim = edb.core_primitives.primitives[0]
+    >>> edb_prim = edb.modeler.primitives[0]
     >>> edb_prim.is_void # Class Property
     >>> edb_prim.IsVoid() # EDB Object Property
     """
@@ -30,8 +30,29 @@ class EDBPrimitives(object):
     def __init__(self, raw_primitive, core_app):
         self._app = core_app
         self._core_stackup = core_app.stackup
-        self._core_net = core_app.core_nets
+        self._core_net = core_app.nets
         self.primitive_object = raw_primitive
+
+    @property
+    def width(self):
+        """Path width.
+
+        Returns
+        -------
+        float
+            Path width or None.
+        """
+        if self.type == "Path":
+            return self.primitive_object.GetWidth()
+        return
+
+    @width.setter
+    def width(self, value):
+        if self.type == "Path":
+            if isinstance(value, (int, str, float)):
+                self.primitive_object.SetWidth(self._app.edb_value(value))
+            else:
+                self.primitive_object.SetWidth(value)
 
     @pyaedt_function_handler()
     def area(self, include_voids=True):
@@ -400,7 +421,7 @@ class EDBPrimitives(object):
         """
         if self.type == "Path":
             polygon_data = self.primitive_object.GetPolygonData()
-            polygon = self._app.core_primitives.create_polygon(polygon_data, self.layer_name, [], self.net_name)
+            polygon = self._app.modeler.create_polygon(polygon_data, self.layer_name, [], self.net_name)
             self.primitive_object.Delete()
             return polygon
 
@@ -419,8 +440,8 @@ class EDBPrimitives(object):
             ``True`` if successful, either  ``False``.
         """
         if isinstance(point_list, list):
-            plane = self._app.core_primitives.Shape("polygon", points=point_list)
-            _poly = self._app.core_primitives.shape_to_polygon_data(plane)
+            plane = self._app.modeler.Shape("polygon", points=point_list)
+            _poly = self._app.modeler.shape_to_polygon_data(plane)
             if _poly is None or _poly.IsNull() or _poly is False:
                 self._logger.error("Failed to create void polygon data")
                 return False
@@ -483,7 +504,7 @@ class EDBPrimitives(object):
                                 void_to_append = [v for v in list_void if polys_clean.GetIntersectionType(v) == 2]
                                 new_polys.append(
                                     EDBPrimitives(
-                                        self._app.core_primitives.create_polygon(
+                                        self._app.modeler.create_polygon(
                                             polys_clean, self.layer_name, net_name=self.net_name, voids=void_to_append
                                         ),
                                         self._app,
@@ -492,7 +513,7 @@ class EDBPrimitives(object):
                     else:
                         new_polys.append(
                             EDBPrimitives(
-                                self._app.core_primitives.create_polygon(
+                                self._app.modeler.create_polygon(
                                     p, self.layer_name, net_name=self.net_name, voids=list_void
                                 ),
                                 self._app,
@@ -501,7 +522,7 @@ class EDBPrimitives(object):
                 else:
                     new_polys.append(
                         EDBPrimitives(
-                            self._app.core_primitives.create_polygon(
+                            self._app.modeler.create_polygon(
                                 p, self.layer_name, net_name=self.net_name, voids=list_void
                             ),
                             self._app,
@@ -568,7 +589,7 @@ class EDBPrimitives(object):
                                 void_to_append = [v for v in list_void if polys_clean.GetIntersectionType(v) == 2]
                         new_polys.append(
                             EDBPrimitives(
-                                self._app.core_primitives.create_polygon(
+                                self._app.modeler.create_polygon(
                                     polys_clean, self.layer_name, net_name=self.net_name, voids=void_to_append
                                 ),
                                 self._app,
@@ -577,7 +598,7 @@ class EDBPrimitives(object):
                     else:
                         new_polys.append(
                             EDBPrimitives(
-                                self._app.core_primitives.create_polygon(
+                                self._app.modeler.create_polygon(
                                     p, self.layer_name, net_name=self.net_name, voids=list_void
                                 ),
                                 self._app,
@@ -586,7 +607,7 @@ class EDBPrimitives(object):
                 else:
                     new_polys.append(
                         EDBPrimitives(
-                            self._app.core_primitives.create_polygon(
+                            self._app.modeler.create_polygon(
                                 p, self.layer_name, net_name=self.net_name, voids=list_void
                             ),
                             self._app,
@@ -643,9 +664,7 @@ class EDBPrimitives(object):
                             list_void.append(void_pdata)
                 new_polys.append(
                     EDBPrimitives(
-                        self._app.core_primitives.create_polygon(
-                            p, self.layer_name, net_name=self.net_name, voids=list_void
-                        ),
+                        self._app.modeler.create_polygon(p, self.layer_name, net_name=self.net_name, voids=list_void),
                         self._app,
                     )
                 )
@@ -838,15 +857,11 @@ class EDBPrimitives(object):
                 center_line,
             )
             if cloned_path:
-                # forcing primitives dictionary update
-                self._app.core_primitives.primitives  # pragma no cover
                 return cloned_path
         cloned_poly = self._app.edb.Cell.Primitive.Polygon.Create(
             self._app.active_layout, self.layer_name, self.net, self.polygon_data
         )
         if cloned_poly:
-            # forcing primitives dictionary update
-            self._app.core_primitives.primitives  # pragma no cover
             return cloned_poly
         return False
 
@@ -859,7 +874,7 @@ class EDBArcs(object):
     --------
     >>> from pyaedt import Edb
     >>> edb = Edb(myedb, edbversion="2021.2")
-    >>> prim_arcs = edb.core_primitives.primitives[0].arcs
+    >>> prim_arcs = edb.modeler.primitives[0].arcs
     >>> prim_arcs.center # arc center
     >>> prim_arcs.points # arc point list
     >>> prim_arcs.mid_point # arc mid point

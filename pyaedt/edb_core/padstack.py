@@ -13,14 +13,38 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class EdbPadstacks(object):
-    """Manages EDB methods for nets management accessible from `Edb.core_padstack` property.
+    """Manages EDB methods for nets management accessible from `Edb.padstacks` property.
 
     Examples
     --------
     >>> from pyaedt import Edb
     >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
-    >>> edb_padstacks = edbapp.core_padstack
+    >>> edb_padstacks = edbapp.padstacks
     """
+
+    @pyaedt_function_handler()
+    def __getitem__(self, name):
+        """Get  a padstack definition or instance from the Edb project.
+
+        Parameters
+        ----------
+        name : str, int
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`
+
+        """
+        if name in self.instances:
+            return self.instances[name]
+        elif name in self.definitions:
+            return self.definitions[name]
+        else:
+            for i in list(self.instances.values()):
+                if i.name == name or i.aedt_name == name:
+                    return i
+        self._pedb.logger.error("Component or definition not found.")
+        return
 
     def __init__(self, p_edb):
         self._pedb = p_edb
@@ -162,7 +186,7 @@ class EdbPadstacks(object):
 
     @property
     def instances(self):
-        """List of all padstack instances.
+        """Dictionary  of all padstack instances (vias and pins).
 
         Returns
         -------
@@ -176,6 +200,46 @@ class EdbPadstacks(object):
         for edb_padstack_instance in edb_padstack_inst_list:
             padstack_instances[edb_padstack_instance.GetId()] = EDBPadstackInstance(edb_padstack_instance, self._pedb)
         return padstack_instances
+
+    @property
+    def pins(self):
+        """Dictionary  of all pins instances (belonging to component).
+
+        Returns
+        -------
+        dic[str, :class:`pyaedt.edb_core.edb_data.definitions.EDBPadstackInstance`]
+            Dictionary of EDBPadstackInstance Components.
+
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> pin_net_name = edbapp.pins[424968329].netname
+        """
+        pins = {}
+        for instancename, instance in self.instances.items():
+            if instance.is_pin and instance.component:
+                pins[instancename] = instance
+        return pins
+
+    @property
+    def vias(self):
+        """Dictionary  of all vias instances not belonging to component.
+
+        Returns
+        -------
+        dic[str, :class:`pyaedt.edb_core.edb_data.definitions.EDBPadstackInstance`]
+            Dictionary of EDBPadstackInstance Components.
+
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> pin_net_name = edbapp.pins[424968329].netname
+        """
+        pnames = list(self.pins.keys())
+        vias = {i: j for i, j in self.instances.items() if i not in pnames}
+        return vias
 
     @property
     def padstack_instances(self):
@@ -341,7 +405,7 @@ class EdbPadstacks(object):
         References
         ----------
 
-        >>> Edb.core_padstack.delete_padstack_instances(net_names=["GND"])
+        >>> Edb.padstacks.delete_padstack_instances(net_names=["GND"])
         """
         if not isinstance(net_names, list):  # pragma: no cover
             net_names = [net_names]
@@ -465,13 +529,13 @@ class EdbPadstacks(object):
         """
         pinlist = []
         if refdes:
-            if refdes in self._pedb.core_components.components:
+            if refdes in self._pedb.components.components:
                 if netname:
-                    for pin, val in self._pedb.core_components.components[refdes].pins.items():
+                    for pin, val in self._pedb.components.components[refdes].pins.items():
                         if val.net_name == netname:
                             pinlist.append(val)
                 else:
-                    for pin in self._pedb.core_components.components[refdes].pins.values():
+                    for pin in self._pedb.components.components[refdes].pins.values():
                         pinlist.append(pin)
             elif netname:
                 for pin in self._pedb.pins:
@@ -640,8 +704,11 @@ class EdbPadstacks(object):
         pad_offset_x="0.0",
         pad_offset_y="0.0",
         pad_rotation="0.0",
-    ):
+    ):  # pragma: no cover
         """Create a padstack.
+
+        .. deprecated:: 0.6.62
+        Use :func:`create` method instead.
 
         Parameters
         ----------
@@ -675,6 +742,97 @@ class EdbPadstacks(object):
             rotation of antipad. The default is ``"0.0"``.
         has_hole : bool, optional
             Whether this padstack has a hole.
+        Returns
+        -------
+        str
+            Name of the padstack if the operation is successful.
+        """
+        warnings.warn("Use :func:`create` method instead.", DeprecationWarning)
+        return self.create(
+            padstackname=padstackname,
+            holediam=holediam,
+            paddiam=paddiam,
+            antipaddiam=antipaddiam,
+            startlayer=startlayer,
+            endlayer=endlayer,
+            antipad_shape=antipad_shape,
+            x_size=x_size,
+            y_size=y_size,
+            corner_radius=corner_radius,
+            offset_x=offset_x,
+            offset_y=offset_y,
+            rotation=rotation,
+            has_hole=has_hole,
+            pad_offset_x=pad_offset_x,
+            pad_offset_y=pad_offset_y,
+            pad_rotation=pad_rotation,
+        )
+
+    @pyaedt_function_handler()
+    def create(
+        self,
+        padstackname=None,
+        holediam="300um",
+        paddiam="400um",
+        antipaddiam="600um",
+        startlayer=None,
+        endlayer=None,
+        pad_shape="Circle",
+        antipad_shape="Circle",
+        x_size="600um",
+        y_size="600um",
+        corner_radius="300um",
+        offset_x="0.0",
+        offset_y="0.0",
+        rotation="0.0",
+        has_hole=True,
+        pad_offset_x="0.0",
+        pad_offset_y="0.0",
+        pad_rotation="0.0",
+    ):
+        """Create a padstack.
+
+        Parameters
+        ----------
+        padstackname : str, optional
+            Name of the padstack. The default is ``None``.
+        holediam : str, optional
+            Diameter of the hole with units. The default is ``"300um"``.
+        paddiam : str, optional
+            Diameter of the pad with units. The default is ``"400um"``.
+        antipaddiam : str, optional
+            Diameter of the antipad with units. The default is ``"600um"``.
+        startlayer : str, optional
+            Starting layer. The default is ``None``, in which case the top
+            is the starting layer.
+        endlayer : str, optional
+            Ending layer. The default is ``None``, in which case the bottom
+            is the ending layer.
+        pad_shape : str, optional
+            Shape of the pad. The default is ``"Circle``. Options are ``"Circle"`` and ``"Rectangle"``.
+        antipad_shape : str, optional
+            Shape of the antipad. The default is ``"Circle"``. Options are ``"Circle"`` and ``"Bullet"``.
+        x_size : str, optional
+            Only applicable to bullet shape. The default is ``"600um"``.
+        y_size : str, optional
+            Only applicable to bullet shape. The default is ``"600um"``.
+        corner_radius :
+            Only applicable to bullet shape. The default is ``"300um"``.
+        offset_x : str, optional
+            X offset of antipad. The default is ``"0.0"``.
+        offset_y : str, optional
+            Y offset of antipad. The default is ``"0.0"``.
+        rotation : str, optional
+            rotation of antipad. The default is ``"0.0"``.
+        has_hole : bool, optional
+            Whether this padstack has a hole.
+        pad_offset_x : str, optional
+            Padstack offset in X direction.
+        pad_offset_y : str, optional
+            Padstack offset in Y direction.
+        pad_rotation : str, optional
+            Padstack rotation.
+
         Returns
         -------
         str
@@ -715,7 +873,12 @@ class EdbPadstacks(object):
             startlayer = layers[0]
         if not endlayer:
             endlayer = layers[len(layers) - 1]
-
+        if pad_shape == "Circle":
+            pad_array = Array[type(paddiam)]([paddiam])
+            pad_shape = self._edb.Definition.PadGeometryType.Circle
+        elif pad_shape == "Rectangle":
+            pad_array = Array[type(x_size)]([x_size, y_size])
+            pad_shape = self._edb.Definition.PadGeometryType.Rectangle
         if antipad_shape == "Bullet":
             antipad_array = Array[type(x_size)]([x_size, y_size, corner_radius])
             antipad_shape = self._edb.Definition.PadGeometryType.Bullet
@@ -724,12 +887,12 @@ class EdbPadstacks(object):
             antipad_shape = self._edb.Definition.PadGeometryType.Circle
 
         for layer in ["Default"] + layers:
-            padparam_array = Array[type(paddiam)]([paddiam])
+            # padparam_array = Array[type(paddiam)]([paddiam])
             padstackData.SetPadParameters(
                 layer,
                 self._edb.Definition.PadType.RegularPad,
-                self._edb.Definition.PadGeometryType.Circle,
-                padparam_array,
+                pad_shape,
+                pad_array,
                 pad_offset_x,
                 pad_offset_y,
                 pad_rotation,
@@ -769,6 +932,27 @@ class EdbPadstacks(object):
     def duplicate_padstack(self, target_padstack_name, new_padstack_name=""):
         """Duplicate a padstack.
 
+        .. deprecated:: 0.6.62
+        Use :func:`duplicate` method instead.
+
+        Parameters
+        ----------
+        target_padstack_name : str
+            Name of the padstack to be duplicated.
+        new_padstack_name : str, optional
+            Name of the new padstack.
+        Returns
+        -------
+        str
+            Name of the new padstack.
+        """
+        warnings.warn("Use :func:`create` method instead.", DeprecationWarning)
+        return self.duplicate(target_padstack_name=target_padstack_name, new_padstack_name=new_padstack_name)
+
+    @pyaedt_function_handler()
+    def duplicate(self, target_padstack_name, new_padstack_name=""):
+        """Duplicate a padstack.
+
         Parameters
         ----------
         target_padstack_name : str
@@ -792,7 +976,7 @@ class EdbPadstacks(object):
         return new_padstack_name
 
     @pyaedt_function_handler()
-    def place_padstack(
+    def place(
         self,
         position,
         definition_name,
@@ -804,7 +988,7 @@ class EdbPadstacks(object):
         solderlayer=None,
         is_pin=False,
     ):
-        """Place the padstack.
+        """Place a via.
 
         Parameters
         ----------
@@ -825,17 +1009,19 @@ class EdbPadstacks(object):
             The default is ``None``.
         solderlayer :
             The default is ``None``.
+        is_pin : bool, optiona
+            Whether if the padstack is a pin or not. Default is `False`.
 
         Returns
         -------
-
+        :class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`
         """
         padstack = None
         for pad in list(self.definitions.keys()):
             if pad == definition_name:
                 padstack = self.definitions[pad].edb_padstack
         position = self._edb.Geometry.PointData(self._get_edb_value(position[0]), self._get_edb_value(position[1]))
-        net = self._pedb.core_nets.find_or_create_net(net_name)
+        net = self._pedb.nets.find_or_create_net(net_name)
         rotation = self._get_edb_value(rotation * math.pi / 180)
         sign_layers_values = {i: v for i, v in self._pedb.stackup.signal_layers.items()}
         sign_layers = list(sign_layers_values.keys())
@@ -869,6 +1055,61 @@ class EdbPadstacks(object):
             return py_padstack_instance
         else:
             return False
+
+    @pyaedt_function_handler()
+    def place_padstack(
+        self,
+        position,
+        definition_name,
+        net_name="",
+        via_name="",
+        rotation=0.0,
+        fromlayer=None,
+        tolayer=None,
+        solderlayer=None,
+        is_pin=False,
+    ):
+        """Place the padstack.
+
+        .. deprecated:: 0.6.62
+        Use :func:`place` method instead.
+
+        Parameters
+        ----------
+        position : list
+            List of float values for the [x,y] positions where the via is to be placed.
+        definition_name : str
+            Name of the padstack definition.
+        net_name : str, optional
+            Name of the net. The default is ``""``.
+        via_name : str, optional
+            The default is ``""``.
+        rotation : float, optional
+            Rotation of the padstack in degrees. The default
+            is ``0``.
+        fromlayer :
+            The default is ``None``.
+        tolayer :
+            The default is ``None``.
+        solderlayer :
+            The default is ``None``.
+
+        Returns
+        -------
+
+        """
+        warnings.warn(" Use :func:`place` method instead.", DeprecationWarning)
+        return self.place(
+            position=position,
+            definition_name=definition_name,
+            net_name=net_name,
+            via_name=via_name,
+            rotation=rotation,
+            fromlayer=fromlayer,
+            tolayer=tolayer,
+            solderlayer=solderlayer,
+            is_pin=is_pin,
+        )
 
     @pyaedt_function_handler()
     def remove_pads_from_padstack(self, padstack_name, layer_name=None):

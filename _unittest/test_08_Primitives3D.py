@@ -881,6 +881,7 @@ class TestClass(BasisTest, object):
         assert P2.id != P1.id
 
     def test_54a_create_spiral_and_add_segments(self):
+        self.aedtapp.insert_design("spiral_test")
         save_model_units = self.aedtapp.modeler.model_units
         self.aedtapp.modeler.model_units = "um"
         innerRadius = 20
@@ -1031,6 +1032,7 @@ class TestClass(BasisTest, object):
         assert float(vol) > 0
 
     def test_59_lines(self):
+        self.aedtapp.modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]], close_surface=True)
         assert self.aedtapp.modeler.vertex_data_of_lines()
 
     @pytest.mark.skipif("UNITTEST_CURRENT_TEST" in os.environ, reason="Issue in IronPython")
@@ -1067,7 +1069,7 @@ class TestClass(BasisTest, object):
         new_obj = self.aedtapp.modeler.duplicate_along_line("Solid", [100, 0, 0])
         rad = self.aedtapp.assign_radiation_boundary_to_objects("Solid")
         obj1 = self.aedtapp.modeler[new_obj[1][0]]
-        exc = self.aedtapp.create_wave_port_from_sheet(obj1.faces[0])
+        exc = self.aedtapp.wave_port(obj1.faces[0])
         self.aedtapp["test_variable"] = "20mm"
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, "test_variable", 30])
         box2 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 100, 30])

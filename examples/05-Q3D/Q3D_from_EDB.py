@@ -42,10 +42,10 @@ edb.cutout(["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"], ["GND"], output_aedb_path=output_
 # Identify [x,y] pin locations on the components to define where to assign sources
 # and sinks for Q3D and append Z elevation.
 
-pin_u13_scl = [i for i in edb.core_components.components["U13"].pins.values() if i.net_name == "CLOCK_I2C_SCL"]
-pin_u1_scl = [i for i in edb.core_components.components["U1"].pins.values() if i.net_name == "CLOCK_I2C_SCL"]
-pin_u13_sda = [i for i in edb.core_components.components["U13"].pins.values() if i.net_name == "CLOCK_I2C_SDA"]
-pin_u1_sda = [i for i in edb.core_components.components["U1"].pins.values() if i.net_name == "CLOCK_I2C_SDA"]
+pin_u13_scl = [i for i in edb.components["U13"].pins.values() if i.net_name == "CLOCK_I2C_SCL"]
+pin_u1_scl = [i for i in edb.components["U1"].pins.values() if i.net_name == "CLOCK_I2C_SCL"]
+pin_u13_sda = [i for i in edb.components["U13"].pins.values() if i.net_name == "CLOCK_I2C_SDA"]
+pin_u1_sda = [i for i in edb.components["U1"].pins.values() if i.net_name == "CLOCK_I2C_SDA"]
 
 
 ###############################################################################
@@ -54,16 +54,16 @@ pin_u1_sda = [i for i in edb.core_components.components["U1"].pins.values() if i
 # Note: The factor 100 converts from "meters" to "mm"
 
 location_u13_scl = [i * 1000 for i in pin_u13_scl[0].position]
-location_u13_scl.append(edb.core_components.components["U13"].upper_elevation * 1000)
+location_u13_scl.append(edb.components["U13"].upper_elevation * 1000)
 
 location_u1_scl = [i * 1000 for i in pin_u1_scl[0].position]
-location_u1_scl.append(edb.core_components.components["U1"].upper_elevation * 1000)
+location_u1_scl.append(edb.components["U1"].upper_elevation * 1000)
 
 location_u13_sda = [i * 1000 for i in pin_u13_sda[0].position]
-location_u13_sda.append(edb.core_components.components["U13"].upper_elevation * 1000)
+location_u13_sda.append(edb.components["U13"].upper_elevation * 1000)
 
 location_u1_sda = [i * 1000 for i in pin_u1_sda[0].position]
-location_u1_sda.append(edb.core_components.components["U1"].upper_elevation * 1000)
+location_u1_sda.append(edb.components["U1"].upper_elevation * 1000)
 
 ###############################################################################
 # Save and close Edb
@@ -78,7 +78,7 @@ h3d = pyaedt.Hfss3dLayout(output_edb, specified_version="2023.1", non_graphical=
 ###############################################################################
 # Export to Q3D
 # ~~~~~~~~~~~~~
-# Create a dummy setup and expor the layout in Q3D.
+# Create a dummy setup and export the layout in Q3D.
 # keep_net_name will reassign Q3D nets names from Hfss 3D Layout.
 setup = h3d.create_setup()
 setup.export_to_q3d(output_q3d, keep_net_name=True)
@@ -104,13 +104,13 @@ q3d.plot(show=False, objects=["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"],
 
 
 f1 = q3d.modeler.get_faceid_from_position(location_u13_scl, obj_name="CLOCK_I2C_SCL")
-q3d.assign_source_to_sheet(f1, "CLOCK_I2C_SCL")
+q3d.source(f1, net_name="CLOCK_I2C_SCL")
 f1 = q3d.modeler.get_faceid_from_position(location_u13_sda, obj_name="CLOCK_I2C_SDA")
-q3d.assign_source_to_sheet(f1, "CLOCK_I2C_SDA")
+q3d.source(f1, net_name="CLOCK_I2C_SDA")
 f1 = q3d.modeler.get_faceid_from_position(location_u1_scl, obj_name="CLOCK_I2C_SCL")
-q3d.assign_sink_to_sheet(f1, "CLOCK_I2C_SCL")
+q3d.sink(f1, net_name="CLOCK_I2C_SCL")
 f1 = q3d.modeler.get_faceid_from_position(location_u1_sda, obj_name="CLOCK_I2C_SDA")
-q3d.assign_sink_to_sheet(f1, "CLOCK_I2C_SDA")
+q3d.sink(f1, net_name="CLOCK_I2C_SDA")
 
 ###############################################################################
 # Create Setup

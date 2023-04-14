@@ -28,9 +28,9 @@ aedb_path = os.path.join(pyaedt.generate_unique_folder_name(), pyaedt.generate_u
 # Create a ground plane on specific layers.
 
 def _create_ground_planes(edb, layers):
-    plane = edb.core_primitives.Shape("rectangle", pointA=["-3mm", "-3mm"], pointB=["3mm", "3mm"])
+    plane = edb.modeler.Shape("rectangle", pointA=["-3mm", "-3mm"], pointB=["3mm", "3mm"])
     for i in layers:
-        edb.core_primitives.create_polygon(plane, i, net_name="GND")
+        edb.modeler.create_polygon(plane, i, net_name="GND")
 
 
 ##################################################################################
@@ -78,21 +78,21 @@ edb.add_design_variable("trace_out_width", "0.1mm", is_parameter=True)
 
 ##################################################################################
 # Create definitions
-# ~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~
 # Create two definitions, one for the ground and one for the signal. The definitions
 # are parametric.
 
-edb.core_padstack.create_padstack(
+edb.padstacks.create(
     padstackname="SVIA", holediam="$via_hole_size", antipaddiam="$antipaddiam", paddiam="$paddiam"
 )
-edb.core_padstack.create_padstack(padstackname="GVIA", holediam="0.3mm", antipaddiam="0.7mm", paddiam="0.5mm")
+edb.padstacks.create(padstackname="GVIA", holediam="0.3mm", antipaddiam="0.7mm", paddiam="0.5mm")
 
 ##################################################################################
 # Place padstack for signal
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Place the padstack for the signal.
 
-edb.core_padstack.place_padstack([0, 0], "SVIA", net_name="RF", fromlayer=trace_in_layer, tolayer=trace_out_layer)
+edb.padstacks.place([0, 0], "SVIA", net_name="RF", fromlayer=trace_in_layer, tolayer=trace_out_layer)
 
 ##################################################################################
 # Place padstack for ground
@@ -105,38 +105,38 @@ gvia_num_side = gvia_num / 2
 if gvia_num_side % 2:
 
     # Even number of ground vias on each side
-    edb.core_padstack.place_padstack(["via_pitch", 0], "GVIA", net_name="GND")
-    edb.core_padstack.place_padstack(["via_pitch*-1", 0], "GVIA", net_name="GND")
+    edb.padstacks.place(["via_pitch", 0], "GVIA", net_name="GND")
+    edb.padstacks.place(["via_pitch*-1", 0], "GVIA", net_name="GND")
     for i in np.arange(1, gvia_num_side / 2):
         xloc = "{}*{}".format(np.cos(giva_angle_rad * i), "via_pitch")
         yloc = "{}*{}".format(np.sin(giva_angle_rad * i), "via_pitch")
-        edb.core_padstack.place_padstack([xloc, yloc], "GVIA", net_name="GND")
-        edb.core_padstack.place_padstack([xloc, yloc + "*-1"], "GVIA", net_name="GND")
+        edb.padstacks.place([xloc, yloc], "GVIA", net_name="GND")
+        edb.padstacks.place([xloc, yloc + "*-1"], "GVIA", net_name="GND")
 
-        edb.core_padstack.place_padstack([xloc + "*-1", yloc], "GVIA", net_name="GND")
-        edb.core_padstack.place_padstack([xloc + "*-1", yloc + "*-1"], "GVIA", net_name="GND")
+        edb.padstacks.place([xloc + "*-1", yloc], "GVIA", net_name="GND")
+        edb.padstacks.place([xloc + "*-1", yloc + "*-1"], "GVIA", net_name="GND")
 else:
 
     # Odd number of ground vias on each side
     for i in np.arange(0, gvia_num_side / 2):
         xloc = "{}*{}".format(np.cos(giva_angle_rad * (i + 0.5)), "via_pitch")
         yloc = "{}*{}".format(np.sin(giva_angle_rad * (i + 0.5)), "via_pitch")
-        edb.core_padstack.place_padstack([xloc, yloc], "GVIA", net_name="GND")
-        edb.core_padstack.place_padstack([xloc, yloc + "*-1"], "GVIA", net_name="GND")
+        edb.padstacks.place([xloc, yloc], "GVIA", net_name="GND")
+        edb.padstacks.place([xloc, yloc + "*-1"], "GVIA", net_name="GND")
 
-        edb.core_padstack.place_padstack([xloc + "*-1", yloc], "GVIA", net_name="GND")
-        edb.core_padstack.place_padstack([xloc + "*-1", yloc + "*-1"], "GVIA", net_name="GND")
+        edb.padstacks.place([xloc + "*-1", yloc], "GVIA", net_name="GND")
+        edb.padstacks.place([xloc + "*-1", yloc + "*-1"], "GVIA", net_name="GND")
 
 ##################################################################################
 # Generate traces
 # ~~~~~~~~~~~~~~~
 # Generate and place parametric traces.
 
-edb.core_primitives.create_trace(
+edb.modeler.create_trace(
     [[0, 0], [0, "-3mm"]], layer_name=trace_in_layer, net_name="RF", width="trace_in_width", start_cap_style="Flat", end_cap_style="Flat"
 )
 
-edb.core_primitives.create_trace(
+edb.modeler.create_trace(
     [[0, 0], [0, "3mm"]],
     layer_name=trace_out_layer,
     net_name="RF",
@@ -160,7 +160,7 @@ _create_ground_planes(edb=edb, layers=ground_layers)
 # ~~~~~~~~~~~
 # Generate and plot the layout.
 
-edb.core_nets.plot(layers=["TOP", "L10"])
+edb.nets.plot(layers=["TOP", "L10"])
 
 
 ##################################################################################

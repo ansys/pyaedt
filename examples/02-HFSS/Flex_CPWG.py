@@ -6,7 +6,7 @@ This example shows how you can use PyAEDT to create a flex cable CPWG (coplanar 
 
 ###############################################################################
 # Perform required imports
-# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
 import os
@@ -142,7 +142,7 @@ bot = hfss.modeler.create_polyline(
 # Create port interfaces (PEC enclosures).
 
 port_faces = []
-for face, blockname in zip(fr4.faces[-2:], ["b1", "b2"]):
+for face, blockname in zip([fr4.top_face_z, fr4.bottom_face_x], ["b1", "b2"]):
     xc, yc, zc = face.center
     positions = [i.position for i in face.vertices]
 
@@ -150,7 +150,7 @@ for face, blockname in zip(fr4.faces[-2:], ["b1", "b2"]):
     s = hfss.modeler.create_polyline(port_sheet_list, close_surface=True, cover_surface=True)
     center = [round(i, 6) for i in s.faces[0].center]
 
-    port_block = hfss.modeler.thicken_sheet(s.name, 5)
+    port_block = hfss.modeler.thicken_sheet(s.name, -5)
     port_block.name = blockname
     for f in port_block.faces:
 
@@ -183,7 +183,7 @@ for face in [fr4.top_face_y, fr4.bottom_face_y]:
 for s, port_name in zip(port_faces, ["1", "2"]):
     reference = [i.name for i in gnd_objs + boundary + [bot]] + ["b1", "b2"]
 
-    hfss.create_wave_port_from_sheet(s.id, portname=port_name, terminal_references=reference)
+    hfss.wave_port(s.id, name=port_name, reference=reference)
 
 ###############################################################################
 # Create setup and sweep
