@@ -309,46 +309,22 @@ class Revision:
             self.result_mode_error()
         return freqs
 
-    @pyaedt_function_handler
-    def set_notes(self, notes):
+    @property
+    def notes(self):
         """
         Add notes to the revision.
 
-        Parameters
-        ----------
-        notes : str
-            Notes to add to the revision.
-
-        Returns
-        -------
-        None
-
         Examples
         ----------
-        >>> notes = "Added a filter to the WiFi Radio."
-        >>> freqs = aedtapp.results.current_revision.set_notes(notes)
-        """
-        design = self.emit_project.odesktop.GetActiveProject().GetActiveDesign()
-        design.SetResultNotes(self.name, notes)
-        self.emit_project._emit_api.save_project()
-
-    @pyaedt_function_handler
-    def get_notes(self):
-        """
-        Get the current revision's notes.
-
-        Parameters
-        ----------
-        None
-
-        Returns
-        -------
-        notes : str
-            Notes to add to the revision.
-
-        Examples
-        ----------
-        >>> notes = aedtapp.results.current_revision.get_notes()
+        >>> aedtapp.results.current_revision.notes = "Added a filter to the WiFi Radio."
+        >>> aedtapp.results.current_revision.notes
+        'Added a filter to the WiFi Radio.'
         """
         design = self.emit_project.odesktop.GetActiveProject().GetActiveDesign()
         return design.GetResultNotes(self.name)
+
+    @notes.setter
+    def notes(self, notes):
+        design = self.emit_project.odesktop.GetActiveProject().GetActiveDesign()
+        design.SetResultNotes(self.name, notes)
+        self.emit_project._emit_api.save_project()

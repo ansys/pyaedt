@@ -60,34 +60,34 @@ class TestClass(BasisTest, object):
         )
         s1.color = [220, 10, 10]
         s1.is_visible = False
-        assert not s1.IsVisible
+        assert not s1._is_visible
         s1.is_visible = True
-        assert s1.IsVisible
+        assert s1._is_visible
 
         s1.is_visible_shape = False
-        assert not s1.IsVisibleShape
+        assert not s1._is_visible_shape
         s1.is_visible_shape = True
-        assert s1.IsVisibleShape
+        assert s1._is_visible_shape
 
         s1.is_visible_component = False
-        assert not s1.IsVisibleComponent
+        assert not s1._is_visible_component
         s1.is_visible_component = True
-        assert s1.IsVisibleComponent
+        assert s1._is_visible_component
 
         s1.is_visible_hole = False
-        assert not s1.IsVisibleHole
+        assert not s1._is_visible_hole
         s1.is_visible_hole = True
-        assert s1.IsVisibleHole
+        assert s1._is_visible_hole
 
         s1.is_mesh_background = False
-        assert not s1.IsMeshBackgroundMaterial
+        assert not s1._is_mesh_background
         s1.is_mesh_background = True
-        assert s1.IsMeshBackgroundMaterial
+        assert s1._is_mesh_background
 
         s1.is_mesh_overlay = False
-        assert not s1.IsMeshOverlay
+        assert not s1._is_mesh_overlay
         s1.is_mesh_overlay = True
-        assert s1.IsMeshOverlay
+        assert s1._is_mesh_overlay
 
         assert not s1.locked
         s1.locked = True
@@ -104,7 +104,7 @@ class TestClass(BasisTest, object):
         assert s1.pattern == 0
         s1.pattern = 1
 
-        assert s1.lower_elevation == "0mm"
+        assert s1.lower_elevation == "0mm" or s1.lower_elevation == 0.0
         s1.lower_elevation = 1
         assert s1.lower_elevation == 1
         s1.lower_elevation = 0
@@ -145,13 +145,13 @@ class TestClass(BasisTest, object):
         s1.side_huray_ratio = 3
         s1.top_huray_ratio = 2.2
         s1.bottom_huray_ratio = 2.5
-        assert s1.SHRatio == 3
-        assert s1.SNR == 0.3
-        assert s1.SRMdl == "Huray"
-        assert s1.BRMdl == "Huray"
-        assert s1.RMdl == "Huray"
-        assert s1.NR == 0.2
-        assert s1.BNR == 0.1
+        assert s1._SHRatio == 3
+        assert s1._SNR == 0.3
+        assert s1._SRMdl == "Huray"
+        assert s1._BRMdl == "Huray"
+        assert s1._RMdl == "Huray"
+        assert s1._NR == 0.2
+        assert s1._BNR == 0.1
 
         d1 = self.aedtapp.modeler.layers.add_layer(
             layername="Diel3", layertype="dielectric", thickness="1.0mm", elevation="0.035mm", material="plexiglass"
@@ -176,9 +176,9 @@ class TestClass(BasisTest, object):
         assert s2.type == "signal"
         assert s2.material == "copper"
         assert s2.thickness == "0.035mm" or s2.thickness == 3.5e-5
-        assert s2.IsNegative is True
+        assert s2._is_negative is True
         s2.is_negative = False
-        assert s2.IsNegative is False
+        assert s2._is_negative is False
 
         s1 = self.aedtapp.modeler.layers.layers[self.aedtapp.modeler.layers.layer_id("Bottom")]
         assert s1.thickness == "0.035mm" or s1.thickness == 3.5e-5
@@ -195,7 +195,7 @@ class TestClass(BasisTest, object):
         assert s2.type == "signal"
         assert s2.material == "copper"
         assert s2.thickness == 3.5e-5
-        assert s2.IsNegative is False
+        assert s2._is_negative is False
 
         s1.use_etch = False
         s1.user = False
@@ -284,13 +284,16 @@ class TestClass(BasisTest, object):
 
     def test_12_create_line(self):
         line = self.aedtapp.modeler.create_line(
-            "Bottom", [[0, 0], [10, 30], [20, 30]], lw=1, name="line1", net_name="VCC"
+            "Bottom", [[0, 0], [10, 30], [20, 30]], lw=1, name="line2", net_name="VCC"
         )
-        assert line.name == "line1"
+        assert line.name == "line2"
+        line.name = "line1"
         assert isinstance(line.center_line, dict)
         line.center_line = {"Pt0": [1, "0mm"]}
         assert line.center_line["Pt0"] == ["1", "0"]
         line.center_line = {"Pt0": ["0mm", "0mm"]}
+        assert line.remove("Pt1")
+        assert line.add([1, 2], 1)
 
     def test_13a_create_edge_port(self):
         port_wave = self.aedtapp.create_edge_port("line1", 3, False, True, 6, 4, "2mm")
@@ -703,7 +706,8 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(config["desktopVersion"] < "2022.2", reason="Not Working on Version earlier than 2022R2.")
     def test_93_clip_plane(self):
-        assert self.aedtapp.modeler.clip_plane("CS1")
+        assert self.aedtapp.modeler.clip_plane() == "VCP_1"
+        assert "VCP_1" in self.aedtapp.modeler.clip_planes
 
     def test_94_edit_3dlayout_extents(self):
         assert self.aedtapp.edit_hfss_extents(

@@ -10,6 +10,8 @@ levels.
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
+#
+# sphinx_gallery_thumbnail_path = "Resources/emit_protection_levels.png"
 import os
 import sys
 import subprocess

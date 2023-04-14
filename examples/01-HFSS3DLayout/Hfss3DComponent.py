@@ -57,7 +57,7 @@ hfss.solution_type = "Terminal"
 # To insert a 3d component we need to read parameters and then import in Hfss.
 
 comp_param = hfss.get_components3d_vars(component3d)
-hfss.modeler.primitives.insert_3d_component(component3d, comp_param)
+hfss.modeler.insert_3d_component(component3d, comp_param)
 
 ###############################################################################
 # Add a new Stackup
@@ -111,10 +111,10 @@ p2.add_via(0, 0)
 # The trace will connect the pin to the port on layer L1.
 
 t1 = s1.add_trace(trace_width, trace_length)
-rect1 = hfss.modeler.primitives.create_rectangle(csPlane=hfss.CoordinateSystemPlane.YZPlane,
+rect1 = hfss.modeler.create_rectangle(csPlane=hfss.PLANE.YZ,
                                                  position=["0.75*dielectric_length", "-5*" + t1.width.name, "0mm"],
                                                  dimension_list=["15*" + t1.width.name, "-3*" + stackup.thickness.name])
-p1 = hfss.create_wave_port_from_sheet(sheet=rect1, terminal_references="G1", portname="P1")
+p1 = hfss.wave_port(signal=rect1, reference="G1", name="P1")
 
 ###############################################################################
 # Set Simulation Boundaries
@@ -122,7 +122,7 @@ p1 = hfss.create_wave_port_from_sheet(sheet=rect1, terminal_references="G1", por
 # Define regione and simulation boundaries.
 
 hfss.change_material_override(True)
-region = hfss.modeler.primitives.create_region([0, 0, 0, 0, 0, 100])
+region = hfss.modeler.create_region([0, 0, 0, 0, 0, 100])
 sheets = [i for i in region.faces]
 hfss.assign_radiation_boundary_to_faces(sheets)
 

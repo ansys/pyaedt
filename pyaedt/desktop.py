@@ -18,6 +18,7 @@ import re
 import socket
 import sys
 import tempfile
+import threading
 import time
 import traceback
 import warnings
@@ -59,6 +60,38 @@ elif is_windows and "pythonnet" in modules:  # pragma: no cover
 else:
     _com = "gprc_v3"
     settings.use_grpc_api = True
+
+
+@pyaedt_function_handler()
+def launch_aedt(full_path, non_graphical, port, first_run=True):
+    """Launch AEDT in gRPC mode."""
+
+    def launch_desktop_on_port():
+        command = [full_path, "-grpcsrv", str(port)]
+        if non_graphical:
+            command.append("-ng")
+        my_env = os.environ.copy()
+        for env, val in settings.aedt_environment_variables.items():
+            my_env[env] = val
+        if is_linux:  # pragma: no cover
+            subprocess.Popen(command, env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        else:
+            subprocess.Popen(" ".join(command), env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+
+    _aedt_process_thread = threading.Thread(target=launch_desktop_on_port)
+    _aedt_process_thread.daemon = True
+    _aedt_process_thread.start()
+    timeout = settings.desktop_launch_timeout
+    k = 0
+    while not _check_grpc_port(port):
+        if k > timeout:  # pragma: no cover
+            if first_run:
+                port = _find_free_port()
+                return launch_aedt(full_path, non_graphical, port, first_run=False)
+            return False, port
+        time.sleep(1)
+        k += 1
+    return True, port
 
 
 def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
@@ -863,6 +896,7 @@ class Desktop(object):
                             )
                     self.port = _find_free_port()
                     self.logger.info("New AEDT session is starting on gRPC port %s", self.port)
+                    new_aedt_session = True
         elif new_aedt_session and not _check_grpc_port(self.port, self.machine):
             self.logger.info("New AEDT session is starting on gRPC port %s", self.port)
         elif new_aedt_session:
@@ -881,6 +915,16 @@ class Desktop(object):
                 ScriptEnv._doInitialize(version, None, False, non_graphical, self.machine, self.port)
             else:
                 self.logger.error("Failed to start LSF job on machine: %s.", self.machine)
+                return
+        elif new_aedt_session:
+            installer = os.path.join(base_path, "ansysedt")
+            if not is_linux:
+                installer = os.path.join(base_path, "ansysedt.exe")
+            out, self.port = launch_aedt(installer, non_graphical, self.port)
+            if out:
+                ScriptEnv._doInitialize(version, None, False, non_graphical, self.machine, self.port)
+            else:
+                self.logger.error("Failed to start AEDT on port %s.", self.port)
                 return
         else:
             ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, self.machine, self.port)
@@ -1267,21 +1311,6 @@ class Desktop(object):
         self.odesktop = None
         return result
 
-    def force_close_desktop(self):
-        """Forcibly close all projects and shut down AEDT.
-
-        .. deprecated:: 0.4.0
-           Use :func:`desktop.close_desktop` instead.
-
-        """
-
-        warnings.warn(
-            "`force_close_desktop` is deprecated. Use `close_desktop` instead.",
-            DeprecationWarning,
-        )
-
-        force_close_desktop()
-
     def close_desktop(self):
         """Close all projects and shut down AEDT.
 
@@ -1487,6 +1516,9 @@ class Desktop(object):
                 commands.append([executable, "-m", "pip", "uninstall", "--yes", package_name])
 
             commands.append([executable, "-m", "pip", "install", "--upgrade", package_path])
+
+            if self.aedt_version_id == "2023.1" and is_windows and "AnsysEM" in sys.base_prefix:
+                commands.append([executable, "-m", "pip", "uninstall", "--yes", "pywin32"])
 
             for command in commands:
                 if is_linux:

@@ -1458,6 +1458,10 @@ class Primitives(object):
             if obj_name not in self._object_names_to_ids:
                 self._create_object(obj_name)
                 added_objects.append(obj_name)
+        for obj_name in self.point_names:
+            if obj_name not in self.points.keys():
+                self._create_object(obj_name)
+                added_objects.append(obj_name)
         return added_objects
 
     @pyaedt_function_handler()
@@ -3053,13 +3057,16 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _arg_with_dim(self, value, units=None):
-        if isinstance(value, str):
-            val = value
+        if units is None:
+            units = self.model_units
+        if type(value) is str:
+            try:
+                float(value)
+                val = "{0}{1}".format(value, units)
+            except:
+                val = value
         else:
-            if units is None:
-                units = self.model_units
             val = "{0}{1}".format(value, units)
-
         return val
 
     @pyaedt_function_handler()

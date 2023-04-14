@@ -1634,6 +1634,45 @@ class Settings(object):
     def rpc_server_path(self, value):
         if os.path.exists(value):
             self._rpc_server_path = value
+        self._aedt_environment_variables = {
+            "ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3": "1",
+            "ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE": "1",
+            "ANSYSEM_FEATURE_SF159726_SCRIPTOBJECT_ENABLE": "1",
+            "ANSYSEM_FEATURE_SF222134_CABLE_MODELING_ENHANCEMENTS_ENABLE": "1",
+            "ANSYSEM_FEATURE_F395486_RIGID_FLEX_BENDING_ENABLE": "1",
+        }
+        if is_linux:
+            self._aedt_environment_variables["ANS_NODEPCHECK"] = "1"
+        self._desktop_launch_timeout = 90
+
+    @property
+    def desktop_launch_timeout(self):
+        """Set the desktop launcher max timeout. Default is ``90`` seconds.
+
+        Returns
+        -------
+        int
+        """
+        return self._desktop_launch_timeout
+
+    @desktop_launch_timeout.setter
+    def desktop_launch_timeout(self, value):
+        self._desktop_launch_timeout = int(value)
+
+    @property
+    def aedt_environment_variables(self):
+        """Set environment variables to be set before launching a new aedt session.
+        This includes beta features enablemement.
+
+        Returns
+        -------
+        dict
+        """
+        return self._aedt_environment_variables
+
+    @aedt_environment_variables.setter
+    def aedt_environment_variables(self, value):
+        self._aedt_environment_variables = value
 
     @property
     def lsf_queue(self):

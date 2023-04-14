@@ -11,7 +11,6 @@ from collections import OrderedDict
 import os
 import random
 import string
-import warnings
 
 from pyaedt import is_ironpython
 from pyaedt import settings
@@ -1038,210 +1037,6 @@ class PostProcessorCommon(object):
             return True
         except:
             return False
-
-    @pyaedt_function_handler()
-    def get_report_data(
-        self, expression="dB(S(1,1))", setup_sweep_name="", domain="Sweep", families_dict=None, report_input_type=None
-    ):
-        """Generate report data.
-        This method returns the data object and the arrays ``solData`` and
-        ``FreqVals``.
-
-        .. deprecated:: 0.4.41
-           Use :func:`get_solution_data` method instead.
-
-        Parameters
-        ----------
-        expression : str or list
-            One or more formulas to add to the report. The default is
-            ``"dB(S(1,1))"``.
-        setup_sweep_name : str, optional
-            Name of the setup for computing the report. The
-            default is ``""``, in which case the nominal sweep is
-            used.
-        domain : str or list, optional
-            Context type. The options are ``"Sweep"`` or
-            ``"Time"``. The default is ``"Sweep".``
-        families_dict : dict, optional
-            Dictionary of all families including the primary
-            sweep. The default is ``{"Freq": ["All"]}``.
-        report_input_type :  str
-            Type of input data for the report.
-
-        Returns
-        -------
-        pyaedt.modules.solutions.SolutionData
-
-        References
-        ----------
-
-        >>> oModule.GetSolutionDataPerVariation
-
-        Examples
-        --------
-        Generate a report with the default sweep and default variation.
-
-        >>> hfss = HFSS()
-        >>> hfss.post.get_report_data("S(1,1)")
-
-        >>> m3d = Maxwell3D()
-        >>> m3d.post.get_report_data("SurfaceLoss")   # Eddy Current examples
-        >>> m3d.post.get_report_data("Wind(LoadA,LaodA)")    # TransientAnalsysis
-
-        """
-        warnings.warn("`get_report_data` is deprecated. Use `get_solution_data` property instead.", DeprecationWarning)
-        if self.post_solution_type in ["HFSS3DLayout", "NexximLNA", "NexximTransient", "TR", "AC", "DC"]:
-            if domain == "Sweep":
-                did = 3
-            else:
-                did = 1
-            ctxt = [
-                "NAME:Context",
-                "SimValueContext:=",
-                [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "IDIID", False, "1"],
-            ]
-        elif isinstance(domain, list):
-            ctxt = domain
-        else:
-            ctxt = ["Domain:=", domain]
-        if self.post_solution_type in ["TR", "AC", "DC"]:
-            ctxt[2] = ctxt[2][:-3]
-            setup_sweep_name = self.post_solution_type
-        if not isinstance(expression, list):
-            expression = [expression]
-        if not setup_sweep_name:
-            setup_sweep_name = self._app.nominal_sweep
-
-        if not report_input_type:
-            report_input_type = self._app.design_solutions.report_type
-
-        if families_dict is None:
-            if domain == "Time":
-                families_dict = {"Time": ["All"]}
-            else:
-                families_dict = {"Freq": ["All"]}
-
-        solution_data = self.get_solution_data_per_variation(
-            report_input_type, setup_sweep_name, ctxt, families_dict, expression
-        )
-
-        if not solution_data:
-            warnings.warn("No Data Available. Check inputs")
-            return False
-        return solution_data
-
-    @pyaedt_function_handler()
-    def create_rectangular_plot(
-        self,
-        expression="dB(S(1,1))",
-        setup_sweep_name="",
-        families_dict=None,
-        primary_sweep_variable="Freq",
-        context=None,
-        plotname=None,
-        report_category=None,
-        plot_type="Rectangular Plot",
-    ):
-        """Create a 2D rectangular plot in AEDT.
-
-        .. deprecated:: 0.4.41
-            Method deprecated. use `create_report` instead.
-
-        Parameters
-        ----------
-        expression : str or list, optional
-            One or more formulas to add to the report. The default is value = ``"dB(S(1,1))"``.
-        setup_sweep_name : str, optional
-            Setup name with the sweep. The default is ``""``.
-        families_dict : dict, optional
-            Dictionary of all families including the primary sweep. The default is ``{"Freq": ["All"]}``.
-        primary_sweep_variable : str, optional
-            Name of the primary sweep. The default is ``"Freq"``.
-        context : str, optional
-            The default is ``None``.
-        plotname : str, optional
-            Name of the plot. The default is ``None``.
-        report_category : str, optional
-            Type of the Report to be created. If `None` default data Report will be used
-        plot_type : str, optional
-            The format of Data Visualization. Default is ``Rectangular Plot``
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-
-        >>> oModule.CreateReport
-        """
-        if families_dict is None:
-            families_dict = {"Freq": ["All"]}
-
-        warnings.warn(
-            "`create_rectangular_plot` is deprecated. Use `create_report` property instead.", DeprecationWarning
-        )
-
-        ctxt = []
-        if not setup_sweep_name:
-            setup_sweep_name = self._app.nominal_sweep
-        if self.post_solution_type in ["HFSS3DLayout", "NexximLNA", "NexximTransient", "TR", "AC", "DC"]:
-            if "Freq" == primary_sweep_variable or "Freq" in list(families_dict.keys()):
-                did = 3
-            else:
-                did = 1
-            ctxt = [
-                "NAME:Context",
-                "SimValueContext:=",
-                [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "IDIID", False, "1"],
-            ]
-        elif context:
-            if type(context) is list:
-                ctxt = context
-            else:
-                ctxt = ["Context:=", context]
-        if self.post_solution_type in ["TR", "AC", "DC"]:
-            ctxt[2] = ctxt[2][:-3]
-            setup_sweep_name = self.post_solution_type
-        if not isinstance(expression, list):
-            expression = [expression]
-        if not setup_sweep_name:
-            setup_sweep_name = self._app.nominal_sweep
-        if not report_category and not self._app.design_solutions.report_type:
-            self.logger.info("Solution not supported")
-            return False
-        if not report_category:
-            modal_data = self._app.design_solutions.report_type
-        else:
-            modal_data = report_category
-        if not plotname:
-            plotname = generate_unique_name("Plot")
-        families_input = [primary_sweep_variable + ":="]
-        if primary_sweep_variable not in families_dict:
-            families_input.append(["All"])
-        elif isinstance(families_dict[primary_sweep_variable], list):
-            families_input.append(families_dict[primary_sweep_variable])
-        else:
-            families_input.append([families_dict[primary_sweep_variable]])
-        for el in families_dict:
-            if el == primary_sweep_variable:
-                continue
-            families_input.append(el + ":=")
-            if isinstance(families_dict[el], list):
-                families_input.append(families_dict[el])
-            else:
-                families_input.append([families_dict[el]])
-        self.oreportsetup.CreateReport(
-            plotname,
-            modal_data,
-            plot_type,
-            setup_sweep_name,
-            ctxt,
-            families_input,
-            ["X Component:=", primary_sweep_variable, "Y Component:=", expression],
-        )
-        self.logger.info("Report %s correctly created.", plotname)
-        return True
 
     @pyaedt_function_handler()
     def get_solution_data_per_variation(
@@ -3235,50 +3030,6 @@ class PostProcessor(PostProcessorCommon, object):
         return True
 
     @pyaedt_function_handler()
-    def export_field_image_with_view(self, plotName, foldername, exportFilePath, view="isometric", wireframe=True):
-        """Export a field plot image with a view.
-
-        .. deprecated:: 0.5.0
-           Use :func:`export_field_jpg` method instead.
-
-        .. note::
-           For AEDT 2019 R3, this method works only on the ISO view due to a bug in the API.
-           This method works properly in 2021 R1.
-
-        Parameters
-        ----------
-        plotName : str
-            Name of the plot.
-        foldername : str
-            Path to folder.
-        exportFilePath :
-            Path for exporting the image file.
-        view : str, optional
-           View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
-            The default is ``"isometric"``.
-        wireframe : bool, optional
-            Whether to put the objects in the wireframe mode. The default is ``True``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-
-        >>> oModule.ExportPlotImageToFile
-        >>> oModule.ExportModelImageToFile
-        """
-        warnings.warn(
-            "`export_field_image_with_view` is deprecated. Use `export_field_jpg` property instead.", DeprecationWarning
-        )
-
-        return self.export_field_jpg(
-            exportFilePath, plotName, foldername, orientation=view, display_wireframe=wireframe
-        )
-
-    @pyaedt_function_handler()
     def delete_field_plot(self, name):
         """Delete a field plot.
 
@@ -4052,7 +3803,7 @@ class PostProcessor(PostProcessorCommon, object):
         ----------
 
         max_frequency : str, optional
-            Maximum Frequency. Default is ``"1GHz"``.
+            Maximum Frequency. Default is ``1GHz``.
         ray_density : int, optional
             Ray Density. Default is ``2``.
         number_of_bounces : int, optional
@@ -4066,15 +3817,15 @@ class PostProcessor(PostProcessorCommon, object):
         custom_location : list, optional
             List of x, y,z position of point source. Default is ``None`.
         shoot_filter_type : str, optional
-            Shooter Type. Default is ``"All Rays"``. Options are  ``"Rays by index"``,  ``"Rays in box"``.
+            Shooter Type. Default is ``"All Rays"``. Options are ``Rays by index``, ``Rays in box``.
         ray_index_start : int, optional
-            Ray index start. Valid only if ``"Rays by index"`` is chosen.  Default is ``0``.
+            Ray index start. Valid only if ``Rays by index`` is chosen.  Default is ``0``.
         ray_index_stop : int, optional
-            Ray index stop. Valid only if ``"Rays by index"`` is chosen.  Default is ``1``.
+            Ray index stop. Valid only if ``Rays by index`` is chosen.  Default is ``1``.
         ray_index_step : int, optional
-            Ray index step. Valid only if ``"Rays by index"`` is chosen.  Default is ``1``.
+            Ray index step. Valid only if ``Rays by index`` is chosen.  Default is ``1``.
         ray_box : int or str optional
-            Ray box name or id. Valid only if ``"Rays by box"`` is chosen.  Default is ``None``.
+            Ray box name or id. Valid only if ``Rays by box`` is chosen.  Default is ``None``.
 
         Returns
         -------

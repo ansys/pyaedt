@@ -78,7 +78,7 @@ edb.add_design_variable("trace_out_width", "0.1mm", is_parameter=True)
 
 ##################################################################################
 # Create definitions
-# ~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~
 # Create two definitions, one for the ground and one for the signal. The definitions
 # are parametric.
 

@@ -516,7 +516,7 @@ class UserDefinedComponent(object):
         Parameters
         ----------
         cs_axis
-            Coordinate system axis or the Application.CoordinateSystemAxis object.
+            Coordinate system axis or the Application.AXIS object.
         angle : float, optional
             Angle of rotation. The units, defined by ``unit``, can be either
             degrees or radians. The default is ``90.0``.
@@ -578,7 +578,7 @@ class UserDefinedComponent(object):
 
         Parameters
         ----------
-        cs_axis : Application.CoordinateSystemAxis object
+        cs_axis : Application.AXIS object
             Coordinate system axis of the object.
         angle : float, optional
             Angle of rotation in degrees. The default is ``90``.
