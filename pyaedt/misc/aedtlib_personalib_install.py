@@ -57,7 +57,10 @@ def add_pyaedt_to_aedt(aedt_version, is_student_version=False, use_sys_lib=False
     from pyaedt import Desktop
 
     with Desktop(
-        aedt_version, new_desktop_session, new_desktop_session=new_desktop_session, student_version=is_student_version
+        specified_version=aedt_version,
+        non_graphical=new_desktop_session,
+        new_desktop_session=new_desktop_session,
+        student_version=is_student_version,
     ) as d:
         desktop = sys.modules["__main__"].oDesktop
         pers1 = os.path.join(desktop.GetPersonalLibDirectory(), "pyaedt")
