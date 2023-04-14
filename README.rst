@@ -39,12 +39,12 @@ PyAEDT
 
 What is PyAEDT?
 ---------------
-PyAEDT is a Python library that interacts directly with the AEDT API
-to make scripting simpler . Its architecture can be reused for all
-Ansys Electronics Desktop (AEDT) 3D products (HFSS, Icepak, Maxwell 3D,
+PyAEDT is a Python library that interacts directly with the API for
+Ansys Electronics Desktop (AEDT) to make scripting simpler. The architecture
+for PyAEDT can be reused for all AEDT 3D products (HFSS, Icepak, Maxwell 3D,
 and Q3D Extractor), 2D tools, and Ansys Mechanical. PyAEDT also provides
 support for circuit tools like Nexxim and system simulation tools like
-Twin Builder. Finally, it provides scripting capabilities in Ansys layout
+Twin Builder. Finally, PyAEDT provides scripting capabilities in Ansys layout
 tools like HFSS 3D Layout and EDB. The PyAEDT class and method structures
 simplify operation while reusing information as much as possible across
 the API.
