@@ -55,9 +55,6 @@ class EDBPadProperties(object):
     def _edb(self):
         return self._pedbpadstack._edb
 
-    def _get_edb_value(self, value):
-        return self._pedbpadstack._get_edb_value(value)
-
     @property
     def geometry_type(self):
         """Geometry type.
@@ -68,10 +65,7 @@ class EDBPadProperties(object):
             Type of the geometry.
         """
 
-        padparams = self._edb_padstack.GetData().GetPadParametersValue(
-            self.layer_name, self.int_to_pad_type(self.pad_type)
-        )
-        return int(padparams[1])
+        return self._edb_padstack.data.get_pad_parameters(self.layer_name, self.pad_type)
 
     @geometry_type.setter
     def geometry_type(self, geom_type):
@@ -79,20 +73,20 @@ class EDBPadProperties(object):
         shape.8, Round gap with 45 degree thermal ties. 9, Round gap with 90 degree thermal ties.10, Square gap
         with 45 degree thermal ties. 11, Square gap with 90 degree thermal ties.
         """
-        val = self._get_edb_value(0)
+
         params = []
         if geom_type == 0:
             pass
         elif geom_type == 1:
-            params = [val]
+            params = [0]
         elif geom_type == 2:
-            params = [val]
+            params = [0]
         elif geom_type == 3:
-            params = [val, val]
+            params = [0, 0]
         elif geom_type == 4:
-            params = [val, val, val]
+            params = [0, 0, 0]
         elif geom_type == 5:
-            params = [val, val, val]
+            params = [0, 0, 0]
         self._update_pad_parameters_parameters(geom_type=geom_type, params=params)
 
     @property
@@ -104,12 +98,7 @@ class EDBPadProperties(object):
         list
             List of parameters.
         """
-        self._parameters_values = []
-        pad_values = self._edb_padstack.GetData().GetPadParametersValue(
-            self.layer_name, self.int_to_pad_type(self.pad_type)
-        )
-        self._parameters_values = [i.ToDouble() for i in pad_values[2]]
-        return self._parameters_values
+        return self._edb_padstack.data.get_pad_parameters(self.layer_name, self.pad_type)
 
     @property
     def polygon_data(self):
@@ -121,7 +110,7 @@ class EDBPadProperties(object):
             List of parameters.
         """
         try:
-            pad_values = self._edb_padstack.GetData().GetPolygonalPadParameters(
+            pad_values = self._edb_padstack.data.GetPolygonalPadParameters(
                 self.layer_name, self.int_to_pad_type(self.pad_type)
             )
             return pad_values[1]
