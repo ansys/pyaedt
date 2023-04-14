@@ -1355,7 +1355,7 @@ class EDBPadstackInstance(object):
 
     @pyaedt_function_handler()
     def delete(self):
-        """Delete this padstack instance."""
+        """Delete the padstack instance."""
         self._edb_padstackinstance.Delete()
         return True
 
