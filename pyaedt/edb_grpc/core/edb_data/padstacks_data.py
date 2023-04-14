@@ -1344,10 +1344,10 @@ class EDBPadstackInstance(object):
 
     @pyaedt_function_handler()
     def delete_padstack_instance(self):
-        """Delete this padstack instance.
+        """Delete the padstack instance.
 
         .. deprecated:: 0.6.28
-           Use :func:`delete` property instead.
+           Use the :func:`delete` method instead.
         """
         warnings.warn("`delete_padstack_instance` is deprecated. Use `delete` instead.", DeprecationWarning)
         self._edb_padstackinstance.Delete()
