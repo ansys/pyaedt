@@ -8,6 +8,7 @@ from __future__ import absolute_import  # noreorder
 from collections import OrderedDict
 
 from pyaedt.application.Variables import decompose_variable_value
+from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -405,6 +406,19 @@ class Layer(object):
         tck = decompose_variable_value(self._thickness)
         self._thickness = tck[0]
         self._thickness_units = tck[1]
+
+    @property
+    def upper_elevation(self):
+        """Get the active layer upper elevation value with units.
+
+        Returns
+        -------
+        float
+        """
+        return (
+            unit_converter(self.thickness, input_units=self.thickness_units, output_units=self.LengthUnit)
+            + self.lower_elevation
+        )
 
     @property
     def thickness_units(self):
@@ -1340,8 +1354,11 @@ class Layers(object):
                 o._index = int(infosdict["Index"])
                 tck = decompose_variable_value(infosdict["LayerThickness"])
                 o._thickness = tck[0]
-                o._thickness_units = tck[1]
-                o._lower_elevation = decompose_variable_value(infosdict["LowerElevation0"])[0]
+                o._thickness_units = tck[1] if tck[1] else "meter"
+                tck = decompose_variable_value(infosdict["LowerElevation0"])
+
+                o._lower_elevation = tck[0]
+                o.LengthUnit = tck[1] if tck[1] else "meter"
                 o._fillmaterial = infosdict["FillMaterial0"]
                 o._material = infosdict["Material0"]
                 if "EtchFactor" in infosdict:
@@ -1399,18 +1416,12 @@ class Layers(object):
             el = (
                 0
                 if list(self.layers.values())[0].type not in ["dielectric", "signal", "via"]
-                else "{}+{}".format(
-                    list(self.layers.values())[0].lower_elevation, list(self.layers.values())[0].thickness
+                else "{}{}".format(
+                    list(self.layers.values())[0].upper_elevation, list(self.layers.values())[0].LengthUnit
                 )
             )
             if el:
-                self._app.variable_manager.set_variable(
-                    "pyaedt_evaluator",
-                    expression=el,
-                    readonly=True,
-                    hidden=True,
-                )
-                newlayer._lower_elevation = self._app.get_evaluated_value("pyaedt_evaluator")
+                newlayer._lower_elevation = el
             else:
                 newlayer._lower_elevation = "0mm"
         else:
