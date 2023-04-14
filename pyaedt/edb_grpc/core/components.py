@@ -494,7 +494,7 @@ class Components(object):
         hosting_component_pin2,
         flipped=False,
     ):
-        """Get the placement vector between 2 components.
+        """Get the placement vector between two components.
 
         Parameters
         ----------
