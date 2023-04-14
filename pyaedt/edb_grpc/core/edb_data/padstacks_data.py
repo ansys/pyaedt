@@ -1290,10 +1290,10 @@ class EDBPadstackInstance(object):
 
     @property
     def aedt_name(self):
-        """Retrieve the pin name that is shown in AEDT.
+        """Pin name that is shown in AEDT.
 
         .. note::
-           To obtain the EDB core pin name, use `pin.GetName()`.
+           To obtain the EDB core pin name, use the ``pin.GetName()`` method.
 
         Returns
         -------
