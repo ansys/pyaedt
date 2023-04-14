@@ -449,7 +449,7 @@ class Components(object):
 
     @pyaedt_function_handler()
     def get_components_from_nets(self, netlist=None):
-        """Retrieve components from a net list.
+        """Get components from a net list.
 
         Parameters
         ----------
