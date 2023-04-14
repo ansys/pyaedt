@@ -20,10 +20,12 @@ is_windows = not is_linux
 pid = 0
 
 
-def add_pyaedt_to_aedt(aedt_version, is_student_version=False, use_sys_lib=False):
+def add_pyaedt_to_aedt(aedt_version, is_student_version=False, use_sys_lib=False, new_desktop_session=False):
     from pyaedt import Desktop
 
-    with Desktop(aedt_version, True, new_desktop_session=True, student_version=is_student_version) as d:
+    with Desktop(
+        aedt_version, new_desktop_session, new_desktop_session=new_desktop_session, student_version=is_student_version
+    ) as d:
         desktop = sys.modules["__main__"].oDesktop
         pers1 = os.path.join(desktop.GetPersonalLibDirectory(), "pyaedt")
         pid = desktop.GetProcessID()
@@ -68,7 +70,7 @@ def add_pyaedt_to_aedt(aedt_version, is_student_version=False, use_sys_lib=False
                 pers_dir = os.path.join(d.personallib, "Toolkits")
                 install_toolkit(pers_dir, product, aedt_version)
                 d.logger.info("Installed toolkit for {} in personal lib".format(product))
-    if pid:
+    if pid and new_desktop_session:
         try:
             os.kill(pid, 9)
         except:
@@ -198,6 +200,8 @@ if __name__ == "__main__":
         v = sys.argv[1]
         version = "20" + v[-3:-1] + "." + v[-1:]
     sys_lib = True
-    if len(sys.argv) == 3:
+    if len(sys.argv) >= 3:
         sys_lib = True if sys.argv[2] == "1" else False
+    if len(sys.argv) == 4:
+        new_session = True if sys.argv[3] == "1" else False
     add_pyaedt_to_aedt(version, student_version, sys_lib)
