@@ -499,19 +499,20 @@ class Components(object):
         Parameters
         ----------
         mounted_component : `edb.Cell.Hierarchy.Component`
-            Mounted component name.
+            Name of the mounted component.
         hosting_component : `edb.Cell.Hierarchy.Component`
-            Hosting component name.
+            Name of the hosting component.
         mounted_component_pin1 : str
-            Mounted component Pin 1 name.
+            Name of pin 1 on the mounted component.
         mounted_component_pin2 : str
-            Mounted component Pin 2 name.
+            Name of pin 2 on the mounted component.
         hosting_component_pin1 : str
             Hosted component Pin 1 name.
         hosting_component_pin2 : str
             Hosted component Pin 2 name.
         flipped : bool, optional
-            Either if the mounted component will be flipped or not.
+            Whether the mounted component is flipped. The
+            default is ``False``.
 
         Returns
         -------
