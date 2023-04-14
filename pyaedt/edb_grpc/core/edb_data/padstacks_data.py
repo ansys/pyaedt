@@ -1203,12 +1203,13 @@ class EDBPadstackInstance(object):
 
     @is_pin.setter
     def is_pin(self, pin):
-        """Set padstack type
+        """Set the padstack type.
 
         Parameters
         ----------
         pin : bool
-            True if set this padstack instance as pin, False otherwise
+            Whether this padstack instance is a pin. Set ``True`` if it is a pin and
+            ``False`` otherwise.
         """
         self._edb_padstackinstance.SetIsLayoutPin(pin)
 
