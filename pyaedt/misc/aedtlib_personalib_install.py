@@ -62,7 +62,7 @@ def add_pyaedt_to_aedt(aedt_version, is_student_version=False, use_sys_lib=False
     sessions = grpc_active_sessions(aedt_version, is_student_version)
     if not sessions:
         if not new_desktop_session:
-            print("Launching new AEDT desktop session.")
+            print("Launching a new AEDT desktop session.")
         new_desktop_session = True
     with Desktop(
         specified_version=aedt_version,
