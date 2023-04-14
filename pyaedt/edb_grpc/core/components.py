@@ -1,4 +1,4 @@
-"""This module contains the `Components` class.
+"""This module contains the ``Components`` class.
 
 """
 import codecs
@@ -49,7 +49,7 @@ def resistor_value_parser(RValue):
 
 
 class Components(object):
-    """Manages EDB components and related method accessible from `Edb.core_components` property.
+    """Manages EDB components and related methods accessible from the ``Edb.core_components`` property.
 
     Parameters
     ----------
@@ -142,7 +142,7 @@ class Components(object):
 
     @property
     def definitions(self):
-        """Retrieve component definition list.
+        """Component definition list.
 
         Returns
         -------
@@ -151,18 +151,18 @@ class Components(object):
 
     @property
     def nport_comp_definition(self):
-        """Retrieve Nport component definition list."""
+        """Nport component definition list."""
         m = "Ansys.Ansoft.Edb.Definition.NPortComponentModel"
         return {name: l for name, l in self.definitions.items() if m in [i.ToString() for i in l._comp_model]}
 
     @pyaedt_function_handler()
     def import_definition(self, file_path):
-        """Import component definition from json file.
+        """Import component definition from JSON file.
 
         Parameters
         ----------
         file_path : str
-            File path of json file.
+            File path of JSON file.
         """
         with codecs.open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
@@ -190,12 +190,12 @@ class Components(object):
 
     @pyaedt_function_handler()
     def export_definition(self, file_path):
-        """Export component definitions to json file.
+        """Export component definitions to JSON file.
 
         Parameters
         ----------
         file_path : str
-            File path of json file.
+            File path of JSON file.
         Returns
         -------
 
@@ -412,7 +412,7 @@ class Components(object):
 
     @pyaedt_function_handler()
     def get_component_list(self):
-        """Retrieve conponent setup information.
+        """Get component setup information.
 
         Returns
         -------
@@ -428,7 +428,7 @@ class Components(object):
 
     @pyaedt_function_handler()
     def get_component_by_name(self, name):
-        """Retrieve a component by name.
+        """Get a component by name.
 
         Parameters
         ----------
@@ -449,7 +449,7 @@ class Components(object):
 
     @pyaedt_function_handler()
     def get_components_from_nets(self, netlist=None):
-        """Retrieve components from a net list.
+        """Get components from a net list.
 
         Parameters
         ----------
@@ -494,29 +494,30 @@ class Components(object):
         hosting_component_pin2,
         flipped=False,
     ):
-        """Get the placement vector between 2 components.
+        """Get the placement vector between two components.
 
         Parameters
         ----------
         mounted_component : `edb.Cell.Hierarchy.Component`
-            Mounted component name.
+            Name of the mounted component.
         hosting_component : `edb.Cell.Hierarchy.Component`
-            Hosting component name.
+            Name of the hosting component.
         mounted_component_pin1 : str
-            Mounted component Pin 1 name.
+            Name of pin 1 on the mounted component.
         mounted_component_pin2 : str
-            Mounted component Pin 2 name.
+            Name of pin 2 on the mounted component.
         hosting_component_pin1 : str
             Hosted component Pin 1 name.
         hosting_component_pin2 : str
             Hosted component Pin 2 name.
         flipped : bool, optional
-            Either if the mounted component will be flipped or not.
+            Whether the mounted component is flipped. The
+            default is ``False``.
 
         Returns
         -------
         tuple
-            Tuple of Vector offset, rotation and solder height.
+            Tuple of vector offset, rotation, and solder height.
 
         Examples
         --------

@@ -1203,12 +1203,13 @@ class EDBPadstackInstance(object):
 
     @is_pin.setter
     def is_pin(self, pin):
-        """Set padstack type
+        """Set the padstack type.
 
         Parameters
         ----------
         pin : bool
-            True if set this padstack instance as pin, False otherwise
+            Whether this padstack instance is a pin. Set ``True`` if it is a pin and
+            ``False`` otherwise.
         """
         self._edb_padstackinstance.SetIsLayoutPin(pin)
 
@@ -1289,10 +1290,10 @@ class EDBPadstackInstance(object):
 
     @property
     def aedt_name(self):
-        """Retrieve the pin name that is shown in AEDT.
+        """Pin name that is shown in AEDT.
 
         .. note::
-           To obtain the EDB core pin name, use `pin.GetName()`.
+           To obtain the EDB core pin name, use the ``pin.GetName()`` method.
 
         Returns
         -------
@@ -1323,8 +1324,9 @@ class EDBPadstackInstance(object):
         Parameters
         ----------
         prefix : str, optional
-            Prefix for the variable name. Default is ``None``.
-            Example `"MyVariableName"` will create 2 Project variables $MyVariableNamesX and $MyVariableNamesY.
+            Prefix for the variable name. The default is ``None``.
+            For example, ``"MyVariableName"`` creates two project variables:
+            ``$MyVariableNamesX`` and $``MyVariableNamesY``.
 
         Returns
         -------
@@ -1343,10 +1345,10 @@ class EDBPadstackInstance(object):
 
     @pyaedt_function_handler()
     def delete_padstack_instance(self):
-        """Delete this padstack instance.
+        """Delete the padstack instance.
 
         .. deprecated:: 0.6.28
-           Use :func:`delete` property instead.
+           Use the :func:`delete` method instead.
         """
         warnings.warn("`delete_padstack_instance` is deprecated. Use `delete` instead.", DeprecationWarning)
         self._edb_padstackinstance.Delete()
@@ -1354,20 +1356,20 @@ class EDBPadstackInstance(object):
 
     @pyaedt_function_handler()
     def delete(self):
-        """Delete this padstack instance."""
+        """Delete the padstack instance."""
         self._edb_padstackinstance.Delete()
         return True
 
     @pyaedt_function_handler()
     def in_voids(self, net_name=None, layer_name=None):
-        """Check if this padstack instance is in any void.
+        """Check if the padstack instance is in any voids.
 
         Parameters
         ----------
         net_name : str
-            Net name of the voids to be checked. Default is ``None``.
+            Net name of the voids to check. The default is ``None``.
         layer_name : str
-            Layer name of the voids to be checked. Default is ``None``.
+            Layer name of the voids to check. The default is ``None``.
 
         Returns
         -------
@@ -1447,20 +1449,22 @@ class EDBPadstackInstance(object):
 
     @pyaedt_function_handler()
     def create_rectangle_in_pad(self, layer_name, return_points=False, partition_max_order=16):
-        """Create a rectangle inscribed inside a padstack instance pad. The rectangle is fully inscribed in the
-        pad and has the maximum area. It is necessary to specify the layer on which the rectangle will be created.
+        """Create a rectangle inscribed inside a padstack instance pad.
+        
+        The rectangle is fully inscribed in the pad and has the maximum area.
+        It is necessary to specify the layer to create the rectangle on.
 
         Parameters
         ----------
         layer_name : str
-            Name of the layer on which to create the polygon.
+            Name of the layer to create the polygon on.
 
         return_points : bool, optional
-            If `True` does not create the rectangle and just returns a list containing the rectangle vertices.
-            Default is `False`.
+            Whether to return only a list containing the rectangle vertices. The default is ``False``,
+            in which case a list is returned and the rectangle is created.
         partition_max_order : float, optional
-            Order of the lattice partition used to find the quasi-lattice polygon that approximates ``polygon``.
-            Default is ``16``.
+            Order of the lattice partition for finding the quasi-lattice polygon that approximates
+            a polygon. The default is ``16``.
 
         Returns
         -------

@@ -82,7 +82,7 @@ class EDBNetsData(object):
         if isinstance(val, bool):
             self.net_object.SetIsPowerGround(val)
         else:
-            raise AttributeError("Value has to be a boolean.")
+            raise AttributeError("Value must be a Boolean.")
 
     @property
     def components(self):

@@ -2698,7 +2698,7 @@ class Edb(object):
         Returns
         -------
         tuple of bool and VaribleServer
-            It returns a booleand to check if the variable exists and the variable
+            A Boolean indicating if the variable exists and the variable
             server that should contain the variable.
         """
         if variable_name in self.db.get_all_variable_names():
@@ -2728,7 +2728,9 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def add_project_variable(self, variable_name, variable_value, is_parameter=False):
-        """Add a variable to edb database (project). The variable will have the prefix `$`.
+        """Add a variable to the EDB database (project).
+        
+        A prefix of ``$`` is automatically added to the name specified for the variable.
 
         ..note::
             User can use also the setitem to create or assign a variable. See example below.
