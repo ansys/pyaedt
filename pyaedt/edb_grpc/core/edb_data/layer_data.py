@@ -1,14 +1,14 @@
 from __future__ import absolute_import
 
 from collections import OrderedDict
-import re
-import time
 
+from ansys.edb.layer import LayerCollectionMode
+from ansys.edb.layer import LayerTypeSet
 from ansys.edb.layer import RoughnessRegion
+from ansys.edb.layer import StackupLayer
 from ansys.edb.layer.layer import LayerType
 
 from pyaedt import pyaedt_function_handler
-from pyaedt.generic.clr_module import List
 
 
 class EDBLayer(object):
@@ -511,11 +511,11 @@ class EDBLayer(object):
                 if model_type == "huray":
                     radius = mdl[1]
                     surface_ratio = mdl[2]
-                    # didn't find roughness model
+                    # didn't find roughness model to be completed
                     # model = self._edb.Cell.HurrayRoughnessModel(radius, surface_ratio)
                 else:
                     roughness = mdl[1]
-                    # didn't find roughness model
+                    # didn't find roughness model to be completed
                     # model = self._edb.Cell.GroisseRoughnessModel(roughness)
                 # newLayer.SetRoughnessModel(region, model)
         if isinstance(etchMap, float) and int(layerTypeMap) in [0, 2]:
@@ -523,11 +523,11 @@ class EDBLayer(object):
         else:
             etchVal = 0.0
         if etchVal != 0.0:
-            newLayer.SetEtchFactorEnabled(True)
-            newLayer.SetEtchFactor(self._get_edb_value(etchVal))
+            newLayer.etch_factor_enabled = True
+            newLayer.etch_factor = etchVal
         else:
-            newLayer.SetEtchFactor(self._get_edb_value(etchVal))
-            newLayer.SetEtchFactorEnabled(False)
+            newLayer.etch_factor = etchVal
+            newLayer.etch_factor_enabled = False
         return newLayer
 
     @pyaedt_function_handler()
@@ -548,7 +548,7 @@ class EDBLayer(object):
 
         """
 
-        layer.SetLowerElevation(self._get_edb_value(elev))
+        layer.lower_elevation = elev
         return layer
 
     @pyaedt_function_handler()
@@ -560,50 +560,32 @@ class EDBLayer(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        thisLC = self._edb.Cell.LayerCollection(self._active_layout.GetLayerCollection())
-        layer_collection_mode = thisLC.GetMode()
-        layers = list(list(thisLC.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
+        lc = self._active_layout.layer_collection.clone()
+        layers = lc.get_layers(LayerTypeSet.ALL_LAYER_SET)
         layers.reverse()
-        newLayers = List[self._edb.Cell.Layer]()
         el = 0.0
         for lyr in layers:
-            if not lyr.IsStackupLayer():
-                newLayers.Add(lyr.Clone())
-                continue
-            layerName = lyr.GetName()
-
-            if layerName == self.name:
-                newLayer = lyr.Clone()
-                newLayer = self.update_layer_vals(
-                    self._name,
-                    newLayer,
-                    self._etch_factor,
-                    self._material_name,
-                    self._filling_material_name,
-                    self._thickness,
-                    self._negative_layer,
-                    self._roughness_enabled,
-                    self._layer_type,
-                )
-                newLayer = self.set_elevation(newLayer, el)
-                el += newLayer.GetThickness()
-            else:
-                newLayer = lyr.Clone()
-                newLayer = self.set_elevation(newLayer, el)
-                el += newLayer.GetThickness()
-            newLayers.Add(newLayer)
-
-        lcNew = self._edb.Cell.LayerCollection()
-        newLayers.Reverse()
-        if not lcNew.AddLayers(newLayers):
-            self._logger.error("Failed to set new layers when updating the stackup information.")
-            return False
-        lcNew.SetMode(layer_collection_mode)
-        if not self._active_layout.SetLayerCollection(lcNew):
-            self._logger.error("Failed to set new layer stackup mode when updating the stackup information.")
-            return False
-        self._pedblayers._update_edb_objects()
-        time.sleep(1)
+            if lyr.is_stackup_layer:
+                if lyr.name == self.name:
+                    new_layer = lyr.clone()
+                    self.update_layer_vals(
+                        self._name,
+                        new_layer,
+                        self._etch_factor,
+                        self._material_name,
+                        self._filling_material_name,
+                        self._thickness,
+                        self._negative_layer,
+                        self._roughness_enabled,
+                        self._layer_type,
+                    )
+                    new_layer = self.set_elevation(el)
+                    el += new_layer.thickness
+                else:
+                    new_layer = lyr.clone()
+                    self.set_elevation(new_layer, el)
+                    el += new_layer.thickness
+        self._active_layout.layer_collection = lc
         return True
 
 
@@ -657,9 +639,6 @@ class EDBLayers(object):
     def _edb(self):
         return self._pedbstackup._edb
 
-    def _get_edb_value(self, value):
-        return self._pedbstackup._get_edb_value(value)
-
     @property
     def _builder(self):
         return self._pedbstackup._builder
@@ -690,19 +669,8 @@ class EDBLayers(object):
         list
             List of EDB layers.
         """
-        allLayers = list(list(self.layer_collection.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
-        allStackuplayers = filter(
-            lambda lyr: (lyr.GetLayerType() == self._edb.Cell.LayerType.DielectricLayer)
-            or (
-                lyr.GetLayerType() == self._edb.Cell.LayerType.SignalLayer
-                or lyr.GetLayerType() == self._edb.Cell.LayerType.ConductingLayer
-            ),
-            allLayers,
-        )
-        return sorted(
-            allStackuplayers,
-            key=lambda lyr=self._edb.Cell.StackupLayer: lyr.Clone().GetLowerElevation(),
-        )
+        stackup_layers = self.layer_collection.get_layers(LayerTypeSet.STACKUP_LAYER_SET)
+        return sorted(stackup_layers, key=lambda lyr: lyr.lower_elevation)
 
     @property
     def signal_layers(self):
@@ -715,10 +683,7 @@ class EDBLayers(object):
         """
         self._signal_layers = OrderedDict({})
         for layer, edblayer in self.layers.items():
-            if (
-                edblayer._layer_type == self._edb.Cell.LayerType.SignalLayer
-                or edblayer._layer_type == self._edb.Cell.LayerType.ConductingLayer
-            ):
+            if edblayer._layer_type == LayerType.SIGNAL_LAYER or edblayer._layer_type == LayerType.CONDUCTING_LAYER:
                 self._signal_layers[layer] = edblayer
         return self._signal_layers
 
@@ -732,23 +697,20 @@ class EDBLayers(object):
             Collection of layers.
         """
         if not self._edb_layer_collection:
-            lc_readonly = self._pedbstackup._active_layout.GetLayerCollection()
-            layers = list(list(lc_readonly.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
-            layer_collection = self._edb.Cell.LayerCollection()
-
+            lc = self._pedbstackup._active_layout.layer_collection.clone()
+            layers = lc.get_layers(LayerTypeSet.ALL_LAYER_SET)
             flag_first_layer = True
             for lyr in layers:
-                if not lyr.IsStackupLayer():
+                if not lyr.is_stackup_layer:
                     continue
-                lyr_clone = lyr.Clone()
-                lyr_name = lyr.GetName()
+                cloned_layer = lyr.clone()
+                lyr_name = lyr.name
                 if flag_first_layer:
-                    layer_collection.AddLayerTop(lyr_clone)
+                    lc.add_layer_top(cloned_layer)
                     flag_first_layer = False
                 else:
-                    layer_collection.AddLayerAbove(lyr_clone, lyr_name)
-            self._edb_layer_collection = layer_collection
-
+                    lc.add_layer_above(cloned_layer, lyr_name)
+            self._edb_layer_collection = lc
         return self._edb_layer_collection
 
     @property
@@ -760,23 +722,7 @@ class EDBLayers(object):
         type
             Collection of layers.
         """
-        return self._active_layout.GetLayerCollection()
-
-    @property
-    def layer_collection_mode(self):
-        """Layer collection mode."""
-        return self._edb.Cell.LayerCollectionMode
-
-    @property
-    def layer_types(self):
-        """Layer types.
-
-        Returns
-        -------
-        type
-            Types of layers.
-        """
-        return self._edb.Cell.LayerType
+        return self._active_layout.layer_collection
 
     @property
     def stackup_mode(self):
@@ -791,102 +737,102 @@ class EDBLayers(object):
             * 1 - Overlapping
             * 2 - Multizone
         """
-        self._stackup_mode = self.layer_collection.GetMode()
+        self._stackup_mode = self.layer_collection.mode
         return self._stackup_mode
 
     @pyaedt_function_handler()
     def _int_to_layer_types(self, val):
         if int(val) == 0:
-            return self.layer_types.SignalLayer
+            return LayerType.SIGNAL_LAYER
         elif int(val) == 1:
-            return self.layer_types.DielectricLayer
+            return LayerType.DIELECTRIC_LAYER
         elif int(val) == 2:
-            return self.layer_types.ConductingLayer
+            return LayerType.CONDUCTING_LAYER
         elif int(val) == 3:
-            return self.layer_types.AirlinesLayer
+            return LayerType.AIRLINES_LAYER
         elif int(val) == 4:
-            return self.layer_types.ErrorsLayer
+            return LayerType.ERRORS_LAYER
         elif int(val) == 5:
-            return self.layer_types.SymbolLayer
+            return LayerType.SYMBOL_LAYER
         elif int(val) == 6:
-            return self.layer_types.MeasureLayer
+            return LayerType.MEASURE_LAYER
         elif int(val) == 8:
-            return self.layer_types.AssemblyLayer
+            return LayerType.ASSEMBLY_LAYER
         elif int(val) == 9:
-            return self.layer_types.SilkscreenLayer
+            return LayerType.SILKSCREEN_LAYER
         elif int(val) == 10:
-            return self.layer_types.SolderMaskLayer
+            return LayerType.SOLDER_MASK_LAYER
         elif int(val) == 11:
-            return self.layer_types.SolderPasteLayer
+            return LayerType.SOLDER_PASTE_LAYER
         elif int(val) == 12:
-            return self.layer_types.GlueLayer
+            return LayerType.GLUE_LAYER
         elif int(val) == 13:
-            return self.layer_types.WirebondLayer
+            return LayerType.WIREBOND_LAYER
         elif int(val) == 14:
-            return self.layer_types.UserLayer
+            return LayerType.USER_LAYER
         elif int(val) == 16:
-            return self.layer_types.SIwaveHFSSSolverRegions
+            return LayerType.SIWAVE_HFSS_SOLVER_REGIONS
         elif int(val) == 18:
-            return self.layer_types.OutlineLayer
+            return LayerType.OUTLINE_LAYER
 
     @pyaedt_function_handler()
     def _layer_types_to_int(self, layer_type):
         if not isinstance(layer_type, int):
-            if layer_type == self.layer_types.SignalLayer:
+            if layer_type == LayerType.SIGNAL_LAYER:
                 return 0
-            elif layer_type == self.layer_types.DielectricLayer:
+            elif layer_type == LayerType.DIELECTRIC_LAYER:
                 return 1
-            elif layer_type == self.layer_types.ConductingLayer:
+            elif layer_type == LayerType.CONDUCTING_LAYER:
                 return 2
-            elif layer_type == self.layer_types.AirlinesLayer:
+            elif layer_type == LayerType.AIRLINES_LAYER:
                 return 3
-            elif layer_type == self.layer_types.ErrorsLayer:
+            elif layer_type == LayerType.ERRORS_LAYER:
                 return 4
-            elif layer_type == self.layer_types.SymbolLayer:
+            elif layer_type == LayerType.SYMBOL_LAYER:
                 return 5
-            elif layer_type == self.layer_types.MeasureLayer:
+            elif layer_type == LayerType.MEASURE_LAYER:
                 return 6
-            elif layer_type == self.layer_types.AssemblyLayer:
+            elif layer_type == LayerType.ASSEMBLY_LAYER:
                 return 8
-            elif layer_type == self.layer_types.SilkscreenLayer:
+            elif layer_type == LayerType.SILKSCREEN_LAYER:
                 return 9
-            elif layer_type == self.layer_types.SolderMaskLayer:
+            elif layer_type == LayerType.SOLDER_MASK_LAYER:
                 return 10
-            elif layer_type == self.layer_types.SolderPasteLayer:
+            elif layer_type == LayerType.SOLDER_PASTE_LAYER:
                 return 11
-            elif layer_type == self.layer_types.GlueLayer:
+            elif layer_type == LayerType.GLUE_LAYER:
                 return 12
-            elif layer_type == self.layer_types.WirebondLayer:
+            elif layer_type == LayerType.WIREBOND_LAYER:
                 return 13
-            elif layer_type == self.layer_types.UserLayer:
+            elif layer_type == LayerType.USER_LAYER:
                 return 14
-            elif layer_type == self.layer_types.SIwaveHFSSSolverRegions:
+            elif layer_type == LayerType.SIWAVE_HFSS_SOLVER_REGIONS:
                 return 16
-            elif layer_type == self.layer_types.OutlineLayer:
+            elif layer_type == LayerType.OUTLINE_LAYER:
                 return 18
         elif isinstance(layer_type, int):
             return layer_type
 
     @stackup_mode.setter
     def stackup_mode(self, value):
-        if value == 0 or value == self.layer_collection_mode.Laminate:
-            self.layer_collection.SetMode(self.layer_collection_mode.Laminate)
-        elif value == 1 or value == self.layer_collection_mode.Overlapping:
-            self.layer_collection.SetMode(self.layer_collection_mode.Overlapping)
-        elif value == 2 or value == self.layer_collection_mode.MultiZone:
-            self.layer_collection.SetMode(self.layer_collection_mode.MultiZone)
+        if value == 0 or value == LayerCollectionMode.LAMINATE:
+            self.layer_collection.mode = LayerCollectionMode.LAMINATE
+        elif value == 1 or value == LayerCollectionMode.OVERLAPPING:
+            self.layer_collection.mode = LayerCollectionMode.OVERLAPPING
+        elif value == 2 or value == LayerCollectionMode.MULTIZONE:
+            self.layer_collection.mode = LayerCollectionMode.MULTIZONE
 
     @pyaedt_function_handler()
     def _update_edb_objects(self):
         self._edb_object = OrderedDict({})
         layers = self.edb_layers
         for i in range(len(layers)):
-            self._edb_object[layers[i].GetName()] = EDBLayer(layers[i], self)
+            self._edb_object[layers[i].name] = EDBLayer(layers[i], self)
         return True
 
     @pyaedt_function_handler()
     def _update_stackup(self):
-        self._active_layout.SetLayerCollection(self.edb_layer_collection)
+        self._active_layout.layer_collection = self.edb_layer_collection
         self._update_edb_objects()
         return True
 
@@ -944,14 +890,11 @@ class EDBLayers(object):
             Layer Object for stackup layers.
         """
 
-        new_layer = self._edb.Cell.StackupLayer(
-            layer_name,
-            self._int_to_layer_types(layerType),
-            self._get_edb_value(0),
-            self._get_edb_value(0),
-            "",
-        )
-        edb_layer = EDBLayer(new_layer.Clone(), self._pedbstackup)
+        new_layer = StackupLayer()
+        new_layer.name = layer_name
+        new_layer.type = layerType
+
+        edb_layer = EDBLayer(new_layer, self._pedbstackup)
         new_layer = edb_layer.update_layer_vals(
             layer_name,
             new_layer,
@@ -961,9 +904,9 @@ class EDBLayers(object):
             thickness,
             negative_layer,
             roughness_enabled,
-            self._int_to_layer_types(layerType),
+            layerType,
         )
-        self.edb_layer_collection.AddLayerAbove(new_layer, base_layer)
+        self.edb_layer_collection.add_layer_above(new_layer, base_layer)
         self._edb_object[layer_name] = edb_layer
         self._update_stackup()
         return self.layers[layer_name]
@@ -976,7 +919,7 @@ class EDBLayers(object):
         material="copper",
         fillMaterial="",
         thickness="35um",
-        layerType=0,
+        layerType=LayerType.SIGNAL_LAYER,
         negative_layer=False,
         roughness_enabled=False,
         etchMap=None,
@@ -1021,28 +964,24 @@ class EDBLayers(object):
         :class:`pyaedt.edb_grpc.core.edb_data.layer_data.EDBLayer`
             Layer Object for stackup layers. Boolean otherwise (True in case of success).
         """
-        thisLC = self._pedbstackup._active_layout.GetLayerCollection()
-        layers = list(list(thisLC.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
+        layers = self._active_layout.layer_collection.get_layers(LayerTypeSet.ALL_LAYER_SET)
         layers.reverse()
         el = 0.0
-        lcNew = self._edb.Cell.LayerCollection()
-
+        lc = self._active_layout.layer_collectionp.clone()
         if not layers or not start_layer:
             if int(layerType) > 2:
-                newLayer = self._edb.Cell.Layer(layerName, self._int_to_layer_types(layerType))
-                lcNew.AddLayerTop(newLayer)
+                # need to explicit declaration conflict with EDB StackupLayer
+                new_layer = StackupLayer()
+                new_layer.type = layerType
+                lc.add_layer_top(new_layer)
             else:
-                newLayer = self._edb.Cell.StackupLayer(
+                new_layer = StackupLayer()
+                new_layer.name = layerName
+                new_layer.type = layerType
+                self._edb_object[layerName] = EDBLayer(new_layer, self._pedbstackup)
+                new_layer = self._edb_object[layerName].update_layer_vals(
                     layerName,
-                    self._int_to_layer_types(layerType),
-                    self._get_edb_value(0),
-                    self._get_edb_value(0),
-                    "",
-                )
-                self._edb_object[layerName] = EDBLayer(newLayer.Clone(), self._pedbstackup)
-                newLayer = self._edb_object[layerName].update_layer_vals(
-                    layerName,
-                    newLayer,
+                    new_layer,
                     etchMap,
                     material,
                     fillMaterial,
@@ -1051,41 +990,36 @@ class EDBLayers(object):
                     roughness_enabled,
                     self._int_to_layer_types(layerType),
                 )
-                newLayer.SetLowerElevation(self._get_edb_value(el))
-
-                lcNew.AddLayerTop(newLayer)
-                el += newLayer.GetThickness()
+                new_layer.lower_elevation = el
+                lc.add_layer_top(new_layer)
+                el += new_layer.thickness
             for lyr in layers:
-                if not lyr.IsStackupLayer():
+                if not lyr.is_stackup:
                     continue
-                newLayer = lyr.Clone()
-                newLayer.SetLowerElevation(self._get_edb_value(el))
-                el += newLayer.GetThickness()
-                lcNew.AddLayerTop(newLayer)
+                new_layer = lyr.clone()
+                new_layer.lower_elevation = el
+                el += new_layer.thickness
+                lc.add_layer_top(new_layer)
             for lyr in layers:
-                if not lyr.IsStackupLayer():
-                    lcNew.AddLayerTop(lyr.Clone())
+                if not lyr.is_stackup:
+                    lc.add_layer_top(lyr.clone())
                     continue
         else:
             for lyr in layers:
-                if not lyr.IsStackupLayer():
+                if not lyr.is_stackup:
                     continue
-                if lyr.GetName() == start_layer:
-                    original_layer = lyr.Clone()
-                    original_layer.SetLowerElevation(self._get_edb_value(el))
-                    lcNew.AddLayerTop(original_layer)
-                    el += original_layer.GetThickness()
-                    newLayer = self._edb.Cell.StackupLayer(
+                if lyr.name == start_layer:
+                    original_layer = lyr.clone()
+                    original_layer.lower_elevation = el
+                    lc.add_layer_top(original_layer)
+                    el += original_layer.thickness
+                    new_layer = StackupLayer()
+                    new_layer.name = layerName
+                    new_layer.type = layerType
+                    self._edb_object[layerName] = EDBLayer(new_layer, self._pedbstackup)
+                    new_layer = self._edb_object[layerName].update_layer_vals(
                         layerName,
-                        self._int_to_layer_types(layerType),
-                        self._get_edb_value(0),
-                        self._get_edb_value(0),
-                        "",
-                    )
-                    self._edb_object[layerName] = EDBLayer(newLayer.Clone(), self._pedbstackup)
-                    newLayer = self._edb_object[layerName].update_layer_vals(
-                        layerName,
-                        newLayer,
+                        new_layer,
                         etchMap,
                         material,
                         fillMaterial,
@@ -1094,26 +1028,21 @@ class EDBLayers(object):
                         roughness_enabled,
                         self._int_to_layer_types(layerType),
                     )
-                    newLayer.SetLowerElevation(self._get_edb_value(el))
-                    lcNew.AddLayerTop(newLayer)
-                    el += newLayer.GetThickness()
-                    # newLayers.Add(original_layer)
+                    new_layer.lower_elevation = el
+                    lc.add_layer_top(new_layer)
+                    el += new_layer.thickness
                 else:
-                    newLayer = lyr.Clone()
-                    newLayer.SetLowerElevation(self._get_edb_value(el))
-                    el += newLayer.GetThickness()
-                    lcNew.AddLayerTop(newLayer)
+                    new_layer = lyr.clone()
+                    new_layer.lower_elevation = el
+                    el += new_layer.thickness
+                    lc.add_layer_top(new_layer)
             for lyr in layers:
-                if not lyr.IsStackupLayer():
-                    lcNew.AddLayerTop(lyr.Clone())
+                if not lyr.is_stackup:
+                    lc.add_layer_top(lyr.clone())
                     continue
-        if not self._active_layout.SetLayerCollection(lcNew):
-            self._logger.error("Failed to set new layers when updating the stackup information.")
-            return False
+        self._active_layout.layer_collection = lc
         self._update_edb_objects()
-        allLayers = [
-            i.GetName() for i in list(list(self.layer_collection.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
-        ]
+        allLayers = self.layer_collection.get_layers(LayerTypeSet.ALL_LAYER_SET)
         if layerName in self.layers:
             return self.layers[layerName]
         elif layerName in allLayers:
@@ -1129,11 +1058,11 @@ class EDBLayers(object):
         bool
             "True" if succeeded.
         """
-        outlineLayer = self._edb.Cell.Layer.FindByName(self._active_layout.GetLayerCollection(), outline_name)
-        if outlineLayer.IsNull():
+        outline_layer = self._active_layout.layer_collection.find_by_name(outline_name)
+        if not outline_layer:
             return self.add_layer(
                 outline_name,
-                layerType=self.layer_types.OutlineLayer,
+                layerType=LayerType.OUTLINE_LAYER,
                 material="",
                 thickness="",
             )
@@ -1154,25 +1083,17 @@ class EDBLayers(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        thisLC = self._edb.Cell.LayerCollection(self._pedbstackup._active_layout.GetLayerCollection())
-        layers = list(list(thisLC.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
+        lc = self._active_layout.layer_collection.clone()
+        layers = lc.get_layers(LayerTypeSet.ALL_LAYER_SET)
         layers.reverse()
-        newLayers = List[self._edb.Cell.Layer]()
         el = 0.0
         for lyr in layers:
-            if not lyr.IsStackupLayer():
-                newLayers.Add(lyr.Clone())
-                continue
-            if not (layername == lyr.GetName()):
-                newLayer = lyr.Clone()
-                newLayer = self._edb_object[lyr.GetName()].set_elevation(newLayer, el)
-                el += newLayer.GetThickness()
-                newLayers.Add(newLayer)
-        lcNew = self._edb.Cell.LayerCollection()
-        newLayers.Reverse()
-        if not lcNew.AddLayers(newLayers) or not self._pedbstackup._active_layout.SetLayerCollection(lcNew):
-            self._logger.error("Failed to set new layers when updating the stackup information.")
-            return False
+            if lyr.is_stackup:
+                if not (layername == lyr.name):
+                    new_layer = lyr.clone()
+                    new_layer = self._edb_object[lyr.GetName()].set_elevation(new_layer, el)
+                    el += new_layer.thickness
+        self._pedbstackup._active_layout.layer_collection = lc
         self._update_edb_objects()
         return True
 
@@ -1213,7 +1134,7 @@ class LayerEdbClass(object):
             Lower elevation.
         """
         try:
-            self._lower_elevation = self._edb_layer.GetLowerElevation()
+            self._lower_elevation = self._edb_layer.lower_elevation
         except:
             pass
         return self._lower_elevation
@@ -1221,7 +1142,7 @@ class LayerEdbClass(object):
     @lower_elevation.setter
     def lower_elevation(self, value):
         layer_clone = self._edb_layer
-        layer_clone.SetLowerElevation(self._pclass._edb_value(value))
+        layer_clone.lower_elevation = value
         self._pclass._set_layout_stackup(layer_clone, "change_attribute")
 
     @property
@@ -1234,7 +1155,7 @@ class LayerEdbClass(object):
             Upper elevation.
         """
         try:
-            self._upper_elevation = self._edb_layer.GetUpperElevation()
+            self._upper_elevation = self._edb_layer.upper_elevation
         except:
             pass
         return self._upper_elevation
@@ -1246,8 +1167,8 @@ class LayerEdbClass(object):
     @property
     def _edb_layer(self):
         for l in self._pclass._edb_layer_list:
-            if l.GetName() == self._name:
-                return l.Clone()
+            if l.name == self._name:
+                return l.clone()
 
     @property
     def is_stackup_layer(self):
@@ -1258,7 +1179,7 @@ class LayerEdbClass(object):
         bool
             True if this layer is a stackup layer, False otherwise.
         """
-        return self._edb_layer.IsStackupLayer()
+        return self._edb_layer.is_stackup
 
     @property
     def is_negative(self):
@@ -1269,12 +1190,12 @@ class LayerEdbClass(object):
         bool
             True if this layer is a negative layer, False otherwise.
         """
-        return self._edb_layer.GetNegative()
+        return self._edb_layer.is_negative
 
     @is_negative.setter
     def is_negative(self, value):
         layer_clone = self._edb_layer
-        layer_clone.SetNegative(value)
+        layer_clone.is_negative = value
         self._pclass._set_layout_stackup(layer_clone, "change_attribute")
 
     @property
@@ -1286,13 +1207,13 @@ class LayerEdbClass(object):
         tuple
             RGB.
         """
-        layer_color = self._edb_layer.GetColor()
-        return layer_color.Item1, layer_color.Item2, layer_color.Item3
+        layer_color = self._edb_layer.color
+        return layer_color[0], layer_color[1], layer_color[2]
 
     @color.setter
     def color(self, rgb):
         layer_clone = self._edb_layer
-        layer_clone.SetColor(*rgb)
+        layer_clone.color = rgb
         self._pclass._set_layout_stackup(layer_clone, "change_attribute")
         self._color = rgb
 
@@ -1305,12 +1226,12 @@ class LayerEdbClass(object):
         int
             An integer between 0 and 100 with 0 being fully opaque and 100 being fully transparent.
         """
-        return self._edb_layer.GetTransparency()
+        return self._edb_layer.transparency
 
     @transparency.setter
     def transparency(self, trans):
         layer_clone = self._edb_layer
-        layer_clone.SetTransparency(trans)
+        layer_clone.transparency = trans
         self._pclass._set_layout_stackup(layer_clone, "change_attribute")
 
     @property
@@ -1321,29 +1242,29 @@ class LayerEdbClass(object):
         -------
         str
         """
-        return self._edb_layer.GetName()
+        return self._edb_layer.name
 
     @name.setter
     def name(self, name):
         layer_clone = self._edb_layer
-        layer_clone.SetName(name)
+        layer_clone.name = name
         self._pclass._set_layout_stackup(layer_clone, "change_name", self._name)
         self._name = name
 
     @property
     def type(self):
         """Retrieve type of the layer."""
-        return re.sub(r"Layer$", "", self._edb_layer.GetLayerType().ToString()).lower()
+        return self._edb_layer.type
 
     @type.setter
     def type(self, new_type):
         if new_type == self.type:
             return
         if new_type == "signal":
-            self._edb_layer.SetLayerType(self._edb.Cell.LayerType.SignalLayer)
+            self._edb_layer.type = LayerType.SIGNAL_LAYER
             self._type = new_type
         elif new_type == "dielectric":
-            self._edb_layer.SetLayerType(self._edb.Cell.LayerType.DielectricLayer)
+            self._edb_layer.type = LayerType.DIELECTRIC_LAYER
             self._type = new_type
         else:
             return
@@ -1356,12 +1277,12 @@ class LayerEdbClass(object):
         -------
         float
         """
-        return self._edb_layer.GetMaterial()
+        return self._edb_layer.get_material()
 
     @material.setter
     def material(self, name):
         layer_clone = self._edb_layer
-        layer_clone.SetMaterial(name)
+        layer_clone.set_material(name)
         self._pclass._set_layout_stackup(layer_clone, "change_attribute")
         self._material = name
 
@@ -1409,7 +1330,7 @@ class LayerEdbClass(object):
     def dielectric_fill(self):
         """Retrieve material name of the layer dielectric fill."""
         if self.type == "signal":
-            self._dielectric_fill = self._edb_layer.GetFillMaterial()
+            self._dielectric_fill = self._edb_layer.get_fill_material()
             return self._dielectric_fill
         else:
             return
@@ -1418,7 +1339,7 @@ class LayerEdbClass(object):
     def dielectric_fill(self, name):
         if self.type == "signal":
             layer_clone = self._edb_layer
-            layer_clone.SetFillMaterial(name)
+            layer_clone.set_fill_material(name)
             self._pclass._set_layout_stackup(layer_clone, "change_attribute")
             self._dielectric_fill = name
         else:
@@ -1434,7 +1355,7 @@ class LayerEdbClass(object):
         """
         if not self.is_stackup_layer:  # pragma: no cover
             return
-        self._thickness = self._edb_layer.GetThicknessValue().ToDouble()
+        self._thickness = self._edb_layer.thickness
         return self._thickness
 
     @thickness.setter
@@ -1442,7 +1363,7 @@ class LayerEdbClass(object):
         if not self.is_stackup_layer:  # pragma: no cover
             return
         layer_clone = self._edb_layer
-        layer_clone.SetThickness(self._pclass._edb_value(value))
+        layer_clone.thickness = value
         self._pclass._set_layout_stackup(layer_clone, "change_attribute")
         self._thickness = value
 
@@ -1454,7 +1375,7 @@ class LayerEdbClass(object):
         -------
         float
         """
-        self._etch_factor = self._edb_layer.GetEtchFactor().ToDouble()
+        self._etch_factor = self._edb_layer.etch_factor
         return self._etch_factor
 
     @etch_factor.setter
@@ -1463,11 +1384,11 @@ class LayerEdbClass(object):
             return
         if not value:
             layer_clone = self._edb_layer
-            layer_clone.SetEtchFactorEnabled(False)
+            layer_clone.etch_factor_enabled = False
         else:
             layer_clone = self._edb_layer
-            layer_clone.SetEtchFactorEnabled(True)
-            layer_clone.SetEtchFactor(self._pclass._edb_value(value))
+            layer_clone.etch_factor_enabled = True
+            layer_clone.etch_factor = value
         self._pclass._set_layout_stackup(layer_clone, "change_attribute")
         self._etch_factor = value
 
@@ -1481,7 +1402,7 @@ class LayerEdbClass(object):
         """
         if not self.is_stackup_layer:  # pragma: no cover
             return
-        self._roughness_enabled = self._edb_layer.IsRoughnessEnabled()
+        self._roughness_enabled = self._edb_layer.roughness_enabled
         return self._roughness_enabled
 
     @roughness_enabled.setter
@@ -1491,85 +1412,109 @@ class LayerEdbClass(object):
         self._roughness_enabled = set_enable
         if set_enable:
             layer_clone = self._edb_layer
-            layer_clone.SetRoughnessEnabled(True)
+            layer_clone.roughness_enabled = True
             self._pclass._set_layout_stackup(layer_clone, "change_attribute")
             self.assign_roughness_model()
         else:
             layer_clone = self._edb_layer
-            layer_clone.SetRoughnessEnabled(False)
+            layer_clone.roughness_enabled = False
             self._pclass._set_layout_stackup(layer_clone, "change_attribute")
 
     @property
     def top_hallhuray_nodule_radius(self):
         """Retrieve huray model nodule radius on top of the conductor."""
-        top_roughness_model = self.get_roughness_model("top")
-        if top_roughness_model:
-            self._top_hallhuray_nodule_radius = top_roughness_model.NoduleRadius.ToDouble()
-        return self._top_hallhuray_nodule_radius
+        # to do
+        # top_roughness_model = self.get_roughness_model("top")
+        # if top_roughness_model:
+        #     self._top_hallhuray_nodule_radius = top_roughness_model.NoduleRadius.ToDouble()
+        # return self._top_hallhuray_nodule_radius
+        pass
 
     @top_hallhuray_nodule_radius.setter
     def top_hallhuray_nodule_radius(self, value):
-        self._top_hallhuray_nodule_radius = value
+        # to do
+        # self._top_hallhuray_nodule_radius = value
+        pass
 
     @property
     def top_hallhuray_surface_ratio(self):
         """Retrieve huray model surface ratio on top of the conductor."""
-        top_roughness_model = self.get_roughness_model("top")
-        if top_roughness_model:
-            self._top_hallhuray_surface_ratio = top_roughness_model.SurfaceRatio.ToDouble()
-        return self._top_hallhuray_surface_ratio
+        # to do
+        # top_roughness_model = self.get_roughness_model("top")
+        # if top_roughness_model:
+        #     self._top_hallhuray_surface_ratio = top_roughness_model.SurfaceRatio.ToDouble()
+        # return self._top_hallhuray_surface_ratio
+        pass
 
     @top_hallhuray_surface_ratio.setter
     def top_hallhuray_surface_ratio(self, value):
-        self._top_hallhuray_surface_ratio = value
+        # to do
+        # self._top_hallhuray_surface_ratio = value
+        pass
 
     @property
     def bottom_hallhuray_nodule_radius(self):
         """Retrieve huray model nodule radius on bottom of the conductor."""
-        bottom_roughness_model = self.get_roughness_model("bottom")
-        if bottom_roughness_model:
-            self._bottom_hallhuray_nodule_radius = bottom_roughness_model.NoduleRadius.ToDouble()
-        return self._bottom_hallhuray_nodule_radius
+        # to do
+        # bottom_roughness_model = self.get_roughness_model("bottom")
+        # if bottom_roughness_model:
+        #     self._bottom_hallhuray_nodule_radius = bottom_roughness_model.NoduleRadius.ToDouble()
+        # return self._bottom_hallhuray_nodule_radius
+        pass
 
     @bottom_hallhuray_nodule_radius.setter
     def bottom_hallhuray_nodule_radius(self, value):
-        self._bottom_hallhuray_nodule_radius = value
+        # to do
+        # self._bottom_hallhuray_nodule_radius = value
+        pass
 
     @property
     def bottom_hallhuray_surface_ratio(self):
         """Retrieve huray model surface ratio on bottom of the conductor."""
-        bottom_roughness_model = self.get_roughness_model("bottom")
-        if bottom_roughness_model:
-            self._bottom_hallhuray_surface_ratio = bottom_roughness_model.SurfaceRatio.ToDouble()
-        return self._bottom_hallhuray_surface_ratio
+        # to do
+        # bottom_roughness_model = self.get_roughness_model("bottom")
+        # if bottom_roughness_model:
+        #     self._bottom_hallhuray_surface_ratio = bottom_roughness_model.SurfaceRatio.ToDouble()
+        # return self._bottom_hallhuray_surface_ratio
+        pass
 
     @bottom_hallhuray_surface_ratio.setter
     def bottom_hallhuray_surface_ratio(self, value):
-        self._bottom_hallhuray_surface_ratio = value
+        # to do
+        # self._bottom_hallhuray_surface_ratio = value
+        pass
 
     @property
     def side_hallhuray_nodule_radius(self):
         """Retrieve huray model nodule radius on sides of the conductor."""
-        side_roughness_model = self.get_roughness_model("side")
-        if side_roughness_model:
-            self._side_hallhuray_nodule_radius = side_roughness_model.NoduleRadius.ToDouble()
-        return self._side_hallhuray_nodule_radius
+        # to do
+        # side_roughness_model = self.get_roughness_model("side")
+        # if side_roughness_model:
+        #     self._side_hallhuray_nodule_radius = side_roughness_model.NoduleRadius.ToDouble()
+        # return self._side_hallhuray_nodule_radius
+        pass
 
     @side_hallhuray_nodule_radius.setter
     def side_hallhuray_nodule_radius(self, value):
-        self._side_hallhuray_nodule_radius = value
+        # to do
+        # self._side_hallhuray_nodule_radius = value
+        pass
 
     @property
     def side_hallhuray_surface_ratio(self):
         """Retrieve huray model surface ratio on sides of the conductor."""
-        side_roughness_model = self.get_roughness_model("side")
-        if side_roughness_model:
-            self._side_hallhuray_surface_ratio = side_roughness_model.SurfaceRatio.ToDouble()
-        return self._side_hallhuray_surface_ratio
+        #  to do
+        # side_roughness_model = self.get_roughness_model("side")
+        # if side_roughness_model:
+        #     self._side_hallhuray_surface_ratio = side_roughness_model.SurfaceRatio.ToDouble()
+        # return self._side_hallhuray_surface_ratio
+        pass
 
     @side_hallhuray_surface_ratio.setter
     def side_hallhuray_surface_ratio(self, value):
-        self._side_hallhuray_surface_ratio = value
+        # to do
+        # self._side_hallhuray_surface_ratio = value
+        pass
 
     @pyaedt_function_handler()
     def get_roughness_model(self, surface="top"):
@@ -1585,14 +1530,16 @@ class LayerEdbClass(object):
         ``"Ansys.Ansoft.Edb.Cell.RoughnessModel"``
 
         """
-        if not self.is_stackup_layer:  # pragma: no cover
-            return
-        if surface == "top":
-            return self._edb_layer.GetRoughnessModel(self._pclass._pedb.edb.Cell.RoughnessModel.Region.Top)
-        elif surface == "bottom":
-            return self._edb_layer.GetRoughnessModel(self._pclass._pedb.edb.Cell.RoughnessModel.Region.Bottom)
-        elif surface == "side":
-            return self._edb_layer.GetRoughnessModel(self._pclass._pedb.edb.Cell.RoughnessModel.Region.Side)
+        # to do
+        # if not self.is_stackup_layer:  # pragma: no cover
+        #     return
+        # if surface == "top":
+        #     return self._edb_layer.GetRoughnessModel(self._pclass._pedb.edb.Cell.RoughnessModel.Region.Top)
+        # elif surface == "bottom":
+        #     return self._edb_layer.GetRoughnessModel(self._pclass._pedb.edb.Cell.RoughnessModel.Region.Bottom)
+        # elif surface == "side":
+        #     return self._edb_layer.GetRoughnessModel(self._pclass._pedb.edb.Cell.RoughnessModel.Region.Side)
+        pass
 
     @pyaedt_function_handler()
     def assign_roughness_model(
@@ -1622,41 +1569,43 @@ class LayerEdbClass(object):
         -------
 
         """
-        if not self.is_stackup_layer:  # pragma: no cover
-            return
-
-        radius = self._pclass._edb_value(huray_radius)
-        self._hurray_nodule_radius = huray_radius
-        surface_ratio = self._pclass._edb_value(huray_surface_ratio)
-        self._hurray_surface_ratio = huray_surface_ratio
-        groisse_roughness = self._pclass._edb_value(groisse_roughness)
-        regions = []
-        if apply_on_surface == "all":
-            self._side_roughness = "all"
-            regions = [
-                self._pclass._pedb.edb.Cell.RoughnessModel.Region.Top,
-                self._pclass._pedb.edb.Cell.RoughnessModel.Region.Side,
-                self._pclass._pedb.edb.Cell.RoughnessModel.Region.Bottom,
-            ]
-        elif apply_on_surface == "top":
-            self._side_roughness = "top"
-            regions = [self._pclass._pedb.edb.Cell.RoughnessModel.Region.Top]
-        elif apply_on_surface == "bottom":
-            self._side_roughness = "bottom"
-            regions = [self._pclass._pedb.edb.Cell.RoughnessModel.Region.Bottom]
-        elif apply_on_surface == "side":
-            self._side_roughness = "side"
-            regions = [self._pclass._pedb.edb.Cell.RoughnessModel.Region.Side]
-
-        layer_clone = self._edb_layer
-        layer_clone.SetRoughnessEnabled(True)
-        for r in regions:
-            if model_type == "huray":
-                model = self._pclass._pedb.edb.Cell.HurrayRoughnessModel(radius, surface_ratio)
-            else:
-                model = self._pclass._pedb.edb.Cell.GroisseRoughnessModel(groisse_roughness)
-            layer_clone.SetRoughnessModel(r, model)
-        return self._pclass._set_layout_stackup(layer_clone, "change_attribute")
+        # to do
+        # if not self.is_stackup_layer:  # pragma: no cover
+        #     return
+        #
+        # radius = self._pclass._edb_value(huray_radius)
+        # self._hurray_nodule_radius = huray_radius
+        # surface_ratio = self._pclass._edb_value(huray_surface_ratio)
+        # self._hurray_surface_ratio = huray_surface_ratio
+        # groisse_roughness = self._pclass._edb_value(groisse_roughness)
+        # regions = []
+        # if apply_on_surface == "all":
+        #     self._side_roughness = "all"
+        #     regions = [
+        #         self._pclass._pedb.edb.Cell.RoughnessModel.Region.Top,
+        #         self._pclass._pedb.edb.Cell.RoughnessModel.Region.Side,
+        #         self._pclass._pedb.edb.Cell.RoughnessModel.Region.Bottom,
+        #     ]
+        # elif apply_on_surface == "top":
+        #     self._side_roughness = "top"
+        #     regions = [self._pclass._pedb.edb.Cell.RoughnessModel.Region.Top]
+        # elif apply_on_surface == "bottom":
+        #     self._side_roughness = "bottom"
+        #     regions = [self._pclass._pedb.edb.Cell.RoughnessModel.Region.Bottom]
+        # elif apply_on_surface == "side":
+        #     self._side_roughness = "side"
+        #     regions = [self._pclass._pedb.edb.Cell.RoughnessModel.Region.Side]
+        #
+        # layer_clone = self._edb_layer
+        # layer_clone.SetRoughnessEnabled(True)
+        # for r in regions:
+        #     if model_type == "huray":
+        #         model = self._pclass._pedb.edb.Cell.HurrayRoughnessModel(radius, surface_ratio)
+        #     else:
+        #         model = self._pclass._pedb.edb.Cell.GroisseRoughnessModel(groisse_roughness)
+        #     layer_clone.SetRoughnessModel(r, model)
+        # return self._pclass._set_layout_stackup(layer_clone, "change_attribute")
+        pass
 
     @pyaedt_function_handler()
     def _json_format(self):
