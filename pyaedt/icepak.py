@@ -3801,6 +3801,17 @@ class Icepak(FieldAnalysis3D):
 
         >>> oModule.AssignSourceBoundary
 
+        Examples
+        --------
+
+        >>> from pyaedt import Icepak
+        >>> app = Icepak()
+        >>> box = app.modeler.create_box([0, 0, 0], [20, 20, 20], name="box")
+        >>> ds = app.create_dataset1d_design("Test_DataSet", [1, 2, 3], [3, 4, 5])
+        >>> app.solution_type = "Transient"
+        >>> b = app.assign_source("box", "Total Power", assignment_value={"Type": "Temp Dep",
+        ... "Function": "Piecewise Linear", "Values": "Test_DataSet"})
+
         """
         default_values = {"Total Power": "0W", "Surface Heat": "0irrad_W_per_m2", "Temperature": "AmbientTemp"}
         if not boundary_name:
