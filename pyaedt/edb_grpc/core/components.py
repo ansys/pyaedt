@@ -162,7 +162,7 @@ class Components(object):
         Parameters
         ----------
         file_path : str
-            File path of json file.
+            File path of JSON file.
         """
         with codecs.open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
