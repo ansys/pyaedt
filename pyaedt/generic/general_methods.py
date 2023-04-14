@@ -99,6 +99,7 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     if message_to_print:
         _write_mes(message_to_print)
     _write_mes("Arguments with values: ")
+    args_name = []
     try:
         if int(sys.version[0]) > 2:
             args_name = list(OrderedDict.fromkeys(inspect.getfullargspec(func)[0] + list(kwargs.keys())))
@@ -112,8 +113,12 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
                 _write_mes("    {} = {} ".format(el, args_dict[el]))
     except:
         pass
-
-    _write_mes("Check Online documentation on: https://aedt.docs.pyansys.com/search.html?q={}".format(func.__name__))
+    args = [func.__name__] + [i for i in args_name if i not in ["self"]]
+    _write_mes(
+        "Check Online documentation on: https://aedt.docs.pyansys.com/version/stable/search.html?q={}".format(
+            "+".join(args)
+        )
+    )
 
 
 def _check_types(arg):
