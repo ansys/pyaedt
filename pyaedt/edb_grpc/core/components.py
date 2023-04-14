@@ -412,7 +412,7 @@ class Components(object):
 
     @pyaedt_function_handler()
     def get_component_list(self):
-        """Retrieve conponent setup information.
+        """Get component setup information.
 
         Returns
         -------
