@@ -157,7 +157,7 @@ class Components(object):
 
     @pyaedt_function_handler()
     def import_definition(self, file_path):
-        """Import component definition from json file.
+        """Import component definition from JSON file.
 
         Parameters
         ----------
