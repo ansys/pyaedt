@@ -1448,20 +1448,22 @@ class EDBPadstackInstance(object):
 
     @pyaedt_function_handler()
     def create_rectangle_in_pad(self, layer_name, return_points=False, partition_max_order=16):
-        """Create a rectangle inscribed inside a padstack instance pad. The rectangle is fully inscribed in the
-        pad and has the maximum area. It is necessary to specify the layer on which the rectangle will be created.
+        """Create a rectangle inscribed inside a padstack instance pad.
+        
+        The rectangle is fully inscribed in the pad and has the maximum area.
+        It is necessary to specify the layer to create the rectangle on.
 
         Parameters
         ----------
         layer_name : str
-            Name of the layer on which to create the polygon.
+            Name of the layer to create the polygon on.
 
         return_points : bool, optional
-            If `True` does not create the rectangle and just returns a list containing the rectangle vertices.
-            Default is `False`.
+            Whether to return only a list containing the rectangle vertices. The default is ``False``,
+            in which case a list is returned and the rectangle is created.
         partition_max_order : float, optional
-            Order of the lattice partition used to find the quasi-lattice polygon that approximates ``polygon``.
-            Default is ``16``.
+            Order of the lattice partition for finding the quasi-lattice polygon that approximates
+            a polygon. The default is ``16``.
 
         Returns
         -------
