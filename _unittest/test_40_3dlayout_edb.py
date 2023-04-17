@@ -39,7 +39,10 @@ class TestClass(BasisTest, object):
         self.target_path = os.path.join(self.local_scratch.path, "Package_test_40.aedb")
         self.local_scratch.copyfolder(example_project, self.target_path)
         self.package_file = self.local_scratch.copyfile(src_file, dest_file)
-        self.dcir_example_project = os.path.join(local_path, "example_models", test_subfolder, "Galileo_22r2_dcir.aedt")
+
+        self.dcir_example_project = BasisTest.add_app(
+            self, project_name="Galileo_22r2_dcir.aedt", application=Hfss3dLayout, subfolder=test_subfolder
+        )
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -326,24 +329,23 @@ class TestClass(BasisTest, object):
     def test_19_dcir(self):
         import pandas as pd
 
-        lock = self.dcir_example_project + ".lock"
-        if os.path.isfile(lock):
-            os.remove(lock)
-        hfss3d = Hfss3dLayout(self.dcir_example_project, "Galileo_G87173_204", specified_version=desktop_version)
-
-        hfss3d.analyze()
-        assert hfss3d.get_dcir_solution_data("Siwave_DC_WP9QNY", "RL", "Path Resistance")
-        assert hfss3d.get_dcir_solution_data("Siwave_DC_WP9QNY", "Vias", "Current")
-        solution_data = hfss3d.get_dcir_solution_data("Siwave_DC_WP9QNY", "Sources", "Voltage")
-        assert hfss3d.post.available_report_quantities(is_siwave_dc=True, context="")
-        assert hfss3d.post.create_report(
-            hfss3d.post.available_report_quantities(is_siwave_dc=True, context="RL")[0],
+        self.dcir_example_project.analyze()
+        assert self.dcir_example_project.get_dcir_solution_data("Siwave_DC_WP9QNY", "RL", "Path Resistance")
+        assert self.dcir_example_project.get_dcir_solution_data("Siwave_DC_WP9QNY", "Vias", "Current")
+        solution_data = self.dcir_example_project.get_dcir_solution_data("Siwave_DC_WP9QNY", "Sources", "Voltage")
+        assert self.dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="")
+        assert self.dcir_example_project.post.create_report(
+            self.dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="RL")[0],
             setup_sweep_name="Siwave_DC_WP9QNY",
             domain="DCIR",
             context="RL",
         )
-        assert isinstance(hfss3d.get_dcir_element_data_loop_resistance("Siwave_DC_WP9QNY"), pd.DataFrame)
-        assert isinstance(hfss3d.get_dcir_element_data_current_source("Siwave_DC_WP9QNY"), pd.DataFrame)
+        assert isinstance(
+            self.dcir_example_project.get_dcir_element_data_loop_resistance("Siwave_DC_WP9QNY"), pd.DataFrame
+        )
+        assert isinstance(
+            self.dcir_example_project.get_dcir_element_data_current_source("Siwave_DC_WP9QNY"), pd.DataFrame
+        )
 
     def test_20_change_options(self):
         assert self.aedtapp.change_options()
