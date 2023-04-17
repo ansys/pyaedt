@@ -41,7 +41,7 @@ class TestClass(BasisTest, object):
         self.package_file = self.local_scratch.copyfile(src_file, dest_file)
 
         self.dcir_example_project = BasisTest.add_app(
-            self, project_name="Galileo_22r2_dcir.aedt", application=Hfss3dLayout, subfolder=test_subfolder
+            self, project_name="Galileo_22r2_dcir", application=Hfss3dLayout, subfolder=test_subfolder
         )
 
     def teardown_class(self):
