@@ -39,9 +39,13 @@ class SimulationConfigurationBatch(object):
         self._coplanar_instances = []
         self._signal_layer_etching_instances = []
         self._etching_factor_instances = []
+        self._use_dielectric_extent_multiple = True
         self._dielectric_extent = 0.01
+        self._use_airbox_horizontal_multiple = True
         self._airbox_horizontal_extent = 0.04
+        self._use_airbox_negative_vertical_extent_multiple = True
         self._airbox_negative_vertical_extent = 0.1
+        self._use_airbox_positive_vertical_extent_multiple = True
         self._airbox_positive_vertical_extent = 0.1
         self._honor_user_dielectric = False
         self._truncate_airbox_at_ground = False
@@ -115,6 +119,23 @@ class SimulationConfigurationBatch(object):
             self._dielectric_extent = value
 
     @property
+    def use_dielectric_extent_multiple(self):
+        """Retrieve the dielectric extent multiple value.
+
+        Returns
+        -------
+            bool
+            Multiple value, ``True```will use multiple e.g. extent factor, ``False`` will use absolute dimension.
+            Default value is ``True``.
+        """
+        return self._use_dielectric_extent_multiple
+
+    @use_dielectric_extent_multiple.setter
+    def use_dielectric_extent_multiple(self, value):
+        if isinstance(value, bool):
+            self._use_dielectric_extent_multiple = value
+
+    @property
     def airbox_horizontal_extent(self):  # pragma: no cover
         """Retrieve the air box horizontal extent size for HFSS.
 
@@ -129,6 +150,24 @@ class SimulationConfigurationBatch(object):
     def airbox_horizontal_extent(self, value):  # pragma: no cover
         if isinstance(value, (int, float)):
             self._airbox_horizontal_extent = value
+
+    @property
+    def use_airbox_horizontal_extent_multiple(self):
+        """Retrieve the air box horizontal extent multiple value.
+
+        Returns
+        -------
+            bool
+            Multiple value, ``True```will use multiple e.g. extent factor, ``False`` will use absolute dimension.
+            Default value is ``True``.
+
+        """
+        return self._use_airbox_horizontal_multiple
+
+    @use_airbox_horizontal_extent_multiple.setter
+    def use_airbox_horizontal_extent_multiple(self, value):
+        if isinstance(value, bool):
+            self._use_airbox_horizontal_multiple = value
 
     @property
     def airbox_negative_vertical_extent(self):  # pragma: no cover
@@ -147,6 +186,24 @@ class SimulationConfigurationBatch(object):
             self._airbox_negative_vertical_extent = value
 
     @property
+    def use_airbox_negative_vertical_extent_multiple(self):
+        """Retrieve the air box negative extent multiple value.
+
+        Returns
+        -------
+            bool
+            Multiple value, ``True```will use multiple e.g. extent factor, ``False`` will use absolute dimension.
+            Default value is ``True``.
+
+        """
+        return self._use_airbox_negative_vertical_extent_multiple
+
+    @use_airbox_negative_vertical_extent_multiple.setter
+    def use_airbox_negative_vertical_extent_multiple(self, value):
+        if isinstance(value, bool):
+            self._use_airbox_negative_vertical_extent_multiple = value
+
+    @property
     def airbox_positive_vertical_extent(self):  # pragma: no cover
         """Retrieve the air box positive vertical extent size for HFSS.
 
@@ -161,6 +218,23 @@ class SimulationConfigurationBatch(object):
     def airbox_positive_vertical_extent(self, value):  # pragma: no cover
         if isinstance(value, (int, float)):
             self._airbox_positive_vertical_extent = value
+
+    @property
+    def use_airbox_positive_vertical_extent_multiple(self):
+        """Retrieve the air box positive extent multiple value.
+
+        Returns
+        -------
+            bool
+            Multiple value, ``True```will use multiple e.g. extent factor, ``False`` will use absolute dimension.
+            Default value is ``True``.
+        """
+        return self._use_airbox_positive_vertical_extent_multiple
+
+    @use_airbox_positive_vertical_extent_multiple.setter
+    def use_airbox_positive_vertical_extent_multiple(self, value):
+        if isinstance(value, bool):
+            self._use_airbox_positive_vertical_extent_multiple = value
 
     @property
     def use_default_cutout(self):  # pragma: no cover
