@@ -691,10 +691,11 @@ class Desktop(object):
         self._main.oDesktop.RestoreWindow()
         self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
         self._main.pyaedt_initialized = True
-        try:
-            settings.enable_desktop_logs = not self._main.oDesktop.GetIsNonGraphical()
-        except AttributeError:
-            settings.enable_desktop_logs = not non_graphical
+        if non_graphical or self._main.oDesktop.GetIsNonGraphical():
+            try:
+                settings.enable_desktop_logs = not self._main.oDesktop.GetIsNonGraphical()
+            except AttributeError:
+                settings.enable_desktop_logs = not non_graphical
 
     def _set_version(self, specified_version, student_version):
         student_version_flag = False
