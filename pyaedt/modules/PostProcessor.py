@@ -1204,7 +1204,7 @@ class PostProcessorCommon(object):
         return self.export_report_to_file(project_dir, plot_name, extension=".csv")
 
     @pyaedt_function_handler()
-    def export_report_to_jpg(self, project_dir, plot_name):
+    def export_report_to_jpg(self, project_dir, plot_name, width=0, height=0):
         """Export the SParameter plot to a JPG file.
 
         Parameters
@@ -1213,6 +1213,10 @@ class PostProcessorCommon(object):
             Path to the project directory.
         plot_name : str
             Name of the plot to export.
+        width : int, optional
+            Image width. Default is ``0`` which takes Desktop size or 500 pixel in case of non-graphical mode.
+        height : int, optional
+            Image height. Default is ``0`` which takes Desktop size or 500 pixel in case of non-graphical mode.
 
         Returns
         -------
@@ -1227,7 +1231,12 @@ class PostProcessorCommon(object):
         # path
         npath = project_dir
         file_name = os.path.join(npath, plot_name + ".jpg")  # name of the image file
-        self.oreportsetup.ExportImageToFile(plot_name, file_name, 0, 0)
+        if settings.non_graphical:
+            if width == 0:
+                width = 500
+            if height == 0:
+                height = 500
+        self.oreportsetup.ExportImageToFile(plot_name, file_name, width, height)
         return True
 
     @pyaedt_function_handler()
@@ -3158,6 +3167,11 @@ class PostProcessor(PostProcessorCommon, object):
                 height = 1080
             self.oeditor.ExportImage(full_name, width, height)
         else:
+            if settings.non_graphical:
+                if width == 0:
+                    width = 500
+                if height == 0:
+                    height = 500
             self.oeditor.ExportModelImageToFile(full_name, width, height, arg)
         return full_name
 
