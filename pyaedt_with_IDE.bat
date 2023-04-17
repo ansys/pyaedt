@@ -138,13 +138,13 @@ if [%install_pyaedt%]==[y] (
 		if %version% geq 231 pip uninstall -y pywin32
 	)
 
-	call python "%pyaedt_install_dir%\Lib\site-packages\pyaedt\misc\aedtlib_personalib_install.py" %version%
+	call python "%pyaedt_install_dir%\Lib\site-packages\pyaedt\misc\aedtlib_personalib_install.py" --version=%version%
 )
 if [%update_pyaedt%]==[y] (
 	echo Updating PyAEDT.
 	"%pyaedt_install_dir%\Scripts\pip" install pythonnet  -U
 	"%pyaedt_install_dir%\Scripts\pip" install pyaedt --no-deps -U
-	call "%pyaedt_install_dir%\Scripts\python" "%pyaedt_install_dir%\Lib\site-packages\pyaedt\misc\aedtlib_personalib_install.py" %version%
+	call "%pyaedt_install_dir%\Scripts\python" "%pyaedt_install_dir%\Lib\site-packages\pyaedt\misc\aedtlib_personalib_install.py" --version=%version%
 
 )
 

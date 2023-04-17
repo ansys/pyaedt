@@ -29,16 +29,17 @@ Post issues
 Use the `PyAEDT Issues <https://github.com/pyansys/pyaedt/issues>`_
 page to submit questions, report bugs, and request new features.
 
-To reach the support team, email `pyansys.support@ansys.com <pyansys.support@ansys.com>`_.
+To reach the product support team, email `pyansys.core@ansys.com <pyansys.core@ansys.com>`_.
 
 View PyAEDT documentation
 -------------------------
 Documentation for the latest stable release of PyAEDT is hosted at
 `PyAEDT Documentation <https://aedt.docs.pyansys.com>`_.  
 
-Documentation for the latest development version, which tracks the
-``main`` branch, is hosted at  `Development PyAEDT Documentation <https://aedt.docs.pyansys.com/dev/>`_.
-This version is automatically kept up to date via GitHub actions.
+In the upper right corner of the documentation's title bar, there is an option
+for switching from viewing the documentation for the latest stable release
+to viewing the documentation for the development version or previously
+released versions.
 
 Adhere to code style
 --------------------

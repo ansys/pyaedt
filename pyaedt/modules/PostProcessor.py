@@ -3331,10 +3331,10 @@ class PostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-        units : str
-            Output power units.
-        temperature : float
-            Temperature to calculate the power.
+        units : str, optional
+            Output power units. The default is ``"W"``.
+        temperature : float, optional
+            Temperature to calculate the power. The default is ``22``.
 
         Returns
         -------
@@ -3626,7 +3626,6 @@ class PostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-
         max_frequency : str, optional
             Maximum Frequency. Default is ``"1GHz"``.
         ray_density : int, optional
@@ -3674,7 +3673,6 @@ class PostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-
         max_frequency : str, optional
             Maximum Frequency. Default is ``"1GHz"``.
         ray_density : int, optional
@@ -3729,7 +3727,6 @@ class PostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-
         max_frequency : str, optional
             Maximum Frequency. Default is ``"1GHz"``.
         ray_density : int, optional
