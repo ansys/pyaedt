@@ -461,9 +461,13 @@ class Edb(object):
         """
         if init_dlls:
             self._init_dlls()
-        self.logger.info("EDB Path %s", self.edbpath)
-        self.logger.info("EDB Version %s", self.edbversion)
+        self.logger.info("EDB Path is %s", self.edbpath)
+        self.logger.info("EDB Version is %s", self.edbversion)
+        if self.edbversion > "2023.1":
+            self.standalone = False
+
         self.edb.Database.SetRunAsStandAlone(self.standalone)
+
         self.logger.info("EDB Standalone %s", self.standalone)
         try:
             db = self.edb.Database.Open(self.edbpath, self.isreadonly)
@@ -558,6 +562,8 @@ class Edb(object):
         """
         if init_dlls:
             self._init_dlls()
+        if self.edbversion > "2023.1":
+            self.standalone = False
         self.edb.Database.SetRunAsStandAlone(self.standalone)
         db = self.edb.Database.Create(self.edbpath)
         if not db:
