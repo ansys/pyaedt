@@ -162,7 +162,6 @@ class Edb(object):
             self.isaedtowned = isaedtowned
             self._init_dlls()
             self._db = None
-            # self._edb.Database.SetRunAsStandAlone(not isaedtowned)
             self.isreadonly = isreadonly
             self.cellname = cellname
             if not edbpath:
@@ -463,8 +462,8 @@ class Edb(object):
             self._init_dlls()
         self.logger.info("EDB Path is %s", self.edbpath)
         self.logger.info("EDB Version is %s", self.edbversion)
-        if self.edbversion > "2023.1":
-            self.standalone = False
+        # if self.edbversion > "2023.1":
+        #     self.standalone = False
 
         self.edb.Database.SetRunAsStandAlone(self.standalone)
 
@@ -562,8 +561,8 @@ class Edb(object):
         """
         if init_dlls:
             self._init_dlls()
-        if self.edbversion > "2023.1":
-            self.standalone = False
+        # if self.edbversion > "2023.1":
+        #     self.standalone = False
         self.edb.Database.SetRunAsStandAlone(self.standalone)
         db = self.edb.Database.Create(self.edbpath)
         if not db:

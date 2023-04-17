@@ -330,6 +330,8 @@ class TestClass(BasisTest, object):
         if os.path.isfile(lock):
             os.remove(lock)
         hfss3d = Hfss3dLayout(self.dcir_example_project, "Galileo_G87173_204", specified_version=desktop_version)
+
+        hfss3d.analyze()
         assert hfss3d.get_dcir_solution_data("Siwave_DC_WP9QNY", "RL", "Path Resistance")
         assert hfss3d.get_dcir_solution_data("Siwave_DC_WP9QNY", "Vias", "Current")
         solution_data = hfss3d.get_dcir_solution_data("Siwave_DC_WP9QNY", "Sources", "Voltage")
