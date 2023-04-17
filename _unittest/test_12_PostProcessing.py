@@ -646,6 +646,11 @@ class TestClass(BasisTest, object):
         path = self.aedtapp.post.export_model_picture()
         assert path
 
+    @pytest.mark.skipif(not ipython_available, reason="plot_scene method is not supported in ironpython")
+    def test_13B_display(self):
+        img = self.aedtapp.post.nb_display(show_axis=True, show_grid=True, show_ruler=True)
+        assert isinstance(img, Image)
+
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_14_Field_Ploton_cutplanedesignname(self):
         cutlist = ["Global:XY"]
@@ -839,11 +844,6 @@ class TestClass(BasisTest, object):
             assert True
         else:
             assert self.field_test.post.get_efields_data(ff_setup="3D")
-
-    @pytest.mark.skipif(not ipython_available, reason="plot_scene method is not supported in ironpython")
-    def test_52_display(self):
-        img = self.aedtapp.post.nb_display(show_axis=True, show_grid=True, show_ruler=True)
-        assert isinstance(img, Image)
 
     def test_53_line_plot(self):
         udp1 = [0, 0, 0]
