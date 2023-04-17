@@ -840,6 +840,7 @@ class TestClass(BasisTest, object):
         else:
             assert self.field_test.post.get_efields_data(ff_setup="3D")
 
+    @pytest.mark.skipif(not ipython_available, reason="plot_scene method is not supported in ironpython")
     def test_52_display(self):
         img = self.aedtapp.post.nb_display(show_axis=True, show_grid=True, show_ruler=True)
         assert isinstance(img, Image)
