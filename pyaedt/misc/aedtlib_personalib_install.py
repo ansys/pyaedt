@@ -1,3 +1,4 @@
+import argparse
 import os
 import shutil
 import sys
@@ -20,18 +21,61 @@ is_windows = not is_linux
 pid = 0
 
 
+def main():
+    args = parse_arguments()
+    add_pyaedt_to_aedt(
+        args.version, is_student_version=args.student, use_sys_lib=args.sys_lib, new_desktop_session=args.new_session
+    )
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Install PyAEDT and setup PyAEDT toolkits in AEDT.")
+    parser.add_argument(
+        "--version", "-v", default="231", metavar="XY.Z", help="AEDT three-digit version (e.g. 231). Default=231"
+    )
+    parser.add_argument(
+        "--student", "--student_version", action="store_true", help="Install toolkits for AEDT Student Version."
+    )
+    parser.add_argument("--sys_lib", "--syslib", action="store_true", help="Install toolkits in SysLib.")
+    parser.add_argument(
+        "--new_session", action="store_true", help="Start a new session of AEDT after installing PyAEDT."
+    )
+
+    args = parser.parse_args()
+    args = process_arguments(args, parser)
+    return args
+
+
+def process_arguments(args, parser):
+    if len(args.version) != 3:
+        parser.print_help()
+        parser.error("Version should be a three digit number (e.g. 231)")
+
+    args.version = "20" + args.version[-3:-1] + "." + args.version[-1:]
+    return args
+
+
 def add_pyaedt_to_aedt(aedt_version, is_student_version=False, use_sys_lib=False, new_desktop_session=False):
     from pyaedt import Desktop
+    from pyaedt.generic.general_methods import grpc_active_sessions
 
+    sessions = grpc_active_sessions(aedt_version, is_student_version)
+    if not sessions:
+        if not new_desktop_session:
+            print("Launching a new AEDT desktop session.")
+        new_desktop_session = True
     with Desktop(
-        aedt_version, new_desktop_session, new_desktop_session=new_desktop_session, student_version=is_student_version
+        specified_version=aedt_version,
+        non_graphical=new_desktop_session,
+        new_desktop_session=new_desktop_session,
+        student_version=is_student_version,
     ) as d:
         desktop = sys.modules["__main__"].oDesktop
         pers1 = os.path.join(desktop.GetPersonalLibDirectory(), "pyaedt")
         pid = desktop.GetProcessID()
         # Linking pyaedt in PersonalLib for IronPython compatibility.
         if os.path.exists(pers1):
-            d.logger.info("PersonalLib already mapped")
+            d.logger.info("PersonalLib already mapped.")
         else:
             if is_windows:
                 os.system('mklink /D "{}" "{}"'.format(pers1, pyaedt_path))
@@ -60,16 +104,16 @@ def add_pyaedt_to_aedt(aedt_version, is_student_version=False, use_sys_lib=False
                 try:
                     sys_dir = os.path.join(d.syslib, "Toolkits")
                     install_toolkit(sys_dir, product, aedt_version)
-                    d.logger.info("Installed toolkit for {} in sys lib".format(product))
+                    d.logger.info("Installed toolkit for {} in sys lib.".format(product))
 
                 except IOError:
                     pers_dir = os.path.join(d.personallib, "Toolkits")
                     install_toolkit(pers_dir, product, aedt_version)
-                    d.logger.info("Installed toolkit for {} in personal lib".format(product))
+                    d.logger.info("Installed toolkit for {} in personal lib.".format(product))
             else:
                 pers_dir = os.path.join(d.personallib, "Toolkits")
                 install_toolkit(pers_dir, product, aedt_version)
-                d.logger.info("Installed toolkit for {} in personal lib".format(product))
+                d.logger.info("Installed toolkit for {} in personal lib.".format(product))
     if pid and new_desktop_session:
         try:
             os.kill(pid, 9)
@@ -189,19 +233,4 @@ def exe():
 
 
 if __name__ == "__main__":
-    student_version = False
-    if len(sys.argv) < 2:
-        version = "2022.2"
-    elif sys.argv[1].endswith("sv"):
-        v = sys.argv[1][:-2]
-        version = "20" + v[-3:-1] + "." + v[-1:]
-        student_version = True
-    else:
-        v = sys.argv[1]
-        version = "20" + v[-3:-1] + "." + v[-1:]
-    sys_lib = True
-    if len(sys.argv) >= 3:
-        sys_lib = True if sys.argv[2] == "1" else False
-    if len(sys.argv) == 4:
-        new_session = True if sys.argv[3] == "1" else False
-    add_pyaedt_to_aedt(version, student_version, sys_lib)
+    main()

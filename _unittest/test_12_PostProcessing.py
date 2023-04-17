@@ -1060,7 +1060,7 @@ class TestClass(BasisTest, object):
             os.path.join(local_path, "example_models", "report_json", "Modal_Report.json")
         )
 
-    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="FarFieldSolution not supported by Ironpython")
+    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="FarFieldSolution not supported by IronPython")
     def test_71_antenna_plot(self):
         ffdata = self.field_test.get_antenna_ffd_solution_data(frequencies=30e9, sphere_name="3D")
         ffdata.phase_offset = [0, 90, 0, 90]
@@ -1113,7 +1113,7 @@ class TestClass(BasisTest, object):
         p = ffdata.polar_plot_3d_pyvista(qty_str="RealizedGain", convert_to_db=True, show=False)
         assert isinstance(p, object)
 
-    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="FarFieldSolution not supported by Ironpython")
+    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="FarFieldSolution not supported by IronPython")
     def test_72_antenna_plot(self):
         ffdata = self.array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere_name="3D")
         ffdata.frequency = 3.5e9

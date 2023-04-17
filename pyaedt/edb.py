@@ -563,6 +563,7 @@ class Edb(object):
             self._init_dlls()
         # if self.edbversion > "2023.1":
         #     self.standalone = False
+
         self.edb.Database.SetRunAsStandAlone(self.standalone)
         db = self.edb.Database.Create(self.edbpath)
         if not db:
