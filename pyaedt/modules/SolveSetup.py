@@ -2629,6 +2629,10 @@ class SetupMaxwell(Setup, object):
             self._app.logger.error("Control Program file does not exist.")
             return False
 
+        if not isinstance(control_program_args, str):
+            self._app.logger.error("Control Program arguments have to be a string.")
+            return False
+
         self.props = copy.deepcopy(MaxwellTransient)
         self.props["UseControlProgram"] = True
         self.props["ControlProgramName"] = control_program_path

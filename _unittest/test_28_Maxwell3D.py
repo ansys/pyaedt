@@ -841,6 +841,9 @@ class TestClass(BasisTest, object):
         assert self.m2d_ctrl_prg.setups[0].enable_control_program(
             control_program_path=ctrl_prg_path, control_program_args="3"
         )
+        assert not self.m2d_ctrl_prg.setups[0].enable_control_program(
+            control_program_path=ctrl_prg_path, control_program_args=3
+        )
         assert self.m2d_ctrl_prg.setups[0].enable_control_program(
             control_program_path=ctrl_prg_path, call_after_last_step=True
         )
