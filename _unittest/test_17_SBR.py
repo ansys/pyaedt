@@ -1,6 +1,11 @@
 import os
 import sys
 
+try:
+    import osmnx
+except ImportError:
+    pass
+
 from _unittest.conftest import BasisTest
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
@@ -47,6 +52,9 @@ class TestClass(BasisTest, object):
         self.source = Hfss(self.aedtapp.project_name, "feeder", specified_version=desktop_version)
         self.sbr_platform = BasisTest.add_app(self, project_name=sbr_platform, subfolder=test_subfolder)
         self.array = BasisTest.add_app(self, project_name=array, subfolder=test_subfolder)
+        if not is_ironpython and not is_linux:
+            # this should be changed upstream to use a HOME or TEMP folder by default...
+            osmnx.settings.cache_folder = os.path.join(self.local_scratch.path, "cache")
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
