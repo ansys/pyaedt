@@ -749,7 +749,7 @@ class TestClass(BasisTest, object):
             f.writelines("PowerNets = ['GND']\n")
             f.writelines("Components = ['U2A5', 'U1B5']")
         sim_config = SimulationConfiguration(cfg_file)
-        assert Edb(target_path).build_simulation_project(sim_config)
+        assert Edb(target_path, edbversion=desktop_version).build_simulation_project(sim_config)
 
     @pytest.mark.skipif(is_ironpython or is_linux, reason="Not supported in IPY")
     def test_16_solve(self):
@@ -882,7 +882,7 @@ class TestClass(BasisTest, object):
                         assert (pedb_lay.side_hallhuray_nodule_radius - layer["side_hallhuray_nodule_radius"]) < delta
                         assert (pedb_lay.side_hallhuray_surface_ratio - layer["side_hallhuray_surface_ratio"]) < delta
         edbapp.close_edb()
-        edbapp = Edb()
+        edbapp = Edb(edbversion=desktop_version)
         json_path = os.path.join(local_path, "example_models", test_subfolder, "test_mat2.json")
         assert edbapp.stackup.import_stackup(json_path)
         assert "SOLDER" in edbapp.stackup.stackup_layers
