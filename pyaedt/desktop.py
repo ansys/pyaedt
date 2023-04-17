@@ -573,6 +573,7 @@ class Desktop(object):
         settings.machine = self.machine
         settings.port = self.port
         self.aedt_process_id = self.odesktop.GetProcessID()  # bit of cleanup for consistency if used in future
+        self._logger.info("AEDT %s Build Date %s", self.odesktop.GetVersion(), self.odesktop.GetBuildDateTimeString())
 
         if _com == "ironpython":
             sys.path.append(

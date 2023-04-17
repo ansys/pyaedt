@@ -212,7 +212,7 @@ class TestClass(BasisTest, object):
 
         assert self.aedtapp.export_touchstone(setup_name, sweep_name)
 
-    # @pytest.mark.skipif(config["NonGraphical"] == True, reason="Not running in non-graphical mode")
+    @pytest.mark.skipif(config["desktopVersion"] != "2023.1", reason="Not running in non-graphical mode")
     def test_05_export_report_to_jpg(self):
         self.aedtapp.post.export_report_to_jpg(self.local_scratch.path, "MyTestScattering")
         assert os.path.exists(os.path.join(self.local_scratch.path, "MyTestScattering.jpg"))
@@ -638,9 +638,6 @@ class TestClass(BasisTest, object):
     def test_12_steal_on_focus(self):
         assert self.aedtapp.post.steal_focus_oneditor()
 
-    # @pytest.mark.skipif(
-    #     config["NonGraphical"], reason="Skipped because it cannot run on build machine in non-graphical mode"
-    # )
     def test_13_export_model_picture(self):
         path = self.aedtapp.post.export_model_picture(full_name=os.path.join(self.local_scratch.path, "images1.jpg"))
         assert path
@@ -843,8 +840,6 @@ class TestClass(BasisTest, object):
         else:
             assert self.field_test.post.get_efields_data(ff_setup="3D")
 
-    # @pytest.mark.skipif(config["NonGraphical"] or not ipython_available,
-    # reason="Skipped because ipython not available")
     def test_52_display(self):
         img = self.aedtapp.post.nb_display(show_axis=True, show_grid=True, show_ruler=True)
         assert isinstance(img, Image)
