@@ -40,9 +40,9 @@ class SimulationConfigurationBatch(object):
         self._signal_layer_etching_instances = []
         self._etching_factor_instances = []
         self._use_dielectric_extent_multiple = True
-        self._dielectric_extent = 0.01
+        self._dielectric_extent = 0.001
         self._use_airbox_horizontal_multiple = True
-        self._airbox_horizontal_extent = 0.04
+        self._airbox_horizontal_extent = 0.1
         self._use_airbox_negative_vertical_extent_multiple = True
         self._airbox_negative_vertical_extent = 0.1
         self._use_airbox_positive_vertical_extent_multiple = True
@@ -109,7 +109,7 @@ class SimulationConfigurationBatch(object):
         Returns
         -------
             float
-            Value of the dielectric extent.
+            Value of the dielectric extent. When using absolute dimension, values must be entered in meter.
         """
         return self._dielectric_extent
 
@@ -137,7 +137,8 @@ class SimulationConfigurationBatch(object):
 
     @property
     def airbox_horizontal_extent(self):  # pragma: no cover
-        """Retrieve the air box horizontal extent size for HFSS.
+        """Retrieve the air box horizontal extent size for HFSS. When using absolute dimension,
+        values must be entered in meter.
 
         Returns
         -------
@@ -171,7 +172,8 @@ class SimulationConfigurationBatch(object):
 
     @property
     def airbox_negative_vertical_extent(self):  # pragma: no cover
-        """Retrieve the air box negative vertical extent size for HFSS.
+        """Retrieve the air box negative vertical extent size for HFSS. When using absolute dimension,
+        values must be entered in meter.
 
         Returns
         -------
@@ -205,7 +207,8 @@ class SimulationConfigurationBatch(object):
 
     @property
     def airbox_positive_vertical_extent(self):  # pragma: no cover
-        """Retrieve the air box positive vertical extent size for HFSS.
+        """Retrieve the air box positive vertical extent size for HFSS. When using absolute dimension,
+        values must be entered in meter.
 
         Returns
         -------
