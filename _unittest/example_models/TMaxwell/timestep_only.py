@@ -1,8 +1,3 @@
-###########################
-# Control program example #
-# 06.05.2021 Irene Woyna  #
-###########################
-
 import math
 import os.path
 
