@@ -259,8 +259,7 @@ class TestClass(BasisTest, object):
         assert position == (0.0, 0.0, 0.0)
 
     @pytest.mark.skipif(
-        not (sys.version_info.major == 3 and sys.version_info.minor == 7)
-        or config["desktopVersion"] <= "2023.1"
+        config["desktopVersion"] <= "2023.1"
         or is_ironpython,
         reason="Skipped on versions earlier than 2023.2",
     )
@@ -300,8 +299,8 @@ class TestClass(BasisTest, object):
             ant4.move_and_connect_to(rad5)
         assert len(self.aedtapp.results.revisions) == 2
         # validate notes can be get/set
-        rev2.set_notes("Added Bluetooth and an antenna")
-        notes = rev2.get_notes()
+        rev2.notes = "Added Bluetooth and an antenna"
+        notes = rev2.notes
         assert rev2.name == "Revision 13"
         assert notes == "Added Bluetooth and an antenna"
         # get the initial revision
@@ -322,8 +321,7 @@ class TestClass(BasisTest, object):
         assert rev6.name == "Revision 16"
 
     @pytest.mark.skipif(
-        not (sys.version_info.major == 3 and sys.version_info.minor == 7)
-        or config["desktopVersion"] <= "2023.1"
+        config["desktopVersion"] <= "2023.1"
         or is_ironpython,
         reason="Skipped on versions earlier than 2023.2",
     )
@@ -396,8 +394,7 @@ class TestClass(BasisTest, object):
         assert len(rx_frequencies) == 79
 
     @pytest.mark.skipif(
-        not (sys.version_info.major == 3 and sys.version_info.minor == 7)
-        or config["desktopVersion"] <= "2023.1"
+        config["desktopVersion"] <= "2023.1"
         or is_ironpython,
         reason="Skipped on versions earlier than 2023.2",
     )
@@ -526,8 +523,7 @@ class TestClass(BasisTest, object):
         assert emitter.is_emitter()
 
     @pytest.mark.skipif(
-        not (sys.version_info.major == 3 and sys.version_info.minor == 7)
-        or config["desktopVersion"] <= "2023.1"
+        config["desktopVersion"] <= "2023.1"
         or is_ironpython,
         reason="Skipped on versions earlier than 2023.2",
     )
@@ -565,8 +561,7 @@ class TestClass(BasisTest, object):
             assert len(more_info) > len(less_info)
 
     @pytest.mark.skipif(
-        not (sys.version_info.major == 3 and sys.version_info.minor == 7)
-        or config["desktopVersion"] <= "2023.1"
+        config["desktopVersion"] <= "2023.1"
         or is_ironpython,
         reason="Skipped on versions earlier than 2023.2",
     )
@@ -576,8 +571,7 @@ class TestClass(BasisTest, object):
         assert str(type(testable_id)) == "<class 'EmitApiPython.InteractionDomain'>"
 
     @pytest.mark.skipif(
-        not (sys.version_info.major == 3 and sys.version_info.minor == 7)
-        or config["desktopVersion"] <= "2023.1"
+        config["desktopVersion"] <= "2023.1"
         or is_ironpython,
         reason="Skipped on versions earlier than 2023.2",
     )
@@ -628,8 +622,7 @@ class TestClass(BasisTest, object):
             assert not rev.is_domain_valid(domain)
 
     @pytest.mark.skipif(
-        not (sys.version_info.major == 3 and sys.version_info.minor == 7)
-        or config["desktopVersion"] <= "2023.1"
+        config["desktopVersion"] <= "2023.1"
         or is_ironpython,
         reason="Skipped on versions earlier than 2023.2",
     )
@@ -682,8 +675,7 @@ class TestClass(BasisTest, object):
         assert exception_raised
 
     @pytest.mark.skipif(
-        not (sys.version_info.major == 3 and sys.version_info.minor == 7)
-        or config["desktopVersion"] <= "2023.1"
+        config["desktopVersion"] <= "2023.1"
         or is_ironpython,
         reason="Skipped on versions earlier than 2023.2",
     )

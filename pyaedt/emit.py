@@ -151,7 +151,7 @@ class Emit(Design, object):
         )
         self._modeler = ModelerEmit(self)
         self._couplings = CouplingsEmit(self)
-        if self._aedt_version >= "2023.1" and sys.version_info.major == 3 and sys.version_info.minor == 7:
+        if self._aedt_version >= "2023.1":
             self._emit_api = EMIT_MODULE.EmitApi()
             """Instance of the Emit api."""
 
