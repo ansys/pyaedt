@@ -63,10 +63,26 @@ class Stackup(object):
 
     @property
     def thickness(self):
+        """Retrieve Stackup thickness
+
+        Returns
+        -------
+        float
+            Layout stackup thickness
+
+        """
         return self.get_layout_thickness()
 
     @property
     def num_layers(self):
+        """Retrieve the stackup layer number.
+
+        Returns
+        -------
+        int
+            layer number.
+
+        """
         return len(list(self.stackup_layers.keys()))
 
     @pyaedt_function_handler()
