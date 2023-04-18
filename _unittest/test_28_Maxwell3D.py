@@ -7,6 +7,7 @@ from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 
+from pyaedt import Maxwell2d
 from pyaedt import Maxwell3d
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name
@@ -25,6 +26,8 @@ else:
     core_loss_file = "PlanarTransformer"
 transient = "Transient_StrandedWindings"
 cyl_gap = "Motor3D_cyl_gap"
+ctrl_prg = "TimeStepCtrl"
+ctrl_prg_file = "timestep_only.py"
 
 
 class TestClass(BasisTest, object):
@@ -37,6 +40,9 @@ class TestClass(BasisTest, object):
             self, application=Maxwell3d, project_name=transient, subfolder=test_subfolder
         )
         self.cyl_gap = BasisTest.add_app(self, application=Maxwell3d, project_name=cyl_gap, subfolder=test_subfolder)
+        self.m2d_ctrl_prg = BasisTest.add_app(
+            self, application=Maxwell2d, project_name=ctrl_prg, subfolder=test_subfolder
+        )
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -750,7 +756,6 @@ class TestClass(BasisTest, object):
         assert self.m3dtransient.setups[0].add_mesh_link(
             design_name=self.m3dtransient.design_list[0], project_name=example_project_copy
         )
-        # Test the creation of the control program file
 
     def test_46_set_variable(self):
         self.aedtapp.variable_manager.set_variable("var_test", expression="123")
@@ -829,3 +834,20 @@ class TestClass(BasisTest, object):
         assert not self.cyl_gap.mesh.assign_cylindrical_gap(
             "Band", meshop_name="cyl_gap_test", clone_mesh=True, band_mapping_angle=2, static_side_layers=0
         )
+
+    def test_50_control_program(self):
+        ctrl_prg_path = os.path.join(local_path, "example_models", test_subfolder, ctrl_prg_file)
+        assert self.m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path)
+        assert self.m2d_ctrl_prg.setups[0].enable_control_program(
+            control_program_path=ctrl_prg_path, control_program_args="3"
+        )
+        assert not self.m2d_ctrl_prg.setups[0].enable_control_program(
+            control_program_path=ctrl_prg_path, control_program_args=3
+        )
+        assert self.m2d_ctrl_prg.setups[0].enable_control_program(
+            control_program_path=ctrl_prg_path, call_after_last_step=True
+        )
+        invalid_ctrl_prg_path = os.path.join(local_path, "example_models", test_subfolder, "invalid.py")
+        assert not self.m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=invalid_ctrl_prg_path)
+        self.m2d_ctrl_prg.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
+        assert not self.m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path)
