@@ -65,10 +65,12 @@ class TestClass(BasisTest, object):
         self.circuit_test = BasisTest.add_app(
             self, project_name=test_circuit_name, design_name="Diode", application=Circuit, subfolder=test_subfolder
         )
-        self.diff_test = Circuit(designname="diff", projectname=self.circuit_test.project_name)
+        self.diff_test = Circuit(
+            designname="diff", projectname=self.circuit_test.project_name, specified_version=config["desktopVersion"]
+        )
         self.sbr_test = BasisTest.add_app(self, project_name=sbr_file, subfolder=test_subfolder)
         self.q3dtest = BasisTest.add_app(self, project_name=q3d_file, application=Q3d, subfolder=test_subfolder)
-        self.q2dtest = Q2d(projectname=self.q3dtest.project_name)
+        self.q2dtest = Q2d(projectname=self.q3dtest.project_name, specified_version=config["desktopVersion"])
         self.eye_test = BasisTest.add_app(self, project_name=eye_diagram, application=Circuit, subfolder=test_subfolder)
         self.ami_test = BasisTest.add_app(self, project_name=ami, application=Circuit, subfolder=test_subfolder)
         self.array_test = BasisTest.add_app(self, project_name=array, subfolder=test_subfolder)
@@ -855,7 +857,7 @@ class TestClass(BasisTest, object):
 
     def test_54_reload(self):
         self.aedtapp.save_project()
-        app2 = Hfss(self.aedtapp.project_name)
+        app2 = Hfss(self.aedtapp.project_name, specified_version=config["desktopVersion"])
         assert len(app2.post.field_plots) == len(self.aedtapp.post.field_plots)
 
     @pytest.mark.skipif(
