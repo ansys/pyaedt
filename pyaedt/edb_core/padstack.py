@@ -571,12 +571,28 @@ class EdbPadstacks(object):
             padparams = self._edb.Definition.PadstackDefData(pin.GetPadstackDef().GetData()).GetPadParametersValue(
                 layername, self.int_to_pad_type(pad_type)
             )
-        geom_type = int(padparams[1])
-        parameters = [i.ToString() for i in padparams[2]]
-        offset_x = padparams[3].ToDouble()
-        offset_y = padparams[4].ToDouble()
-        rot = padparams[5].ToDouble()
-        return geom_type, parameters, offset_x, offset_y, rot
+        if padparams[2]:
+            geom_type = int(padparams[1])
+            parameters = [i.ToString() for i in padparams[2]]
+            offset_x = padparams[3].ToDouble()
+            offset_y = padparams[4].ToDouble()
+            rot = padparams[5].ToDouble()
+            return geom_type, parameters, offset_x, offset_y, rot
+        else:
+            padparams = self._edb.Definition.PadstackDefData(pin.GetPadstackDef().GetData()).GetPolygonalPadParameters(
+                layername, self.int_to_pad_type(pad_type)
+            )
+            parameters = [
+                padparams[1].GetBBox().Item1.X.ToDouble(),
+                padparams[1].GetBBox().Item1.Y.ToDouble(),
+                padparams[1].GetBBox().Item2.X.ToDouble(),
+                padparams[1].GetBBox().Item2.Y.ToDouble(),
+            ]
+            offset_x = padparams[2]
+            offset_y = padparams[3]
+            rot = padparams[4]
+            geom_type = 7
+            return geom_type, parameters, offset_x, offset_y, rot
 
     @pyaedt_function_handler
     def set_all_antipad_value(self, value):

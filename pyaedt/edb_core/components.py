@@ -804,8 +804,13 @@ class Components(object):
         pin_layers = cmp_pins[0].GetPadstackDef().GetData().GetLayerNames()
         if port_type == SourceType.CoaxPort:
             pad_params = self._padstack.get_pad_parameters(pin=cmp_pins[0], layername=pin_layers[0], pad_type=0)
-            sball_diam = min([self._pedb.edb_value(val).ToDouble() for val in pad_params[1]])
-            solder_ball_height = sball_diam
+            if not pad_params[0] == 7:
+                sball_diam = min([self._pedb.edb_value(val).ToDouble() for val in pad_params[1]])
+                solder_ball_height = sball_diam
+            else:
+                bbox = pad_params[1]
+                sball_diam = min([abs(bbox[2] - bbox[0]), abs(bbox[3] - bbox[1])]) * 0.8
+                solder_ball_height = sball_diam
             self.set_solder_ball(component, solder_ball_height, sball_diam)
             for pin in cmp_pins:
                 self._padstack.create_coax_port(pin)
