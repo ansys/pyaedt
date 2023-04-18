@@ -1359,7 +1359,7 @@ class TestClass(BasisTest, object):
         assert len(exported_files) > 0
 
     def test_52_crate_setup_hybrid_sbr(self):
-        aedtapp = Hfss(projectname="test_52")
+        aedtapp = Hfss(projectname="test_52", specified_version=desktop_version)
         udp = aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 200
         aedtapp.modeler.create_cylinder(aedtapp.AXIS.X, udp, 3, coax_dimension, 0, "inner")
@@ -1374,7 +1374,7 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(is_ironpython, reason="Method usese Pandas")
     def test_53_import_source_excitation(self):
-        aedtapp = Hfss(solution_type="Modal", projectname="test_53")
+        aedtapp = Hfss(solution_type="Modal", projectname="test_53", specified_version=desktop_version)
         freq_domain = os.path.join(local_path, "example_models", test_subfolder, "S Parameter Table 1.csv")
         time_domain = os.path.join(local_path, "example_models", test_subfolder, "Sinusoidal.csv")
 
@@ -1396,7 +1396,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.close_project(name=aedtapp.project_name, save_project=False)
 
     def test_54_assign_symmetry(self):
-        aedtapp = Hfss(projectname="test_54")
+        aedtapp = Hfss(projectname="test_54", specified_version=desktop_version)
         aedtapp.modeler.create_box([0, -100, 0], [200, 200, 200], name="SymmetryForFaces")
         ids = [i.id for i in aedtapp.modeler["SymmetryForFaces"].faces]
         assert aedtapp.assign_symmetry(ids)
