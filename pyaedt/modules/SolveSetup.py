@@ -2602,7 +2602,7 @@ class SetupMaxwell(Setup, object):
             Arguments to pass to control program.
             Default value is ``" "``.
         call_after_last_step : bool, optional
-            if ``True`` the control program is called after the simulation is completed.
+            If ``True`` the control program is called after the simulation is completed.
             Default value is ``False``.
 
         Returns
