@@ -976,7 +976,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.modeler.model_units = save_model_units
 
     def test_54b_open_and_load_a_polyline(self):
-        aedtapp = Hfss(self.test_54b_project)
+        aedtapp = Hfss(self.test_54b_project, specified_version=config["desktopVersion"])
         # self.aedtapp.load_project(self.test_54b_project)
 
         poly1 = aedtapp.modeler["Inductor1"]

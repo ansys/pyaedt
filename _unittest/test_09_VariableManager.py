@@ -4,6 +4,7 @@ from __future__ import division  # noreorder
 import math
 
 from _unittest.conftest import BasisTest
+from _unittest.conftest import desktop_version
 
 from pyaedt import MaxwellCircuit
 from pyaedt.application.Variables import Variable
@@ -392,7 +393,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.variable_manager["getvalue2"].numeric_value == 1.0
 
     def test_16_maxwell_circuit_variables(self):
-        mc = MaxwellCircuit()
+        mc = MaxwellCircuit(specified_version=desktop_version)
         mc["var2"] = "10mm"
         assert mc["var2"] == "10mm"
         v_circuit = mc.variable_manager
