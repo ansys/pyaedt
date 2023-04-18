@@ -795,7 +795,7 @@ class TestClass(BasisTest, object):
         edbapp.close_edb()
 
     def test_071_create_edb(self):
-        edb = Edb(os.path.join(self.local_scratch.path, "temp.aedb"))
+        edb = Edb(os.path.join(self.local_scratch.path, "temp.aedb"), edbversion=desktop_version)
         assert edb
         assert edb.active_layout
         edb.close_edb()
@@ -1345,7 +1345,7 @@ class TestClass(BasisTest, object):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "test_107.aedb")
         target_path = os.path.join(self.local_scratch.path, "test_113.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
-        edb = Edb(target_path)
+        edb = Edb(target_path, edbversion=desktop_version)
         initial_extent_info = edb.active_cell.GetHFSSExtentInfo()
         assert initial_extent_info.ExtentType == edb.edb.Utility.HFSSExtentInfoType.Conforming
         config = SimulationConfiguration()
@@ -1413,7 +1413,7 @@ class TestClass(BasisTest, object):
         if not os.path.exists(self.local_scratch.path):
             os.mkdir(self.local_scratch.path)
         self.local_scratch.copyfolder(source_path, target_path)
-        edb = Edb(target_path)
+        edb = Edb(target_path, edbversion=desktop_version)
         assert len(list(edb.active_cell.SimulationSetups)) == 0
         sim_config = SimulationConfiguration()
         sim_config.enforce_causality = False
@@ -1434,7 +1434,7 @@ class TestClass(BasisTest, object):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
         target_path = os.path.join(self.local_scratch.path, "test_0117.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
-        edb = Edb(target_path)
+        edb = Edb(target_path, edbversion=desktop_version)
         sim_setup = SimulationConfiguration()
         sim_setup.mesh_sizefactor = 1.9
         assert not sim_setup.do_lambda_refinement
@@ -2231,7 +2231,7 @@ class TestClass(BasisTest, object):
         assert len(self.edbapp.pins) > 0
 
     def test_130_create_padstack_instance(self):
-        edb = Edb()
+        edb = Edb(edbversion=desktop_version)
         edb.stackup.add_layer(layer_name="top", fillMaterial="AIR", thickness="30um")
         edb.stackup.add_layer(layer_name="contact", fillMaterial="AIR", thickness="100um", base_layer="top")
 
@@ -2336,3 +2336,14 @@ class TestClass(BasisTest, object):
         assert hfss_ext_info.AirBoxPositiveVerticalExtent.Item2
         assert hfss_ext_info.DielectricExtentSize.Item1 == 0.0005
         assert hfss_ext_info.AirBoxPositiveVerticalExtent.Item2
+
+    def test_133_stackup_properties(self):
+        edb = Edb(edbversion=desktop_version)
+        edb.stackup.add_layer(layer_name="gnd", fillMaterial="AIR", thickness="10um")
+        edb.stackup.add_layer(layer_name="diel1", fillMaterial="AIR", thickness="200um", base_layer="gnd")
+        edb.stackup.add_layer(layer_name="sig1", fillMaterial="AIR", thickness="10um", base_layer="diel1")
+        edb.stackup.add_layer(layer_name="diel2", fillMaterial="AIR", thickness="200um", base_layer="sig1")
+        edb.stackup.add_layer(layer_name="sig3", fillMaterial="AIR", thickness="10um", base_layer="diel2")
+        assert edb.stackup.thickness == 0.00043
+        assert edb.stackup.num_layers == 5
+

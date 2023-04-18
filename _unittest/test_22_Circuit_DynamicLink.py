@@ -65,7 +65,7 @@ class TestClass(BasisTest, object):
                         ).encode()
                         found = True
                 outf.write(line + b"\n")
-        self.aedtapp = Circuit(self.test_project)
+        self.aedtapp = Circuit(self.test_project, specified_version=desktop_version)
         self.aedtapps.append(self.aedtapp)
 
     def teardown_class(self):
@@ -88,7 +88,7 @@ class TestClass(BasisTest, object):
 
         assert len(pin_names) == 4
         assert "usb_P_pcb" in pin_names
-        hfss = Hfss(designname="uUSB", projectname=source_project_path)
+        hfss = Hfss(designname="uUSB", projectname=source_project_path, specified_version=desktop_version)
         hfss_comp = self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(hfss, comp_name="uUSB")
         assert hfss_comp.id == 87
         assert hfss_comp.composed_name == "CompInst@uUSB;87;3"

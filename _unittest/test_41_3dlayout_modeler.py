@@ -640,7 +640,9 @@ class TestClass(BasisTest, object):
     def test_37_import_gds(self):
         self.aedtapp.insert_design("gds")
         gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1.gds")
-        control_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1.tech")
+        control_file = self.local_scratch.copyfile(
+            os.path.join(local_path, "example_models", "cad", "GDS", "gds1.tech")
+        )
         aedb_file = os.path.join(self.local_scratch.path, "gds_out.aedb")
         assert self.aedtapp.import_gds(gds_file, aedb_path=aedb_file, control_file=control_file)
 
