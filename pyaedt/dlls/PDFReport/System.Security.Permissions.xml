@@ -1,0 +1,166 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>System.Security.Permissions</name>
+    </assembly>
+    <members>
+        <member name="P:System.SR.Argument_InvalidPermissionState">
+            <summary>Invalid permission state.</summary>
+        </member>
+        <member name="P:System.SR.Argument_NotAPermissionElement">
+            <summary>'elem' was not a permission element.</summary>
+        </member>
+        <member name="P:System.SR.Argument_InvalidXMLBadVersion">
+            <summary>Invalid Xml - can only parse elements of version one.</summary>
+        </member>
+        <member name="P:System.SR.Argument_WrongType">
+            <summary>Operation on type '{0}' attempted with target of incorrect type.</summary>
+        </member>
+        <member name="P:System.SR.HostProtection_ProtectedResources">
+            <summary>The protected resources (only available with full trust) were:</summary>
+        </member>
+        <member name="P:System.SR.HostProtection_DemandedResources">
+            <summary>The demanded resources were:</summary>
+        </member>
+        <member name="P:System.SR.Security_PrincipalPermission">
+            <summary>Request for principal permission failed.</summary>
+        </member>
+        <member name="P:System.SR.PlatformNotSupported_CAS">
+            <summary>Code Access Security is not supported on this platform.</summary>
+        </member>
+        <member name="T:System.Runtime.InteropServices.LibraryImportAttribute">
+            <summary>
+            Attribute used to indicate a source generator should create a function for marshalling
+            arguments instead of relying on the runtime to generate an equivalent marshalling function at run-time.
+            </summary>
+            <remarks>
+            This attribute is meaningless if the source generator associated with it is not enabled.
+            The current built-in source generator only supports C# and only supplies an implementation when
+            applied to static, partial, non-generic methods.
+            </remarks>
+        </member>
+        <member name="M:System.Runtime.InteropServices.LibraryImportAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Runtime.InteropServices.LibraryImportAttribute"/>.
+            </summary>
+            <param name="libraryName">Name of the library containing the import.</param>
+        </member>
+        <member name="P:System.Runtime.InteropServices.LibraryImportAttribute.LibraryName">
+            <summary>
+            Gets the name of the library containing the import.
+            </summary>
+        </member>
+        <member name="P:System.Runtime.InteropServices.LibraryImportAttribute.EntryPoint">
+            <summary>
+            Gets or sets the name of the entry point to be called.
+            </summary>
+        </member>
+        <member name="P:System.Runtime.InteropServices.LibraryImportAttribute.StringMarshalling">
+            <summary>
+            Gets or sets how to marshal string arguments to the method.
+            </summary>
+            <remarks>
+            If this field is set to a value other than <see cref="F:System.Runtime.InteropServices.StringMarshalling.Custom" />,
+            <see cref="P:System.Runtime.InteropServices.LibraryImportAttribute.StringMarshallingCustomType" /> must not be specified.
+            </remarks>
+        </member>
+        <member name="P:System.Runtime.InteropServices.LibraryImportAttribute.StringMarshallingCustomType">
+            <summary>
+            Gets or sets the <see cref="T:System.Type"/> used to control how string arguments to the method are marshalled.
+            </summary>
+            <remarks>
+            If this field is specified, <see cref="P:System.Runtime.InteropServices.LibraryImportAttribute.StringMarshalling" /> must not be specified
+            or must be set to <see cref="F:System.Runtime.InteropServices.StringMarshalling.Custom" />.
+            </remarks>
+        </member>
+        <member name="P:System.Runtime.InteropServices.LibraryImportAttribute.SetLastError">
+            <summary>
+            Gets or sets whether the callee sets an error (SetLastError on Windows or errno
+            on other platforms) before returning from the attributed method.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.InteropServices.StringMarshalling">
+            <summary>
+            Specifies how strings should be marshalled for generated p/invokes
+            </summary>
+        </member>
+        <member name="F:System.Runtime.InteropServices.StringMarshalling.Custom">
+            <summary>
+            Indicates the user is suppling a specific marshaller in <see cref="P:System.Runtime.InteropServices.LibraryImportAttribute.StringMarshallingCustomType"/>.
+            </summary>
+        </member>
+        <member name="F:System.Runtime.InteropServices.StringMarshalling.Utf8">
+            <summary>
+            Use the platform-provided UTF-8 marshaller.
+            </summary>
+        </member>
+        <member name="F:System.Runtime.InteropServices.StringMarshalling.Utf16">
+            <summary>
+            Use the platform-provided UTF-16 marshaller.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.Versioning.OSPlatformAttribute">
+            <summary>
+            Base type for all platform-specific API attributes.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.Versioning.TargetPlatformAttribute">
+            <summary>
+            Records the platform that the project targeted.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.Versioning.SupportedOSPlatformAttribute">
+             <summary>
+             Records the operating system (and minimum version) that supports an API. Multiple attributes can be
+             applied to indicate support on multiple operating systems.
+             </summary>
+             <remarks>
+             Callers can apply a <see cref="T:System.Runtime.Versioning.SupportedOSPlatformAttribute" />
+             or use guards to prevent calls to APIs on unsupported operating systems.
+            
+             A given platform should only be specified once.
+             </remarks>
+        </member>
+        <member name="T:System.Runtime.Versioning.UnsupportedOSPlatformAttribute">
+            <summary>
+            Marks APIs that were removed in a given operating system version.
+            </summary>
+            <remarks>
+            Primarily used by OS bindings to indicate APIs that are only available in
+            earlier versions.
+            </remarks>
+        </member>
+        <member name="T:System.Runtime.Versioning.ObsoletedOSPlatformAttribute">
+            <summary>
+            Marks APIs that were obsoleted in a given operating system version.
+            </summary>
+            <remarks>
+            Primarily used by OS bindings to indicate APIs that should not be used anymore.
+            </remarks>
+        </member>
+        <member name="T:System.Runtime.Versioning.SupportedOSPlatformGuardAttribute">
+             <summary>
+             Annotates a custom guard field, property or method with a supported platform name and optional version.
+             Multiple attributes can be applied to indicate guard for multiple supported platforms.
+             </summary>
+             <remarks>
+             Callers can apply a <see cref="T:System.Runtime.Versioning.SupportedOSPlatformGuardAttribute" /> to a field, property or method
+             and use that field, property or method in a conditional or assert statements in order to safely call platform specific APIs.
+            
+             The type of the field or property should be boolean, the method return type should be boolean in order to be used as platform guard.
+             </remarks>
+        </member>
+        <member name="T:System.Runtime.Versioning.UnsupportedOSPlatformGuardAttribute">
+             <summary>
+             Annotates the custom guard field, property or method with an unsupported platform name and optional version.
+             Multiple attributes can be applied to indicate guard for multiple unsupported platforms.
+             </summary>
+             <remarks>
+             Callers can apply a <see cref="T:System.Runtime.Versioning.UnsupportedOSPlatformGuardAttribute" /> to a field, property or method
+             and use that  field, property or method in a conditional or assert statements as a guard to safely call APIs unsupported on those platforms.
+            
+             The type of the field or property should be boolean, the method return type should be boolean in order to be used as platform guard.
+             </remarks>
+        </member>
+    </members>
+</doc>
