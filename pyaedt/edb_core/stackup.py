@@ -68,7 +68,7 @@ class Stackup(object):
         Returns
         -------
         float
-            Layout stackup thickness
+            Layout stackup thickness.
 
         """
         return self.get_layout_thickness()
