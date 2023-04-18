@@ -9,6 +9,7 @@ exclude: |
     (?x)(
         ^pyaedt/dlls/|
         ^pyaedt/rpc/|
+        ^pyaedt/sbrplus/matlab/|
         ^pyaedt/third_party/|
         pyaedt/conftest.py|
         _unittest/example_models/
@@ -46,6 +47,8 @@ repos:
   rev: v4.4.0
   hooks:
   - id: requirements-txt-fixer
+  - id: debug-statements
+  - id: trailing-whitespace
 
 # validate GitHub workflow files
 - repo: https://github.com/python-jsonschema/check-jsonschema
