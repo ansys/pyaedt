@@ -705,7 +705,7 @@ class TestClass(BasisTest, object):
         c.excitations["PortTest"].delete()
         assert len(c.excitation_objets) == 0
         self.aedtapp.save_project()
-        c = Circuit(designname="sources")
+        c = Circuit(designname="sources", specified_version=config["desktopVersion"])
         assert c.sources
 
     def test_41_set_variable(self):
