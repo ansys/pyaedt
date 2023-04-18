@@ -2614,7 +2614,7 @@ class SetupMaxwell(Setup, object):
         -----
         By default a control program script will be called by the pre-installed Python interpreter:
         ``<install_path>\Win64\commonfiles\CPython\37\winx64\Release\python\python.exe``.
-        However, the user can specify a custom python interpreter to be used by setting following environment variable:
+        However, the user can specify a custom Python interpreter to be used by setting following environment variable:
         ``EM_CTRL_PROG_PYTHON_PATH=<path_to\python.exe>``
 
         References
