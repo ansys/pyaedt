@@ -63,7 +63,7 @@ class Stackup(object):
 
     @property
     def thickness(self):
-        """Retrieve Stackup thickness
+        """Retrieve Stackup thickness.
 
         Returns
         -------
