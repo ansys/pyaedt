@@ -61,6 +61,14 @@ class Stackup(object):
         """
         return self._pedb.edb.Cell.LayerType
 
+    @property
+    def thickness(self):
+        return self.get_layout_thickness()
+
+    @property
+    def num_layers(self):
+        return len(list(self.stackup_layers.keys()))
+
     @pyaedt_function_handler()
     def _int_to_layer_types(self, val):
         if int(val) == 0:
@@ -1011,11 +1019,12 @@ class Stackup(object):
         float
             The thickness value.
         """
-        layers_name = list(self.stackup_layers.keys())
-        bottom_layer = self.stackup_layers[layers_name[0]]
-        top_layer = self.stackup_layers[layers_name[-1]]
-        thickness = top_layer.lower_elevation + top_layer.thickness - bottom_layer.lower_elevation
-        return thickness
+        layers = list(self.stackup_layers.values())
+        layers.sort(key=lambda lay: lay.lower_elevation)
+        top_layer = layers[-1]
+        bottom_layer = layers[0]
+        thickness = abs(top_layer.upper_elevation - bottom_layer.lower_elevation)
+        return round(thickness, 7)
 
     @pyaedt_function_handler()
     def _get_solder_height(self, layer_name):
