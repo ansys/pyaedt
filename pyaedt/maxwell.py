@@ -337,6 +337,9 @@ class Maxwell(object):
         """Configure the transient design setup to run a specific control program.
         The control program is executed from a temporary directory that Maxwell creates for every setup run.
 
+        .. deprecated:: 0.6.71
+        Use :func:`enable_control_program` method instead.
+
         Parameters
         ----------
         setupname : str

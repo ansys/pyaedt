@@ -162,7 +162,6 @@ class Edb(object):
             self.isaedtowned = isaedtowned
             self._init_dlls()
             self._db = None
-            # self._edb.Database.SetRunAsStandAlone(not isaedtowned)
             self.isreadonly = isreadonly
             self.cellname = cellname
             if not edbpath:
@@ -461,9 +460,13 @@ class Edb(object):
         """
         if init_dlls:
             self._init_dlls()
-        self.logger.info("EDB Path %s", self.edbpath)
-        self.logger.info("EDB Version %s", self.edbversion)
+        self.logger.info("EDB Path is %s", self.edbpath)
+        self.logger.info("EDB Version is %s", self.edbversion)
+        # if self.edbversion > "2023.1":
+        #     self.standalone = False
+
         self.edb.Database.SetRunAsStandAlone(self.standalone)
+
         self.logger.info("EDB Standalone %s", self.standalone)
         try:
             db = self.edb.Database.Open(self.edbpath, self.isreadonly)
@@ -558,6 +561,9 @@ class Edb(object):
         """
         if init_dlls:
             self._init_dlls()
+        # if self.edbversion > "2023.1":
+        #     self.standalone = False
+
         self.edb.Database.SetRunAsStandAlone(self.standalone)
         db = self.edb.Database.Create(self.edbpath)
         if not db:
@@ -1388,8 +1394,12 @@ class Edb(object):
                     _polys.extend(list(obj_data))
         if smart_cutout:
             _polys.extend(self._smart_cut(net_signals, reference_list, include_pingroups))
-        _poly = self.edb.Geometry.PolygonData.Unite(convert_py_list_to_net_list(_polys))[0]
-        return _poly
+        _poly_unite = list(self.edb.Geometry.PolygonData.Unite(convert_py_list_to_net_list(_polys)))
+        if len(_poly_unite) == 1:
+            return _poly_unite[0]
+        else:
+            areas = [i.Area() for i in _poly_unite]
+            return _poly_unite[areas.index(max(areas))]
 
     @pyaedt_function_handler()
     def _smart_cut(self, net_signals, reference_list=[], include_pingroups=True):
