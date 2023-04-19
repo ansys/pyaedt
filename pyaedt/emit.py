@@ -153,7 +153,7 @@ class Emit(Design, object):
         self._couplings = CouplingsEmit(self)
         if self._aedt_version >= "2023.1":
             self._emit_api = EMIT_MODULE.EmitApi()
-            """Instance of the Emit api."""
+            """Instance of the EMIT API."""
 
             self.results = Results(self)
             """''Result'' object for the selected design."""
