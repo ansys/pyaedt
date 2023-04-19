@@ -1162,7 +1162,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         Parameters
         ----------
         objects_list : list
-            Objects list to apply the segmentation to.
+            List of objects to apply the segmentation to.
             It can either be a list of strings (object names), int (object IDs) or
             list of :class:`pyaedt.modeler.cad.object3d.Object3d`.
         segmentation_thickness : float, optional
