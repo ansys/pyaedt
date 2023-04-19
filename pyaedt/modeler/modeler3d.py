@@ -1182,7 +1182,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             ``False`` is returned if the method fails.
         """
         if not segmentation_thickness and not segments_number:
-            self.logger.error("Provide at least one option to segment the objects list.")
+            self.logger.error("Provide at least one option to segment the objects in the list.")
             return False
         elif segmentation_thickness and segments_number:
             self.logger.error("Only one segmentation option can be selected.")
