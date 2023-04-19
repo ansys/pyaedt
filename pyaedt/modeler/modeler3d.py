@@ -11,7 +11,6 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.Modeler import GeometryModeler
 from pyaedt.modeler.cad.Primitives3D import Primitives3D
-from pyaedt.modeler.cad.object3d import Object3d
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
@@ -1166,7 +1165,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             It can either be a list of strings (object names), int (object IDs) or
             list of :class:`pyaedt.modeler.cad.object3d.Object3d`.
         segmentation_thickness : float, optional
-            Thickness segmentation.
+            Segmentation thickness.
             Model units are automatically assigned.
         segments_number : int, optional
             Number of segments to segment the object to.
@@ -1187,20 +1186,12 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             self.logger.error("Only one segmentation option can be selected.")
             return False
 
-        if not isinstance(objects_list, list):
-            objects_list = [objects_list]
-        objects = []
-        for obj in objects_list:
-            if isinstance(obj, str):
-                objects.append([x for x in self.object_list if x.name == obj][0])
-            elif isinstance(obj, int):
-                objects.append([x for x in self.object_list if x.id == obj][0])
-            elif isinstance(obj, Object3d):
-                objects.append(obj)
+        objects_list = self.convert_to_selections(objects_list, True)
 
         mesh_sheets = {}
         segment_sheets = {}
-        for obj in objects:
+        for obj_name in objects_list:
+            obj = self[obj_name]
             if segments_number:
                 segmentation_thickness = obj.top_edge_y.length / segments_number
             elif segmentation_thickness:
@@ -1213,7 +1204,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             # mesh sheets
             self.move(face_object, [0, 0, segmentation_thickness / 4])
             mesh_sheets[obj.name] = face_object.duplicate_along_line(
-                ["0", "0", (segmentation_thickness * 2) / 4], segments_number * 2
+                [0, 0, (segmentation_thickness * 2.0) / 4.0], segments_number * 2
             )
         segment_objects = {}
         for key, values in segment_sheets.items():

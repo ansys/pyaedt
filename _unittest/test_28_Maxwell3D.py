@@ -876,3 +876,8 @@ class TestClass(BasisTest, object):
         assert isinstance(sheets[0][object_name], list)
         segments_number = round(magnet.top_edge_y.length / segmentation_thickness)
         assert len(sheets[0][object_name]) == segments_number - 1
+
+        assert not self.cyl_gap.modeler.objects_segmentation(object_name)
+        assert not self.cyl_gap.modeler.objects_segmentation(
+            object_name, segments_number=segments_number, segmentation_thickness=segmentation_thickness
+        )
