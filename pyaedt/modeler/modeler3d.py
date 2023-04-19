@@ -1174,11 +1174,12 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         Returns
         -------
         tuple
-            First dict is the segments which the object has been divided into.
-            Second dict is the mesh sheets eventually needed to apply the mesh to inside the object.
-            Keys are object names and values are respectively segments sheets and mesh sheets of type
-            :class:`pyaedt.modeler.cad.object3d.Object3d`.
-            ``False`` if it fails.
+            First dictionary is the segments that the object has been divided into.
+            Second dictionary is the mesh sheets eventually needed to apply the mesh
+            to inside the object. Keys are the object names, and values are respectively
+            segments sheets and mesh sheets of the
+            :class:`pyaedt.modeler.cad.object3d.Object3d` class.
+            ``False`` is returned if the method fails.
         """
         if not segmentation_thickness and not segments_number:
             self.logger.error("Provide at least one option to segment the objects list.")
