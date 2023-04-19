@@ -1157,7 +1157,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
 
     @pyaedt_function_handler
     def objects_segmentation(self, objects_list, segmentation_thickness=None, segments_number=None):
-        """
+        """Get segmentation of an object given the segmentation thickness or number of segments.
 
         Parameters
         ----------
