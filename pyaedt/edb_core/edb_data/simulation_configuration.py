@@ -109,7 +109,8 @@ class SimulationConfigurationBatch(object):
         Returns
         -------
             float
-            Value of the dielectric extent. When using absolute dimension, values must be entered in meter.
+            Value of the dielectric extent. When absolute dimensions are used,
+            the values are in meters.
         """
         return self._dielectric_extent
 
