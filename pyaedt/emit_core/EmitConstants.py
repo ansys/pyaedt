@@ -97,16 +97,12 @@ EMIT_VALID_UNITS = {
 }
 """Valid units for each unit type."""
 
-desktop_path = os.environ.get("ANSYSEM_ROOT241")
-if not desktop_path:
-    desktop_path = os.environ.get("ANSYSEM_ROOT232")
-if desktop_path:
-    EMIT_UNIT_TYPE_STRING_TO_ENUM = {
-        "Power": unit_type().power,
-        "Frequency": unit_type().frequency,
-        "Length": unit_type().length,
-        "Time": unit_type().time,
-        "Voltage": unit_type().voltage,
-        "Data Rate": unit_type().dataRate,
-        "Resistance": unit_type().resistance,
-    }
+EMIT_UNIT_TYPE_STRING_TO_ENUM = {
+    "Power": unit_type().power,
+    "Frequency": unit_type().frequency,
+    "Length": unit_type().length,
+    "Time": unit_type().time,
+    "Voltage": unit_type().voltage,
+    "Data Rate": unit_type().dataRate,
+    "Resistance": unit_type().resistance,
+}
