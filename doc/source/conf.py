@@ -301,6 +301,7 @@ html_theme_options = {
         "api_key": os.getenv("MEILISEARCH_API_KEY", ""),
         "index_uids": {
             "pyansys-pyaedt-sphinx-docs": "PyAEDT",
+            "pyansys-pyedb-sphinx-docs": "EDB API",
         },
     },
 }
