@@ -1,6 +1,5 @@
 from __future__ import absolute_import
 
-import sys
 import warnings
 
 from pyaedt import generate_unique_project_name

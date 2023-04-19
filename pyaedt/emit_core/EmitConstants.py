@@ -1,6 +1,3 @@
-import os
-import sys
-
 from pyaedt.emit_core import EMIT_MODULE
 
 
