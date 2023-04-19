@@ -10,6 +10,7 @@ if delcross_python_path:
 desktop_path = os.environ.get("ANSYSEM_ROOT241")
 if not desktop_path:
     desktop_path = os.environ.get("ANSYSEM_ROOT232")
+desktop_path = os.environ.get("ANSYSEM_ROOT232")
 if desktop_path:
     path = os.path.join(desktop_path, "Delcross")
     sys.path.append(path)

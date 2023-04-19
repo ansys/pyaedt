@@ -697,10 +697,8 @@ class TestClass(BasisTest, object):
         if rad4 and ant4:
             ant4.move_and_connect_to(rad4)
 
-        rev2 = self.aedtapp.results.analyze(rev.name)
-        assert len(self.aedtapp.results.revisions) == 1
-
         rev2 = self.aedtapp.results.analyze()
+        assert len(self.aedtapp.results.revisions) == 2
         domain = self.aedtapp.results.interaction_domain()
         radiosRX = rev2.get_receiver_names()
         bandsRX = rev2.get_band_names(radiosRX[0], econsts.tx_rx_mode().rx)
@@ -738,7 +736,7 @@ class TestClass(BasisTest, object):
         assert len(radiosTX) == 3
         assert len(radiosRX) == 4
 
-        rev4 = self.aedtapp.results.analyze(rev.name)
+        rev4 = self.aedtapp.results.get_revision(rev.name)
         assert len(self.aedtapp.results.revisions) == 2
         radiosTX = rev4.get_interferer_names(econsts.interferer_type().transmitters)
         radiosRX = rev4.get_receiver_names()
