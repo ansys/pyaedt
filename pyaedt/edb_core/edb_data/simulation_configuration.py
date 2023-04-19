@@ -137,8 +137,8 @@ class SimulationConfigurationBatch(object):
 
     @property
     def airbox_horizontal_extent(self):  # pragma: no cover
-        """Retrieve the air box horizontal extent size for HFSS. When using absolute dimension,
-        values must be entered in meter.
+        """Horizontal extent of the airbox for HFSS. When absolute dimensions are used,
+        the values are in meters.
 
         Returns
         -------
