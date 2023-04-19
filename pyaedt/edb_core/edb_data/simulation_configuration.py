@@ -121,13 +121,13 @@ class SimulationConfigurationBatch(object):
 
     @property
     def use_dielectric_extent_multiple(self):
-        """Retrieve the dielectric extent multiple value.
+        """Whether the multiple value of the dielectric extent is used.
 
         Returns
         -------
-            bool
-            Multiple value, ``True```will use multiple e.g. extent factor, ``False`` will use absolute dimension.
-            Default value is ``True``.
+        bool
+           ``True`` when the multiple value (extent factor) is used. ``False`` when
+           absolute dimensions are used.
         """
         return self._use_dielectric_extent_multiple
 
