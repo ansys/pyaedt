@@ -242,7 +242,7 @@ class SimulationConfigurationBatch(object):
 
     @property
     def use_default_cutout(self):  # pragma: no cover
-        """Either if use the default EDB Cutout or new pyaedt cutout.
+        """Whether the default EDB cutout or a new PyAEDT cutout is used.
 
         Returns
         -------
