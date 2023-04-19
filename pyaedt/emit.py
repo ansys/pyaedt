@@ -122,16 +122,8 @@ class Emit(Design, object):
         self.__emit_api_enabled = False
         self.results = None
         """Constructor for the ``FieldAnalysisEmit`` class"""
-
-        self._units = {
-            "Power": "dBm",
-            "Frequency": "MHz",
-            "Length": "meter",
-            "Time": "ns",
-            "Voltage": "mV",
-            "Data Rate": "bps",
-            "Resistance": "ohm",
-        }
+        
+        self._units = {}
         """Default Emit units."""
 
         Design.__init__(
@@ -159,6 +151,10 @@ class Emit(Design, object):
             """''Result'' object for the selected design."""
 
             self.__emit_api_enabled = True
+
+            unit_types = ["Power", "Frequency", "Length", "Time", "Voltage", "Data Rate", "Resistance"]
+            unit_values = ["dBm", "MHz", "meter", "ns", "mV", "bps", "ohm"]
+            self.set_units(unit_types, unit_values)
 
     @property
     def modeler(self):

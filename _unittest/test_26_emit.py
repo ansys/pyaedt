@@ -577,11 +577,14 @@ class TestClass(BasisTest, object):
         ant1 = self.aedtapp.modeler.components.create_component("Antenna")
         if rad1 and ant1:
             ant1.move_and_connect_to(rad1)
-        rad2 = self.aedtapp.modeler.components.create_component("Bluetooth")
+        bns = rad1.bands()
+        for bn in bns:
+            bn.enabled = True
+        rad2 = self.aedtapp.modeler.components.create_component("Bluetooth Low Energy (LE)")
         ant2 = self.aedtapp.modeler.components.create_component("Antenna")
         if rad2 and ant2:
             ant2.move_and_connect_to(rad2)
-        rad3 = self.aedtapp.modeler.components.create_component("Bluetooth")
+        rad3 = self.aedtapp.modeler.components.create_component("Bluetooth Low Energy (LE)")
         ant3 = self.aedtapp.modeler.components.create_component("Antenna")
         if rad3 and ant3:
             ant3.move_and_connect_to(rad3)
@@ -604,6 +607,7 @@ class TestClass(BasisTest, object):
             assert rev.is_domain_valid(domain)
             interaction = engine.run(domain)
             assert interaction is not None
+            assert interaction.is_valid()
             interaction2 = rev.run(domain)
             assert interaction2 is not None
             assert interaction2.is_valid()
