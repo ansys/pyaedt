@@ -173,8 +173,8 @@ class SimulationConfigurationBatch(object):
 
     @property
     def airbox_negative_vertical_extent(self):  # pragma: no cover
-        """Retrieve the air box negative vertical extent size for HFSS. When using absolute dimension,
-        values must be entered in meter.
+        """Negative vertical extent of the airbox for HFSS. When absolute dimensions
+        are used, the values are in meters.
 
         Returns
         -------
