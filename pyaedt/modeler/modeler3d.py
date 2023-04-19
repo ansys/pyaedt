@@ -1168,7 +1168,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             Segmentation thickness.
             Model units are automatically assigned. The default is ``None``.
         segments_number : int, optional
-            Number of segments to segment the object to.
+            Number of segments to segment the object to. The default is ``None``.
 
         Returns
         -------
