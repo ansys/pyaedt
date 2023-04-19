@@ -154,13 +154,13 @@ class SimulationConfigurationBatch(object):
 
     @property
     def use_airbox_horizontal_extent_multiple(self):
-        """Retrieve the air box horizontal extent multiple value.
+        """Whether the multiple value is used for the horizontal extent of the air box.
 
         Returns
         -------
-            bool
-            Multiple value, ``True```will use multiple e.g. extent factor, ``False`` will use absolute dimension.
-            Default value is ``True``.
+        bool
+            ``True`` when the multiple value (extent factor) is used. ``False`` when
+            absolute dimensions are used.
 
         """
         return self._use_airbox_horizontal_multiple
