@@ -2258,3 +2258,13 @@ class TestClass(BasisTest, object):
         pad_instance2.stop_layer = "top"
         assert pad_instance2.start_layer == "top"
         assert pad_instance2.stop_layer == "top"
+
+    def test_133_stackup_properties(self):
+        edb = Edb(edbversion=desktop_version)
+        edb.stackup.add_layer(layer_name="gnd", fillMaterial="AIR", thickness="10um")
+        edb.stackup.add_layer(layer_name="diel1", fillMaterial="AIR", thickness="200um", base_layer="gnd")
+        edb.stackup.add_layer(layer_name="sig1", fillMaterial="AIR", thickness="10um", base_layer="diel1")
+        edb.stackup.add_layer(layer_name="diel2", fillMaterial="AIR", thickness="200um", base_layer="sig1")
+        edb.stackup.add_layer(layer_name="sig3", fillMaterial="AIR", thickness="10um", base_layer="diel2")
+        assert edb.stackup.thickness == 0.00043
+        assert edb.stackup.num_layers == 5
