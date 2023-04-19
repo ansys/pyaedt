@@ -108,7 +108,7 @@ class SimulationConfigurationBatch(object):
 
         Returns
         -------
-            float
+        float
             Value of the dielectric extent. When absolute dimensions are used,
             the values are in meters.
         """
