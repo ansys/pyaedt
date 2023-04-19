@@ -1166,7 +1166,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             a list of :class:`pyaedt.modeler.cad.object3d.Object3d` classes.
         segmentation_thickness : float, optional
             Segmentation thickness.
-            Model units are automatically assigned.
+            Model units are automatically assigned. The default is ``None``.
         segments_number : int, optional
             Number of segments to segment the object to.
 
