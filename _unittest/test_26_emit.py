@@ -259,8 +259,7 @@ class TestClass(BasisTest, object):
         assert position == (0.0, 0.0, 0.0)
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1"
-        or is_ironpython,
+        config["desktopVersion"] <= "2023.1" or is_ironpython,
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_revision_generation(self):
@@ -321,8 +320,7 @@ class TestClass(BasisTest, object):
         assert rev6.name == "Revision 16"
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1"
-        or is_ironpython,
+        config["desktopVersion"] <= "2023.1" or is_ironpython,
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_manual_revision_access_test_getters(self):
@@ -394,8 +392,7 @@ class TestClass(BasisTest, object):
         assert len(rx_frequencies) == 79
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1"
-        or is_ironpython,
+        config["desktopVersion"] <= "2023.1" or is_ironpython,
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_radio_band_getters(self):
@@ -523,8 +520,7 @@ class TestClass(BasisTest, object):
         assert emitter.is_emitter()
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1"
-        or is_ironpython,
+        config["desktopVersion"] <= "2023.1" or is_ironpython,
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_static_type_generation(self):
@@ -561,8 +557,7 @@ class TestClass(BasisTest, object):
             assert len(more_info) > len(less_info)
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1"
-        or is_ironpython,
+        config["desktopVersion"] <= "2023.1" or is_ironpython,
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_InteractionDomain(self):
@@ -571,8 +566,7 @@ class TestClass(BasisTest, object):
         assert str(type(testable_id)) == "<class 'EmitApiPython.InteractionDomain'>"
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1"
-        or is_ironpython,
+        config["desktopVersion"] <= "2023.1" or is_ironpython,
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_analyze_manually(self):
@@ -622,8 +616,7 @@ class TestClass(BasisTest, object):
             assert not rev.is_domain_valid(domain)
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1"
-        or is_ironpython,
+        config["desktopVersion"] <= "2023.1" or is_ironpython,
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_N_to_1_feature(self):
@@ -675,8 +668,7 @@ class TestClass(BasisTest, object):
         assert exception_raised
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1"
-        or is_ironpython,
+        config["desktopVersion"] <= "2023.1" or is_ironpython,
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_availability_1_to_1(self):
@@ -705,10 +697,8 @@ class TestClass(BasisTest, object):
         if rad4 and ant4:
             ant4.move_and_connect_to(rad4)
 
-        rev2 = self.aedtapp.results.analyze(rev.name)
-        assert len(self.aedtapp.results.revisions) == 1
-
         rev2 = self.aedtapp.results.analyze()
+        assert len(self.aedtapp.results.revisions) == 2
         domain = self.aedtapp.results.interaction_domain()
         radiosRX = rev2.get_receiver_names()
         bandsRX = rev2.get_band_names(radiosRX[0], econsts.tx_rx_mode().rx)
@@ -746,7 +736,7 @@ class TestClass(BasisTest, object):
         assert len(radiosTX) == 3
         assert len(radiosRX) == 4
 
-        rev4 = self.aedtapp.results.analyze(rev.name)
+        rev4 = self.aedtapp.results.get_revision(rev.name)
         assert len(self.aedtapp.results.revisions) == 2
         radiosTX = rev4.get_interferer_names(econsts.interferer_type().transmitters)
         radiosRX = rev4.get_receiver_names()
