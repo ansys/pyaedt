@@ -591,8 +591,8 @@ class EdbPadstacks(object):
             offset_x = padparams[2]
             offset_y = padparams[3]
             rot = padparams[4]
-            geom_type = 7
-            return geom_type, parameters, offset_x, offset_y, rot
+            geometry_type = 7
+            return geometry_type, parameters, offset_x, offset_y, rotation
 
     @pyaedt_function_handler
     def set_all_antipad_value(self, value):
