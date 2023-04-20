@@ -855,7 +855,6 @@ class TestClass(BasisTest, object):
         if os.path.exists(user_ctl_path):
             os.unlink(user_ctl_path)
 
-
     def test_51_objects_segmentation(self):
         segments_number = 5
         object_name = "PM_I1"
