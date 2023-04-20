@@ -195,8 +195,6 @@ class EDBPadProperties(object):
                     self._get_edb_value(value["YSize"]),
                     self._get_edb_value(value["CornerRadius"]),
                 ]
-            elif self.shape == PadGeometryTpe.NSidedPolygon.name:
-                params = [self._get_edb_value(value["Size"]), self._get_edb_value(value["NumSides"])]
             elif self.shape in [PadGeometryTpe.Round45.name, PadGeometryTpe.Round90.name]:
                 params = [
                     self._get_edb_value(value["Inner"]),
