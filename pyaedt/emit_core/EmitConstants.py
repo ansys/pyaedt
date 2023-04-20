@@ -1,5 +1,5 @@
 from pyaedt.emit_core import EMIT_MODULE
-
+from pyaedt.misc.misc import list_installed_ansysem
 
 def result_type():
     """
@@ -94,12 +94,16 @@ EMIT_VALID_UNITS = {
 }
 """Valid units for each unit type."""
 
-EMIT_UNIT_TYPE_STRING_TO_ENUM = {
-    "Power": unit_type().power,
-    "Frequency": unit_type().frequency,
-    "Length": unit_type().length,
-    "Time": unit_type().time,
-    "Voltage": unit_type().voltage,
-    "Data Rate": unit_type().dataRate,
-    "Resistance": unit_type().resistance,
-}
+# list is reverse sorted, with newest installed version
+# first. Last 3 chars should be the version number
+ver = list_installed_ansysem()[0][-3:]
+if int(ver) > 231:
+    EMIT_UNIT_TYPE_STRING_TO_ENUM = {
+        "Power": unit_type().power,
+        "Frequency": unit_type().frequency,
+        "Length": unit_type().length,
+        "Time": unit_type().time,
+        "Voltage": unit_type().voltage,
+        "Data Rate": unit_type().dataRate,
+        "Resistance": unit_type().resistance,
+    }
