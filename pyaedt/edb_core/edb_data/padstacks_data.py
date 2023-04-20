@@ -1,5 +1,3 @@
-from enum import Enum
-from enum import Enum
 import math
 import warnings
 
@@ -11,6 +9,14 @@ from pyaedt.generic.clr_module import _clr
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.geometry_operators import GeometryOperators
+
+if not is_ironpython:
+    try:
+        from enum import Enum
+    except ImportError:
+        Enum = None
+else:
+    Enum = object
 
 
 class PadGeometryTpe(Enum):
@@ -122,6 +128,7 @@ class EDBPadProperties(object):
 
     @property
     def shape(self):
+        """Get the shape of the pad."""
         return self._pad_parameter_value[1].ToString()
 
     @shape.setter
@@ -181,7 +188,7 @@ class EDBPadProperties(object):
         elif self.shape in [PadGeometryTpe.Round45.name, PadGeometryTpe.Round90.name]:
             return {"Inner": EdbValue(value[0]), "ChannelWidth": EdbValue(value[1]), "IsolationGap": EdbValue(value[2])}
         else:
-            return
+            return dict()
 
     @parameters.setter
     def parameters(self, value):
@@ -198,28 +205,32 @@ class EDBPadProperties(object):
         >>> pad.shape = "Bullet"
         >>> pad.pad_parameters{"XSize": "0.5mm", "YSize": "0.5mm"}
         """
-
-        value = {k: v.tostring if isinstance(v, EdbValue) else v for k, v in value.items()}
-        if self.shape == PadGeometryTpe.Circle.name:
-            params = [self._get_edb_value(value["Diameter"])]
-        elif self.shape == PadGeometryTpe.Square.name:
-            params = [self._get_edb_value(value["Size"])]
-        elif self.shape == PadGeometryTpe.Rectangle.name:
-            params = [self._get_edb_value(value["XSize"]), self._get_edb_value(value["YSize"])]
-        elif self.shape == [PadGeometryTpe.Oval.name, PadGeometryTpe.Bullet.name]:
-            params = [
-                self._get_edb_value(value["XSize"]),
-                self._get_edb_value(value["YSize"]),
-                self._get_edb_value(value["CornerRadius"]),
-            ]
-        elif self.shape in [PadGeometryTpe.Round45.name, PadGeometryTpe.Round90.name]:
-            params = [
-                self._get_edb_value(value["Inner"]),
-                self._get_edb_value(value["ChannelWidth"]),
-                self._get_edb_value(value["IsolationGap"]),
-            ]
+        if isinstance(value, list):
+            params = value
+        elif isinstance(value, dict):
+            value = {k: v.tostring if isinstance(v, EdbValue) else v for k, v in value.items()}
+            if self.shape == PadGeometryTpe.Circle.name:
+                params = [self._get_edb_value(value["Diameter"])]
+            elif self.shape == PadGeometryTpe.Square.name:
+                params = [self._get_edb_value(value["Size"])]
+            elif self.shape == PadGeometryTpe.Rectangle.name:
+                params = [self._get_edb_value(value["XSize"]), self._get_edb_value(value["YSize"])]
+            elif self.shape == [PadGeometryTpe.Oval.name, PadGeometryTpe.Bullet.name]:
+                params = [
+                    self._get_edb_value(value["XSize"]),
+                    self._get_edb_value(value["YSize"]),
+                    self._get_edb_value(value["CornerRadius"]),
+                ]
+            elif self.shape in [PadGeometryTpe.Round45.name, PadGeometryTpe.Round90.name]:
+                params = [
+                    self._get_edb_value(value["Inner"]),
+                    self._get_edb_value(value["ChannelWidth"]),
+                    self._get_edb_value(value["IsolationGap"]),
+                ]
+            else:
+                params = None
         else:
-            params = None
+            params = [self._get_edb_value(value)]
         self._update_pad_parameters_parameters(params=params)
 
     @property
