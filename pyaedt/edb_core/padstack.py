@@ -572,12 +572,12 @@ class EdbPadstacks(object):
                 layername, self.int_to_pad_type(pad_type)
             )
         if padparams[2]:
-            geom_type = int(padparams[1])
+            geometry_type = int(padparams[1])
             parameters = [i.ToString() for i in padparams[2]]
             offset_x = padparams[3].ToDouble()
             offset_y = padparams[4].ToDouble()
-            rot = padparams[5].ToDouble()
-            return geom_type, parameters, offset_x, offset_y, rot
+            rotation = padparams[5].ToDouble()
+            return geometry_type, parameters, offset_x, offset_y, rotation
         else:
             padparams = self._edb.Definition.PadstackDefData(pin.GetPadstackDef().GetData()).GetPolygonalPadParameters(
                 layername, self.int_to_pad_type(pad_type)
