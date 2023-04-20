@@ -432,7 +432,7 @@
                 122
             ],
             "type": "signal",
-            "material": "copper",
+            "material": "COPPER",
             "dielectric_fill": "FR4_epoxy",
             "thickness": 3.5e-05,
             "etch_factor": 0.0,
@@ -632,7 +632,7 @@
                 122
             ],
             "type": "signal",
-            "material": "copper",
+            "material": "COPPER",
             "dielectric_fill": "FR4_epoxy",
             "thickness": 3.5e-05,
             "etch_factor": 0.0,

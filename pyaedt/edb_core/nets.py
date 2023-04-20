@@ -3,26 +3,46 @@ from __future__ import absolute_import  # noreorder
 import math
 import os
 import time
+import warnings
 
 from pyaedt.edb_core.edb_data.nets_data import EDBNetsData
-from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
+from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
+from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
+from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.generic.plot import plot_matplotlib
-from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
 class EdbNets(object):
-    """Manages EDB methods for nets management accessible from `Edb.core_nets` property.
+    """Manages EDB methods for nets management accessible from `Edb.nets` property.
 
     Examples
     --------
     >>> from pyaedt import Edb
     >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
-    >>> edb_nets = edbapp.core_nets
+    >>> edb_nets = edbapp.nets
     """
+
+    @pyaedt_function_handler()
+    def __getitem__(self, name):
+        """Get  a net from the Edb project.
+
+        Parameters
+        ----------
+        name : str, int
+
+        Returns
+        -------
+        :class:` :class:`pyaedt.edb_core.edb_data.nets_data.EDBNetsData`
+
+        """
+        if name in self.nets:
+            return self.nets[name]
+        self._pedb.logger.error("Component or definition not found.")
+        return
 
     def __init__(self, p_edb):
         self._pedb = p_edb
@@ -72,7 +92,48 @@ class EdbNets(object):
         return nets
 
     @property
+    def netlist(self):
+        """Return the cell netlist.
+
+        Returns
+        -------
+        list
+            Net names.
+        """
+        return list(self.nets.keys())
+
+    @property
     def signal_nets(self):
+        """Signal nets.
+
+        .. deprecated:: 0.6.62
+           Use :func:`signal` instead.
+
+        Returns
+        -------
+        dict[str, :class:`pyaedt.edb_core.edb_data.EDBNetsData`]
+            Dictionary of signal nets.
+        """
+        warnings.warn("Use :func:`signal` instead.", DeprecationWarning)
+        return self.signal
+
+    @property
+    def power_nets(self):
+        """Power nets.
+
+        .. deprecated:: 0.6.62
+           Use :func:`power` instead.
+
+        Returns
+        -------
+        dict[str, :class:`pyaedt.edb_core.edb_data.EDBNetsData`]
+            Dictionary of power nets.
+        """
+        warnings.warn("Use :func:`power` instead.", DeprecationWarning)
+        return self.power
+
+    @property
+    def signal(self):
         """Signal nets.
 
         Returns
@@ -87,7 +148,7 @@ class EdbNets(object):
         return nets
 
     @property
-    def power_nets(self):
+    def power(self):
         """Power nets.
 
         Returns
@@ -101,7 +162,7 @@ class EdbNets(object):
                 nets[net] = value
         return nets
 
-    @property
+    @pyaedt_function_handler()
     def eligible_power_nets(self, threshold=0.3):
         """Return a list of nets calculated by area to be eligible for PWR/Ground net classification.
             It uses the same algorithm implemented in SIwave.
@@ -282,7 +343,7 @@ class EdbNets(object):
         if isinstance(nets, str):
             nets = [nets]
         if not layers:
-            layers = list(self._pedb.core_stackup.signal_layers.keys())
+            layers = list(self._pedb.stackup.signal_layers.keys())
         if isinstance(layers, str):
             layers = [layers]
         color_index = 0
@@ -302,20 +363,19 @@ class EdbNets(object):
             codes.append(79)
             objects_lists.append([vertices, codes, "b", "Outline", 1.0, 1.5, "contour"])
             n_label += 1
-
+        top_layer = list(self._pedb.stackup.signal_layers.keys())[0]
+        bottom_layer = list(self._pedb.stackup.signal_layers.keys())[-1]
         if plot_components_on_top or plot_components_on_bottom:
             nc = 0
-            for comp in self._pedb.core_components.components.values():
+            for comp in self._pedb.components.components.values():
                 if not comp.is_enabled:
                     continue
                 net_names = comp.nets
-                if not any([i in nets for i in net_names]):
+                if nets and not any([i in nets for i in net_names]):
                     continue
                 layer_name = comp.placement_layer
                 if layer_name not in layers:
                     continue
-                top_layer = list(self._pedb.core_stackup.signal_layers.keys())[-1]
-                bottom_layer = list(self._pedb.core_stackup.signal_layers.keys())[0]
                 if plot_components_on_top and layer_name == top_layer:
                     component_color = (184 / 255, 115 / 255, 51 / 255)  # this is the color used in AEDT
                     label = "Component on top layer"
@@ -341,14 +401,17 @@ class EdbNets(object):
                 nc += 1
             self._logger.debug("Plotted {} component(s)".format(nc))
 
-        for path in self._pedb.core_primitives.paths:
+        for path in self._pedb.modeler.paths:
             if path.is_void:
                 continue
             net_name = path.net_name
             layer_name = path.layer_name
-            if net_name not in nets or layer_name not in layers:
+            if nets and (net_name not in nets or layer_name not in layers):
                 continue
-            x, y = path.points()
+            try:
+                x, y = path.points()
+            except ValueError:
+                x = None
             if not x:
                 continue
             create_label = False
@@ -384,12 +447,12 @@ class EdbNets(object):
             else:
                 objects_lists.append([x, y, label_colors[label], None, 0.4, "fill"])
 
-        for poly in self._pedb.core_primitives.polygons:
+        for poly in self._pedb.modeler.polygons:
             if poly.is_void:
                 continue
             net_name = poly.net_name
             layer_name = poly.layer_name
-            if net_name not in nets or layer_name not in layers:
+            if nets and (net_name != "" and net_name not in nets or layer_name not in layers):
                 continue
             xt, yt = poly.points()
             if not xt:
@@ -441,17 +504,23 @@ class EdbNets(object):
                     create_label = True
 
             if create_label and n_label <= max_labels:
-                objects_lists.append([vertices, codes, label_colors[label], label, 0.4, "path"])
+                if layer_name == "Outline":
+                    objects_lists.append([vertices, codes, label_colors[label], label, 1.0, 2.0, "contour"])
+                else:
+                    objects_lists.append([vertices, codes, label_colors[label], label, 0.4, "path"])
                 n_label += 1
             else:
-                objects_lists.append([vertices, codes, label_colors[label], None, 0.4, "path"])
+                if layer_name == "Outline":
+                    objects_lists.append([vertices, codes, label_colors[label], None, 1.0, 2.0, "contour"])
+                else:
+                    objects_lists.append([vertices, codes, label_colors[label], None, 0.4, "path"])
 
-        for circle in self._pedb.core_primitives.circles:
+        for circle in self._pedb.modeler.circles:
             if circle.is_void:
                 continue
             net_name = circle.net_name
             layer_name = circle.layer_name
-            if net_name not in nets or layer_name not in layers:
+            if nets and (net_name not in nets or layer_name not in layers):
                 continue
             x, y = circle.points()
             if not x:
@@ -489,12 +558,12 @@ class EdbNets(object):
             else:
                 objects_lists.append([x, y, label_colors[label], None, 0.4, "fill"])
 
-        for rect in self._pedb.core_primitives.rectangles:
+        for rect in self._pedb.modeler.rectangles:
             if rect.is_void:
                 continue
             net_name = rect.net_name
             layer_name = rect.layer_name
-            if net_name not in nets or layer_name not in layers:
+            if nets and (net_name not in nets or layer_name not in layers):
                 continue
             x, y = rect.points()
             if not x:
@@ -540,36 +609,41 @@ class EdbNets(object):
             return objects_lists
 
     @pyaedt_function_handler()
-    def classify_nets(self, simulation_configuration_object=None):
-        """Sort nets based on SimulationConfiguration object.
-        If nets specified as ``power/ground`` or ``signal`` in the simulation
-        configuration object are not initially sorted.
-        in EDB, they are sorted accordingly.
+    def classify_nets(self, power_nets=None, signal_nets=None):
+        """Reassign power/ground or signal nets based on list of nets.
 
         Parameters
         ----------
-        simulation_configuration_object :
-                         :class:`pyaedt.edb_core.edb_data.simulation_configuration.SimulationConfiguration`.
+        power_nets : str, list, optional
+            List of power nets to assign. Default is `None`.
+        signal_nets : str, list, optional
+            List of signal nets to assign. Default is `None`.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if not isinstance(simulation_configuration_object, SimulationConfiguration):  # pragma: no cover
-            return False
-        for net in simulation_configuration_object.power_nets:
-            if net in self.signal_nets:  # pragma: no cover
-                self.signal_nets[net].net_object.SetIsPowerGround(True)
-        for net in simulation_configuration_object.signal_nets:
-            if net in self.power_nets:  # pragma: no cover
-                self.power_nets[net].net_object.SetIsPowerGround(False)
+        if isinstance(power_nets, str):
+            power_nets = []
+        elif not power_nets:
+            power_nets = []
+        if isinstance(signal_nets, str):
+            signal_nets = []
+        elif not signal_nets:
+            signal_nets = []
+        for net in power_nets:
+            if net in self.nets:
+                self.nets[net].net_object.SetIsPowerGround(True)
+        for net in signal_nets:
+            if net in self.nets:
+                self.nets[net].net_object.SetIsPowerGround(False)
         return True
 
     @pyaedt_function_handler()
     def plot(
         self,
-        nets,
+        nets=None,
         layers=None,
         color_by_net=False,
         show_legend=True,
@@ -583,7 +657,7 @@ class EdbNets(object):
 
         Parameters
         ----------
-        nets : str, list
+        nets : str, list, optional
             Name of the net or list of nets to plot. If ``None`` all nets will be plotted.
         layers : str, list, optional
             Name of the layers to include in the plot. If ``None`` all the signal layers will be considered.
@@ -612,6 +686,8 @@ class EdbNets(object):
         if is_ironpython:
             self._logger.warning("Plot functionalities are enabled only in CPython.")
             return False
+        from pyaedt.generic.plot import plot_matplotlib
+
         object_lists = self.get_plot_data(
             nets,
             layers,
@@ -653,8 +729,8 @@ class EdbNets(object):
         return False
 
     @pyaedt_function_handler()
-    def get_dcconnected_net_list(self, ground_nets=["GND"]):
-        """Retrieve the nets connected to DC through inductors.
+    def get_dcconnected_net_list(self, ground_nets=["GND"], res_value=0.001):
+        """Get the nets connected to the direct current through inductors.
 
         .. note::
            Only inductors are considered.
@@ -670,8 +746,7 @@ class EdbNets(object):
             List of nets connected to DC through inductors.
         """
         temp_list = []
-        for refdes, comp_obj in self._pedb.core_components.inductors.items():
-
+        for _, comp_obj in self._pedb.components.inductors.items():
             numpins = comp_obj.numpins
 
             if numpins == 2:
@@ -680,7 +755,15 @@ class EdbNets(object):
                     temp_list.append(set(nets))
                 else:
                     pass
+        for _, comp_obj in self._pedb.components.resistors.items():
+            numpins = comp_obj.numpins
 
+            if numpins == 2 and self._pedb._decompose_variable_value(comp_obj.res_value) <= res_value:
+                nets = comp_obj.nets
+                if not set(nets).intersection(set(ground_nets)):
+                    temp_list.append(set(nets))
+                else:
+                    pass
         dcconnected_net_list = []
 
         while not not temp_list:
@@ -723,7 +806,7 @@ class EdbNets(object):
             net_group.append(power_net_name)
 
         component_list = []
-        rats = self._pedb.core_components.get_rats()
+        rats = self._pedb.components.get_rats()
         for net in net_group:
             for el in rats:
                 if net in el["net_name"]:
@@ -737,13 +820,13 @@ class EdbNets(object):
         component_type = []
         for el in component_list:
             refdes = el[0]
-            comp_type = self._pedb.core_components._cmp[refdes].type
+            comp_type = self._pedb.components._cmp[refdes].type
             component_type.append(comp_type)
             el.append(comp_type)
 
-            comp_partname = self._pedb.core_components._cmp[refdes].partname
+            comp_partname = self._pedb.components._cmp[refdes].partname
             el.append(comp_partname)
-            pins = self._pedb.core_components.get_pin_from_component(component=refdes, netName=el[2])
+            pins = self._pedb.components.get_pin_from_component(component=refdes, netName=el[2])
             el.append("-".join([i.GetName() for i in pins]))
 
         component_list_columns = [
@@ -767,6 +850,9 @@ class EdbNets(object):
     def delete_nets(self, netlist):
         """Delete one or more nets from EDB.
 
+        .. deprecated:: 0.6.62
+           Use :func:`delete` method instead.
+
         Parameters
         ----------
         netlist : str or list
@@ -780,17 +866,39 @@ class EdbNets(object):
         Examples
         --------
 
-        >>> deleted_nets = edb_core.core_nets.delete_nets(["Net1","Net2"])
+        >>> deleted_nets = edb_core.nets.delete(["Net1","Net2"])
+        """
+        warnings.warn("Use :func:`delete` method instead.", DeprecationWarning)
+        return self.delete(netlist=netlist)
+
+    @pyaedt_function_handler()
+    def delete(self, netlist):
+        """Delete one or more nets from EDB.
+
+        Parameters
+        ----------
+        netlist : str or list
+            One or more nets to delete.
+
+        Returns
+        -------
+        list
+            List of nets that were deleted.
+
+        Examples
+        --------
+
+        >>> deleted_nets = edb_core.nets.delete(["Net1","Net2"])
         """
         if isinstance(netlist, str):
             netlist = [netlist]
 
-        self._pedb.core_primitives.delete_primitives(netlist)
-        self._pedb.core_padstack.delete_padstack_instances(netlist)
+        self._pedb.modeler.delete_primitives(netlist)
+        self._pedb.padstacks.delete_padstack_instances(netlist)
 
         nets_deleted = []
 
-        for i in self._pedb.core_nets.nets.values():
+        for i in self._pedb.nets.nets.values():
             if i.name in netlist:
                 i.net_object.Delete()
                 nets_deleted.append(i.name)
@@ -817,7 +925,7 @@ class EdbNets(object):
         Returns
         -------
         object
-            Net Object
+            Net Object.
         """
         if not net_name and not start_with and not contain and not end_with:
             net_name = generate_unique_name("NET_")
@@ -888,9 +996,180 @@ class EdbNets(object):
             ``True`` if the net is found in component pins.
 
         """
-        if component_name not in self._pedb.core_components.components:
+        if component_name not in self._pedb.components.components:
             return False
-        for net in self._pedb.core_components.components[component_name].nets:
+        for net in self._pedb.components.components[component_name].nets:
             if net_name == net:
                 return True
         return False
+
+    @pyaedt_function_handler()
+    def find_and_fix_disjoint_nets(
+        self, net_list=None, keep_only_main_net=False, clean_disjoints_less_than=0.0, order_by_area=False
+    ):
+        """Find and fix disjoint nets from a given netlist.
+
+        Parameters
+        ----------
+        net_list : str, list, optional
+            List of nets on which check disjoints. If `None` is provided then the algorithm will loop on all nets.
+        keep_only_main_net : bool, optional
+            Remove all secondary nets other than principal one (the one with more objects in it). Default is `False`.
+        clean_disjoints_less_than : bool, optional
+            Clean all disjoint nets with area less than specified area in square meters. Default is `0.0` to disable it.
+        order_by_area : bool, optional
+            Whether if the naming order has to be by number of objects (fastest) or area (slowest but more accurate).
+            Default is ``False``.
+        Returns
+        -------
+        List
+            New nets created.
+
+        Examples
+        --------
+
+        >>> renamed_nets = edb_core.nets.find_and_fix_disjoint_nets(["GND","Net2"])
+        """
+        timer_start = self._logger.reset_timer()
+
+        if not net_list:
+            net_list = list(self.nets.keys())
+        elif isinstance(net_list, str):
+            net_list = [net_list]
+        _objects_list = {}
+        _padstacks_list = {}
+        for prim in self._pedb.modeler.primitives:
+            n_name = prim.net_name
+            if n_name in _objects_list:
+                _objects_list[n_name].append(prim)
+            else:
+                _objects_list[n_name] = [prim]
+        for pad in list(self._pedb.padstacks.instances.values()):
+            n_name = pad.net_name
+            if n_name in _padstacks_list:
+                _padstacks_list[n_name].append(pad)
+            else:
+                _padstacks_list[n_name] = [pad]
+        new_nets = []
+        disjoints_objects = []
+        self._logger.reset_timer()
+        for net in net_list:
+            net_groups = []
+            obj_dict = {}
+            for i in _objects_list.get(net, []):
+                obj_dict[i.id] = i
+            for i in _padstacks_list.get(net, []):
+                obj_dict[i.id] = i
+            objs = list(obj_dict.values())
+            l = len(objs)
+            while l > 0:
+                l1 = objs[0].get_connected_object_id_set()
+                l1.append(objs[0].id)
+                repetition = False
+                for net_list in net_groups:
+                    if set(l1).intersection(net_list):
+                        net_groups.append([i for i in l1 if i not in net_list])
+                        repetition = True
+                if not repetition:
+                    net_groups.append(l1)
+                objs = [i for i in objs if i.id not in l1]
+                l = len(objs)
+            if len(net_groups) > 1:
+
+                def area_calc(elem):
+                    sum = 0
+                    for el in elem:
+                        try:
+                            if isinstance(obj_dict[el], EDBPrimitives):
+                                if not obj_dict[el].is_void:
+                                    sum += obj_dict[el].area()
+                        except:
+                            pass
+                    return sum
+
+                if order_by_area:
+                    areas = [area_calc(i) for i in net_groups]
+                    sorted_list = [x for _, x in sorted(zip(areas, net_groups), reverse=True)]
+                else:
+                    sorted_list = sorted(net_groups, key=len, reverse=True)
+                for disjoints in sorted_list[1:]:
+                    if keep_only_main_net:
+                        for geo in disjoints:
+                            try:
+                                obj_dict[geo].delete()
+                            except KeyError:
+                                pass
+                    elif len(disjoints) == 1 and (
+                        isinstance(obj_dict[disjoints[0]], EDBPadstackInstance)
+                        or clean_disjoints_less_than
+                        and obj_dict[disjoints[0]].area() < clean_disjoints_less_than
+                    ):
+                        try:
+                            obj_dict[disjoints[0]].delete()
+                        except KeyError:
+                            pass
+                    else:
+                        new_net_name = generate_unique_name(net, n=6)
+                        net_obj = self.find_or_create_net(new_net_name)
+                        if net_obj:
+                            new_nets.append(net_obj.GetName())
+                            for geo in disjoints:
+                                try:
+                                    obj_dict[geo].net_name = net_obj
+                                except KeyError:
+                                    pass
+                            disjoints_objects.extend(disjoints)
+        self._logger.info("Found {} objects in {} new nets.".format(len(disjoints_objects), len(new_nets)))
+        self._logger.info_timer("Disjoint Cleanup Completed.", timer_start)
+
+        return new_nets
+
+    @pyaedt_function_handler()
+    def merge_nets_polygons(self, net_list):
+        """Convert paths from net into polygons, evaluate all connected polygons and perform the merge.
+
+        Parameters
+        ----------
+        net_list : str or list[str]
+            net name of list of net name.
+
+        Returns
+            list of merged polygons.
+
+        -------
+
+        """
+        if isinstance(net_list, str):
+            net_list = [net_list]
+        returned_poly = []
+        for net in net_list:
+            if net in self.nets:
+                net_rtree = self._edb.Geometry.RTree()
+                paths = [prim for prim in self.nets[net].primitives if prim.type == "Path"]
+                for path in paths:
+                    path.convert_to_polygon()
+                polygons = [prim for prim in self.nets[net].primitives if prim.type == "Polygon"]
+                for polygon in polygons:
+                    polygon_data = polygon.primitive_object.GetPolygonData()
+                    rtree = self._edb.Geometry.RTreeObj(polygon_data, polygon.primitive_object)
+                    net_rtree.Insert(rtree)
+                connected_polygons = net_rtree.GetConnectedGeometrySets()
+                void_list = []
+                for pp in list(connected_polygons):
+                    for _pp in list(pp):
+                        _voids = list(_pp.Obj.Voids)
+                        void_list.extend(_pp.Obj.Voids)
+                for poly_list in list(connected_polygons):
+                    layer = list(poly_list)[0].Obj.GetLayer().GetName()
+                    net = list(poly_list)[0].Obj.GetNet()
+                    _poly_list = convert_py_list_to_net_list([obj.Poly for obj in list(poly_list)])
+                    merged_polygon = list(self._edb.Geometry.PolygonData.Unite(_poly_list))
+                    for poly in merged_polygon:
+                        for void in void_list:
+                            poly.AddHole(void.GetPolygonData())
+                        _new_poly = self._edb.Cell.Primitive.Polygon.Create(self._active_layout, layer, net, poly)
+                        returned_poly.append(_new_poly)
+                for init_poly in list(list(connected_polygons)):
+                    for _pp in list(init_poly):
+                        _pp.Obj.Delete()
+        return returned_poly

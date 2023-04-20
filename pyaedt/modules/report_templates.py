@@ -1,14 +1,14 @@
+from collections import OrderedDict
 import copy
 import os
 import re
-from collections import OrderedDict
 
 from pyaedt.generic.constants import LineStyle
 from pyaedt.generic.constants import SymbolStyle
 from pyaedt.generic.constants import TraceType
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
 def _props_with_default(dict_in, key, default_value=None):
@@ -202,17 +202,57 @@ class Note(object):
 class Trace(object):
     """Provides trace management."""
 
-    def __init__(self, report_setup, trace_name):
+    def __init__(self, report_setup, aedt_name):
         self._oreport_setup = report_setup
-        self.trace_name = trace_name
+        self.aedt_name = aedt_name
+        self._name = None
         self.LINESTYLE = LineStyle()
         self.TRACETYPE = TraceType()
         self.SYMBOLSTYLE = SymbolStyle()
 
+    @property
+    def name(self):
+        """Trace name.
+
+        Returns
+        -------
+        str
+        """
+        report_name = self.aedt_name.split(":")[0]
+        traces_in_report = self._oreport_setup.GetReportTraceNames(report_name)
+        for trace in traces_in_report:
+            if trace + ":" in self.aedt_name:
+                self._name = trace
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        report_name = self.aedt_name.split(":")[0]
+        prop_name = report_name + ":" + self.name
+
+        self._oreport_setup.ChangeProperty(
+            [
+                "NAME:AllTabs",
+                [
+                    "NAME:Trace",
+                    ["NAME:PropServers", prop_name],
+                    ["NAME:ChangedProps", ["NAME:Specify Name", "Value:=", True]],
+                ],
+            ]
+        )
+        self._oreport_setup.ChangeProperty(
+            [
+                "NAME:AllTabs",
+                ["NAME:Trace", ["NAME:PropServers", prop_name], ["NAME:ChangedProps", ["NAME:Name", "Value:=", value]]],
+            ]
+        )
+        self.aedt_name.replace(self.name, value)
+        self._name = value
+
     @pyaedt_function_handler()
     def _change_property(self, props_value):
         self._oreport_setup.ChangeProperty(
-            ["NAME:AllTabs", ["NAME:Attributes", ["NAME:PropServers", self.trace_name], props_value]]
+            ["NAME:AllTabs", ["NAME:Attributes", ["NAME:PropServers", self.aedt_name], props_value]]
         )
         return True
 
@@ -309,6 +349,7 @@ class CommonReport(object):
         if expressions:
             self.expressions = expressions
         self._is_created = True
+        self.siwave_dc_category = 0
 
     @property
     def differential_pairs(self):
@@ -447,7 +488,7 @@ class CommonReport(object):
     @pyaedt_function_handler()
     def _update_traces(self):
         for trace in self.traces:
-            trace_name = trace.trace_name.split(":")[1]
+            trace_name = trace.aedt_name.split(":")[1]
             if "expressions" in self.props and trace_name in self.props["expressions"]:
                 trace_val = self.props["expressions"][trace_name]
                 trace_style = _props_with_default(trace_val, "trace_style")
@@ -776,14 +817,14 @@ class CommonReport(object):
         return self.props["context"]["primary_sweep"]
 
     @primary_sweep.setter
-    def primary_sweep(self, val):
-        if val == self.props["context"].get("secondary_sweep", None):
+    def primary_sweep(self, value):
+        if value == self.props["context"].get("secondary_sweep", None):
             self.props["context"]["secondary_sweep"] = self.props["context"]["primary_sweep"]
-        self.props["context"]["primary_sweep"] = val
-        if val == "Time":
+        self.props["context"]["primary_sweep"] = value
+        if value == "Time":
             self.variations.pop("Freq", None)
             self.variations["Time"] = ["All"]
-        elif val == "Freq":
+        elif value == "Freq":
             self.variations.pop("Time", None)
             self.variations["Freq"] = ["All"]
 
@@ -798,14 +839,14 @@ class CommonReport(object):
         return self.props["context"].get("secondary_sweep", None)
 
     @secondary_sweep.setter
-    def secondary_sweep(self, val):
-        if val == self.props["context"]["primary_sweep"]:
+    def secondary_sweep(self, value):
+        if value == self.props["context"]["primary_sweep"]:
             self.props["context"]["primary_sweep"] = self.props["context"]["secondary_sweep"]
-        self.props["context"]["secondary_sweep"] = val
-        if val == "Time":
+        self.props["context"]["secondary_sweep"] = value
+        if value == "Time":
             self.variations.pop("Freq", None)
             self.variations["Time"] = ["All"]
-        elif val == "Freq":
+        elif value == "Freq":
             self.variations.pop("Time", None)
             self.variations["Freq"] = ["All"]
 
@@ -820,8 +861,8 @@ class CommonReport(object):
         return self.props["context"]["primary_sweep_range"]
 
     @primary_sweep_range.setter
-    def primary_sweep_range(self, val):
-        self.props["context"]["primary_sweep_range"] = val
+    def primary_sweep_range(self, value):
+        self.props["context"]["primary_sweep_range"] = value
 
     @property
     def secondary_sweep_range(self):
@@ -834,8 +875,8 @@ class CommonReport(object):
         return self.props["context"]["secondary_sweep_range"]
 
     @secondary_sweep_range.setter
-    def secondary_sweep_range(self, val):
-        self.props["context"]["secondary_sweep_range"] = val
+    def secondary_sweep_range(self, value):
+        self.props["context"]["secondary_sweep_range"] = value
 
     @property
     def _context(self):
@@ -1142,7 +1183,10 @@ class CommonReport(object):
 
     @pyaedt_function_handler()
     def add_cartesian_x_marker(self, val, name=None):  # pragma: no cover
-        """Add a cartesian X marker. This method works only in graphical mode.
+        """Add a cartesian X marker.
+
+        .. note::
+           This method only works in graphical mode.
 
         Parameters
         ----------
@@ -1164,7 +1208,10 @@ class CommonReport(object):
 
     @pyaedt_function_handler()
     def add_cartesian_y_marker(self, val, name=None, y_axis=1):  # pragma: no cover
-        """Add a cartesian Y marker. This method works only in graphical mode.
+        """Add a cartesian Y marker.
+
+        .. note::
+           This method only works in graphical mode.
 
         Parameters
         ----------
@@ -1238,7 +1285,7 @@ class CommonReport(object):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed
+            ``True`` when successful, ``False`` when failed.
         """
         props = ["NAME:ChangedProps"]
         props.append(["NAME:Show minor X grid", "Value:=", minor_x])
@@ -1517,7 +1564,7 @@ class CommonReport(object):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed
+            ``True`` when successful, ``False`` when failed.
         """
         if linear_scaling:
             props = ["NAME:ChangedProps", ["NAME:Axis Scaling", "Value:=", "Linear"]]
@@ -1779,7 +1826,9 @@ class CommonReport(object):
         traces : list
             List of traces to add.
         setup_name : str, optional
-            Name of the setup. The default is ``None``.
+            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
+            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
+            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
         variations : dict, optional
             Dictionary of variations. The default is ``None``.
         context : list, optional
@@ -1908,7 +1957,34 @@ class Standard(CommonReport):
             else:
                 ctxt = ["Context:=", self.matrix]
         elif self._post.post_solution_type in ["HFSS3DLayout"]:
-            if self.differential_pairs:
+            if self.domain == "DCIR":
+                ctxt = [
+                    "NAME:Context",
+                    "SimValueContext:=",
+                    [
+                        37010,
+                        0,
+                        2,
+                        0,
+                        False,
+                        False,
+                        -1,
+                        1,
+                        0,
+                        1,
+                        1,
+                        "",
+                        0,
+                        0,
+                        "DCIRID",
+                        False,
+                        str(self.siwave_dc_category),
+                        "IDIID",
+                        False,
+                        "1",
+                    ],
+                ]
+            elif self.differential_pairs:
                 ctxt = [
                     "NAME:Context",
                     "SimValueContext:=",
@@ -2070,9 +2146,9 @@ class Fields(CommonReport):
 
     @property
     def _context(self):
-        ctxt = ["Context:=", self.polyline]
-        ctxt.append("PointCount:=")
-        ctxt.append(self.point_number)
+        ctxt = []
+        if self.polyline:
+            ctxt = ["Context:=", self.polyline, "PointCount:=", self.point_number]
         return ctxt
 
 
@@ -2111,6 +2187,7 @@ class FarField(CommonReport):
         self.primary_sweep = "Phi"
         self.secondary_sweep = "Theta"
         self.source_context = None
+        self.source_group = None
         if "Phi" not in self.variations:
             self.variations["Phi"] = ["All"]
         if "Theta" not in self.variations:
@@ -2136,6 +2213,8 @@ class FarField(CommonReport):
     def _context(self):
         if self.source_context:
             return ["Context:=", self.far_field_sphere, "SourceContext:=", self.source_context]
+        if self.source_group:
+            return ["Context:=", self.far_field_sphere, "Source Group:=", self.source_group]
         return ["Context:=", self.far_field_sphere]
 
 

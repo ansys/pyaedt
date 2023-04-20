@@ -3,9 +3,10 @@ This module contains the ``EdbHfss`` class.
 """
 import math
 
+from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
+from pyaedt.edb_core.edb_data.sources import ExcitationBundle
 from pyaedt.edb_core.edb_data.sources import ExcitationDifferential
-from pyaedt.edb_core.general import convert_netdict_to_pydict
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.general import convert_pytuple_to_nettuple
 from pyaedt.generic.constants import RadiationBoxType
@@ -13,46 +14,21 @@ from pyaedt.generic.constants import SweepType
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
 class EdbHfss(object):
-    """Manages EDB method to configure Hfss setup accessible from `Edb.core_hfss` property.
+    """Manages EDB method to configure Hfss setup accessible from `Edb.hfss` property.
 
     Examples
     --------
     >>> from pyaedt import Edb
     >>> edbapp = Edb("myaedbfolder")
-    >>> edb_hfss = edb_3dedbapp.core_hfss
+    >>> edb_hfss = edb_3dedbapp.hfss
     """
 
     def __init__(self, p_edb):
         self._pedb = p_edb
-
-    @property
-    def _hfss_terminals(self):
-        edblib = self._pedb.edblib
-        return edblib.HFSS3DLayout.HFSSTerminalMethods
-
-    @property
-    def _hfss_ic_methods(self):
-        edblib = self._pedb.edblib
-        return edblib.HFSS3DLayout.ICMethods
-
-    @property
-    def _hfss_setup(self):
-        edblib = self._pedb.edblib
-        return edblib.HFSS3DLayout.HFSSSetup
-
-    @property
-    def _hfss_mesh_setup(self):
-        edblib = self._pedb.edblib
-        return edblib.HFSS3DLayout.Meshing
-
-    @property
-    def _sweep_methods(self):
-        edblib = self._pedb.edblib
-        return edblib.SimulationSetup.SweepMethods
 
     @property
     def _logger(self):
@@ -119,11 +95,14 @@ class EdbHfss(object):
         """
         if not terminal_name:
             terminal_name = generate_unique_name("Terminal_")
-
-        point_on_edge = self._edb.Geometry.PointData(
-            self._get_edb_value(point_on_edge[0]), self._get_edb_value(point_on_edge[1])
-        )
-        prim = [i for i in self._pedb.core_primitives.primitives if i.id == prim_id][0].primitive_object
+        if not isinstance(point_on_edge, self._edb.Geometry.PointData):
+            point_on_edge = self._edb.Geometry.PointData(
+                self._get_edb_value(point_on_edge[0]), self._get_edb_value(point_on_edge[1])
+            )
+        if hasattr(prim_id, "GetId"):
+            prim = prim_id
+        else:
+            prim = [i for i in self._pedb.modeler.primitives if i.id == prim_id][0].primitive_object
         pos_edge = self._edb.Cell.Terminal.PrimitiveEdge.Create(prim, point_on_edge)
         pos_edge = convert_py_list_to_net_list(pos_edge, self._edb.Cell.Terminal.Edge)
         return self._edb.Cell.Terminal.EdgeTerminal.Create(
@@ -135,15 +114,16 @@ class EdbHfss(object):
         """Retrieve the trace width for traces with ports.
 
         Returns
-        -------
+        -------<
         dict
             Dictionary of trace width data.
         """
-        mesh = self._hfss_mesh_setup.GetMeshOperation(self._active_layout)
-        if mesh.Item1:
-            return convert_netdict_to_pydict(mesh.Item2)
-        else:
-            return {}
+        nets = {}
+        for net in self._pedb.excitations_nets:
+            smallest = self._pedb.nets[net].get_smallest_trace_width()
+            if smallest < 1e10:
+                nets[net] = self._pedb.nets[net].get_smallest_trace_width()
+        return nets
 
     @pyaedt_function_handler()
     def create_circuit_port_on_pin(self, pos_pin, neg_pin, impedance=50, port_name=None):
@@ -162,8 +142,8 @@ class EdbHfss(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> pins =edbapp.core_components.get_pin_from_component("U2A5")
-        >>> edbapp.core_hfss.create_circuit_port_on_pin(pins[0], pins[1],50,"port_name")
+        >>> pins =edbapp.components.get_pin_from_component("U2A5")
+        >>> edbapp.hfss.create_circuit_port_on_pin(pins[0], pins[1],50,"port_name")
 
         Returns
         -------
@@ -171,7 +151,7 @@ class EdbHfss(object):
             Port Name.
 
         """
-        return self._pedb.core_siwave.create_circuit_port_on_pin(pos_pin, neg_pin, impedance, port_name)
+        return self._pedb.siwave.create_circuit_port_on_pin(pos_pin, neg_pin, impedance, port_name)
 
     @pyaedt_function_handler()
     def create_voltage_source_on_pin(self, pos_pin, neg_pin, voltage_value=3.3, phase_value=0, source_name=""):
@@ -193,19 +173,17 @@ class EdbHfss(object):
         Returns
         -------
         str
-            Source Name
+            Source Name.
 
         Examples
         --------
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> pins =edbapp.core_components.get_pin_from_component("U2A5")
-        >>> edbapp.core_hfss.create_voltage_source_on_pin(pins[0], pins[1],50,"source_name")
+        >>> pins =edbapp.components.get_pin_from_component("U2A5")
+        >>> edbapp.hfss.create_voltage_source_on_pin(pins[0], pins[1],50,"source_name")
         """
-        return self._pedb.core_siwave.create_voltage_source_on_pin(
-            pos_pin, neg_pin, voltage_value, phase_value, source_name
-        )
+        return self._pedb.siwave.create_voltage_source_on_pin(pos_pin, neg_pin, voltage_value, phase_value, source_name)
 
     @pyaedt_function_handler()
     def create_current_source_on_pin(self, pos_pin, neg_pin, current_value=0.1, phase_value=0, source_name=""):
@@ -234,13 +212,11 @@ class EdbHfss(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> pins =edbapp.core_components.get_pin_from_component("U2A5")
-        >>> edbapp.core_hfss.create_current_source_on_pin(pins[0], pins[1],50,"source_name")
+        >>> pins =edbapp.components.get_pin_from_component("U2A5")
+        >>> edbapp.hfss.create_current_source_on_pin(pins[0], pins[1],50,"source_name")
         """
 
-        return self._pedb.core_siwave.create_current_source_on_pin(
-            pos_pin, neg_pin, current_value, phase_value, source_name
-        )
+        return self._pedb.siwave.create_current_source_on_pin(pos_pin, neg_pin, current_value, phase_value, source_name)
 
     @pyaedt_function_handler()
     def create_resistor_on_pin(self, pos_pin, neg_pin, rvalue=1, resistor_name=""):
@@ -267,10 +243,10 @@ class EdbHfss(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> pins =edbapp.core_components.get_pin_from_component("U2A5")
-        >>> edbapp.core_hfss.create_resistor_on_pin(pins[0], pins[1],50,"res_name")
+        >>> pins =edbapp.components.get_pin_from_component("U2A5")
+        >>> edbapp.hfss.create_resistor_on_pin(pins[0], pins[1],50,"res_name")
         """
-        return self._pedb.core_siwave.create_resistor_on_pin(pos_pin, neg_pin, rvalue, resistor_name)
+        return self._pedb.siwave.create_resistor_on_pin(pos_pin, neg_pin, rvalue, resistor_name)
 
     @pyaedt_function_handler()
     def create_circuit_port_on_net(
@@ -304,15 +280,15 @@ class EdbHfss(object):
         Returns
         -------
         str
-            Port Name
+            The name of the port.
 
         Examples
         --------
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edbapp.core_hfss.create_circuit_port_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 50, "port_name")
+        >>> edbapp.hfss.create_circuit_port_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 50, "port_name")
         """
-        return self._pedb.core_siwave.create_circuit_port_on_net(
+        return self._pedb.siwave.create_circuit_port_on_net(
             positive_component_name,
             positive_net_name,
             negative_component_name,
@@ -355,16 +331,16 @@ class EdbHfss(object):
         Returns
         -------
         str
-            Source Name
+            Source Name.
 
         Examples
         --------
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edb.core_hfss.create_voltage_source_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 3.3, 0, "source_name")
+        >>> edb.hfss.create_voltage_source_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 3.3, 0, "source_name")
         """
-        return self._pedb.core_siwave.create_voltage_source_on_net(
+        return self._pedb.siwave.create_voltage_source_on_net(
             positive_component_name,
             positive_net_name,
             negative_component_name,
@@ -415,9 +391,9 @@ class EdbHfss(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edb.core_hfss.create_current_source_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 0.1, 0, "source_name")
+        >>> edb.hfss.create_current_source_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 0.1, 0, "source_name")
         """
-        return self._pedb.core_siwave.create_current_source_on_net(
+        return self._pedb.siwave.create_current_source_on_net(
             positive_component_name,
             positive_net_name,
             negative_component_name,
@@ -454,22 +430,22 @@ class EdbHfss(object):
         if not isinstance(net_list, list):
             net_list = [net_list]
         for ref in ref_des_list:
-            for pin in self._pedb.core_components.components[ref].pins.items():
-                if pin[1].net_name in net_list and pin[1].pin.IsLayoutPin():
-                    port_name = "{}_{}_{}".format(ref, pin[1].net_name, pin[1].pin.GetName())
+            for _, py_inst in self._pedb.components.components[ref].pins.items():
+                if py_inst.net_name in net_list and py_inst.is_pin:
+                    port_name = "{}_{}_{}".format(ref, py_inst.net_name, py_inst.pin.GetName())
                     (
                         res,
                         from_layer_pos,
                         to_layer_pos,
-                    ) = pin[1].pin.GetLayerRange()
+                    ) = py_inst.pin.GetLayerRange()
                     if (
                         res
                         and from_layer_pos
                         and self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
                             self._active_layout,
-                            pin[1].pin.GetNet(),
+                            py_inst.pin.GetNet(),
                             port_name,
-                            pin[1].pin,
+                            py_inst.pin,
                             to_layer_pos,
                         )
                     ):
@@ -492,19 +468,19 @@ class EdbHfss(object):
 
         Parameters
         ----------
-        positive_primitive_id : int
+        positive_primitive_id : int, EDBPrimitives
             Primitive ID of the positive terminal.
         positive_points_on_edge : list
             Coordinate of the point to define the edge terminal.
             The point must be close to the target edge but not on the two
             ends of the edge.
-        negative_primitive_id : int
+        negative_primitive_id : int, EDBPrimitives
             Primitive ID of the negative terminal.
         negative_points_on_edge : list
             Coordinate of the point to define the edge terminal.
             The point must be close to the target edge but not on the two
             ends of the edge.
-        port_name :  str, optional
+        port_name : str, optional
             Name of the port. The default is ``None``.
         horizontal_extent_factor : int, float, optional
             Horizontal extent factor. The default value is ``5``.
@@ -516,14 +492,20 @@ class EdbHfss(object):
         Returns
         -------
         tuple
-            port_name, pyaedt.edb_core.edb_data.sources.ExcitationDifferential
+            The tuple contains: (port_name, pyaedt.edb_core.edb_data.sources.ExcitationDifferential).
 
         Examples
         --------
-        >>> edb.core_hfss.create_differential_wave_port(0, ["-50mm", "-0mm"], 1, ["-50mm", "-0.2mm"])
+        >>> edb.hfss.create_differential_wave_port(0, ["-50mm", "-0mm"], 1, ["-50mm", "-0.2mm"])
         """
         if not port_name:
             port_name = generate_unique_name("diff")
+
+        if isinstance(positive_primitive_id, EDBPrimitives):
+            positive_primitive_id = positive_primitive_id.id
+
+        if isinstance(negative_primitive_id, EDBPrimitives):
+            negative_primitive_id = negative_primitive_id.id
 
         _, pos_term = self.create_wave_port(
             positive_primitive_id,
@@ -533,7 +515,7 @@ class EdbHfss(object):
             vertical_extent_factor=vertical_extent_factor,
             pec_launch_width=pec_launch_width,
         )
-        _, neg_term = self.create_edge_port_vertical(
+        _, neg_term = self.create_wave_port(
             negative_primitive_id,
             negative_points_on_edge,
             horizontal_extent_factor=horizontal_extent_factor,
@@ -545,6 +527,68 @@ class EdbHfss(object):
         )
         _edb_boundle_terminal = self._edb.Cell.Terminal.BundleTerminal.Create(edb_list)
         return port_name, ExcitationDifferential(self._pedb, _edb_boundle_terminal)
+
+    @pyaedt_function_handler
+    def create_bundle_wave_port(
+        self,
+        primitives_id,
+        points_on_edge,
+        port_name=None,
+        horizontal_extent_factor=5,
+        vertical_extent_factor=3,
+        pec_launch_width="0.01mm",
+    ):
+        """Create a bundle wave port.
+
+        Parameters
+        ----------
+        primitives_id : list
+            Primitive ID of the positive terminal.
+        points_on_edge : list
+            Coordinate of the point to define the edge terminal.
+            The point must be close to the target edge but not on the two
+            ends of the edge.
+        port_name : str, optional
+            Name of the port. The default is ``None``.
+        horizontal_extent_factor : int, float, optional
+            Horizontal extent factor. The default value is ``5``.
+        vertical_extent_factor : int, float, optional
+            Vertical extent factor. The default value is ``3``.
+        pec_launch_width : str, optional
+            Launch Width of PEC. The default value is ``"0.01mm"``.
+
+        Returns
+        -------
+        tuple
+            The tuple contains: (port_name, pyaedt.edb_core.edb_data.sources.ExcitationDifferential).
+
+        Examples
+        --------
+        >>> edb.hfss.create_bundle_wave_port(0, ["-50mm", "-0mm"], 1, ["-50mm", "-0.2mm"])
+        """
+        if not port_name:
+            port_name = generate_unique_name("bundle_port")
+
+        if isinstance(primitives_id[0], EDBPrimitives):
+            primitives_id = [i.id for i in primitives_id]
+
+        terminals = []
+        _port_name = port_name
+        for p_id, loc in list(zip(primitives_id, points_on_edge)):
+            _, term = self.create_wave_port(
+                p_id,
+                loc,
+                port_name=_port_name,
+                horizontal_extent_factor=horizontal_extent_factor,
+                vertical_extent_factor=vertical_extent_factor,
+                pec_launch_width=pec_launch_width,
+            )
+            _port_name = None
+            terminals.append(term)
+
+        edb_list = convert_py_list_to_net_list([i._edb_terminal for i in terminals], self._edb.Cell.Terminal.Terminal)
+        _edb_bundle_terminal = self._edb.Cell.Terminal.BundleTerminal.Create(edb_list)
+        return port_name, ExcitationBundle(self._pedb, _edb_bundle_terminal)
 
     @pyaedt_function_handler()
     def create_hfss_ports_on_padstack(self, pinpos, portname=None):
@@ -631,7 +675,7 @@ class EdbHfss(object):
         >>> ref_poly = [poly for poly in poly_list if poly.GetId() == 19][0]
         >>> port_location = [-65e-3, -13e-3]
         >>> ref_location = [-63e-3, -13e-3]
-        >>> edb.core_hfss.create_edge_port_on_polygon(polygon=port_poly, reference_polygon=ref_poly,
+        >>> edb.hfss.create_edge_port_on_polygon(polygon=port_poly, reference_polygon=ref_poly,
         >>> terminal_point=port_location, reference_point=ref_location)
 
         """
@@ -639,7 +683,7 @@ class EdbHfss(object):
             self._logger.error("No polygon provided for port {} creation".format(port_name))
             return False
         if reference_layer:
-            reference_layer = self._pedb.core_stackup.signal_layers[reference_layer]._layer
+            reference_layer = self._pedb.stackup.signal_layers[reference_layer]._edb_layer
             if not reference_layer:
                 self._logger.error("Specified layer for port {} creation was not found".format(port_name))
         if not isinstance(terminal_point, list):
@@ -661,6 +705,9 @@ class EdbHfss(object):
         )
         if force_circuit_port:
             edge_term.SetIsCircuitPort(True)
+        else:
+            edge_term.SetIsCircuitPort(False)
+
         if port_impedance:
             edge_term.SetImpedance(self._pedb.edb_value(port_impedance))
         edge_term.SetName(port_name)
@@ -674,6 +721,9 @@ class EdbHfss(object):
                 ref_edge_term.SetReferenceLayer(reference_layer)
             if force_circuit_port:
                 ref_edge_term.SetIsCircuitPort(True)
+            else:
+                ref_edge_term.SetIsCircuitPort(False)
+
             if port_impedance:
                 ref_edge_term.SetImpedance(self._pedb.edb_value(port_impedance))
             edge_term.SetReferenceTerminal(ref_edge_term)
@@ -694,7 +744,7 @@ class EdbHfss(object):
 
         Parameters
         ----------
-        prim_id : int
+        prim_id : int, EDBPrimitives
             Primitive ID.
         point_on_edge : list
             Coordinate of the point to define the edge terminal.
@@ -714,14 +764,18 @@ class EdbHfss(object):
         Returns
         -------
         tuple
-            Port name, pyaedt.edb_core.edb_data.sources.Excitation
+            The tuple contains: (Port name, pyaedt.edb_core.edb_data.sources.Excitation).
 
         Examples
         --------
-        >>> edb.core_hfss.create_wave_port(0, ["-50mm", "-0mm"])
+        >>> edb.hfss.create_wave_port(0, ["-50mm", "-0mm"])
         """
         if not port_name:
             port_name = generate_unique_name("Terminal_")
+
+        if isinstance(prim_id, EDBPrimitives):
+            prim_id = prim_id.id
+
         pos_edge_term = self._create_edge_terminal(prim_id, point_on_edge, port_name)
         pos_edge_term.SetImpedance(self._pedb.edb_value(impedance))
 
@@ -739,7 +793,7 @@ class EdbHfss(object):
             prop,
         )
         if pos_edge_term:
-            return port_name, self._pedb.core_hfss.excitations[port_name]
+            return port_name, self._pedb.hfss.excitations[port_name]
         else:
             return False
 
@@ -792,7 +846,7 @@ class EdbHfss(object):
         pos_edge_term = self._create_edge_terminal(prim_id, point_on_edge, port_name)
         pos_edge_term.SetImpedance(self._pedb.edb_value(impedance))
         if reference_layer:
-            reference_layer = self._pedb.core_stackup.signal_layers[reference_layer]._layer
+            reference_layer = self._pedb.stackup.signal_layers[reference_layer]._edb_layer
             pos_edge_term.SetReferenceLayer(reference_layer)
 
         prop = ", ".join(
@@ -811,7 +865,7 @@ class EdbHfss(object):
             prop,
         )
         if pos_edge_term:
-            return port_name, self._pedb.core_hfss.excitations[port_name]
+            return port_name, self._pedb.hfss.excitations[port_name]
         else:
             return False
 
@@ -920,7 +974,7 @@ class EdbHfss(object):
             edges_pts = []
             if isinstance(reference_layer, str):
                 try:
-                    reference_layer = self._pedb.core_stackup.signal_layers[reference_layer]._layer
+                    reference_layer = self._pedb.stackup.signal_layers[reference_layer]._edb_layer
                 except:
                     raise Exception("Failed to get the layer {}".format(reference_layer))
             if not isinstance(reference_layer, self._edb.Cell.ILayerReadOnly):
@@ -945,26 +999,14 @@ class EdbHfss(object):
                                 if return_points_only:
                                     edges_pts.append(_pt)
                                 else:
-                                    try:
-                                        self._hfss_terminals.CreateEdgePort(
-                                            path, pt, reference_layer, port_name
-                                        )  # pragma: no cover
-                                    except:  # pragma: no cover
-                                        self._logger.warning(
-                                            "edge port creation failed on point {}, {}".format(str(pt[0]), str(pt[1]))
-                                        )
+                                    term = self._create_edge_terminal(path, pt, port_name)  # pragma no cover
+                                    term.SetReferenceLayer(reference_layer)  # pragma no cover
                         else:
                             if return_points_only:  # pragma: no cover
                                 edges_pts.append(_pt)
                             else:
-                                try:
-                                    self._hfss_terminals.CreateEdgePort(
-                                        path, pt, reference_layer, port_name
-                                    )  # pragma: no cover
-                                except:  # pragma: no cover
-                                    self._logger.warning(
-                                        "edge port creation failed on point {}, {}".format(str(pt[0]), str(pt[1]))
-                                    )
+                                term = self._create_edge_terminal(path, pt, port_name)
+                                term.SetReferenceLayer(reference_layer)
 
             if return_points_only:
                 return edges_pts
@@ -1001,114 +1043,6 @@ class EdbHfss(object):
             round(_bbox.Item2.Y.ToDouble(), digit_resolution),
         ]
         return layout_bbox
-
-    @pyaedt_function_handler()
-    def create_circuit_ports_on_components_no_pin_group(
-        self,
-        signal_nets=None,
-        power_nets=None,
-        simulation_setup=None,
-        component_list=None,
-    ):
-        """Create circuit ports on given components.
-        For each component, create a coplanar circuit port at each signalNet pin.
-        Use the closest powerNet pin as a reference, regardless of component.
-
-        Parameters
-        ----------
-        signal_nets : list, optional if simulation_setup is provided
-            List of signal net names. This list is ignored if a ``simulation_setup`` object is provided.
-
-        power_nets : list, optional if a ``simulatiom_setup`` object is provided
-            List of power net names. This list is ignored if a ``simulation_setup`` object
-            is provided.
-
-        component_list : list optional if simulatiom_setup provided.
-            The list of component names. will be ignored if simulation_setup object is provided
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        if simulation_setup:
-            if not isinstance(simulation_setup, SimulationConfiguration):
-                self._logger.error(
-                    "simulation setup was provided but must be an instance of \
-                    edb_data.simulation_configuration.SimulationConfiguration"
-                )
-                return False
-            signal_nets = simulation_setup.signal_nets
-            power_nets = simulation_setup.power_nets
-            component_list = simulation_setup.coplanar_instances
-        else:
-            if not component_list:
-                return False
-
-        if not simulation_setup.coplanar_instances:
-            return False
-
-        layout = self._active_layout
-        l_inst = layout.GetLayoutInstance()
-        edb_power_nets = [self._pedb.core_nets.find_or_create_net(net) for net in power_nets]
-        for inst in component_list:
-            comp = self._edb.Cell.Hierarchy.Component.FindByName(layout, inst)
-            if comp.IsNull():
-                self._logger.warning("SetupCoplanarInstances: could not find {0}".format(inst))
-                continue
-            # Get the portLayer based on the component's pin placement
-            cmp_layer = self._edb.Cell.Hierarchy.Component.GetPlacementLayer(comp)
-            # Get the bbox of the comp
-            bb = self._edb.Geometry.PolygonData.CreateFromBBox(l_inst.GetLayoutObjInstance(comp, None).GetBBox())
-            bb_c = bb.GetBoundingCircleCenter()
-            # Expand x5 to create testing polygon...
-            bb.Scale(5, bb_c)
-            # Find the closest pin in the Ground/Power nets...
-            hit = l_inst.FindLayoutObjInstance(bb, cmp_layer, convert_py_list_to_net_list(edb_power_nets))
-            all_hits = [list(hit.Item1.Items) + list(hit.Item2.Items)]
-            hit_pinsts = [
-                obj
-                for obj in all_hits
-                if obj.GetLayoutObj().GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance
-            ]
-            if not hit_pinsts:
-                self._logger.error("SetupCoplanarInstances: could not find a pin in the vicinity of {0}".format(inst))
-                continue
-            # Iterate each pin in the component that's on the signal nets and create a circuit port
-            pin_list = [
-                obj
-                for obj in list(comp.LayoutObjs)
-                if obj.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance
-                and obj.GetNet().GetName() in signal_nets
-            ]
-            for ii, pin in enumerate(pin_list):
-                pin_c = l_inst.GetLayoutObjInstance(pin, None).GetCenter()
-                ref_pinst = None
-                ref_pt = None
-                ref_dist = None
-                for hhLoi in hit_pinsts:
-                    this_c = hhLoi.GetCenter()
-                    this_dist = this_c.Distance(pin_c)
-                    if ref_pt is None or this_dist < ref_dist:
-                        ref_pinst = hhLoi.GetLayoutObj()
-                        ref_pt = this_c
-                        ref_dist = this_dist
-
-                port_nm = "PORT_{0}_{1}@{2}".format(comp.GetName(), ii, pin.GetNet().GetName())
-                ## TO complete and check for embefing in create_port_on_component
-                ###########################
-                ###########################
-                self._edbutils.HfssUtilities.CreateCircuitPortFromPoints(
-                    port_nm,
-                    layout,
-                    pin_c,
-                    cmp_layer,
-                    pin.GetNet(),
-                    ref_pt,
-                    cmp_layer,
-                    ref_pinst.GetNet(),
-                )
-        return True
 
     @pyaedt_function_handler()
     def configure_hfss_extents(self, simulation_setup=None):
@@ -1472,7 +1406,7 @@ class EdbHfss(object):
             )
             return False
         self._logger.info("Starting Layout Defeaturing")
-        polygon_list = self._pedb.core_primitives.polygons
+        polygon_list = self._pedb.modeler.polygons
         polygon_with_voids = self._pedb.core_layout.get_poly_with_voids(polygon_list)
         self._logger.info("Number of polygons with voids found: {0}".format(str(polygon_with_voids.Count)))
         for _poly in polygon_list:
@@ -1526,8 +1460,8 @@ class EdbHfss(object):
         """
 
         if positive_pin and negative_pin:
-            positive_pin_term = self._pedb.core_components._create_terminal(positive_pin)
-            negative_pin_term = self._pedb.core_components._create_terminal(negative_pin)
+            positive_pin_term = self._pedb.components._create_terminal(positive_pin)
+            negative_pin_term = self._pedb.components._create_terminal(negative_pin)
             positive_pin_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
             negative_pin_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
             rlc = self._edb.Utility.Rlc()

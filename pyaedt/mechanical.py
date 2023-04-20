@@ -7,6 +7,7 @@ from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.Boundary import BoundaryObject
+from pyaedt.modules.SetupTemplates import SetupKeys
 
 
 class Mechanical(FieldAnalysis3D, object):
@@ -108,7 +109,6 @@ class Mechanical(FieldAnalysis3D, object):
         port=0,
         aedt_process_id=None,
     ):
-
         FieldAnalysis3D.__init__(
             self,
             "Mechanical",
@@ -523,3 +523,150 @@ class Mechanical(FieldAnalysis3D, object):
         for el in setup_list:
             sweep_list.append(el + " : Solution")
         return sweep_list
+
+    @pyaedt_function_handler()
+    def assign_heat_flux(self, objects_list, heat_flux_type, value, boundary_name=""):
+        """Assign heat flux boundary condition to an object or face list.
+
+        Parameters
+        ----------
+        objects_list : list
+            List of objects, faces, or both.
+        heat_flux_type : str
+            Type of the heat flux. Options are ``"Total Power"`` or ``"Surface Flux"``.
+        value : str
+            Value of heat flux with units.
+        boundary_name : str, optional
+            Name of the boundary. The default is ``""``, in which case the default
+            name is used.
+
+        Returns
+        -------
+        :class:`aedt.modules.Boundary.Boundary object`
+            Boundary object.
+
+        References
+        ----------
+
+        >>> oModule.AssignHeatFlux
+        """
+        assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
+
+        props = {}
+        objects_list = self.modeler.convert_to_selections(objects_list, True)
+        if type(objects_list) is list:
+            if type(objects_list[0]) is str:
+                props["Objects"] = objects_list
+            else:
+                props["Faces"] = objects_list
+
+        if heat_flux_type == "Total Power":
+            props["TotalPower"] = value
+        else:
+            props["SurfaceFlux"] = value
+
+        if not boundary_name:
+            boundary_name = generate_unique_name("HeatFlux")
+
+        bound = BoundaryObject(self, boundary_name, props, "HeatFlux")
+        if bound.create():
+            self.boundaries.append(bound)
+            return bound
+        return False
+
+    @pyaedt_function_handler()
+    def assign_heat_generation(self, objects_list, value, boundary_name=""):
+        """Assign a heat generation boundary condition to an object list.
+
+        Parameters
+        ----------
+        objects_list : list
+            List of objects.
+        value : str
+            Value of heat generation with units.
+        boundary_name : str, optional
+            Name of the boundary. The default is ``""``, in which case the default
+            name is used.
+
+        Returns
+        -------
+        :class:`aedt.modules.Boundary.Boundary object`
+            Boundary object.
+
+        References
+        ----------
+
+        >>> oModule.AssignHeatGeneration
+        """
+        assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
+
+        props = {}
+        objects_list = self.modeler.convert_to_selections(objects_list, True)
+        if type(objects_list) is list:
+            props["Objects"] = objects_list
+
+        props["TotalPower"] = value
+
+        if not boundary_name:
+            boundary_name = generate_unique_name("HeatGeneration")
+
+        bound = BoundaryObject(self, boundary_name, props, "HeatGeneration")
+        if bound.create():
+            self.boundaries.append(bound)
+            return bound
+        return False
+
+    @pyaedt_function_handler()
+    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
+        """Create an analysis setup for Mechanical.
+
+        Optional arguments are passed along with ``setuptype`` and ``setupname``.  Keyword
+        names correspond to the ``setuptype``
+        corresponding to the native AEDT API.  The list of
+        keywords here is not exhaustive.
+
+
+        Parameters
+        ----------
+        setuptype : int, str, optional
+            Type of the setup. Options are  ``"IcepakSteadyState"`` and
+            ``"IcepakTransient"``. The default is ``"IcepakSteadyState"``.
+        setupname : str, optional
+            Name of the setup. The default is ``"Setup1"``.
+        **kwargs : dict, optional
+            Available keys depend on the setup chosen.
+            For more information, see :doc:`../SetupTemplatesMechanical`.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.SolveSetup.SetupHFSS`
+            Solver Setup object.
+
+        References
+        ----------
+
+        >>> oModule.InsertSetup
+
+        Examples
+        --------
+
+        >>> from pyaedt import Mechanical
+        >>> app = Mechanical()
+        >>> app.create_setup(setupname="Setup1", MaxModes=6))
+
+        """
+        if setuptype is None:
+            setuptype = self.design_solutions.default_setup
+        elif setuptype in SetupKeys.SetupNames:
+            setuptype = SetupKeys.SetupNames.index(setuptype)
+        if "props" in kwargs:
+            return self._create_setup(setupname=setupname, setuptype=setuptype, props=kwargs["props"])
+        else:
+            setup = self._create_setup(setupname=setupname, setuptype=setuptype)
+        setup.auto_update = False
+        for arg_name, arg_value in kwargs.items():
+            if setup[arg_name] is not None:
+                setup[arg_name] = arg_value
+        setup.auto_update = True
+        setup.update()
+        return setup

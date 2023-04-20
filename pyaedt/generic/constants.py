@@ -11,8 +11,8 @@ INV2PI = 0.5 / math.pi
 V2PI = 2.0 * math.pi
 METER2IN = 0.0254
 METER2MILES = 1609.344051499
-
 MILS2METER = 39370.078740157
+SpeedOfLight = 299792458.0
 
 
 def db20(x, inverse=True):
@@ -29,6 +29,22 @@ def db10(x, inverse=True):
         return 10 * math.log10(x)
     else:
         return math.pow(10, x / 10.0)
+
+
+def dbw(x, inverse=True):
+    """Convert W to decimal and vice versa."""
+    if inverse:
+        return 10 * math.log10(x)
+    else:
+        return math.pow(10, x / 10.0)
+
+
+def dbm(x, inverse=True):
+    """Convert W to decimal and vice versa."""
+    if inverse:
+        return 10 * math.log10(x) + 30
+    else:
+        return math.pow(10, x / 10.0) / 1000
 
 
 def fah2kel(val, inverse=True):
@@ -142,23 +158,47 @@ def unit_converter(values, unit_system="Length", input_units="meter", output_uni
 
     Returns
     -------
-    float
+    float, list
         Converted value.
     """
     if unit_system in AEDT_UNITS:
-        if input_units not in AEDT_UNITS[unit_system] or output_units not in AEDT_UNITS[unit_system]:
-            warnings.warn("No units found")
+        if input_units not in AEDT_UNITS[unit_system]:
+            warnings.warn("Unknown units: '{}'".format(input_units))
+            return values
+        elif output_units not in AEDT_UNITS[unit_system]:
+            warnings.warn("Unknown units: '{}'".format(output_units))
             return values
         else:
-            if isinstance(values, list):
-                converted_values = []
-                for value in values:
-                    converted_values.append(
-                        value * AEDT_UNITS[unit_system][input_units] / AEDT_UNITS[unit_system][output_units]
-                    )
+            input_is_list = isinstance(values, list)
+            if not input_is_list:
+                values = [values]
+            converted_values = []
+            for value in values:
+                if unit_system == "Temperature":
+                    value = AEDT_UNITS[unit_system][input_units](value, False)
+                    value = AEDT_UNITS[unit_system][output_units](value, output_units != "kel")
+                elif not callable(AEDT_UNITS[unit_system][input_units]) and not callable(
+                    AEDT_UNITS[unit_system][output_units]
+                ):
+                    value = value * AEDT_UNITS[unit_system][input_units] / AEDT_UNITS[unit_system][output_units]
+                elif not callable(AEDT_UNITS[unit_system][input_units]) and callable(
+                    AEDT_UNITS[unit_system][output_units]
+                ):
+                    value = value * AEDT_UNITS[unit_system][input_units]
+                    value = AEDT_UNITS[unit_system][output_units](value, True)
+                elif callable(AEDT_UNITS[unit_system][input_units]) and not callable(
+                    AEDT_UNITS[unit_system][output_units]
+                ):
+                    value = AEDT_UNITS[unit_system][input_units](value, False) / AEDT_UNITS[unit_system][output_units]
+                else:
+                    value = AEDT_UNITS[unit_system][input_units](value, False)
+                    value = AEDT_UNITS[unit_system][output_units](value, True)
+
+                converted_values.append(value)
+            if input_is_list:
                 return converted_values
             else:
-                return values * AEDT_UNITS[unit_system][input_units] / AEDT_UNITS[unit_system][output_units]
+                return converted_values[0]
     warnings.warn("No system unit found")
     return values
 
@@ -345,9 +385,9 @@ AEDT_UNITS = {
         "kV": 1e3,
         "MegV": 1e6,
         "gV": 1e9,
-        "dBV": (db20,),
+        "dBV": db20,
     },
-    "Temperature": {"kel": 1.0, "cel": (cel2kel,), "fah": (fah2kel,)},
+    "Temperature": {"kel": lambda x, y: x, "cel": cel2kel, "fah": fah2kel},
     "Power": {
         "fW": 1e-15,
         "pW": 1e-12,
@@ -360,8 +400,8 @@ AEDT_UNITS = {
         "gW": 1e9,
         "Btu_per_hr": 3.4129693,
         "Btu_per_sec": 9.48047e-4,
-        "dBm": 30,
-        "dBW": 0,
+        "dBm": dbm,
+        "dBW": dbw,
         "HP": 1.34102e-3,
         "erg_per_sec": 1e7,
     },
@@ -636,11 +676,11 @@ class SolverType(object):
 
 
 class CutoutSubdesignType(object):
-    (Conformal, BoundingBox, ConvexHull, Invalid) = range(0, 4)
+    (BoundingBox, Conformal, ConvexHull, Invalid) = range(0, 4)
 
 
 class RadiationBoxType(object):
-    (Conformal, BoundingBox, ConvexHull, Invalid) = range(0, 4)
+    (BoundingBox, Conformal, ConvexHull, Polygon, Invalid) = range(0, 5)
 
 
 class SweepType(object):
@@ -655,7 +695,7 @@ class BasisOrder(object):
     ``single``.
     """
 
-    (Mixed, Zero, Single, Double, Invalid) = range(0, 5)
+    (Mixed, Zero, Single, Double, Invalid) = (-1, 0, 1, 2, 3)
 
 
 class NodeType(object):
@@ -856,42 +896,6 @@ class SETUPS(object):
         CPSM,
         NSSM,
     ) = range(0, 52)
-
-
-class CoordinateSystemAxis(object):
-    """CoordinateSystemAxis class.
-
-    .. deprecated:: 0.4.8
-        Use :func:`AXIS` instead."""
-
-    (XAxis, YAxis, ZAxis) = range(0, 3)
-
-
-class CoordinateSystemPlane(object):
-    """CoordinateSystemPlane class.
-
-    .. deprecated:: 0.4.8
-        Use :func:`PLANE` instead."""
-
-    (YZPlane, ZXPlane, XYPlane) = range(0, 3)
-
-
-class Plane(object):
-    """Plane class.
-
-    .. deprecated:: 0.4.8
-        Use :func:`VIEW` instead."""
-
-    (XYPlane, YZPlane, ZXPlane, ISO) = ("XY", "YZ", "ZX", "iso")
-
-
-class GravityDirection(object):
-    """GravityDirection class.
-
-    .. deprecated:: 0.4.8
-        Use :func:`GRAVITY` instead."""
-
-    (XNeg, YNeg, ZNeg, XPos, YPos, ZPos) = range(0, 6)
 
 
 CSS4_COLORS = {

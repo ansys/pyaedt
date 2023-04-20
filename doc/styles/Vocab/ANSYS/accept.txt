@@ -18,6 +18,7 @@ docstrings
 doppler
 EDB
 efields
+EMIT
 getters
 globals
 HFSS 3D Layout
@@ -28,6 +29,7 @@ limitilines
 matplotlib
 Maxwell 2D
 Maxwell 3D
+Maxwell Circuit
 Mechanical
 multiphysics
 multiplot
@@ -68,3 +70,4 @@ Uncomment
 vias
 _static
 pwl
+Conda

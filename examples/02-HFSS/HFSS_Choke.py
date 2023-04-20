@@ -10,13 +10,9 @@ This example shows how you can use PyAEDT to create a choke setup in HFSS.
 
 import json
 import os
+import pyaedt
 
-from pyaedt import generate_unique_project_name
-from pyaedt import Hfss
-from pyaedt.modules.Mesh import Mesh
-
-
-project_name = generate_unique_project_name(project_name="choke")
+project_name = pyaedt.generate_unique_project_name(project_name="choke")
 
 ###############################################################################
 # Set non-graphical mode
@@ -25,15 +21,18 @@ project_name = generate_unique_project_name(project_name="choke")
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+non_graphical = False
 
 ###############################################################################
 # Launch HFSS
 # ~~~~~~~~~~~
-# Launches HFSS 2022 R2 in graphical mode.
+# Launches HFSS 2023 R1 in graphical mode.
 
-hfss = Hfss(projectname=project_name, specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True,
-            solution_type="Terminal")
+hfss = pyaedt.Hfss(projectname=project_name,
+                   specified_version="2023.1",
+                   non_graphical=non_graphical,
+                   new_desktop_session=True,
+                   solution_type="Terminal")
 
 ###############################################################################
 # Rules and information of use
@@ -135,7 +134,6 @@ core = list_object[1]
 first_winding_list = list_object[2]
 second_winding_list = list_object[3]
 
-
 ###############################################################################
 # Create ground
 # ~~~~~~~~~~~~~
@@ -161,8 +159,9 @@ port_dimension_list = [2, dictionary_values[1]["Outer Winding"]["Wire Diameter"]
 for position in port_position_list:
     sheet = hfss.modeler.create_rectangle("XZ", position, port_dimension_list, name="sheet_port")
     sheet.move([-dictionary_values[1]["Outer Winding"]["Wire Diameter"] / 2, 0, -1])
-    hfss.create_lumped_port_to_sheet(
-        sheet.name, portname="port_" + str(port_position_list.index(position) + 1), reference_object_list=[ground]
+    hfss.lumped_port(signal=sheet.name,
+                     name="port_" + str(port_position_list.index(position) + 1),
+                     reference=[ground]
     )
 
 ###############################################################################
@@ -175,8 +174,7 @@ cylinder_position = [0, 0, first_winding_list[1][0][2] - 4]
 mesh_operation_cylinder = hfss.modeler.create_cylinder(
     "XY", cylinder_position, ground_radius, cylinder_height, numSides=36, name="mesh_cylinder"
 )
-mesh = Mesh(hfss)
-mesh.assign_length_mesh([mesh_operation_cylinder], maxlength=15, maxel=None, meshop_name="choke_mesh")
+hfss.mesh.assign_length_mesh([mesh_operation_cylinder], maxlength=15, maxel=None, meshop_name="choke_mesh")
 
 
 ###############################################################################
@@ -223,7 +221,4 @@ hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jp
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.
 
-
-if os.name != "posix":
-    hfss.release_desktop()
-
+hfss.release_desktop()

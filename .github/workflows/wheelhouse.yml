@@ -28,7 +28,7 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: [Windows, pyaedt]
+    runs-on: [windows-latest]
     strategy:
       matrix:
         python-version: [ 3.7, 3.8, 3.9, '3.10']
@@ -47,7 +47,7 @@ jobs:
           python -m pip install pip -U
           python -m pip install wheel setuptools -U
           python -c "import sys; print(sys.executable)"
-          pip install .
+          pip install .[all]
           pip install jupyterlab
 
 

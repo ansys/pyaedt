@@ -27,8 +27,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVR
 
 from pyaedt import Hfss
-from pyaedt.modeler.stackup_3d import Stackup3D
-
+from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
 
 ###############################################################################
 # Set non-graphical mode
@@ -37,7 +36,7 @@ from pyaedt.modeler.stackup_3d import Stackup3D
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+non_graphical = False
 
 ###############################################################################
 # Generate database
@@ -47,7 +46,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # Generate input
 # ~~~~~~~~~~~~~~
 # Generate input randomly by creating a function with four inputs: frequency,
-# substrate permittivity, substrate thickness, and patch width. Frequency is
+# substrate permittivity, substrate thickness, and patch width. Frequency ranges
 # from 0.1 GHz to 1 GHz. Permittivity is from 1 to 12.
 #
 # The following code generates a database of 1 frequency x 2 permittivity
@@ -133,7 +132,7 @@ print("Its length is: " + str(len(dictionary_list)))
 # the patch. In the stackup library, most things, like the layers and patch,
 # are already parametrized.
 
-desktopVersion = "2022.2"
+desktopVersion = "2023.1"
 
 hfss = Hfss(
     new_desktop_session=True, solution_type="Terminal", non_graphical=non_graphical, specified_version=desktopVersion
@@ -169,12 +168,17 @@ points_list = [
     [patch.position_x.name, patch.position_y.name, signal.elevation.name],
     [patch.position_x.name, patch.position_y.name, signal.elevation.name + " + " + patch.length.name],
 ]
-hfss.modeler.primitives.create_polyline(position_list=points_list, name="adjust_airbox")
+hfss.modeler.create_polyline(position_list=points_list, name="adjust_airbox")
 pad_percent = [50, 50, 300, 50, 50, 10]
-region = hfss.modeler.primitives.create_region(pad_percent)
+region = hfss.modeler.create_region(pad_percent)
 hfss.assign_radiation_boundary_to_objects(region)
 
-hfss.plot(show=False)
+###############################################################################
+# Plot
+# ~~~~
+# Plot patch
+
+hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=True)
 
 ###############################################################################
 # Create setup and sweep
@@ -206,7 +210,6 @@ for freq in frequency_list:
         save_fields=False,
         sweep_type="Interpolating",
     )
-
 
 ###############################################################################
 # Define function
@@ -364,7 +367,6 @@ print(len(my_dictio_list_test))
 # - One for the output of training
 # - Oone for the input of the test
 # - One for the output of the test
-
 
 input_for_training_list = []
 output_for_training_list = []

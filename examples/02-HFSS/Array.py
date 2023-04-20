@@ -11,32 +11,33 @@ PyVista without opening the HFSS user interface. This examples runs only on Wind
 # Perform required imports.
 
 import os
-from pyaedt import Hfss
-from pyaedt import examples
-from pyaedt.generic.DataHandlers import json_to_dict
-from pyaedt.generic.general_methods import generate_unique_project_name
+import pyaedt
 
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed
-# to generate documentation only.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+non_graphical = False
 
 ##########################################################
 # Download 3D component
 # ~~~~~~~~~~~~~~~~~~~~~
 # Download the 3D component that is needed to run the example.
-example_path = examples.download_3dcomponent()
+example_path = pyaedt.downloads.download_3dcomponent()
 
 ##########################################################
 # Launch HFSS and save project
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch HFSS and save the project.
-project_name = generate_unique_project_name(project_name="array")
-hfss = Hfss(projectname=project_name, specified_version="2022.2", designname="Array_Simple", non_graphical=non_graphical, new_desktop_session=True)
+project_name = pyaedt.generate_unique_project_name(project_name="array")
+hfss = pyaedt.Hfss(projectname=project_name,
+                   specified_version="2023.1",
+                   designname="Array_Simple",
+                   non_graphical=non_graphical,
+                   new_desktop_session=True)
 
 print("Project name " + project_name)
 
@@ -51,11 +52,10 @@ print("Project name " + project_name)
 # into the dictionary from the path that you specify. The following
 # code edits the dictionary to point to the location of the A3DCOMP file.
 
-dict_in = json_to_dict(os.path.join(example_path, "array_simple.json"))
+dict_in = pyaedt.data_handler.json_to_dict(os.path.join(example_path, "array_simple.json"))
 dict_in["Circ_Patch_5GHz1"] = os.path.join(example_path, "Circ_Patch_5GHz.a3dcomp")
 dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
 hfss.add_3d_component_array_from_json(dict_in)
-
 
 ##########################################################
 # Set up simulation
@@ -66,7 +66,7 @@ setup = hfss.create_setup()
 setup.props["Frequency"] = "5GHz"
 setup.props["MaximumPasses"] = 3
 
-hfss.analyze_nominal(num_cores=4)
+hfss.analyze(num_cores=4)
 
 ##########################################################
 # Get far field data

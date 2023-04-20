@@ -5,13 +5,13 @@ This example shows how you can use PyAEDT to create a flex cable CPWG (coplanar 
 """
 
 ###############################################################################
-# Perform required immoprts
-# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
 import os
 from math import radians, sin, cos, sqrt
-from pyaedt import Hfss
+import pyaedt
 
 ###############################################################################
 # Set non-graphical mode
@@ -20,20 +20,22 @@ from pyaedt import Hfss
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+non_graphical = False
 
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2022 R2 in graphical mode.
+# Launch AEDT 2023 R1 in graphical mode.
 
-hfss = Hfss(specified_version="2022.2", solution_type="DrivenTerminal", new_desktop_session=True, non_graphical=non_graphical)
+hfss = pyaedt.Hfss(specified_version="2023.1",
+                   solution_type="DrivenTerminal",
+                   new_desktop_session=True,
+                   non_graphical=non_graphical)
 hfss.change_material_override(True)
 hfss.change_automatically_use_causal_materials(True)
 hfss.create_open_region("100GHz")
 hfss.modeler.model_units = "mil"
 hfss.mesh.assign_initial_mesh_from_slider(applycurvilinear=True)
-
 
 ###############################################################################
 # Create variables
@@ -77,7 +79,7 @@ def create_bending(radius, extension=0):
 ###############################################################################
 # Draw signal line
 # ~~~~~~~~~~~~~~~~
-# Draw a signal line to create a bended signal wire.
+# Draw a signal line to create a bent signal wire.
 
 position_list = create_bending(r, 1)
 line = hfss.modeler.create_polyline(
@@ -91,7 +93,7 @@ line = hfss.modeler.create_polyline(
 ###############################################################################
 # Draw ground line
 # ~~~~~~~~~~~~~~~~
-# Draw a ground line to create two bended ground wires.
+# Draw a ground line to create two bent ground wires.
 
 gnd_r = [(x, spacing + width / 2 + gnd_width / 2, z) for x, y, z in position_list]
 gnd_l = [(x, -y, z) for x, y, z in gnd_r]
@@ -134,14 +136,13 @@ bot = hfss.modeler.create_polyline(
     matname="copper",
 )
 
-
 ###############################################################################
 # Create port interfaces
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Create port interfaces (PEC enclosures).
 
 port_faces = []
-for face, blockname in zip(fr4.faces[-2:], ["b1", "b2"]):
+for face, blockname in zip([fr4.top_face_z, fr4.bottom_face_x], ["b1", "b2"]):
     xc, yc, zc = face.center
     positions = [i.position for i in face.vertices]
 
@@ -149,7 +150,7 @@ for face, blockname in zip(fr4.faces[-2:], ["b1", "b2"]):
     s = hfss.modeler.create_polyline(port_sheet_list, close_surface=True, cover_surface=True)
     center = [round(i, 6) for i in s.faces[0].center]
 
-    port_block = hfss.modeler.thicken_sheet(s.name, 5)
+    port_block = hfss.modeler.thicken_sheet(s.name, -5)
     port_block.name = blockname
     for f in port_block.faces:
 
@@ -182,8 +183,7 @@ for face in [fr4.top_face_y, fr4.bottom_face_y]:
 for s, port_name in zip(port_faces, ["1", "2"]):
     reference = [i.name for i in gnd_objs + boundary + [bot]] + ["b1", "b2"]
 
-    hfss.create_wave_port_from_sheet(s.id, portname=port_name, terminal_references=reference)
-
+    hfss.wave_port(s.id, name=port_name, reference=reference)
 
 ###############################################################################
 # Create setup and sweep
@@ -219,8 +219,7 @@ my_plot.plot(
 ###############################################################################
 # Analyze and release
 # ~~~~~~~~~~~~~~~~~~~~
-# Uncomment the ``hfss.analyze_nominal`` command if you want to analyze the
+# Uncomment the ``hfss.analyze`` command if you want to analyze the
 # model and release AEDT.
 
 hfss.release_desktop()
-# hfss.analyze_nominal(num_cores=4)

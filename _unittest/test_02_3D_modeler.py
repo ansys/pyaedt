@@ -1,9 +1,10 @@
 # Setup paths for module imports
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
+
 from pyaedt.generic.general_methods import is_ironpython
-from pyaedt.modeler.Modeler import FaceCoordinateSystem
-from pyaedt.modeler.Primitives import PolylineSegment
+from pyaedt.modeler.cad.Modeler import FaceCoordinateSystem
+from pyaedt.modeler.cad.Primitives import PolylineSegment
 
 try:
     import pytest  # noqa: F401
@@ -12,9 +13,14 @@ except ImportError:
 
 test_subfolder = "T02"
 if config["desktopVersion"] > "2022.2":
-    test_project_name = "Coax_HFSS_231"
+    test_project_name = "Coax_HFSS_t02_231"
 else:
-    test_project_name = "Coax_HFSS"
+    test_project_name = "Coax_HFSS_t02"
+
+if is_ironpython:
+    tol = 5e-4
+else:
+    tol = 1e-12
 
 
 class TestClass(BasisTest, object):
@@ -130,8 +136,18 @@ class TestClass(BasisTest, object):
             self.aedtapp.PLANE.XY,
         )
 
-    def test_12_separate_Bodies(self):
-        assert self.aedtapp.modeler.separate_bodies("Poly1")
+    def test_12_separate_bodies(self):
+        self.aedtapp.modeler.create_cylinder(
+            cs_axis="Z", position=[0, -20, 15], radius=40, height=20, name="SearchCoil", matname="copper"
+        )
+        self.aedtapp.modeler.create_cylinder(
+            cs_axis="Z", position=[0, -20, 15], radius=20, height=20, name="Bore", matname="copper"
+        )
+        self.aedtapp.modeler.subtract("SearchCoil", "Bore", keep_originals=False)
+        self.aedtapp.modeler.section("SearchCoil", "YZ")
+        object_list = self.aedtapp.modeler.separate_bodies("SearchCoil_Section1")
+        assert isinstance(object_list, list)
+        assert len(object_list) == 2
 
     def test_13_rotate(self):
         assert self.aedtapp.modeler.rotate("Poly1", self.aedtapp.AXIS.X, 30)
@@ -174,17 +190,19 @@ class TestClass(BasisTest, object):
         id1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, udp, [5, 10])
         udp = self.aedtapp.modeler.Position(0, 0, 10)
         id2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, udp, [-3, 10])
-        assert self.aedtapp.modeler.connect([id1, id2])
+        objects_after_connection = self.aedtapp.modeler.connect([id1, id2])
+        assert isinstance(objects_after_connection, list)
+        assert id1.name == objects_after_connection[0].name
+        assert len(objects_after_connection) == 1
 
     def test_22_translate(self):
         udp = [0, 0, 0]
         id1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, udp, [5, 10])
         id2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, udp, [3, 12])
         udp2 = self.aedtapp.modeler.Position(0, 20, 5)
-        assert self.aedtapp.modeler.translate([id1, id2], udp2)
+        assert self.aedtapp.modeler.move([id1, id2], udp2)
 
     def test_24_check_plane(self):
-
         udp = [0, 0, 0]
         o1 = self.aedtapp.modeler.create_box(udp, [4, 5, 5])
         plane = self.aedtapp.modeler.check_plane(o1.id, udp)
@@ -301,13 +319,11 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.deactivate_variable_optimization("test_opti")
 
     def test_37_activate_variable_for_sensitivity(self):
-
         assert self.aedtapp.activate_variable_sensitivity("test_opti")
         assert self.aedtapp.activate_variable_sensitivity("$test_opti1", "1mm", "10mm")
         assert self.aedtapp.deactivate_variable_sensitivity("$test_opti1")
 
     def test_38_activate_variable_for_statistical(self):
-
         assert self.aedtapp.activate_variable_statistical("test_opti")
         assert self.aedtapp.activate_variable_statistical("$test_opti1", "1mm", "10mm", "3%", mean="2mm")
         assert self.aedtapp.deactivate_variable_statistical("test_opti")
@@ -419,9 +435,10 @@ class TestClass(BasisTest, object):
         cs2.ref_cs = "CS1"
         assert cs2.update()
         cs1.props["OriginX"] = 10
-        cs1.props["OriginY"] = 10
+        cs1.props["OriginY"] = 20
         cs1.props["OriginZ"] = 10
         assert cs1.update()
+        cs1.origin = [10, 10, 10]
         assert cs2.change_cs_mode(2)
         cs2.props["Phi"] = 30
         cs2.props["Theta"] = 30
@@ -530,9 +547,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.modeler.set_working_coordinate_system("Global")
         first_points = [[1.0, 1.0, 0], [1.0, 2.0, 1.0], [1.0, 3.0, 1.0]]
         first_line = self.aedtapp.modeler.create_polyline([[0.0, 0.0, 0.0], first_points[0]])
-        assert first_line.insert_segment(
-            position_list=first_points, segment=PolylineSegment("Spline", num_points=3), segment_number=3
-        )
+        assert first_line.insert_segment(position_list=first_points, segment=PolylineSegment("Spline", num_points=3))
 
         assert (
             self.aedtapp.get_oo_property_value(
@@ -555,14 +570,11 @@ class TestClass(BasisTest, object):
 
         second_points = [[3.0, 2.0, 0], [3.0, 3.0, 1.0], [3.0, 4.0, 1.0]]
         second_line = self.aedtapp.modeler.create_polyline([[0, 0, 0], second_points[0]])
-        assert second_line.insert_segment(
-            position_list=second_points, segment=PolylineSegment("Spline", num_points=3), segment_number=5
-        )
+        assert second_line.insert_segment(position_list=second_points, segment=PolylineSegment("Spline", num_points=3))
 
         assert second_line.insert_segment(
             position_list=[[-3.0, 4.0, 1.0], [-3.0, 5.0, 3.0], [-3.0, 6.0, 1.0], [-3.0, 7.0, 2.0], [0, 0, 0]],
             segment=PolylineSegment("Spline", num_points=5),
-            segment_number=3,
         )
 
         assert (
@@ -607,13 +619,13 @@ class TestClass(BasisTest, object):
             self.aedtapp.get_oo_property_value(
                 self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment0", "Number of segments"
             )
-            == "3"
+            == "0"
         )
         assert (
             self.aedtapp.get_oo_property_value(
                 self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment2", "Number of segments"
             )
-            == "5"
+            == "0"
         )
 
     def test_50_move_edge(self):
@@ -637,7 +649,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.imprint_vector_projection([rect, box1], [3, 2, -5], 1)
 
     def test_52_objects_in_bounding_box(self):
-        bounding_box = [100, 200, 100, -100, -300, -200]
+        bounding_box = [-100, -300, -200, 100, 200, 100]
         objects_in_bounding_box = self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
         assert type(objects_in_bounding_box) is list
 
@@ -661,3 +673,79 @@ class TestClass(BasisTest, object):
         assert box1.wrap_sheet(rect)
         self.aedtapp.odesign.Undo()
         assert not box1.wrap_sheet(box2)
+
+    def test_54_set_variable(self):
+        self.aedtapp.variable_manager.set_variable("var_test", expression="123")
+        self.aedtapp["var_test"] = "234"
+        assert "var_test" in self.aedtapp.variable_manager.design_variable_names
+        assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
+
+    def test_55_scale(self):
+        assert self.aedtapp.modeler.scale([self.aedtapp.modeler.object_list[0], "Second_airbox"])
+
+    def test_56_global_to_cs(self):
+        self.aedtapp.modeler.create_coordinate_system(
+            origin=[-1, -2.6, 1],
+            name="CS_Test1",
+            x_pointing=[-0.70710678118655, -0.70710678118655, 0],
+            y_pointing=[-0.70710678118655, 0.70710678118655, 0],
+        )
+        cs2 = self.aedtapp.modeler.create_coordinate_system(
+            origin=[-5.4, 1.4, -8],
+            name="CS_Test2",
+            reference_cs="CS_Test1",
+            x_pointing=[0.83205029433784, 0.55470019622523, 0],
+            y_pointing=[-0.55470019622523, 0.83205029433784, 0],
+        )
+        p1 = self.aedtapp.modeler.global_to_cs([0, 0, 0], "CS_Test1")
+        p2 = self.aedtapp.modeler.global_to_cs([0, 0, 0], "CS_Test2")
+        p3 = self.aedtapp.modeler.global_to_cs([0, 0, 0], cs2)
+        assert all(abs(p1[i] - s) < tol for i, s in enumerate([-2.5455844122716, 1.1313708498985, 1.0]))
+        assert all(abs(p2[i] - s) < tol for i, s in enumerate([2.2260086876588, -1.8068578500310, 9.0]))
+        assert p2 == p3
+        assert self.aedtapp.modeler.global_to_cs([0, 0, 0], "Global") == [0, 0, 0]
+
+    def test_57_duplicate_coordinate_system_to_global(self):
+        self.aedtapp.modeler.create_coordinate_system(
+            origin=[-1, -2.6, 1],
+            name="CS_Test3",
+            x_pointing=[-0.70710678118655, -0.70710678118655, 0],
+            y_pointing=[-0.70710678118655, 0.70710678118655, 0],
+        )
+        cs4 = self.aedtapp.modeler.create_coordinate_system(
+            origin=[-5.4, 1.4, -8],
+            name="CS_Test4",
+            reference_cs="CS_Test3",
+            x_pointing=[0.83205029433784, 0.55470019622523, 0],
+            y_pointing=[-0.55470019622523, 0.83205029433784, 0],
+        )
+        assert self.aedtapp.modeler.duplicate_coordinate_system_to_global("CS_Test4")
+        assert self.aedtapp.modeler.duplicate_coordinate_system_to_global(cs4)
+        o, q = self.aedtapp.modeler.reference_cs_to_global("CS_Test4")
+        assert all(abs(o[i] - s) < tol for i, s in enumerate([1.82842712474619, 2.20832611206852, 9.0]))
+        assert all(abs(q[i] - s) < tol for i, s in enumerate([-0.0, -0.09853761796664, 0.99513332666807, 0.0]))
+        assert self.aedtapp.modeler.reference_cs_to_global(cs4)
+
+    def test_58_invert_cs(self):
+        self.aedtapp.modeler.create_coordinate_system(
+            origin=[-1, -2.6, 1],
+            name="CS_Test5",
+            x_pointing=[-0.70710678118655, -0.70710678118655, 0],
+            y_pointing=[-0.70710678118655, 0.70710678118655, 0],
+        )
+        cs6 = self.aedtapp.modeler.create_coordinate_system(
+            origin=[-5.4, 1.4, -8],
+            name="CS_Test6",
+            reference_cs="CS_Test5",
+            x_pointing=[0.83205029433784, 0.55470019622523, 0],
+            y_pointing=[-0.55470019622523, 0.83205029433784, 0],
+        )
+        o, q = self.aedtapp.modeler.invert_cs("CS_Test6", to_global=False)
+        res = o + q
+        sol = [3.716491314709036, -4.160251471689218, 8.0, 0.9570920264890529, -0.0, -0.0, -0.28978414868843005]
+        assert all(abs(res[i] - sol[i]) < tol for i in range(3))
+        o, q = self.aedtapp.modeler.invert_cs("CS_Test6", to_global=True)
+        res = o + q
+        sol = [2.2260086876588385, -1.8068578500310104, 9.0, 0, 0.09853761796664223, -0.9951333266680702, 0]
+        assert all(abs(res[i] - sol[i]) < tol for i in range(3))
+        assert self.aedtapp.modeler.invert_cs(cs6, to_global=True)

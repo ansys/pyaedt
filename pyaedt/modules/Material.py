@@ -14,8 +14,8 @@ This module contains these data classes for creating a material library:
 """
 from collections import OrderedDict
 
-from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.DataHandlers import _dict2arg
+from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -908,7 +908,6 @@ class MatProperty(object):
                         "Index:"
                     ]
                 ):
-
                     self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"][smname][
                         "free_form_value"
                     ] = formula
@@ -1274,6 +1273,7 @@ class Material(CommonMaterial, object):
                 )
             }
         )
+        self.update()
 
     @property
     def permittivity(self):
@@ -2053,7 +2053,6 @@ class Material(CommonMaterial, object):
         out = {}
         if self._props.get("core_loss_type", None):
             if self._props["core_loss_type"].get("Choice", None) == "Electrical Steel":
-
                 out["core_loss_kh"] = self._props["core_loss_kh"]
                 out["core_loss_kc"] = self._props["core_loss_kc"]
                 out["core_loss_ke"] = self._props["core_loss_ke"]
@@ -2084,7 +2083,7 @@ class Material(CommonMaterial, object):
         Returns
         -------
         tuple
-            Tuple of (Magnitude, x, y, z)
+            Tuple of (Magnitude, x, y, z).
         """
         if "magnetic_coercivity" in self._props:
             return (
@@ -2177,7 +2176,7 @@ class Material(CommonMaterial, object):
 
 
 class SurfaceMaterial(CommonMaterial, object):
-    """Manages surface material properties.
+    """Manages surface material properties for Icepak only.
 
     Parameters
     ----------
@@ -2240,7 +2239,6 @@ class SurfaceMaterial(CommonMaterial, object):
 
     @emissivity.setter
     def emissivity(self, value):
-
         self._surface_emissivity.value = value
         self._update_props("surface_emissivity", value)
 
@@ -2262,7 +2260,6 @@ class SurfaceMaterial(CommonMaterial, object):
 
     @surface_diffuse_absorptance.setter
     def surface_diffuse_absorptance(self, value):
-
         self._surface_diffuse_absorptance.value = value
         self._update_props("surface_diffuse_absorptance", value)
 
@@ -2284,7 +2281,6 @@ class SurfaceMaterial(CommonMaterial, object):
 
     @surface_incident_absorptance.setter
     def surface_incident_absorptance(self, value):
-
         self._surface_incident_absorptance.value = value
         self._update_props("surface_incident_absorptance", value)
 

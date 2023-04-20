@@ -1,5 +1,6 @@
-import copy
 from collections import OrderedDict
+import copy
+import csv
 
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.DataHandlers import _dict2arg
@@ -12,7 +13,7 @@ from pyaedt.modules.OptimetricsTemplates import defaultoptiSetup
 from pyaedt.modules.OptimetricsTemplates import defaultparametricSetup
 from pyaedt.modules.OptimetricsTemplates import defaultsensitivitySetup
 from pyaedt.modules.OptimetricsTemplates import defaultstatisticalSetup
-from pyaedt.modules.SetupTemplates import SetupProps
+from pyaedt.modules.SolveSweeps import SetupProps
 
 
 class CommonOptimetrics(PropsManager, object):
@@ -42,6 +43,10 @@ class CommonOptimetrics(PropsManager, object):
 
         if optimtype == "OptiParametric":
             self.props = SetupProps(self, inputd or copy.deepcopy(defaultparametricSetup))
+            if not inputd and self._app.design_type == "Icepak":
+                self.props["ProdOptiSetupDataV2"] = OrderedDict(
+                    {"SaveFields": False, "FastOptimetrics": False, "SolveWithCopiedMeshOnly": True}
+                )
         if optimtype == "OptiDesignExplorer":
             self.props = SetupProps(self, inputd or copy.deepcopy(defaultdxSetup))
         if optimtype == "OptiOptimization":
@@ -240,6 +245,12 @@ class CommonOptimetrics(PropsManager, object):
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
 
+        if self.soltype == "OptiParametric" and len(arg[8]) == 3:
+            arg[8] = ["NAME:Sweep Operations"]
+            for variation in self.props["Sweep Operations"].get("add", []):
+                arg[8].append("add:=")
+                arg[8].append(variation)
+
         self.omodule.EditSetup(self.name, arg)
         return True
 
@@ -385,7 +396,7 @@ class CommonOptimetrics(PropsManager, object):
         goal_value : optional
             Value for the optimization goal. The default is ``1``.
         goal_weight : optional
-            Weight for the optimzation goal. The default is ``1``.
+            Weight for the optimization goal. The default is ``1``.
         goal_name : str, optional
             Name of the goal. The default is ``None``.
 
@@ -472,6 +483,68 @@ class CommonOptimetrics(PropsManager, object):
             self._app.activate_variable_sensitivity(variable_name)
         elif self.soltype == "OptiStatistical":
             self._app.activate_variable_statistical(variable_name)
+
+    @pyaedt_function_handler()
+    def analyze(
+        self,
+        num_cores=1,
+        num_tasks=1,
+        num_gpu=0,
+        acf_file=None,
+        use_auto_settings=True,
+        solve_in_batch=False,
+        machine="localhost",
+        run_in_thread=False,
+        revert_to_initial_mesh=False,
+    ):
+        """Solve the active design.
+
+        Parameters
+        ----------
+        num_cores : int, optional
+            Number of simulation cores. Default is ``1``.
+        num_tasks : int, optional
+            Number of simulation tasks. Default is ``1``.
+        num_gpu : int, optional
+            Number of simulation graphic processing units to use. Default is ``0``.
+        acf_file : str, optional
+            Full path to the custom ACF file.
+        use_auto_settings : bool, optional
+            Set ``True`` to use automatic settings for HPC. The option is only considered for setups
+            that support automatic settings.
+        solve_in_batch : bool, optional
+            Whether to solve the project in batch or not.
+            If ``True`` the project will be saved, closed, solved and repened.
+        machine : str, optional
+            Name of the machine if remote.  The default is ``"localhost"``.
+        run_in_thread : bool, optional
+            Whether to submit the batch command as a thread. The default is
+            ``False``.
+        revert_to_initial_mesh : bool, optional
+            Whether to revert to initial mesh before solving or not. Default is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.Analyze
+        """
+        self._app.analyze(
+            setup_name=self.name,
+            num_cores=num_cores,
+            num_tasks=num_tasks,
+            num_gpu=num_gpu,
+            acf_file=acf_file,
+            use_auto_settings=use_auto_settings,
+            solve_in_batch=solve_in_batch,
+            machine=machine,
+            run_in_thread=run_in_thread,
+            revert_to_initial_mesh=revert_to_initial_mesh,
+        )
 
 
 class SetupOpti(CommonOptimetrics, object):
@@ -733,7 +806,7 @@ class SetupParam(CommonOptimetrics, object):
         Returns
         -------
         bool
-            `True` if setup is deleted. `False` if it failed.
+            ``True`` if setup is deleted. ``False`` if it failed.
         """
 
         self.omodule.DeleteSetups([self.name])
@@ -978,7 +1051,6 @@ class ParametricSetups(object):
         parametricname=None,
     ):
         """Add a basic sensitivity analysis.
-
         You can customize all options after the analysis is added.
 
         Parameters
@@ -1013,6 +1085,9 @@ class ParametricSetups(object):
         if sweep_var not in self._app.variable_manager.variables:
             self._app.logger.error("Variable {} not found.".format(sweep_var))
             return False
+        if not solution and not self._app.nominal_sweep:
+            self._app.logger.error("At least one setup is needed.")
+            return False
         if not solution:
             solution = self._app.nominal_sweep
         setupname = solution.split(" ")[0]
@@ -1042,7 +1117,7 @@ class ParametricSetups(object):
         Returns
         -------
         bool
-            `True` if setup is deleted. `False` if it failed.
+            ``True`` if setup is deleted. ``False`` if it failed.
         """
         for el in self.setups:
             if el.name == setup_name:
@@ -1068,9 +1143,61 @@ class ParametricSetups(object):
         """
         if not parametricname:
             parametricname = generate_unique_name("Parametric")
-        self.optimodule.ImportSetup("OptiParametric", ["NAME:" + parametricname, filename])
         setup = SetupParam(self._app, parametricname, optim_type="OptiParametric")
         setup.auto_update = False
+        setup.props["Sim. Setups"] = [setup_defined.name for setup_defined in self._app.setups]
+        with open(filename, "r") as csvfile:
+            csvreader = csv.DictReader(csvfile)
+            first_data_line = next(csvreader)
+            setup.props["Sweeps"] = {"SweepDefinition": OrderedDict()}
+            sweep_definition = []
+            for var_name in csvreader.fieldnames:
+                if var_name != "*":
+                    sweep_definition.append(
+                        OrderedDict(
+                            {
+                                "Variable": var_name,
+                                "Data": first_data_line[var_name],
+                                "OffsetF1": False,
+                                "Synchronize": 0,
+                            }
+                        )
+                    )
+            setup.props["Sweeps"]["SweepDefinition"] = sweep_definition
+
+            args = ["NAME:" + parametricname]
+            _dict2arg(setup.props, args)
+
+            setup.props["Sweep Operations"] = OrderedDict({"add": []})
+            table = []
+            for var_name in csvreader.fieldnames:
+                if var_name != "*":
+                    table.append(first_data_line[var_name])
+            table = [table]
+            for line in csvreader:
+                table_line = []
+                for var_name in csvreader.fieldnames:
+                    if var_name != "*":
+                        table_line.append(line[var_name])
+                table.append(table_line)
+
+            if len(table) > 1:
+                for point in table[1:]:
+                    setup.props["Sweep Operations"]["add"].append(point)
+
+        cont = 0
+        for data in args:
+            if isinstance(data, list) and "NAME:Sweep Operations" in data:
+                del args[cont]
+                args.append(["NAME:Sweep Operations"])
+                break
+            cont += 1
+
+        for variation in setup.props["Sweep Operations"].get("add", []):
+            args[-1].append("add:=")
+            args[-1].append(variation)
+
+        self.optimodule.InsertSetup("OptiParametric", args)
         self.setups.append(setup)
         return True
 
@@ -1132,7 +1259,7 @@ class OptimizationSetups(object):
         Returns
         -------
         bool
-            `True` if setup is deleted. `False` if it failed.
+            ``True`` if setup is deleted. ``False`` if it failed.
         """
         for el in self.setups:
             if el.name == setup_name:
@@ -1158,7 +1285,6 @@ class OptimizationSetups(object):
         report_type=None,
     ):
         """Add a basic optimization analysis.
-
         You can customize all options after the analysis is added.
 
         Parameters
@@ -1174,7 +1300,7 @@ class OptimizationSetups(object):
         optim_type : strm optional
             Optimization Type.
             Possible values are `"Optimization"`, `"DXDOE"`,`"DesignExplorer"`,`"Sensitivity"`,`"Statistical"`
-            and `"optiSLang"'.
+            and `"optiSLang"`.
         condition : string, optional
             The default is ``"<="``.
         goal_value : optional
@@ -1206,6 +1332,9 @@ class OptimizationSetups(object):
 
         >>> oModule.InsertSetup
         """
+        if not solution and not self._app.nominal_sweep:
+            self._app.logger.error("At least one setup is needed.")
+            return False
         if not solution:
             solution = self._app.nominal_sweep
         setupname = solution.split(" ")[0]

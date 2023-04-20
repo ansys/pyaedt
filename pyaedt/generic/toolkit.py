@@ -68,42 +68,43 @@ Parallel to this file, an xaml file should be present in the same directory.
 >>> if __name__ == '__main__':
 >>>     launch(__file__, specified_version="2021.2", new_desktop_session=False, autosave=False)
 """
+from datetime import datetime
 import json
 import os
 import shutil
 import sys
-from datetime import datetime
 from zipfile import ZIP_DEFLATED
 from zipfile import ZipFile
 
-import clr
-
-import pyaedt.edb_core.edb_data.simulation_configuration
 from pyaedt import is_ironpython
+from pyaedt import is_linux
+from pyaedt import is_windows
 from pyaedt.desktop import Desktop
+import pyaedt.edb_core.edb_data.simulation_configuration
+from pyaedt.generic.clr_module import _clr
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
-if os.name == "posix" and is_ironpython:
+if is_linux and is_ironpython:
     import subprocessdotnet as subprocess
 else:
     import subprocess
 
 if is_ironpython:
-    clr.AddReference("PresentationFramework")
-    clr.AddReference("PresentationCore")
-    clr.AddReference("System.Windows")
-    clr.AddReference("System.Windows.Forms")
-    clr.AddReference("System.Drawing")
+    _clr.AddReference("PresentationFramework")
+    _clr.AddReference("PresentationCore")
+    _clr.AddReference("System.Windows")
+    _clr.AddReference("System.Windows.Forms")
+    _clr.AddReference("System.Drawing")
 else:
-    clr.AddReference("System.Xml")
-    clr.AddReference("PresentationFramework, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")
-    clr.AddReference("PresentationCore, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")
-    clr.AddReference("System.Windows.Forms")
-    clr.AddReference("System")
+    _clr.AddReference("System.Xml")
+    _clr.AddReference("PresentationFramework, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")
+    _clr.AddReference("PresentationCore, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")
+    _clr.AddReference("System.Windows.Forms")
+    _clr.AddReference("System")
     from System.IO import StreamReader
     from System.Windows.Markup import XamlReader
 
-    clr.AddReference("System.Windows")
+    _clr.AddReference("System.Windows")
 
 from System import Environment
 from System import Uri
@@ -621,7 +622,6 @@ class ListBoxForm(Form):
             return False
 
     def __init__(self, list_items, default_item=None):
-
         self.MinimizeBox = False
         self.MaximizeBox = False
         self.Text = "Select Export Objects"
@@ -729,7 +729,6 @@ class WPFToolkit(Window):
     """
 
     def __init__(self, toolkit_file, aedt_design=None, parent_design_name=None):
-
         self.toolkit_file = toolkit_file
         self._aedtdesign = None
         self.aedtdesign = aedt_design
@@ -1045,7 +1044,7 @@ class WPFToolkit(Window):
     def launch_gui(self):
         """Shows the Wpf UI."""
         if sys.implementation.name == "ironpython":
-            clr.AddReference("IronPython.wpf")
+            _clr.AddReference("IronPython.wpf")
             import wpf
 
             wpf.LoadComponent(self, self.xaml_file)
@@ -1338,8 +1337,7 @@ class WPFToolkit(Window):
     @pyaedt_function_handler()
     def open_explorer(self, sender, e):
         """Opens a windows explorer window pointing to the selected path in the sender control."""
-        os_type = os.name
-        if os_type == "nt":
+        if is_windows:
             selected_path = os.path.normpath(sender.Text)
             if os.path.exists(selected_path):
                 os_command_string = r'explorer "{}"'.format(selected_path)
@@ -1650,7 +1648,6 @@ class WPFToolkit(Window):
         if not settings_data:
             return False
         with open(self.settings_file, "w") as f:
-
             for text_control in self.SetText:
                 wpf_control = self.get_ui_object(text_control)
                 settings_data[wpf_control.Name] = wpf_control.Text
@@ -1676,7 +1673,6 @@ class WPFToolkit(Window):
         return self
 
     def __exit__(self, ex_type, ex_value, ex_traceback):
-
         # write the UI data to json
         self.write_settings()
 

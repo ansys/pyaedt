@@ -4,17 +4,13 @@ Icepak: graphic card thermal analysis
 This example shows how you can use PyAEDT to create a graphic card setup in Icepak and postprocess results.
 The example file is an Icepak project with a model that is already created and has materials assigned.
 """
-
 ###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
 import os
-import tempfile
-import shutil
-from pyaedt import examples, generate_unique_folder_name
-from pyaedt import Icepak
+import pyaedt
 
 ###############################################################################
 # Set non-graphical mode
@@ -23,18 +19,22 @@ from pyaedt import Icepak
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+non_graphical = False
 
 ###############################################################################
 # Download and open project
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download the project, open it, and save it to the temporary folder.
 
-temp_folder = generate_unique_folder_name()
-project_temp_name = examples.download_icepak(temp_folder)
+temp_folder = pyaedt.generate_unique_folder_name()
+project_temp_name = pyaedt.downloads.download_icepak(temp_folder)
 
+ipk = pyaedt.Icepak(projectname=project_temp_name,
+                    specified_version="2023.1",
+                    new_desktop_session=True,
+                    non_graphical=non_graphical
+                    )
 
-ipk = Icepak(project_temp_name, specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical)
 ipk.autosave_disable()
 
 ###############################################################################
@@ -102,7 +102,7 @@ surflist += [i.id for i in ipk.modeler["ALPHA_MAIN_PCB"].faces]
 plot5 = ipk.post.create_fieldplot_surface(surflist, "SurfTemperature")
 
 
-ipk.analyze_nominal()
+ipk.analyze()
 
 ###############################################################################
 # Release AEDT

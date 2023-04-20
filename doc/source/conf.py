@@ -11,7 +11,46 @@ import pyvista
 import numpy as np
 import json
 from sphinx_gallery.sorting import FileNameSortKey
-from ansys_sphinx_theme import ansys_favicon, pyansys_logo_black
+from ansys_sphinx_theme import ansys_favicon, get_version_match, pyansys_logo_black
+from importlib import import_module
+from pprint import pformat
+from docutils.parsers.rst import Directive
+from docutils import nodes
+from sphinx import addnodes
+
+class PrettyPrintDirective(Directive):
+    """Renders a constant using ``pprint.pformat`` and inserts into the document."""
+    required_arguments = 1
+
+    def run(self):
+        module_path, member_name = self.arguments[0].rsplit('.', 1)
+
+        member_data = getattr(import_module(module_path), member_name)
+        code = pformat(member_data, 2, width=68)
+
+        literal = nodes.literal_block(code, code)
+        literal['language'] = 'python'
+
+        return [
+                addnodes.desc_name(text=member_name),
+                addnodes.desc_content('', literal)
+        ]
+
+
+def autodoc_skip_member(app, what, name, obj, skip, options):
+    try:
+        exclude = True if ".. deprecated::" in obj.__doc__ else False
+    except:
+        exclude = False
+    exclude2 = True if name.startswith("_") else False
+    return True if (skip or exclude or exclude2) else None  # Can interfere with subsequent skip functions.
+    # return True if exclude else None
+
+
+def setup(app):
+    app.add_directive('pprint', PrettyPrintDirective)
+    app.connect('autodoc-skip-member', autodoc_skip_member)
+
 
 
 local_path = os.path.dirname(os.path.realpath(__file__))
@@ -20,10 +59,12 @@ root_path = module_path.parent.parent
 sys.path.append(os.path.abspath(os.path.join(local_path)))
 sys.path.append(os.path.join(root_path))
 
-sys.path.append(os.path.join(root_path))
+from pyaedt import __version__
+
 project = "PyAEDT"
 copyright = f"(c) {datetime.datetime.now().year} ANSYS, Inc. All rights reserved"
 author = "Ansys Inc."
+cname = os.getenv("DOCUMENTATION_CNAME", "nocname.com")
 
 # Check for the local config file, otherwise use default desktop configuration
 local_config_file = os.path.join(local_path, "local_config.json")
@@ -33,14 +74,15 @@ if os.path.exists(local_config_file):
 else:
     config = {"run_examples": True}
 
-# read in version from file
-with open(os.path.join(root_path, "pyaedt", "version.txt"), "r") as f:
-    release = version = f.readline()
+release = version = __version__
 
 os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
+os.environ["PYAEDT_DOC_GENERATION"] = "1"
+
+
 # -- General configuration ---------------------------------------------------
 
-# Add any Sphinx_PyAEDT extension module names here, as strings. They can be
+# Add any Sphinx_PyAEDT extension module names here as strings. They can be
 # extensions coming with Sphinx_PyAEDT (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
@@ -70,6 +112,12 @@ intersphinx_mapping = {
     "pytest": ("https://docs.pytest.org/en/stable", None),
 }
 
+
+toc_object_entries_show_parents = "hide"
+
+
+
+
 # numpydoc configuration
 numpydoc_use_plots = True
 numpydoc_show_class_members = False
@@ -82,6 +130,9 @@ numpydoc_validation_checks = {
     "GL08",  # The object does not have a docstring
     "GL09",  # Deprecation warning should precede extended summary
     "GL10",  # reST directives {directives} must be followed by two colons
+    # Return
+    "RT04", # Return value description should start with a capital letter"
+    "RT05", # Return value description should finish with "."'
     # Summary
     "SS01",  # No summary found
     "SS02",  # Summary does not start with a capital letter
@@ -95,6 +146,8 @@ numpydoc_validation_checks = {
 
 numpydoc_validation_exclude = {  # set of regex
     r"\.AEDTMessageManager.add_message$",  # bad SS05
+    r"\.Modeler3D\.create_choke$",  # bad RT05
+    r"HistoryProps.",  # bad RT05 because of the base class named OrderedDict
 }
 
 # Favicon
@@ -135,8 +188,6 @@ inheritance_node_attrs = dict(shape="ellipse", fontsize=14, height=0.75, color="
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-# html_theme = 'alabaster'
-
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
@@ -200,7 +251,7 @@ if os.name != "posix" and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
             # directory where function granular galleries are stored
             "backreferences_dir": None,
             # Modules for which function level galleries are created.  In
-            "doc_module": "ansys-mapdl-core",
+            "doc_module": "ansys-pyaedt",
             "image_scrapers": ("pyvista", "matplotlib"),
             "ignore_pattern": "flycheck*",
             "thumbnail_size": (350, 350),
@@ -214,6 +265,7 @@ html_short_title = html_title = "PyAEDT"
 html_show_sourcelink = True
 html_theme = "ansys_sphinx_theme"
 html_logo = pyansys_logo_black
+html_facivon = ansys_favicon
 
 # specify the location of your github repo
 html_context = {
@@ -239,9 +291,21 @@ html_theme_options = {
             "icon": "fa fa-comment fa-fw",
         },
     ],
+    "switcher": {
+        "json_url": f"https://{cname}/versions.json",
+        "version_match": get_version_match(__version__),
+    },
+    "collapse_navigation": True,
 }
 
 html_static_path = ["_static"]
+
+# These paths are either relative to html_static_path
+# or fully qualified paths (eg. https://...)
+html_css_files = [
+    'custom.css',
+]
+
 
 # -- Options for HTMLHelp output ---------------------------------------------
 

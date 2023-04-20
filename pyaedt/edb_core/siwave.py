@@ -6,7 +6,6 @@ import os
 import time
 
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
-from pyaedt.edb_core.edb_data.simulation_configuration import SiwaveDCSetupTemplate
 from pyaedt.edb_core.edb_data.simulation_configuration import SourceType
 
 # from pyaedt.edb_core.edb_data.sources import SourceType
@@ -22,11 +21,11 @@ from pyaedt.generic.constants import SweepType
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
 class EdbSiwave(object):
-    """Manages EDB methods related to Siwave Setup accessible from `Edb.core_siwave` property.
+    """Manages EDB methods related to Siwave Setup accessible from `Edb.siwave` property.
 
     Parameters
     ----------
@@ -37,16 +36,11 @@ class EdbSiwave(object):
     --------
     >>> from pyaedt import Edb
     >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
-    >>> edb_siwave = edbapp.core_siwave
+    >>> edb_siwave = edbapp.siwave
     """
 
     def __init__(self, p_edb):
         self._pedb = p_edb
-
-    @property
-    def _siwave_setup(self):
-        """SIwave setup."""
-        return self._pedb.edblib.SIwave.SiwaveSimulationSetupMethods
 
     @property
     def _builder(self):
@@ -149,7 +143,7 @@ class EdbSiwave(object):
         if source.source_type in [SourceType.CoaxPort, SourceType.CircPort, SourceType.LumpedPort]:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
-            pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.impedance))
+            pos_pingroup_terminal.SetImpedance(self._get_edb_value(source.impedance))
             if source.source_type == SourceType.CircPort:
                 pos_pingroup_terminal.SetIsCircuitPort(True)
                 neg_pingroup_terminal.SetIsCircuitPort(True)
@@ -224,8 +218,8 @@ class EdbSiwave(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> pins = edbapp.core_components.get_pin_from_component("U2A5")
-        >>> edbapp.core_siwave.create_circuit_port_on_pin(pins[0], pins[1], 50, "port_name")
+        >>> pins = edbapp.components.get_pin_from_component("U2A5")
+        >>> edbapp.siwave.create_circuit_port_on_pin(pins[0], pins[1], 50, "port_name")
 
         Returns
         -------
@@ -252,6 +246,82 @@ class EdbSiwave(object):
         circuit_port.negative_node.node_pins = neg_pin
         return self._create_terminal_on_pins(circuit_port)
 
+    def create_port_between_pin_and_layer(
+        self, component_name=None, pins_name=None, layer_name=None, reference_net=None, impedance=50.0
+    ):
+        """Create circuit port between pin and a reference layer.
+
+        Parameters
+        ----------
+        component_name : str
+            Component name. The default is ``None``.
+        pins_name : str
+            Pin name or list of pin names. The default is ``None``.
+        layer_name : str
+            Layer name. The default is ``None``.
+        reference_net : str
+            Reference net name. The default is ``None``.
+        impedance : float, optional
+            Port impedance. The default is ``50.0`` in ohms.
+
+        Returns
+        -------
+        PadstackInstanceTerminal
+            Created terminal.
+
+        """
+        if not pins_name:
+            pins_name = []
+        if pins_name:
+            if not isinstance(pins_name, list):  # pragma no cover
+                pins_name = [pins_name]
+            if not reference_net:
+                self._logger.info("no reference net provided, searching net {} instead.".format(layer_name))
+                reference_net = self._pedb.nets.get_net_by_name(layer_name)
+                if not reference_net:  # pragma no cover
+                    self._logger.error("reference net {} not found.".format(layer_name))
+                    return False
+            else:
+                if not isinstance(reference_net, self._edb.Cell.Net):  # pragma no cover
+                    reference_net = self._pedb.nets.get_net_by_name(reference_net)
+                if not reference_net:
+                    self._logger.error("Net {} not found".format(reference_net))
+                    return False
+            for pin_name in pins_name:  # pragma no cover
+                pin = [
+                    pin
+                    for pin in self._pedb.padstacks.get_pinlist_from_component_and_net(component_name)
+                    if pin.GetName() == pin_name
+                ][0]
+                term_name = "{}_{}_{}".format(pin.GetComponent().GetName(), pin.GetNet().GetName(), pin.GetName())
+                res, start_layer, stop_layer = pin.GetLayerRange()
+                if res:
+                    pin_instance = pin._edb_padstackinstance
+                    positive_terminal = self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
+                        self._active_layout, pin_instance.GetNet(), term_name, pin_instance, start_layer
+                    )
+                    positive_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
+                    positive_terminal.SetImpedance(self._edb.Utility.Value(impedance))
+                    positive_terminal.SetIsCircuitPort(True)
+                    pos = self._pedb.components.get_pin_position(pin_instance)
+                    position = self._edb.Geometry.PointData(
+                        self._edb.Utility.Value(pos[0]), self._edb.Utility.Value(pos[1])
+                    )
+                    negative_terminal = self._edb.Cell.Terminal.PointTerminal.Create(
+                        self._active_layout,
+                        reference_net,
+                        "{}_ref".format(term_name),
+                        position,
+                        self._pedb.stackup.signal_layers[layer_name]._edb_layer,
+                    )
+                    negative_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
+                    negative_terminal.SetImpedance(self._edb.Utility.Value(impedance))
+                    negative_terminal.SetIsCircuitPort(True)
+                    if positive_terminal.SetReferenceTerminal(negative_terminal):
+                        self._logger.info("Port {} successfully created".format(term_name))
+                        return positive_terminal
+            return False
+
     @pyaedt_function_handler()
     def create_voltage_source_on_pin(self, pos_pin, neg_pin, voltage_value=3.3, phase_value=0, source_name=""):
         """Create a voltage source.
@@ -272,15 +342,15 @@ class EdbSiwave(object):
         Returns
         -------
         str
-            Source Name
+            Source Name.
 
         Examples
         --------
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> pins = edbapp.core_components.get_pin_from_component("U2A5")
-        >>> edbapp.core_siwave.create_voltage_source_on_pin(pins[0], pins[1], 50, "source_name")
+        >>> pins = edbapp.components.get_pin_from_component("U2A5")
+        >>> edbapp.siwave.create_voltage_source_on_pin(pins[0], pins[1], 50, "source_name")
         """
 
         voltage_source = VoltageSource()
@@ -329,8 +399,8 @@ class EdbSiwave(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> pins = edbapp.core_components.get_pin_from_component("U2A5")
-        >>> edbapp.core_siwave.create_current_source_on_pin(pins[0], pins[1], 50, "source_name")
+        >>> pins = edbapp.components.get_pin_from_component("U2A5")
+        >>> edbapp.siwave.create_current_source_on_pin(pins[0], pins[1], 50, "source_name")
         """
         current_source = CurrentSource()
         current_source.positive_node.net = pos_pin.GetNet().GetName()
@@ -376,8 +446,8 @@ class EdbSiwave(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> pins =edbapp.core_components.get_pin_from_component("U2A5")
-        >>> edbapp.core_siwave.create_resistor_on_pin(pins[0], pins[1],50,"res_name")
+        >>> pins =edbapp.components.get_pin_from_component("U2A5")
+        >>> edbapp.siwave.create_resistor_on_pin(pins[0], pins[1],50,"res_name")
         """
         resistor = ResistorSource()
         resistor.positive_node.net = pos_pin.GetNet().GetName()
@@ -400,13 +470,13 @@ class EdbSiwave(object):
     @pyaedt_function_handler()
     def _check_gnd(self, component_name):
         negative_net_name = None
-        if self._pedb.core_nets.is_net_in_component(component_name, "GND"):
+        if self._pedb.nets.is_net_in_component(component_name, "GND"):
             negative_net_name = "GND"
-        elif self._pedb.core_nets.is_net_in_component(component_name, "PGND"):
+        elif self._pedb.nets.is_net_in_component(component_name, "PGND"):
             negative_net_name = "PGND"
-        elif self._pedb.core_nets.is_net_in_component(component_name, "AGND"):
+        elif self._pedb.nets.is_net_in_component(component_name, "AGND"):
             negative_net_name = "AGND"
-        elif self._pedb.core_nets.is_net_in_component(component_name, "DGND"):
+        elif self._pedb.nets.is_net_in_component(component_name, "DGND"):
             negative_net_name = "DGND"
         if not negative_net_name:
             raise ValueError("No GND, PGND, AGND, DGND found. Please setup the negative net name manually.")
@@ -452,7 +522,7 @@ class EdbSiwave(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 50, "port_name")
+        >>> edbapp.siwave.create_circuit_port_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 50, "port_name")
         """
         if not negative_component_name:
             negative_component_name = positive_component_name
@@ -462,10 +532,10 @@ class EdbSiwave(object):
         circuit_port.positive_node.net = positive_net_name
         circuit_port.negative_node.net = negative_net_name
         circuit_port.impedance = impedance_value
-        pos_node_cmp = self._pedb.core_components.get_component_by_name(positive_component_name)
-        neg_node_cmp = self._pedb.core_components.get_component_by_name(negative_component_name)
-        pos_node_pins = self._pedb.core_components.get_pin_from_component(positive_component_name, positive_net_name)
-        neg_node_pins = self._pedb.core_components.get_pin_from_component(negative_component_name, negative_net_name)
+        pos_node_cmp = self._pedb.components.get_component_by_name(positive_component_name)
+        neg_node_cmp = self._pedb.components.get_component_by_name(negative_component_name)
+        pos_node_pins = self._pedb.components.get_pin_from_component(positive_component_name, positive_net_name)
+        neg_node_pins = self._pedb.components.get_pin_from_component(negative_component_name, negative_net_name)
         if port_name == "":
             port_name = "Port_{}_{}_{}_{}".format(
                 positive_component_name,
@@ -521,7 +591,7 @@ class EdbSiwave(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edb.core_siwave.create_voltage_source_on_net("U2A5","V1P5_S3","U2A5","GND",3.3,0,"source_name")
+        >>> edb.siwave.create_voltage_source_on_net("U2A5","V1P5_S3","U2A5","GND",3.3,0,"source_name")
         """
         if not negative_component_name:
             negative_component_name = positive_component_name
@@ -532,10 +602,10 @@ class EdbSiwave(object):
         voltage_source.negative_node.net = negative_net_name
         voltage_source.magnitude = voltage_value
         voltage_source.phase = phase_value
-        pos_node_cmp = self._pedb.core_components.get_component_by_name(positive_component_name)
-        neg_node_cmp = self._pedb.core_components.get_component_by_name(negative_component_name)
-        pos_node_pins = self._pedb.core_components.get_pin_from_component(positive_component_name, positive_net_name)
-        neg_node_pins = self._pedb.core_components.get_pin_from_component(negative_component_name, negative_net_name)
+        pos_node_cmp = self._pedb.components.get_component_by_name(positive_component_name)
+        neg_node_cmp = self._pedb.components.get_component_by_name(negative_component_name)
+        pos_node_pins = self._pedb.components.get_pin_from_component(positive_component_name, positive_net_name)
+        neg_node_pins = self._pedb.components.get_pin_from_component(negative_component_name, negative_net_name)
 
         if source_name == "":
             source_name = "Vsource_{}_{}_{}_{}".format(
@@ -592,7 +662,7 @@ class EdbSiwave(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edb.core_siwave.create_current_source_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 0.1, 0, "source_name")
+        >>> edb.siwave.create_current_source_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 0.1, 0, "source_name")
         """
         if not negative_component_name:
             negative_component_name = positive_component_name
@@ -603,10 +673,10 @@ class EdbSiwave(object):
         current_source.negative_node.net = negative_net_name
         current_source.magnitude = current_value
         current_source.phase = phase_value
-        pos_node_cmp = self._pedb.core_components.get_component_by_name(positive_component_name)
-        neg_node_cmp = self._pedb.core_components.get_component_by_name(negative_component_name)
-        pos_node_pins = self._pedb.core_components.get_pin_from_component(positive_component_name, positive_net_name)
-        neg_node_pins = self._pedb.core_components.get_pin_from_component(negative_component_name, negative_net_name)
+        pos_node_cmp = self._pedb.components.get_component_by_name(positive_component_name)
+        neg_node_cmp = self._pedb.components.get_component_by_name(negative_component_name)
+        pos_node_pins = self._pedb.components.get_pin_from_component(positive_component_name, positive_net_name)
+        neg_node_pins = self._pedb.components.get_pin_from_component(negative_component_name, negative_net_name)
 
         if source_name == "":
             source_name = "Port_{}_{}_{}_{}".format(
@@ -651,13 +721,13 @@ class EdbSiwave(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edb.core_siwave.create_dc_terminal("U2A5", "V1P5_S3", "source_name")
+        >>> edb.siwave.create_dc_terminal("U2A5", "V1P5_S3", "source_name")
         """
 
         dc_source = DCTerminal()
         dc_source.positive_node.net = net_name
-        pos_node_cmp = self._pedb.core_components.get_component_by_name(component_name)
-        pos_node_pins = self._pedb.core_components.get_pin_from_component(component_name, net_name)
+        pos_node_cmp = self._pedb.components.get_component_by_name(component_name)
+        pos_node_pins = self._pedb.components.get_pin_from_component(component_name, net_name)
 
         if source_name == "":
             source_name = "DC_{}_{}".format(
@@ -688,7 +758,7 @@ class EdbSiwave(object):
         return True if os.path.exists(file_name) else False
 
     @pyaedt_function_handler()
-    def add_siwave_ac_analysis(
+    def add_siwave_syz_analysis(
         self,
         accuracy_level=1,
         decade_count=10,
@@ -703,11 +773,17 @@ class EdbSiwave(object):
         Parameters
         ----------
         accuracy_level : int, optional
-           Level of accuracy. The default is ``1``.
+           Level of accuracy of SI slider. The default is ``1``.
         decade_count : int
-            The default is ``10``.
+            The default is ``10``. The value for this parameter is used for these sweep types:
+            linear count and decade count.
+            This parameter is alternative to ``step_freq``, which is used for a linear scale sweep.
         sweeptype : int, optional
-            Type of the sweep. The default is ``1``.
+            Type of the sweep. The default is ``1``. Options are:
+
+            - ``0``: linear count
+            - ``1``: linear scale
+            - ``2``: loc scale
         start_freq : float, optional
             Starting frequency. The default is ``1``.
         stop_freq : float, optional
@@ -719,84 +795,37 @@ class EdbSiwave(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveSYZSimulationSetup`
+            Setup object class.
         """
-        self._siwave_setup.AddACSimSetup(
-            self._cell,
-            accuracy_level,
-            str(decade_count),
-            sweeptype,
-            str(start_freq),
-            str(stop_freq),
-            str(step_freq),
-            discrete_sweep,
+        setup = self._pedb.create_siwave_syz_setup()
+        sweep = "linear count"
+        if sweeptype == 2:
+            sweep = "log scale"
+        elif sweeptype == 0:
+            sweep = "linear scale"
+        start_freq = self._pedb.number_with_units(start_freq, "Hz")
+        stop_freq = self._pedb.number_with_units(stop_freq, "Hz")
+        third_arg = int(decade_count)
+        if sweeptype == 0:
+            third_arg = self._pedb.number_with_units(step_freq, "Hz")
+        setup.si_slider_postion = int(accuracy_level)
+        sweep = setup.add_frequency_sweep(
+            frequency_sweep=[
+                [sweep, start_freq, stop_freq, third_arg],
+            ]
         )
-        return self.create_exec_file(add_ac=True)
+        if discrete_sweep:
+            sweep.freq_sweep_type = "kDiscreteSweep"
+
+        self.create_exec_file(add_ac=True)
+        return setup
 
     @pyaedt_function_handler()
-    def add_siwave_syz_analysis(
-        self,
-        accuracy_level=1,
-        decade_count=10,
-        sweeptype=1,
-        start_freq=1,
-        stop_freq=1e9,
-        step_freq=1e6,
-        discrete_sweep=False,
-    ):
-        """Add a SIwave SYZ analysis.
+    def add_siwave_dc_analysis(self, name=None):
+        """Add a Siwave DC analysis in EDB.
 
-        Parameters
-        ----------
-        accuracy_level : int, optional
-           Level of accuracy. The default is ``1``.
-        decade_count : int, optional
-            Number of points to calculate in each decade. The default is ``10``.
-        sweeptype : int, optional
-            Type of the sweep. The default is ``1``.
-        start_freq : float, optional
-            Starting frequency. The default is ``1``.
-        stop_freq : float, optional
-            Stopping frequency. The default is ``1e9``.
-        step_freq : float, optional
-            Frequency size of the step. The default is ``1e6``.
-        discrete_sweep : bool, optional
-            Whether the sweep is discrete. The default is ``False``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-
-        self._siwave_setup.AddSYZSimSetup(
-            self._cell,
-            accuracy_level,
-            str(decade_count),
-            sweeptype,
-            str(start_freq),
-            str(stop_freq),
-            str(step_freq),
-            discrete_sweep,
-        )
-        return self.create_exec_file(add_syz=True)
-
-    @pyaedt_function_handler()
-    def get_siwave_dc_setup_template(self):
-        """Get the siwave dc template.
-
-        Returns
-        -------
-        pyaedt.edb_core.edb_data.simulation_configuration.SiwaveDCSetupTemplate
-        """
-        return SiwaveDCSetupTemplate()
-
-    @pyaedt_function_handler()
-    def add_siwave_dc_analysis(self, setup_settings=SiwaveDCSetupTemplate()):
-        """Create a Siwave DC Analysis in EDB.
-
-        If Setup is present it will be deleted and replaced by new
+        If a setup is present, it is deleted and replaced with
         actual settings.
 
         .. note::
@@ -804,66 +833,25 @@ class EdbSiwave(object):
 
         Parameters
         ----------
-        setup_settings : pyaedt.edb_core.edb_data.simulation_configuration.SiwaveDCSetupTemplate
+        name : str, optional
+            Setup name.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveDCSimulationSetup`
+            Setup object class.
 
         Examples
         --------
         >>> from pyaedt import Edb
         >>> edb = Edb("pathtoaedb", edbversion="2021.2")
-        >>> edb.core_siwave.add_siwave_ac_analysis()
-        >>> settings = edb.core_siwave.get_siwave_dc_setup_template()
-        >>> settings.accuracy_level = 0
-        >>> settings.use_dc_custom_settings  = True
-        >>> settings.name = "myDCIR_3"
-        >>> settings.pos_term_to_ground = "I1"
-        >>> settings.neg_term_to_ground = "V1"
-        >>> edb.core_siwave.add_siwave_dc_analysis2(settings)
+        >>> edb.siwave.add_siwave_ac_analysis()
+        >>> edb.siwave.add_siwave_dc_analysis2("my_setup")
 
         """
-        sim_setup_info = self._pedb.simsetupdata.SimSetupInfo[
-            self._pedb.simsetupdata.SIwave.SIWDCIRSimulationSettings
-        ]()
-        sim_setup_info.Name = setup_settings.name
-        sim_setup_info.SimulationSettings.DCIRSettings.DCReportShowActiveDevices = (
-            setup_settings.dcreport_show_active_devices
-        )
-        sim_setup_info.SimulationSettings.DCIRSettings.ExportDCThermalData = setup_settings.export_dcthermal_data
-        sim_setup_info.SimulationSettings.DCIRSettings.FullDCReportPath = setup_settings.full_dcreport_path
-        sim_setup_info.SimulationSettings.DCIRSettings.UseLoopResForPerPin = setup_settings.use_loopres_forperpin
-        sim_setup_info.SimulationSettings.DCIRSettings.ViaReportPath = setup_settings.via_report_path
-        sim_setup_info.SimulationSettings.DCSettings.ComputeInductance = setup_settings.compute_inductance
-        sim_setup_info.SimulationSettings.DCSettings.DCSliderPos = setup_settings.accuracy_level
-        sim_setup_info.SimulationSettings.DCSettings.PlotJV = setup_settings.plotjv
-        sim_setup_info.SimulationSettings.DCAdvancedSettings.MinNumPasses = setup_settings.min_passes
-        sim_setup_info.SimulationSettings.DCAdvancedSettings.MaxNumPasses = setup_settings.max_passes
-        sim_setup_info.SimulationSettings.DCAdvancedSettings.PercentLocalRefinement = (
-            setup_settings.percent_localrefinement
-        )
-        sim_setup_info.SimulationSettings.DCAdvancedSettings.EnergyError = setup_settings.energy_error
-        sim_setup_info.SimulationSettings.DCAdvancedSettings.RefineBws = setup_settings.refine_bondwires
-        sim_setup_info.SimulationSettings.DCAdvancedSettings.RefineVias = setup_settings.refine_vias
-        sim_setup_info.SimulationSettings.DCAdvancedSettings.NumViaSides = setup_settings.num_via_sides
-        sim_setup_info.SimulationSettings.DCAdvancedSettings.NumBwSides = setup_settings.num_bondwire_sides
-        sim_setup_info.SimulationSettings.DCAdvancedSettings.MeshBws = setup_settings.mesh_bondwires
-        sim_setup_info.SimulationSettings.DCAdvancedSettings.MeshVias = setup_settings.mesh_vias
-        sim_setup_info.SimulationSettings.DCAdvancedSettings.PerformAdaptiveRefinement = (
-            setup_settings.perform_adaptive_refinement
-        )
-        sim_setup_info.SimulationSettings.DCSettings.UseDCCustomSettings = setup_settings.use_dc_custom_settings
-        sim_setup_info.SimulationSettings.DCIRSettings.SourceTermsToGround = setup_settings.source_terms_to_ground
-        simulationSetup = self._edb.Utility.SIWaveDCIRSimulationSetup(sim_setup_info)
-        if self._cell.AddSimulationSetup(simulationSetup):
-            return self.create_exec_file(add_dc=True)
-        else:
-            self._cell.DeleteSimulationSetup(setup_settings.name)
-            if self._cell.AddSimulationSetup(simulationSetup):
-                return self.create_exec_file(add_dc=True)
-        return False
+        setup = self._pedb.create_siwave_dc_setup(name)
+        self.create_exec_file(add_dc=True)
+        return setup
 
     @pyaedt_function_handler()
     def create_pin_group_terminal(self, source):
@@ -878,8 +866,8 @@ class EdbSiwave(object):
         if source.name in [i.GetName() for i in list(self._active_layout.Terminals)]:
             source.name = generate_unique_name(source.name, n=3)
             self._logger.warning("Port already exists with same name. Renaming to {}".format(source.name))
-        pos_pin_group = self._pedb.core_components.create_pingroup_from_pins(source.positive_node.node_pins)
-        pos_node_net = self._pedb.core_nets.get_net_by_name(source.positive_node.net)
+        pos_pin_group = self._pedb.components.create_pingroup_from_pins(source.positive_node.node_pins)
+        pos_node_net = self._pedb.nets.get_net_by_name(source.positive_node.net)
 
         pos_pingroup_term_name = source.name
         pos_pingroup_terminal = _retry_ntimes(
@@ -893,8 +881,8 @@ class EdbSiwave(object):
         )
         time.sleep(0.5)
         if source.negative_node.node_pins:
-            neg_pin_group = self._pedb.core_components.create_pingroup_from_pins(source.negative_node.node_pins)
-            neg_node_net = self._pedb.core_nets.get_net_by_name(source.negative_node.net)
+            neg_pin_group = self._pedb.components.create_pingroup_from_pins(source.negative_node.node_pins)
+            neg_node_net = self._pedb.nets.get_net_by_name(source.negative_node.net)
             neg_pingroup_term_name = source.name + "_N"
             neg_pingroup_terminal = _retry_ntimes(
                 20,
@@ -986,6 +974,13 @@ class EdbSiwave(object):
             simsetup_info.Name = simulation_setup.setup_name
             simsetup_info.SimulationSettings.AdvancedSettings.PerformERC = False
             simsetup_info.SimulationSettings.UseCustomSettings = True
+            if simulation_setup.mesh_freq:  # pragma: no cover
+                if isinstance(simulation_setup.mesh_freq, str):
+                    simsetup_info.SimulationSettings.UseCustomSettings = True
+                    simsetup_info.SimulationSettings.AdvancedSettings.MeshAutoMatic = False
+                    simsetup_info.SimulationSettings.AdvancedSettings.MeshFrequency = simulation_setup.mesh_freq
+                else:
+                    self._logger.warning("Meshing frequency value must be a string with units")
             if simulation_setup.include_inter_plane_coupling:  # pragma: no cover
                 simsetup_info.SimulationSettings.AdvancedSettings.IncludeInterPlaneCoupling = (
                     simulation_setup.include_inter_plane_coupling
@@ -1022,20 +1017,20 @@ class EdbSiwave(object):
                 sweep.UseQ3DForDC = simulation_setup.use_q3d_for_dc
                 sweep.RelativeSError = simulation_setup.relative_error
                 sweep.InterpUsePortImpedance = False
-                sweep.EnforceCausality = (GeometryOperators.parse_dim_arg(simulation_setup.start_frequency) - 0) < 1e-9
+                sweep.EnforceCausality = (GeometryOperators.parse_dim_arg(simulation_setup.start_freq) - 0) < 1e-9
                 sweep.EnforcePassivity = simulation_setup.enforce_passivity
                 sweep.PassivityTolerance = simulation_setup.passivity_tolerance
                 sweep.Frequencies.Clear()
                 if simulation_setup.sweep_type == SweepType.LogCount:  # pragma: no cover
                     self._setup_decade_count_sweep(
                         sweep,
-                        simulation_setup.start_frequency,
+                        simulation_setup.start_freq,
                         simulation_setup.stop_freq,
                         simulation_setup.decade_count,
                     )
                 else:
                     sweep.Frequencies = self._pedb.simsetupdata.SweepData.SetFrequencies(
-                        simulation_setup.start_frequency, simulation_setup.stop_freq, simulation_setup.step_freq
+                        simulation_setup.start_freq, simulation_setup.stop_freq, simulation_setup.step_freq
                     )
                 simsetup_info.SweepDataList.Add(sweep)
             except Exception as err:
@@ -1155,13 +1150,14 @@ class EdbSiwave(object):
 
         Returns
         -------
-        Component
+        class:`pyaedt.edb_core.components.Components`
             Created EDB component.
 
         """
-        return self._pedb.core_components.create_rlc_component(
+        return self._pedb.components.create(
             pins,
             component_name=component_name,
+            is_rlc=True,
             r_value=r_value,
             c_value=c_value,
             l_value=l_value,
@@ -1180,6 +1176,7 @@ class EdbSiwave(object):
             List of pin names.
         group_name : str, optional
             Name of the pin group.
+
         Returns
         -------
         PinGroup
@@ -1189,7 +1186,7 @@ class EdbSiwave(object):
         pin_numbers = [str(p) for p in pin_numbers]
         if group_name is None:
             group_name = self._edb.Cell.Hierarchy.PinGroup.GetUniqueName(self._active_layout)
-        comp = self._pedb.core_components.components[reference_designator]
+        comp = self._pedb.components.components[reference_designator]
         pins = [pin.pin for name, pin in comp.pins.items() if name in pin_numbers]
         edb_pingroup = self._edb.Cell.Hierarchy.PinGroup.Create(
             self._active_layout, group_name, convert_py_list_to_net_list(pins)
@@ -1213,16 +1210,19 @@ class EdbSiwave(object):
             Name of the net.
         group_name : str, optional
             Name of the pin group. The default value is ``None``.
+
         Returns
         -------
         PinGroup
         """
-        pins = self._pedb.core_components.get_pin_from_component(reference_designator, net_name)
+        pins = self._pedb.components.get_pin_from_component(reference_designator, net_name)
         pin_names = [p.GetName() for p in pins]
         return self.create_pin_group(reference_designator, pin_names, group_name)
 
     @pyaedt_function_handler
-    def create_current_source_on_pin_group(self, pos_pin_group_name, neg_pin_group_name, magnitude=1, phase=0):
+    def create_current_source_on_pin_group(
+        self, pos_pin_group_name, neg_pin_group_name, magnitude=1, phase=0, name=None
+    ):
         """Create current source between two pin groups.
 
         Parameters
@@ -1235,20 +1235,29 @@ class EdbSiwave(object):
             Magnitude of the source.
         phase : int, float, optional
             Phase of the source
+
         Returns
         -------
+        bool
 
         """
         pos_pin_group = self.pin_groups[pos_pin_group_name]
         pos_terminal = pos_pin_group.create_current_source_terminal(magnitude, phase)
-
+        if name:
+            pos_terminal.SetName(name)
+        else:
+            name = generate_unique_name("isource")
+            pos_terminal.SetName(name)
         neg_pin_group_name = self.pin_groups[neg_pin_group_name]
         neg_terminal = neg_pin_group_name.create_current_source_terminal()
+        neg_terminal.SetName(name + "_ref")
         pos_terminal.SetReferenceTerminal(neg_terminal)
         return True
 
     @pyaedt_function_handler
-    def create_voltage_source_on_pin_group(self, pos_pin_group_name, neg_pin_group_name, magnitude=1, phase=0):
+    def create_voltage_source_on_pin_group(
+        self, pos_pin_group_name, neg_pin_group_name, magnitude=1, phase=0, name=None
+    ):
         """Create voltage source between two pin groups.
 
         Parameters
@@ -1261,14 +1270,52 @@ class EdbSiwave(object):
             Magnitude of the source.
         phase : int, float, optional
             Phase of the source
+
         Returns
         -------
+        bool
 
         """
         pos_pin_group = self.pin_groups[pos_pin_group_name]
         pos_terminal = pos_pin_group.create_voltage_source_terminal(magnitude, phase)
-
+        if name:
+            pos_terminal.SetName(name)
+        else:
+            name = generate_unique_name("vsource")
+            pos_terminal.SetName(name)
         neg_pin_group_name = self.pin_groups[neg_pin_group_name]
         neg_terminal = neg_pin_group_name.create_voltage_source_terminal(magnitude, phase)
+        neg_terminal.SetName(name + "_ref")
+        pos_terminal.SetReferenceTerminal(neg_terminal)
+        return True
+
+    @pyaedt_function_handler
+    def create_circuit_port_on_pin_group(self, pos_pin_group_name, neg_pin_group_name, impedance=50, name=None):
+        """Create a port between two pin groups.
+
+        Parameters
+        ----------
+        pos_pin_group_name : str
+            Name of the positive pin group.
+        neg_pin_group_name : str
+            Name of the negative pin group.
+        impedance : int, float, optional
+            Impedance of the source.
+
+        Returns
+        -------
+        bool
+
+        """
+        pos_pin_group = self.pin_groups[pos_pin_group_name]
+        pos_terminal = pos_pin_group.create_port_terminal(impedance)
+        if name:  # pragma: no cover
+            pos_terminal.SetName(name)
+        else:
+            name = generate_unique_name("port")
+            pos_terminal.SetName(name)
+        neg_pin_group_name = self.pin_groups[neg_pin_group_name]
+        neg_terminal = neg_pin_group_name.create_port_terminal(impedance)
+        neg_terminal.SetName(name + "_ref")
         pos_terminal.SetReferenceTerminal(neg_terminal)
         return True

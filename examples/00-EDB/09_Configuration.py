@@ -1,7 +1,7 @@
 """
 EDB: fully configurable project
 -------------------------------
-This example shows how you can use create a project using BOM file and configuration files,
+This example shows how you can create a project using a BOM file and configuration files.
 run anlasyis and get results.
 
 """
@@ -10,13 +10,10 @@ run anlasyis and get results.
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Peform required imports. Importing the ``Hfss3dlayout`` object initializes it
-# on version 2022 R2.
+# on version 2023 R1.
 
 import os
-
-from pyaedt import generate_unique_folder_name,examples, Edb, Hfss3dLayout
-from pyaedt.generic.constants import SolverType
-from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
+import pyaedt
 
 ##########################################################
 # Set non-graphical mode
@@ -31,16 +28,16 @@ non_graphical = True
 # Download the AEDB file and copy it in the temporary folder.
 
 
-project_path = generate_unique_folder_name()
-target_aedb = examples.download_file('edb/Galileo.aedb',destination=project_path)
+project_path = pyaedt.generate_unique_folder_name()
+target_aedb = pyaedt.downloads.download_file('edb/Galileo.aedb',destination=project_path)
 print("Project folder will be", target_aedb)
 
 ###############################################################################
 # Launch EDB
 # ~~~~~~~~~~
-# Launch the :class:`pyaedt.Edb` class, using EDB 2022 R2 and SI units.
+# Launch the :class:`pyaedt.Edb` class, using EDB 2023 R1 and SI units.
 
-edbapp = Edb(target_aedb, edbversion="2022.2")
+edbapp = pyaedt.Edb(target_aedb, edbversion="2023.1")
 ###############################################################################
 # Import Definitions
 # ~~~~~~~~~~~~~~~~~~
@@ -49,17 +46,17 @@ edbapp = Edb(target_aedb, edbversion="2022.2")
 # Once imported the definition is applied to the board.
 # Json file is stored for convenience in aedb folder.
 
-edbapp.core_components.import_definition(os.path.join(target_aedb, "1_comp_definition.json"))
+edbapp.components.import_definition(os.path.join(target_aedb, "1_comp_definition.json"))
 
 ###############################################################################
 # Import BOM
 # ~~~~~~~~~~
-# This steps import a bom csv file containg, reference designator,
-# part name, component type and default value.
-# Components not in BOM will be deactivated.
+# This step imports a BOM file in CSV format. The BOM contains the
+# reference designator, part name, component type, and default value.
+# Components not in the BOM are deactivated.
 # Csv file is store for convenience in aedb folder.
 
-edbapp.core_components.import_bom(os.path.join(target_aedb,"0_bom.csv"),
+edbapp.components.import_bom(os.path.join(target_aedb,"0_bom.csv"),
                                   refdes_col=0,
                                   part_name_col=1,
                                   comp_type_col=2,
@@ -71,20 +68,20 @@ edbapp.core_components.import_bom(os.path.join(target_aedb,"0_bom.csv"),
 # Check Component Values
 # ~~~~~~~~~~~~~~~~~~~~~~
 
-comp = edbapp.core_components.components["C3B14"]
+comp = edbapp.components["C3B14"]
 comp.model_type, comp.value
 
 ###############################################################################
 # Check Component Values
 # ~~~~~~~~~~~~~~~~~~~~~~
-comp2 = edbapp.core_components.components["C3A3"]
+comp2 = edbapp.components["C3A3"]
 comp2.model_type, comp2.value
 
 ###############################################################################
 # Check Component Definition
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-edbapp.core_components.nport_comp_definition
+edbapp.components.nport_comp_definition
 
 ###############################################################################
 # Save Edb
@@ -100,16 +97,18 @@ edbapp.save_edb()
 #  - Components on which to create the ports
 #  - Simulation settings
 
-sim_setup = SimulationConfiguration()
-sim_setup.solver_type = SolverType.SiwaveSYZ
-sim_setup.cutout_subdesign_expansion = 0.01
-sim_setup.do_cutout_subdesign = True
-sim_setup.signal_nets = ["PCIE0_RX0_P", "PCIE0_RX0_N", "PCIE0_TX0_P_C", "PCIE0_TX0_N_C", "PCIE0_TX0_P", "PCIE0_TX0_N"]
-sim_setup.components = ["U2A5", "J2L1"]
-sim_setup.power_nets = ["GND"]
-sim_setup.start_frequency = "100Hz"
-sim_setup.stop_freq = "6GHz"
-sim_setup.step_freq = "10MHz"
+sim_setup = edbapp.new_simulation_configuration()
+sim_setup.solver_type = sim_setup.SOLVER_TYPE.SiwaveSYZ
+sim_setup.batch_solve_settings.cutout_subdesign_expansion = 0.01
+sim_setup.batch_solve_settings.do_cutout_subdesign = True
+sim_setup.use_default_cutout = False
+sim_setup.batch_solve_settings.signal_nets = ["PCIE0_RX0_P", "PCIE0_RX0_N", "PCIE0_TX0_P_C", "PCIE0_TX0_N_C",
+                                              "PCIE0_TX0_P", "PCIE0_TX0_N"]
+sim_setup.batch_solve_settings.components = ["U2A5", "J2L1"]
+sim_setup.batch_solve_settings.power_nets = ["GND"]
+sim_setup.ac_settings.start_freq = "100Hz"
+sim_setup.ac_settings.stop_freq = "6GHz"
+sim_setup.ac_settings.step_freq = "10MHz"
 
 ###############################################################################
 # Run Setup
@@ -124,7 +123,7 @@ edbapp.build_simulation_project(sim_setup)
 # ~~~~~~~~~~~
 # Plot cutout once finished.
 
-edbapp.core_nets.plot(None,None)
+edbapp.nets.plot(None,None)
 
 ###############################################################################
 # Save and Close EDB
@@ -138,13 +137,13 @@ edbapp.close_edb()
 # Open Aedt
 # ~~~~~~~~~
 # Project folder aedb will be opened in AEDT Hfss3DLayout and loaded.
-h3d = Hfss3dLayout(specified_version="2022.2", projectname=target_aedb, non_graphical=non_graphical)
+h3d = pyaedt.Hfss3dLayout(specified_version="2023.1", projectname=target_aedb, non_graphical=non_graphical)
 
 ###############################################################################
 # Analyze
 # ~~~~~~~
 # Project will be solved.
-h3d.analyze_nominal()
+h3d.analyze()
 
 ###############################################################################
 # Get Results

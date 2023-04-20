@@ -11,16 +11,6 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.Model2D import Modeler2D
-from pyaedt.modeler.Model3D import Modeler3D
-from pyaedt.modeler.stackup_3d import Stackup3D
-from pyaedt.modules.Mesh import Mesh
-from pyaedt.modules.MeshIcepak import IcepakMesh
-
-if is_ironpython:
-    from pyaedt.modules.PostProcessor import PostProcessor
-else:
-    from pyaedt.modules.AdvancedPostProcessing import PostProcessor
 
 
 class FieldAnalysis3D(Analysis, object):
@@ -101,9 +91,9 @@ class FieldAnalysis3D(Analysis, object):
             port,
             aedt_process_id,
         )
-        self._modeler = Modeler2D(self) if application in ["Maxwell 2D", "2D Extractor"] else Modeler3D(self)
-        self._mesh = IcepakMesh(self) if application == "Icepak" else Mesh(self)
-        self._post = PostProcessor(self)
+        self._post = None
+        self._modeler = None
+        self._mesh = None
         self._configurations = Configurations(self)
 
     @property
@@ -122,8 +112,15 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Model3D.Modeler3D` or :class:`pyaedt.modeler.Model2D.Modeler2D`
+        :class:`pyaedt.modeler.modeler3d.Modeler3D` or :class:`pyaedt.modeler.modeler2d.Modeler2D`
+            Modeler object.
         """
+        if self._modeler is None:
+            from pyaedt.modeler.modeler2d import Modeler2D
+            from pyaedt.modeler.modeler3d import Modeler3D
+
+            self._modeler = Modeler2D(self) if self.design_type in ["Maxwell 2D", "2D Extractor"] else Modeler3D(self)
+
         return self._modeler
 
     @property
@@ -133,8 +130,31 @@ class FieldAnalysis3D(Analysis, object):
         Returns
         -------
         :class:`pyaedt.modules.Mesh.Mesh` or :class:`pyaedt.modules.MeshIcepak.IcepakMesh`
+            Mesh object.
         """
+        if self._mesh is None:
+            from pyaedt.modules.Mesh import Mesh
+            from pyaedt.modules.MeshIcepak import IcepakMesh
+
+            self._mesh = IcepakMesh(self) if self.design_type == "Icepak" else Mesh(self)
         return self._mesh
+
+    @property
+    def post(self):
+        """PostProcessor.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.AdvancedPostProcessing.PostProcessor`
+            PostProcessor object.
+        """
+        if self._post is None:
+            if is_ironpython:  # pragma: no cover
+                from pyaedt.modules.PostProcessor import PostProcessor
+            else:
+                from pyaedt.modules.AdvancedPostProcessing import PostProcessor
+            self._post = PostProcessor(self)
+        return self._post
 
     @property
     def components3d(self):
@@ -163,7 +183,6 @@ class FieldAnalysis3D(Analysis, object):
                     for file in files:
                         if file.endswith(".a3dcomp"):
                             listfiles.append(os.path.join(root, file))
-                # listfiles = glob.glob(syspath + "/**/*.a3dcomp", recursive=True)
                 for el in listfiles:
                     head, tail = ntpath.split(el)
                     components_dict[tail[:-8]] = el
@@ -180,6 +199,7 @@ class FieldAnalysis3D(Analysis, object):
         force_opacity_value=None,
         clean_files=False,
         view="isometric",
+        show_legend=True,
     ):
         """Plot the model or a subset of objects.
 
@@ -208,6 +228,8 @@ class FieldAnalysis3D(Analysis, object):
         view : str, optional
            View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
            The default is ``"isometric"``.
+        show_legend : bool, optional
+            Whether to display the legend or not. The default is ``True``.
 
         Returns
         -------
@@ -228,6 +250,7 @@ class FieldAnalysis3D(Analysis, object):
                 force_opacity_value=force_opacity_value,
                 clean_files=clean_files,
                 view=view,
+                show_legend=show_legend,
             )
 
     @pyaedt_function_handler()
@@ -452,27 +475,18 @@ class FieldAnalysis3D(Analysis, object):
         return True
 
     @pyaedt_function_handler()
-    def export3DModel(self, fileName, filePath, fileFormat=".step", object_list=[], removed_objects=[]):
-        """Export the 3D model.
-
-        .. deprecated:: 0.5.0
-           Use :func:`pyaedt.application.Analysis3D.modeler.export_3d_model` instead.
-
-        """
-        warnings.warn("`export3DModel` is deprecated. Use `export_3d_model` instead.", DeprecationWarning)
-        return self.export_3d_model(fileName, filePath, fileFormat, object_list, removed_objects)
-
-    @pyaedt_function_handler()
-    def export_3d_model(self, fileName, filePath, fileFormat=".step", object_list=None, removed_objects=None):
+    def export_3d_model(
+        self, file_name="", file_path="", file_format=".step", object_list=None, removed_objects=None, **kwargs
+    ):
         """Export the 3D model.
 
         Parameters
         ----------
-        fileName : str
+        file_name : str, optional
             Name of the file.
-        filePath : str
+        file_path : str, optional
             Path for the file.
-        fileFormat : str, optional
+        file_format : str, optional
             Format of the file. The default is ``".step"``.
         object_list : list, optional
             List of objects to export. The default is ``None``.
@@ -489,7 +503,31 @@ class FieldAnalysis3D(Analysis, object):
 
         >>> oEditor.Export
         """
+        if "fileName" in kwargs:
+            warnings.warn(
+                "`fileName` is deprecated. Use `file_name` instead.",
+                DeprecationWarning,
+            )
 
+            file_name = kwargs["fileName"]
+        if "filePath" in kwargs:
+            warnings.warn(
+                "`filePath` is deprecated. Use `file_path` instead.",
+                DeprecationWarning,
+            )
+
+            file_path = kwargs["filePath"]
+        if "fileFormat" in kwargs:
+            warnings.warn(
+                "`fileFormat` is deprecated. Use `file_format` instead.",
+                DeprecationWarning,
+            )
+
+            file_format = kwargs["fileFormat"]
+        if not file_name:
+            file_name = self.project_name + "_" + self.design_name
+        if not file_path:
+            file_path = self.working_directory
         if object_list is None:
             object_list = []
         if removed_objects is None:
@@ -510,7 +548,7 @@ class FieldAnalysis3D(Analysis, object):
         major = -1
         minor = -1
         # actual version supported by AEDT is 29.0
-        if fileFormat in [".sm3", ".sat", ".sab"]:
+        if file_format in [".sm3", ".sat", ".sab"]:
             major = 29
             minor = 0
         stringa = ",".join(allObjects)
@@ -523,7 +561,7 @@ class FieldAnalysis3D(Analysis, object):
             "Selections:=",
             stringa,
             "File Name:=",
-            os.path.join(filePath, fileName + fileFormat).replace("\\", "/"),
+            os.path.join(file_path, file_name + file_format).replace("\\", "/"),
             "Major Version:=",
             major,
             "Minor Version:=",
@@ -700,12 +738,14 @@ class FieldAnalysis3D(Analysis, object):
         """
         if len(self.modeler.objects) != len(self.modeler.object_names):
             self.modeler.refresh_all_ids()
-        cond = self.materials.conductors
         obj_names = []
-        for mat in cond:
-            obj_names.extend(self.modeler.get_objects_by_material(mat))
-            obj_names.extend(self.modeler.get_objects_by_material(self.materials[mat].name))
-        return list(set(obj_names))
+        for _, val in self.modeler.objects.items():
+            try:
+                if val.material_name and self.materials[val.material_name].is_conductor():
+                    obj_names.append(val.name)
+            except KeyError:
+                pass
+        return obj_names
 
     @pyaedt_function_handler()
     def get_all_dielectrics_names(self):
@@ -724,10 +764,13 @@ class FieldAnalysis3D(Analysis, object):
             self.modeler.refresh_all_ids()
         diel = self.materials.dielectrics
         obj_names = []
-        for mat in diel:
-            obj_names.extend(self.modeler.get_objects_by_material(mat))
-            obj_names.extend(self.modeler.get_objects_by_material(self.materials[mat].name))
-        return list(set(obj_names))
+        for _, val in self.modeler.objects.items():
+            try:
+                if val.material_name and self.materials[val.material_name].is_dielectric():
+                    obj_names.append(val.name)
+            except KeyError:
+                pass
+        return obj_names
 
     @pyaedt_function_handler()
     def _create_dataset_from_sherlock(self, material_string, property_name="Mass_Density"):
@@ -899,11 +942,14 @@ class FieldAnalysis3D(Analysis, object):
         :class:`pyaedt.modeler.stackup_3d.Stackup3D`
             Stackup class.
         """
+        from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
+
         return Stackup3D(self)
 
     @pyaedt_function_handler()
     def flatten_3d_components(self, component_name=None, purge_history=True, password=""):
         """Flatten one or multiple 3d components in the actual layout. Each 3d Component is replaced with objects.
+        This function will work only if the reference coordinate system of the 3d component is the global one.
 
         Parameters
         ----------
@@ -920,23 +966,69 @@ class FieldAnalysis3D(Analysis, object):
         bool
             `True` if succeeded.
         """
+        native_comp_names = [nc.component_name for _, nc in self.native_components.items()]
         if not component_name:
-            component_name = self.modeler.user_defined_component_names
+            component_name = [
+                key
+                for key, val in self.modeler.user_defined_components.items()
+                if val.definition_name not in native_comp_names
+            ]
         else:
             if isinstance(component_name, str):
                 component_name = [component_name]
             for cmp in component_name:
                 assert cmp in self.modeler.user_defined_component_names, "Component Definition not found."
+
         for cmp in component_name:
             comp = self.modeler.user_defined_components[cmp]
+            target_cs = self.modeler._create_reference_cs_from_3dcomp(comp, password=password)
             app = comp.edit_definition(password=password)
             for var, val in comp.parameters.items():
                 app[var] = val
             if purge_history:
                 app.modeler.purge_history(app.modeler._all_object_names)
-            self.modeler.set_working_coordinate_system(comp.target_coordinate_system)
-            self.copy_solid_bodies_from(app, no_vacuum=False, no_pec=False, include_sheets=True)
-            app.close_project(save_project=False)
+            monitor_cache = {}
+            if self.design_type == "Icepak":
+                objs_monitors = [part.name for _, part in comp.parts.items()]
+                for mon_name, mon_obj in self.monitor.all_monitors.items():
+                    obj_name = mon_obj.properties["Geometry Assignment"]
+                    if obj_name in objs_monitors:
+                        monitor_cache.update({mon_obj.name: mon_obj.properties})
+                        monitor_cache[mon_obj.name]["Native Assignment"] = "placeholder"
+                        if monitor_cache[mon_obj.name]["Type"] == "Face":
+                            monitor_cache[mon_obj.name]["Area Assignment"] = self.modeler.get_face_area(
+                                monitor_cache[mon_obj.name]["ID"]
+                            )
+                        elif monitor_cache[mon_obj.name]["Type"] == "Surface":
+                            monitor_cache[mon_obj.name]["Area Assignment"] = self.modeler.get_face_area(
+                                self.modeler.get_object_from_name(monitor_cache[mon_obj.name]["ID"]).faces[0].id
+                            )
+                        elif monitor_cache[mon_obj.name]["Type"] == "Object":
+                            monitor_cache[mon_obj.name]["Volume Assignment"] = self.modeler.get_object_from_name(
+                                monitor_cache[mon_obj.name]["ID"]
+                            ).volume
+                for _, mon_dict in monitor_cache.items():
+                    del mon_dict["Object"]
+            oldcs = self.oeditor.GetActiveCoordinateSystem()
+            self.modeler.set_working_coordinate_system(target_cs)
             comp.delete()
+            obj_set = set(self.modeler.objects.values())
+            self.copy_solid_bodies_from(app, no_vacuum=False, no_pec=False, include_sheets=True)
             self.modeler.refresh_all_ids()
+            self.modeler.set_working_coordinate_system(oldcs)
+            if self.design_type == "Icepak":
+                for monitor_obj, mon_dict in monitor_cache.items():
+                    if not self.monitor.insert_monitor_object_from_dict(mon_dict, mode=1):
+                        dict_in = {"monitor": {monitor_obj: mon_dict}}
+                        self.configurations._monitor_assignment_finder(dict_in, monitor_obj, obj_set)
+                        m_type = dict_in["monitor"][monitor_obj]["Type"]
+                        m_obj = dict_in["monitor"][monitor_obj]["ID"]
+                        if not self.configurations.update_monitor(
+                            m_type, m_obj, dict_in["monitor"][monitor_obj]["Quantity"], monitor_obj
+                        ):  # pragma: no cover
+                            return False
+            app.oproject.Close()
+
+        if not self.design_type == "Icepak":
+            self.mesh._refresh_mesh_operations()
         return True

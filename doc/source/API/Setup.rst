@@ -17,6 +17,7 @@ The ``Setup`` object is accessible through the ``create_setup`` method and ``set
    SetupHFSS
    SetupHFSSAuto
    SetupSBR
+   SetupQ3D
    SetupMaxwell
    Setup
    Setup3DLayout
@@ -25,7 +26,7 @@ The ``Setup`` object is accessible through the ``create_setup`` method and ``set
 .. code:: python
 
     from pyaedt import Hfss
-    app = Hfss(specified_version="2022.1",
+    app = Hfss(specified_version="2023.1",
                non_graphical=False, new_desktop_session=True,
                close_on_exit=True, student_version=False)
 
@@ -50,7 +51,7 @@ This section lists sweep classes and their default values:
 The ``Setup`` object is accessible through the methods available for sweep creation.
 
 
-.. currentmodule:: pyaedt.modules.SetupTemplates
+.. currentmodule:: pyaedt.modules.SolveSweeps
 
 .. autosummary::
    :toctree: _autosummary

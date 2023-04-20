@@ -1,16 +1,16 @@
 import ast
+from collections import defaultdict
 import csv
+from datetime import datetime
+import math
 import os
 import tempfile
 import time
 import warnings
-from collections import defaultdict
-from datetime import datetime
 
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import CSS4_COLORS
-from pyaedt.generic.general_methods import convert_remote_object
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
 
@@ -34,9 +34,9 @@ if not is_ironpython:
         )
 
     try:
-        import matplotlib.pyplot as plt
         from matplotlib.patches import PathPatch
         from matplotlib.path import Path
+        import matplotlib.pyplot as plt
 
     except ImportError:
         warnings.warn(
@@ -49,7 +49,6 @@ if not is_ironpython:
 
 @pyaedt_function_handler()
 def get_structured_mesh(theta, phi, ff_data):
-
     if ff_data.min() < 0:
         ff_data_renorm = ff_data + np.abs(ff_data.min())
     else:
@@ -320,11 +319,6 @@ def plot_polar_chart(
 
     ax = plt.subplot(111, projection="polar")
 
-    try:
-        len(plot_data)
-    except:
-        plot_data = convert_remote_object(plot_data)
-
     label_id = 1
     legend = []
     for object in plot_data:
@@ -383,10 +377,6 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
 
     ax = plt.subplot(111, projection="3d")
 
-    try:
-        len(plot_data)
-    except:
-        plot_data = convert_remote_object(plot_data)
     if isinstance(plot_data[0], np.ndarray):
         x = plot_data[0]
         y = plot_data[1]
@@ -422,16 +412,17 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
         `[x points, y points, label]`.
     size : tuple, optional
         Image size in pixel (width, height).
-    show_legend : bool
-        Either to show legend or not.
-    xlabel : str
-        Plot X label.
-    ylabel : str
-        Plot Y label.
-    title : str
-        Plot Title label.
-    snapshot_path : str
+    show_legend : bool, optional
+        Either to show legend or not. The default value is ``True``.
+    xlabel : str, optional
+        Plot X label. The default value is ``""``.
+    ylabel : str, optional
+        Plot Y label. The default value is ``""``.
+    title : str, optional
+        Plot Title label. The default value is ``""``.
+    snapshot_path : str, optional
         Full path to image file if a snapshot is needed.
+        The default value is ``None``.
 
     Returns
     -------
@@ -441,10 +432,6 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
     dpi = 100.0
     figsize = (size[0] / dpi, size[1] / dpi)
     fig, ax = plt.subplots(figsize=figsize)
-    try:
-        len(plot_data)
-    except:
-        plot_data = convert_remote_object(plot_data)
     label_id = 1
     for plo_obj in plot_data:
         if len(plo_obj) == 3:
@@ -466,13 +453,25 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
 
     if snapshot_path:
         fig.savefig(snapshot_path)
-    else:
+    elif not is_notebook():
         fig.show()
     return fig
 
 
 @pyaedt_function_handler()
-def plot_matplotlib(plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None):
+def plot_matplotlib(
+    plot_data,
+    size=(2000, 1000),
+    show_legend=True,
+    xlabel="",
+    ylabel="",
+    title="",
+    snapshot_path=None,
+    x_limits=None,
+    y_limits=None,
+    annotations=None,
+    show=True,
+):
     """Create a matplotlib plot based on a list of data.
 
     Parameters
@@ -494,6 +493,15 @@ def plot_matplotlib(plot_data, size=(2000, 1000), show_legend=True, xlabel="", y
         Plot Title label.
     snapshot_path : str
         Full path to image file if a snapshot is needed.
+    x_limits : list, optional
+        List of x limits (left and right).
+    y_limits : list, optional
+        List of y limits (bottom and top).
+    annotations : list, optional
+        List of annotations to add to the plot. [x,y,string, dictionary of font options]
+    show : bool, optional
+        Whether to show the plot or return the matplotlib object. Default is `True`.
+
 
     Returns
     -------
@@ -502,7 +510,9 @@ def plot_matplotlib(plot_data, size=(2000, 1000), show_legend=True, xlabel="", y
     """
     dpi = 100.0
     figsize = (size[0] / dpi, size[1] / dpi)
-    fig, ax = plt.subplots(figsize=figsize)
+    fig = plt.figure(figsize=figsize)
+    ax = fig.add_subplot(1, 1, 1)
+    # fig, ax = plt.subplot(figsize=figsize)
     if isinstance(plot_data, str):
         plot_data = ast.literal_eval(plot_data)
     for points in plot_data:
@@ -519,12 +529,19 @@ def plot_matplotlib(plot_data, size=(2000, 1000), show_legend=True, xlabel="", y
 
     ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
     if show_legend:
-        ax.legend()
-    ax.axis("equal")
+        ax.legend(loc="upper right")
+    # ax.axis("equal")
+    if x_limits:
+        ax.set_xlim(x_limits)
+    if y_limits:
+        ax.set_ylim(y_limits)
+    if annotations:
+        for annotation in annotations:
+            plt.text(annotation[0], annotation[1], annotation[2], **annotation[3])
 
     if snapshot_path:
         plt.savefig(snapshot_path)
-    else:
+    elif show:
         plt.show()
     return plt
 
@@ -586,7 +603,7 @@ def plot_contour(qty_to_plot, x, y, size=(2000, 1600), xlabel="", ylabel="", tit
 
 
 class ObjClass(object):
-    """Class that manages mesh files to be plotted in pyvista.
+    """Manages mesh files to be plotted in pyvista.
 
     Parameters
     ----------
@@ -678,34 +695,7 @@ class FieldClass(object):
         self.vector_scale = 1.0
 
 
-class ModelPlotter(object):
-    """Class that manage the plot data.
-
-    Examples
-    --------
-    This Class can be instantiated within Pyaedt (with plot_model_object or different field plots
-    and standalone.
-    Here an example of standalone project
-
-    >>> model = ModelPlotter()
-    >>> model.add_object(r'D:\Simulation\antenna.obj', (200,20,255), 0.6, "in")
-    >>> model.add_object(r'D:\Simulation\helix.obj', (0,255,0), 0.5, "in")
-    >>> model.add_field_from_file(r'D:\Simulation\helic_antenna.csv', True, "meter", 1)
-    >>> model.background_color = (0,0,0)
-    >>> model.plot()
-
-    And here an example of animation:
-
-    >>> model = ModelPlotter()
-    >>> model.add_object(r'D:\Simulation\antenna.obj', (200,20,255), 0.6, "in")
-    >>> model.add_object(r'D:\Simulation\helix.obj', (0,255,0), 0.5, "in")
-    >>> frames = [r'D:\Simulation\helic_antenna.csv', r'D:\Simulation\helic_antenna_10.fld',
-    ...           r'D:\Simulation\helic_antenna_20.fld', r'D:\Simulation\helic_antenna_30.fld',
-    ...           r'D:\Simulation\helic_antenna_40.fld']
-    >>> model.gif_file = r"D:\Simulation\animation.gif"
-    >>> model.animate()
-    """
-
+class CommonPlotter(object):
     def __init__(self):
         self._objects = []
         self._fields = []
@@ -716,6 +706,7 @@ class ModelPlotter(object):
         self.is_notebook = is_notebook()
         self.gif_file = None
         self._background_color = (255, 255, 255)
+        self._background_image = None
         self.off_screen = False
         if self.is_notebook:
             self.windows_size = [600, 600]
@@ -741,6 +732,85 @@ class ModelPlotter(object):
         self.color_bar = True
         self.array_coordinates = []
         self.meshes = None
+        self._x_scale = 1.0
+        self._y_scale = 1.0
+        self._z_scale = 1.0
+        self._convert_fields_in_db = False
+        self._log_multiplier = 10.0
+
+    @property
+    def convert_fields_in_db(self):
+        """Either if convert the fields before plotting in dB. Log scale will be disabled.
+
+        Returns
+        -------
+        bool
+        """
+        return self._convert_fields_in_db
+
+    @convert_fields_in_db.setter
+    def convert_fields_in_db(self, value):
+        self._convert_fields_in_db = value
+        for f in self.fields:
+            f._cached_polydata = None
+        for f in self.frames:
+            f._cached_polydata = None
+
+    @property
+    def log_multiplier(self):
+        """Multiply the log value.
+
+        Returns
+        -------
+        float
+        """
+        return self._log_multiplier
+
+    @log_multiplier.setter
+    def log_multiplier(self, value):
+        self._log_multiplier = value
+
+    @property
+    def x_scale(self):
+        """Scale plot on X.
+
+        Returns
+        -------
+        float
+        """
+        return self._x_scale
+
+    @x_scale.setter
+    def x_scale(self, value):
+        self._x_scale = value
+
+    @property
+    def y_scale(self):
+        """Scale plot on Y.
+
+        Returns
+        -------
+        float
+        """
+        return self._y_scale
+
+    @y_scale.setter
+    def y_scale(self, value):
+        self._y_scale = value
+
+    @property
+    def z_scale(self):
+        """Scale plot on Z.
+
+        Returns
+        -------
+        float
+        """
+        return self._z_scale
+
+    @z_scale.setter
+    def z_scale(self, value):
+        self._z_scale = value
 
     @property
     def isometric_view(self):
@@ -809,12 +879,8 @@ class ModelPlotter(object):
 
     @property
     def camera_position(self):
-        """Get/Set the camera position value. It disables the default iso view.
-
-        Parameters
-        ----------
-        value : str or tuple
-            Value of camera position. One of `"xy"`, `"xz"`,`"yz"`.
+        """Get or set the camera position value. This parameter disables the default iso view.
+        Value for the camera position. The value is for ``"xy"``, ``"xz"`` or ``"yz"``.
 
         Returns
         -------
@@ -951,6 +1017,53 @@ class ModelPlotter(object):
         elif value in CSS4_COLORS:
             h = CSS4_COLORS[value].lstrip("#")
             self._background_color = tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))
+
+    @property
+    def background_image(self):
+        """Background image.
+
+        Returns
+        -------
+        str
+        """
+        return self._background_image
+
+    @background_image.setter
+    def background_image(self, value):
+        if os.path.exists(value):
+            self._background_image = value
+
+
+class ModelPlotter(CommonPlotter):
+    """Manages the data to be plotted with ``pyvista``.
+
+    Examples
+    --------
+    This Class can be instantiated within Pyaedt (with plot_model_object or different field plots
+    and standalone).
+    Here an example of standalone project
+
+    >>> model = ModelPlotter()
+    >>> model.add_object(r'D:\Simulation\antenna.obj', (200,20,255), 0.6, "in")
+    >>> model.add_object(r'D:\Simulation\helix.obj', (0,255,0), 0.5, "in")
+    >>> model.add_field_from_file(r'D:\Simulation\helic_antenna.csv', True, "meter", 1)
+    >>> model.background_color = (0,0,0)
+    >>> model.plot()
+
+    And here an example of animation:
+
+    >>> model = ModelPlotter()
+    >>> model.add_object(r'D:\Simulation\antenna.obj', (200,20,255), 0.6, "in")
+    >>> model.add_object(r'D:\Simulation\helix.obj', (0,255,0), 0.5, "in")
+    >>> frames = [r'D:\Simulation\helic_antenna.csv', r'D:\Simulation\helic_antenna_10.fld',
+    ...           r'D:\Simulation\helic_antenna_20.fld', r'D:\Simulation\helic_antenna_30.fld',
+    ...           r'D:\Simulation\helic_antenna_40.fld']
+    >>> model.gif_file = r"D:\Simulation\animation.gif"
+    >>> model.animate()
+    """
+
+    def __init__(self):
+        CommonPlotter.__init__(self)
 
     @property
     def fields(self):
@@ -1181,6 +1294,8 @@ class ModelPlotter(object):
             if field.path and not field._cached_polydata:
                 if ".aedtplt" in field.path:
                     vertices, faces, scalars, log1 = _parse_aedtplt(field.path)
+                    if self.convert_fields_in_db:
+                        scalars = [np.multiply(np.log10(i), self.log_multiplier) for i in scalars]
                     fields_vals = pv.PolyData(vertices[0], faces[0])
                     field._cached_polydata = fields_vals
                     if isinstance(scalars[0], list):
@@ -1230,6 +1345,11 @@ class ModelPlotter(object):
                                 is_vector = True
                             else:
                                 values.append(float(tmp[3]))
+                    if self.convert_fields_in_db:
+                        if not isinstance(values[0], list):
+                            values = [self.log_multiplier * math.log10(abs(i)) for i in values]
+                        else:
+                            values = [[self.log_multiplier * math.log10(abs(i)) for i in value] for value in values]
                     if nodes:
                         try:
                             conv = 1 / AEDT_UNITS["Length"][self.units]
@@ -1369,7 +1489,10 @@ class ModelPlotter(object):
         """
         self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
         self.meshes = None
-        self.pv.background_color = [i / 255 for i in self.background_color]
+        if self.background_image:
+            self.pv.add_background_image(self.background_image)
+        else:
+            self.pv.background_color = [i / 255 for i in self.background_color]
         self._read_mesh_files()
         axes_color = [0 if i >= 128 else 1 for i in self.background_color]
         if self.color_bar:
@@ -1397,7 +1520,7 @@ class ModelPlotter(object):
                 self.pv.add_mesh(
                     field._cached_polydata.arrows,
                     scalars=field.label,
-                    log_scale=field.log_scale,
+                    log_scale=False if self.convert_fields_in_db else field.log_scale,
                     scalar_bar_args=sargs,
                     cmap=field.color_map,
                 )
@@ -1406,7 +1529,7 @@ class ModelPlotter(object):
                 field._cached_mesh = self.pv.add_mesh(
                     field._cached_polydata,
                     scalars=field.label,
-                    log_scale=field.log_scale,
+                    log_scale=False if self.convert_fields_in_db else field.log_scale,
                     scalar_bar_args=sargs,
                     cmap=field.color_map,
                     clim=[self.range_min, self.range_max],
@@ -1417,12 +1540,15 @@ class ModelPlotter(object):
                 field._cached_mesh = self.pv.add_mesh(
                     field._cached_polydata,
                     scalars=field.label,
-                    log_scale=field.log_scale,
+                    log_scale=False if self.convert_fields_in_db else field.log_scale,
                     scalar_bar_args=sargs,
                     cmap=field.color_map,
                     opacity=field.opacity,
                     show_edges=field.show_edge,
                 )
+
+        self.pv.set_scale(self.x_scale, self.y_scale, self.z_scale)
+
         if self.show_legend:
             self._add_buttons()
 
@@ -1518,12 +1644,15 @@ class ModelPlotter(object):
             self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=True, window_size=self.windows_size)
         else:
             self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
-
-        self.pv.background_color = [i / 255 for i in self.background_color]
+        if self.background_image:
+            self.pv.add_background_image(self.background_image)
+        else:
+            self.pv.background_color = [i / 255 for i in self.background_color]
         self._read_mesh_files(read_frames=True)
 
         axes_color = [0 if i >= 128 else 1 for i in self.background_color]
 
+        self.pv.set_scale(self.x_scale, self.y_scale, self.z_scale)
         if self.show_axes:
             self.pv.show_axes()
         if self.show_grid and not self.is_notebook:
@@ -1591,7 +1720,7 @@ class ModelPlotter(object):
             field._cached_mesh = self.pv.add_mesh(
                 field._cached_polydata,
                 scalars=field.label,
-                log_scale=field.log_scale,
+                log_scale=False if self.convert_fields_in_db else field.log_scale,
                 scalar_bar_args=sargs,
                 cmap=field.color_map,
                 opacity=field.opacity,
@@ -1617,7 +1746,7 @@ class ModelPlotter(object):
         self.frames[0]._cached_mesh = self.pv.add_mesh(
             self.frames[0]._cached_polydata,
             scalars=self.frames[0].label,
-            log_scale=self.frames[0].log_scale,
+            log_scale=False if self.convert_fields_in_db else self.frames[0].log_scale,
             scalar_bar_args=sargs,
             cmap=self.frames[0].color_map,
             clim=[mins, maxs],
@@ -1628,8 +1757,10 @@ class ModelPlotter(object):
             opacity=self.frames[0].opacity,
         )
         start = time.time()
-
-        self.pv.update(1, force_redraw=True)
+        try:
+            self.pv.update(1, force_redraw=True)
+        except:
+            pass
         if self.gif_file:
             first_loop = True
             self.pv.write_frame()

@@ -1,7 +1,5 @@
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.Model2D import ModelerRMxprt
-from pyaedt.modules.PostProcessor import CircuitPostProcessor
 
 
 class FieldAnalysisRMxprt(Analysis):
@@ -51,8 +49,22 @@ class FieldAnalysisRMxprt(Analysis):
             aedt_process_id,
         )
 
-        self._modeler = ModelerRMxprt(self)
-        self._post = CircuitPostProcessor(self)
+        self._modeler = None
+        self._post = None
+
+    @property
+    def post(self):
+        """Post Object.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.PostProcessor.CircuitPostProcessor`
+        """
+        if self._post is None:  # pragma: no cover
+            from pyaedt.modules.PostProcessor import CircuitPostProcessor
+
+            self._post = CircuitPostProcessor(self)
+        return self._post
 
     @property
     def modeler(self):
@@ -60,9 +72,14 @@ class FieldAnalysisRMxprt(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modules.Modeler`
+        :class:`pyaedt.modules.modeler2d.ModelerRMxprt`
 
         """
+        if self._modeler is None:
+            from pyaedt.modeler.modeler2d import ModelerRMxprt
+
+            self._modeler = ModelerRMxprt(self)
+
         return self._modeler
 
     @pyaedt_function_handler()

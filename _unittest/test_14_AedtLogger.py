@@ -14,6 +14,7 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
 from _unittest.conftest import BasisTest
+
 from pyaedt import settings
 
 # Import required modules
@@ -280,7 +281,6 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(is_ironpython, reason="stdout redirection does not work in IronPython.")
     def test_05_disable_stdout(self):
         with tempfile.TemporaryFile("w+") as fp:
-
             stream = unittest.mock.MagicMock()
             stream.write = unittest.mock.MagicMock()
 

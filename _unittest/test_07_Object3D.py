@@ -2,13 +2,14 @@
 import math
 
 from _unittest.conftest import BasisTest
+
+from pyaedt.generic.general_methods import _to_boolean
+from pyaedt.generic.general_methods import _uname
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import isclose
 from pyaedt.generic.general_methods import time_fn
-from pyaedt.modeler.Object3d import EdgePrimitive
-from pyaedt.modeler.Object3d import FacePrimitive
-from pyaedt.modeler.Object3d import _to_boolean
-from pyaedt.modeler.Object3d import _uname
+from pyaedt.modeler.cad.elements3d import EdgePrimitive
+from pyaedt.modeler.cad.elements3d import FacePrimitive
 
 try:
     import pytest
@@ -138,7 +139,9 @@ class TestClass(BasisTest, object):
         for vertex in object_vertices:
             assert len(vertex.position) == 3
         circle = self.aedtapp.modeler.create_circle("Z", [0, 0, 0], 2)
-        # assert circle.edges[0].segment_info["Command"] == "CreateCircle"
+        assert len(circle.faces) == 1
+        circle2 = self.aedtapp.modeler.create_circle("Z", [0, 0, 0], 2, non_model=True)
+        assert not circle2.model
 
     def test_03_FacePrimitive(self):
         o_box = self.create_copper_box("PrimitiveBox")
@@ -350,7 +353,7 @@ class TestClass(BasisTest, object):
     def test_14_translate_delete_self(self):
         o = self.create_copper_box()
         v0 = o.vertices[0].position
-        o.translate([1, 0, 0])
+        o.move([1, 0, 0])
         v1 = o.vertices[0].position
         assert v1[0] == v0[0] + 1.0
         assert v1[1] == v0[1]
@@ -529,3 +532,88 @@ class TestClass(BasisTest, object):
 
         self.aedtapp.modeler.oeditor.Intersect(vArg1, vArg2)
         assert box1 in self.aedtapp.modeler.unclassified_objects
+
+    def test_27_get_object_history_properties(self):
+        box = self.aedtapp.modeler.create_box([10, 10, 10], [15, 15, 15], "box_history", matname="Copper")
+        cylinder = self.aedtapp.modeler.create_cylinder(
+            cs_axis="Y",
+            position=[10, 10, 10],
+            radius=5,
+            height=20,
+            numSides=4,
+            name="cylinder_history",
+            matname="Copper",
+        )
+
+        box_clone = box.clone()
+        box_subtract = box_clone.subtract(cylinder)
+        box_subtract.rotate(cs_axis="Y", angle=180)
+        box_subtract.split("XY")
+        box_history = box.history()
+        box_clone_history = box_clone.history()
+        assert box_history.node == "box_history"
+        assert box_history.command == "CreateBox"
+        assert box_history.props["Command"] == "CreateBox"
+        assert box_history.children == {}
+        assert box_clone_history.node == "box_history1"
+        assert box_clone_history.command == box_history.command
+        assert box_clone_history.props["Command"] == box_history.props["Command"]
+        assert box_clone_history.props["Position/X"] == box_history.props["Position/X"]
+        assert box_clone_history.props["Position/Y"] == box_history.props["Position/Y"]
+        assert box_clone_history.props["Position/Z"] == box_history.props["Position/Z"]
+        assert box_clone_history.props["XSize"] == box_history.props["XSize"]
+        assert box_clone_history.props["YSize"] == box_history.props["YSize"]
+        assert box_clone_history.props["ZSize"] == box_history.props["ZSize"]
+        assert len(box_clone_history.children) == 3
+        assert "Subtract:1" in box_clone_history.children.keys()
+        assert "Rotate:1" in box_clone_history.children.keys()
+        assert "SplitEdit:1" in box_clone_history.children.keys()
+        assert box_clone_history.children["Subtract:1"].command == "Subtract"
+        assert box_clone_history.children["Rotate:1"].command == "Rotate"
+        assert box_clone_history.children["SplitEdit:1"].command == "SplitEdit"
+        project_path = self.aedtapp.project_file
+        self.aedtapp.close_project(save_project=True)
+        self.aedtapp.load_project(project_path)
+        subtract = self.aedtapp.modeler["box_history1"].history().children["Subtract:1"].children
+        assert len(subtract) == 1
+        for key in subtract.keys():
+            assert subtract[key].command == subtract[key].props["Command"]
+            subtract_child = subtract[key].children
+            for child in subtract_child.keys():
+                assert subtract_child[child].command == subtract_child[child].props["Command"]
+                assert len(subtract_child[child].children) == 0
+
+    def test_27b_object_suppress(self):
+        box = self.aedtapp.modeler.get_object_from_name("box_history1")
+        assert box.history().suppress_all(self.aedtapp)
+        assert box.history().unsuppress_all(self.aedtapp)
+
+    def test_27c_object_jsonalize(self):
+        box = self.aedtapp.modeler.get_object_from_name("box_history1")
+        assert box.history().jsonalize_tree()
+
+    def test_28_set_object_history_properties(self):
+        history = self.aedtapp.modeler["box_history1"].history()
+        assert history.props["Position/X"] == "10meter"
+        history.props["Position/X"] = "15meter"
+        assert history.props["Position/X"] == "15meter"
+        assert history.props["ZSize"] == "15meter"
+        history.props["ZSize"] = "10meter"
+        assert history.props["ZSize"] == "10meter"
+        subtract = history.children["Subtract:1"].children
+        for key in subtract.keys():
+            subtract_child = subtract[key].children
+            for child in subtract_child.keys():
+                if "CreateCylinder" in child:
+                    assert subtract_child[child].props["Center Position/X"] == "10meter"
+                    subtract_child[child].props["Center Position/X"] = "15meter"
+                    assert subtract_child[child].props["Center Position/X"] == "15meter"
+                    assert subtract_child[child].props["Axis"] == "Y"
+                    subtract_child[child].props["Axis"] = "Z"
+                    assert subtract_child[child].props["Axis"] == "Z"
+                    assert subtract_child[child].props["Radius"] == "5meter"
+                    subtract_child[child].props["Radius"] = "8meter"
+                    assert subtract_child[child].props["Radius"] == "8meter"
+                    assert subtract_child[child].props["Height"] == "20meter"
+                    subtract_child[child].props["Height"] = "24meter"
+                    assert subtract_child[child].props["Height"] == "24meter"

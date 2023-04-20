@@ -1,9 +1,10 @@
 import os.path
 
 from pyaedt import is_ironpython
+from pyaedt import is_linux
 from pyaedt.generic.general_methods import env_path
 
-if os.name == "posix" and is_ironpython:
+if is_linux and is_ironpython:
     import subprocessdotnet as subprocess
 else:
     import subprocess
@@ -26,7 +27,7 @@ class SiwaveSolve(object):
             executable = "siwave_ng"
         else:
             executable = "siwave"
-        if os.name == "posix":
+        if is_linux:
             self._exe = os.path.join(self.installer_path, executable)
         else:
             self._exe = os.path.join(self.installer_path, executable + ".exe")
@@ -74,7 +75,7 @@ class SiwaveSolve(object):
     def solve(self):
         # supporting non graphical solve only
         if self.nongraphical:
-            if os.name == "posix":
+            if is_linux:
                 exe_path = os.path.join(self.installer_path, "siwave_ng")
             else:
                 exe_path = os.path.join(self.installer_path, "siwave_ng.exe")
@@ -146,7 +147,7 @@ class SiwaveSolve(object):
             f.write("oDoc.ScrExport3DModel('{}', q3d_filename)\n".format(format_3d))
             f.write("oDoc.ScrCloseProject()\n")
             f.write("oApp.Quit()\n")
-        if os.name == "posix":
+        if is_linux:
             _exe = '"' + os.path.join(self.installer_path, "siwave") + '"'
         else:
             _exe = '"' + os.path.join(self.installer_path, "siwave.exe") + '"'
@@ -207,11 +208,10 @@ class SiwaveSolve(object):
         if not output_folder:
             output_folder = os.path.dirname(self.projectpath)
         output_list = []
-        scriptname = os.path.join(output_folder, "export_results.py")
+        scriptname = os.path.normpath(os.path.join(os.path.normpath(output_folder), "export_results.py"))
         with open(scriptname, "w") as f:
             f.write("oApp.OpenProject(r'{}')\n".format(siwave_project))
             if html_report:
-
                 f.write("proj = oApp.GetActiveProject()\n")
 
                 f.write("proj.ScrExportDcSimReportColorBarProperties(14,2,False,True)\n")
@@ -267,7 +267,7 @@ class SiwaveSolve(object):
             f.write("proj.ScrCloseProject()\n")
 
             f.write("oApp.Quit()\n")
-        if os.name == "posix":
+        if is_linux:
             _exe = '"' + os.path.join(self.installer_path, "siwave") + '"'
         else:
             _exe = '"' + os.path.join(self.installer_path, "siwave.exe") + '"'
@@ -277,7 +277,7 @@ class SiwaveSolve(object):
         command.append("-RunScriptAndExit")
         command.append('"' + scriptname + '"')
         print(command)
-        subprocess.check_output(" ".join(command))
-        # p1 = subprocess.call(" ".join(command))
-        # p1.wait()
+
+        subprocess.run(" ".join(command), check=True)
+
         return output_list

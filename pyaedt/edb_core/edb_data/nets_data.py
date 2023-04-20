@@ -11,7 +11,7 @@ class EDBNetsData(object):
     --------
     >>> from pyaedt import Edb
     >>> edb = Edb(myedb, edbversion="2021.2")
-    >>> edb_net = edb.core_nets.nets["GND"]
+    >>> edb_net = edb.nets.nets["GND"]
     >>> edb_net.name # Class Property
     >>> edb_net.GetName() # EDB Object Property
     """
@@ -27,8 +27,8 @@ class EDBNetsData(object):
 
     def __init__(self, raw_net, core_app):
         self._app = core_app
-        self._core_components = core_app.core_components
-        self._core_primitive = core_app.core_primitives
+        self._core_components = core_app.components
+        self._core_primitive = core_app.modeler
         self.net_object = raw_net
 
     @property
@@ -130,7 +130,7 @@ class EDBNetsData(object):
             Image size in pixel (width, height).
         """
 
-        self._app.core_nets.plot(
+        self._app.nets.plot(
             self.name,
             layers=layers,
             show_legend=show_legend,
@@ -138,3 +138,20 @@ class EDBNetsData(object):
             outline=outline,
             size=size,
         )
+
+    @pyaedt_function_handler()
+    def get_smallest_trace_width(self):
+        """Retrieve the smallest trace width from paths.
+
+        Returns
+        -------
+        float
+            Trace smallest width.
+        """
+        current_value = 1e10
+        for prim in self.net_object.Primitives:
+            if "GetWidth" in dir(prim):
+                width = prim.GetWidth()
+                if width < current_value:
+                    current_value = width
+        return current_value

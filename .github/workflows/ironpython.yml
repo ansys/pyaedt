@@ -18,14 +18,19 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: [Windows, pyaedt]
+    runs-on: [windows-latest, pyaedt]
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - uses: actions/checkout@v3
 
       - name: 'Run Unit Tests in Ironpython'
-        timeout-minutes: 45
+        timeout-minutes: 60
         run: |
+          Set-Item -Path env:ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3 -Value "1"
+          Set-Item -Path env:ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE -Value "1"
+          Set-Item -Path env:ANSYSEM_FEATURE_SF159726_SCRIPTOBJECT_ENABLE -Value "1"
+          Set-Item -Path env:ANSYSEM_FEATURE_SF222134_CABLE_MODELING_ENHANCEMENTS_ENABLE -Value "1"
+          Set-Item -Path env:ANSYSEM_FEATURE_F395486_RIGID_FLEX_BENDING_ENABLE -Value "1"
           $processA = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd --test-filter test_0*.py' -PassThru
           $processB = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd --test-filter test_1*.py' -PassThru
           $processC = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd --test-filter test_2*.py' -PassThru

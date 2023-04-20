@@ -2,12 +2,12 @@
 # Setup paths for module imports
 from _unittest.conftest import BasisTest
 from _unittest.conftest import desktop_version
+
 from pyaedt import Circuit
 
 # Import required modules
 test_subfolder = "T11"
 if desktop_version > "2022.2":
-
     test_project_name = "coax_setup_231"
 else:
     test_project_name = "coax_setup"
@@ -57,7 +57,7 @@ class TestClass(BasisTest, object):
         assert sweep2.props["Type"] == "Interpolating"
 
     def test_02_create_circuit_setup(self):
-        circuit = Circuit()
+        circuit = Circuit(specified_version=desktop_version)
         setup1 = circuit.create_setup("circuit", self.aedtapp.SETUPS.NexximLNA)
         assert setup1.name == "circuit"
         setup1.props["SweepDefinition"]["Data"] = "LINC 0GHz 4GHz 501"

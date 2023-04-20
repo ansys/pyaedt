@@ -15,12 +15,7 @@ This examples runs only on Windows using CPython.
 # Perform required imports.
 
 import os
-import sys
-from pyaedt import generate_unique_project_name
-
-from pyaedt.generic.constants import GLOBALCS
-from pyaedt import Hfss
-from pyaedt import Icepak
+import pyaedt
 
 ###############################################################################
 # Set non-graphical mode
@@ -29,8 +24,8 @@ from pyaedt import Icepak
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
-desktopVersion = "2022.2"
+non_graphical = False
+desktopVersion = "2023.1"
 
 ###############################################################################
 # Open project
@@ -39,7 +34,7 @@ desktopVersion = "2022.2"
 
 NewThread = True
 
-project_file = generate_unique_project_name()
+project_file = pyaedt.generate_unique_project_name()
 
 ###############################################################################
 # Launch AEDT and initialize HFSS
@@ -47,7 +42,11 @@ project_file = generate_unique_project_name()
 # Launch AEDT and initialize HFSS. If there is an active HFSS design, the ``aedtapp``
 # object is linked to it. Otherwise, a new design is created.
 
-aedtapp = Hfss(projectname=project_file, specified_version=desktopVersion, non_graphical=non_graphical, new_desktop_session=NewThread)
+aedtapp = pyaedt.Hfss(projectname=project_file,
+                      specified_version=desktopVersion,
+                      non_graphical=non_graphical,
+                      new_desktop_session=NewThread
+                      )
 
 ###############################################################################
 # Initialize variable settings
@@ -69,9 +68,12 @@ aedtapp["inner"] = "3mm"
 # Optionally, you can assign a material using the :func:`assign_material` method.
 
 # TODO: How does this work when two truesurfaces are defined?
-o1 = aedtapp.modeler.create_cylinder(aedtapp.PLANE.ZX, udp, "inner", "$coax_dimension", numSides=0, name="inner")
-o2 = aedtapp.modeler.create_cylinder(aedtapp.PLANE.ZX, udp, 8, "$coax_dimension", numSides=0, matname="teflon_based")
-o3 = aedtapp.modeler.create_cylinder(aedtapp.PLANE.ZX, udp, 10, "$coax_dimension", numSides=0, name="outer")
+o1 = aedtapp.modeler.create_cylinder(cs_axis=aedtapp.PLANE.ZX, position=udp, radius="inner", height="$coax_dimension",
+                                     numSides=0, name="inner")
+o2 = aedtapp.modeler.create_cylinder(cs_axis=aedtapp.PLANE.ZX, position=udp, radius=8, height="$coax_dimension",
+                                     numSides=0, matname="teflon_based")
+o3 = aedtapp.modeler.create_cylinder(cs_axis=aedtapp.PLANE.ZX, position=udp, radius=10, height="$coax_dimension",
+                                     numSides=0, name="outer")
 
 ###############################################################################
 # Assign colors
@@ -109,9 +111,9 @@ aedtapp.modeler.subtract(o2, o1, True)
 # After a mesh is created, you can access a mesh operation to
 # edit or review parameter values.
 
-aedtapp.mesh.assign_initial_mesh_from_slider(6)
-aedtapp.mesh.assign_model_resolution([o1.name, o3.name], None)
-aedtapp.mesh.assign_length_mesh(o2.faces, False, 1, 2000)
+aedtapp.mesh.assign_initial_mesh_from_slider(level=6)
+aedtapp.mesh.assign_model_resolution(names=[o1.name, o3.name], defeature_length=None)
+aedtapp.mesh.assign_length_mesh(names=o2.faces, isinside=False, maxlength=1, maxel=2000)
 
 ###############################################################################
 # Create excitations
@@ -121,16 +123,25 @@ aedtapp.mesh.assign_length_mesh(o2.faces, False, 1, 2000)
 # the faces. It also assigns a port to this face. If ``add_pec_cap=True``, the method
 # creates a PEC cap.
 
-aedtapp.create_wave_port_between_objects("inner", "outer", axisdir=1, add_pec_cap=True, portname="P1")
-aedtapp.create_wave_port_between_objects("inner", "outer", axisdir=4, add_pec_cap=True, portname="P2")
+aedtapp.wave_port(signal="inner",
+                  reference="outer",
+                  integration_line=1,
+                  create_port_sheet=True,
+                  create_pec_cap=True,
+                  name="P1")
+aedtapp.wave_port(signal="inner",
+                  reference="outer",
+                  integration_line=4,
+                  create_pec_cap=True,
+                  create_port_sheet=True,
+                  name="P2")
 
-portnames = aedtapp.get_all_sources()
+port_names = aedtapp.get_all_sources()
 aedtapp.modeler.fit_all()
-
 
 ###############################################################################
 # Create setup
-# ~~~~~~~~~~~~~
+# ~~~~~~~~~~~~
 # Create a setup. A setup is created with default values. After its creation,
 # you can change values and update the setup. The ``update`` method returns a Boolean
 # value.
@@ -146,7 +157,8 @@ setup.props["MaximumPasses"] = 1
 # ~~~~~~~~~~~~
 # Create a sweep. A sweep is created with default values.
 
-sweepname = aedtapp.create_linear_count_sweep("MySetup", "GHz", 0.8, 1.2, 401, sweep_type="Interpolating")
+sweepname = aedtapp.create_linear_count_sweep(setupname="MySetup", unit="GHz", freqstart=0.8, freqstop=1.2,
+                                              num_of_freq_points=401, sweep_type="Interpolating")
 
 ################################################################################
 # Create Icepak model
@@ -155,7 +167,7 @@ sweepname = aedtapp.create_linear_count_sweep("MySetup", "GHz", 0.8, 1.2, 401, s
 # project and run a coupled physics analysis. The :func:`FieldAnalysis3D.copy_solid_bodies_from`
 # method imports a model from HFSS with all material settings.
 
-ipkapp = Icepak()
+ipkapp = pyaedt.Icepak()
 ipkapp.copy_solid_bodies_from(aedtapp)
 
 ################################################################################
@@ -164,16 +176,15 @@ ipkapp.copy_solid_bodies_from(aedtapp)
 # Link sources to the EM losses.
 
 surfaceobj = ["inner", "outer"]
-ipkapp.assign_em_losses(
-    aedtapp.design_name, "MySetup", "LastAdaptive", "1GHz", surfaceobj, paramlist=["$coax_dimension", "inner"]
-)
+ipkapp.assign_em_losses(designname=aedtapp.design_name, setupname="MySetup", sweepname="LastAdaptive",
+                        map_frequency="1GHz", surface_objects=surfaceobj, paramlist=["$coax_dimension", "inner"])
 
 #################################################################################
 # Edit gravity setting
 # ~~~~~~~~~~~~~~~~~~~~
 # Edit the gravity setting if necessary because it is important for a fluid analysis.
 
-ipkapp.edit_design_settings(aedtapp.GravityDirection.ZNeg)
+ipkapp.edit_design_settings(aedtapp.GRAVITY.ZNeg)
 
 ################################################################################
 # Set up Icepak project
@@ -207,8 +218,8 @@ ipkapp.assign_openings(airfaces)
 
 aedtapp.save_project()
 aedtapp.close_project(aedtapp.project_name)
-aedtapp = Hfss(project_file)
-ipkapp = Icepak()
+aedtapp = pyaedt.Hfss(project_file)
+ipkapp = pyaedt.Icepak()
 ipkapp.solution_type = ipkapp.SOLUTIONS.Icepak.SteadyTemperatureAndFlow
 ipkapp.modeler.fit_all()
 
@@ -227,7 +238,7 @@ aedtapp.analyze_setup("MySetup")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Generate field plots on the HFSS project and export them as images.
 
-cutlist = [GLOBALCS.XY, GLOBALCS.ZX, GLOBALCS.YZ]
+cutlist = [pyaedt.constants.GLOBALCS.XY, pyaedt.constants.GLOBALCS.ZX, pyaedt.constants.GLOBALCS.YZ]
 vollist = [o2.name]
 setup_name = "MySetup : LastAdaptive"
 quantity_name = "ComplexMag_E"
@@ -247,6 +258,8 @@ aedtapp.post.plot_field_from_fieldplot(
     imageformat="jpg",
     view="isometric",
     show=False,
+    plot_cad_objs=False,
+    log_scale = False,
 )
 
 ################################################################################
@@ -271,10 +284,11 @@ animated = aedtapp.post.animate_fields_from_aedtplt_2(
     variation_list=phases,
     show=False,
     export_gif=False,
+    log_scale=True,
 )
 animated.gif_file = os.path.join(aedtapp.working_directory, "animate.gif")
-animated.camera_position = [0, 50, 200]
-animated.focal_point = [0, 50, 0]
+animated.camera_position = [0, 0, 300]
+animated.focal_point = [0, 0, 0]
 # Set off_screen to False to visualize the animation.
 # animated.off_screen = False
 animated.animate()
@@ -291,7 +305,7 @@ print("Total Time", endtime)
 quantity_name = "Temperature"
 setup_name = ipkapp.existing_analysis_sweeps[0]
 intrinsic = ""
-surflist = ipkapp.modeler.get_object_faces("inner")
+surflist = ipkapp.modeler.get_object_faces("inner") + ipkapp.modeler.get_object_faces("outer")
 plot5 = ipkapp.post.create_fieldplot_surface(surflist, "SurfTemperature")
 
 ipkapp.post.plot_field_from_fieldplot(
@@ -321,5 +335,4 @@ my_data.plot(trace_names, "db20", xlabel="Frequency (Ghz)", ylabel="SParameters(
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Close the project and release AEDT.
 
-# aedtapp.close_project(aedtapp.project_name)
 aedtapp.release_desktop()

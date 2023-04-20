@@ -3,6 +3,7 @@ import os
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+
 from pyaedt import is_ironpython
 from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.modules.CableModeling import Cable
@@ -20,6 +21,7 @@ else:
 test_subfloder = "T43"
 
 
+@pytest.mark.skipif(config["desktopVersion"] > "2022.2", reason="AEDT Crashes")
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)

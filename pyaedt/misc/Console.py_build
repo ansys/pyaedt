@@ -1,0 +1,112 @@
+# -*- coding: utf-8 -*-
+"""
+* * * This script is meant to run in IronPython within the Ansys Electronics Desktop. * * *
+
+It looks for a reference to a Python interpreter in the ``python_interpreter.bat`` file.
+
+This script executes the CPython script ``Lib/console_setup.py``.
+The ``console_setup.py`` script sets up the HFSS variable based on the command line arguments and kicks off an
+interactive Python session.
+
+"""
+import os
+import sys
+
+from System.Windows.Forms import MessageBox
+from System.Windows.Forms import MessageBoxButtons
+from System.Windows.Forms import MessageBoxIcon
+
+is_linux = os.name == "posix"
+
+if is_linux:
+    import subprocessdotnet as subprocess
+else:
+    import subprocess
+
+
+def main():
+    # Launch file
+    version = oDesktop.GetVersion()[2:6].replace(".", "")
+    current_dir = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))
+    pyaedt_toolkit_dir = os.path.normpath(os.path.join(current_dir, r"##TOOLKIT_REL_LIB_DIR##"))
+    python_exe = r"##IPYTHON_EXE##" % version
+    pyaedt_script = os.path.join(pyaedt_toolkit_dir, "console_setup.py")
+    check_file(python_exe)
+    check_file(pyaedt_script)
+    if is_linux:
+        term = get_linux_terminal()
+        if not term:
+            show_error("No Terminals found.")
+        edt_root = os.path.normpath(oDesktop.GetExeDir())
+        os.environ["ANSYSEM_ROOT{}".format(version)] = edt_root
+        ld_library_path_dirs_to_add = [
+            "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root),
+            "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root),
+            "{}/common/mono/Linux64/lib64".format(edt_root),
+            "{}/Delcross".format(edt_root),
+            "{}".format(edt_root),
+        ]
+        os.environ["LD_LIBRARY_PATH"] = ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv("LD_LIBRARY_PATH", "")
+
+        command = [
+            term,
+            "-e",
+            python_exe,
+            "-i",
+            pyaedt_script,
+            str(oDesktop.GetProcessID()),
+            str(oDesktop.GetVersion()[:6]),
+        ]
+        subprocess.Popen(command)
+    else:
+        command = [
+            '"{}"'.format(python_exe),
+            "-i",
+            '"{}"'.format(pyaedt_script),
+            str(oDesktop.GetProcessID()),
+            str(oDesktop.GetVersion()[:6]),
+        ]
+        subprocess.Popen(" ".join(command))
+
+
+def get_linux_terminal():
+    for terminal in ["x-terminal-emulator", "konsole", "xterm", "gnome-terminal", "lxterminal", "mlterm"]:
+        term = which(terminal)
+        if term:
+            return term
+    return None
+
+
+def which(program):
+    # http://stackoverflow.com/a/377028
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+
+    return None
+
+
+def check_file(file_path):
+    if not os.path.isfile(file_path):
+        show_error('"{}" does not exist. Please click on the "Install PyAEDT" button in the Automation ribbon.'.format(
+            file_path))
+
+
+def show_error(msg):
+    oDesktop.AddMessage("", "", 2, str(msg))
+    MessageBox.Show(str(msg), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+    sys.exit()
+
+
+if __name__ == "__main__":
+    main()

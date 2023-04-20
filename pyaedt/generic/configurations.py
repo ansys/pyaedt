@@ -1,18 +1,25 @@
+from collections import OrderedDict
 import copy
+from datetime import datetime
 import json
 import os
-from collections import OrderedDict
-from datetime import datetime
 
+from pyaedt import Icepak
 from pyaedt import __version__
+from pyaedt import generate_unique_folder_name
+from pyaedt import get_pyaedt_app
+from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _arg2dict
+from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 from pyaedt.generic.general_methods import _create_json_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modeler.Modeler import CoordinateSystem
+from pyaedt.modeler.cad.Modeler import CoordinateSystem
+from pyaedt.modeler.cad.components_3d import UserDefinedComponent
+from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import BoundaryProps
+from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.DesignXPloration import SetupOpti
 from pyaedt.modules.DesignXPloration import SetupParam
 from pyaedt.modules.MaterialLib import Material
@@ -58,6 +65,8 @@ class ConfigurationsOptions(object):
         # self._export_face_coordinate_systems = False
         self._export_materials = True
         self._export_object_properties = True
+        self._export_datasets = True
+        self._import_datasets = True
         self._import_variables = True
         self._import_setups = True
         self._import_optimizations = True
@@ -153,7 +162,7 @@ class ConfigurationsOptions(object):
         bool
 
         Examples
-        ---------
+        --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_parametrics = False  # Disable the parametrics export
@@ -183,6 +192,36 @@ class ConfigurationsOptions(object):
     @export_boundaries.setter
     def export_boundaries(self, val):
         self._export_boundaries = val
+
+    @property
+    def import_datasets(self):
+        """Define if datasets have to be imported from json file. Default is `True`.
+
+        Returns
+        -------
+        bool
+
+        """
+        return self._import_datasets
+
+    @import_datasets.setter
+    def import_datasets(self, val):
+        self._import_datasets = val
+
+    @property
+    def export_datasets(self):
+        """Define if datasets have to be exported to json file. Default is `True`.
+
+        Returns
+        -------
+        bool
+
+        """
+        return self._export_datasets
+
+    @export_datasets.setter
+    def export_datasets(self, val):
+        self._export_datasets = val
 
     @property
     def export_mesh_operations(self):
@@ -586,9 +625,11 @@ class ImportResults(object):
         self.import_mesh_operations = None
         self.import_coordinate_systems = None
         self.import_face_coordinate_systems = None
-        self.import_datasets = None
+        self.import_material_datasets = None
         self.import_materials = None
         self.import_object_properties = None
+        self.import_monitor = None
+        self.import_datasets = None
 
     @pyaedt_function_handler()
     def _reset_results(self):
@@ -706,6 +747,7 @@ class Configurations(object):
             cs._modeler.oeditor.CreateRelativeCS(cs._orientation, cs._attributes)
             cs.ref_cs = props["Reference CS"]
             cs.update()
+            self._app.modeler.coordinate_systems.insert(0, cs)
             self._app.logger.info("Coordinate System {} added.".format(name))
             return True
         except Exception:
@@ -854,7 +896,11 @@ class Configurations(object):
                     setup_el.props = props
                     setup_el.update()
                 return True
-        if self._app.create_setup(name, props["SetupType"], props):
+        if self._app.design_type == "Q3D Extractor":
+            setup = self._app.create_setup(name, props=props)
+        else:
+            setup = self._app.create_setup(name, setuptype=props["SetupType"], props=props)
+        if setup:
             self._app.logger.info("Setup {} added.".format(name))
             return True
         else:
@@ -896,7 +942,26 @@ class Configurations(object):
             return False
 
     @pyaedt_function_handler()
-    def import_config(self, config_file):
+    def _update_datasets(self, name, data_dict):
+        is_project_dataset = False
+        if name.startswith("$"):
+            is_project_dataset = True
+        if name not in self._app.project_datasets.keys() or name not in self._app.design_datasets.keys():
+            self._app.create_dataset(
+                name,
+                data_dict["x"],
+                data_dict["y"],
+                data_dict["z"],
+                data_dict["v"],
+                is_project_dataset,
+                data_dict["xunit"],
+                data_dict["yunit"],
+                data_dict["zunit"],
+                data_dict["vunit"],
+            )
+
+    @pyaedt_function_handler()
+    def import_config(self, config_file, *args):
         """Import configuration settings from a json file and apply it to the current design.
         The sections to be applied are defined with ``configuration.options`` class.
         The import operation result is saved in the ``configuration.results`` class.
@@ -911,6 +976,8 @@ class Configurations(object):
         dict, bool
             Config dictionary.
         """
+        if len(args) > 0:  # pragma: no cover
+            raise TypeError("import_config expected at most 1 arguments, got %d" % (len(args) + 1))
         self.results._reset_results()
         with open(config_file) as json_file:
             dict_in = json.load(json_file)
@@ -939,9 +1006,9 @@ class Configurations(object):
             else:
                 self.results.import_postprocessing_variables = True
 
-        if self.options.import_materials and dict_in.get("datasets", None):
+        if self.options.import_materials and dict_in.get("material datasets", None):
             self.results.import_datasets = True
-            for el, val in dict_in["datasets"].items():
+            for el, val in dict_in["material datasets"].items():
                 numcol = len(val["Coordinates"]["DimUnits"])
                 xunit = val["Coordinates"]["DimUnits"][0]
                 yunit = val["Coordinates"]["DimUnits"][1]
@@ -960,7 +1027,7 @@ class Configurations(object):
                 if not self._app.create_dataset(
                     el[1:], xunit=xunit, yunit=yunit, zunit=zunit, xlist=xval, ylist=yval, zlist=zval
                 ):
-                    self.results.import_datasets = False
+                    self.results.import_material_datasets = False
 
         if self.options.import_materials and dict_in.get("materials", None):
             self.results.import_materials = True
@@ -973,13 +1040,13 @@ class Configurations(object):
                 newmat = Material(self._app, el, val)
                 if newmat.update():
                     self._app.materials.material_keys[newname] = newmat
-                else:
+                else:  # pragma: no cover
                     self.results.import_materials = False
 
         if self.options.import_coordinate_systems and dict_in.get("coordinatesystems", None):
             self.results.import_coordinate_systems = True
             for name, props in dict_in["coordinatesystems"].items():
-                if not self._update_coordinate_systems(name, props):
+                if not self._update_coordinate_systems(name, props):  # pragma: no cover
                     self.results.import_coordinate_systems = False
 
         # if self.options.import_face_coordinate_systems and dict_in.get("facecoordinatesystems", None):
@@ -995,6 +1062,11 @@ class Configurations(object):
                 if not self._update_object_properties(obj, val):
                     self.results.import_object_properties = False
             self._app.logger.info("Object Properties updated.")
+
+        if self.options.import_datasets and dict_in.get("datasets", None):
+            self.results.import_datasets = True
+            for k, v in dict_in["datasets"].items():
+                self._update_datasets(k, v)
 
         if self.options.import_boundaries and dict_in.get("boundaries", None):
             self.results.import_boundaries = True
@@ -1063,6 +1135,9 @@ class Configurations(object):
             for setup in self._app.setups:
                 dict_out["setups"][setup.name] = setup.props
                 dict_out["setups"][setup.name]["SetupType"] = setup.setuptype
+                if setup.sweeps:
+                    for sweep in setup.sweeps:
+                        dict_out["setups"][setup.name][sweep.name] = sweep.props
 
     @pyaedt_function_handler()
     def _export_optimizations(self, dict_out):
@@ -1122,12 +1197,74 @@ class Configurations(object):
             dict_out["objects"][val.name]["CoordinateSystem"] = val.part_coordinate_system
 
     @pyaedt_function_handler()
+    def _export_object_properties(self, dict_out):
+        self._export_objects_properties(dict_out)
+
+    @pyaedt_function_handler()
     def _export_mesh_operations(self, dict_out):
         if self._app.mesh.meshoperations:
             dict_out["mesh"] = {}
             for mesh in self._app.mesh.meshoperations:
                 dict_out["mesh"][mesh.name] = mesh.props
                 self._map_object(mesh.props, dict_out)
+
+    @pyaedt_function_handler()
+    def _export_datasets(self, dict_out):
+        if self._app.project_datasets or self._app.design_datasets:
+            if dict_out.get("datasets", None) is None:
+                dict_out["datasets"] = {}
+            for dataset_dict in [self._app.project_datasets, self._app.design_datasets]:
+                for k, obj in dataset_dict.items():
+                    if k not in dict_out.get("material datasets", []):
+                        dict_out["datasets"][k] = {
+                            "v": obj.v,
+                            "vunit": obj.vunit,
+                            "x": obj.x,
+                            "xunit": obj.xunit,
+                            "y": obj.y,
+                            "yunit": obj.yunit,
+                            "z": obj.z,
+                            "zunit": obj.zunit,
+                        }
+
+    @pyaedt_function_handler()
+    def _export_monitor(self, dict_out):
+        dict_monitor = {}
+        native_parts = [
+            part.name
+            for udc_name, udc in self._app.modeler.user_defined_components.items()
+            for part_name, part in udc.parts.items()
+            if self._app.modeler.user_defined_components[udc_name].definition_name in self._app.native_components
+        ]
+        if self._app.monitor.all_monitors != {}:
+            for mon_name in self._app.monitor.all_monitors:
+                dict_monitor[mon_name] = {
+                    key: val
+                    for key, val in self._app.monitor.all_monitors[mon_name].properties.items()
+                    if key not in ["Name", "Object"]
+                }
+                if dict_monitor[mon_name]["Geometry Assignment"] in native_parts:
+                    dict_monitor[mon_name]["Native Assignment"] = [
+                        name
+                        for name, dict_comp in self._app.modeler.user_defined_components.items()
+                        if dict_monitor[mon_name]["Geometry Assignment"]
+                        in [part.name for part_id, part in dict_comp.parts.items()]
+                    ][0]
+                    if dict_monitor[mon_name]["Type"] == "Face":
+                        dict_monitor[mon_name]["Area Assignment"] = self._app.modeler.get_face_area(
+                            dict_monitor[mon_name]["ID"]
+                        )
+                    elif dict_monitor[mon_name]["Type"] == "Surface":
+                        dict_monitor[mon_name]["Area Assignment"] = self._app.modeler.get_face_area(
+                            self._app.modeler.get_object_from_name(dict_monitor[mon_name]["ID"]).faces[0].id
+                        )
+                    elif dict_monitor[mon_name]["Type"] == "Object":
+                        bb = self._app.modeler.get_object_from_name([dict_monitor[mon_name]["ID"]][0]).bounding_box
+                        dict_monitor[mon_name]["Location"] = [(bb[i] + bb[i + 3]) / 2 for i in range(3)]
+                        dict_monitor[mon_name]["Volume Assignment"] = self._app.modeler.get_object_from_name(
+                            dict_monitor[mon_name]["ID"]
+                        ).volume
+        dict_out["monitor"] = dict_monitor
 
     @pyaedt_function_handler()
     def _export_materials(self, dict_out):
@@ -1159,7 +1296,7 @@ class Configurations(object):
 
         dict_out["materials"] = output_dict
         if datasets:
-            dict_out["datasets"] = datasets
+            dict_out["material datasets"] = datasets
 
     @pyaedt_function_handler()
     def export_config(self, config_file=None, overwrite=False):
@@ -1187,26 +1324,10 @@ class Configurations(object):
             )
         dict_out = {}
         self._export_general(dict_out)
-        if self.options.export_variables:
-            self._export_variables(dict_out)
-        if self.options.export_setups:
-            self._export_setups(dict_out)
-        if self.options.export_optimizations:
-            self._export_optimizations(dict_out)
-        if self.options.export_parametrics:
-            self._export_parametrics(dict_out)
-        if self.options.export_boundaries:
-            self._export_boundaries(dict_out)
-        if self.options.export_coordinate_systems:
-            self._export_coordinate_systems(dict_out)
-        # if self.options.export_face_coordinate_systems:
-        #     self._export_face_coordinate_systems(dict_out)
-        if self.options.export_object_properties:
-            self._export_objects_properties(dict_out)
-        if self.options.export_mesh_operations:
-            self._export_mesh_operations(dict_out)
-        if self.options.export_materials:
-            self._export_materials(dict_out)
+        for key, value in vars(self.options).items():
+            if key.startswith("_export_") and value:
+                getattr(self, key)(dict_out)
+
         # update the json if it exists already
 
         if os.path.exists(config_file) and not overwrite:
@@ -1234,6 +1355,47 @@ class Configurations(object):
         return False
 
 
+class ConfigurationsOptionsIcepak(ConfigurationsOptions):
+    def __init__(self, app):
+        ConfigurationsOptions.__init__(self)
+        self._export_monitor = True
+        self._import_monitor = True
+        self._export_native_components = True
+        self._import_native_components = True
+
+    @property
+    def import_monitor(self):
+        return self._import_monitor
+
+    @import_monitor.setter
+    def import_monitor(self, val):
+        self._import_monitor = val
+
+    @property
+    def export_monitor(self):
+        return self._export_monitor
+
+    @export_monitor.setter
+    def export_monitor(self, val):
+        self._export_monitor = val
+
+    @property
+    def import_native_components(self):
+        return self._import_native_components
+
+    @import_native_components.setter
+    def import_native_components(self, val):
+        self._import_native_components = val
+
+    @property
+    def export_native_components(self):
+        return self._export_native_components
+
+    @export_native_components.setter
+    def export_native_components(self, val):
+        self._export_native_components = val
+
+
 class ConfigurationsIcepak(Configurations):
     """Configuration Class.
     It enables to export and import configuration options to be applied on a new/existing design.
@@ -1241,6 +1403,7 @@ class ConfigurationsIcepak(Configurations):
 
     def __init__(self, app):
         Configurations.__init__(self, app)
+        self.options = ConfigurationsOptionsIcepak(app)
 
     @pyaedt_function_handler()
     def _update_object_properties(self, name, val):
@@ -1251,13 +1414,22 @@ class ConfigurationsIcepak(Configurations):
                 arg2.append(["NAME:Material", "Value:=", chr(34) + val["Material"] + chr(34)])
             if val.get("SolveInside", None):
                 arg2.append(["NAME:Solve Inside", "Value:=", val["SolveInside"]])
-            arg2.append(
-                [
-                    "NAME:Surface Material",
-                    "Value:=",
-                    chr(34) + val.get("SurfaceMaterial", "Steel-oxidised-surface") + chr(34),
-                ]
-            )
+            try:
+                arg2.append(
+                    [
+                        "NAME:Surface Material",
+                        "Value:=",
+                        chr(34) + val.get("SurfaceMaterial") + chr(34),
+                    ]
+                )
+            except TypeError:
+                arg2.append(
+                    [
+                        "NAME:Surface Material",
+                        "Value:=",
+                        chr(34) + "Steel-oxidised-surface" + chr(34),
+                    ]
+                )
             if val.get("Model", None):
                 arg2.append(["NAME:Model", "Value:=", val["Model"]])
             if val.get("Group", None):
@@ -1292,7 +1464,7 @@ class ConfigurationsIcepak(Configurations):
                     return mesh_el.update()
 
         bound = self._app.mesh.MeshRegion(
-            self._app.mesh.omeshmodule, self._app.mesh.boundingdimension, self._app.mesh._model_units
+            self._app.mesh.omeshmodule, self._app.mesh.boundingdimension, self._app.mesh._model_units, self._app
         )
         bound.name = name
         for el in props:
@@ -1308,7 +1480,13 @@ class ConfigurationsIcepak(Configurations):
     @pyaedt_function_handler()
     def _export_objects_properties(self, dict_out):
         dict_out["objects"] = {}
+        udc_parts_id = []
+        if hasattr(self._app.modeler, "user_defined_components"):
+            self._app.modeler.refresh_all_ids()
+            udc_parts_id = [part for _, uc in self._app.modeler.user_defined_components.items() for part in uc.parts]
         for val in self._app.modeler.objects.values():
+            if val.id in udc_parts_id:
+                continue
             dict_out["objects"][val.name] = {}
             dict_out["objects"][val.name]["SurfaceMaterial"] = val.surface_material_name
             dict_out["objects"][val.name]["Material"] = val.material_name
@@ -1345,3 +1523,412 @@ class ConfigurationsIcepak(Configurations):
                 dict_out["mesh"][mesh.name] = mop[mesh.name]
                 self._map_object(mop, dict_out)
         pass
+
+    @pyaedt_function_handler()
+    def update_monitor(self, m_case, m_object, m_quantity, m_name):
+        """
+        Generic method for inserting monitor object
+
+        Parameters
+        ----------
+        m_case : str
+            Type of monitored geometry object. "Point", "Face", "Vertex", "Surface" or "Object".
+        m_object : lost or str or int
+            Name or id (or list of these) of the geometry object being monitored.
+        m_quantity : list or str
+            Name or list of names of the quantity being monitored.
+        m_name : str
+            Name of the monitor object.
+        Returns
+        -------
+        bool
+            ``True`` if successful.
+        """
+        if m_case == "Point":
+            self._app.monitor.assign_point_monitor(m_object, monitor_quantity=m_quantity, monitor_name=m_name)
+        elif m_case == "Face":
+            self._app.monitor.assign_face_monitor(m_object, monitor_quantity=m_quantity, monitor_name=m_name)
+        elif m_case == "Vertex":
+            self._app.monitor.assign_point_monitor_to_vertex(m_object, monitor_quantity=m_quantity, monitor_name=m_name)
+        elif m_case == "Surface":
+            self._app.monitor.assign_surface_monitor(m_object, monitor_quantity=m_quantity, monitor_name=m_name)
+        elif m_case == "Object":
+            self._app.monitor.assign_point_monitor_in_object(m_object, monitor_quantity=m_quantity, monitor_name=m_name)
+        return True
+
+    @pyaedt_function_handler()
+    def _monitor_assignment_finder(self, dict_in, monitor_obj, exclude_set):
+        if dict_in["monitor"][monitor_obj].get("Native Assignment", None):
+            objects_to_check = [obj for _, obj in self._app.modeler.objects.items()]
+            objects_to_check = list(set(objects_to_check) - exclude_set)
+            if dict_in["monitor"][monitor_obj]["Type"] == "Face":
+                for obj in objects_to_check:
+                    for f in obj.faces:
+                        if (
+                            GeometryOperators.v_norm(
+                                GeometryOperators.v_sub(f.center, dict_in["monitor"][monitor_obj]["Location"])
+                            )
+                            <= 1e-12
+                            and abs(f.area - dict_in["monitor"][monitor_obj]["Area Assignment"]) <= 1e-12
+                        ):
+                            dict_in["monitor"][monitor_obj]["ID"] = f.id
+                            return
+            elif dict_in["monitor"][monitor_obj]["Type"] == "Surface":
+                for obj in objects_to_check:
+                    if len(obj.faces) == 1:
+                        for f in obj.faces:
+                            if (
+                                GeometryOperators.v_norm(
+                                    GeometryOperators.v_sub(f.center, dict_in["monitor"][monitor_obj]["Location"])
+                                )
+                                <= 1e-12
+                                and abs(f.area - dict_in["monitor"][monitor_obj]["Area Assignment"]) <= 1e-12
+                            ):
+                                dict_in["monitor"][monitor_obj]["ID"] = obj.name
+                                return
+            elif dict_in["monitor"][monitor_obj]["Type"] == "Object":
+                for obj in objects_to_check:
+                    bb = obj.bounding_box
+                    if (
+                        GeometryOperators.v_norm(
+                            GeometryOperators.v_sub(
+                                [(bb[i] + bb[i + 3]) / 2 for i in range(3)], dict_in["monitor"][monitor_obj]["Location"]
+                            )
+                        )
+                        <= 1e-12
+                        and abs(obj.volume - dict_in["monitor"][monitor_obj]["Volume Assignment"]) <= 1e-12
+                    ):
+                        dict_in["monitor"][monitor_obj]["ID"] = obj.id
+                        return
+            elif dict_in["monitor"][monitor_obj]["Type"] == "Vertex":
+                for obj in objects_to_check:
+                    for v in obj.vertices:
+                        if (
+                            GeometryOperators.v_norm(
+                                GeometryOperators.v_sub(v.position, dict_in["monitor"][monitor_obj]["Location"])
+                            )
+                            <= 1e-12
+                        ):
+                            dict_in["monitor"][monitor_obj]["ID"] = v.id
+                            return
+
+    @pyaedt_function_handler()
+    def import_config(self, config_file, *args):
+        """Import configuration settings from a json file and apply it to the current design.
+        The sections to be applied are defined with ``configuration.options`` class.
+        The import operation result is saved in the ``configuration.results`` class.
+
+        Parameters
+        ----------
+        config_file : str
+            Full path to json file.
+        *args : set, optional
+            Name of objects to ignore for monitor assignment.
+
+        Returns
+        -------
+        dict, bool
+            Config dictionary.
+        """
+        if len(args) == 0:
+            exclude_set = set()
+        elif len(args) == 1:
+            exclude_set = args[0]
+        else:  # pragma: no cover
+            raise TypeError("import_config expected at most 2 arguments, got %d" % (len(args) + 1))
+        with open(config_file) as json_file:
+            dict_in = json.load(json_file)
+        self.results._reset_results()
+
+        if self.options.import_native_components and dict_in.get("native components", None):
+            result_coordinate_systems = True
+            add_cs = list(dict_in["coordinatesystems"].keys())
+            available_cs = ["Global"] + [cs.name for cs in self._app.modeler.coordinate_systems]
+            i = 0
+            while add_cs:
+                if dict_in["coordinatesystems"][add_cs[i]]["Reference CS"] in available_cs:
+                    if not self._update_coordinate_systems(
+                        add_cs[i], dict_in["coordinatesystems"][add_cs[i]]
+                    ):  # pragma: no cover
+                        result_coordinate_systems = False
+                    available_cs.append(add_cs[i])
+                    add_cs.pop(i)
+                    i = 0
+                else:
+                    i += 1
+            self.options.import_coordinate_systems = False
+            result_native_component = True
+            for component_name, component_dict in dict_in["native components"].items():
+                if not self._update_native_components(component_name, component_dict):  # pragma: no cover
+                    result_native_component = False
+
+        dict_in = Configurations.import_config(self, config_file)
+        if self.options.import_monitor and dict_in.get("monitor", None):
+            self.results.import_monitor = True
+            for monitor_obj in dict_in["monitor"]:
+                self._monitor_assignment_finder(dict_in, monitor_obj, exclude_set)
+                m_type = dict_in["monitor"][monitor_obj]["Type"]
+                m_obj = dict_in["monitor"][monitor_obj]["ID"]
+                if m_type == "Point":
+                    m_obj = dict_in["monitor"][monitor_obj]["Location"]
+                if not self.update_monitor(
+                    m_type, m_obj, dict_in["monitor"][monitor_obj]["Quantity"], monitor_obj
+                ):  # pragma: no cover
+                    self.results.import_monitor = False
+        try:
+            self.results.import_native_components = result_native_component
+            self.results.import_coordinate_systems = result_coordinate_systems
+        except UnboundLocalError:
+            pass
+        return dict_in
+
+    @pyaedt_function_handler
+    def _get_duplicate_names(self):
+        # Copy project to get dictionary
+        directory = os.path.join(
+            self._app.toolkit_directory,
+            self._app.design_name,
+            generate_unique_folder_name("config_export_temp_project"),
+        )
+        os.makedirs(directory)
+        tempproj_name = os.path.join(directory, "temp_proj.aedt")
+        tempproj = Icepak(tempproj_name, specified_version=self._app._aedt_version)
+        empty_design = tempproj.design_list[0]
+        self._app.modeler.refresh()
+        self._app.modeler.delete(
+            list(
+                set([id for id, obj in self._app.modeler.objects.items() if obj.model])
+                - set([id for _, obj in self._app.modeler.user_defined_components.items() for id in obj.parts])
+            )
+        )
+        self._app.oproject.CopyDesign(self._app.design_name)
+        self._app.odesign.Undo()
+        tempproj.oproject.Paste()
+        tempproj.modeler.refresh_all_ids()
+        tempproj.delete_design(empty_design)
+        tempproj.close_project()
+        dictionary = load_keyword_in_aedt_file(tempproj_name, "UserDefinedModels")["UserDefinedModels"]
+        for root, dirs, files in os.walk(directory, topdown=False):
+            for name in files:
+                os.remove(os.path.join(root, name))
+            for name in dirs:
+                os.rmdir(os.path.join(root, name))
+        os.rmdir(directory)
+        operation_dict = {"Source": {}, "Duplicate": {}}
+        list_dictionaries = []
+        for key in ["NativeComponentInstanceWithParams", "NativeComponentInstance", "UserDefinedModel"]:
+            if dictionary.get(key, None):
+                if not isinstance(dictionary[key], list):
+                    list_dictionaries.append(dictionary[key])
+                else:
+                    list_dictionaries += dictionary[key]
+        for component in list_dictionaries:
+            obj_name = component["Attributes"]["Name"]
+            counter_line, counter_axis, counter_mirror = 0, 0, 0
+            if component["Operations"].get("UDMOperation", None):
+                udm_operations = component["Operations"]["UDMOperation"]
+                if not isinstance(udm_operations, list):
+                    udm_operations = [udm_operations]
+                for operation in udm_operations:
+                    if operation["OperationType"].startswith("UDMFromDup"):
+                        if operation["CloneOperId"] in operation_dict["Duplicate"]:
+                            operation_dict["Duplicate"][operation["CloneOperId"]].append(obj_name)
+                        else:
+                            operation_dict["Duplicate"][operation["CloneOperId"]] = [obj_name]
+            if component["Operations"].get("CloneToOperation", None):
+                clone_operations = component["Operations"]["CloneToOperation"]
+                if not isinstance(clone_operations, list):
+                    clone_operations = [clone_operations]
+                for operation in clone_operations:
+                    if operation["OperationType"] == "UDMDuplicateAlongLine":
+                        counter_line += 1
+                        operation_dict["Source"][operation["ID"]] = [
+                            "DuplicateAlongLine:" + str(counter_line),
+                            obj_name,
+                        ]
+                    elif operation["OperationType"] == "UDMDuplicateAroundAxis":
+                        counter_axis += 1
+                        operation_dict["Source"][operation["ID"]] = [
+                            "DuplicateAroundAxis:" + str(counter_axis),
+                            obj_name,
+                        ]
+                    elif operation["OperationType"] == "UDMDuplicateMirror":
+                        counter_mirror += 1
+                        operation_dict["Source"][operation["ID"]] = ["DuplicateMirror:" + str(counter_mirror), obj_name]
+        duplicate_dict = {}
+        for operation_id, prop in operation_dict["Source"].items():
+            if not duplicate_dict.get(prop[1], None):
+                duplicate_dict[prop[1]] = {}
+            duplicate_dict[prop[1]][prop[0]] = operation_dict["Duplicate"][operation_id]
+        return duplicate_dict
+
+    @pyaedt_function_handler
+    def _export_native_components(self, dict_out):
+        dict_out["native components"] = {}
+        duplicate_dict = self._get_duplicate_names()
+
+        def add_duplicate_dic_to_history(node_name, node, obj_name):
+            if node_name.startswith("Duplicate"):
+                node["Props"]["Duplicate Object"] = duplicate_dict[obj_name][node_name]
+            if node["Children"] != {}:
+                for node_name, node in node["Children"].items():
+                    add_duplicate_dic_to_history(node_name, node, obj_name)
+
+        for _, nc in self._app.native_components.items():
+            instance_name = nc.props["SubmodelDefinitionName"]
+            dict_out["native components"][instance_name] = {}
+            nc_props = dict(nc.props).copy()
+            nc_type = nc.props["NativeComponentDefinitionProvider"]["Type"]
+            dict_out["native components"][instance_name]["Type"] = nc_type
+            if (
+                nc_type == "PCB"
+                and nc_props["NativeComponentDefinitionProvider"]["DefnLink"]["Project"] == "This Project*"
+            ):
+                nc_props["NativeComponentDefinitionProvider"]["DefnLink"]["Project"] = self._app.project_file
+            dict_out["native components"][instance_name]["Properties"] = nc_props
+            dict_out["native components"][instance_name]["Instances"] = {}
+            for i, v in self._app.modeler.user_defined_components.items():
+                cs_name = None
+                if v.definition_name == instance_name:
+                    if "Target Coordinate System" in self._app.oeditor.GetChildObject(i).GetPropNames():
+                        cs_name = v.target_coordinate_system
+                    obj_history = v.history()
+                    if obj_history:
+                        obj_history = obj_history.jsonalize_tree()
+                        for node_name, node in obj_history.items():
+                            add_duplicate_dic_to_history(node_name, node, i)
+                    else:
+                        obj_history = None
+                    dict_out["native components"][instance_name]["Instances"][v.name] = {
+                        "CS": cs_name,
+                        "Operations": obj_history,
+                    }
+        if not self.options.export_coordinate_systems:  # pragma: no cover
+            self._export_coordinate_systems(dict_out)
+
+    @pyaedt_function_handler
+    def _update_native_components(self, native_name, native_dict):
+        def apply_operations_to_native_components(obj, operation_dict, native_dict):  # pragma: no cover
+            cache_cs = self._app.oeditor.GetActiveCoordinateSystem()
+            self._app.modeler.set_working_coordinate_system(operation_dict["Props"]["Coordinate System"])
+            new_objs = None
+            self._app.modeler.refresh_all_ids()
+            old_objs = list(self._app.modeler.user_defined_components.keys())
+            if operation_dict["Props"]["Command"] == "Move":
+                obj.move(
+                    [decompose_variable_value(operation_dict["Props"]["Move Vector"][2 * i + 1])[0] for i in range(3)]
+                )
+            elif operation_dict["Props"]["Command"] == "Rotate":
+                rotation = decompose_variable_value(operation_dict["Props"]["Angle"])
+                obj.rotate(operation_dict["Props"]["Axis"], angle=rotation[0], unit=rotation[1])
+            elif operation_dict["Props"]["Command"] == "Mirror":
+                obj.mirror(
+                    [
+                        decompose_variable_value(operation_dict["Props"]["Base Position"][2 * i + 1])[0]
+                        for i in range(3)
+                    ],
+                    [
+                        decompose_variable_value(operation_dict["Props"]["Normal Position"][2 * i + 1])[0]
+                        for i in range(3)
+                    ],
+                )
+            elif operation_dict["Props"]["Command"] == "DuplicateAlongLine":
+                new_objs = obj.duplicate_along_line(
+                    [decompose_variable_value(operation_dict["Props"]["Vector"][2 * i + 1])[0] for i in range(3)],
+                    nclones=operation_dict["Props"]["Total Number"],
+                    attach_object=operation_dict["Props"]["Attach To Original Object"],
+                )
+            elif operation_dict["Props"]["Command"] == "DuplicateAroundAxis":
+                rotation = decompose_variable_value(operation_dict["Props"]["Angle"])
+                new_objs = obj.duplicate_around_axis(
+                    operation_dict["Props"]["Axis"], angle=rotation[0], nclones=operation_dict["Props"]["Total Number"]
+                )
+            elif operation_dict["Props"]["Command"] == "DuplicateMirror":
+                new_objs = obj.duplicate_and_mirror(
+                    position=[
+                        decompose_variable_value(operation_dict["Props"]["Base Position"][2 * i + 1])[0]
+                        for i in range(3)
+                    ],
+                    vector=[
+                        decompose_variable_value(operation_dict["Props"]["Normal Position"][2 * i + 1])[0]
+                        for i in range(3)
+                    ],
+                )
+            else:  # pragma: no cover
+                raise "Operation not supported"
+            if new_objs:
+                new_objs = list(set(new_objs) - set(old_objs))
+                for new_obj in new_objs:
+                    if native_dict[new_obj]["Operations"]:
+                        for dup_obj in operation_dict["Props"]["Duplicate Object"]:
+                            for _, operation_dict in native_dict[dup_obj]["Operations"].items():
+                                apply_operations_to_native_components(
+                                    self._app.modeler.user_defined_components[new_obj], operation_dict, native_dict
+                                )
+            for _, operation_dict in operation_dict["Children"].items():
+                apply_operations_to_native_components(obj, operation_dict, native_dict)
+            self._app.modeler.set_working_coordinate_system(cache_cs)
+            return True
+
+        for _, instance_dict in native_dict["Instances"].items():
+            if instance_dict["CS"]:
+                nc_dict = copy.deepcopy(native_dict["Properties"])
+                nc_dict["TargetCS"] = instance_dict["CS"]
+                component3d_names = list(self._app.modeler.oeditor.Get3DComponentInstanceNames(native_name))
+                native = NativeComponentObject(self._app, native_dict["Type"], native_name, nc_dict)
+                prj_list = set(self._app.project_list)
+                definition_names = set(self._app.oeditor.Get3DComponentDefinitionNames())
+                instance_names = {
+                    def_name: set(self._app.oeditor.Get3DComponentInstanceNames(def_name))
+                    for def_name in definition_names
+                }
+                if not native.create():  # pragma: no cover
+                    return False
+                try:
+                    definition_names = list(set(self._app.oeditor.Get3DComponentDefinitionNames()) - definition_names)[
+                        0
+                    ]
+                    instance_names = list(self._app.oeditor.Get3DComponentInstanceNames(definition_names))[0]
+                except IndexError:
+                    definition_names = [
+                        def_name
+                        for def_name in definition_names
+                        if len(set(self._app.oeditor.Get3DComponentInstanceNames(def_name)) - instance_names[def_name])
+                        > 0
+                    ][0]
+                    instance_names = list(
+                        set(self._app.oeditor.Get3DComponentInstanceNames(definition_names))
+                        - instance_names[definition_names]
+                    )[0]
+                native.component_name = definition_names
+                native.name = instance_names
+                if nc_dict["NativeComponentDefinitionProvider"]["Type"] == "PCB" and nc_dict[
+                    "NativeComponentDefinitionProvider"
+                ]["DefnLink"]["Project"] not in [self._app.project_file or "This Project*"]:
+                    prj = list(set(self._app.project_list) - prj_list)[0]
+                    design = nc_dict["NativeComponentDefinitionProvider"]["DefnLink"]["Design"]
+                    app = get_pyaedt_app(prj, design)
+                    app.oproject.Close()
+                user_defined_component = UserDefinedComponent(
+                    self._app.modeler, instance_names, nc_dict["NativeComponentDefinitionProvider"], native_dict["Type"]
+                )
+                self._app.modeler.user_defined_components[instance_names] = user_defined_component
+                new_name = [
+                    i
+                    for i in list(
+                        self._app.modeler.oeditor.Get3DComponentInstanceNames(user_defined_component.definition_name)
+                    )
+                    if i not in component3d_names
+                ][0]
+                self._app.modeler.refresh_all_ids()
+                self._app.materials._load_from_project()
+                if native.component_name not in self._app.native_components:
+                    self._app._native_components.append(native)
+                if instance_dict.get("Operations", None):
+                    for _, operation_dict in instance_dict["Operations"].items():
+                        apply_operations_to_native_components(
+                            self._app.modeler.user_defined_components[new_name],
+                            operation_dict,
+                            native_dict["Instances"],
+                        )
+        return True

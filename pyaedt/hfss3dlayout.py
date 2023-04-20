@@ -2,18 +2,20 @@
 
 from __future__ import absolute_import  # noreorder
 
+from collections import OrderedDict
 import fnmatch
 import io
 import os
-import warnings
-from collections import OrderedDict
+import re
 
+from pyaedt import is_ironpython
 from pyaedt import settings
 from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import tech_to_control_file
 from pyaedt.modules.Boundary import BoundaryObject3dLayout
 
 
@@ -95,7 +97,18 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     Create an AEDT 2021 R1 object and then create a
     ``Hfss3dLayout`` object and open the specified project.
 
-    >>> aedtapp = Hfss3dLayout(specified_version="2021.2", projectname="myfile.aedt")
+    >>> aedtapp = Hfss3dLayout(specified_version="2023.1", projectname="myfile.aedt")
+
+    Create an instance of ``Hfss3dLayout`` from an ``Edb``
+
+    >>> import pyaedt
+    >>> edb_path = "/path/to/edbfile.aedb"
+    >>> specified_version = "2023.1"
+    >>> edb = pyaedt.Edb(edb_path)
+    >>> edb.import_stackup("stackup.xml")  # Import stackup. Manipulate edb, ...
+    >>> edb.save_edb()
+    >>> edb.close_edb()
+    >>> aedtapp = pyaedt.Hfss3dLayout(specified_version="2021.2", projectname=edb_path)
 
     """
 
@@ -151,7 +164,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Parameters
         ----------
-        primivitivename : str
+        primivitivename : str or :class:`pyaedt.modeler.object3dlayout.Line3dLayout`
             Name of the primitive to create the edge port on.
         edgenumber :
             Edge number to create the edge port on.
@@ -182,6 +195,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oEditor.CreateEdgePort
         """
+        primivitivename = self.modeler.convert_to_selections(primivitivename, False)
         listp = self.port_list
         self.modeler.oeditor.CreateEdgePort(
             [
@@ -656,7 +670,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         val_list = []
         all_validate = outputdir + "\\all_validation.log"
         with open_file(all_validate, "w") as validation:
-
             # Desktop Messages
             msg = "Desktop Messages:"
             validation.writelines(msg + "\n")
@@ -835,7 +848,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @pyaedt_function_handler()
     def set_meshing_settings(self, mesh_method="Phi", enable_intersections_check=True, use_alternative_fallback=True):
-
         """Define the settings of the mesh.
 
         Parameters
@@ -868,55 +880,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         settings.append(use_alternative_fallback)
         self.odesign.DesignOptions(settings, 0)
         return True
-
-    @pyaedt_function_handler()
-    def create_frequency_sweep(
-        self,
-        setupname,
-        unit,
-        freqstart,
-        freqstop,
-        num_of_freq_points,
-        sweepname=None,
-        sweeptype="Interpolating",
-        interpolation_tol_percent=0.5,
-        interpolation_max_solutions=250,
-        save_fields=True,
-        save_rad_fields_only=False,
-        use_q3d_for_dc=False,
-    ):
-        """Create a frequency sweep.
-
-        .. deprecated:: 0.4.0
-           Use :func:`Hfss3dLayout.create_linear_count_sweep` instead.
-
-        """
-
-        warnings.warn(
-            "`create_frequency_sweep` is deprecated. Use `create_linear_count_sweep` instead.",
-            DeprecationWarning,
-        )
-        if sweeptype == "interpolating":
-            sweeptype = "Interpolating"
-        elif sweeptype == "discrete":
-            sweeptype = "Discrete"
-        elif sweeptype == "fast":
-            sweeptype = "Fast"
-
-        return self.create_linear_count_sweep(
-            setupname=setupname,
-            unit=unit,
-            freqstart=freqstart,
-            freqstop=freqstop,
-            num_of_freq_points=num_of_freq_points,
-            sweepname=sweepname,
-            save_fields=save_fields,
-            save_rad_fields_only=save_rad_fields_only,
-            sweep_type=sweeptype,
-            interpolation_tol_percent=interpolation_tol_percent,
-            interpolation_max_solutions=interpolation_max_solutions,
-            use_q3d_for_dc=use_q3d_for_dc,
-        )
 
     @pyaedt_function_handler()
     def create_linear_count_sweep(
@@ -971,7 +934,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS3DLayout` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS3DLayout` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1074,7 +1037,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS3DLayout` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS3DLayout` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1153,7 +1116,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1231,6 +1194,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             self.logger.warning("aedb_exists. Renaming it to %s", project_name)
         if not xml_path:
             xml_path = ""
+        elif os.path.splitext(xml_path)[1] == ".tech":
+            xml_path = tech_to_control_file(xml_path)
         if cad_format == "gds":
             method(cad_path, aedb_path, xml_path, "")
         else:
@@ -1254,8 +1219,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         aedb_path : str, optional
             Full path to the AEDB file.
         control_file : str, optional
-            Path to the XML file with the stackup information. The default is ``None``, in
+            Path to the XML or TECH file with the stackup information. The default is ``None``, in
             which case the stackup is not edited.
+            If a TECH file is provided and the layer name starts with ``"v"``, the layer
+            is mapped as a via layer.
         set_as_active : bool, optional
             Whether to set the GDS file as active. The default is ``True``.
         close_active_project : bool, optional
@@ -1279,13 +1246,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Parameters
         ----------
-        gds_path : str
+        dxf_path : str
             Full path to the DXF file.
         aedb_path : str, optional
             Full path to the AEDB file.
         control_file : str, optional
-            Path to the XML file with the stackup information. The default is ``None``, in
+            Path to the XML or TECH file with the stackup information. The default is ``None``, in
             which case the stackup is not edited.
+            If a TECH file is provided and the layer name starts with ``"v"``, the layer
+            is mapped as a via layer.
         set_as_active : bool, optional
             Whether to set the DXF file as active. The default is ``True``.
         close_active_project : bool, optional
@@ -1337,7 +1306,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @pyaedt_function_handler()
     def import_brd(
-        self, input_file, aedb_path=None, set_as_active=True, close_active_project=False
+        self, input_file, aedb_path=None, set_as_active=True, close_active_project=False, control_file=None
     ):  # pragma: no cover
         """Import a board file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
@@ -1352,6 +1321,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         close_active_project : bool, optional
             Whether to close the active project after loading the board file.
             The default is ''False``.
+        control_file : str, optional
+            Path to the XML file with the stackup information. The default is ``None``, in
+            which case the stackup is not edited.
+
         Returns
         -------
         bool
@@ -1362,7 +1335,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oModule.ImportExtracta
         """
-        return self._import_cad(input_file, "brd", aedb_path, "", set_as_active, close_active_project)
+        return self._import_cad(input_file, "brd", aedb_path, control_file, set_as_active, close_active_project)
 
     @pyaedt_function_handler()
     def import_awr(
@@ -1867,7 +1840,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @pyaedt_function_handler()
     def get_model_from_mesh_results(self, binary=True):
-        """Get the path for the parasolid file in the results folder.
+        """Get the path for the parasolid file in the result folder.
         The parasolid file is generated after the mesh is created in 3D Layout.
 
         Parameters
@@ -1988,3 +1961,256 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 return True
         self.logger.error("Port not found.")
         return False
+
+    def get_dcir_solution_data(self, setup_name, show="RL", category="Loop_Resistance"):
+        """Retrieve dcir solution data. Available element_names are dependent on element_type as below.
+        Sources ["Voltage", "Current", "Power"]
+        "RL" ['Loop Resistance', 'Path Resistance', 'Resistance', 'Inductance']
+        "Vias" ['X', 'Y', 'Current', 'Limit', 'Resistance', 'IR Drop', 'Power']
+        "Bondwires" ['Current', 'Limit', 'Resistance', 'IR Drop']
+        "Probes" ['Voltage'].
+
+        Parameters
+        ----------
+        setup_name : str
+            Name of the setup.
+        show : str, optional
+            Type of the element. Options are ``"Sources"`, ``"RL"`, ``"Vias"``, ``"Bondwires"``, and ``"Probes"``.
+        category : str, optional
+            Name of the element. Options are ``"Voltage"`, ``"Current"`, ``"Power"``, ``"Loop_Resistance"``,
+            ``"Path_Resistance"``, ``"Resistance"``, ``"Inductance"``, ``"X"``, ``"Y"``, ``"Limit"`` and ``"IR Drop"``.
+        Returns
+        -------
+        pyaedt.modules.solutions.SolutionData
+        """
+
+        if is_ironpython:  # pragma: no cover
+            self._logger.error("Function is only supported in CPython.")
+            return False
+        all_categories = self.post.available_quantities_categories(context=show, is_siwave_dc=True)
+        if category not in all_categories:
+            return False  # pragma: no cover
+        all_quantities = self.post.available_report_quantities(
+            context=show, is_siwave_dc=True, quantities_category=category
+        )
+
+        return self.post.get_solution_data(all_quantities, setup_sweep_name=setup_name, domain="DCIR", context=show)
+
+    def get_touchstone_data(self, setup_name=None, sweep_name=None, variations=None):
+        """
+        Return a Touchstone data plot.
+
+        Parameters
+        ----------
+        setup_name : list
+            Name of the setup.
+        sweep_name : str, optional
+            Name of the sweep. The default value is ``None``.
+        variations : dict, optional
+            Dictionary of variation names. The default value is ``None``.
+
+        Returns
+        -------
+        :class:`pyaedt.generic.touchstone_parser.TouchstoneData`
+           Class containing all requested data.
+
+        References
+        ----------
+
+        >>> oModule.GetSolutionDataPerVariation
+        """
+        from pyaedt.generic.touchstone_parser import TouchstoneData
+
+        if not setup_name:
+            setup_name = self.setups[0].name
+
+        if not sweep_name:
+            for setup in self.setups:
+                if setup.name == setup_name:
+                    sweep_name = setup.sweeps[0].name
+        s_parameters = []
+        solution = "{} : {}".format(setup_name, sweep_name)
+        expression = self.get_traces_for_plot(category="S")
+        sol_data = self.post.get_solution_data(expression, solution, variations=variations)
+        for i in range(sol_data.number_of_variations):
+            sol_data.set_active_variation(i)
+            s_parameters.append(TouchstoneData(solution_data=sol_data))
+        return s_parameters
+
+    def get_dcir_element_data_loop_resistance(self, setup_name):
+        """Get dcir element data loop resistance.
+
+        Parameters
+        ----------
+        setup_name : str
+            Name of the setup.
+        Returns
+        -------
+        pandas.Dataframe
+        """
+        if is_ironpython:  # pragma: no cover
+            self.logger.error("Method not supported in IronPython.")
+            return False
+        import pandas as pd
+
+        solution_data = self.get_dcir_solution_data(setup_name=setup_name, show="RL", category="Loop Resistance")
+
+        terms = []
+        pattern = r"LoopRes\((.*?)\)"
+        for ex in solution_data.expressions:
+            matches = re.findall(pattern, ex)
+            if matches:
+                terms.extend(matches[0].split(","))
+        terms = list(set(terms))
+
+        data = {}
+        for i in terms:
+            data2 = []
+            for ex in ["LoopRes({},{})".format(i, j) for j in terms]:
+                d = solution_data.data_magnitude(ex)
+                if d is not False:
+                    data2.append(d[0])
+                else:
+                    data2.append(False)
+            data[i] = data2
+
+        df = pd.DataFrame(data)
+        df.index = terms
+        return df
+
+    def get_dcir_element_data_current_source(self, setup_name):
+        """Get dcir element data current source.
+
+        Parameters
+        ----------
+        setup_name : str
+            Name of the setup.
+        Returns
+        -------
+        pandas.Dataframe
+        """
+        if is_ironpython:  # pragma: no cover
+            self.logger.error("Method not supported in IronPython.")
+            return False
+        import pandas as pd
+
+        solution_data = self.get_dcir_solution_data(setup_name=setup_name, show="Sources", category="Voltage")
+        terms = []
+        pattern = r"^V\((.*?)\)"
+        for t_name in solution_data.expressions:
+            matches = re.findall(pattern, t_name)
+            if matches:
+                terms.append(matches[0])
+        terms = list(set(terms))
+
+        data = {"Voltage": []}
+        for t_name in terms:
+            ex = "V({})".format(t_name)
+            value = solution_data.data_magnitude(ex, convert_to_SI=True)
+            if value is not False:
+                data["Voltage"].append(value[0])
+        df = pd.DataFrame(data)
+        df.index = terms
+        return df
+
+    def get_dcir_element_data_via(self, setup_name):
+        """Get dcir element data via.
+
+        Parameters
+        ----------
+        setup_name : str
+            Name of the setup.
+        Returns
+        -------
+        pandas.Dataframe
+        """
+        if is_ironpython:
+            self.logger.error("Method not supported in IronPython.")
+            return False
+        import pandas as pd
+
+        cates = ["X", "Y", "Current", "Resistance", "IR Drop", "Power"]
+        df = None
+        for cat in cates:
+            data = {cat: []}
+            solution_data = self.get_dcir_solution_data(setup_name=setup_name, show="Vias", category=cat)
+            tmp_via_names = []
+            pattern = r"\((.*?)\)"
+            for t_name in solution_data.expressions:
+                matches = re.findall(pattern, t_name)
+                if matches:
+                    tmp_via_names.append(matches[0])
+
+            for ex in solution_data.expressions:
+                value = solution_data.data_magnitude(ex, convert_to_SI=True)[0]
+                data[cat].append(value)
+
+            df_tmp = pd.DataFrame(data)
+            df_tmp.index = tmp_via_names
+            if not isinstance(df, pd.DataFrame):
+                df = df_tmp
+            else:
+                df.merge(df_tmp, left_index=True, right_index=True, how="outer")
+        return df
+
+    @pyaedt_function_handler
+    def show_extent(self, show=True):
+        """Show or hide extent in a HFSS3dLayout design.
+
+        Parameters
+        ----------
+        show : bool, optional
+            Whether to show or not the extent.
+            The default value is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` is successful, ``False`` if it fails.
+
+        >>> oEditor.SetHfssExtentsVisible
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss3dLayout
+        >>> h3d = Hfss3dLayout()
+        >>> h3d.show_extent(show=True)
+        """
+        try:
+            self.oeditor.SetHfssExtentsVisible(show)
+            return True
+        except:
+            return False
+
+    @pyaedt_function_handler
+    def change_options(self, color_by_net=True):
+        """Change options for an existing layout.
+
+        It changes design visualization by color.
+
+        Parameters
+        ----------
+        color_by_net : bool, optional
+            Whether visualize color by net or by layer.
+            The default value is ``True``, which means color by net.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful, ``False`` if it fails.
+
+        >>> oEditor.ChangeOptions
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss3dLayout
+        >>> h3d = Hfss3dLayout()
+        >>> h3d.change_options(color_by_net=True)
+        """
+        try:
+            options = ["NAME:options", "ColorByNet:=", color_by_net, "CN:=", self.design_name]
+            oeditor = self.odesign.SetActiveEditor("Layout")
+            oeditor.ChangeOptions(options)
+            return True
+        except:
+            return False

@@ -10,13 +10,9 @@ This example shows how you can use PyAEDT to create a dipole antenna in HFSS and
 # Perform required imports.
 
 import os
-import tempfile
-from pyaedt import Hfss
-from pyaedt import Desktop
-from pyaedt import generate_unique_project_name
+import pyaedt
 
-project_name= generate_unique_project_name(project_name="dipole")
-
+project_name = pyaedt.generate_unique_project_name(project_name="dipole")
 
 ###############################################################################
 # Set non-graphical mode
@@ -25,21 +21,21 @@ project_name= generate_unique_project_name(project_name="dipole")
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+non_graphical = False
 
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2022 R2 in graphical mode.
+# Launch AEDT 2023 R1 in graphical mode.
 
-d = Desktop("2022.2", non_graphical=non_graphical, new_desktop_session=True)
+d = pyaedt.launch_desktop("2023.1", non_graphical=non_graphical, new_desktop_session=True)
 
 ###############################################################################
 # Launch HFSS
 # ~~~~~~~~~~~
-# Launch HFSS 2022 R2 in graphical mode.
+# Launch HFSS 2023 R1 in graphical mode.
 
-hfss = Hfss(projectname=project_name, solution_type="Modal")
+hfss = pyaedt.Hfss(projectname=project_name, solution_type="Modal")
 
 ###############################################################################
 # Define variable
@@ -152,7 +148,7 @@ new_report.create("Realized3D")
 # Get solution data
 # ~~~~~~~~~~~~~~~~~
 # Get solution data using the object ``new_report``` and postprocess or plot the
-# data outside of AEDT.
+# data outside AEDT.
 
 solution_data = new_report.get_solution_data()
 solution_data.plot()
@@ -166,15 +162,14 @@ solution_data.plot()
 # method with an arbitrary name.
 
 hfss["post_x"] = 2
-hfss.variable_manager.set_variable("y_post", 1, postprocessing=True)
-hfss.modeler.create_coordinate_system(["post_x", "y_post", 0], name="CS_Post")
+hfss.variable_manager.set_variable(variable_name="y_post", expression=1, postprocessing=True)
+hfss.modeler.create_coordinate_system(origin=["post_x", "y_post", 0], name="CS_Post")
 hfss.insert_infinite_sphere(custom_coordinate_system="CS_Post", name="Sphere_Custom")
 
 ###############################################################################
 # Get solution data
 # ~~~~~~~~~~~~~~~~~
-# Get solution data. You can use this code to generate the same plot outside
-# of AEDT.
+# Get solution data. You can use this code to generate the same plot outside AEDT.
 
 new_report = hfss.post.reports_by_category.far_field("GainTotal", hfss.nominal_adaptive, "3D")
 new_report.primary_sweep = "Theta"
@@ -229,5 +224,4 @@ solutions.plot(math_formula="db20", is_polar=True)
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.
 
-if os.name != "posix":
-    d.release_desktop()
+d.release_desktop()

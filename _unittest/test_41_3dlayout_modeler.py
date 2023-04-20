@@ -6,13 +6,15 @@ from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
+
 from pyaedt import Hfss3dLayout
-from pyaedt.generic.filesystem import Scratch
 
 try:
     import pytest  # noqa: F401
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
+
+from pyaedt.generic.general_methods import is_linux
 
 test_subfolder = "T41"
 # Input Data and version for the test
@@ -20,9 +22,9 @@ test_project_name = "Test_RadioBoard"
 test_rigid_flex = "demo_flex"
 
 if config["desktopVersion"] > "2022.2":
-    diff_proj_name = "differential_pairs_231"
+    diff_proj_name = "differential_pairs_t41_231"
 else:
-    diff_proj_name = "differential_pairs"
+    diff_proj_name = "differential_pairs_t41"
 
 
 class TestClass(BasisTest, object):
@@ -58,34 +60,34 @@ class TestClass(BasisTest, object):
         )
         s1.color = [220, 10, 10]
         s1.is_visible = False
-        assert not s1.IsVisible
+        assert not s1._is_visible
         s1.is_visible = True
-        assert s1.IsVisible
+        assert s1._is_visible
 
         s1.is_visible_shape = False
-        assert not s1.IsVisibleShape
+        assert not s1._is_visible_shape
         s1.is_visible_shape = True
-        assert s1.IsVisibleShape
+        assert s1._is_visible_shape
 
         s1.is_visible_component = False
-        assert not s1.IsVisibleComponent
+        assert not s1._is_visible_component
         s1.is_visible_component = True
-        assert s1.IsVisibleComponent
+        assert s1._is_visible_component
 
         s1.is_visible_hole = False
-        assert not s1.IsVisibleHole
+        assert not s1._is_visible_hole
         s1.is_visible_hole = True
-        assert s1.IsVisibleHole
+        assert s1._is_visible_hole
 
         s1.is_mesh_background = False
-        assert not s1.IsMeshBackgroundMaterial
+        assert not s1._is_mesh_background
         s1.is_mesh_background = True
-        assert s1.IsMeshBackgroundMaterial
+        assert s1._is_mesh_background
 
         s1.is_mesh_overlay = False
-        assert not s1.IsMeshOverlay
+        assert not s1._is_mesh_overlay
         s1.is_mesh_overlay = True
-        assert s1.IsMeshOverlay
+        assert s1._is_mesh_overlay
 
         assert not s1.locked
         s1.locked = True
@@ -102,7 +104,7 @@ class TestClass(BasisTest, object):
         assert s1.pattern == 0
         s1.pattern = 1
 
-        assert s1.lower_elevation == "0mm"
+        assert s1.lower_elevation == "0mm" or s1.lower_elevation == 0.0
         s1.lower_elevation = 1
         assert s1.lower_elevation == 1
         s1.lower_elevation = 0
@@ -143,13 +145,13 @@ class TestClass(BasisTest, object):
         s1.side_huray_ratio = 3
         s1.top_huray_ratio = 2.2
         s1.bottom_huray_ratio = 2.5
-        assert s1.SHRatio == 3
-        assert s1.SNR == 0.3
-        assert s1.SRMdl == "Huray"
-        assert s1.BRMdl == "Huray"
-        assert s1.RMdl == "Huray"
-        assert s1.NR == 0.2
-        assert s1.BNR == 0.1
+        assert s1._SHRatio == 3
+        assert s1._SNR == 0.3
+        assert s1._SRMdl == "Huray"
+        assert s1._BRMdl == "Huray"
+        assert s1._RMdl == "Huray"
+        assert s1._NR == 0.2
+        assert s1._BNR == 0.1
 
         d1 = self.aedtapp.modeler.layers.add_layer(
             layername="Diel3", layertype="dielectric", thickness="1.0mm", elevation="0.035mm", material="plexiglass"
@@ -174,9 +176,9 @@ class TestClass(BasisTest, object):
         assert s2.type == "signal"
         assert s2.material == "copper"
         assert s2.thickness == "0.035mm" or s2.thickness == 3.5e-5
-        assert s2.IsNegative is True
+        assert s2._is_negative is True
         s2.is_negative = False
-        assert s2.IsNegative is False
+        assert s2._is_negative is False
 
         s1 = self.aedtapp.modeler.layers.layers[self.aedtapp.modeler.layers.layer_id("Bottom")]
         assert s1.thickness == "0.035mm" or s1.thickness == 3.5e-5
@@ -193,7 +195,7 @@ class TestClass(BasisTest, object):
         assert s2.type == "signal"
         assert s2.material == "copper"
         assert s2.thickness == 3.5e-5
-        assert s2.IsNegative is False
+        assert s2._is_negative is False
 
         s1.use_etch = False
         s1.user = False
@@ -201,11 +203,11 @@ class TestClass(BasisTest, object):
 
     def test_03_create_circle(self):
         n1 = self.aedtapp.modeler.create_circle("Top", 0, 5, 40, "mycircle")
-        assert n1 == "mycircle"
+        assert n1.name == "mycircle"
 
     def test_04_create_create_rectangle(self):
         n2 = self.aedtapp.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle")
-        assert n2 == "myrectangle"
+        assert n2.name == "myrectangle"
 
     def test_05_subtract(self):
         assert self.aedtapp.modeler.subtract("mycircle", "myrectangle")
@@ -244,7 +246,8 @@ class TestClass(BasisTest, object):
 
     def test_11_create_via(self):
         time.sleep(1)
-        via = self.aedtapp.modeler.create_via("My_padstack2", x=0, y=0, name="port_via")
+        cvia = self.aedtapp.modeler.create_via("My_padstack2", x=0, y=0, name="port_via")
+        via = cvia.name
         assert isinstance(via, str)
         assert self.aedtapp.modeler.vias[via].name == via == "port_via"
         assert self.aedtapp.modeler.vias[via].prim_type == "via"
@@ -252,7 +255,8 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.vias[via].location[1] == float(0)
         assert self.aedtapp.modeler.vias[via].angle == "0deg"
 
-        via_1 = self.aedtapp.modeler.create_via(x=1, y=1)
+        via = self.aedtapp.modeler.create_via(x=1, y=1)
+        via_1 = via.name
         assert isinstance(via_1, str)
         assert self.aedtapp.modeler.vias[via_1].name == via_1
         assert self.aedtapp.modeler.vias[via_1].prim_type == "via"
@@ -260,7 +264,8 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.vias[via_1].location[1] == float(1)
         assert self.aedtapp.modeler.vias[via_1].angle == "0deg"
         assert self.aedtapp.modeler.vias[via_1].holediam == "1mm"
-        via_2 = self.aedtapp.modeler.create_via("My_padstack2", x=10, y=10, name="Via123", netname="VCC")
+        via2 = self.aedtapp.modeler.create_via("My_padstack2", x=10, y=10, name="Via123", netname="VCC")
+        via_2 = via2.name
         assert isinstance(via_2, str)
         assert self.aedtapp.modeler.vias[via_2].name == via_2
         assert self.aedtapp.modeler.vias[via_2].prim_type == "via"
@@ -271,17 +276,24 @@ class TestClass(BasisTest, object):
         via_3 = self.aedtapp.modeler.create_via(
             "My_padstack2", x=5, y=5, name="Via1234", netname="VCC", hole_diam="22mm"
         )
-        assert self.aedtapp.modeler.vias[via_3].location[0] == float(5)
-        assert self.aedtapp.modeler.vias[via_3].location[1] == float(5)
-        assert self.aedtapp.modeler.vias[via_3].angle == "0deg"
-        assert self.aedtapp.modeler.vias[via_3].holediam == "22mm"
+        assert via_3.location[0] == float(5)
+        assert via_3.location[1] == float(5)
+        assert via_3.angle == "0deg"
+        assert via_3.holediam == "22mm"
         assert "VCC" in self.aedtapp.oeditor.GetNets()
 
     def test_12_create_line(self):
         line = self.aedtapp.modeler.create_line(
-            "Bottom", [[0, 0], [10, 30], [20, 30]], lw=1, name="line1", net_name="VCC"
+            "Bottom", [[0, 0], [10, 30], [20, 30]], lw=1, name="line2", net_name="VCC"
         )
-        assert line == "line1"
+        assert line.name == "line2"
+        line.name = "line1"
+        assert isinstance(line.center_line, dict)
+        line.center_line = {"Pt0": [1, "0mm"]}
+        assert line.center_line["Pt0"] == ["1", "0"]
+        line.center_line = {"Pt0": ["0mm", "0mm"]}
+        assert line.remove("Pt1")
+        assert line.add([1, 2], 1)
 
     def test_13a_create_edge_port(self):
         port_wave = self.aedtapp.create_edge_port("line1", 3, False, True, 6, 4, "2mm")
@@ -317,6 +329,13 @@ class TestClass(BasisTest, object):
     def test_15_edit_setup(self):
         setup_name = "RFBoardSetup2"
         setup2 = self.aedtapp.create_setup(setupname=setup_name)
+        assert not setup2.get_sweep()
+
+        sweep = setup2.add_sweep()
+        sweep1 = setup2.get_sweep(sweep.name)
+        assert sweep1 == sweep
+        sweep2 = setup2.get_sweep()
+        assert sweep2 == sweep1
         setup2.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"][
             "AdaptiveFrequency"
         ] = "1GHz"
@@ -484,7 +503,7 @@ class TestClass(BasisTest, object):
         assert os.path.exists(self.aedtapp.export_profile("RFBoardSetup3"))
         assert os.path.exists(self.aedtapp.export_mesh_stats("RFBoardSetup3"))
 
-    @pytest.mark.skipif(os.name == "posix", reason="To be investigated on linux.")
+    @pytest.mark.skipif(is_linux, reason="To be investigated on linux.")
     def test_19C_export_touchsthone(self):
         filename = os.path.join(self.aedtapp.working_directory, "touchstone.s2p")
         solution_name = "RFBoardSetup3"
@@ -496,20 +515,19 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.export_touchstone(solution_name, sweep_name)
 
     def test_19D_export_to_hfss(self):
-        with Scratch(self.local_scratch.path) as local_scratch:
-            filename = "export_to_hfss_test"
-            file_fullname = os.path.join(local_scratch.path, filename)
-            setup = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
-            assert setup.export_to_hfss(file_fullname=file_fullname)
-            time.sleep(2)  # wait for the export operation to finish
+        filename = "export_to_hfss_test"
+        filename2 = "export_to_hfss_test2"
+        file_fullname = os.path.join(self.local_scratch.path, filename)
+        file_fullname2 = os.path.join(self.local_scratch.path, filename2)
+        setup = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
+        assert setup.export_to_hfss(file_fullname=file_fullname)
+        assert setup.export_to_hfss(file_fullname=file_fullname2, keep_net_name=True)
 
     def test_19E_export_to_q3d(self):
-        with Scratch(self.local_scratch.path) as local_scratch:
-            filename = "export_to_q3d_test"
-            file_fullname = os.path.join(local_scratch.path, filename)
-            setup = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
-            assert setup.export_to_q3d(file_fullname)
-            time.sleep(2)  # wait for the export operation to finish
+        filename = "export_to_q3d_test"
+        file_fullname = os.path.join(self.local_scratch.path, filename)
+        setup = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
+        assert setup.export_to_q3d(file_fullname)
 
     def test_19_F_export_results(self):
         files = self.aedtapp.export_results()
@@ -605,8 +623,9 @@ class TestClass(BasisTest, object):
         output = self.aedtapp.export_3d_model()
         assert os.path.exists(output)
 
-    @pytest.mark.skipif(os.name == "posix", reason="Failing on linux")
+    @pytest.mark.skipif(is_linux, reason="Failing on linux")
     def test_36_import_gerber(self):
+        self.aedtapp.insert_design("gerber")
         gerber_file = self.local_scratch.copyfile(
             os.path.join(local_path, "example_models", "cad", "Gerber", "gerber1.zip")
         )
@@ -617,19 +636,26 @@ class TestClass(BasisTest, object):
         aedb_file = os.path.join(self.local_scratch.path, "gerber_out.aedb")
         assert self.aedtapp.import_gerber(gerber_file, aedb_path=aedb_file, control_file=control_file)
 
+    @pytest.mark.skipif(is_linux, reason="Fails in linux")
     def test_37_import_gds(self):
+        self.aedtapp.insert_design("gds")
         gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1.gds")
-        control_file = ""
+        control_file = self.local_scratch.copyfile(
+            os.path.join(local_path, "example_models", "cad", "GDS", "gds1.tech")
+        )
         aedb_file = os.path.join(self.local_scratch.path, "gds_out.aedb")
         assert self.aedtapp.import_gds(gds_file, aedb_path=aedb_file, control_file=control_file)
 
+    @pytest.mark.skipif(is_linux, reason="Fails in linux")
     def test_38_import_dxf(self):
+        self.aedtapp.insert_design("dxf")
         dxf_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf1.dxf")
         control_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf1.xml")
         aedb_file = os.path.join(self.local_scratch.path, "dxf_out.aedb")
         assert self.aedtapp.import_gerber(dxf_file, aedb_path=aedb_file, control_file=control_file)
 
     def test_39_import_ipc(self):
+        self.aedtapp.insert_design("ipc")
         dxf_file = os.path.join(local_path, "example_models", "cad", "ipc", "galileo.xml")
         aedb_file = os.path.join(self.local_scratch.path, "ipc_out.aedb")
         assert self.aedtapp.import_ipc2581(dxf_file, aedb_path=aedb_file, control_file="")
@@ -639,7 +665,18 @@ class TestClass(BasisTest, object):
         assert self.flex.enable_rigid_flex()
         pass
 
-    @pytest.mark.skipif(os.name == "posix", reason="Bug on linux")
+    def test_41_test_create_polygon(self):
+        points = [[100, 100], [100, 200], [200, 200]]
+        p1 = self.aedtapp.modeler.create_polygon("Top", points, name="poly_41")
+        assert p1.name == "poly_41"
+        points2 = [[120, 120], [120, 170], [170, 140]]
+
+        p2 = self.aedtapp.modeler.create_polygon_void("Top", points2, p1.name, name="poly_test_41_void")
+
+        assert p2.name == "poly_test_41_void"
+        assert not self.aedtapp.modeler.create_polygon_void("Top", points2, "another_object", name="poly_43_void")
+
+    @pytest.mark.skipif(is_linux, reason="Bug on linux")
     def test_90_set_differential_pairs(self):
         assert self.hfss3dl.set_differential_pair(
             positive_terminal="Port3",
@@ -653,7 +690,7 @@ class TestClass(BasisTest, object):
         )
         assert self.hfss3dl.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
 
-    @pytest.mark.skipif(os.name == "posix", reason="Bug on linux")
+    @pytest.mark.skipif(is_linux, reason="Bug on linux")
     def test_91_load_and_save_diff_pair_file(self):
         diff_def_file = os.path.join(local_path, "example_models", test_subfolder, "differential_pairs_definition.txt")
         diff_file = self.local_scratch.copyfile(diff_def_file)
@@ -671,7 +708,8 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(config["desktopVersion"] < "2022.2", reason="Not Working on Version earlier than 2022R2.")
     def test_93_clip_plane(self):
-        assert self.aedtapp.modeler.clip_plane("CS1")
+        assert self.aedtapp.modeler.clip_plane() == "VCP_1"
+        assert "VCP_1" in self.aedtapp.modeler.clip_planes
 
     def test_94_edit_3dlayout_extents(self):
         assert self.aedtapp.edit_hfss_extents(

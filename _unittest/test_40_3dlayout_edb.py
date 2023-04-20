@@ -14,6 +14,7 @@ from _unittest.conftest import local_path
 
 # Import required modules
 from pyaedt import Hfss3dLayout
+from pyaedt import is_ironpython
 
 test_subfolder = "T40"
 if config["desktopVersion"] > "2022.2":
@@ -38,6 +39,10 @@ class TestClass(BasisTest, object):
         self.target_path = os.path.join(self.local_scratch.path, "Package_test_40.aedb")
         self.local_scratch.copyfolder(example_project, self.target_path)
         self.package_file = self.local_scratch.copyfile(src_file, dest_file)
+
+        self.dcir_example_project = BasisTest.add_app(
+            self, project_name="Galileo_22r2_dcir", application=Hfss3dLayout, subfolder=test_subfolder
+        )
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -132,6 +137,9 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.modeler.layers.drawing_layers) > 0
         assert len(self.aedtapp.modeler.layers.all_signal_layers) > 0
         assert len(self.aedtapp.modeler.layers.all_diel_layers) > 0
+        assert len(self.aedtapp.modeler.stackup.all_signal_layers) == len(self.aedtapp.modeler.stackup.signals)
+        assert len(self.aedtapp.modeler.stackup.all_diel_layers) == len(self.aedtapp.modeler.stackup.dielectrics)
+        assert len(self.aedtapp.modeler.stackup.stackup_layers) == len(self.aedtapp.modeler.stackup.drawings)
         assert len(self.aedtapp.modeler.layers.all_signal_layers) + len(
             self.aedtapp.modeler.layers.all_diel_layers
         ) == len(self.aedtapp.modeler.layers.stackup_layers)
@@ -183,7 +191,7 @@ class TestClass(BasisTest, object):
         setup2 = self.aedtapp.mesh.assign_skin_depth("HFSS", "PWR", "GND")
         assert setup1
         assert setup2
-        setup1.props["Enabled"] = False
+        setup1.props["RestrictElem"] = False
         assert setup1.update()
         assert self.aedtapp.mesh.delete_mesh_operations("HFSS", setup1.name)
 
@@ -202,11 +210,29 @@ class TestClass(BasisTest, object):
         assert len(nets) > 0
         assert len(nets["GND"].components) > 0
 
+    def test_07a_nets_count(self):
+        nets = self.aedtapp.modeler.nets
+        power_nets = self.aedtapp.modeler.power_nets
+        signal_nets = self.aedtapp.modeler.signal_nets
+        no_nets = self.aedtapp.modeler.no_nets
+        assert len(nets) == len(power_nets) + len(signal_nets) + len(no_nets)
+
     def test_08_merge(self):
         tol = 1e-12
         hfss3d = Hfss3dLayout(self.package_file, "FlipChip_TopBot", specified_version=desktop_version)
         brd = Hfss3dLayout(hfss3d.project_name, "Dummy_Board", specified_version=desktop_version)
         comp = brd.modeler.merge_design(hfss3d, rotation=90)
+        assert comp.location[0] == 0.0
+        assert comp.rotation_axis == "Z"
+        comp.rotation_axis = "X"
+        assert comp.rotation_axis == "X"
+        comp.rotation_axis = "Z"
+        comp.rotation_axis_direction = [0, 0, 1.2]
+        assert comp.rotation_axis_direction == [0, 0, 1.2]
+        assert not comp.is_flipped
+        comp.is_flipped = True
+        assert comp.is_flipped
+        comp.is_flipped = False
         assert comp.location[0] == 0.0
         assert comp.location[1] == 0.0
         assert comp.angle == "90deg"
@@ -292,3 +318,41 @@ class TestClass(BasisTest, object):
         )
         ports_after = len(self.aedtapp.port_list)
         assert ports_after - ports_before == len(nets)
+
+    def test_18_set_variable(self):
+        self.aedtapp.variable_manager.set_variable("var_test", expression="123")
+        self.aedtapp["var_test"] = "234"
+        assert "var_test" in self.aedtapp.variable_manager.design_variable_names
+        assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
+
+    @pytest.mark.skipif(is_ironpython, reason="Not Supported.")
+    def test_19_dcir(self):
+        import pandas as pd
+
+        self.dcir_example_project.analyze()
+        assert self.dcir_example_project.get_dcir_solution_data("Siwave_DC_WP9QNY", "RL", "Path Resistance")
+        assert self.dcir_example_project.get_dcir_solution_data("Siwave_DC_WP9QNY", "Vias", "Current")
+        solution_data = self.dcir_example_project.get_dcir_solution_data("Siwave_DC_WP9QNY", "Sources", "Voltage")
+        assert self.dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="")
+        assert self.dcir_example_project.post.create_report(
+            self.dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="RL")[0],
+            setup_sweep_name="Siwave_DC_WP9QNY",
+            domain="DCIR",
+            context="RL",
+        )
+        assert isinstance(
+            self.dcir_example_project.get_dcir_element_data_loop_resistance("Siwave_DC_WP9QNY"), pd.DataFrame
+        )
+        assert isinstance(
+            self.dcir_example_project.get_dcir_element_data_current_source("Siwave_DC_WP9QNY"), pd.DataFrame
+        )
+
+    def test_20_change_options(self):
+        assert self.aedtapp.change_options()
+        assert self.aedtapp.change_options(color_by_net=False)
+        assert not self.aedtapp.change_options(color_by_net=None)
+
+    def test_21_show_extent(self):
+        assert self.aedtapp.show_extent()
+        assert self.aedtapp.show_extent(show=False)
+        assert not self.aedtapp.show_extent(show=None)
