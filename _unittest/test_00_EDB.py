@@ -552,10 +552,11 @@ class TestClass(BasisTest, object):
         assert abs(pad.hole_properties[0] - hole_pad) < tol
         offset_x = 7
         offset_y = 1
-        param = {"Diameter": 7}
+        param = {"Diameter": "7"}
         pad.pad_by_layer[pad.via_stop_layer].parameters = param
         pad.pad_by_layer[pad.via_stop_layer].offset_x = offset_x
         pad.pad_by_layer[pad.via_stop_layer].offset_y = offset_y
+        assert pad.pad_by_layer[pad.via_stop_layer].parameters["Diameter"].tofloat == param["Diameter"]
         assert pad.pad_by_layer[pad.via_stop_layer].offset_x == str(offset_x)
         assert pad.pad_by_layer[pad.via_stop_layer].offset_y == str(offset_y)
 

@@ -96,7 +96,6 @@ class EDBPadProperties(object):
         padparams = self._edb_padstack.GetData().GetPadParametersValue(
             self.layer_name, self.int_to_pad_type(self.pad_type)
         )
-        warnings.warn("Use new property:`edb.padstacks['TOP'].shape` instead.", DeprecationWarning)
         return int(padparams[1])
 
     @geometry_type.setter
