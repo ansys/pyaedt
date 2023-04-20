@@ -1,5 +1,7 @@
 from collections import defaultdict
 
+import sys
+
 from pyaedt.emit_core import EmitConstants as emit_consts
 import pyaedt.generic.constants as consts
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -712,7 +714,7 @@ class EmitRadioComponent(EmitComponent):
         Returns
         -------
         List
-            List of the bands in the radio."""
+            List of the band nodes in the radio."""
         band_nodes = self.get_prop_nodes({"Type": "Band"})
         return band_nodes
 

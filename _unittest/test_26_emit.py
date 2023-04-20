@@ -525,24 +525,34 @@ class TestClass(BasisTest, object):
     )
     def test_static_type_generation(self):
         domain = self.aedtapp.results.interaction_domain()
-        assert str(type(domain)) == "<class 'EmitApiPython.InteractionDomain'>"
+        if sys.version_info < (3, 8):
+            py_version = "EmitApiPython"
+        elif sys.version_info < (3, 9):
+            py_version = "EmitApiPython38"
+        elif sys.version_info < (3, 10):
+            py_version = "EmitApiPython39"
+        elif sys.version_info < (3, 11): 
+            py_version = "EmitApiPython310"
+        elif sys.version_info < (3,12):
+            py_version = "EmitApiPython311"
+        assert str(type(domain)) == "<class '{}.InteractionDomain'>".format(py_version)
 
         mode = econsts.tx_rx_mode()
         mode_rx = econsts.tx_rx_mode().rx
         mode_tx = econsts.tx_rx_mode().tx
         mode_both = econsts.tx_rx_mode().both
-        assert str(type(mode)) == "<class 'EmitApiPython.tx_rx_mode'>"
-        assert str(type(mode_rx)) == "<class 'EmitApiPython.tx_rx_mode'>"
-        assert str(type(mode_tx)) == "<class 'EmitApiPython.tx_rx_mode'>"
-        assert str(type(mode_both)) == "<class 'EmitApiPython.tx_rx_mode'>"
+        assert str(type(mode)) == "<class '{}.tx_rx_mode'>".format(py_version)
+        assert str(type(mode_rx)) == "<class '{}.tx_rx_mode'>".format(py_version)
+        assert str(type(mode_tx)) == "<class '{}.tx_rx_mode'>".format(py_version)
+        assert str(type(mode_both)) == "<class '{}.tx_rx_mode'>".format(py_version)
         result_type = econsts.result_type()
         result_type_sensitivity = econsts.result_type().sensitivity
         result_type_emi = econsts.result_type().emi
         result_type_desense = econsts.result_type().desense
-        assert str(type(result_type)) == "<class 'EmitApiPython.result_type'>"
-        assert str(type(result_type_sensitivity)) == "<class 'EmitApiPython.result_type'>"
-        assert str(type(result_type_emi)) == "<class 'EmitApiPython.result_type'>"
-        assert str(type(result_type_desense)) == "<class 'EmitApiPython.result_type'>"
+        assert str(type(result_type)) == "<class '{}.result_type'>".format(py_version)
+        assert str(type(result_type_sensitivity)) == "<class '{}.result_type'>".format(py_version)
+        assert str(type(result_type_emi)) == "<class '{}.result_type'>".format(py_version)
+        assert str(type(result_type_desense)) == "<class '{}.result_type'>".format(py_version)
 
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions earlier than 2023.2"
@@ -555,15 +565,6 @@ class TestClass(BasisTest, object):
             assert str(type(less_info)) == "<class 'str'>"
             assert str(type(more_info)) == "<class 'str'>"
             assert len(more_info) > len(less_info)
-
-    @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1" or is_ironpython,
-        reason="Skipped on versions earlier than 2023.2",
-    )
-    def test_InteractionDomain(self):
-        self.aedtapp = BasisTest.add_app(self, application=Emit)
-        testable_id = self.aedtapp.results.interaction_domain()
-        assert str(type(testable_id)) == "<class 'EmitApiPython.InteractionDomain'>"
 
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2023.1" or is_ironpython,
@@ -647,29 +648,36 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.results.revisions) == 1
         radiosRX = rev.get_receiver_names()
         bandsRX = rev.get_band_names(radiosRX[0], econsts.tx_rx_mode().rx)
+        radiosTX = rev.get_interferer_names()
         domain = self.aedtapp.results.interaction_domain()
         domain.set_receiver(radiosRX[0], bandsRX[0])
+        domain.set_interferer(radiosTX[0])
+        assert len(domain.interferer_names) == 1
         interaction = self.aedtapp.results.revisions[-1].run(domain)
-        instance = interaction.get_worst_instance(econsts.result_type().sensitivity)
-        assert instance.get_value(econsts.result_type().emi) == 82.04
-        assert instance.get_value(econsts.result_type().desense) == 13.42
-        assert instance.get_value(econsts.result_type().sensitivity) == -56.58
-        assert instance.get_value(econsts.result_type().powerAtRx) == 62.03
-        assert instance.get_largest_problem_type(econsts.result_type().emi) == "Out-of-Channel: Tx Fundamental"
-        domain2 = self.aedtapp.results.interaction_domain()
-        rx_frequencies = rev.get_active_frequencies(radiosRX[0], bandsRX[0], econsts.tx_rx_mode().rx, "Hz")
-        domain2.set_receiver(radiosRX[0], bandsRX[0], rx_frequencies[0], "Hz")
-        radiosTX = rev.get_interferer_names(econsts.interferer_type().transmitters)
-        bandsTX = rev.get_band_names(radiosTX[0], econsts.tx_rx_mode().tx)
-        tx_frequencies = rev.get_active_frequencies(radiosTX[0], bandsTX[0], econsts.tx_rx_mode().tx, "Hz")
-        domain2.set_interferer(radiosTX[0], bandsTX[0], tx_frequencies[0], "Hz")
-        exception_raised = False
-        try:
-            instance = interaction.get_instance(domain2)
-        except RuntimeError as e:
-            exception_raised = True
-            assert e.args[0] == "ERROR: Instance data for multiple simultaneous interferers not available."
-        assert exception_raised
+        # TODO: Update after Optimal N-1 changes are merged
+        # set multiple interferers
+        # verify interferer_names and results
+
+        # instance = interaction.get_worst_instance(econsts.result_type().sensitivity)
+        # assert instance.get_value(econsts.result_type().emi) == 82.04
+        # assert instance.get_value(econsts.result_type().desense) == 13.42
+        # assert instance.get_value(econsts.result_type().sensitivity) == -56.58
+        # assert instance.get_value(econsts.result_type().powerAtRx) == 62.03
+        # assert instance.get_largest_problem_type(econsts.result_type().emi) == "Out-of-Channel: Tx Fundamental"
+        # domain2 = self.aedtapp.results.interaction_domain()
+        # rx_frequencies = rev.get_active_frequencies(radiosRX[0], bandsRX[0], econsts.tx_rx_mode().rx, "Hz")
+        # domain2.set_receiver(radiosRX[0], bandsRX[0], rx_frequencies[0], "Hz")
+        # radiosTX = rev.get_interferer_names(econsts.interferer_type().transmitters)
+        # bandsTX = rev.get_band_names(radiosTX[0], econsts.tx_rx_mode().tx)
+        # tx_frequencies = rev.get_active_frequencies(radiosTX[0], bandsTX[0], econsts.tx_rx_mode().tx, "Hz")
+        # domain2.set_interferer(radiosTX[0], bandsTX[0], tx_frequencies[0], "Hz")
+        # exception_raised = False
+        # try:
+        #     instance = interaction.get_instance(domain2)
+        # except RuntimeError as e:
+        #     exception_raised = True
+        #     assert e.args[0] == "ERROR: Instance data for multiple simultaneous interferers not available."
+        # assert exception_raised
 
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2023.1" or is_ironpython,
