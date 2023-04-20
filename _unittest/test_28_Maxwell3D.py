@@ -852,7 +852,8 @@ class TestClass(BasisTest, object):
         assert not self.m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=invalid_ctrl_prg_path)
         self.m2d_ctrl_prg.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
         assert not self.m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path)
-        os.unlink(user_ctl_path)
+        if os.path.exists(user_ctl_path):
+            os.unlink(user_ctl_path)
 
 
     def test_51_objects_segmentation(self):
