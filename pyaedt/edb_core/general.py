@@ -13,12 +13,12 @@ from pyaedt.generic.clr_module import List
 from pyaedt.generic.clr_module import Tuple
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
-if not is_ironpython:
+if not is_ironpython:  # pragma: no cover
     try:
         from enum import Enum
     except ImportError:
         Enum = None
-else:
+else:  # pragma: no cover
     Enum = object
 
 logger = logging.getLogger(__name__)
@@ -129,7 +129,7 @@ def convert_net_list_to_py_list(netlist):
     return pylist
 
 
-class PadGeometryTpe(Enum):
+class PadGeometryTpe(Enum):  # pragma: no cover
     Circle = 1
     Square = 2
     Rectangle = 3

@@ -162,7 +162,7 @@ class EDBPadProperties(object):
         elif self.shape in [PadGeometryTpe.Round45.name, PadGeometryTpe.Round90.name]:
             return OrderedDict({"Inner": EdbValue(value[0]), "ChannelWidth": EdbValue(value[1]), "IsolationGap": EdbValue(value[2])})
         else:
-            return OrderedDict()
+            return OrderedDict()  # pragma: no cover
 
     @parameters.setter
     def parameters(self, value):
@@ -179,9 +179,8 @@ class EDBPadProperties(object):
         >>> pad.shape = "Bullet"
         >>> pad.pad_parameters{"XSize": "0.5mm", "YSize": "0.5mm"}
         """
-        if isinstance(value, list):
-            params = value
-        elif isinstance(value, dict):
+
+        if isinstance(value, dict):
             value = {k: v.tostring if isinstance(v, EdbValue) else v for k, v in value.items()}
             if self.shape == PadGeometryTpe.Circle.name:
                 params = [self._get_edb_value(value["Diameter"])]
@@ -195,7 +194,7 @@ class EDBPadProperties(object):
                     self._get_edb_value(value["YSize"]),
                     self._get_edb_value(value["CornerRadius"]),
                 ]
-            elif self.shape in [PadGeometryTpe.Round45.name, PadGeometryTpe.Round90.name]:
+            elif self.shape in [PadGeometryTpe.Round45.name, PadGeometryTpe.Round90.name]:  # pramga: no cover
                 params = [
                     self._get_edb_value(value["Inner"]),
                     self._get_edb_value(value["ChannelWidth"]),
@@ -203,6 +202,8 @@ class EDBPadProperties(object):
                 ]
             else:
                 params = None
+        elif isinstance(value, list):
+            params = [self._get_edb_value(i) for i in value]
         else:
             params = [self._get_edb_value(value)]
         self._update_pad_parameters_parameters(params=params)

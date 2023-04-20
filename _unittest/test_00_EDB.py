@@ -25,7 +25,7 @@ from pyaedt.generic.constants import SourceType
 
 try:
     import pytest
-except ImportError:  # 'pragma: no cover
+except ImportError:  # pragma: no cover
     import _unittest_ironpython.conf_unittest as pytest
 
 test_subfolder = "TEDB"
@@ -491,8 +491,8 @@ class TestClass(BasisTest, object):
         assert abs(pad.hole_properties[0] - hole_pad) < tol
         offset_x = 7
         offset_y = 1
-        param = 7
-        pad.pad_by_layer[pad.via_stop_layer].parameters = param
+        pad.pad_by_layer[pad.via_stop_layer].shape = "Circle"
+        pad.pad_by_layer[pad.via_stop_layer].parameters = 7
         pad.pad_by_layer[pad.via_stop_layer].offset_x = offset_x
         pad.pad_by_layer[pad.via_stop_layer].offset_y = offset_y
         assert pad.pad_by_layer[pad.via_stop_layer].parameters["Diameter"].tofloat == 7
@@ -500,6 +500,15 @@ class TestClass(BasisTest, object):
         assert pad.pad_by_layer[pad.via_stop_layer].offset_y == str(offset_y)
         pad.pad_by_layer[pad.via_stop_layer].parameters = {"Diameter": 8}
         assert pad.pad_by_layer[pad.via_stop_layer].parameters["Diameter"].tofloat == 8
+        pad.pad_by_layer[pad.via_stop_layer].parameter = {"Diameter": 1}
+        pad.pad_by_layer[pad.via_stop_layer].shape = "Square"
+        pad.pad_by_layer[pad.via_stop_layer].parameter = {"Size": 1}
+        pad.pad_by_layer[pad.via_stop_layer].shape = "Rectangle"
+        pad.pad_by_layer[pad.via_stop_layer].parameter = {"XSize": 1, "YSize": 1}
+        pad.pad_by_layer[pad.via_stop_layer].shape = "Oval"
+        pad.pad_by_layer[pad.via_stop_layer].parameter = {"XSize": 1, "YSize": 1, "CornerRadius": 1}
+        pad.pad_by_layer[pad.via_stop_layer].parameter = {"XSize": 1, "YSize": 1, "CornerRadius": 1}
+        pad.pad_by_layer[pad.via_stop_layer].parameter = [1, 1, 1]
 
     def test_057_save_edb_as(self):
         assert self.edbapp.save_edb_as(os.path.join(self.local_scratch.path, "Gelileo_new.aedb"))
