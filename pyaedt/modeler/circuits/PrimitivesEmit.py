@@ -1,7 +1,5 @@
 from collections import defaultdict
 
-import sys
-
 from pyaedt.emit_core import EmitConstants as emit_consts
 import pyaedt.generic.constants as consts
 from pyaedt.generic.general_methods import pyaedt_function_handler

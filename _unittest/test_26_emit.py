@@ -36,9 +36,23 @@ class TestClass(BasisTest, object):
         assert isinstance(self.aedtapp.modeler.components, EmitComponents)
         assert self.aedtapp.modeler
         assert self.aedtapp.oanalysis is None
-        if self.aedtapp._aedt_version >= "2023.1" and sys.version_info.major == 3 and sys.version_info.minor == 7:
-            assert str(type(self.aedtapp._emit_api)) == "<class 'EmitApiPython.EmitApi'>"
-            assert self.aedtapp.results is not None
+        if self.aedtapp._aedt_version >= "2023.1": 
+            if sys.version_info.major == 3 and sys.version_info.minor == 7:
+                assert str(type(self.aedtapp._emit_api)) == "<class 'EmitApiPython.EmitApi'>"
+                assert self.aedtapp.results is not None 
+            elif sys.version_info.major == 3 and sys.version_info.minor == 8:
+                assert str(type(self.aedtapp._emit_api)) == "<class 'EmitApiPython38.EmitApi'>"
+                assert self.aedtapp.results is not None 
+            elif sys.version_info.major == 3 and sys.version_info.minor == 9:
+                assert str(type(self.aedtapp._emit_api)) == "<class 'EmitApiPython39.EmitApi'>"
+                assert self.aedtapp.results is not None 
+            elif sys.version_info.major == 3 and sys.version_info.minor == 10:
+                assert str(type(self.aedtapp._emit_api)) == "<class 'EmitApiPython310.EmitApi'>"
+                assert self.aedtapp.results is not None 
+            elif sys.version_info.major == 3 and sys.version_info.minor == 11:
+                assert str(type(self.aedtapp._emit_api)) == "<class 'EmitApiPython311.EmitApi'>"
+                assert self.aedtapp.results is not None
+        
 
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2021.2"
@@ -51,6 +65,66 @@ class TestClass(BasisTest, object):
         antenna = self.aedtapp.modeler.components.create_component("Antenna", "TestAntenna")
         assert antenna.name == "TestAntenna"
         assert isinstance(antenna, EmitAntennaComponent)
+        emitter = self.aedtapp.modeler.components.create_component("New Emitter", "TestEmitter")
+        assert emitter.name == "TestEmitter"
+        assert isinstance(emitter, EmitComponent)
+
+        # add each component type
+        amplifier = self.aedtapp.modeler.components.create_component("Amplifier", "TestAmplifier")
+        assert amplifier.name == "TestAmplifier"
+        assert isinstance(amplifier, EmitComponent)        
+        cable = self.aedtapp.modeler.components.create_component("Cable", "TestCable")
+        assert cable.name == "TestCable"
+        assert isinstance(cable, EmitComponent)
+        circulator = self.aedtapp.modeler.components.create_component("Circulator", "TestCirculator")
+        assert circulator.name == "TestCirculator"
+        assert isinstance(circulator, EmitComponent)
+        divider = self.aedtapp.modeler.components.create_component("Divider", "TestDivider")
+        assert divider.name == "TestDivider"
+        assert isinstance(divider, EmitComponent)
+        filter_bpf = self.aedtapp.modeler.components.create_component("Band Pass", "TestBPF")
+        assert filter_bpf.name == "TestBPF"
+        assert isinstance(filter_bpf, EmitComponent)        
+        filter_bsf = self.aedtapp.modeler.components.create_component("Band Stop", "TestBSF")
+        assert filter_bsf.name == "TestBSF"
+        assert isinstance(filter_bsf, EmitComponent)
+        filter_file = self.aedtapp.modeler.components.create_component("File-based", "TestFilterByFile")
+        assert filter_file.name == "TestFilterByFile"
+        assert isinstance(filter_file, EmitComponent)
+        filter_hpf = self.aedtapp.modeler.components.create_component("High Pass", "TestHPF")
+        assert filter_hpf.name == "TestHPF"
+        assert isinstance(filter_hpf, EmitComponent)
+        filter_lpf = self.aedtapp.modeler.components.create_component("Low Pass", "TestLPF")
+        assert filter_lpf.name == "TestLPF"
+        assert isinstance(filter_lpf, EmitComponent)        
+        filter_tbpf = self.aedtapp.modeler.components.create_component("Tunable Band Pass", "TestTBPF")
+        assert filter_tbpf.name == "TestTBPF"
+        assert isinstance(filter_tbpf, EmitComponent)
+        filter_tbsf = self.aedtapp.modeler.components.create_component("Tunable Band Stop", "TestTBSF")
+        assert filter_tbsf.name == "TestTBSF"
+        assert isinstance(filter_tbsf, EmitComponent)        
+        isolator = self.aedtapp.modeler.components.create_component("Isolator", "TestIsolator")
+        assert isolator.name == "TestIsolator"
+        assert isinstance(isolator, EmitComponent)      
+        mux3 = self.aedtapp.modeler.components.create_component("3 Port", "Test3port")
+        assert mux3.name == "Test3port"
+        assert isinstance(mux3, EmitComponent)
+        mux4 = self.aedtapp.modeler.components.create_component("4 Port", "Test4port")
+        assert mux4.name == "Test4port"
+        assert isinstance(mux4, EmitComponent)
+        mux5 = self.aedtapp.modeler.components.create_component("5 Port", "Test5port")
+        assert mux5.name == "Test5port"
+        assert isinstance(mux5, EmitComponent)
+        mux6 = self.aedtapp.modeler.components.create_component("6 Port", "Test6port")
+        assert mux6.name == "Test6port"
+        assert isinstance(mux6, EmitComponent)        
+        switch = self.aedtapp.modeler.components.create_component("TR Switch", "TestSwitch")
+        assert switch.name == "TestSwitch"
+        assert isinstance(switch, EmitComponent)
+        terminator = self.aedtapp.modeler.components.create_component("Terminator", "TestTerminator")
+        assert terminator.name == "TestTerminator"
+        assert isinstance(terminator, EmitComponent)
+
 
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2021.2"
