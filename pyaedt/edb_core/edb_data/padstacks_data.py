@@ -5,34 +5,12 @@ from collections import OrderedDict
 from pyaedt import is_ironpython
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.edb_core.general import PadGeometryTpe
 from pyaedt.generic.clr_module import String
 from pyaedt.generic.clr_module import _clr
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.geometry_operators import GeometryOperators
-
-if not is_ironpython:
-    try:
-        from enum import Enum
-    except ImportError:
-        Enum = None
-else:
-    Enum = object
-
-
-class PadGeometryTpe(Enum):
-    Circle = 1
-    Square = 2
-    Rectangle = 3
-    Oval = 4
-    Bullet = 5
-    NSidePolygon = 6
-    Polygon = 7
-    Round45 = 8
-    Round90 = 9
-    Square45 = 10
-    Square90 = 11
-    InvalidGeometry = 12
 
 
 class EDBPadProperties(object):
@@ -138,16 +116,11 @@ class EDBPadProperties(object):
     def parameters_values(self):
         """Parameters.
 
-        .. deprecated:: 0.7
-           Use :func:`parameters` property instead.
-
         Returns
         -------
         list
             List of parameters.
         """
-        warnings.warn("`parameters_values` is deprecated. Use `parameters` property instead.", DeprecationWarning)
-
         return [i.tofloat for i in self.parameters.values()]
 
     @property
@@ -184,6 +157,8 @@ class EDBPadProperties(object):
             return OrderedDict({"XSize": EdbValue(value[0]), "YSize": EdbValue(value[1])})
         elif self.shape in [PadGeometryTpe.Oval.name, PadGeometryTpe.Bullet.name]:
             return OrderedDict({"XSize": EdbValue(value[0]), "YSize": EdbValue(value[1]), "CornerRadius": EdbValue(value[2])})
+        elif self.shape == PadGeometryTpe.NSidedPolygon.name:
+            return OrderedDict({"Size": EdbValue(value[0]), "NumSides": EdbValue(value[1])})
         elif self.shape in [PadGeometryTpe.Round45.name, PadGeometryTpe.Round90.name]:
             return OrderedDict({"Inner": EdbValue(value[0]), "ChannelWidth": EdbValue(value[1]), "IsolationGap": EdbValue(value[2])})
         else:
@@ -220,6 +195,8 @@ class EDBPadProperties(object):
                     self._get_edb_value(value["YSize"]),
                     self._get_edb_value(value["CornerRadius"]),
                 ]
+            elif self.shape == PadGeometryTpe.NSidedPolygon.name:
+                params = [self._get_edb_value(value["Size"]), self._get_edb_value(value["NumSides"])]
             elif self.shape in [PadGeometryTpe.Round45.name, PadGeometryTpe.Round90.name]:
                 params = [
                     self._get_edb_value(value["Inner"]),
