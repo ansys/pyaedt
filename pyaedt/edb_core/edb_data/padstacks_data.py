@@ -1,6 +1,7 @@
 import math
 import warnings
 
+from collections import OrderedDict
 from pyaedt import is_ironpython
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.general import convert_py_list_to_net_list
@@ -60,8 +61,6 @@ class EDBPadProperties(object):
         self._pedbpadstack = p_edb_padstack
         self.layer_name = layer_name
         self.pad_type = pad_type
-        self._parameters_values = None
-        pass
 
     @property
     def _padstack_methods(self):
@@ -139,17 +138,17 @@ class EDBPadProperties(object):
     def parameters_values(self):
         """Parameters.
 
+        .. deprecated:: 0.7
+           Use :func:`parameters` property instead.
+
         Returns
         -------
         list
             List of parameters.
         """
-        self._parameters_values = []
-        pad_values = self._edb_padstack.GetData().GetPadParametersValue(
-            self.layer_name, self.int_to_pad_type(self.pad_type)
-        )
-        self._parameters_values = [i.ToDouble() for i in pad_values[2]]
-        return self._parameters_values
+        warnings.warn("`parameters_values` is deprecated. Use `parameters` property instead.", DeprecationWarning)
+
+        return [i.tofloat for i in self.parameters.values()]
 
     @property
     def polygon_data(self):
@@ -178,17 +177,17 @@ class EDBPadProperties(object):
         """
         value = list(self._pad_parameter_value[2])
         if self.shape == PadGeometryTpe.Circle.name:
-            return {"Diameter": EdbValue(value[0])}
+            return OrderedDict({"Diameter": EdbValue(value[0])})
         elif self.shape == PadGeometryTpe.Square.name:
-            return {"Size": EdbValue(value[0])}
+            return OrderedDict({"Size": EdbValue(value[0])})
         elif self.shape == PadGeometryTpe.Rectangle.name:
-            return {"XSize": EdbValue(value[0]), "YSize": EdbValue(value[1])}
+            return OrderedDict({"XSize": EdbValue(value[0]), "YSize": EdbValue(value[1])})
         elif self.shape in [PadGeometryTpe.Oval.name, PadGeometryTpe.Bullet.name]:
-            return {"XSize": EdbValue(value[0]), "YSize": EdbValue(value[1]), "CornerRadius": EdbValue(value[2])}
+            return OrderedDict({"XSize": EdbValue(value[0]), "YSize": EdbValue(value[1]), "CornerRadius": EdbValue(value[2])})
         elif self.shape in [PadGeometryTpe.Round45.name, PadGeometryTpe.Round90.name]:
-            return {"Inner": EdbValue(value[0]), "ChannelWidth": EdbValue(value[1]), "IsolationGap": EdbValue(value[2])}
+            return OrderedDict({"Inner": EdbValue(value[0]), "ChannelWidth": EdbValue(value[1]), "IsolationGap": EdbValue(value[2])})
         else:
-            return dict()
+            return OrderedDict()
 
     @parameters.setter
     def parameters(self, value):
