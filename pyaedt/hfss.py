@@ -368,7 +368,15 @@ class Hfss(FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def _create_port_terminal(
-        self, objectname, int_line_stop, portname, renorm=True, deembed=None, iswaveport=False, impedance=None
+        self,
+        objectname,
+        int_line_stop,
+        portname,
+        renorm=True,
+        deembed=None,
+        iswaveport=False,
+        impedance=None,
+        terminals_rename=True,
     ):
         ref_conductors = self.modeler.convert_to_selections(int_line_stop, True)
         props = OrderedDict()
@@ -414,20 +422,20 @@ class Hfss(FieldAnalysis3D, object):
                         self.odesign.ChangeProperty(properties)
                     except:  # pragma: no cover
                         self.logger.warning("Failed to change normalization.")
-
-                new_name = portname + "_T" + str(count)
-                properties = [
-                    "NAME:AllTabs",
-                    [
-                        "NAME:HfssTab",
-                        ["NAME:PropServers", "BoundarySetup:" + terminal],
-                        ["NAME:ChangedProps", ["NAME:Name", "Value:=", new_name]],
-                    ],
-                ]
-                try:
-                    self.odesign.ChangeProperty(properties)
-                except:  # pragma: no cover
-                    self.logger.warning("Failed to rename terminal {}.".format(terminal))
+                if terminals_rename:
+                    new_name = portname + "_T" + str(count)
+                    properties = [
+                        "NAME:AllTabs",
+                        [
+                            "NAME:HfssTab",
+                            ["NAME:PropServers", "BoundarySetup:" + terminal],
+                            ["NAME:ChangedProps", ["NAME:Name", "Value:=", new_name]],
+                        ],
+                    ]
+                    try:
+                        self.odesign.ChangeProperty(properties)
+                    except:  # pragma: no cover
+                        self.logger.warning("Failed to rename terminal {}.".format(terminal))
 
             if iswaveport:
                 boundary.type = "Wave Port"
@@ -548,49 +556,6 @@ class Hfss(FieldAnalysis3D, object):
         props["ReporterFilter"] = report_filter
         props["UseAnalyticAlignment"] = False
         return self._create_boundary(portname, props, "Wave Port")
-
-    @pyaedt_function_handler()
-    def assigncoating(
-        self,
-        obj,
-        mat=None,
-        cond=58000000,
-        perm=1,
-        usethickness=False,
-        thickness="0.1mm",
-        roughness="0um",
-        isinfgnd=False,
-        istwoside=False,
-        isInternal=True,
-        issheelElement=False,
-        usehuray=False,
-        radius="0.5um",
-        ratio="2.9",
-    ):
-        """Assign finite conductivity to one or more objects of a given material.
-
-        .. deprecated:: 0.4.5
-           Use :func:`Hfss.assign_coating` instead.
-
-        """
-
-        warnings.warn("`assigncoating` is deprecated. Use `assign_coating` instead.", DeprecationWarning)
-        self.assign_coating(
-            obj,
-            mat,
-            cond,
-            perm,
-            usethickness,
-            thickness,
-            roughness,
-            isinfgnd,
-            istwoside,
-            isInternal,
-            issheelElement,
-            usehuray,
-            radius,
-            ratio,
-        )
 
     @pyaedt_function_handler()
     def assign_coating(
@@ -788,46 +753,6 @@ class Hfss(FieldAnalysis3D, object):
         setup.auto_update = True
         setup.update()
         return setup
-
-    @pyaedt_function_handler()
-    def create_frequency_sweep(
-        self,
-        setupname,
-        unit="GHz",
-        freqstart=1e-3,
-        freqstop=10,
-        sweepname=None,
-        num_of_freq_points=451,
-        sweeptype="Interpolating",
-        interpolation_tol=0.5,
-        interpolation_max_solutions=250,
-        save_fields=True,
-        save_rad_fields=False,
-    ):
-        """Create a frequency sweep.
-
-        .. deprecated:: 0.4.0
-           Use :func:`Hfss.create_linear_count_sweep` instead.
-
-        """
-        warnings.warn(
-            "`create_frequency_sweep` is deprecated. Use `create_linear_count_sweep` instead.",
-            DeprecationWarning,
-        )
-
-        return self.create_linear_count_sweep(
-            setupname=setupname,
-            unit=unit,
-            freqstart=freqstart,
-            freqstop=freqstop,
-            num_of_freq_points=num_of_freq_points,
-            sweepname=sweepname,
-            save_fields=save_fields,
-            save_rad_fields=save_rad_fields,
-            sweep_type=sweeptype,
-            interpolation_tol=interpolation_tol,
-            interpolation_max_solutions=interpolation_max_solutions,
-        )
 
     @pyaedt_function_handler()
     def create_linear_count_sweep(
@@ -1643,6 +1568,9 @@ class Hfss(FieldAnalysis3D, object):
     ):
         """Create a circuit port taking the closest edges of two objects.
 
+        .. deprecated:: 0.6.70
+        Use :func:`circuit_port` method instead.
+
         Parameters
         ----------
         startobj :
@@ -1689,23 +1617,26 @@ class Hfss(FieldAnalysis3D, object):
         'CircuitExample'
 
         """
-
-        if not self.modeler.does_object_exists(startobj) or not self.modeler.does_object_exists(endobject):
-            self.logger.error("One or both objects do not exist. Check and retry.")
-            return False
-        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
-            out, parallel = self.modeler.find_closest_edges(startobj, endobject, axisdir)
-            port_edges = []
-            portname = self._get_unique_source_name(portname, "Port")
-
-            return self._create_circuit_port(out, impedance, portname, renorm, deemb, renorm_impedance=renorm_impedance)
-        return False  # pragma: no cover
+        warnings.warn("Use :func:`circuit_port` method instead.", DeprecationWarning)
+        return self.circuit_port(
+            signal=startobj,
+            reference=endobject,
+            port_location=axisdir,
+            impedance=impedance,
+            name=portname,
+            renormalize=renorm,
+            renorm_impedance=renorm_impedance,
+            deembed=deemb,
+        )
 
     @pyaedt_function_handler()
     def create_lumped_port_between_objects(
         self, startobj, endobject, axisdir=0, impedance=50, portname=None, renorm=True, deemb=False, port_on_plane=True
     ):
         """Create a lumped port taking the closest edges of two objects.
+
+        .. deprecated:: 0.6.70
+        Use :func:`lumped_port` method instead.
 
         Parameters
         ----------
@@ -1756,37 +1687,18 @@ class Hfss(FieldAnalysis3D, object):
         'LumpedPort'
 
         """
-        startobj = self.modeler.convert_to_selections(startobj)
-        endobject = self.modeler.convert_to_selections(endobject)
-        if not self.modeler.does_object_exists(startobj) or not self.modeler.does_object_exists(endobject):
-            self.logger.error("One or both objects do not exist. Check and retry.")
-            return False
-
-        if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
-            sheet_name, point0, point1 = self.modeler._create_sheet_from_object_closest_edge(
-                startobj, endobject, axisdir, port_on_plane
-            )
-
-            portname = self._get_unique_source_name(portname, "Port")
-
-            if "Modal" in self.solution_type:
-                return self._create_lumped_driven(sheet_name, point0, point1, impedance, portname, renorm, deemb)
-            else:
-                faces = self.modeler.get_object_faces(sheet_name)
-                if deemb:
-                    deembed = 0
-                else:
-                    deembed = None
-                return self._create_port_terminal(
-                    faces[0],
-                    endobject,
-                    portname,
-                    renorm=renorm,
-                    deembed=deembed,
-                    iswaveport=False,
-                    impedance=impedance,
-                )
-        return False  # pragma: no cover
+        warnings.warn("Use :func:`lumped_port` method instead.", DeprecationWarning)
+        return self.lumped_port(
+            signal=startobj,
+            reference=endobject,
+            create_port_sheet=True,
+            port_on_plane=port_on_plane,
+            integration_line=axisdir,
+            impedance=impedance,
+            name=portname,
+            renormalize=renorm,
+            deembed=deemb,
+        )
 
     @pyaedt_function_handler()
     def create_spiral_lumped_port(self, start_object, end_object, port_width=None):
@@ -1894,7 +1806,7 @@ class Hfss(FieldAnalysis3D, object):
 
         spiral = self.modeler.create_spiral_on_face(closest_faces[0], spiral_width, filling_factor=filling)
         spiral.name = name
-        spiral.translate(move_vector_mid)
+        spiral.move(move_vector_mid)
         spiral_center = GeometryOperators.get_mid_point(closest_faces[0].center, closest_faces[1].center)
 
         # get the polyline center point (before width operation). They need to be moved as well.
@@ -2784,17 +2696,6 @@ class Hfss(FieldAnalysis3D, object):
         return None
 
     @pyaedt_function_handler()
-    def SARSetup(self, Tissue_object_List_ID, TissueMass=1, MaterialDensity=1, voxel_size=1, Average_SAR_method=0):
-        """Define SAR settings.
-
-        .. deprecated:: 0.4.5
-           Use :func:`Hfss.sar_setup` instead.
-
-        """
-        warnings.warn("`SARSetup` is deprecated. Use `sar_setup` instead.", DeprecationWarning)
-        self.sar_setup(Tissue_object_List_ID, TissueMass, MaterialDensity, voxel_size, Average_SAR_method)
-
-    @pyaedt_function_handler()
     def sar_setup(self, Tissue_object_List_ID, TissueMass=1, MaterialDensity=1, voxel_size=1, Average_SAR_method=0):
         """Define SAR settings.
 
@@ -3370,21 +3271,6 @@ class Hfss(FieldAnalysis3D, object):
         )
 
     @pyaedt_function_handler()
-    def assig_voltage_source_to_sheet(self, sheet_name, axisdir=0, sourcename=None):
-        """Create a voltage source taking one sheet.
-
-        .. deprecated:: 0.4.0
-           Use :func:`Hfss.assign_voltage_source_to_sheet` instead.
-
-        """
-
-        warnings.warn(
-            "`assig_voltage_source_to_sheet` is deprecated. Use `assign_voltage_source_to_sheet` instead.",
-            DeprecationWarning,
-        )
-        self.assign_voltage_source_to_sheet(sheet_name, axisdir, sourcename)
-
-    @pyaedt_function_handler()
     def assign_voltage_source_to_sheet(self, sheet_name, axisdir=0, sourcename=None):
         """Create a voltage source taking one sheet.
 
@@ -3739,8 +3625,10 @@ class Hfss(FieldAnalysis3D, object):
         deembed=False,
     ):
         """Create a circuit port from two edges.
-
         The integration line is from edge 2 to edge 1.
+
+        .. deprecated:: 0.6.70
+        Use :func:`circuit_port` method instead.
 
         Parameters
         ----------
@@ -3795,12 +3683,16 @@ class Hfss(FieldAnalysis3D, object):
         'PortExample'
 
         """
-
-        edge_list = [edge_signal, edge_gnd]
-        port_name = self._get_unique_source_name(port_name, "Port")
-
-        return self._create_circuit_port(
-            edge_list, port_impedance, port_name, renormalize, deembed, renorm_impedance=renorm_impedance
+        warnings.warn("Use :func:`circuit_port` method instead.", DeprecationWarning)
+        return self.circuit_port(
+            signal=edge_signal,
+            reference=edge_gnd,
+            port_location=0,
+            impedance=port_impedance,
+            name=port_name,
+            renormalize=renormalize,
+            renorm_impedance=renorm_impedance,
+            deembed=deembed,
         )
 
     @pyaedt_function_handler()
@@ -6064,14 +5956,15 @@ class Hfss(FieldAnalysis3D, object):
         name=None,
         renormalize=True,
         deembed=False,
+        terminals_rename=True,
     ):
         """Create a waveport taking the closest edges of two objects.
 
         Parameters
         ----------
-        signal : int, list or :class:`pyaedt.modeler.object3d.Object3d` or
+        signal : str, int, list or :class:`pyaedt.modeler.object3d.Object3d` or
          :class:`pyaedt.modeler.elements3d.FacePrimitive`
-            Starting object for the integration line.
+            Main object for port creation or starting object for the integration line.
         reference : int, list or :class:`pyaedt.modeler.object3d.Object3d`
             Ending object for the integration line or reference for Terminal solution. Can be multiple objects.
         create_port_sheet : bool, optional
@@ -6093,6 +5986,8 @@ class Hfss(FieldAnalysis3D, object):
         deembed : float, optional
             Deembed distance in millimeters. The default is ``0``,
             in which case deembed is disabled.
+        terminals_rename : bool, optional
+            Modify terminals name with the port name plus the terminal number. The default value is ``True``.
 
         Returns
         -------
@@ -6164,6 +6059,7 @@ class Hfss(FieldAnalysis3D, object):
                     deembed=deembed,
                     iswaveport=False,
                     impedance=impedance,
+                    terminals_rename=terminals_rename,
                 )
         return False
 
@@ -6184,15 +6080,16 @@ class Hfss(FieldAnalysis3D, object):
         is_microstrip=False,
         vfactor=3,
         hfactor=5,
+        terminals_rename=True,
     ):
         """Create a waveport from a sheet (``start_object``) or taking the closest edges of two objects.
 
         Parameters
         ----------
-        signal : int, list or :class:`pyaedt.modeler.object3d.Object3d` or
+        signal : int, str, :class:`pyaedt.modeler.object3d.Object3d` or
          :class:`pyaedt.modeler.elements3d.FacePrimitive`
-            Starting object for the integration line.
-        reference : int, list or :class:`pyaedt.modeler.object3d.Object3d`
+            Main object for port creation or starting object for the integration line.
+        reference : int, str, list or :class:`pyaedt.modeler.object3d.Object3d`
             Ending object for the integration line or reference for Terminal solution. Can be multiple objects.
         create_port_sheet : bool, optional
             Whether to create a port sheet or use given start_object as port shee.
@@ -6224,6 +6121,8 @@ class Hfss(FieldAnalysis3D, object):
             Port vertical factor. Only valid if ``is_microstrip`` is enabled. The default is ``3``.
         hfactor : int, optional
             Port horizontal factor. Only valid if ``is_microstrip`` is enabled. The default is ``5``.
+        terminals_rename : bool, optional
+            Modify terminals name with the port name plus the terminal number. The default value is ``True``.
 
         Returns
         -------
@@ -6335,6 +6234,7 @@ class Hfss(FieldAnalysis3D, object):
                     deembed=deembed,
                     iswaveport=True,
                     impedance=impedance,
+                    terminals_rename=terminals_rename,
                 )
             else:
                 self.logger.error("Reference conductors are missing.")

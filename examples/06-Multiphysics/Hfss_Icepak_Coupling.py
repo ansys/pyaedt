@@ -127,12 +127,12 @@ aedtapp.wave_port(signal="inner",
                   reference="outer",
                   integration_line=1,
                   create_port_sheet=True,
-                  add_pec_cap=True,
+                  create_pec_cap=True,
                   name="P1")
 aedtapp.wave_port(signal="inner",
                   reference="outer",
                   integration_line=4,
-                  add_pec_cap=True,
+                  create_pec_cap=True,
                   create_port_sheet=True,
                   name="P2")
 
@@ -184,7 +184,7 @@ ipkapp.assign_em_losses(designname=aedtapp.design_name, setupname="MySetup", swe
 # ~~~~~~~~~~~~~~~~~~~~
 # Edit the gravity setting if necessary because it is important for a fluid analysis.
 
-ipkapp.edit_design_settings(aedtapp.GravityDirection.ZNeg)
+ipkapp.edit_design_settings(aedtapp.GRAVITY.ZNeg)
 
 ################################################################################
 # Set up Icepak project

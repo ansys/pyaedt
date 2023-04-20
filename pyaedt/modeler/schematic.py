@@ -405,11 +405,14 @@ class ModelerCircuit(Modeler):
     def _arg_with_dim(self, value, units=None):
         if units is None:
             units = self.schematic_units
-        if isinstance(value, str):
-            val = value
+        if type(value) is str:
+            try:
+                float(value)
+                val = "{0}{1}".format(value, units)
+            except:
+                val = value
         else:
             val = "{0}{1}".format(value, units)
-
         return val
 
 
@@ -533,8 +536,7 @@ class ModelerNexxim(ModelerCircuit):
         pos : list
             Offset for the ``[x, y]`` axis.
         units : str
-            Units of the movement. The default is ``"meter"``. If ``None``,
-            ``schematic_units` are used.
+            Units of the movement. The default is ``meter``. If ``None``, ``schematic_units`` are used.
 
         Returns
         -------

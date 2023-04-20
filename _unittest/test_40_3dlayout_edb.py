@@ -39,7 +39,10 @@ class TestClass(BasisTest, object):
         self.target_path = os.path.join(self.local_scratch.path, "Package_test_40.aedb")
         self.local_scratch.copyfolder(example_project, self.target_path)
         self.package_file = self.local_scratch.copyfile(src_file, dest_file)
-        self.dcir_example_project = os.path.join(local_path, "example_models", test_subfolder, "Galileo_22r2_dcir.aedt")
+
+        self.dcir_example_project = BasisTest.add_app(
+            self, project_name="Galileo_22r2_dcir", application=Hfss3dLayout, subfolder=test_subfolder
+        )
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -134,6 +137,9 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.modeler.layers.drawing_layers) > 0
         assert len(self.aedtapp.modeler.layers.all_signal_layers) > 0
         assert len(self.aedtapp.modeler.layers.all_diel_layers) > 0
+        assert len(self.aedtapp.modeler.stackup.all_signal_layers) == len(self.aedtapp.modeler.stackup.signals)
+        assert len(self.aedtapp.modeler.stackup.all_diel_layers) == len(self.aedtapp.modeler.stackup.dielectrics)
+        assert len(self.aedtapp.modeler.stackup.stackup_layers) == len(self.aedtapp.modeler.stackup.drawings)
         assert len(self.aedtapp.modeler.layers.all_signal_layers) + len(
             self.aedtapp.modeler.layers.all_diel_layers
         ) == len(self.aedtapp.modeler.layers.stackup_layers)
@@ -216,6 +222,17 @@ class TestClass(BasisTest, object):
         hfss3d = Hfss3dLayout(self.package_file, "FlipChip_TopBot", specified_version=desktop_version)
         brd = Hfss3dLayout(hfss3d.project_name, "Dummy_Board", specified_version=desktop_version)
         comp = brd.modeler.merge_design(hfss3d, rotation=90)
+        assert comp.location[0] == 0.0
+        assert comp.rotation_axis == "Z"
+        comp.rotation_axis = "X"
+        assert comp.rotation_axis == "X"
+        comp.rotation_axis = "Z"
+        comp.rotation_axis_direction = [0, 0, 1.2]
+        assert comp.rotation_axis_direction == [0, 0, 1.2]
+        assert not comp.is_flipped
+        comp.is_flipped = True
+        assert comp.is_flipped
+        comp.is_flipped = False
         assert comp.location[0] == 0.0
         assert comp.location[1] == 0.0
         assert comp.angle == "90deg"
@@ -312,22 +329,23 @@ class TestClass(BasisTest, object):
     def test_19_dcir(self):
         import pandas as pd
 
-        lock = self.dcir_example_project + ".lock"
-        if os.path.isfile(lock):
-            os.remove(lock)
-        hfss3d = Hfss3dLayout(self.dcir_example_project, "Galileo_G87173_204", specified_version=desktop_version)
-        assert hfss3d.get_dcir_solution_data("Siwave_DC_WP9QNY", "RL", "Path Resistance")
-        assert hfss3d.get_dcir_solution_data("Siwave_DC_WP9QNY", "Vias", "Current")
-        solution_data = hfss3d.get_dcir_solution_data("Siwave_DC_WP9QNY", "Sources", "Voltage")
-        assert hfss3d.post.available_report_quantities(is_siwave_dc=True, context="")
-        assert hfss3d.post.create_report(
-            hfss3d.post.available_report_quantities(is_siwave_dc=True, context="RL")[0],
+        self.dcir_example_project.analyze()
+        assert self.dcir_example_project.get_dcir_solution_data("Siwave_DC_WP9QNY", "RL", "Path Resistance")
+        assert self.dcir_example_project.get_dcir_solution_data("Siwave_DC_WP9QNY", "Vias", "Current")
+        solution_data = self.dcir_example_project.get_dcir_solution_data("Siwave_DC_WP9QNY", "Sources", "Voltage")
+        assert self.dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="")
+        assert self.dcir_example_project.post.create_report(
+            self.dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="RL")[0],
             setup_sweep_name="Siwave_DC_WP9QNY",
             domain="DCIR",
             context="RL",
         )
-        assert isinstance(hfss3d.get_dcir_element_data_loop_resistance("Siwave_DC_WP9QNY"), pd.DataFrame)
-        assert isinstance(hfss3d.get_dcir_element_data_current_source("Siwave_DC_WP9QNY"), pd.DataFrame)
+        assert isinstance(
+            self.dcir_example_project.get_dcir_element_data_loop_resistance("Siwave_DC_WP9QNY"), pd.DataFrame
+        )
+        assert isinstance(
+            self.dcir_example_project.get_dcir_element_data_current_source("Siwave_DC_WP9QNY"), pd.DataFrame
+        )
 
     def test_20_change_options(self):
         assert self.aedtapp.change_options()

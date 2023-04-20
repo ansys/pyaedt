@@ -30,7 +30,7 @@ jobs:
 
       - name: Install doc build requirements
         run: |
-          pip install -r requirements/requirements_docs.txt
+           pip install .[doc]
 
       - name: Full Documentation Build
         run: |

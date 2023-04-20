@@ -33,7 +33,7 @@ PyAEDT app to get access to all modules and methods. Available apps are:
 - `Icepak <https://www.ansys.com/products/electronics>`_
 - `Mechanical <https://www.ansys.com/products/structures/ansys-mechanical>`_
 - RMXprt
-- Emit
+- EMIT
 - Circuit
 - `TwinBuilder <https://www.ansys.com/products/digital-twin/ansys-twin-builder>`_
 
@@ -47,7 +47,7 @@ Example with ``Desktop`` class explicit initialization:
 .. code:: python
 
     from pyaedt import launch_desktop, Circuit
-    d = launch_desktop(specified_version="2022.2",
+    d = launch_desktop(specified_version="2023.1",
                        non_graphical=False,
                        new_desktop_session=True,
                        close_on_exit=True,
@@ -63,7 +63,7 @@ Example with ``Desktop`` class implicit initialization:
 .. code:: python
 
     from pyaedt import Circuit
-    circuit = Circuit(specified_version="2022.2",
+    circuit = Circuit(specified_version="2023.1",
                       non_graphical=False,
                       new_desktop_session=True,
                       close_on_exit=True,

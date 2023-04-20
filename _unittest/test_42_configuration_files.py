@@ -41,7 +41,7 @@ class TestClass(BasisTest, object):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, subfolder=test_subfolder)
         self.q3dtest = BasisTest.add_app(self, project_name=q3d_file, application=Q3d, subfolder=test_subfolder)
-        self.q2dtest = Q2d(projectname=q3d_file)
+        self.q2dtest = Q2d(projectname=q3d_file, specified_version=config["desktopVersion"])
         self.icepak_a = BasisTest.add_app(self, project_name=ipk_name + "_a", application=Icepak)
         self.icepak_b = BasisTest.add_app(self, project_name=ipk_name + "_b", application=Icepak)
         self.hfss3dl_a = BasisTest.add_app(
@@ -61,7 +61,9 @@ class TestClass(BasisTest, object):
         filename = self.aedtapp.design_name
         file_path = os.path.join(self.aedtapp.working_directory, filename + ".x_t")
         self.aedtapp.export_3d_model(filename, self.aedtapp.working_directory, ".x_t", [], [])
-        app = Hfss(projectname="new_proj", solution_type=self.aedtapp.solution_type)
+        app = Hfss(
+            projectname="new_proj", solution_type=self.aedtapp.solution_type, specified_version=config["desktopVersion"]
+        )
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
         app.close_project(save_project=False)
@@ -75,7 +77,7 @@ class TestClass(BasisTest, object):
         filename = self.q3dtest.design_name
         file_path = os.path.join(self.q3dtest.working_directory, filename + ".x_t")
         self.q3dtest.export_3d_model(filename, self.q3dtest.working_directory, ".x_t", [], [])
-        app = Q3d(projectname="new_proj_Q3d")
+        app = Q3d(projectname="new_proj_Q3d", specified_version=config["desktopVersion"])
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
         app.close_project(save_project=False)
@@ -89,7 +91,7 @@ class TestClass(BasisTest, object):
         filename = self.q2dtest.design_name
         file_path = os.path.join(self.q2dtest.working_directory, filename + ".x_t")
         self.q2dtest.export_3d_model(filename, self.q2dtest.working_directory, ".x_t", [], [])
-        app = Q2d(projectname="new_proj_Q2d")
+        app = Q2d(projectname="new_proj_Q2d", specified_version=config["desktopVersion"])
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
         app.close_project(save_project=False)
@@ -183,7 +185,7 @@ class TestClass(BasisTest, object):
         assert self.icepak_a.configurations.export_config()
         f.delete()
         file_path = os.path.join(self.icepak_a.working_directory, filename + ".x_t")
-        app = Icepak(projectname="new_proj_Ipk_a")
+        app = Icepak(projectname="new_proj_Ipk_a", specified_version=config["desktopVersion"])
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
         assert isinstance(out, dict)
@@ -249,7 +251,7 @@ class TestClass(BasisTest, object):
         conf_file = self.icepak_b.configurations.export_config()
         assert os.path.exists(conf_file)
         file_path = os.path.join(self.icepak_b.working_directory, filename + ".x_t")
-        app = Icepak(projectname="new_proj_Ipk")
+        app = Icepak(projectname="new_proj_Ipk", specified_version=config["desktopVersion"])
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
         assert isinstance(out, dict)

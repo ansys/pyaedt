@@ -330,7 +330,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.modeler.create_box([1, 2, 3], [10, 10, 10], "network_box", "copper")
         self.aedtapp.modeler.create_box([4, 5, 6], [5, 5, 5], "network_box2", "copper")
         result = self.aedtapp.create_network_blocks(
-            [["network_box", 20, 10, 3], ["network_box2", 4, 10, 3]], self.aedtapp.GravityDirection.ZNeg, 1.05918, False
+            [["network_box", 20, 10, 3], ["network_box2", 4, 10, 3]], self.aedtapp.GRAVITY.ZNeg, 1.05918, False
         )
         assert (
             len(result[0].props["Nodes"]) == 3 and len(result[1].props["Nodes"]) == 3
@@ -455,6 +455,46 @@ class TestClass(BasisTest, object):
             temperature="28cel",
         )
         assert self.aedtapp.create_source_power(self.aedtapp.modeler["boxSource"].name, input_power="20W")
+        self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="boxSource2")
+        x = [1, 2, 3]
+        y = [3, 4, 5]
+        self.aedtapp.create_dataset1d_design("Test_DataSet", x, y)
+        assert self.aedtapp.assign_source(
+            self.aedtapp.modeler["boxSource"].top_face_z.id,
+            "Total Power",
+            "10W",
+            voltage_current_choice="Current",
+            voltage_current_value="1A",
+        )
+        assert not self.aedtapp.assign_source(
+            self.aedtapp.modeler["boxSource"].top_face_x.id,
+            "Total Power",
+            assignment_value={"Type": "Temp Dep", "Function": "Piecewise Linear", "Values": ["1W", "Test_DataSet"]},
+            voltage_current_choice="Current",
+            voltage_current_value={"Type": "Transient", "Function": "Sinusoidal", "Values": ["0A", 1, 1, "1s"]},
+        )
+        assert not self.aedtapp.assign_source(
+            self.aedtapp.modeler["boxSource"].top_face_x.id,
+            "Total Power",
+            assignment_value={"Type": "Temp Dep", "Function": "Sinusoidal", "Values": ["0W", 1, 1, "1K"]},
+            voltage_current_choice="Current",
+            voltage_current_value={"Type": "Transient", "Function": "Sinusoidal", "Values": ["0A", 1, 1, "1s"]},
+        )
+        self.aedtapp.solution_type = "Transient"
+        assert self.aedtapp.assign_source(
+            self.aedtapp.modeler["boxSource"].top_face_x.id,
+            "Total Power",
+            assignment_value={"Type": "Temp Dep", "Function": "Piecewise Linear", "Values": ["1mW", "Test_DataSet"]},
+            voltage_current_choice="Current",
+            voltage_current_value={"Type": "Transient", "Function": "Sinusoidal", "Values": ["0A", 1, 1, "1s"]},
+        )
+        assert self.aedtapp.assign_source(
+            self.aedtapp.modeler["boxSource"].top_face_y.id,
+            "Total Power",
+            assignment_value={"Type": "Temp Dep", "Function": "Piecewise Linear", "Values": "Test_DataSet"},
+            voltage_current_choice="Current",
+            voltage_current_value={"Type": "Transient", "Function": "Sinusoidal", "Values": ["0A", 1, 1, "1s"]},
+        )
 
     def test_34_import_idf(self):
         self.aedtapp.insert_design("IDF")
