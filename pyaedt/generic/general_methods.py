@@ -4,6 +4,7 @@ from __future__ import absolute_import
 import ast
 import codecs
 from collections import OrderedDict
+from contextlib import contextmanager
 import csv
 import datetime
 import difflib
@@ -22,11 +23,7 @@ import sys
 import tempfile
 import time
 import traceback
-
 import warnings
-from collections import OrderedDict
-from contextlib import contextmanager
-from functools import update_wrapper
 
 from pyaedt.generic.constants import CSS4_COLORS
 
