@@ -998,7 +998,7 @@ class Components(object):
             )
             pin_layers = self._padstack._get_pin_layer_range(pins[0])
             pos_pin_term = self._pedb.edb.Cell.Terminal.PointTerminal.Create(
-                self._active_layout, pins[0].GetNet(), pins[0].GetName(), pt, pin_layers[0]
+                self._active_layout, pins[0].GetNet(), f"{component.refdes}_{pins[0].GetName()}", pt, pin_layers[0]
             )
             if not pos_pin_term:  # pragma: no cover
                 return False
@@ -1007,7 +1007,7 @@ class Components(object):
                 self._get_edb_value(neg_pin_loc[0]), self._get_edb_value(neg_pin_loc[1])
             )
             neg_pin_term = self._pedb.edb.Cell.Terminal.PointTerminal.Create(
-                self._active_layout, pins[1].GetNet(), pins[1].GetName() + "_ref", pt, pin_layers[0]
+                self._active_layout, pins[1].GetNet(), f"{component.refdes}_{pins[1].GetName()}_ref", pt, pin_layers[0]
             )
             if not neg_pin_term:  # pragma: no cover
                 return False
