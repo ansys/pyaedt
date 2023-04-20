@@ -384,3 +384,5 @@ model.index.bak
 model.index.tmp
 model.index\+
 
+# local environment settings used by e.g. Visual Studio Code
+/.env
