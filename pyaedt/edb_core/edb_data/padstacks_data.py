@@ -1,7 +1,7 @@
+from collections import OrderedDict
 import math
 import warnings
 
-from collections import OrderedDict
 from pyaedt import is_ironpython
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.general import convert_py_list_to_net_list
@@ -183,9 +183,13 @@ class EDBPadProperties(object):
         elif self.shape == PadGeometryTpe.Rectangle.name:
             return OrderedDict({"XSize": EdbValue(value[0]), "YSize": EdbValue(value[1])})
         elif self.shape in [PadGeometryTpe.Oval.name, PadGeometryTpe.Bullet.name]:
-            return OrderedDict({"XSize": EdbValue(value[0]), "YSize": EdbValue(value[1]), "CornerRadius": EdbValue(value[2])})
+            return OrderedDict(
+                {"XSize": EdbValue(value[0]), "YSize": EdbValue(value[1]), "CornerRadius": EdbValue(value[2])}
+            )
         elif self.shape in [PadGeometryTpe.Round45.name, PadGeometryTpe.Round90.name]:
-            return OrderedDict({"Inner": EdbValue(value[0]), "ChannelWidth": EdbValue(value[1]), "IsolationGap": EdbValue(value[2])})
+            return OrderedDict(
+                {"Inner": EdbValue(value[0]), "ChannelWidth": EdbValue(value[1]), "IsolationGap": EdbValue(value[2])}
+            )
         else:
             return OrderedDict()
 
