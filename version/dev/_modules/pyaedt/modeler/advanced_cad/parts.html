@@ -1,0 +1,1056 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyaedt.modeler.advanced_cad.parts &#8212; PyAEDT</title>
+    
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/ansys_sphinx_theme.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    
+        <link href="../../../../_static/css/breadcrumbs.css" rel="stylesheet">
+    
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
+    <script src="../../../../_static/js/table.js"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pyaedt/modeler/advanced_cad/parts';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://aedt.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        </script>
+    <link rel="shortcut icon" href="../../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container"><!-- Debugging: html_theme_options =  -->
+
+  <!-- If there is no MiliSearch enabled, use the PyData search -->
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../../../../_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../Getting_started/index.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../User_guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../API/index.html">
+                        AEDT API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../EDBAPI/index.html">
+                        EDB API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../Contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      dev  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt/discussions" title="Support" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+</div>
+
+    </nav>
+  
+
+    
+    <div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(text => document.getElementById("announcement_msg").innerHTML = text)
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+    
+
+    
+    <div class="container-xl">
+    <div class="row">
+        <div class="col-12 col-md-3" id="breadcrumbs-spacer"></div>
+        <div class="col-12 col-md-11 col-xl-9" id="breadcrumbs">
+          
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-additional-breadcrumb"><a href="https://docs.pyansys.com/">PyAnsys</a> » </li>
+    
+    
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">PyAEDT</a> » </li>
+    
+
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> » </li>
+        <li class="nav-item nav-item-this"><a href="">pyaedt.modeler.advanced_cad.parts</a></li> 
+      </ul>
+    </div>
+        </div>
+  </div>
+</div>
+    
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../Getting_started/index.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../User_guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../API/index.html">
+                        AEDT API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../EDBAPI/index.html">
+                        EDB API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../Contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      dev  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt/discussions" title="Support" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article"></div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for pyaedt.modeler.advanced_cad.parts</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">pyaedt_function_handler</span>
+<span class="kn">from</span> <span class="nn">pyaedt.modeler.geometry_operators</span> <span class="kn">import</span> <span class="n">GeometryOperators</span>
+
+
+<div class="viewcode-block" id="Part"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.advanced_cad.parts.Part.html#pyaedt.modeler.advanced_cad.parts.Part">[docs]</a><span class="k">class</span> <span class="nc">Part</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manages 3D component placement and definition.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    part_folder : str</span>
+<span class="sd">        Path to the folder with the A3DCOMP files.</span>
+<span class="sd">    part_dict : dict</span>
+<span class="sd">        Defines relevant properties of the class with the following keywords:</span>
+<span class="sd">        * &#39;comp_name&#39;: str, Name of the A3DCOMP file.</span>
+<span class="sd">        * &#39;offset&#39;: list or str, Offset coordinate system definition relative to the parent.</span>
+<span class="sd">        * &#39;rotation_cs&#39;: list or str, Rotation coordinate system relative to the parent.</span>
+<span class="sd">        * &#39;rotation&#39;: str or numeric, Rotation angle.</span>
+<span class="sd">        * &#39;compensation_angle&#39;: str or numeric, Initial angle.</span>
+<span class="sd">        * &#39;rotation_axis&#39;: str, Rotation axis (``&quot;X&quot;``, ``&quot;Y&quot;``, or ``&quot;Z&quot;``).</span>
+<span class="sd">        * &#39;duplicate_number&#39;: str or int, Number of instances for linear duplication.</span>
+<span class="sd">        * &#39;duplicate_vector&#39;: list, Vector for duplication relative to the parent coordinate system.</span>
+<span class="sd">    parent :  str</span>
+<span class="sd">        The default is ``None``.</span>
+<span class="sd">    name : str, optional</span>
+<span class="sd">        Name of the A3DCOMP file without the extension. The default is ``None``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># List of known keys for a part and default values:</span>
+    <span class="n">allowed_keys</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;comp_name&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># *.a3dcomp file name</span>
+        <span class="s2">&quot;offset&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;rotation_cs&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;rotation&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="s2">&quot;compensation_angle&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;rotation_axis&quot;</span><span class="p">:</span> <span class="s2">&quot;Z&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;tire_radius&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;duplicate_number&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;duplicate_vector&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;antenna_type&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Antenna only</span>
+        <span class="s2">&quot;ffd_name&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Antenna only</span>
+        <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Antenna only</span>
+        <span class="s2">&quot;aedt_name&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;beamwidth_elevation&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Antenna only</span>
+        <span class="s2">&quot;beamwidth_azimuth&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Antenna only</span>
+        <span class="s2">&quot;polarization&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">}</span>  <span class="c1"># Antenna only</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">part_folder</span><span class="p">,</span> <span class="n">part_dict</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># Default values:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_compdef</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_multiparts</span> <span class="o">=</span> <span class="n">parent</span>
+
+        <span class="c1"># Extract the 3D component name and part folder</span>
+        <span class="c1"># from the file name.</span>
+        <span class="c1"># Use this as the default value for comp_name.  Ensure that the correct extension is used.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_compdef</span><span class="p">[</span><span class="s2">&quot;part_folder&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">part_folder</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">Part</span><span class="o">.</span><span class="n">allowed_keys</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">part_dict</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_compdef</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">part_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_compdef</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">Part</span><span class="o">.</span><span class="n">allowed_keys</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_motion</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">parent</span><span class="p">:</span>  <span class="c1"># Inherit _motion directly from parent.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_motion</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_multiparts</span><span class="o">.</span><span class="n">motion</span>
+
+        <span class="c1"># make sure self._name is unique if it is not passed as an argument.</span>
+        <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>  <span class="c1"># Part name should be unique. No checking here.</span>
+        <span class="k">elif</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">part_dict</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">part_dict</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;radar&quot;</span>  <span class="c1"># TODO: Need to fix this!</span>
+
+        <span class="c1"># Update self._compdef from the library definition in the *.json file.</span>
+
+        <span class="k">for</span> <span class="n">kw</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">part_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">kw</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compdef</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_compdef</span><span class="p">[</span><span class="n">kw</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;Key &quot;</span> <span class="o">+</span> <span class="n">kw</span> <span class="o">+</span> <span class="s2">&quot; not allowed.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Instantiate yaw, pitch and roll.  Might want to change</span>
+        <span class="c1"># how this is handled. Make &quot;rotation&quot; a list instead of</span>
+        <span class="c1"># using .yaw, .pitch, .roll properties?</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rot_axis</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span>  <span class="c1"># [X, Y, Z] rotation Boolean</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compdef</span><span class="p">[</span><span class="s2">&quot;rotation_axis&quot;</span><span class="p">]:</span>
+            <span class="n">rotations_axis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compdef</span><span class="p">[</span><span class="s2">&quot;rotation_axis&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compdef</span><span class="p">[</span><span class="s2">&quot;rotation&quot;</span><span class="p">]:</span>
+                <span class="n">rotations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compdef</span><span class="p">[</span><span class="s2">&quot;rotation&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rotations</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rotations</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">rotations_axis</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span>  <span class="c1"># roll</span>
+                    <span class="n">r</span> <span class="o">=</span> <span class="n">a</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">rot_axis</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">elif</span> <span class="n">rotations_axis</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span>  <span class="c1"># pitch</span>
+                    <span class="n">p</span> <span class="o">=</span> <span class="n">a</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">rot_axis</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">elif</span> <span class="n">rotations_axis</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span>  <span class="c1"># yaw</span>
+                    <span class="n">y</span> <span class="o">=</span> <span class="n">a</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">rot_axis</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_yaw</span> <span class="o">=</span> <span class="n">y</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pitch</span> <span class="o">=</span> <span class="n">p</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_roll</span> <span class="o">=</span> <span class="n">r</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_yaw</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pitch</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_roll</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_compdef</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;rotation_cs&quot;</span><span class="p">:</span>
+            <span class="n">cs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compdef</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">cs</span> <span class="o">==</span> <span class="s2">&quot;Global&quot;</span> <span class="ow">or</span> <span class="n">cs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_compdef</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_compdef</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">i</span> <span class="ow">is</span> <span class="nb">str</span> <span class="k">else</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">cs</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compdef</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Part.zero_offset"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.advanced_cad.parts.Part.zero_offset.html#pyaedt.modeler.advanced_cad.parts.Part.zero_offset">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">zero_offset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kw</span><span class="p">):</span>  <span class="c1"># Returns True if cs at kw is at [0, 0, 0]</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the coordinate system defined by kw is [0, 0, 0].</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        kw : str</span>
+<span class="sd">             Coordinate system for kw. Options are ``offset`` and ``rotation_cs``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">kw</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;offset&quot;</span><span class="p">,</span> <span class="s2">&quot;rotation_cs&quot;</span><span class="p">]:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="p">[</span><span class="n">kw</span><span class="p">]:</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="n">GeometryOperators</span><span class="o">.</span><span class="n">is_small</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">kw</span><span class="p">]]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">file_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Antenna file name.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Full name of the A3DCOMP file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_compdef</span><span class="p">[</span><span class="s2">&quot;part_folder&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;comp_name&quot;</span><span class="p">])</span>
+
+    <span class="c1"># Create a unique coordinate system name for the part.</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cs_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Coordinate system name.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Name of the coordinate system.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_motion</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">zero_offset</span><span class="p">(</span><span class="s2">&quot;offset&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">zero_offset</span><span class="p">(</span><span class="s2">&quot;rotation_cs&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_cs&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_multiparts</span><span class="o">.</span><span class="n">cs_name</span>
+
+    <span class="c1"># Define the variable names for angles in the app:</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">yaw_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Yaw variable name. Yaw is the rotation about the object&#39;s Z-axis.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            ame of the yaw variable.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_yaw&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pitch_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pitch variable name. Pitch is the rotation about the object&#39;s Y-axis.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Name of the pitch variable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_pitch&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">roll_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Roll variable name. Roll is the rotation about the object&#39;s X-axis.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">             Name of the roll variable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_roll&quot;</span>
+
+    <span class="c1"># Always return the local origin as a list:</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">local_origin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Local part offset values.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of offset values for the local part.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;offset&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">zero_offset</span><span class="p">(</span><span class="s2">&quot;offset&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;offset&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Global&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_multiparts</span><span class="o">.</span><span class="n">_local_units</span><span class="p">:</span>
+                    <span class="n">units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_multiparts</span><span class="o">.</span><span class="n">_local_units</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_multiparts</span><span class="o">.</span><span class="n">modeler_units</span>
+                <span class="n">offset</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="n">units</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;offset&quot;</span><span class="p">]]</span>
+
+                <span class="k">return</span> <span class="n">offset</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rotate_origin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Origin rotation list.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of offset values for the rotation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;rotation_cs&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">zero_offset</span><span class="p">(</span><span class="s2">&quot;rotation_cs&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;rotation_cs&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Global&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_origin</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;rotation_cs&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_do_rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># True if any rotation angles are non-zero or &#39;rotation_cs&#39; is defined.</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rot_axis</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_do_offset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># True if any rotation angles are non-zero.</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">GeometryOperators</span><span class="o">.</span><span class="n">numeric_cs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">local_origin</span><span class="p">))</span>
+
+    <span class="c1"># Allow expressions should be valid angle as either string</span>
+    <span class="c1"># or numerical value.</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">yaw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Yaw variable value.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Value for the yaw variable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_yaw</span>
+
+    <span class="nd">@yaw</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">yaw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">yaw</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_yaw</span> <span class="o">=</span> <span class="n">yaw</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pitch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pitch variable value.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Value of the pitch variable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pitch</span>
+
+    <span class="nd">@pitch</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">pitch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pitch</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pitch</span> <span class="o">=</span> <span class="n">pitch</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">roll</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Roll variable value.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Value of the roll variable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_roll</span>
+
+    <span class="nd">@roll</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">roll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">roll</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_roll</span> <span class="o">=</span> <span class="n">roll</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Part name.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Name of the part.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_multiparts</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+<div class="viewcode-block" id="Part.set_relative_cs"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.advanced_cad.parts.Part.set_relative_cs.html#pyaedt.modeler.advanced_cad.parts.Part.set_relative_cs">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">set_relative_cs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a parametric coordinate system.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        app : pyaedt.Hfss</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Set x, y, z offset variables in app. But check first to see if the CS</span>
+        <span class="c1"># has already been defined.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cs_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetCoordinateSystems</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">cs_name</span> <span class="o">!=</span> <span class="s2">&quot;Global&quot;</span><span class="p">:</span>
+            <span class="n">x_pointing</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">y_pointing</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_coordinate_system</span><span class="p">(</span>
+                <span class="n">origin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">local_origin</span><span class="p">,</span>
+                <span class="n">x_pointing</span><span class="o">=</span><span class="n">x_pointing</span><span class="p">,</span>
+                <span class="n">y_pointing</span><span class="o">=</span><span class="n">y_pointing</span><span class="p">,</span>
+                <span class="n">reference_cs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_multiparts</span><span class="o">.</span><span class="n">cs_name</span><span class="p">,</span>
+                <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;axis&quot;</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cs_name</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rot_cs_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Rotation coordinate system name.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Name of the rotation coordinate system.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_rot_cs&quot;</span>
+
+<div class="viewcode-block" id="Part.do_rotate"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.advanced_cad.parts.Part.do_rotate.html#pyaedt.modeler.advanced_cad.parts.Part.do_rotate">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">do_rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">aedt_object</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the rotation coordinate system relative to the parent coordinate system.</span>
+
+<span class="sd">        This method should only be called if there is rotation in the component.</span>
+<span class="sd">        The rotation coordinate system is offset from the parent coordinate system.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        app : pyaedt.Hfss</span>
+<span class="sd">            HFSS application instance.</span>
+<span class="sd">        aedt_object : str</span>
+<span class="sd">            Name of the HFSS design.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">x_pointing</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">y_pointing</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_coordinate_system</span><span class="p">(</span>
+            <span class="n">origin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rotate_origin</span><span class="p">,</span>
+            <span class="n">x_pointing</span><span class="o">=</span><span class="n">x_pointing</span><span class="p">,</span>
+            <span class="n">y_pointing</span><span class="o">=</span><span class="n">y_pointing</span><span class="p">,</span>
+            <span class="n">reference_cs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_multiparts</span><span class="o">.</span><span class="n">cs_name</span><span class="p">,</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;axis&quot;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rot_cs_name</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rot_axis</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">app</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">yaw_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">yaw</span>
+            <span class="n">app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">aedt_object</span><span class="p">,</span> <span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">yaw_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rot_axis</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">app</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pitch_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pitch</span>
+            <span class="n">app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">aedt_object</span><span class="p">,</span> <span class="s2">&quot;Y&quot;</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pitch_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rot_axis</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+            <span class="n">app</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">roll_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">roll</span>
+            <span class="n">app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">aedt_object</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">roll_name</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Part.insert"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.advanced_cad.parts.Part.insert.html#pyaedt.modeler.advanced_cad.parts.Part.insert">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Insert 3D component in AEDT.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        app : pyaedt.Hfss</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Name of inserted object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">aedt_objects</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># TODO: Why the inconsistent syntax for cs commands?</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_do_offset</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_relative_cs</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>  <span class="c1"># Create coordinate system, if needed.</span>
+            <span class="n">comp_obj</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">insert_3d_component</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_name</span><span class="p">,</span> <span class="n">targetCS</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cs_name</span><span class="p">)</span>
+            <span class="n">aedt_objects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">comp_obj</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">comp_obj</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">insert_3d_component</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_name</span><span class="p">,</span> <span class="n">targetCS</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_multiparts</span><span class="o">.</span><span class="n">cs_name</span><span class="p">)</span>
+            <span class="n">aedt_objects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">comp_obj</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_do_rotate</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">do_rotate</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">aedt_objects</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="c1"># Duplication occurs in parent coordinate system.</span>
+        <span class="n">app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">set_working_coordinate_system</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_multiparts</span><span class="o">.</span><span class="n">cs_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;duplicate_vector&quot;</span><span class="p">]:</span>
+            <span class="n">d_vect</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;duplicate_vector&quot;</span><span class="p">]]</span>
+            <span class="n">duplicate_result</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">duplicate_along_line</span><span class="p">(</span>
+                <span class="n">aedt_objects</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">d_vect</span><span class="p">,</span> <span class="n">nclones</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="s2">&quot;duplicate_number&quot;</span><span class="p">]),</span> <span class="n">is_3d_comp</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">duplicate_result</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">duplicate_result</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">aedt_objects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">aedt_objects</span></div></div>
+
+
+<div class="viewcode-block" id="Antenna"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.advanced_cad.parts.Antenna.html#pyaedt.modeler.advanced_cad.parts.Antenna">[docs]</a><span class="k">class</span> <span class="nc">Antenna</span><span class="p">(</span><span class="n">Part</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manages antennas.</span>
+
+<span class="sd">    This class is derived from :class:`Part`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    root_folder : str</span>
+<span class="sd">        Root directory</span>
+<span class="sd">    ant_dict : dict</span>
+<span class="sd">        Antenna dictionary</span>
+<span class="sd">    parent : str, optional</span>
+<span class="sd">        The default is ``None``.</span>
+<span class="sd">    name : str, optional</span>
+<span class="sd">        The default is ``None``.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_folder</span><span class="p">,</span> <span class="n">ant_dict</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Antenna</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">root_folder</span><span class="p">,</span> <span class="n">ant_dict</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_antenna_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compdef</span><span class="p">[</span><span class="s2">&quot;antenna_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;parametric&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">app</span><span class="o">.</span><span class="n">SbrAntennas</span><span class="o">.</span><span class="n">ParametricBeam</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compdef</span><span class="p">[</span><span class="s2">&quot;antenna_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;ffd&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;file&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Multi-part component parameters.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary of parameters for a multi-part component.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compdef</span><span class="p">[</span><span class="s2">&quot;antenna_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;parametric&quot;</span><span class="p">:</span>
+            <span class="n">p</span><span class="p">[</span><span class="s2">&quot;Vertical BeamWidth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compdef</span><span class="p">[</span><span class="s2">&quot;beamwidth_elevation&quot;</span><span class="p">]</span>
+            <span class="n">p</span><span class="p">[</span><span class="s2">&quot;Horizontal BeamWidth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compdef</span><span class="p">[</span><span class="s2">&quot;beamwidth_azimuth&quot;</span><span class="p">]</span>
+            <span class="n">p</span><span class="p">[</span><span class="s2">&quot;Polarization&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compdef</span><span class="p">[</span><span class="s2">&quot;polarization&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">p</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">target_cs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">target_cs</span><span class="p">:</span>
+            <span class="n">target_cs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_multiparts</span><span class="o">.</span><span class="n">cs_name</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">units</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_multiparts</span><span class="o">.</span><span class="n">_local_units</span><span class="p">:</span>
+                <span class="n">units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_multiparts</span><span class="o">.</span><span class="n">_local_units</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_multiparts</span><span class="o">.</span><span class="n">units</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compdef</span><span class="p">[</span><span class="s2">&quot;ffd_name&quot;</span><span class="p">]:</span>
+            <span class="n">ffd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_compdef</span><span class="p">[</span><span class="s2">&quot;part_folder&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compdef</span><span class="p">[</span><span class="s2">&quot;ffd_name&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;.ffd&quot;</span><span class="p">)</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">create_sbr_file_based_antenna</span><span class="p">(</span>
+                <span class="n">ffd_full_path</span><span class="o">=</span><span class="n">ffd</span><span class="p">,</span> <span class="n">model_units</span><span class="o">=</span><span class="n">units</span><span class="p">,</span> <span class="n">target_cs</span><span class="o">=</span><span class="n">target_cs</span><span class="p">,</span> <span class="n">antenna_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">create_sbr_antenna</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_antenna_type</span><span class="p">(</span><span class="n">app</span><span class="p">),</span>
+                <span class="n">model_units</span><span class="o">=</span><span class="n">units</span><span class="p">,</span>
+                <span class="n">parameters_dict</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span>
+                <span class="n">target_cs</span><span class="o">=</span><span class="n">target_cs</span><span class="p">,</span>
+                <span class="n">antenna_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">a</span>
+
+<div class="viewcode-block" id="Antenna.insert"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.advanced_cad.parts.Antenna.insert.html#pyaedt.modeler.advanced_cad.parts.Antenna.insert">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Insert antenna in HFSS SBR+.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        app : pyaedt.Hfss</span>
+<span class="sd">        units :</span>
+<span class="sd">            The default is ``None``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Name of the inserted object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_do_offset</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_relative_cs</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+            <span class="n">antenna_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_insert</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">target_cs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cs_name</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">units</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">antenna_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_insert</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">target_cs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_multiparts</span><span class="o">.</span><span class="n">cs_name</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">units</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_do_rotate</span> <span class="ow">and</span> <span class="n">antenna_object</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">do_rotate</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">antenna_object</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">antenna_object</span></div></div>
+</pre></div>
+
+                </article>
+              
+              
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright (c) 2023 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

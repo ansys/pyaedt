@@ -1,0 +1,1514 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyaedt.edb_core.edb_data.sources &#8212; PyAEDT</title>
+    
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/ansys_sphinx_theme.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    
+        <link href="../../../../_static/css/breadcrumbs.css" rel="stylesheet">
+    
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
+    <script src="../../../../_static/js/table.js"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pyaedt/edb_core/edb_data/sources';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://aedt.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        </script>
+    <link rel="shortcut icon" href="../../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container"><!-- Debugging: html_theme_options =  -->
+
+  <!-- If there is no MiliSearch enabled, use the PyData search -->
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../../../../_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../Getting_started/index.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../User_guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../API/index.html">
+                        AEDT API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../EDBAPI/index.html">
+                        EDB API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../Contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      dev  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt/discussions" title="Support" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+</div>
+
+    </nav>
+  
+
+    
+    <div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(text => document.getElementById("announcement_msg").innerHTML = text)
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+    
+
+    
+    <div class="container-xl">
+    <div class="row">
+        <div class="col-12 col-md-3" id="breadcrumbs-spacer"></div>
+        <div class="col-12 col-md-11 col-xl-9" id="breadcrumbs">
+          
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-additional-breadcrumb"><a href="https://docs.pyansys.com/">PyAnsys</a> » </li>
+    
+    
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">PyAEDT</a> » </li>
+    
+
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> » </li>
+        <li class="nav-item nav-item-this"><a href="">pyaedt.edb_core.edb_data.sources</a></li> 
+      </ul>
+    </div>
+        </div>
+  </div>
+</div>
+    
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../Getting_started/index.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../User_guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../API/index.html">
+                        AEDT API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../EDBAPI/index.html">
+                        EDB API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../Contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      dev  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt/discussions" title="Support" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article"></div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for pyaedt.edb_core.edb_data.sources</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">pyaedt_function_handler</span>
+<span class="kn">from</span> <span class="nn">pyaedt.edb_core.edb_data.nets_data</span> <span class="kn">import</span> <span class="n">EDBNetsData</span>
+<span class="kn">from</span> <span class="nn">pyaedt.edb_core.edb_data.padstacks_data</span> <span class="kn">import</span> <span class="n">EDBPadstackInstance</span>
+<span class="kn">from</span> <span class="nn">pyaedt.edb_core.edb_data.primitives_data</span> <span class="kn">import</span> <span class="n">EDBPrimitives</span>
+<span class="kn">from</span> <span class="nn">pyaedt.generic.constants</span> <span class="kn">import</span> <span class="n">NodeType</span>
+<span class="kn">from</span> <span class="nn">pyaedt.generic.constants</span> <span class="kn">import</span> <span class="n">SourceType</span>
+
+
+<span class="k">class</span> <span class="nc">Node</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Provides for handling nodes for Siwave sources.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_component</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_net</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_node_type</span> <span class="o">=</span> <span class="n">NodeType</span><span class="o">.</span><span class="n">Positive</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">component</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Component name containing the node.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_component</span>
+
+    <span class="nd">@component</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_component</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">net</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Net of the node.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_net</span>
+
+    <span class="nd">@net</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">net</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_net</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">node_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Type of the node.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node_type</span>
+
+    <span class="nd">@node_type</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">node_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_node_type</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Name of the node.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+    <span class="nd">@name</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">_json_format</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="n">dict_out</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">dict_out</span><span class="p">[</span><span class="n">k</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">return</span> <span class="n">dict_out</span>
+
+    <span class="k">def</span> <span class="nf">_read_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_dict</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">node_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Source</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Provides for handling Siwave sources.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_source_type</span> <span class="o">=</span> <span class="n">SourceType</span><span class="o">.</span><span class="n">Vsource</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_positive_node</span> <span class="o">=</span> <span class="n">PinGroup</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_negative_node</span> <span class="o">=</span> <span class="n">PinGroup</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_amplitude</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_phase</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_impedance</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_r</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_l</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_c</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create_physical_resistor</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_positive_node</span><span class="o">.</span><span class="n">node_type</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">NodeType</span><span class="o">.</span><span class="n">Positive</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_positive_node</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;pos_term&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_negative_node</span><span class="o">.</span><span class="n">node_type</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">NodeType</span><span class="o">.</span><span class="n">Negative</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_negative_node</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;neg_term&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Source name.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+    <span class="nd">@name</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">source_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Source type.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source_type</span>
+
+    <span class="nd">@source_type</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">source_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_source_type</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_impedance</span> <span class="o">=</span> <span class="mf">1e-6</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_impedance</span> <span class="o">=</span> <span class="mf">5e7</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_r</span> <span class="o">=</span> <span class="mf">1.0</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_l</span> <span class="o">=</span> <span class="mf">0.0</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_c</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">positive_node</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Positive node of the source.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_positive_node</span>
+
+    <span class="nd">@positive_node</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">positive_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="n">Node</span><span class="p">,</span> <span class="n">PinGroup</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_positive_node</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">negative_node</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Negative node of the source.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_negative_node</span>
+
+    <span class="nd">@negative_node</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">negative_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="n">Node</span><span class="p">,</span> <span class="n">PinGroup</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_negative_node</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="c1">#</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">amplitude</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Amplitude value of the source. Either amperes for current source or volts for</span>
+<span class="sd">        voltage source.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_amplitude</span>
+
+    <span class="nd">@amplitude</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">amplitude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_amplitude</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">phase</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Phase of the source.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_phase</span>
+
+    <span class="nd">@phase</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">phase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_phase</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">impedance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Impedance values of the source.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_impedance</span>
+
+    <span class="nd">@impedance</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">impedance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_impedance</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">r_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_r</span>
+
+    <span class="nd">@r_value</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">r_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_r</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">l_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_l</span>
+
+    <span class="nd">@l_value</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">l_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_l</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">c_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_c</span>
+
+    <span class="nd">@c_value</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">c_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_c</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">create_physical_resistor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_physical_resistor</span>
+
+    <span class="nd">@create_physical_resistor</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">create_physical_resistor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_create_physical_resistor</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">_json_format</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="n">dict_out</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">&quot;_positive_node&quot;</span> <span class="ow">or</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">&quot;_negative_node&quot;</span><span class="p">:</span>
+                <span class="n">nodes</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">_json_format</span><span class="p">()</span>
+                <span class="n">dict_out</span><span class="p">[</span><span class="n">k</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span> <span class="o">=</span> <span class="n">nodes</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dict_out</span><span class="p">[</span><span class="n">k</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">return</span> <span class="n">dict_out</span>
+
+    <span class="k">def</span> <span class="nf">_read_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_dict</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">source_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">&quot;positive_node&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">positive_node</span><span class="o">.</span><span class="n">_read_json</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">&quot;negative_node&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">negative_node</span><span class="o">.</span><span class="n">_read_json</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">PinGroup</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manages pin groups.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">edb_pin_group</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pedb</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span> <span class="o">=</span> <span class="n">pedb</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edb_pin_group</span> <span class="o">=</span> <span class="n">edb_pin_group</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_component</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_node_pins</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_net</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_active_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">active_layout</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Name.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+    <span class="nd">@name</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">component</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Component.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_component</span>
+
+    <span class="nd">@component</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_component</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">node_pins</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Node pins.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node_pins</span>
+
+    <span class="nd">@node_pins</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">node_pins</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_node_pins</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">net</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Net.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_net</span>
+
+    <span class="nd">@net</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">net</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_net</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">net_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_pin_group</span><span class="o">.</span><span class="n">GetNet</span><span class="p">()</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_create_terminal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_reference</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">pg_term</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_pin_group</span><span class="o">.</span><span class="n">GetPinGroupTerminal</span><span class="p">()</span>
+        <span class="n">pin_group_net</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_pin_group</span><span class="o">.</span><span class="n">GetNet</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">pin_group_net</span><span class="o">.</span><span class="n">IsNull</span><span class="p">():</span>  <span class="c1"># pragma: no cover</span>
+            <span class="n">pin_group_net</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_edb_pin_group</span><span class="o">.</span><span class="n">GetPins</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">GetNet</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">pg_term</span><span class="o">.</span><span class="n">IsNull</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Terminal</span><span class="o">.</span><span class="n">PinGroupTerminal</span><span class="o">.</span><span class="n">Create</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_active_layout</span><span class="p">,</span>
+                <span class="n">pin_group_net</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_edb_pin_group</span><span class="p">,</span>
+                <span class="n">is_reference</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pg_term</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">create_current_source_terminal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">magnitude</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">terminal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_terminal</span><span class="p">()</span>
+        <span class="n">terminal</span><span class="o">.</span><span class="n">SetBoundaryType</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Terminal</span><span class="o">.</span><span class="n">BoundaryType</span><span class="o">.</span><span class="n">kCurrentSource</span><span class="p">)</span>
+        <span class="n">terminal</span><span class="o">.</span><span class="n">SetSourceAmplitude</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb_value</span><span class="p">(</span><span class="n">magnitude</span><span class="p">))</span>
+        <span class="n">terminal</span><span class="o">.</span><span class="n">SetSourcePhase</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Utility</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="n">phase</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">terminal</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">create_voltage_source_terminal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">magnitude</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">terminal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_terminal</span><span class="p">()</span>
+        <span class="n">terminal</span><span class="o">.</span><span class="n">SetBoundaryType</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Terminal</span><span class="o">.</span><span class="n">BoundaryType</span><span class="o">.</span><span class="n">kVoltageSource</span><span class="p">)</span>
+        <span class="n">terminal</span><span class="o">.</span><span class="n">SetSourceAmplitude</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb_value</span><span class="p">(</span><span class="n">magnitude</span><span class="p">))</span>
+        <span class="n">terminal</span><span class="o">.</span><span class="n">SetSourcePhase</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Utility</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="n">phase</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">terminal</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">create_port_terminal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">impedance</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
+        <span class="n">terminal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_terminal</span><span class="p">()</span>
+        <span class="n">terminal</span><span class="o">.</span><span class="n">SetBoundaryType</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Terminal</span><span class="o">.</span><span class="n">BoundaryType</span><span class="o">.</span><span class="n">PortBoundary</span><span class="p">)</span>
+        <span class="n">terminal</span><span class="o">.</span><span class="n">SetImpedance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb_value</span><span class="p">(</span><span class="n">impedance</span><span class="p">))</span>
+        <span class="n">terminal</span><span class="o">.</span><span class="n">SetIsCircuitPort</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">terminal</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete active pin group.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">terminals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_pin_group</span><span class="o">.</span><span class="n">GetPinGroupTerminal</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edb_pin_group</span><span class="o">.</span><span class="n">Delete</span><span class="p">()</span>
+        <span class="n">terminals</span><span class="o">.</span><span class="n">Delete</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+
+<span class="k">class</span> <span class="nc">CircuitPort</span><span class="p">(</span><span class="n">Source</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manages a circuit port.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">impedance</span><span class="o">=</span><span class="s2">&quot;50&quot;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_impedance</span> <span class="o">=</span> <span class="n">impedance</span>
+        <span class="n">Source</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_source_type</span> <span class="o">=</span> <span class="n">SourceType</span><span class="o">.</span><span class="n">CircPort</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">impedance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Impedance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_impedance</span>
+
+    <span class="nd">@impedance</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">impedance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_impedance</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">get_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get type.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source_type</span>
+
+
+<span class="k">class</span> <span class="nc">VoltageSource</span><span class="p">(</span><span class="n">Source</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manages a voltage source.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">VoltageSource</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_magnitude</span> <span class="o">=</span> <span class="s2">&quot;1V&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_phase</span> <span class="o">=</span> <span class="s2">&quot;0Deg&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_impedance</span> <span class="o">=</span> <span class="s2">&quot;0.05&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_source_type</span> <span class="o">=</span> <span class="n">SourceType</span><span class="o">.</span><span class="n">Vsource</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">magnitude</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Magnitude.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_magnitude</span>
+
+    <span class="nd">@magnitude</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">magnitude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_magnitude</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">phase</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Phase.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_phase</span>
+
+    <span class="nd">@phase</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">phase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_phase</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">impedance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Impedance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_impedance</span>
+
+    <span class="nd">@impedance</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">impedance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_impedance</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">source_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Source type.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source_type</span>
+
+
+<span class="k">class</span> <span class="nc">CurrentSource</span><span class="p">(</span><span class="n">Source</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manages a current source.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CurrentSource</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_magnitude</span> <span class="o">=</span> <span class="s2">&quot;0.1A&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_phase</span> <span class="o">=</span> <span class="s2">&quot;0Deg&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_impedance</span> <span class="o">=</span> <span class="s2">&quot;1e7&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_source_type</span> <span class="o">=</span> <span class="n">SourceType</span><span class="o">.</span><span class="n">Isource</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">magnitude</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Magnitude.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_magnitude</span>
+
+    <span class="nd">@magnitude</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">magnitude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_magnitude</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">phase</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Phase.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_phase</span>
+
+    <span class="nd">@phase</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">phase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_phase</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">impedance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Impedance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_impedance</span>
+
+    <span class="nd">@impedance</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">impedance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_impedance</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">source_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Source type.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source_type</span>
+
+
+<span class="k">class</span> <span class="nc">DCTerminal</span><span class="p">(</span><span class="n">Source</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manages a dc terminal source.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DCTerminal</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_source_type</span> <span class="o">=</span> <span class="n">SourceType</span><span class="o">.</span><span class="n">DcTerminal</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">source_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Source type.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source_type</span>
+
+
+<span class="k">class</span> <span class="nc">ResistorSource</span><span class="p">(</span><span class="n">Source</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manages a resistor source.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ResistorSource</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rvalue</span> <span class="o">=</span> <span class="s2">&quot;50&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_source_type</span> <span class="o">=</span> <span class="n">SourceType</span><span class="o">.</span><span class="n">Rlc</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rvalue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resistance value.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rvalue</span>
+
+    <span class="nd">@rvalue</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">rvalue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rvalue</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">source_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Source type.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source_type</span>
+
+
+<span class="k">class</span> <span class="nc">CommonExcitation</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pedb</span><span class="p">,</span> <span class="n">edb_terminal</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span> <span class="o">=</span> <span class="n">pedb</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span> <span class="o">=</span> <span class="n">edb_terminal</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reference_object</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_edb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Port Name.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">net_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Net Name.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetNet</span><span class="p">()</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">net</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Net Object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.edb_core.edb_data.nets_data.EDBNetsData`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">EDBNetsData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetNet</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">terminal_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Terminal Type.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetTerminalType</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">boundary_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Boundary Type.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetBoundaryType</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">reference_object</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;This returns the object assigned as reference. It can be a primitive or a padstack instance.</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance` or</span>
+<span class="sd">        :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reference_object</span><span class="p">:</span>
+            <span class="n">term</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">terminal_type</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Terminal</span><span class="o">.</span><span class="n">TerminalType</span><span class="o">.</span><span class="n">EdgeTerminal</span><span class="p">:</span>
+                    <span class="n">edges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetEdges</span><span class="p">()</span>
+                    <span class="n">edgeType</span> <span class="o">=</span> <span class="n">edges</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">GetEdgeType</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">edgeType</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Terminal</span><span class="o">.</span><span class="n">EdgeType</span><span class="o">.</span><span class="n">PadEdge</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_reference_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pad_edge_terminal_reference_pin</span><span class="p">()</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_reference_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_edge_terminal_reference_primitive</span><span class="p">()</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">terminal_type</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Terminal</span><span class="o">.</span><span class="n">TerminalType</span><span class="o">.</span><span class="n">PinGroupTerminal</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_reference_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pin_group_terminal_reference_pin</span><span class="p">()</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">terminal_type</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Terminal</span><span class="o">.</span><span class="n">TerminalType</span><span class="o">.</span><span class="n">PointTerminal</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_reference_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_point_terminal_reference_primitive</span><span class="p">()</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">terminal_type</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Terminal</span><span class="o">.</span><span class="n">TerminalType</span><span class="o">.</span><span class="n">PadstackInstanceTerminal</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_reference_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_padstack_terminal_reference_pin</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">&quot;Invalid Terminal Type=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">term</span><span class="o">.</span><span class="n">GetTerminalType</span><span class="p">())</span>
+                    <span class="p">)</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reference_object</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">reference_net_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Net name to which reference_object belongs.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ref_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reference_object</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reference_object</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_object</span>
+            <span class="k">if</span> <span class="n">ref_obj</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ref_obj</span><span class="o">.</span><span class="n">net_name</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">get_padstack_terminal_reference_pin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gnd_net_name_preference</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a list of pad stacks instances and serves Coax wave ports,</span>
+<span class="sd">        pingroup terminals, PadEdge terminals.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        gnd_net_name_preference : str, optional</span>
+<span class="sd">            Preferred reference net name.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.edb_core.edb_data.padstack_data.EDBPadstackInstance`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetIsCircuitPort</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pin_group_terminal_reference_pin</span><span class="p">()</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">padStackInstance</span><span class="p">,</span> <span class="n">layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetParameters</span><span class="p">()</span>
+
+        <span class="c1"># Get the pastack instance of the terminal</span>
+        <span class="n">compInst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetComponent</span><span class="p">()</span>
+        <span class="n">pins</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">get_pin_from_component</span><span class="p">(</span><span class="n">compInst</span><span class="o">.</span><span class="n">GetName</span><span class="p">())</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_closest_pin</span><span class="p">(</span><span class="n">padStackInstance</span><span class="p">,</span> <span class="n">pins</span><span class="p">,</span> <span class="n">gnd_net_name_preference</span><span class="p">)</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">get_pin_group_terminal_reference_pin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gnd_net_name_preference</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of pins and serves terminals connected to pingroups.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        gnd_net_name_preference : str, optional</span>
+<span class="sd">            Preferred reference net name.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.edb_core.edb_data.padstack_data.EDBPadstackInstance`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">refTerm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetReferenceTerminal</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetTerminalType</span><span class="p">()</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Terminal</span><span class="o">.</span><span class="n">TerminalType</span><span class="o">.</span><span class="n">PinGroupTerminal</span><span class="p">:</span>
+            <span class="n">padStackInstance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetPinGroup</span><span class="p">()</span><span class="o">.</span><span class="n">GetPins</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">pingroup</span> <span class="o">=</span> <span class="n">refTerm</span><span class="o">.</span><span class="n">GetPinGroup</span><span class="p">()</span>
+            <span class="n">refPinList</span> <span class="o">=</span> <span class="n">pingroup</span><span class="o">.</span><span class="n">GetPins</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_closest_pin</span><span class="p">(</span><span class="n">padStackInstance</span><span class="p">,</span> <span class="n">refPinList</span><span class="p">,</span> <span class="n">gnd_net_name_preference</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetTerminalType</span><span class="p">()</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Terminal</span><span class="o">.</span><span class="n">TerminalType</span><span class="o">.</span><span class="n">PadstackInstanceTerminal</span><span class="p">:</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">padStackInstance</span><span class="p">,</span> <span class="n">layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetParameters</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">refTerm</span><span class="o">.</span><span class="n">GetTerminalType</span><span class="p">()</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Terminal</span><span class="o">.</span><span class="n">TerminalType</span><span class="o">.</span><span class="n">PinGroupTerminal</span><span class="p">:</span>
+                <span class="n">pingroup</span> <span class="o">=</span> <span class="n">refTerm</span><span class="o">.</span><span class="n">GetPinGroup</span><span class="p">()</span>
+                <span class="n">refPinList</span> <span class="o">=</span> <span class="n">pingroup</span><span class="o">.</span><span class="n">GetPins</span><span class="p">()</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_closest_pin</span><span class="p">(</span><span class="n">padStackInstance</span><span class="p">,</span> <span class="n">refPinList</span><span class="p">,</span> <span class="n">gnd_net_name_preference</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">returnOK</span><span class="p">,</span> <span class="n">refTermPSI</span><span class="p">,</span> <span class="n">layer</span> <span class="o">=</span> <span class="n">refTerm</span><span class="o">.</span><span class="n">GetParameters</span><span class="p">()</span>
+                    <span class="k">return</span> <span class="n">EDBPadstackInstance</span><span class="p">(</span><span class="n">refTermPSI</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># pragma: no cover</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">get_edge_terminal_reference_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check and  return a primitive instance that serves Edge ports,</span>
+<span class="sd">        wave ports and coupled edge ports that are directly connedted to primitives.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">ref_layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetReferenceLayer</span><span class="p">()</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetEdges</span><span class="p">()</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">prim_value</span><span class="p">,</span> <span class="n">point_data</span> <span class="o">=</span> <span class="n">edges</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">GetParameters</span><span class="p">()</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">point_data</span><span class="o">.</span><span class="n">X</span>
+        <span class="n">Y</span> <span class="o">=</span> <span class="n">point_data</span><span class="o">.</span><span class="n">Y</span>
+        <span class="n">shape_pd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">PointData</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+        <span class="n">layer_name</span> <span class="o">=</span> <span class="n">ref_layer</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">primitive</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">active_layout</span><span class="o">.</span><span class="n">Primitives</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">primitive</span><span class="o">.</span><span class="n">GetLayer</span><span class="p">()</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span> <span class="o">==</span> <span class="n">layer_name</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">layer_name</span><span class="p">:</span>
+                <span class="n">prim_shape_data</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">GetPolygonData</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">prim_shape_data</span><span class="o">.</span><span class="n">PointInPolygon</span><span class="p">(</span><span class="n">shape_pd</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">EDBPrimitives</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># pragma: no cover</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">get_point_terminal_reference_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Find and return the primitive reference for the point terminal or the padstack instance.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance` or</span>
+<span class="sd">        :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">ref_term</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetReferenceTerminal</span><span class="p">()</span>  <span class="c1"># return value is type terminal</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">point_data</span><span class="p">,</span> <span class="n">layer</span> <span class="o">=</span> <span class="n">ref_term</span><span class="o">.</span><span class="n">GetParameters</span><span class="p">()</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">point_data</span><span class="o">.</span><span class="n">X</span>
+        <span class="n">Y</span> <span class="o">=</span> <span class="n">point_data</span><span class="o">.</span><span class="n">Y</span>
+        <span class="n">shape_pd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">PointData</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+        <span class="n">layer_name</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">primitive</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">active_layout</span><span class="o">.</span><span class="n">Primitives</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">primitive</span><span class="o">.</span><span class="n">GetLayer</span><span class="p">()</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span> <span class="o">==</span> <span class="n">layer_name</span><span class="p">:</span>
+                <span class="n">prim_shape_data</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">GetPolygonData</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">prim_shape_data</span><span class="o">.</span><span class="n">PointInPolygon</span><span class="p">(</span><span class="n">shape_pd</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">EDBPrimitives</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">vias</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">padstacks</span><span class="o">.</span><span class="n">instances</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">layer_name</span> <span class="ow">in</span> <span class="n">vias</span><span class="o">.</span><span class="n">layer_range_names</span><span class="p">:</span>
+                <span class="n">plane</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">Shape</span><span class="p">(</span>
+                    <span class="s2">&quot;rectangle&quot;</span><span class="p">,</span> <span class="n">pointA</span><span class="o">=</span><span class="n">vias</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">pointB</span><span class="o">=</span><span class="n">vias</span><span class="o">.</span><span class="n">padstack_definition</span><span class="o">.</span><span class="n">bounding_box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">rectangle_data</span> <span class="o">=</span> <span class="n">vias</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">shape_to_polygon_data</span><span class="p">(</span><span class="n">plane</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">rectangle_data</span><span class="o">.</span><span class="n">PointInPolygon</span><span class="p">(</span><span class="n">shape_pd</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">vias</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">get_pad_edge_terminal_reference_pin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gnd_net_name_preference</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the closest pin padstack instances and serves any edge terminal connected to a pad.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        gnd_net_name_preference : str, optional</span>
+<span class="sd">            Preferred reference net name. Optianal, default is `None` which will auto compute the gnd name.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">comp_inst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetComponent</span><span class="p">()</span>
+        <span class="n">pins</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">get_pin_from_component</span><span class="p">(</span><span class="n">comp_inst</span><span class="o">.</span><span class="n">GetName</span><span class="p">())</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">edges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetEdges</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">pad_edge_pstack_inst</span><span class="p">,</span> <span class="n">pad_edge_layer</span><span class="p">,</span> <span class="n">pad_edge_polygon_data</span> <span class="o">=</span> <span class="n">edges</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">GetParameters</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_closest_pin</span><span class="p">(</span><span class="n">pad_edge_pstack_inst</span><span class="p">,</span> <span class="n">pins</span><span class="p">,</span> <span class="n">gnd_net_name_preference</span><span class="p">)</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_get_closest_pin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_pin</span><span class="p">,</span> <span class="n">pin_list</span><span class="p">,</span> <span class="n">gnd_net</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">pad_stack_inst_point</span><span class="p">,</span> <span class="n">rotation</span> <span class="o">=</span> <span class="n">ref_pin</span><span class="o">.</span><span class="n">GetPositionAndRotation</span><span class="p">()</span>  <span class="c1"># get the xy of the padstack</span>
+        <span class="k">if</span> <span class="n">gnd_net</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">power_ground_net_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">gnd_net</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">power_ground_net_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">net</span> <span class="k">for</span> <span class="n">net</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">nets</span><span class="o">.</span><span class="n">power_nets</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+        <span class="n">comp_ref_pins</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">pin_list</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">GetNet</span><span class="p">()</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span> <span class="ow">in</span> <span class="n">power_ground_net_names</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">comp_ref_pins</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Terminal with PadStack Instance Name </span><span class="si">{}</span><span class="s2"> component has no reference pins.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ref_pin</span><span class="o">.</span><span class="n">GetName</span><span class="p">())</span>
+            <span class="p">)</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># pragma: no cover</span>
+        <span class="n">closest_pin_distance</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">pin_obj</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">pin</span> <span class="ow">in</span> <span class="n">comp_ref_pins</span><span class="p">:</span>  <span class="c1"># find the distance to all the pins to the terminal pin</span>
+            <span class="k">if</span> <span class="n">pin</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span> <span class="o">==</span> <span class="n">ref_pin</span><span class="o">.</span><span class="n">GetName</span><span class="p">():</span>  <span class="c1"># skip the reference psi</span>
+                <span class="k">continue</span>  <span class="c1"># pragma: no cover</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">pin_point</span><span class="p">,</span> <span class="n">rotation</span> <span class="o">=</span> <span class="n">pin</span><span class="o">.</span><span class="n">GetPositionAndRotation</span><span class="p">()</span>
+            <span class="n">distance</span> <span class="o">=</span> <span class="n">pad_stack_inst_point</span><span class="o">.</span><span class="n">Distance</span><span class="p">(</span><span class="n">pin_point</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">closest_pin_distance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">closest_pin_distance</span> <span class="o">=</span> <span class="n">distance</span>
+                <span class="n">pin_obj</span> <span class="o">=</span> <span class="n">pin</span>
+            <span class="k">elif</span> <span class="n">closest_pin_distance</span> <span class="o">&lt;</span> <span class="n">distance</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">closest_pin_distance</span> <span class="o">=</span> <span class="n">distance</span>
+                <span class="n">pin_obj</span> <span class="o">=</span> <span class="n">pin</span>
+        <span class="k">if</span> <span class="n">pin_obj</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">EDBPadstackInstance</span><span class="p">(</span><span class="n">pin_obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="ExcitationPorts"><a class="viewcode-back" href="../../../../EDBAPI/_autosummary/pyaedt.edb_core.edb_data.sources.ExcitationPorts.html#pyaedt.edb_core.edb_data.sources.ExcitationPorts">[docs]</a><span class="k">class</span> <span class="nc">ExcitationPorts</span><span class="p">(</span><span class="n">CommonExcitation</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manages excitation properties.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pedb : pyaedt.edb.Edb</span>
+<span class="sd">        EDB object from the ``Edblib`` library.</span>
+<span class="sd">    edb_terminal : Ansys.Ansoft.Edb.Cell.Terminal.EdgeTerminal</span>
+<span class="sd">        Edge terminal instance from EDB.</span>
+
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    This example shows how to access the ``ExcitationPorts`` class.</span>
+<span class="sd">    &gt;&gt;&gt; from pyaedt import Edb</span>
+<span class="sd">    &gt;&gt;&gt; edb = Edb(&quot;myaedb.aedb&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; exc = edb.excitations</span>
+<span class="sd">    &gt;&gt;&gt; print(exc[&quot;Port1&quot;].name)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pedb</span><span class="p">,</span> <span class="n">edb_terminal</span><span class="p">):</span>
+        <span class="n">CommonExcitation</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pedb</span><span class="p">,</span> <span class="n">edb_terminal</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_edb_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetProductSolverOption</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">ProductId</span><span class="o">.</span><span class="n">Designer</span><span class="p">,</span> <span class="s2">&quot;HFSS&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">p</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">hfss_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;HFSS port type.&quot;&quot;&quot;</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&#39;HFSS Type&#39;=&#39;.*?&#39;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_properties</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">txt</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">horizontal_extent_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Horizontal extent factor.&quot;&quot;&quot;</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&#39;Horizontal Extent Factor&#39;=&#39;.*?&#39;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_properties</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">txt</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">vertical_extent_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Vvertical extent factor.&quot;&quot;&quot;</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&#39;Vertical Extent Factor&#39;=&#39;.*?&#39;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_properties</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">txt</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">radial_extent_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Radial extent factor.&quot;&quot;&quot;</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&#39;Radial Extent Factor&#39;=&#39;.*?&#39;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_properties</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">txt</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pec_launch_width</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Launch width for the printed electronic component (PEC).&quot;&quot;&quot;</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&#39;PEC Launch Width&#39;=&#39;.*?&#39;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_properties</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">txt</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">impedance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Impedance of the port.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetImpedance</span><span class="p">()</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_circuit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether it is a circuit port.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetIsCircuitPort</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">magnitude</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Magnitude.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetSourceAmplitude</span><span class="p">()</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">phase</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Phase.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetSourcePhase</span><span class="p">()</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">renormalize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether renormalize is active.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetPortPostProcessingProp</span><span class="p">()</span><span class="o">.</span><span class="n">DoRenormalize</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">deembed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether deembed is active.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetPortPostProcessingProp</span><span class="p">()</span><span class="o">.</span><span class="n">DoDeembed</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">deembed_gapport_inductance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Inductance value of the deembed gap port.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetPortPostProcessingProp</span><span class="p">()</span><span class="o">.</span><span class="n">DoDeembedGapL</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">deembed_length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Deembed Length.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetPortPostProcessingProp</span><span class="p">()</span><span class="o">.</span><span class="n">DeembedLength</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">renormalize_z0</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Renormalize Z0 value (real, imag).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetPortPostProcessingProp</span><span class="p">()</span><span class="o">.</span><span class="n">RenormalizionZ0</span><span class="o">.</span><span class="n">ToComplex</span><span class="p">()</span><span class="o">.</span><span class="n">Item1</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetPortPostProcessingProp</span><span class="p">()</span><span class="o">.</span><span class="n">RenormalizionZ0</span><span class="o">.</span><span class="n">ToComplex</span><span class="p">()</span><span class="o">.</span><span class="n">Item2</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ExcitationSources"><a class="viewcode-back" href="../../../../EDBAPI/_autosummary/pyaedt.edb_core.edb_data.sources.ExcitationSources.html#pyaedt.edb_core.edb_data.sources.ExcitationSources">[docs]</a><span class="k">class</span> <span class="nc">ExcitationSources</span><span class="p">(</span><span class="n">CommonExcitation</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manage sources properties.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pedb : pyaedt.edb.Edb</span>
+<span class="sd">        Edb object from Edblib.</span>
+<span class="sd">    edb_terminal : Ansys.Ansoft.Edb.Cell.Terminal.EdgeTerminal</span>
+<span class="sd">        Edge terminal instance from Edb.</span>
+
+
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    This example shows how to access this class.</span>
+<span class="sd">    &gt;&gt;&gt; from pyaedt import Edb</span>
+<span class="sd">    &gt;&gt;&gt; edb = Edb(&quot;myaedb.aedb&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; all_sources = edb.sources</span>
+<span class="sd">    &gt;&gt;&gt; print(all_sources[&quot;VSource1&quot;].name)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pedb</span><span class="p">,</span> <span class="n">edb_terminal</span><span class="p">):</span>
+        <span class="n">CommonExcitation</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pedb</span><span class="p">,</span> <span class="n">edb_terminal</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">magnitude</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the magnitude of the source.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetSourceAmplitude</span><span class="p">()</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()</span>
+
+    <span class="nd">@magnitude</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">magnitude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">SetSourceAmplitude</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Utility</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">phase</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the phase of the source.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">GetSourcePhase</span><span class="p">()</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()</span>
+
+    <span class="nd">@phase</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">phase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edb_terminal</span><span class="o">.</span><span class="n">SetSourcePhase</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Utility</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="n">value</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="ExcitationProbes"><a class="viewcode-back" href="../../../../EDBAPI/_autosummary/pyaedt.edb_core.edb_data.sources.ExcitationProbes.html#pyaedt.edb_core.edb_data.sources.ExcitationProbes">[docs]</a><span class="k">class</span> <span class="nc">ExcitationProbes</span><span class="p">(</span><span class="n">CommonExcitation</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manage probes properties.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pedb : pyaedt.edb.Edb</span>
+<span class="sd">        Edb object from Edblib.</span>
+<span class="sd">    edb_terminal : Ansys.Ansoft.Edb.Cell.Terminal.EdgeTerminal</span>
+<span class="sd">        Edge terminal instance from Edb.</span>
+
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    This example shows how to access this class.</span>
+<span class="sd">    &gt;&gt;&gt; from pyaedt import Edb</span>
+<span class="sd">    &gt;&gt;&gt; edb = Edb(&quot;myaedb.aedb&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; probes = edb.probes</span>
+<span class="sd">    &gt;&gt;&gt; print(probes[&quot;Probe1&quot;].name)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pedb</span><span class="p">,</span> <span class="n">edb_terminal</span><span class="p">):</span>
+        <span class="n">CommonExcitation</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pedb</span><span class="p">,</span> <span class="n">edb_terminal</span><span class="p">)</span></div>
+
+
+<span class="k">class</span> <span class="nc">ExcitationBundle</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manages multi terminal excitation properties.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pedb</span><span class="p">,</span> <span class="n">edb_bundle_terminal</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span> <span class="o">=</span> <span class="n">pedb</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edb_bundle_terminal</span> <span class="o">=</span> <span class="n">edb_bundle_terminal</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Port Name.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_bundle_terminal</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">edb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get edb.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">terminals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get terminals belonging to this excitation.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">i</span><span class="o">.</span><span class="n">GetName</span><span class="p">():</span> <span class="n">ExcitationPorts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_edb_bundle_terminal</span><span class="o">.</span><span class="n">GetTerminals</span><span class="p">())}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">reference_net_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reference Name. Not applicable to Differential pairs.&quot;&quot;&quot;</span>
+        <span class="k">return</span>
+
+
+<div class="viewcode-block" id="ExcitationDifferential"><a class="viewcode-back" href="../../../../EDBAPI/_autosummary/pyaedt.edb_core.edb_data.sources.ExcitationDifferential.html#pyaedt.edb_core.edb_data.sources.ExcitationDifferential">[docs]</a><span class="k">class</span> <span class="nc">ExcitationDifferential</span><span class="p">(</span><span class="n">ExcitationBundle</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manages differential excitation properties.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pedb</span><span class="p">,</span> <span class="n">edb_boundle_terminal</span><span class="p">):</span>
+        <span class="n">ExcitationBundle</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pedb</span><span class="p">,</span> <span class="n">edb_boundle_terminal</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">net_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Net name.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">             Name of the net.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_bundle_terminal</span><span class="o">.</span><span class="n">GetNet</span><span class="p">()</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">net</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Net object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.edb_core.edb_data.nets_data.EDBNetsData`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">EDBNetsData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_edb_bundle_terminal</span><span class="o">.</span><span class="n">GetNet</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="p">)</span></div>
+</pre></div>
+
+                </article>
+              
+              
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright (c) 2023 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

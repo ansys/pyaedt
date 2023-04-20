@@ -1,0 +1,39 @@
+﻿pyaedt.edb\_core.edb\_data.sources.ExcitationDifferential
+=========================================================
+
+.. currentmodule:: pyaedt.edb_core.edb_data.sources
+
+.. autoclass:: ExcitationDifferential
+
+   
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      
+      ExcitationDifferential.edb
+      
+      
+      ExcitationDifferential.name
+      
+      
+      ExcitationDifferential.net
+      
+      
+      ExcitationDifferential.net_name
+      
+      
+      ExcitationDifferential.reference_net_name
+      
+      
+      ExcitationDifferential.terminals
+      
+   
+   

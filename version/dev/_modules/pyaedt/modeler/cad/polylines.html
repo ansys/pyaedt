@@ -1,0 +1,1758 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyaedt.modeler.cad.polylines &#8212; PyAEDT</title>
+    
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/ansys_sphinx_theme.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    
+        <link href="../../../../_static/css/breadcrumbs.css" rel="stylesheet">
+    
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
+    <script src="../../../../_static/js/table.js"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pyaedt/modeler/cad/polylines';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://aedt.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        </script>
+    <link rel="shortcut icon" href="../../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container"><!-- Debugging: html_theme_options =  -->
+
+  <!-- If there is no MiliSearch enabled, use the PyData search -->
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../../../../_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../Getting_started/index.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../User_guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../API/index.html">
+                        AEDT API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../EDBAPI/index.html">
+                        EDB API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../Contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      dev  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt/discussions" title="Support" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+</div>
+
+    </nav>
+  
+
+    
+    <div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(text => document.getElementById("announcement_msg").innerHTML = text)
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+    
+
+    
+    <div class="container-xl">
+    <div class="row">
+        <div class="col-12 col-md-3" id="breadcrumbs-spacer"></div>
+        <div class="col-12 col-md-11 col-xl-9" id="breadcrumbs">
+          
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-additional-breadcrumb"><a href="https://docs.pyansys.com/">PyAnsys</a> » </li>
+    
+    
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">PyAEDT</a> » </li>
+    
+
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> » </li>
+        <li class="nav-item nav-item-this"><a href="">pyaedt.modeler.cad.polylines</a></li> 
+      </ul>
+    </div>
+        </div>
+  </div>
+</div>
+    
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../Getting_started/index.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../User_guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../API/index.html">
+                        AEDT API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../EDBAPI/index.html">
+                        EDB API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../Contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      dev  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt/discussions" title="Support" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article"></div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for pyaedt.modeler.cad.polylines</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">_retry_ntimes</span>
+<span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">pyaedt_function_handler</span>
+<span class="kn">from</span> <span class="nn">pyaedt.application.Variables</span> <span class="kn">import</span> <span class="n">decompose_variable_value</span>
+<span class="kn">from</span> <span class="nn">pyaedt.generic.constants</span> <span class="kn">import</span> <span class="n">PLANE</span>
+<span class="kn">from</span> <span class="nn">pyaedt.generic.constants</span> <span class="kn">import</span> <span class="n">unit_converter</span>
+<span class="kn">from</span> <span class="nn">pyaedt.generic.general_methods</span> <span class="kn">import</span> <span class="n">_dim_arg</span>
+<span class="kn">from</span> <span class="nn">pyaedt.modeler.cad.object3d</span> <span class="kn">import</span> <span class="n">Object3d</span>
+<span class="kn">from</span> <span class="nn">pyaedt.modeler.geometry_operators</span> <span class="kn">import</span> <span class="n">GeometryOperators</span>
+
+
+<div class="viewcode-block" id="PolylineSegment"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.cad.polylines.PolylineSegment.html#pyaedt.modeler.cad.polylines.PolylineSegment">[docs]</a><span class="k">class</span> <span class="nc">PolylineSegment</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates and manipulates a segment of a polyline.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    segment_type : str</span>
+<span class="sd">        Type of the object. Choices are ``&quot;Line&quot;``, ``&quot;Arc&quot;``, ``&quot;Spline&quot;``,</span>
+<span class="sd">        and ``&quot;AngularArc&quot;``.</span>
+<span class="sd">    num_seg : int, optional</span>
+<span class="sd">        Number of segments for the types ``&quot;Arc&quot;``, ``&quot;Spline&quot;``, and</span>
+<span class="sd">        ``&quot;AngularArc&quot;``.  The default is ``0``. For the type</span>
+<span class="sd">        ``Line``, this parameter is ignored.</span>
+<span class="sd">    num_points : int, optional</span>
+<span class="sd">        Number of control points for the type ``Spline``. For other</span>
+<span class="sd">        types, this parameter is defined automatically.</span>
+<span class="sd">    arc_angle : float or str, optional</span>
+<span class="sd">        Sweep angle in radians or a valid value string. For example,</span>
+<span class="sd">        ``&quot;35deg&quot;`` or ``0.25``.</span>
+<span class="sd">        This argument is Specific to type AngularArc.</span>
+<span class="sd">    arc_center : list or str, optional</span>
+<span class="sd">        List of values in model units or a valid value string. For</span>
+<span class="sd">        example, a list of ``[x, y, z]`` coordinates.</span>
+<span class="sd">        This argument is Specific to type AngularArc.</span>
+<span class="sd">    arc_plane : str, int optional</span>
+<span class="sd">        Plane in which the arc sweep is performed in the active</span>
+<span class="sd">        coordinate system ``&quot;XY&quot;``, ``&quot;YZ&quot;`` or ``&quot;ZX&quot;``. The default is</span>
+<span class="sd">        ``None``, in which case the plane is determined automatically</span>
+<span class="sd">        by the first coordinate for which the starting point and</span>
+<span class="sd">        center point have the same value.</span>
+<span class="sd">        This argument is Specific to type AngularArc.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    See :class:`pyaedt.Primitives.Polyline`.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">segment_type</span><span class="p">,</span> <span class="n">num_seg</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">num_points</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">arc_angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">arc_center</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">arc_plane</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">valid_types</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Line&quot;</span><span class="p">,</span> <span class="s2">&quot;Arc&quot;</span><span class="p">,</span> <span class="s2">&quot;Spline&quot;</span><span class="p">,</span> <span class="s2">&quot;AngularArc&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">segment_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_types</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Segment type must be one of </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">valid_types</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">segment_type</span>
+        <span class="k">if</span> <span class="n">segment_type</span> <span class="o">!=</span> <span class="s2">&quot;Line&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_seg</span> <span class="o">=</span> <span class="n">num_seg</span>
+        <span class="k">if</span> <span class="n">segment_type</span> <span class="o">==</span> <span class="s2">&quot;Line&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_points</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="k">if</span> <span class="n">segment_type</span> <span class="o">==</span> <span class="s2">&quot;Spline&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_points</span> <span class="o">=</span> <span class="n">num_points</span>
+        <span class="k">if</span> <span class="s2">&quot;Arc&quot;</span> <span class="ow">in</span> <span class="n">segment_type</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_points</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="k">if</span> <span class="n">segment_type</span> <span class="o">==</span> <span class="s2">&quot;AngularArc&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">arc_angle</span> <span class="o">=</span> <span class="n">arc_angle</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">arc_center</span><span class="p">:</span>
+                <span class="n">arc_center</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">arc_center</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Arc center must be a list of length 3.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">arc_center</span> <span class="o">=</span> <span class="n">arc_center</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arc_plane</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">arc_plane</span> <span class="o">==</span> <span class="n">PLANE</span><span class="o">.</span><span class="n">XY</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">arc_plane</span> <span class="o">=</span> <span class="s2">&quot;XY&quot;</span>
+            <span class="k">elif</span> <span class="n">arc_plane</span> <span class="o">==</span> <span class="n">PLANE</span><span class="o">.</span><span class="n">ZX</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">arc_plane</span> <span class="o">=</span> <span class="s2">&quot;ZX&quot;</span>
+            <span class="k">elif</span> <span class="n">arc_plane</span> <span class="o">==</span> <span class="n">PLANE</span><span class="o">.</span><span class="n">YZ</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">arc_plane</span> <span class="o">=</span> <span class="s2">&quot;YZ&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;arc_plane must be 0, 1, or 2 &quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">arc_plane</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">arc_plane</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;XY&quot;</span><span class="p">,</span> <span class="s2">&quot;ZX&quot;</span><span class="p">,</span> <span class="s2">&quot;YZ&quot;</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;arc_plane must be &quot;XY&quot;, &quot;ZX&quot;, or &quot;YZ&quot; &#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">arc_plane</span> <span class="o">=</span> <span class="n">arc_plane</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">arc_plane</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra_points</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="Polyline"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.cad.polylines.Polyline.html#pyaedt.modeler.cad.polylines.Polyline">[docs]</a><span class="k">class</span> <span class="nc">Polyline</span><span class="p">(</span><span class="n">Object3d</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates and manipulates a polyline.</span>
+
+<span class="sd">    The constructor for this class is intended to be called from the</span>
+<span class="sd">    :func:`pyaedt.modeler.Primitives.Primitives.create_polyline` method.</span>
+<span class="sd">    The documentation is provided there.</span>
+
+<span class="sd">    The returned Polyline object exposes the methods for manipulating the polyline.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    primitives : :class:`pyaedt.modeler.Primitives3D.Primitives3D`</span>
+<span class="sd">        Pointer to the parent Primitives object.</span>
+<span class="sd">    src_object : optional</span>
+<span class="sd">        The default is ``None``. If specified, all other arguments are ignored.</span>
+<span class="sd">    position_list : list, optional</span>
+<span class="sd">        List of positions in the ``[x, y, z]`` format. The default is ``None``.</span>
+<span class="sd">        It is mandatory if ``scr_object`` is not specified.</span>
+<span class="sd">    segment_type : str or PolylineSegment or list, optional</span>
+<span class="sd">        Define the list of segment types.</span>
+<span class="sd">        For a string, ``&quot;Line&quot;`` or ``&quot;Arc&quot;`` is valid.</span>
+<span class="sd">        Use a ``&quot;PolylineSegment&quot;``, for ``&quot;Line&quot;``, ``&quot;Arc&quot;``, ``&quot;Spline&quot;``,</span>
+<span class="sd">        or ``&quot;AngularArc&quot;``.</span>
+<span class="sd">        A list of segment types (str or :class:`pyaedt.modeler.Primitives.PolylineSegment`) is</span>
+<span class="sd">        valid for a compound polyline.</span>
+<span class="sd">        The default is ``None``.</span>
+<span class="sd">    cover_surface : bool, optional</span>
+<span class="sd">        The default is ``False``.</span>
+<span class="sd">    close_surface : bool, optional</span>
+<span class="sd">        The default is ``False``.</span>
+<span class="sd">    name : str, optional</span>
+<span class="sd">        The default is ``None``.</span>
+<span class="sd">    matname : str, optional</span>
+<span class="sd">        Name of the material. The default is ``None``.</span>
+<span class="sd">    xsection_type : str, optional</span>
+<span class="sd">        Type of the cross-section. Options are ``&quot;Line&quot;``, ``&quot;Circle&quot;``, ``&quot;Rectangle&quot;``,</span>
+<span class="sd">        and ``&quot;Isosceles Trapezoid&quot;``. The default is ``None``.</span>
+<span class="sd">    xsection_orient : str, optional</span>
+<span class="sd">        Direction of the normal vector to the width of the cross-section.</span>
+<span class="sd">        Options are ``&quot;X&quot;``, ``&quot;Y&quot;``, ``&quot;Z&quot;``, and ``&quot;Auto&quot;``. The</span>
+<span class="sd">        default is ``None``.</span>
+<span class="sd">    xsection_width : float or str, optional</span>
+<span class="sd">        Width or diameter of the cross-section for all types. The default is</span>
+<span class="sd">        ``1``.</span>
+<span class="sd">    xsection_topwidth : float or str, optional</span>
+<span class="sd">        Top width of the cross-section for the type ``&quot;Isosceles Trapezoid&quot;`` only.</span>
+<span class="sd">        The default is ``1``.</span>
+<span class="sd">    xsection_height : float or str, optional</span>
+<span class="sd">        Height of the cross-section for the types ``&quot;Rectangle&quot;`` and ``&quot;Isosceles</span>
+<span class="sd">        Trapezoid&quot;`` only. The default is ``1``.</span>
+<span class="sd">    xsection_num_seg : int, optional</span>
+<span class="sd">        Number of segments in the cross-section surface for the types ``&quot;Circle&quot;``,</span>
+<span class="sd">        ``&quot;Rectangle&quot;`` and ``&quot;Isosceles Trapezoid&quot;``. The default is ``0``.</span>
+<span class="sd">        The value must be ``0`` or greater than ``2``.</span>
+<span class="sd">    xsection_bend_type : str, optional</span>
+<span class="sd">        Type of the bend. The default is ``None``, in which case the bend type</span>
+<span class="sd">        is set to ``&quot;Corner&quot;``. For the type ``&quot;Circle&quot;``, the bend type</span>
+<span class="sd">        should be set to ``&quot;Curved&quot;``.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">primitives</span><span class="p">,</span>
+        <span class="n">src_object</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">position_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">segment_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">cover_surface</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">close_surface</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">matname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">xsection_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">xsection_orient</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">xsection_width</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">xsection_topwidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">xsection_height</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">xsection_num_seg</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">xsection_bend_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">non_model</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span> <span class="o">=</span> <span class="n">primitives</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_positions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_segment_types</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="n">src_object</span><span class="p">:</span>
+            <span class="c1"># scr_obj keys need to be added.</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">src_object</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">src_object</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_m_name</span> <span class="o">=</span> <span class="n">name</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="n">src_object</span><span class="o">.</span><span class="n">id</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_m_name</span> <span class="o">=</span> <span class="n">src_object</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_xsection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">_crosssection_arguments</span><span class="p">(</span>
+                <span class="nb">type</span><span class="o">=</span><span class="n">xsection_type</span><span class="p">,</span>
+                <span class="n">orient</span><span class="o">=</span><span class="n">xsection_orient</span><span class="p">,</span>
+                <span class="n">width</span><span class="o">=</span><span class="n">xsection_width</span><span class="p">,</span>
+                <span class="n">topwidth</span><span class="o">=</span><span class="n">xsection_topwidth</span><span class="p">,</span>
+                <span class="n">height</span><span class="o">=</span><span class="n">xsection_height</span><span class="p">,</span>
+                <span class="n">num_seg</span><span class="o">=</span><span class="n">xsection_num_seg</span><span class="p">,</span>
+                <span class="n">bend_type</span><span class="o">=</span><span class="n">xsection_bend_type</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="c1"># validates and create the self._segment_type property and the self._positions property</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">position_list</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The position_list argument must be a list of positions with at least one point.&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">position_list</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The position_list argument must be a list of positions with at least one point.&quot;</span><span class="p">)</span>
+            <span class="c1"># convert the points if they are defined as modeler.Position</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">position_list</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">Position</span><span class="p">):</span>
+                <span class="n">position_list</span> <span class="o">=</span> <span class="p">[[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">position_list</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">segment_type</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">position_list</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;The position_list argument must contain at least 2 points if segment_type is not specified.&quot;</span>
+                    <span class="p">)</span>
+                <span class="c1"># add the segment</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_segment_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">PolylineSegment</span><span class="p">(</span><span class="s2">&quot;Line&quot;</span><span class="p">)]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">position_list</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="c1"># add the points</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_positions</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">position_list</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">segment_type</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">segment_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Line&quot;</span><span class="p">,</span> <span class="s2">&quot;Arc&quot;</span><span class="p">,</span> <span class="s2">&quot;Spline&quot;</span><span class="p">]:</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;segment must be either &quot;Line&quot;, &quot;Arc&quot;, &quot;Spline&quot; or PolylineSegment object&#39;</span><span class="p">)</span>
+                <span class="c1"># add the segment</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_segment_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">PolylineSegment</span><span class="p">(</span><span class="n">segment_type</span><span class="p">)]</span>
+                <span class="c1"># add the points (discard the points in excess)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_segment_types</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Line&quot;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">position_list</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="s2">&quot;The position_list argument must contain at least 2 points for segment of type Line.&quot;</span>
+                        <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_positions</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">position_list</span><span class="p">[:</span><span class="mi">2</span><span class="p">]]</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_segment_types</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Arc&quot;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">position_list</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="s2">&quot;The position_list argument must contain at least 3 points for segment of type Arc.&quot;</span>
+                        <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_positions</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">position_list</span><span class="p">[:</span><span class="mi">3</span><span class="p">]]</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_segment_types</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Spline&quot;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">position_list</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="s2">&quot;The position_list argument must contain at least 4 points for segment of type Spline.&quot;</span>
+                        <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_positions</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">position_list</span><span class="p">[::]]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_segment_types</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">num_points</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">position_list</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">segment_type</span><span class="p">,</span> <span class="n">PolylineSegment</span><span class="p">):</span>
+                <span class="c1"># add the segment</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_segment_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">segment_type</span><span class="p">]</span>
+                <span class="c1"># add the points</span>
+                <span class="k">if</span> <span class="n">segment_type</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Line&quot;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">position_list</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="s2">&quot;The position_list argument must contain at least 2 points for segment of type Line.&quot;</span>
+                        <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_positions</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">position_list</span><span class="p">[:</span><span class="mi">2</span><span class="p">]]</span>
+                <span class="k">elif</span> <span class="n">segment_type</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Arc&quot;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">position_list</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="s2">&quot;The position_list argument must contain at least 3 points for segment of type Arc.&quot;</span>
+                        <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_positions</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">position_list</span><span class="p">[:</span><span class="mi">3</span><span class="p">]]</span>
+                <span class="k">elif</span> <span class="n">segment_type</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Spline&quot;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">position_list</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_segment_types</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">num_points</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="s2">&quot;The position_list argument must contain all points required by the segment of type Spline.&quot;</span>
+                        <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_positions</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">position_list</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_segment_types</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">num_points</span><span class="p">]]</span>
+                <span class="k">else</span><span class="p">:</span>  <span class="c1"># AngularArc</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_positions</span> <span class="o">=</span> <span class="p">[</span><span class="n">position_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_evaluate_arc_angle_extra_points</span><span class="p">(</span><span class="n">segment_type</span><span class="p">,</span> <span class="n">start_point</span><span class="o">=</span><span class="n">position_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_positions</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">segment_type</span><span class="o">.</span><span class="n">extra_points</span><span class="p">[:])</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">segment_type</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">i_pos</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">seg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">segment_type</span><span class="p">):</span>
+                    <span class="c1"># add the segments</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">seg</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="n">seg</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Line&quot;</span><span class="p">,</span> <span class="s2">&quot;Arc&quot;</span><span class="p">,</span> <span class="s2">&quot;Spline&quot;</span><span class="p">]:</span>
+                            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;segment must be either &quot;Line&quot;, &quot;Arc&quot;, &quot;Spline&quot; or PolylineSegment object&#39;</span><span class="p">)</span>
+                        <span class="c1"># Convert all string-type entries in the segment_types list to PolylineSegments</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_segment_types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PolylineSegment</span><span class="p">(</span><span class="n">seg</span><span class="p">))</span>
+                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">seg</span><span class="p">,</span> <span class="n">PolylineSegment</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_segment_types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">seg</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Invalid segment_type input of type </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">seg</span><span class="p">)))</span>
+                    <span class="c1"># add the points</span>
+                    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># append the first point only for the first segment</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_positions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">position_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                    <span class="c1"># add the other points</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_segment_types</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Line&quot;</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">position_list</span><span class="p">[</span><span class="n">i_pos</span> <span class="p">:</span> <span class="n">i_pos</span> <span class="o">+</span> <span class="mi">2</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                                <span class="s2">&quot;The position_list argument must contain at least 2 points for segment of type Line.&quot;</span>
+                            <span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_positions</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">position_list</span><span class="p">[</span><span class="n">i_pos</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:</span> <span class="n">i_pos</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]])</span>
+                        <span class="n">i_pos</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_segment_types</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Arc&quot;</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">close_surface</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">position_list</span><span class="p">[</span><span class="n">i_pos</span> <span class="p">:</span> <span class="n">i_pos</span> <span class="o">+</span> <span class="mi">3</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+                            <span class="n">close_surface</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">position_list</span><span class="p">[</span><span class="n">i_pos</span> <span class="p">:</span> <span class="n">i_pos</span> <span class="o">+</span> <span class="mi">3</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">2</span>
+                        <span class="p">):</span>
+                            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                                <span class="s2">&quot;The position_list argument must contain at least 3 points for segment of type Arc.&quot;</span>
+                            <span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_positions</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">position_list</span><span class="p">[</span><span class="n">i_pos</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:</span> <span class="n">i_pos</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]])</span>
+                        <span class="n">i_pos</span> <span class="o">+=</span> <span class="mi">2</span>
+                    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_segment_types</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Spline&quot;</span><span class="p">:</span>
+                        <span class="n">nsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_segment_types</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">num_points</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">position_list</span><span class="p">[</span><span class="n">i_pos</span> <span class="p">:</span> <span class="n">i_pos</span> <span class="o">+</span> <span class="n">nsp</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">nsp</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                                <span class="s2">&quot;The position_list argument must contain all points required by the segment Spline.&quot;</span>
+                            <span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_positions</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">position_list</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_segment_types</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">num_points</span><span class="p">]])</span>
+                        <span class="n">i_pos</span> <span class="o">+=</span> <span class="n">nsp</span> <span class="o">-</span> <span class="mi">1</span>
+                    <span class="k">else</span><span class="p">:</span>  <span class="c1"># AngularArc</span>
+                        <span class="n">start</span> <span class="o">=</span> <span class="n">position_list</span><span class="p">[</span><span class="n">i_pos</span><span class="p">]</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_evaluate_arc_angle_extra_points</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_segment_types</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">start_point</span><span class="o">=</span><span class="n">start</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_positions</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_segment_types</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">extra_points</span><span class="p">[:])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Invalid segment_type input of type </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">segment_type</span><span class="p">)))</span>
+
+            <span class="c1"># When close surface or cover_surface are set to True, ensure the start point and end point are coincident,</span>
+            <span class="c1"># and insert a line segment to achieve this if necessary</span>
+            <span class="k">if</span> <span class="n">cover_surface</span><span class="p">:</span>
+                <span class="n">close_surface</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_is_closed</span> <span class="o">=</span> <span class="n">close_surface</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_is_covered</span> <span class="o">=</span> <span class="n">cover_surface</span>
+
+            <span class="n">varg1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_point_segment_string_array</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">non_model</span><span class="p">:</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="s2">&quot;NonModel#&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">varg2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">_default_object_attributes</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">matname</span><span class="o">=</span><span class="n">matname</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flag</span><span class="p">)</span>
+
+            <span class="n">new_object_name</span> <span class="o">=</span> <span class="n">_retry_ntimes</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oeditor</span><span class="o">.</span><span class="n">CreatePolyline</span><span class="p">,</span> <span class="n">varg1</span><span class="p">,</span> <span class="n">varg2</span><span class="p">)</span>
+            <span class="n">Object3d</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitives</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">new_object_name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">_create_object</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">start_point</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;List of the ``[x, y, z]`` coordinates for the starting point in the polyline</span>
+<span class="sd">        object in the object&#39;s coordinate system.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of the ``[x, y, z]`` coordinates for the starting point in the polyline</span>
+<span class="sd">            object.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">end_point</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;List of the ``[x, y, z]`` coordinates for the ending point in the polyline</span>
+<span class="sd">        object in the object&#39;s coordinate system.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of the ``[x, y, z]`` coordinates for the ending point in the polyline</span>
+<span class="sd">            object.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.GetVertexIDsFromObject</span>
+<span class="sd">        &gt;&gt;&gt; oEditor.GetVertexPosition</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_update_segments_and_points</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Updates the self._segment_types and the self._positions from the history.</span>
+<span class="sd">        This internal method is called by properties ``points`` and ``segment_types``.</span>
+<span class="sd">        It will be called only once after opening a new project, then the internal</span>
+<span class="sd">        variables are maintained updated.</span>
+<span class="sd">        It is a single update call for both properties because they are very similar,</span>
+<span class="sd">        and we can access to the history only once.&quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">_convert_points</span><span class="p">(</span><span class="n">p_in</span><span class="p">,</span> <span class="n">dest_unit</span><span class="p">):</span>
+            <span class="n">p_out</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">ip</span> <span class="ow">in</span> <span class="n">p_in</span><span class="p">:</span>
+                <span class="n">v</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="n">decompose_variable_value</span><span class="p">(</span><span class="n">ip</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">u</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                    <span class="n">p_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">p_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">unit_converter</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">unit_system</span><span class="o">=</span><span class="s2">&quot;Length&quot;</span><span class="p">,</span> <span class="n">input_units</span><span class="o">=</span><span class="n">u</span><span class="p">,</span> <span class="n">output_units</span><span class="o">=</span><span class="n">dest_unit</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">p_out</span>
+
+        <span class="n">segments</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">history</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">()</span>
+            <span class="n">h_segments</span> <span class="o">=</span> <span class="n">history</span><span class="o">.</span><span class="n">segments</span>
+        <span class="k">except</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="n">history</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">h_segments</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">h_segments</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">h_segments</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+                <span class="c1"># evaluate the number of points in the segment</span>
+                <span class="n">attrb</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">props</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+                <span class="n">n_points</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">attrb</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="s2">&quot;Point&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="ow">in</span> <span class="n">attrb</span><span class="p">:</span>
+                        <span class="n">n_points</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="c1"># get the segment type</span>
+                <span class="n">s_type</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Segment Type&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># append the first point only for the first segment</span>
+                    <span class="k">if</span> <span class="n">s_type</span> <span class="o">!=</span> <span class="s2">&quot;Center Point Arc&quot;</span><span class="p">:</span>
+                        <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_convert_points</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Point1&quot;</span><span class="p">])[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">model_units</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_convert_points</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Start Point&quot;</span><span class="p">])[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">model_units</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">s_type</span> <span class="o">==</span> <span class="s2">&quot;Line&quot;</span><span class="p">:</span>
+                    <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PolylineSegment</span><span class="p">(</span><span class="s2">&quot;Line&quot;</span><span class="p">))</span>
+                    <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_convert_points</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Point2&quot;</span><span class="p">])[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">model_units</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">s_type</span> <span class="o">==</span> <span class="s2">&quot;3 Point Arc&quot;</span><span class="p">:</span>
+                    <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PolylineSegment</span><span class="p">(</span><span class="s2">&quot;Arc&quot;</span><span class="p">))</span>
+                    <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_convert_points</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Point2&quot;</span><span class="p">])[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">model_units</span><span class="p">))</span>
+                    <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_convert_points</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Point3&quot;</span><span class="p">])[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">model_units</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">s_type</span> <span class="o">==</span> <span class="s2">&quot;Spline&quot;</span><span class="p">:</span>
+                    <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PolylineSegment</span><span class="p">(</span><span class="s2">&quot;Spline&quot;</span><span class="p">,</span> <span class="n">num_points</span><span class="o">=</span><span class="n">n_points</span><span class="p">))</span>
+                    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">n_points</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                        <span class="n">point_attr</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Point&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)]</span>
+                        <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_convert_points</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">point_attr</span><span class="p">)[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">model_units</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">s_type</span> <span class="o">==</span> <span class="s2">&quot;Center Point Arc&quot;</span><span class="p">:</span>
+                    <span class="n">start</span> <span class="o">=</span> <span class="n">_convert_points</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Start Point&quot;</span><span class="p">])[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">model_units</span><span class="p">)</span>
+                    <span class="n">center</span> <span class="o">=</span> <span class="n">_convert_points</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Center Point&quot;</span><span class="p">])[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">model_units</span><span class="p">)</span>
+                    <span class="n">plane</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Plane&quot;</span><span class="p">]</span>
+                    <span class="n">angle</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Angle&quot;</span><span class="p">]</span>
+                    <span class="n">arc_seg</span> <span class="o">=</span> <span class="n">PolylineSegment</span><span class="p">(</span><span class="s2">&quot;AngularArc&quot;</span><span class="p">,</span> <span class="n">arc_angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">arc_center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span> <span class="n">arc_plane</span><span class="o">=</span><span class="n">plane</span><span class="p">)</span>
+                    <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arc_seg</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_evaluate_arc_angle_extra_points</span><span class="p">(</span><span class="n">arc_seg</span><span class="p">,</span> <span class="n">start</span><span class="p">)</span>
+                    <span class="n">points</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">arc_seg</span><span class="o">.</span><span class="n">extra_points</span><span class="p">[:])</span>
+
+        <span class="c1"># perform validation</span>
+        <span class="k">if</span> <span class="n">history</span><span class="p">:</span>
+            <span class="n">nn_segments</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">history</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Number of curves&quot;</span><span class="p">])</span>
+            <span class="n">nn_points</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">history</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Number of points&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">nn_segments</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">nn_points</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span> <span class="o">==</span> <span class="n">nn_segments</span><span class="p">,</span> <span class="s2">&quot;Error getting the polyline segments from AEDT.&quot;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">==</span> <span class="n">nn_points</span><span class="p">,</span> <span class="s2">&quot;Error getting the polyline points from AEDT.&quot;</span>
+        <span class="c1"># if succeeded save the result</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_segment_types</span> <span class="o">=</span> <span class="n">segments</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_positions</span> <span class="o">=</span> <span class="n">points</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">points</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Polyline Points.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_positions</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_positions</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_segments_and_points</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_positions</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">segment_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;List of the segment types of the polyline.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_segment_types</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_segment_types</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_segments_and_points</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_segment_types</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">vertex_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;List of the ``[x, y, z]`` coordinates for all vertex positions in the</span>
+<span class="sd">        polyline object in the object&#39;s coordinate system.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of the ``[x, y, z]`` coordinates for all vertex positions in the</span>
+<span class="sd">            polyline object.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.GetVertexIDsFromObject</span>
+<span class="sd">        &gt;&gt;&gt; oEditor.GetVertexPosition</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">id_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">get_object_vertices</span><span class="p">(</span><span class="n">partID</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="n">position_list</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">get_vertex_position</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">id_list</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">position_list</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_pl_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pt</span><span class="p">):</span>
+        <span class="n">pt_data</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:PLPoint&quot;</span><span class="p">]</span>
+        <span class="n">pt_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;X:=&quot;</span><span class="p">)</span>
+        <span class="n">pt_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_dim_arg</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">model_units</span><span class="p">))</span>
+        <span class="n">pt_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Y:=&quot;</span><span class="p">)</span>
+        <span class="n">pt_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_dim_arg</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">model_units</span><span class="p">))</span>
+        <span class="n">pt_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Z:=&quot;</span><span class="p">)</span>
+        <span class="n">pt_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_dim_arg</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">model_units</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">pt_data</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_point_segment_string_array</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve the parameter arrays for specifying the points and segments of a polyline</span>
+<span class="sd">        used in the :class:`pyaedt.modeler.Primitives.Polyline` constructor.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">position_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span>
+        <span class="n">segment_types</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">segment_types</span>
+
+        <span class="c1"># Add a closing point if needed</span>
+        <span class="n">varg1</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:PolylineParameters&quot;</span><span class="p">]</span>
+        <span class="n">varg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;IsPolylineCovered:=&quot;</span><span class="p">)</span>
+        <span class="n">varg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_is_covered</span><span class="p">)</span>
+        <span class="n">varg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;IsPolylineClosed:=&quot;</span><span class="p">)</span>
+        <span class="n">varg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_is_closed</span><span class="p">)</span>
+
+        <span class="c1"># PointsArray</span>
+        <span class="n">points_str</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:PolylinePoints&quot;</span><span class="p">]</span>
+        <span class="n">points_str</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pl_point</span><span class="p">(</span><span class="n">position_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+        <span class="c1"># Segments Array</span>
+        <span class="n">segment_str</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:PolylineSegments&quot;</span><span class="p">]</span>
+
+        <span class="n">pos_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">vertex_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">index_count</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">while</span> <span class="n">vertex_count</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">segment_types</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">current_segment</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="n">vertex_count</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">segment_types</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_closed</span><span class="p">:</span>
+                        <span class="c1"># Check the special case of a closed polyline needing an additional Line segment</span>
+                        <span class="k">if</span> <span class="n">position_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">position_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                            <span class="n">position_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">position_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                            <span class="n">current_segment</span> <span class="o">=</span> <span class="n">PolylineSegment</span><span class="p">(</span><span class="s2">&quot;Line&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">break</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">current_segment</span> <span class="o">=</span> <span class="n">segment_types</span><span class="p">[</span><span class="n">vertex_count</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="p">(</span><span class="s2">&quot;Number of segments inconsistent with the number of points!&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">current_segment</span><span class="p">:</span>
+                <span class="n">seg_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_segment_array</span><span class="p">(</span>
+                    <span class="n">current_segment</span><span class="p">,</span> <span class="n">start_index</span><span class="o">=</span><span class="n">index_count</span><span class="p">,</span> <span class="n">start_point</span><span class="o">=</span><span class="n">position_list</span><span class="p">[</span><span class="n">pos_count</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">segment_str</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">seg_str</span><span class="p">)</span>
+
+                <span class="n">pos_count_incr</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">current_segment</span><span class="o">.</span><span class="n">num_points</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">current_segment</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;AngularArc&quot;</span><span class="p">:</span>
+                        <span class="n">points_str</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pl_point</span><span class="p">(</span><span class="n">current_segment</span><span class="o">.</span><span class="n">extra_points</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]))</span>
+                        <span class="n">index_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="n">pos_count</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">position_list</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="n">current_segment</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Arc&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_closed</span><span class="p">:</span>
+                                <span class="n">position_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">position_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">err_str</span> <span class="o">=</span> <span class="s2">&quot;Insufficient points in position_list to complete the specified segment list&quot;</span>
+                                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">err_str</span><span class="p">)</span>
+                        <span class="n">points_str</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pl_point</span><span class="p">(</span><span class="n">position_list</span><span class="p">[</span><span class="n">pos_count</span> <span class="o">+</span> <span class="n">i</span><span class="p">]))</span>
+                        <span class="n">pos_count_incr</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">index_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">pos_count</span> <span class="o">+=</span> <span class="n">pos_count_incr</span>
+                <span class="n">vertex_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">break</span>
+
+        <span class="n">varg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">points_str</span><span class="p">)</span>
+        <span class="n">varg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">segment_str</span><span class="p">)</span>
+
+        <span class="c1"># Poly Line Cross Section</span>
+        <span class="n">varg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_xsection</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">varg1</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_evaluate_arc_angle_extra_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">segment</span><span class="p">,</span> <span class="n">start_point</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluates the extra points for the ArcAngle segment type.</span>
+<span class="sd">        It also auto evaluates the arc_plane if it was not specified by the user.</span>
+<span class="sd">        segment.extra_points[0] contains the arc mid point (on the arc).</span>
+<span class="sd">        segment.extra_points[1] contains the arc end point.</span>
+<span class="sd">        Both are function of the arc center, arc angle and arc plane.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># from start-point and angle, calculate the mid- and end-points</span>
+        <span class="c1"># Also identify the plane of the arc (&quot;YZ&quot;, &quot;ZX&quot;, &quot;XY&quot;)</span>
+        <span class="n">plane_axes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;YZ&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s2">&quot;ZX&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;XY&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]}</span>
+        <span class="n">c_xyz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">value_in_object_units</span><span class="p">(</span><span class="n">segment</span><span class="o">.</span><span class="n">arc_center</span><span class="p">)</span>
+        <span class="n">p0_xyz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">value_in_object_units</span><span class="p">(</span><span class="n">start_point</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">segment</span><span class="o">.</span><span class="n">arc_plane</span><span class="p">:</span>
+            <span class="c1"># Accept the user input for the plane of rotation - let the modeler fail if invalid</span>
+            <span class="n">plane_def</span> <span class="o">=</span> <span class="p">(</span><span class="n">segment</span><span class="o">.</span><span class="n">arc_plane</span><span class="p">,</span> <span class="n">plane_axes</span><span class="p">[</span><span class="n">segment</span><span class="o">.</span><span class="n">arc_plane</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Compare the numeric values of start-point and center-point to determine the orientation plane</span>
+            <span class="k">if</span> <span class="n">c_xyz</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">p0_xyz</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="n">plane_def</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;YZ&quot;</span><span class="p">,</span> <span class="n">plane_axes</span><span class="p">[</span><span class="s2">&quot;YZ&quot;</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">c_xyz</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">p0_xyz</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">plane_def</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;ZX&quot;</span><span class="p">,</span> <span class="n">plane_axes</span><span class="p">[</span><span class="s2">&quot;ZX&quot;</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">c_xyz</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">p0_xyz</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+                <span class="n">plane_def</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">,</span> <span class="n">plane_axes</span><span class="p">[</span><span class="s2">&quot;XY&quot;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="p">(</span><span class="s2">&quot;Start point and arc-center do not lie on a common base plane.&quot;</span><span class="p">)</span>
+            <span class="n">segment</span><span class="o">.</span><span class="n">arc_plane</span> <span class="o">=</span> <span class="n">plane_def</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Calculate the extra two points of the angular arc in the alpha-beta plane</span>
+        <span class="n">alph_index</span> <span class="o">=</span> <span class="n">plane_def</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">beta_index</span> <span class="o">=</span> <span class="n">plane_def</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">c_alph</span> <span class="o">=</span> <span class="n">c_xyz</span><span class="p">[</span><span class="n">alph_index</span><span class="p">]</span>
+        <span class="n">c_beta</span> <span class="o">=</span> <span class="n">c_xyz</span><span class="p">[</span><span class="n">beta_index</span><span class="p">]</span>
+        <span class="n">p0_alph</span> <span class="o">=</span> <span class="n">p0_xyz</span><span class="p">[</span><span class="n">alph_index</span><span class="p">]</span> <span class="o">-</span> <span class="n">c_alph</span>
+        <span class="n">p0_beta</span> <span class="o">=</span> <span class="n">p0_xyz</span><span class="p">[</span><span class="n">beta_index</span><span class="p">]</span> <span class="o">-</span> <span class="n">c_beta</span>
+
+        <span class="c1"># rotate to generate the new points</span>
+        <span class="n">arc_ang</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">evaluate_expression</span><span class="p">(</span><span class="n">segment</span><span class="o">.</span><span class="n">arc_angle</span><span class="p">)</span>  <span class="c1"># in radians</span>
+        <span class="n">h_arc_ang</span> <span class="o">=</span> <span class="n">arc_ang</span> <span class="o">*</span> <span class="mf">0.5</span>
+
+        <span class="n">p1_alph</span> <span class="o">=</span> <span class="n">c_alph</span> <span class="o">+</span> <span class="n">p0_alph</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">h_arc_ang</span><span class="p">)</span> <span class="o">-</span> <span class="n">p0_beta</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">h_arc_ang</span><span class="p">)</span>
+        <span class="n">p1_beta</span> <span class="o">=</span> <span class="n">c_beta</span> <span class="o">+</span> <span class="n">p0_alph</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">h_arc_ang</span><span class="p">)</span> <span class="o">+</span> <span class="n">p0_beta</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">h_arc_ang</span><span class="p">)</span>
+        <span class="n">p2_alph</span> <span class="o">=</span> <span class="n">c_alph</span> <span class="o">+</span> <span class="n">p0_alph</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">arc_ang</span><span class="p">)</span> <span class="o">-</span> <span class="n">p0_beta</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">arc_ang</span><span class="p">)</span>
+        <span class="n">p2_beta</span> <span class="o">=</span> <span class="n">c_beta</span> <span class="o">+</span> <span class="n">p0_alph</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">arc_ang</span><span class="p">)</span> <span class="o">+</span> <span class="n">p0_beta</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">arc_ang</span><span class="p">)</span>
+
+        <span class="c1"># Generate the 2 new points in XYZ</span>
+        <span class="n">p1</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">p0_xyz</span><span class="p">)</span>
+        <span class="n">p1</span><span class="p">[</span><span class="n">alph_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">p1_alph</span>
+        <span class="n">p1</span><span class="p">[</span><span class="n">beta_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">p1_beta</span>
+        <span class="n">p2</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">p0_xyz</span><span class="p">)</span>
+        <span class="n">p2</span><span class="p">[</span><span class="n">alph_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">p2_alph</span>
+        <span class="n">p2</span><span class="p">[</span><span class="n">beta_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">p2_beta</span>
+        <span class="n">segment</span><span class="o">.</span><span class="n">extra_points</span> <span class="o">=</span> <span class="p">[</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">]</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_segment_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">segment_data</span><span class="p">,</span> <span class="n">start_index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">start_point</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve a property array for a polyline segment for use in the</span>
+<span class="sd">        :class:`pyaedt.modeler.Primitives.Polyline` constructor.</span>
+
+<span class="sd">         Parameters</span>
+<span class="sd">         ----------</span>
+<span class="sd">         segment_data : :class:`pyaedt.modeler.Primitives.PolylineSegment` or str</span>
+<span class="sd">             Pointer to the calling object that provides additional functionality</span>
+<span class="sd">             or a string with the segment type ``Line`` or ``Arc``.</span>
+<span class="sd">         start_index : int, string</span>
+<span class="sd">             Starting vertex index of the segment within a compound polyline. The</span>
+<span class="sd">             default is ``0``.</span>
+<span class="sd">         start_point : list, optional</span>
+<span class="sd">             Position of the first point for type ``AngularArc``. The default is</span>
+<span class="sd">             ``None``. Float values are considered in model units.</span>
+
+<span class="sd">         Returns</span>
+<span class="sd">         ------</span>
+<span class="sd">         list</span>
+<span class="sd">             List of properties defining a polyline segment.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">segment_data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">segment_data</span> <span class="o">=</span> <span class="n">PolylineSegment</span><span class="p">(</span><span class="n">segment_data</span><span class="p">)</span>
+
+        <span class="n">seg</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;NAME:PLSegment&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;SegmentType:=&quot;</span><span class="p">,</span>
+            <span class="n">segment_data</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
+            <span class="s2">&quot;StartIndex:=&quot;</span><span class="p">,</span>
+            <span class="n">start_index</span><span class="p">,</span>
+            <span class="s2">&quot;NoOfPoints:=&quot;</span><span class="p">,</span>
+            <span class="n">segment_data</span><span class="o">.</span><span class="n">num_points</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">segment_data</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="s2">&quot;Line&quot;</span><span class="p">:</span>
+            <span class="n">seg</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;NoOfSegments:=&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">segment_data</span><span class="o">.</span><span class="n">num_seg</span><span class="p">)]</span>
+
+        <span class="k">if</span> <span class="n">segment_data</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;AngularArc&quot;</span><span class="p">:</span>
+            <span class="c1"># from start-point and angle, calculate the mid- and end-points</span>
+            <span class="k">assert</span> <span class="n">start_point</span><span class="p">,</span> <span class="s2">&quot;Start-point must be defined for an AngularArc Segment&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_evaluate_arc_angle_extra_points</span><span class="p">(</span><span class="n">segment_data</span><span class="p">,</span> <span class="n">start_point</span><span class="p">)</span>
+
+            <span class="n">mod_units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">model_units</span>
+            <span class="n">seg</span> <span class="o">+=</span> <span class="p">[</span>
+                <span class="s2">&quot;ArcAngle:=&quot;</span><span class="p">,</span>
+                <span class="n">segment_data</span><span class="o">.</span><span class="n">arc_angle</span><span class="p">,</span>
+                <span class="s2">&quot;ArcCenterX:=&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">_dim_arg</span><span class="p">(</span><span class="n">segment_data</span><span class="o">.</span><span class="n">arc_center</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mod_units</span><span class="p">)),</span>
+                <span class="s2">&quot;ArcCenterY:=&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">_dim_arg</span><span class="p">(</span><span class="n">segment_data</span><span class="o">.</span><span class="n">arc_center</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">mod_units</span><span class="p">)),</span>
+                <span class="s2">&quot;ArcCenterZ:=&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">_dim_arg</span><span class="p">(</span><span class="n">segment_data</span><span class="o">.</span><span class="n">arc_center</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">mod_units</span><span class="p">)),</span>
+                <span class="s2">&quot;ArcPlane:=&quot;</span><span class="p">,</span>
+                <span class="n">segment_data</span><span class="o">.</span><span class="n">arc_plane</span><span class="p">,</span>
+            <span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">seg</span>
+
+<div class="viewcode-block" id="Polyline.clone"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.cad.polylines.Polyline.clone.html#pyaedt.modeler.cad.polylines.Polyline.clone">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clone a polyline object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pyaedt.modeler.polylines.Polyline</span>
+<span class="sd">            Polyline object that was created.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.Copy</span>
+<span class="sd">        &gt;&gt;&gt; oEditor.Paste</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; primitives = self.aedtapp.modeler</span>
+<span class="sd">        &gt;&gt;&gt; P1 = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])</span>
+<span class="sd">        &gt;&gt;&gt; P2 = P1.clone()</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">vArg1</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:Selections&quot;</span><span class="p">,</span> <span class="s2">&quot;Selections:=&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">Copy</span><span class="p">(</span><span class="n">vArg1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">Paste</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_new_polyline</span><span class="p">()</span></div>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_add_new_polyline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">new_objects</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">find_new_objects</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_objects</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="n">new_name</span> <span class="o">=</span> <span class="n">new_objects</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">new_polyline</span> <span class="o">=</span> <span class="n">Polyline</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="p">,</span> <span class="n">src_object</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">new_name</span><span class="p">)</span>
+        <span class="n">new_polyline</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">_create_object</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">remove_vertex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">abstol</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove a vertex from an existing polyline by position.</span>
+
+<span class="sd">        .. deprecated:: 0.6.55</span>
+<span class="sd">           Use :func:``remove_point`` method instead.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;`remove_vertex` is deprecated. Use `remove_point` method instead.&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_point</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">abstol</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Polyline.remove_point"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.cad.polylines.Polyline.remove_point.html#pyaedt.modeler.cad.polylines.Polyline.remove_point">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">remove_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">abstol</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove a point from an existing polyline by position.</span>
+
+<span class="sd">        You must enter the exact position of the vertex as a list</span>
+<span class="sd">        of ``[x, y, z]`` coordinates in the object&#39;s coordinate system.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        position : list</span>
+<span class="sd">            List of ``[x, y, z]`` coordinates specifying the vertex to remove.</span>
+<span class="sd">        abstol : float, optional</span>
+<span class="sd">            Absolute tolerance of the comparison of a specified position to the</span>
+<span class="sd">            vertex positions. The default is ``1e-9``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.DeletePolylinePoint</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Use floating point values for the vertex positions.</span>
+
+<span class="sd">        &gt;&gt;&gt; P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])</span>
+<span class="sd">        &gt;&gt;&gt; P.remove_point([0, 1, 2])</span>
+
+<span class="sd">        Use string expressions for the vertex position.</span>
+
+<span class="sd">        &gt;&gt;&gt; P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])</span>
+<span class="sd">        &gt;&gt;&gt; P.remove_point([&quot;0mm&quot;, &quot;1mm&quot;, &quot;2mm&quot;])</span>
+
+<span class="sd">        Use string expressions for the vertex position and include an absolute</span>
+<span class="sd">        tolerance when searching for the vertex to be removed.</span>
+
+<span class="sd">        &gt;&gt;&gt; P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])</span>
+<span class="sd">        &gt;&gt;&gt; P.remove_point([&quot;0mm&quot;, &quot;1mm&quot;, &quot;2mm&quot;], abstol=1e-6)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found_vertex</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">seg_id</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">at_start</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">pos_xyz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">value_in_object_units</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ind</span><span class="p">,</span> <span class="n">point_pos</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">):</span>
+            <span class="c1"># compare the specified point with the vertex data using an absolute tolerance</span>
+            <span class="c1"># (default of math.isclose is 1e-9 which should be ok in almost all cases)</span>
+            <span class="n">found_vertex</span> <span class="o">=</span> <span class="n">GeometryOperators</span><span class="o">.</span><span class="n">points_distance</span><span class="p">(</span><span class="n">point_pos</span><span class="p">,</span> <span class="n">pos_xyz</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">abstol</span>
+            <span class="k">if</span> <span class="n">found_vertex</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ind</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">at_start</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="n">seg_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_segment_id_from_point_n</span><span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="n">at_start</span><span class="p">,</span> <span class="n">allow_inner_points</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">at_start</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">seg_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_segment_id_from_point_n</span><span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="n">at_start</span><span class="p">,</span> <span class="n">allow_inner_points</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">break</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">found_vertex</span> <span class="ow">or</span> <span class="n">seg_id</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">at_start</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Specified vertex </span><span class="si">{}</span><span class="s2"> not found in polyline </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_m_name</span><span class="p">))</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">DeletePolylinePoint</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;NAME:Delete Point&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Selections:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_m_name</span> <span class="o">+</span> <span class="s2">&quot;:CreatePolyline:1&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Segment Indices:=&quot;</span><span class="p">,</span>
+                    <span class="p">[</span><span class="n">seg_id</span><span class="p">],</span>
+                    <span class="s2">&quot;At Start:=&quot;</span><span class="p">,</span>
+                    <span class="n">at_start</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid edge ID </span><span class="si">{}</span><span class="s2"> is specified on polyline </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">seg_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">i_start</span><span class="p">,</span> <span class="n">i_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_point_slice_from_segment_id</span><span class="p">(</span><span class="n">seg_id</span><span class="p">,</span> <span class="n">at_start</span><span class="p">)</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_positions</span><span class="p">[</span><span class="n">i_start</span><span class="p">:</span><span class="n">i_end</span><span class="p">]</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_segment_types</span><span class="p">[</span><span class="n">seg_id</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">remove_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove a segment from an existing polyline by segment id.</span>
+
+<span class="sd">        .. deprecated:: 0.6.55</span>
+<span class="sd">           Use :func:``remove_segments`` method instead.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;`remove_edges` is deprecated. Use `remove_segments` method instead.&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_segments</span><span class="p">(</span><span class="n">segment_id</span><span class="o">=</span><span class="n">edge_id</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Polyline.remove_segments"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.cad.polylines.Polyline.remove_segments.html#pyaedt.modeler.cad.polylines.Polyline.remove_segments">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">remove_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">segment_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove a segment from an existing polyline by segment id.</span>
+
+<span class="sd">        You must enter the segment id or the list of the segment ids you want to remove.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        segment_id : int or List of int</span>
+<span class="sd">            One or more edge IDs within the total number of edges of the polyline.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.DeletePolylinePoint</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])</span>
+<span class="sd">        &gt;&gt;&gt; P.remove_segments(segment_id=0)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">segment_id</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">segment_id</span> <span class="o">=</span> <span class="p">[</span><span class="n">segment_id</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">segment_id</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">segment_id</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;segment_id must be int or list of int.&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">DeletePolylinePoint</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;NAME:Delete Point&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Selections:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;:CreatePolyline:1&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Segment Indices:=&quot;</span><span class="p">,</span>
+                    <span class="n">segment_id</span><span class="p">,</span>
+                    <span class="s2">&quot;At Start:=&quot;</span><span class="p">,</span>
+                    <span class="kc">True</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid segment ID </span><span class="si">{}</span><span class="s2"> is specified on polyline </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">segment_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">segment_id</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">sid</span> <span class="ow">in</span> <span class="n">segment_id</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">sid</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_segment_types</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="c1"># removing the last segment, AEDT removes ALWAYS the last polyline point</span>
+                    <span class="n">at_start</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">at_start</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">i_start</span><span class="p">,</span> <span class="n">i_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_point_slice_from_segment_id</span><span class="p">(</span><span class="n">sid</span><span class="p">,</span> <span class="n">at_start</span><span class="p">)</span>
+                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_positions</span><span class="p">[</span><span class="n">i_start</span><span class="p">:</span><span class="n">i_end</span><span class="p">]</span>
+                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_segment_types</span><span class="p">[</span><span class="n">sid</span><span class="p">]</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Polyline.set_crosssection_properties"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.cad.polylines.Polyline.set_crosssection_properties.html#pyaedt.modeler.cad.polylines.Polyline.set_crosssection_properties">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">set_crosssection_properties</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">topwidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">num_seg</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">bend_type</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the properties of an existing polyline object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        type : str, optional</span>
+<span class="sd">            Types of the cross-sections. Options are ``&quot;Line&quot;``, ``&quot;Circle&quot;``, ``&quot;Rectangle&quot;``,</span>
+<span class="sd">            and ``&quot;Isosceles Trapezoid&quot;``. The default is ``None``.</span>
+<span class="sd">        orient : str, optional</span>
+<span class="sd">            Direction of the normal vector to the width of the cross-section.</span>
+<span class="sd">            Options are ``&quot;X&quot;``, ``&quot;Y&quot;``, ``&quot;Z&quot;``, and ``&quot;Auto&quot;``. The default</span>
+<span class="sd">            is ``None``, which sets the orientation to ``&quot;Auto&quot;``.</span>
+<span class="sd">        width : float or str, optional</span>
+<span class="sd">           Width or diameter of the cross-section for all types. The default is</span>
+<span class="sd">           ``0``.</span>
+<span class="sd">        topwidth : float or str</span>
+<span class="sd">           Top width of the cross-section for the type ``&quot;Isosceles Trapezoid&quot;``</span>
+<span class="sd">           only. The default is ``0``.</span>
+<span class="sd">        height : float or str</span>
+<span class="sd">            Height of the cross-section for the types ``&quot;Rectangle&quot;`` and `&quot;Isosceles</span>
+<span class="sd">            Trapezoid&quot;`` only. The default is ``0``.</span>
+<span class="sd">        num_seg : int, optional</span>
+<span class="sd">            Number of segments in the cross-section surface for the types ``&quot;Circle&quot;``,</span>
+<span class="sd">            ``&quot;Rectangle&quot;``, and ``&quot;Isosceles Trapezoid&quot;``. The default is ``0``.</span>
+<span class="sd">            The value must be ``0`` or greater than ``2``.</span>
+<span class="sd">        bend_type : str, optional</span>
+<span class="sd">            Type of the bend. The default is ``None``, in which case the bend type</span>
+<span class="sd">            is set to ``&quot;Corner&quot;``. For the type ``&quot;Circle&quot;``, the bend type should be</span>
+<span class="sd">            set to ``&quot;Curved&quot;``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.ChangeProperty</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])</span>
+<span class="sd">        &gt;&gt;&gt; P.set_crosssection_properties(type=&quot;Circle&quot;, width=&quot;1mm&quot;)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Set the default section type to &quot;None&quot;</span>
+        <span class="n">section_type</span> <span class="o">=</span> <span class="nb">type</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">section_type</span><span class="p">:</span>
+            <span class="n">section_type</span> <span class="o">=</span> <span class="s2">&quot;None&quot;</span>
+
+        <span class="c1"># Set the default orientation to &quot;Auto&quot;</span>
+        <span class="n">section_orient</span> <span class="o">=</span> <span class="n">orient</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">section_orient</span><span class="p">:</span>
+            <span class="n">section_orient</span> <span class="o">=</span> <span class="s2">&quot;Auto&quot;</span>
+
+        <span class="c1"># Set the default bend-type to &quot;Corner&quot;</span>
+        <span class="n">section_bend</span> <span class="o">=</span> <span class="n">bend_type</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">section_bend</span><span class="p">:</span>
+            <span class="n">section_bend</span> <span class="o">=</span> <span class="s2">&quot;Corner&quot;</span>
+
+        <span class="c1"># Ensure number-of segments is valid</span>
+        <span class="k">if</span> <span class="n">num_seg</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">num_seg</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Number of segments for a cross-section must be 0 or greater than 2.&quot;</span>
+
+        <span class="n">model_units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">model_units</span>
+
+        <span class="n">arg1</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:AllTabs&quot;</span><span class="p">]</span>
+        <span class="n">arg2</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:Geometry3DCmdTab&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;NAME:PropServers&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_m_name</span> <span class="o">+</span> <span class="s2">&quot;:CreatePolyline:1&quot;</span><span class="p">]]</span>
+        <span class="n">arg3</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:ChangedProps&quot;</span><span class="p">]</span>
+        <span class="n">arg3</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;NAME:Type&quot;</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="n">section_type</span><span class="p">])</span>
+        <span class="n">arg3</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;NAME:Orientation&quot;</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="n">section_orient</span><span class="p">])</span>
+        <span class="n">arg3</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;NAME:Bend Type&quot;</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="n">section_bend</span><span class="p">])</span>
+        <span class="n">arg3</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;NAME:Width/Diameter&quot;</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="n">_dim_arg</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">model_units</span><span class="p">)])</span>
+        <span class="k">if</span> <span class="n">section_type</span> <span class="o">==</span> <span class="s2">&quot;Rectangle&quot;</span><span class="p">:</span>
+            <span class="n">arg3</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;NAME:Height&quot;</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="n">_dim_arg</span><span class="p">(</span><span class="n">height</span><span class="p">,</span> <span class="n">model_units</span><span class="p">)])</span>
+        <span class="k">elif</span> <span class="n">section_type</span> <span class="o">==</span> <span class="s2">&quot;Circle&quot;</span><span class="p">:</span>
+            <span class="n">arg3</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;NAME:Number of Segments&quot;</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="n">num_seg</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">section_type</span> <span class="o">==</span> <span class="s2">&quot;Isosceles Trapezoid&quot;</span><span class="p">:</span>
+            <span class="n">arg3</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;NAME:Top Width&quot;</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="n">_dim_arg</span><span class="p">(</span><span class="n">topwidth</span><span class="p">,</span> <span class="n">model_units</span><span class="p">)])</span>
+            <span class="n">arg3</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;NAME:Height&quot;</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="n">_dim_arg</span><span class="p">(</span><span class="n">height</span><span class="p">,</span> <span class="n">model_units</span><span class="p">)])</span>
+        <span class="n">arg2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg3</span><span class="p">)</span>
+        <span class="n">arg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">ChangeProperty</span><span class="p">(</span><span class="n">arg1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">update_object</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_get_point_slice_from_segment_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">segment_id</span><span class="p">,</span> <span class="n">at_start</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the points belonging to the segment from the segment id.</span>
+<span class="sd">        The points are returned as list slice by returning the indexes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        segment_id : int</span>
+<span class="sd">            segment id</span>
+
+<span class="sd">        at_start : bool</span>
+<span class="sd">            if ``True`` the slice includes the start point of the segment and not the end point.</span>
+<span class="sd">            If ``False`` the slice includes the end point of the segment and not the start point.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple of int, bool</span>
+<span class="sd">            Indexes of the list slice. ``False`` when failed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">i_end</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">segment_types</span><span class="p">):</span>
+            <span class="n">i_start</span> <span class="o">=</span> <span class="n">i_end</span>
+            <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Line&quot;</span><span class="p">:</span>
+                <span class="n">i_end</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">s</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Arc&quot;</span><span class="p">:</span>
+                <span class="n">i_end</span> <span class="o">+=</span> <span class="mi">2</span>
+            <span class="k">elif</span> <span class="n">s</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;AngularArc&quot;</span><span class="p">:</span>
+                <span class="n">i_end</span> <span class="o">+=</span> <span class="mi">2</span>
+            <span class="k">elif</span> <span class="n">s</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Spline&quot;</span><span class="p">:</span>
+                <span class="n">i_end</span> <span class="o">+=</span> <span class="n">s</span><span class="o">.</span><span class="n">num_points</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">segment_id</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">at_start</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">i_start</span><span class="p">,</span> <span class="n">i_end</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">i_start</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i_end</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_get_segment_id_from_point_n</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pn</span><span class="p">,</span> <span class="n">at_start</span><span class="p">,</span> <span class="n">allow_inner_points</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the segment id for a given point index considering the segment types in the polyline.</span>
+<span class="sd">        If a segment cannot be found with the specified rules, the function returns False.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pn : int</span>
+<span class="sd">            point number along the polyline</span>
+<span class="sd">        at_start : bool</span>
+<span class="sd">            If set to ``True`` the segment id that begins with the point pn is returned.</span>
+<span class="sd">            If set to ``False`` the segment id that terminates with the point pn is returned.</span>
+<span class="sd">        allow_inner_points : bool, optional</span>
+<span class="sd">            If set to ``False`` only points that are at the extremities of the segments are considered.</span>
+<span class="sd">            If pn is in the middle of a segment, the function returns False.</span>
+<span class="sd">            If set to ``True`` also points in the middle of the segments are considered.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int, bool</span>
+<span class="sd">            segment id when successful. ``False`` when failed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n_points</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">segment_types</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">n_points</span> <span class="o">==</span> <span class="n">pn</span> <span class="ow">and</span> <span class="n">at_start</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">i</span>
+            <span class="n">n_points_imu</span> <span class="o">=</span> <span class="n">n_points</span>
+            <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Line&quot;</span><span class="p">:</span>
+                <span class="n">n_points</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">s</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Arc&quot;</span><span class="p">:</span>
+                <span class="n">n_points</span> <span class="o">+=</span> <span class="mi">2</span>
+            <span class="k">elif</span> <span class="n">s</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;AngularArc&quot;</span><span class="p">:</span>
+                <span class="n">n_points</span> <span class="o">+=</span> <span class="mi">2</span>
+            <span class="k">elif</span> <span class="n">s</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Spline&quot;</span><span class="p">:</span>
+                <span class="n">n_points</span> <span class="o">+=</span> <span class="n">s</span><span class="o">.</span><span class="n">num_points</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">n_points</span> <span class="o">==</span> <span class="n">pn</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">at_start</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">i</span>
+            <span class="k">if</span> <span class="n">n_points_imu</span> <span class="o">&lt;</span> <span class="n">pn</span> <span class="o">&lt;</span> <span class="n">n_points</span> <span class="ow">and</span> <span class="n">allow_inner_points</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">i</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="Polyline.insert_segment"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.cad.polylines.Polyline.insert_segment.html#pyaedt.modeler.cad.polylines.Polyline.insert_segment">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">insert_segment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position_list</span><span class="p">,</span> <span class="n">segment</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a segment to an existing polyline.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        position_list : List</span>
+<span class="sd">            List of positions of the points that define the segment to insert.</span>
+<span class="sd">            Either the starting point or ending point of the segment list must</span>
+<span class="sd">            match one of the vertices of the existing polyline.</span>
+<span class="sd">        segment : str or :class:`pyaedt.modeler.Primitives.PolylineSegment`, optional</span>
+<span class="sd">            Definition of the segment to insert. For the types ``&quot;Line&quot;`` and ``&quot;Arc&quot;``,</span>
+<span class="sd">            use their string values ``&quot;Line&quot;`` and ``&quot;Arc&quot;``. For the types ``&quot;AngularArc&quot;``</span>
+<span class="sd">            and ``&quot;Spline&quot;``, use the :class:`pyaedt.modeler.Primitives.PolylineSegment`</span>
+<span class="sd">            object to define the segment precisely.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.InsertPolylineSegment</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Check for a valid number of points</span>
+        <span class="n">num_points</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">position_list</span><span class="p">)</span>
+
+        <span class="c1"># define the segment type from the number of points given</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">segment</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">num_points</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;num_points must contain at least 2 points to auto-define a segment.&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">num_points</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">segment</span> <span class="o">=</span> <span class="n">PolylineSegment</span><span class="p">(</span><span class="s2">&quot;Line&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">num_points</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">segment</span> <span class="o">=</span> <span class="n">PolylineSegment</span><span class="p">(</span><span class="s2">&quot;Arc&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># num_points&gt;3</span>
+                <span class="n">segment</span> <span class="o">=</span> <span class="n">PolylineSegment</span><span class="p">(</span><span class="s2">&quot;Spline&quot;</span><span class="p">,</span> <span class="n">num_points</span><span class="o">=</span><span class="n">num_points</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">segment</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Line&quot;</span><span class="p">,</span> <span class="s2">&quot;Arc&quot;</span><span class="p">]:</span>
+                <span class="n">segment</span> <span class="o">=</span> <span class="n">PolylineSegment</span><span class="p">(</span><span class="n">segment</span><span class="p">)</span>
+                <span class="n">num_points</span> <span class="o">=</span> <span class="n">segment</span><span class="o">.</span><span class="n">num_points</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span> <span class="n">PolylineSegment</span><span class="p">):</span>
+                <span class="n">num_points</span> <span class="o">=</span> <span class="n">segment</span><span class="o">.</span><span class="n">num_points</span>
+                <span class="k">if</span> <span class="n">segment</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;AngularArc&quot;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_evaluate_arc_angle_extra_points</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span> <span class="n">start_point</span><span class="o">=</span><span class="n">position_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;segment must be either &quot;Line&quot;, &quot;Arc&quot; or PolylineSegment object.&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">segment</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="s2">&quot;AngularArc&quot;</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">position_list</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">num_points</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;position_list must contain enough points for the specified segment type.&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">segment</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;AngularArc&quot;</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">position_list</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;position_list must contain the start point for AngularArc segment.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Check whether start-point and end-point of the segment is in the existing polylines points</span>
+        <span class="n">start_point</span> <span class="o">=</span> <span class="n">position_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># End point does not exist for an AngularArc</span>
+        <span class="k">if</span> <span class="n">segment</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="s2">&quot;AngularArc&quot;</span><span class="p">:</span>
+            <span class="n">end_point</span> <span class="o">=</span> <span class="n">position_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">end_point</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">at_start</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">p_insert_position</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">insert_points</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">num_polyline_points</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">point</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">end_point</span> <span class="ow">and</span> <span class="p">(</span>
+                <span class="n">GeometryOperators</span><span class="o">.</span><span class="n">points_distance</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">value_in_object_units</span><span class="p">(</span><span class="n">point</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">value_in_object_units</span><span class="p">(</span><span class="n">end_point</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="o">&lt;</span> <span class="mf">1e-8</span>
+            <span class="p">):</span>
+                <span class="n">at_start</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">p_insert_position</span> <span class="o">=</span> <span class="n">i</span>
+                <span class="n">insert_points</span> <span class="o">=</span> <span class="n">position_list</span><span class="p">[:</span> <span class="n">num_points</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>  <span class="c1"># All points but last one.</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">num_polyline_points</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">segment</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="s2">&quot;Line&quot;</span><span class="p">:</span>
+                        <span class="c1"># Inserting a segment in this position is not allowed in AEDT.</span>
+                        <span class="c1"># We can make it work only for &quot;Line&quot; segments.</span>
+                        <span class="k">return</span> <span class="kc">False</span>
+                    <span class="n">at_start</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="n">position_list</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="n">start_point</span><span class="p">]</span>
+                <span class="k">break</span>
+            <span class="k">elif</span> <span class="p">(</span>
+                <span class="n">GeometryOperators</span><span class="o">.</span><span class="n">points_distance</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">value_in_object_units</span><span class="p">(</span><span class="n">point</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">value_in_object_units</span><span class="p">(</span><span class="n">start_point</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="o">&lt;</span> <span class="mf">1e-8</span>
+            <span class="p">):</span>
+                <span class="c1"># note that AngularArc can only be here</span>
+                <span class="n">at_start</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">p_insert_position</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">segment</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="s2">&quot;AngularArc&quot;</span><span class="p">:</span>
+                    <span class="n">insert_points</span> <span class="o">=</span> <span class="n">position_list</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">num_points</span><span class="p">]</span>  <span class="c1"># Insert all points but first one</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">insert_points</span> <span class="o">=</span> <span class="n">segment</span><span class="o">.</span><span class="n">extra_points</span><span class="p">[:]</span>  <span class="c1"># For AngularArc insert the extra points</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">segment</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="s2">&quot;Line&quot;</span><span class="p">:</span>
+                        <span class="c1"># Inserting a segment in this position is not allowed in AEDT.</span>
+                        <span class="c1"># PyAEDT can make it work only for &quot;Line&quot; segments.</span>
+                        <span class="k">return</span> <span class="kc">False</span>
+                    <span class="n">at_start</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">position_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">end_point</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+                <span class="k">break</span>
+
+        <span class="k">assert</span> <span class="n">p_insert_position</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Point for the insert is not found.&quot;</span>
+        <span class="k">assert</span> <span class="n">insert_points</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Point for the insert is not found.&quot;</span>
+
+        <span class="k">if</span> <span class="n">i</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The polyline contains no points. It is impossible to insert a segment.&quot;</span><span class="p">)</span>
+        <span class="n">segment_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_segment_id_from_point_n</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">at_start</span><span class="o">=</span><span class="n">at_start</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">segment_index</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s2">&quot;Segment for the insert is not found.&quot;</span>
+        <span class="k">if</span> <span class="n">at_start</span><span class="p">:</span>
+            <span class="n">s_insert_position</span> <span class="o">=</span> <span class="n">segment_index</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">s_insert_position</span> <span class="o">=</span> <span class="n">segment_index</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="nb">type</span> <span class="o">=</span> <span class="n">segment</span><span class="o">.</span><span class="n">type</span>
+
+        <span class="n">varg1</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:Insert Polyline Segment&quot;</span><span class="p">]</span>
+        <span class="n">varg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Selections:=&quot;</span><span class="p">)</span>
+        <span class="n">varg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_m_name</span> <span class="o">+</span> <span class="s2">&quot;:CreatePolyline:1&quot;</span><span class="p">)</span>
+        <span class="n">varg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Segment Indices:=&quot;</span><span class="p">)</span>
+        <span class="n">varg1</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">segment_index</span><span class="p">])</span>
+        <span class="n">varg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;At Start:=&quot;</span><span class="p">)</span>
+        <span class="n">varg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">at_start</span><span class="p">)</span>
+        <span class="n">varg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;SegmentType:=&quot;</span><span class="p">)</span>
+        <span class="n">varg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span>
+
+        <span class="c1"># Points and segment data</span>
+        <span class="n">varg2</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:PolylinePoints&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">segment</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Line&quot;</span> <span class="ow">or</span> <span class="n">segment</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Spline&quot;</span> <span class="ow">or</span> <span class="n">segment</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Arc&quot;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">position_list</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">num_points</span><span class="p">]:</span>
+                <span class="n">varg2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pl_point</span><span class="p">(</span><span class="n">pt</span><span class="p">))</span>
+            <span class="n">varg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">varg2</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">segment</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;AngularArc&quot;</span><span class="p">:</span>
+            <span class="n">seg_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_segment_array</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span> <span class="n">start_point</span><span class="o">=</span><span class="n">start_point</span><span class="p">)</span>
+            <span class="n">varg2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pl_point</span><span class="p">(</span><span class="n">start_point</span><span class="p">))</span>
+            <span class="n">varg2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pl_point</span><span class="p">(</span><span class="n">segment</span><span class="o">.</span><span class="n">extra_points</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="n">varg2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pl_point</span><span class="p">(</span><span class="n">segment</span><span class="o">.</span><span class="n">extra_points</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">varg1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">varg2</span><span class="p">)</span>
+            <span class="n">varg1</span> <span class="o">+=</span> <span class="n">seg_str</span><span class="p">[</span><span class="mi">9</span><span class="p">:]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">InsertPolylineSegment</span><span class="p">(</span><span class="n">varg1</span><span class="p">)</span>
+
+        <span class="c1"># check if the polyline has been modified correctly</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_polyline_health</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Adding the segment result in an unclassified object. Undoing operation.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># add the points and the segment to the object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_positions</span><span class="p">[</span><span class="n">p_insert_position</span><span class="p">:</span><span class="n">p_insert_position</span><span class="p">]</span> <span class="o">=</span> <span class="n">insert_points</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_segment_types</span><span class="p">[</span><span class="n">s_insert_position</span><span class="p">:</span><span class="n">s_insert_position</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">segment</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_check_polyline_health</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># force re-evaluation of object_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_object_type</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">object_type</span> <span class="o">==</span> <span class="s2">&quot;Unclassified&quot;</span><span class="p">:</span>
+            <span class="c1"># Undo operation</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">Undo</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_object_type</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">object_type</span> <span class="o">!=</span> <span class="s2">&quot;Unclassified&quot;</span><span class="p">,</span> <span class="s2">&quot;Undo operation failed.&quot;</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+</pre></div>
+
+                </article>
+              
+              
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright (c) 2023 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

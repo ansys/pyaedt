@@ -1,0 +1,39 @@
+﻿pyaedt.modules.DesignXPloration.OptimizationSetups
+==================================================
+
+.. currentmodule:: pyaedt.modules.DesignXPloration
+
+.. autoclass:: OptimizationSetups
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      OptimizationSetups.add
+      
+      
+      OptimizationSetups.delete
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      
+      OptimizationSetups.optimodule
+      
+      
+      OptimizationSetups.p_app
+      
+   
+   

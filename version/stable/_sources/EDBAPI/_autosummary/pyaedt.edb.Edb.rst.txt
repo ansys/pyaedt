@@ -1,0 +1,213 @@
+﻿pyaedt.edb.Edb
+==============
+
+.. currentmodule:: pyaedt.edb
+
+.. autoclass:: Edb
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      Edb.add_design_variable
+      
+      
+      Edb.add_project_variable
+      
+      
+      Edb.are_port_reference_terminals_connected
+      
+      
+      Edb.build_simulation_project
+      
+      
+      Edb.calculate_initial_extent
+      
+      
+      Edb.change_design_variable_value
+      
+      
+      Edb.close_edb
+      
+      
+      Edb.create_edb
+      
+      
+      Edb.create_hfss_setup
+      
+      
+      Edb.create_siwave_dc_setup
+      
+      
+      Edb.create_siwave_syz_setup
+      
+      
+      Edb.cutout
+      
+      
+      Edb.edb_exception
+      
+      
+      Edb.edb_value
+      
+      
+      Edb.execute
+      
+      
+      Edb.export_hfss
+      
+      
+      Edb.export_maxwell
+      
+      
+      Edb.export_q3d
+      
+      
+      Edb.export_siwave_dc_results
+      
+      
+      Edb.export_to_ipc2581
+      
+      
+      Edb.get_bounding_box
+      
+      
+      Edb.get_conformal_polygon_from_netlist
+      
+      
+      Edb.get_statistics
+      
+      
+      Edb.get_variable
+      
+      
+      Edb.import_cadence_file
+      
+      
+      Edb.import_gds_file
+      
+      
+      Edb.import_layout_pcb
+      
+      
+      Edb.new_simulation_configuration
+      
+      
+      Edb.number_with_units
+      
+      
+      Edb.open_edb
+      
+      
+      Edb.open_edb_inside_aedt
+      
+      
+      Edb.save_edb
+      
+      
+      Edb.save_edb_as
+      
+      
+      Edb.solve_siwave
+      
+      
+      Edb.variable_exists
+      
+      
+      Edb.write_export3d_option_config_file
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      
+      Edb.active_cell
+      
+      
+      Edb.active_layout
+      
+      
+      Edb.cell_names
+      
+      
+      Edb.components
+      
+      
+      Edb.db
+      
+      
+      Edb.design_options
+      
+      
+      Edb.design_variables
+      
+      
+      Edb.excitations
+      
+      
+      Edb.excitations_nets
+      
+      
+      Edb.hfss
+      
+      
+      Edb.hfss_setups
+      
+      
+      Edb.layout_instance
+      
+      
+      Edb.logger
+      
+      
+      Edb.materials
+      
+      
+      Edb.modeler
+      
+      
+      Edb.nets
+      
+      
+      Edb.padstacks
+      
+      
+      Edb.probes
+      
+      
+      Edb.project_variables
+      
+      
+      Edb.setups
+      
+      
+      Edb.siwave
+      
+      
+      Edb.siwave_ac_setups
+      
+      
+      Edb.siwave_dc_setups
+      
+      
+      Edb.sources
+      
+      
+      Edb.stackup
+      
+      
+      Edb.variables
+      
+   
+   

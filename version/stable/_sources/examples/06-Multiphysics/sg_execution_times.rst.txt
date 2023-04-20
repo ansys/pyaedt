@@ -1,0 +1,14 @@
+
+:orphan:
+
+.. _sphx_glr_examples_06-Multiphysics_sg_execution_times:
+
+Computation times
+=================
+**08:20.391** total execution time for **examples_06-Multiphysics** files:
+
++------------------------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_examples_06-Multiphysics_Hfss_Mechanical.py` (``Hfss_Mechanical.py``)           | 04:58.006 | 0.0 MB |
++------------------------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_examples_06-Multiphysics_Hfss_Icepak_Coupling.py` (``Hfss_Icepak_Coupling.py``) | 03:22.385 | 0.0 MB |
++------------------------------------------------------------------------------------------------+-----------+--------+

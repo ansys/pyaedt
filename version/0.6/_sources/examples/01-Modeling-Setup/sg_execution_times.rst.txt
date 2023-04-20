@@ -1,0 +1,18 @@
+
+:orphan:
+
+.. _sphx_glr_examples_01-Modeling-Setup_sg_execution_times:
+
+Computation times
+=================
+**03:40.371** total execution time for **examples_01-Modeling-Setup** files:
+
++----------------------------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_examples_01-Modeling-Setup_Configurations.py` (``Configurations.py``)               | 01:16.801 | 0.0 MB |
++----------------------------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_examples_01-Modeling-Setup_Polyline_Primitives.py` (``Polyline_Primitives.py``)     | 00:59.021 | 0.0 MB |
++----------------------------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_examples_01-Modeling-Setup_Optimetrics.py` (``Optimetrics.py``)                     | 00:51.840 | 0.0 MB |
++----------------------------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_examples_01-Modeling-Setup_HFSS_CoordinateSystem.py` (``HFSS_CoordinateSystem.py``) | 00:32.708 | 0.0 MB |
++----------------------------------------------------------------------------------------------------+-----------+--------+

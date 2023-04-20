@@ -1,0 +1,6 @@
+loss\_tangent
+=============
+
+.. currentmodule:: pyaedt.edb_core.edb_data.layer_data
+
+.. autoproperty:: LayerEdbClass.loss_tangent

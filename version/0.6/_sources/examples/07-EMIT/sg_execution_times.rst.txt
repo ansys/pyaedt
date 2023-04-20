@@ -1,0 +1,14 @@
+
+:orphan:
+
+.. _sphx_glr_examples_07-EMIT_sg_execution_times:
+
+Computation times
+=================
+**00:52.467** total execution time for **examples_07-EMIT** files:
+
++----------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_examples_07-EMIT_EMIT_HFSS_Example.py` (``EMIT_HFSS_Example.py``) | 00:29.603 | 0.0 MB |
++----------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_examples_07-EMIT_EMIT_Example.py` (``EMIT_Example.py``)           | 00:22.864 | 0.0 MB |
++----------------------------------------------------------------------------------+-----------+--------+

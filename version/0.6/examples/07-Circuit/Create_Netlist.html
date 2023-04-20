@@ -1,0 +1,640 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Circuit: netlist to schematic import &#8212; PyAEDT</title>
+    
+<script>
+  document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+  document.documentElement.dataset.theme = localStorage.getItem("theme") || "light"
+</script>
+
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+
+
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css\ansys_sphinx_theme.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695">
+
+    
+        <link href="../../_static/css/breadcrumbs.css" rel="stylesheet">
+    
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <link rel="shortcut icon" href="../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Circuit: automatic report creation" href="Reports.html" />
+    <link rel="prev" title="Circuit: transient analysis and eye plot" href="Circuit_Transient.html" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+    <div class="bd-header-announcement container-fluid" id="banner">
+      
+
+    </div>
+
+    
+    
+    <nav class="bd-header navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="bd-header__inner container-xl">
+
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+    <img src="../../_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="Logo image">
+    <img src="../../_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="fas fa-bars"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../Getting_started/index.html">
+  Getting started
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../User_guide/index.html">
+  User guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../API/index.html">
+  AEDT API
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../EDBAPI/index.html">
+  EDB API
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="../index.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../Contributing.html">
+  Contribute
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <div class="dropdown" id="version_switcher">
+    <button type="button" class="btn btn-sm navbar-btn dropdown-toggle" id="version_switcher_button" data-toggle="dropdown">
+        0.6  <!-- this text may get changed later by javascript -->
+        <span class="caret"></span>
+    </button>
+    <div id="version_switcher_menu" class="dropdown-menu list-group-flush py-0" aria-labelledby="version_switcher_button">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+</div>
+
+<!-- NOTE: this JS must live here (not in our global JS file) because it relies
+     on being processed by Jinja before it is run (specifically for replacing
+     variables examples/07-Circuit/Create_Netlist and {'json_url': 'https://aedt.docs.pyansys.com/release/versions.json', 'version_match': '0.6'}.
+-->
+
+<script type="text/javascript">
+// Check if corresponding page path exists in other version of docs
+// and, if so, go there instead of the homepage of the other docs version
+function checkPageExistsAndRedirect(event) {
+    const currentFilePath = "examples/07-Circuit/Create_Netlist.html",
+          tryUrl = event.target.getAttribute("href");
+    let otherDocsHomepage = tryUrl.replace(currentFilePath, "");
+    $.ajax({
+        type: 'HEAD',
+        url: tryUrl,
+        // if the page exists, go there
+        success: function() {
+            location.href = tryUrl;
+        }
+    }).fail(function() {
+        location.href = otherDocsHomepage;
+    });
+    // this prevents the browser from following the href of the clicked node
+    // (which is fine because this function takes care of redirecting)
+    return false;
+}
+
+// Populate the version switcher from the JSON config file
+(function () {
+    $.getJSON("https://aedt.docs.pyansys.com/release/versions.json", function(data, textStatus, jqXHR) {
+        const currentFilePath = "examples/07-Circuit/Create_Netlist.html";
+        let btn = document.getElementById("version_switcher_button");
+        // Set empty strings by default so that these attributes exist and can be used in CSS selectors
+        btn.dataset["activeVersionName"] = "";
+        btn.dataset["activeVersion"] = "";
+        // create links to the corresponding page in the other docs versions
+        $.each(data, function(index, entry) {
+            // if no custom name specified (e.g., "latest"), use version string
+            if (!("name" in entry)) {
+                entry.name = entry.version;
+            }
+            // create the node
+            const node = document.createElement("a");
+            node.setAttribute("class", "list-group-item list-group-item-action py-1");
+            node.textContent = `${entry.name}`;
+            node.setAttribute("href", `${entry.url}${currentFilePath}`);
+            // on click, AJAX calls will check if the linked page exists before
+            // trying to redirect, and if not, will redirect to the homepage
+            // for that version of the docs.
+            node.onclick = checkPageExistsAndRedirect;
+            // Add dataset values for the version and name in case people want
+            // to apply CSS styling based on this information.
+            node.dataset["versionName"] = entry.name;
+            node.dataset["version"] = entry.version;
+
+            $("#version_switcher_menu").append(node);
+            // replace dropdown button text with the preferred display name of
+            // this version, rather than using sphinx's 0.6.70 variable.
+            // also highlight the dropdown entry for the currently-viewed
+            // version's entry
+            if (entry.version == "0.6") {
+                node.classList.add("active");
+                btn.innerText = btn.dataset["activeVersionName"] = entry.name;
+                btn.dataset["activeVersion"] = entry.version;
+            }
+        });
+    });
+})();
+</script>
+      </div>
+      
+      <div class="navbar-end-item">
+        <span id="theme-switch" class="btn btn-sm btn-outline-primary navbar-btn rounded-circle">
+    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/pyansys/pyaedt" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/pyansys/pyaedt/discussions" rel="noopener" target="_blank" title="Support"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+     
+<div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(text => document.getElementById("announcement_msg").innerHTML = text)
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+
+    
+        <div class="container-xl">
+    <div class="row">
+        <div class="col-12 col-md-3" id="breadcrumbs-spacer"></div>
+        <div class="col-12 col-md-11 col-xl-9" id="breadcrumbs">
+          
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-additional-breadcrumb"><a href="https://docs.pyansys.com/">PyAnsys</a> » </li>
+    
+    
+        <li class="nav-item nav-item-0"><a href="../../index.html">PyAEDT</a> » </li>
+    
+
+          <li class="nav-item nav-item-1"><a href="../index.html" >Examples</a> » </li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">Circuit examples</a> » </li>
+        <li class="nav-item nav-item-this"><a href="">Circuit: netlist to schematic import</a></li> 
+      </ul>
+    </div>
+        </div>
+  </div>
+</div>
+    
+
+
+    <div class="bd-container container-xl">
+      <div class="bd-container__inner row">
+          
+
+<!-- Only show if we have sidebars configured, else just a small margin  -->
+<div class="bd-sidebar-primary col-12 col-md-3 bd-sidebar">
+  <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../00-EDB/index.html">
+   EDB examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../01-HFSS3DLayout/index.html">
+   HFSS 3D Layout examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../01-Modeling-Setup/index.html">
+   General model and setup examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../02-HFSS/index.html">
+   HFSS examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../02-SBR%2B/index.html">
+   SBR+ examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../03-Maxwell/index.html">
+   Maxwell examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../04-Icepak/index.html">
+   Icepak examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../05-Q3D/index.html">
+   2D Extractor and Q3D Extractor examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../06-Multiphysics/index.html">
+   Multiphysics examples
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="index.html">
+   Circuit examples
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="Circuit_AMI.html">
+     Circuit: AMI PostProcessing
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Circuit_Example.html">
+     Circuit: schematic creation and analysis
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Circuit_Subcircuit_Example.html">
+     Circuit: schematic subcircuit management
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Circuit_Transient.html">
+     Circuit: transient analysis and eye plot
+    </a>
+   </li>
+   <li class="toctree-l2 current active">
+    <a class="current reference internal" href="#">
+     Circuit: netlist to schematic import
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Reports.html">
+     Circuit: automatic report creation
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Touchstone_Management.html">
+     Circuit: Touchstone file management
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../07-EMIT/index.html">
+   EMIT examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../07-TwinBuilder/index.html">
+   Twin Builder examples
+  </a>
+ </li>
+</ul>
+
+  </div>
+</nav>
+  </div>
+  <div class="sidebar-end-items">
+  </div>
+</div>
+
+
+          
+
+
+<div class="bd-sidebar-secondary d-none d-xl-block col-xl-2 bd-toc">
+  
+    
+    <div class="toc-item">
+      
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#perform-required-imports">
+   Perform required imports
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#launch-aedt">
+   Launch AEDT
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#set-non-graphical-mode">
+   Set non-graphical mode
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#launch-aedt-with-circuit">
+   Launch AEDT with Circuit
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#define-variable">
+   Define variable
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#create-schematic-from-netlist-file">
+   Create schematic from netlist file
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#close-project-and-release-aedt">
+   Close project and release AEDT
+  </a>
+ </li>
+</ul>
+
+</nav>
+    </div>
+    
+    <div class="toc-item">
+      
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/pyansys/pyaedt/edit/main/doc/source/examples/07-Circuit/Create_Netlist.rst">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
+    </div>
+    
+  
+</div>
+
+
+          
+          
+          <div class="bd-content col-12 col-md-9 col-xl-7">
+              
+              <article class="bd-article" role="main">
+                
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-examples-07-circuit-create-netlist-py"><span class="std std-ref">here</span></a>
+to download the full example code</p>
+</div>
+<section class="sphx-glr-example-title" id="circuit-netlist-to-schematic-import">
+<span id="sphx-glr-examples-07-circuit-create-netlist-py"></span><h1>Circuit: netlist to schematic import<a class="headerlink" href="#circuit-netlist-to-schematic-import" title="Permalink to this heading">#</a></h1>
+<p>This example shows how you can import netlist data into a circuit design.
+HSPICE files are fully supported. Mentor files are partially supported.</p>
+<section id="perform-required-imports">
+<h2>Perform required imports<a class="headerlink" href="#perform-required-imports" title="Permalink to this heading">#</a></h2>
+<p>Perform required imports and set paths.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">pyaedt</span>
+
+<a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">netlist</span></a> <span class="o">=</span> <span class="n">pyaedt</span><span class="o">.</span><span class="n">downloads</span><span class="o">.</span><span class="n">download_netlist</span><span class="p">()</span>
+
+<a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">project_name</span></a> <span class="o">=</span> <span class="n">pyaedt</span><span class="o">.</span><span class="n">generate_unique_project_name</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">project_name</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>D:\Temp\pyaedt_prj_TKU\Project_TGE.aedt
+</pre></div>
+</div>
+</section>
+<section id="launch-aedt">
+<h2>Launch AEDT<a class="headerlink" href="#launch-aedt" title="Permalink to this heading">#</a></h2>
+<p>Launch AEDT 2023 R1 in graphical mode. This example uses SI units.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">desktopVersion</span></a> <span class="o">=</span> <span class="s2">&quot;2023.1&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="set-non-graphical-mode">
+<h2>Set non-graphical mode<a class="headerlink" href="#set-non-graphical-mode" title="Permalink to this heading">#</a></h2>
+<p>Set non-graphical mode. <code class="docutils literal notranslate"><span class="pre">&quot;PYAEDT_NON_GRAPHICAL&quot;</span></code> is needed to generate
+documentation only.
+You can set <code class="docutils literal notranslate"><span class="pre">non_graphical</span></code> either to <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>.
+The Boolean parameter <code class="docutils literal notranslate"><span class="pre">NewThread</span></code> defines whether to create a new instance
+of AEDT or try to connect to an existing instance of it.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/functions.html#bool" title="builtins.bool" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">non_graphical</span></a> <span class="o">=</span> <span class="kc">False</span>
+<a href="https://docs.python.org/dev/library/functions.html#bool" title="builtins.bool" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">NewThread</span></a> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+</section>
+<section id="launch-aedt-with-circuit">
+<h2>Launch AEDT with Circuit<a class="headerlink" href="#launch-aedt-with-circuit" title="Permalink to this heading">#</a></h2>
+<p>Launch AEDT with Circuit. The <code class="xref py py-class docutils literal notranslate"><span class="pre">pyaedt.Desktop</span></code> class initializes AEDT
+and starts it on the specified version in the specified graphical mode.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">desktop</span> <span class="o">=</span> <span class="n">pyaedt</span><span class="o">.</span><span class="n">launch_desktop</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">desktopVersion</span></a><span class="p">,</span> <a href="https://docs.python.org/dev/library/functions.html#bool" title="builtins.bool" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">non_graphical</span></a><span class="p">,</span> <a href="https://docs.python.org/dev/library/functions.html#bool" title="builtins.bool" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">NewThread</span></a><span class="p">)</span>
+<span class="n">aedtapp</span> <span class="o">=</span> <span class="n">pyaedt</span><span class="o">.</span><span class="n">Circuit</span><span class="p">(</span><span class="n">projectname</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">project_name</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>C:\actions-runner\_work\_tool\Python\3.8.10\x64\lib\subprocess.py:946: ResourceWarning: subprocess 13484 is still running
+  _warn(&quot;subprocess %s is still running&quot; % self.pid,
+c:\actions-runner\_work\pyaedt\pyaedt\testenv\lib\site-packages\pyaedt\desktop.py:79: ResourceWarning: unclosed file &lt;_io.BufferedReader name=11&gt;
+  subprocess.Popen(&quot; &quot;.join(command), env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+c:\actions-runner\_work\pyaedt\pyaedt\testenv\lib\site-packages\pyaedt\desktop.py:86: ResourceWarning: unclosed &lt;socket.socket fd=15308, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=(&#39;0.0.0.0&#39;, 55468)&gt;
+  while not _check_grpc_port(port):
+c:\actions-runner\_work\pyaedt\pyaedt\testenv\lib\site-packages\pyaedt\desktop.py:86: ResourceWarning: unclosed &lt;socket.socket fd=8672, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=(&#39;0.0.0.0&#39;, 55475)&gt;
+  while not _check_grpc_port(port):
+c:\actions-runner\_work\pyaedt\pyaedt\testenv\lib\site-packages\pyaedt\desktop.py:86: ResourceWarning: unclosed &lt;socket.socket fd=8672, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=(&#39;0.0.0.0&#39;, 55478)&gt;
+  while not _check_grpc_port(port):
+c:\actions-runner\_work\pyaedt\pyaedt\testenv\lib\site-packages\pyaedt\desktop.py:86: ResourceWarning: unclosed &lt;socket.socket fd=8000, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=(&#39;0.0.0.0&#39;, 55481)&gt;
+  while not _check_grpc_port(port):
+</pre></div>
+</div>
+</section>
+<section id="define-variable">
+<h2>Define variable<a class="headerlink" href="#define-variable" title="Permalink to this heading">#</a></h2>
+<p>Define a design variable by using a <code class="docutils literal notranslate"><span class="pre">$</span></code> prefix.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">aedtapp</span><span class="p">[</span><span class="s2">&quot;Voltage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;5&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="create-schematic-from-netlist-file">
+<h2>Create schematic from netlist file<a class="headerlink" href="#create-schematic-from-netlist-file" title="Permalink to this heading">#</a></h2>
+<p>Create a schematic from a netlist file. The <code class="docutils literal notranslate"><span class="pre">create_schematic_from_netlist</span></code>
+method reads the netlist file and parses it. All components are parsed
+but only these categories are mapped: R, L, C, Q, U, J, V, and I.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">aedtapp</span><span class="o">.</span><span class="n">create_schematic_from_netlist</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">netlist</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[&#39;NAME:Models_Netlist&#39;, &#39;Info:=&#39;, [&#39;Type:=&#39;, 0, &#39;NumTerminals:=&#39;, 0, &#39;DataSource:=&#39;, &#39;&#39;, &#39;ModifiedOn:=&#39;, &#39;&#39;, &#39;Manufacturer:=&#39;, &#39;&#39;, &#39;Symbol:=&#39;, &#39;Models_Netlist&#39;, &#39;ModelNames:=&#39;, &#39;&#39;, &#39;Footprint:=&#39;, &#39;&#39;, &#39;Description:=&#39;, &#39;&#39;, &#39;InfoTopic:=&#39;, &#39;&#39;, &#39;InfoHelpFile:=&#39;, &#39;&#39;, &#39;IconFile:=&#39;, &#39;&#39;, &#39;Library:=&#39;, &#39;&#39;, &#39;OriginalLocation:=&#39;, &#39;Project&#39;, &#39;IEEE:=&#39;, &#39;&#39;, &#39;Author:=&#39;, &#39;&#39;, &#39;OriginalAuthor:=&#39;, &#39;&#39;, &#39;CreationDate:=&#39;, &#39;&#39;, &#39;ExampleFile:=&#39;, &#39;&#39;, &#39;HiddenComponent:=&#39;, 0, &#39;CircuitEnv:=&#39;, 0, &#39;GroupID:=&#39;, 0], &#39;CircuitEnv:=&#39;, 0, &#39;Refbase:=&#39;, &#39;x&#39;, &#39;NumParts:=&#39;, 1, &#39;ModSinceLib:=&#39;, True, &#39;CompExtID:=&#39;, 1, [&#39;NAME:Parameters&#39;, &#39;ButtonProp:=&#39;, [&#39;CosimDefinition&#39;, &#39;D&#39;, &#39;&#39;, &#39;Edit&#39;, &#39;Edit&#39;, 40501, &#39;ButtonPropClientData:=&#39;, []], &#39;MenuProp:=&#39;, [&#39;CoSimulator&#39;, &#39;D&#39;, &#39;&#39;, &#39;DefaultNetlist&#39;, 0]], [&#39;NAME:CosimDefinitions&#39;, [&#39;NAME:CosimDefinition&#39;, &#39;CosimulatorType:=&#39;, 4, &#39;CosimDefName:=&#39;, &#39;DefaultNetlist&#39;, &#39;IsDefinition:=&#39;, True, &#39;Connect:=&#39;, True, &#39;Data:=&#39;, [&#39;Nexxim Circuit:=&#39;, &#39;x@ID &#39;], &#39;GRef:=&#39;, [&#39;Nexxim Circuit:=&#39;, &#39;&#39;]], &#39;DefaultCosim:=&#39;, &#39;DefaultNetlist&#39;]]
+[&#39;NAME:STS6NF20V&#39;, &#39;Info:=&#39;, [&#39;Type:=&#39;, 0, &#39;NumTerminals:=&#39;, 8, &#39;DataSource:=&#39;, &#39;&#39;, &#39;ModifiedOn:=&#39;, 1591858313, &#39;Manufacturer:=&#39;, &#39;&#39;, &#39;Symbol:=&#39;, &#39;STS6NF20V&#39;, &#39;ModelNames:=&#39;, &#39;&#39;, &#39;Footprint:=&#39;, &#39;&#39;, &#39;Description:=&#39;, &#39;&#39;, &#39;InfoTopic:=&#39;, &#39;&#39;, &#39;InfoHelpFile:=&#39;, &#39;&#39;, &#39;IconFile:=&#39;, &#39;&#39;, &#39;Library:=&#39;, &#39;&#39;, &#39;OriginalLocation:=&#39;, &#39;Project&#39;, &#39;IEEE:=&#39;, &#39;&#39;, &#39;Author:=&#39;, &#39;&#39;, &#39;OriginalAuthor:=&#39;, &#39;&#39;, &#39;CreationDate:=&#39;, 1591858313, &#39;ExampleFile:=&#39;, &#39;&#39;, &#39;HiddenComponent:=&#39;, 0, &#39;CircuitEnv:=&#39;, 0, &#39;GroupID:=&#39;, 0], &#39;CircuitEnv:=&#39;, 0, &#39;Refbase:=&#39;, &#39;Q&#39;, &#39;NumParts:=&#39;, 1, &#39;ModSinceLib:=&#39;, True, &#39;Terminal:=&#39;, [&#39;Pin1&#39;, &#39;Pin1&#39;, &#39;A&#39;, False, 0, 1, &#39;&#39;, &#39;Electrical&#39;, &#39;0&#39;], &#39;Terminal:=&#39;, [&#39;Pin2&#39;, &#39;Pin2&#39;, &#39;A&#39;, False, 0, 1, &#39;&#39;, &#39;Electrical&#39;, &#39;0&#39;], &#39;Terminal:=&#39;, [&#39;Pin3&#39;, &#39;Pin3&#39;, &#39;A&#39;, False, 0, 1, &#39;&#39;, &#39;Electrical&#39;, &#39;0&#39;], &#39;Terminal:=&#39;, [&#39;Pin4&#39;, &#39;Pin4&#39;, &#39;A&#39;, False, 0, 1, &#39;&#39;, &#39;Electrical&#39;, &#39;0&#39;], &#39;Terminal:=&#39;, [&#39;Pin5&#39;, &#39;Pin5&#39;, &#39;A&#39;, False, 0, 1, &#39;&#39;, &#39;Electrical&#39;, &#39;0&#39;], &#39;Terminal:=&#39;, [&#39;Pin6&#39;, &#39;Pin6&#39;, &#39;A&#39;, False, 0, 1, &#39;&#39;, &#39;Electrical&#39;, &#39;0&#39;], &#39;Terminal:=&#39;, [&#39;Pin7&#39;, &#39;Pin7&#39;, &#39;A&#39;, False, 0, 1, &#39;&#39;, &#39;Electrical&#39;, &#39;0&#39;], &#39;Terminal:=&#39;, [&#39;Pin8&#39;, &#39;Pin8&#39;, &#39;A&#39;, False, 0, 1, &#39;&#39;, &#39;Electrical&#39;, &#39;0&#39;], &#39;CompExtID:=&#39;, 1, [&#39;NAME:Parameters&#39;, &#39;TextValueProp:=&#39;, [&#39;MOD&#39;, &#39;D&#39;, &#39;&#39;, &#39;STS6NF20V&#39;], &#39;ButtonProp:=&#39;, [&#39;CosimDefinition&#39;, &#39;D&#39;, &#39;&#39;, &#39;Edit&#39;, &#39;Edit&#39;, 40501, &#39;ButtonPropClientData:=&#39;, []], &#39;MenuProp:=&#39;, [&#39;CoSimulator&#39;, &#39;D&#39;, &#39;&#39;, &#39;DefaultNetlist&#39;, 0]], [&#39;NAME:CosimDefinitions&#39;, [&#39;NAME:CosimDefinition&#39;, &#39;CosimulatorType:=&#39;, 4, &#39;CosimDefName:=&#39;, &#39;DefaultNetlist&#39;, &#39;IsDefinition:=&#39;, True, &#39;Connect:=&#39;, True, &#39;Data:=&#39;, [&#39;Nexxim Circuit:=&#39;, &#39;Q@ID %0 STS6NF20V %1 STS6NF20V %2 STS6NF20V %3 STS6NF20V %4 STS6NF20V %5 STS6NF20V %6 STS6NF20V %7 STS6NF20V @MOD &#39;], &#39;GRef:=&#39;, [&#39;Nexxim Circuit:=&#39;, &#39;&#39;]], &#39;DefaultCosim:=&#39;, &#39;DefaultNetlist&#39;]]
+[&#39;NAME:CON4&#39;, &#39;Info:=&#39;, [&#39;Type:=&#39;, 0, &#39;NumTerminals:=&#39;, 5, &#39;DataSource:=&#39;, &#39;&#39;, &#39;ModifiedOn:=&#39;, 1591858313, &#39;Manufacturer:=&#39;, &#39;&#39;, &#39;Symbol:=&#39;, &#39;CON4&#39;, &#39;ModelNames:=&#39;, &#39;&#39;, &#39;Footprint:=&#39;, &#39;&#39;, &#39;Description:=&#39;, &#39;&#39;, &#39;InfoTopic:=&#39;, &#39;&#39;, &#39;InfoHelpFile:=&#39;, &#39;&#39;, &#39;IconFile:=&#39;, &#39;&#39;, &#39;Library:=&#39;, &#39;&#39;, &#39;OriginalLocation:=&#39;, &#39;Project&#39;, &#39;IEEE:=&#39;, &#39;&#39;, &#39;Author:=&#39;, &#39;&#39;, &#39;OriginalAuthor:=&#39;, &#39;&#39;, &#39;CreationDate:=&#39;, 1591858313, &#39;ExampleFile:=&#39;, &#39;&#39;, &#39;HiddenComponent:=&#39;, 0, &#39;CircuitEnv:=&#39;, 0, &#39;GroupID:=&#39;, 0], &#39;CircuitEnv:=&#39;, 0, &#39;Refbase:=&#39;, &#39;J&#39;, &#39;NumParts:=&#39;, 1, &#39;ModSinceLib:=&#39;, True, &#39;Terminal:=&#39;, [&#39;Pin1&#39;, &#39;Pin1&#39;, &#39;A&#39;, False, 0, 1, &#39;&#39;, &#39;Electrical&#39;, &#39;0&#39;], &#39;Terminal:=&#39;, [&#39;Pin2&#39;, &#39;Pin2&#39;, &#39;A&#39;, False, 0, 1, &#39;&#39;, &#39;Electrical&#39;, &#39;0&#39;], &#39;Terminal:=&#39;, [&#39;Pin3&#39;, &#39;Pin3&#39;, &#39;A&#39;, False, 0, 1, &#39;&#39;, &#39;Electrical&#39;, &#39;0&#39;], &#39;Terminal:=&#39;, [&#39;Pin4&#39;, &#39;Pin4&#39;, &#39;A&#39;, False, 0, 1, &#39;&#39;, &#39;Electrical&#39;, &#39;0&#39;], &#39;Terminal:=&#39;, [&#39;Pin5&#39;, &#39;Pin5&#39;, &#39;A&#39;, False, 0, 1, &#39;&#39;, &#39;Electrical&#39;, &#39;0&#39;], &#39;CompExtID:=&#39;, 1, [&#39;NAME:Parameters&#39;, &#39;TextValueProp:=&#39;, [&#39;MOD&#39;, &#39;D&#39;, &#39;&#39;, &#39;CON4&#39;], &#39;ButtonProp:=&#39;, [&#39;CosimDefinition&#39;, &#39;D&#39;, &#39;&#39;, &#39;Edit&#39;, &#39;Edit&#39;, 40501, &#39;ButtonPropClientData:=&#39;, []], &#39;MenuProp:=&#39;, [&#39;CoSimulator&#39;, &#39;D&#39;, &#39;&#39;, &#39;DefaultNetlist&#39;, 0]], [&#39;NAME:CosimDefinitions&#39;, [&#39;NAME:CosimDefinition&#39;, &#39;CosimulatorType:=&#39;, 4, &#39;CosimDefName:=&#39;, &#39;DefaultNetlist&#39;, &#39;IsDefinition:=&#39;, True, &#39;Connect:=&#39;, True, &#39;Data:=&#39;, [&#39;Nexxim Circuit:=&#39;, &#39;J@ID %0 CON4 %1 CON4 %2 CON4 %3 CON4 %4 CON4 @MOD &#39;], &#39;GRef:=&#39;, [&#39;Nexxim Circuit:=&#39;, &#39;&#39;]], &#39;DefaultCosim:=&#39;, &#39;DefaultNetlist&#39;]]
+[&#39;NAME:DCH010505SN7&#39;, &#39;Info:=&#39;, [&#39;Type:=&#39;, 0, &#39;NumTerminals:=&#39;, 4, &#39;DataSource:=&#39;, &#39;&#39;, &#39;ModifiedOn:=&#39;, 1591858313, &#39;Manufacturer:=&#39;, &#39;&#39;, &#39;Symbol:=&#39;, &#39;DCH010505SN7&#39;, &#39;ModelNames:=&#39;, &#39;&#39;, &#39;Footprint:=&#39;, &#39;&#39;, &#39;Description:=&#39;, &#39;&#39;, &#39;InfoTopic:=&#39;, &#39;&#39;, &#39;InfoHelpFile:=&#39;, &#39;&#39;, &#39;IconFile:=&#39;, &#39;&#39;, &#39;Library:=&#39;, &#39;&#39;, &#39;OriginalLocation:=&#39;, &#39;Project&#39;, &#39;IEEE:=&#39;, &#39;&#39;, &#39;Author:=&#39;, &#39;&#39;, &#39;OriginalAuthor:=&#39;, &#39;&#39;, &#39;CreationDate:=&#39;, 1591858313, &#39;ExampleFile:=&#39;, &#39;&#39;, &#39;HiddenComponent:=&#39;, 0, &#39;CircuitEnv:=&#39;, 0, &#39;GroupID:=&#39;, 0], &#39;CircuitEnv:=&#39;, 0, &#39;Refbase:=&#39;, &#39;U&#39;, &#39;NumParts:=&#39;, 1, &#39;ModSinceLib:=&#39;, True, &#39;Terminal:=&#39;, [&#39;Pin1&#39;, &#39;Pin1&#39;, &#39;A&#39;, False, 0, 1, &#39;&#39;, &#39;Electrical&#39;, &#39;0&#39;], &#39;Terminal:=&#39;, [&#39;Pin2&#39;, &#39;Pin2&#39;, &#39;A&#39;, False, 0, 1, &#39;&#39;, &#39;Electrical&#39;, &#39;0&#39;], &#39;Terminal:=&#39;, [&#39;Pin3&#39;, &#39;Pin3&#39;, &#39;A&#39;, False, 0, 1, &#39;&#39;, &#39;Electrical&#39;, &#39;0&#39;], &#39;Terminal:=&#39;, [&#39;Pin4&#39;, &#39;Pin4&#39;, &#39;A&#39;, False, 0, 1, &#39;&#39;, &#39;Electrical&#39;, &#39;0&#39;], &#39;CompExtID:=&#39;, 1, [&#39;NAME:Parameters&#39;, &#39;TextValueProp:=&#39;, [&#39;MOD&#39;, &#39;D&#39;, &#39;&#39;, &#39;DCH010505SN7&#39;], &#39;ButtonProp:=&#39;, [&#39;CosimDefinition&#39;, &#39;D&#39;, &#39;&#39;, &#39;Edit&#39;, &#39;Edit&#39;, 40501, &#39;ButtonPropClientData:=&#39;, []], &#39;MenuProp:=&#39;, [&#39;CoSimulator&#39;, &#39;D&#39;, &#39;&#39;, &#39;DefaultNetlist&#39;, 0]], [&#39;NAME:CosimDefinitions&#39;, [&#39;NAME:CosimDefinition&#39;, &#39;CosimulatorType:=&#39;, 4, &#39;CosimDefName:=&#39;, &#39;DefaultNetlist&#39;, &#39;IsDefinition:=&#39;, True, &#39;Connect:=&#39;, True, &#39;Data:=&#39;, [&#39;Nexxim Circuit:=&#39;, &#39;U@ID %0 DCH010505SN7 %1 DCH010505SN7 %2 DCH010505SN7 %3 DCH010505SN7 @MOD &#39;], &#39;GRef:=&#39;, [&#39;Nexxim Circuit:=&#39;, &#39;&#39;]], &#39;DefaultCosim:=&#39;, &#39;DefaultNetlist&#39;]]
+
+True
+</pre></div>
+</div>
+</section>
+<section id="close-project-and-release-aedt">
+<h2>Close project and release AEDT<a class="headerlink" href="#close-project-and-release-aedt" title="Permalink to this heading">#</a></h2>
+<p>After adding any other desired functionalities, close the project and release
+AEDT.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">desktop</span><span class="o">.</span><span class="n">release_desktop</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  19.396 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-07-circuit-create-netlist-py">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/00665616d90c2f5cf3d64900ef168469/Create_Netlist.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">Create_Netlist.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/da62e3c82b3e429b5213772249c4854c/Create_Netlist.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">Create_Netlist.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+              </article>
+              
+
+              
+          </div>
+          
+      </div>
+    </div>
+
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695"></script>
+
+<footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    <p class="copyright">
+    &copy; Copyright (c) 2023 ANSYS, Inc. All rights reserved.<br>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+  </div>
+  
+</div>
+</footer>
+  </body>
+</html>

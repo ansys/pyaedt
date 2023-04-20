@@ -1,0 +1,1421 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyaedt.generic.constants &#8212; PyAEDT</title>
+    
+<script>
+  document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+  document.documentElement.dataset.theme = localStorage.getItem("theme") || "light"
+</script>
+
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+
+
+  <link rel="stylesheet"
+    href="../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css\ansys_sphinx_theme.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695">
+
+    
+        <link href="../../../_static/css/breadcrumbs.css" rel="stylesheet">
+    
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <link rel="shortcut icon" href="../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+    <div class="bd-header-announcement container-fluid" id="banner">
+      
+
+    </div>
+
+    
+    
+    <nav class="bd-header navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="bd-header__inner container-xl">
+
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+    <img src="../../../_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="Logo image">
+    <img src="../../../_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="fas fa-bars"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../Getting_started/index.html">
+  Getting started
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../User_guide/index.html">
+  User guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../API/index.html">
+  AEDT API
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../EDBAPI/index.html">
+  EDB API
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../examples/index.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../Contributing.html">
+  Contribute
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <div class="dropdown" id="version_switcher">
+    <button type="button" class="btn btn-sm navbar-btn dropdown-toggle" id="version_switcher_button" data-toggle="dropdown">
+        0.6  <!-- this text may get changed later by javascript -->
+        <span class="caret"></span>
+    </button>
+    <div id="version_switcher_menu" class="dropdown-menu list-group-flush py-0" aria-labelledby="version_switcher_button">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+</div>
+
+<!-- NOTE: this JS must live here (not in our global JS file) because it relies
+     on being processed by Jinja before it is run (specifically for replacing
+     variables _modules/pyaedt/generic/constants and {'json_url': 'https://aedt.docs.pyansys.com/release/versions.json', 'version_match': '0.6'}.
+-->
+
+<script type="text/javascript">
+// Check if corresponding page path exists in other version of docs
+// and, if so, go there instead of the homepage of the other docs version
+function checkPageExistsAndRedirect(event) {
+    const currentFilePath = "_modules/pyaedt/generic/constants.html",
+          tryUrl = event.target.getAttribute("href");
+    let otherDocsHomepage = tryUrl.replace(currentFilePath, "");
+    $.ajax({
+        type: 'HEAD',
+        url: tryUrl,
+        // if the page exists, go there
+        success: function() {
+            location.href = tryUrl;
+        }
+    }).fail(function() {
+        location.href = otherDocsHomepage;
+    });
+    // this prevents the browser from following the href of the clicked node
+    // (which is fine because this function takes care of redirecting)
+    return false;
+}
+
+// Populate the version switcher from the JSON config file
+(function () {
+    $.getJSON("https://aedt.docs.pyansys.com/release/versions.json", function(data, textStatus, jqXHR) {
+        const currentFilePath = "_modules/pyaedt/generic/constants.html";
+        let btn = document.getElementById("version_switcher_button");
+        // Set empty strings by default so that these attributes exist and can be used in CSS selectors
+        btn.dataset["activeVersionName"] = "";
+        btn.dataset["activeVersion"] = "";
+        // create links to the corresponding page in the other docs versions
+        $.each(data, function(index, entry) {
+            // if no custom name specified (e.g., "latest"), use version string
+            if (!("name" in entry)) {
+                entry.name = entry.version;
+            }
+            // create the node
+            const node = document.createElement("a");
+            node.setAttribute("class", "list-group-item list-group-item-action py-1");
+            node.textContent = `${entry.name}`;
+            node.setAttribute("href", `${entry.url}${currentFilePath}`);
+            // on click, AJAX calls will check if the linked page exists before
+            // trying to redirect, and if not, will redirect to the homepage
+            // for that version of the docs.
+            node.onclick = checkPageExistsAndRedirect;
+            // Add dataset values for the version and name in case people want
+            // to apply CSS styling based on this information.
+            node.dataset["versionName"] = entry.name;
+            node.dataset["version"] = entry.version;
+
+            $("#version_switcher_menu").append(node);
+            // replace dropdown button text with the preferred display name of
+            // this version, rather than using sphinx's 0.6.70 variable.
+            // also highlight the dropdown entry for the currently-viewed
+            // version's entry
+            if (entry.version == "0.6") {
+                node.classList.add("active");
+                btn.innerText = btn.dataset["activeVersionName"] = entry.name;
+                btn.dataset["activeVersion"] = entry.version;
+            }
+        });
+    });
+})();
+</script>
+      </div>
+      
+      <div class="navbar-end-item">
+        <span id="theme-switch" class="btn btn-sm btn-outline-primary navbar-btn rounded-circle">
+    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/pyansys/pyaedt" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/pyansys/pyaedt/discussions" rel="noopener" target="_blank" title="Support"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+     
+<div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(text => document.getElementById("announcement_msg").innerHTML = text)
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+
+    
+        <div class="container-xl">
+    <div class="row">
+        <div class="col-12 col-md-3" id="breadcrumbs-spacer"></div>
+        <div class="col-12 col-md-11 col-xl-9" id="breadcrumbs">
+          
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-additional-breadcrumb"><a href="https://docs.pyansys.com/">PyAnsys</a> » </li>
+    
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PyAEDT</a> » </li>
+    
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> » </li>
+        <li class="nav-item nav-item-this"><a href="">pyaedt.generic.constants</a></li> 
+      </ul>
+    </div>
+        </div>
+  </div>
+</div>
+    
+
+
+    <div class="bd-container container-xl">
+      <div class="bd-container__inner row">
+          
+
+<!-- Only show if we have sidebars configured, else just a small margin  -->
+<div class="bd-sidebar-primary col-12 col-md-3 bd-sidebar">
+  <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+  </div>
+  <div class="sidebar-end-items">
+  </div>
+</div>
+
+
+          
+
+
+<div class="bd-sidebar-secondary d-none d-xl-block col-xl-2 bd-toc">
+  
+</div>
+
+
+          
+          
+          <div class="bd-content col-12 col-md-9 col-xl-7">
+              
+              <article class="bd-article" role="main">
+                
+  <h1>Source code for pyaedt.generic.constants</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="n">RAD2DEG</span> <span class="o">=</span> <span class="mf">180.0</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span>
+<span class="n">DEG2RAD</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">180</span>
+<span class="n">HOUR2SEC</span> <span class="o">=</span> <span class="mf">3600.0</span>
+<span class="n">MIN2SEC</span> <span class="o">=</span> <span class="mf">60.0</span>
+<span class="n">SEC2MIN</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mf">60.0</span>
+<span class="n">SEC2HOUR</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mf">3600.0</span>
+<span class="n">INV2PI</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span>
+<span class="n">V2PI</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span>
+<span class="n">METER2IN</span> <span class="o">=</span> <span class="mf">0.0254</span>
+<span class="n">METER2MILES</span> <span class="o">=</span> <span class="mf">1609.344051499</span>
+<span class="n">MILS2METER</span> <span class="o">=</span> <span class="mf">39370.078740157</span>
+<span class="n">SpeedOfLight</span> <span class="o">=</span> <span class="mf">299792458.0</span>
+
+
+<div class="viewcode-block" id="db20"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.db20">[docs]</a><span class="k">def</span> <span class="nf">db20</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert db20 to decimal and vice versa.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">inverse</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">20</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">x</span> <span class="o">/</span> <span class="mf">20.0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="db10"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.db10">[docs]</a><span class="k">def</span> <span class="nf">db10</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert db10 to decimal and vice versa.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">inverse</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">x</span> <span class="o">/</span> <span class="mf">10.0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="dbw"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.dbw">[docs]</a><span class="k">def</span> <span class="nf">dbw</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert W to decimal and vice versa.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">inverse</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">x</span> <span class="o">/</span> <span class="mf">10.0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="dbm"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.dbm">[docs]</a><span class="k">def</span> <span class="nf">dbm</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert W to decimal and vice versa.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">inverse</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mi">30</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">x</span> <span class="o">/</span> <span class="mf">10.0</span><span class="p">)</span> <span class="o">/</span> <span class="mi">1000</span></div>
+
+
+<div class="viewcode-block" id="fah2kel"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.fah2kel">[docs]</a><span class="k">def</span> <span class="nf">fah2kel</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a temperature from Fahrenheit to Kelvin.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    val : float</span>
+<span class="sd">        Temperature value in Fahrenheit.</span>
+<span class="sd">    inverse : bool, optional</span>
+<span class="sd">        The default is ``True``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Temperature value converted to Kelvin.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">inverse</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">val</span> <span class="o">-</span> <span class="mf">273.15</span><span class="p">)</span> <span class="o">*</span> <span class="mi">9</span> <span class="o">/</span> <span class="mi">5</span> <span class="o">+</span> <span class="mi">32</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">val</span> <span class="o">-</span> <span class="mi">32</span><span class="p">)</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">/</span> <span class="mi">9</span> <span class="o">+</span> <span class="mf">273.15</span></div>
+
+
+<div class="viewcode-block" id="cel2kel"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.cel2kel">[docs]</a><span class="k">def</span> <span class="nf">cel2kel</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a temperature from Celsius to Kelvin.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    val : float</span>
+<span class="sd">        Temperature value in Celsius.</span>
+<span class="sd">    inverse : bool, optional</span>
+<span class="sd">        The default is ``True``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Temperature value converted to Kelvin.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">inverse</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">val</span> <span class="o">-</span> <span class="mf">273.15</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">val</span> <span class="o">+</span> <span class="mf">273.15</span></div>
+
+
+<div class="viewcode-block" id="unit_system"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.unit_system">[docs]</a><span class="k">def</span> <span class="nf">unit_system</span><span class="p">(</span><span class="n">units</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieve the name of the unit system associated with a unit string.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    units : str</span>
+<span class="sd">        Units for retrieving the associated unit system name.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Key from the ``AEDT_units`` when successful. For example, ``&quot;AngularSpeed&quot;``.</span>
+<span class="sd">    ``False`` when the units specified are not defined in AEDT units.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">unit_type</span><span class="p">,</span> <span class="n">unit_dict</span> <span class="ow">in</span> <span class="n">AEDT_UNITS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">units</span> <span class="ow">in</span> <span class="n">unit_dict</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">unit_type</span>
+
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<span class="k">def</span> <span class="nf">_resolve_unit_system</span><span class="p">(</span><span class="n">unit_system_1</span><span class="p">,</span> <span class="n">unit_system_2</span><span class="p">,</span> <span class="n">operation</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieve the unit string of an arithmetic operation on ``Variable`` objects. If no resulting unit system</span>
+<span class="sd">    is defined for a specific operation (in unit_system_operations), an empty string is returned</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    unit_system_1 : str</span>
+<span class="sd">        Name of a unit system, which is a key of ``AEDT_units``.</span>
+<span class="sd">    unit_system_2 : str</span>
+<span class="sd">        Name of another unit system, which is a key of ``AEDT_units``.</span>
+<span class="sd">    operation : str</span>
+<span class="sd">        Name of an operator within the data set of ``[&quot;multiply&quot; ,&quot;divide&quot;]``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Unit system when successful, ``&quot;&quot;`` when failed.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">unit_system_1</span><span class="p">,</span> <span class="n">operation</span><span class="p">,</span> <span class="n">unit_system_2</span><span class="p">)</span>
+        <span class="n">result_unit_system</span> <span class="o">=</span> <span class="n">UNIT_SYSTEM_OPERATIONS</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">SI_UNITS</span><span class="p">[</span><span class="n">result_unit_system</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="unit_converter"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.unit_converter">[docs]</a><span class="k">def</span> <span class="nf">unit_converter</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">unit_system</span><span class="o">=</span><span class="s2">&quot;Length&quot;</span><span class="p">,</span> <span class="n">input_units</span><span class="o">=</span><span class="s2">&quot;meter&quot;</span><span class="p">,</span> <span class="n">output_units</span><span class="o">=</span><span class="s2">&quot;mm&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert unit in specified unit system.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    values : float, list</span>
+<span class="sd">        Values to convert.</span>
+<span class="sd">    unit_system : str</span>
+<span class="sd">        Unit system. Default is `&quot;Length&quot;`.</span>
+<span class="sd">    input_units : str</span>
+<span class="sd">        Input units. Default is `&quot;meter&quot;`.</span>
+<span class="sd">    output_units : str</span>
+<span class="sd">        Output units. Default is `&quot;mm&quot;`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float, list</span>
+<span class="sd">        Converted value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">unit_system</span> <span class="ow">in</span> <span class="n">AEDT_UNITS</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">input_units</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="n">unit_system</span><span class="p">]:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Unknown units: &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">input_units</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">values</span>
+        <span class="k">elif</span> <span class="n">output_units</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="n">unit_system</span><span class="p">]:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Unknown units: &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">output_units</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">values</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">input_is_list</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">input_is_list</span><span class="p">:</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">values</span><span class="p">]</span>
+            <span class="n">converted_values</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">unit_system</span> <span class="o">==</span> <span class="s2">&quot;Temperature&quot;</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="n">unit_system</span><span class="p">][</span><span class="n">input_units</span><span class="p">](</span><span class="n">value</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="n">unit_system</span><span class="p">][</span><span class="n">output_units</span><span class="p">](</span><span class="n">value</span><span class="p">,</span> <span class="n">output_units</span> <span class="o">!=</span> <span class="s2">&quot;kel&quot;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">AEDT_UNITS</span><span class="p">[</span><span class="n">unit_system</span><span class="p">][</span><span class="n">input_units</span><span class="p">])</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span>
+                    <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="n">unit_system</span><span class="p">][</span><span class="n">output_units</span><span class="p">]</span>
+                <span class="p">):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span> <span class="o">*</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="n">unit_system</span><span class="p">][</span><span class="n">input_units</span><span class="p">]</span> <span class="o">/</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="n">unit_system</span><span class="p">][</span><span class="n">output_units</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">AEDT_UNITS</span><span class="p">[</span><span class="n">unit_system</span><span class="p">][</span><span class="n">input_units</span><span class="p">])</span> <span class="ow">and</span> <span class="n">callable</span><span class="p">(</span>
+                    <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="n">unit_system</span><span class="p">][</span><span class="n">output_units</span><span class="p">]</span>
+                <span class="p">):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span> <span class="o">*</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="n">unit_system</span><span class="p">][</span><span class="n">input_units</span><span class="p">]</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="n">unit_system</span><span class="p">][</span><span class="n">output_units</span><span class="p">](</span><span class="n">value</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">callable</span><span class="p">(</span><span class="n">AEDT_UNITS</span><span class="p">[</span><span class="n">unit_system</span><span class="p">][</span><span class="n">input_units</span><span class="p">])</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span>
+                    <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="n">unit_system</span><span class="p">][</span><span class="n">output_units</span><span class="p">]</span>
+                <span class="p">):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="n">unit_system</span><span class="p">][</span><span class="n">input_units</span><span class="p">](</span><span class="n">value</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="o">/</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="n">unit_system</span><span class="p">][</span><span class="n">output_units</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="n">unit_system</span><span class="p">][</span><span class="n">input_units</span><span class="p">](</span><span class="n">value</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="n">unit_system</span><span class="p">][</span><span class="n">output_units</span><span class="p">](</span><span class="n">value</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+                <span class="n">converted_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">input_is_list</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">converted_values</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">converted_values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No system unit found&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">values</span></div>
+
+
+<div class="viewcode-block" id="scale_units"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.scale_units">[docs]</a><span class="k">def</span> <span class="nf">scale_units</span><span class="p">(</span><span class="n">scale_to_unit</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find the scale_to_unit into main system unit.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    scale_to_unit : str</span>
+<span class="sd">        Unit to Scale.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Return the scaling factor if any.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sunit</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">AEDT_UNITS</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+        <span class="k">for</span> <span class="n">unit</span><span class="p">,</span> <span class="n">scale_val</span> <span class="ow">in</span> <span class="n">val</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">scale_to_unit</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">unit</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="n">sunit</span> <span class="o">=</span> <span class="n">scale_val</span>
+                <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">break</span>
+    <span class="k">return</span> <span class="n">sunit</span></div>
+
+
+<div class="viewcode-block" id="validate_enum_class_value"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.validate_enum_class_value">[docs]</a><span class="k">def</span> <span class="nf">validate_enum_class_value</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check whether the value for the class ``enumeration-class`` is valid.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cls : class</span>
+<span class="sd">        Enumeration-style class with integer members in range(0, N) where cls.Invalid equals N-1.</span>
+<span class="sd">    value : int</span>
+<span class="sd">        Value to check.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        ``True`` when the value is valid for the ``enumeration-class``, ``False`` otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="bp">cls</span><span class="o">.</span><span class="n">Invalid</span></div>
+
+
+<span class="n">AEDT_UNITS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;AngularSpeed&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;deg_per_hr&quot;</span><span class="p">:</span> <span class="n">HOUR2SEC</span> <span class="o">*</span> <span class="n">DEG2RAD</span><span class="p">,</span>
+        <span class="s2">&quot;rad_per_hr&quot;</span><span class="p">:</span> <span class="n">HOUR2SEC</span><span class="p">,</span>
+        <span class="s2">&quot;deg_per_min&quot;</span><span class="p">:</span> <span class="n">MIN2SEC</span> <span class="o">*</span> <span class="n">DEG2RAD</span><span class="p">,</span>
+        <span class="s2">&quot;rad_per_min&quot;</span><span class="p">:</span> <span class="n">MIN2SEC</span><span class="p">,</span>
+        <span class="s2">&quot;deg_per_sec&quot;</span><span class="p">:</span> <span class="n">DEG2RAD</span><span class="p">,</span>
+        <span class="s2">&quot;rad_per_sec&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;rev_per_sec&quot;</span><span class="p">:</span> <span class="n">V2PI</span><span class="p">,</span>
+        <span class="s2">&quot;per_sec&quot;</span><span class="p">:</span> <span class="n">V2PI</span><span class="p">,</span>
+        <span class="s2">&quot;rpm&quot;</span><span class="p">:</span> <span class="n">SEC2MIN</span> <span class="o">*</span> <span class="n">V2PI</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;Angle&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;deg&quot;</span><span class="p">:</span> <span class="n">DEG2RAD</span><span class="p">,</span> <span class="s2">&quot;rad&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;degmin&quot;</span><span class="p">:</span> <span class="n">DEG2RAD</span> <span class="o">*</span> <span class="n">SEC2MIN</span><span class="p">,</span> <span class="s2">&quot;degsec&quot;</span><span class="p">:</span> <span class="n">DEG2RAD</span> <span class="o">*</span> <span class="n">SEC2HOUR</span><span class="p">},</span>
+    <span class="s2">&quot;Area&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;fm2&quot;</span><span class="p">:</span> <span class="mf">1e-30</span><span class="p">,</span>
+        <span class="s2">&quot;pm2&quot;</span><span class="p">:</span> <span class="mf">1e-24</span><span class="p">,</span>
+        <span class="s2">&quot;nm2&quot;</span><span class="p">:</span> <span class="mf">1e-18</span><span class="p">,</span>
+        <span class="s2">&quot;um2&quot;</span><span class="p">:</span> <span class="mf">1e-12</span><span class="p">,</span>
+        <span class="s2">&quot;mm2&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span>
+        <span class="s2">&quot;cm2&quot;</span><span class="p">:</span> <span class="mf">1e-4</span><span class="p">,</span>
+        <span class="s2">&quot;dm2&quot;</span><span class="p">:</span> <span class="mf">1e-2</span><span class="p">,</span>
+        <span class="s2">&quot;m2&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;meter2&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;km2&quot;</span><span class="p">:</span> <span class="mf">1e6</span><span class="p">,</span>
+        <span class="s2">&quot;uin2&quot;</span><span class="p">:</span> <span class="n">METER2IN</span> <span class="o">*</span> <span class="mf">1e-12</span><span class="p">,</span>
+        <span class="s2">&quot;mil2&quot;</span><span class="p">:</span> <span class="n">METER2IN</span> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">,</span>
+        <span class="s2">&quot;in2&quot;</span><span class="p">:</span> <span class="n">METER2IN</span><span class="p">,</span>
+        <span class="s2">&quot;ft2&quot;</span><span class="p">:</span> <span class="n">METER2IN</span> <span class="o">*</span> <span class="mi">24</span><span class="p">,</span>
+        <span class="s2">&quot;yd2&quot;</span><span class="p">:</span> <span class="n">METER2IN</span> <span class="o">*</span> <span class="mi">288</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;Capacitance&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;fF&quot;</span><span class="p">:</span> <span class="mf">1e-15</span><span class="p">,</span> <span class="s2">&quot;pF&quot;</span><span class="p">:</span> <span class="mf">1e-12</span><span class="p">,</span> <span class="s2">&quot;nF&quot;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="s2">&quot;uF&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="s2">&quot;mF&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="s2">&quot;F&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">},</span>
+    <span class="s2">&quot;Conductance&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;fSie&quot;</span><span class="p">:</span> <span class="mf">1e-15</span><span class="p">,</span> <span class="s2">&quot;pSie&quot;</span><span class="p">:</span> <span class="mf">1e-12</span><span class="p">,</span> <span class="s2">&quot;nSie&quot;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="s2">&quot;uSie&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="s2">&quot;mSie&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="s2">&quot;Sie&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">},</span>
+    <span class="s2">&quot;Current&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;fA&quot;</span><span class="p">:</span> <span class="mf">1e-15</span><span class="p">,</span>
+        <span class="s2">&quot;pA&quot;</span><span class="p">:</span> <span class="mf">1e-12</span><span class="p">,</span>
+        <span class="s2">&quot;nA&quot;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span>
+        <span class="s2">&quot;uA&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span>
+        <span class="s2">&quot;mA&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>
+        <span class="s2">&quot;A&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;kA&quot;</span><span class="p">:</span> <span class="mf">1e3</span><span class="p">,</span>
+        <span class="s2">&quot;MegA&quot;</span><span class="p">:</span> <span class="mf">1e6</span><span class="p">,</span>
+        <span class="s2">&quot;gA&quot;</span><span class="p">:</span> <span class="mf">1e9</span><span class="p">,</span>
+        <span class="s2">&quot;dBA&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">db20</span><span class="p">,),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;Flux&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Wb&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;mx&quot;</span><span class="p">:</span> <span class="mf">1e-8</span><span class="p">,</span> <span class="s2">&quot;vh&quot;</span><span class="p">:</span> <span class="mi">3600</span><span class="p">,</span> <span class="s2">&quot;vs&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">},</span>
+    <span class="s2">&quot;Force&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;fNewton&quot;</span><span class="p">:</span> <span class="mf">1e-15</span><span class="p">,</span>
+        <span class="s2">&quot;pNewton&quot;</span><span class="p">:</span> <span class="mf">1e-12</span><span class="p">,</span>
+        <span class="s2">&quot;nNewton&quot;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span>
+        <span class="s2">&quot;uNewton&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span>
+        <span class="s2">&quot;mNewton&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>
+        <span class="s2">&quot;newton&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;kNewton&quot;</span><span class="p">:</span> <span class="mf">1e3</span><span class="p">,</span>
+        <span class="s2">&quot;megNewton&quot;</span><span class="p">:</span> <span class="mf">1e6</span><span class="p">,</span>
+        <span class="s2">&quot;gNewton&quot;</span><span class="p">:</span> <span class="mf">1e9</span><span class="p">,</span>
+        <span class="s2">&quot;dyne&quot;</span><span class="p">:</span> <span class="mf">1e-5</span><span class="p">,</span>
+        <span class="s2">&quot;kp&quot;</span><span class="p">:</span> <span class="mf">9.80665</span><span class="p">,</span>
+        <span class="s2">&quot;PoundsForce&quot;</span><span class="p">:</span> <span class="mf">4.44822</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;Freq&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Hz&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;kHz&quot;</span><span class="p">:</span> <span class="mf">1e3</span><span class="p">,</span> <span class="s2">&quot;MHz&quot;</span><span class="p">:</span> <span class="mf">1e6</span><span class="p">,</span> <span class="s2">&quot;GHz&quot;</span><span class="p">:</span> <span class="mf">1e9</span><span class="p">,</span> <span class="s2">&quot;THz&quot;</span><span class="p">:</span> <span class="mf">1e12</span><span class="p">,</span> <span class="s2">&quot;rps&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;per_sec&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">},</span>
+    <span class="s2">&quot;Inductance&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;fH&quot;</span><span class="p">:</span> <span class="mf">1e-15</span><span class="p">,</span> <span class="s2">&quot;pH&quot;</span><span class="p">:</span> <span class="mf">1e-12</span><span class="p">,</span> <span class="s2">&quot;nH&quot;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="s2">&quot;uH&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="s2">&quot;mH&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">},</span>
+    <span class="s2">&quot;Length&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;fm&quot;</span><span class="p">:</span> <span class="mf">1e-15</span><span class="p">,</span>
+        <span class="s2">&quot;pm&quot;</span><span class="p">:</span> <span class="mf">1e-12</span><span class="p">,</span>
+        <span class="s2">&quot;nm&quot;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span>
+        <span class="s2">&quot;um&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span>
+        <span class="s2">&quot;mm&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>
+        <span class="s2">&quot;cm&quot;</span><span class="p">:</span> <span class="mf">1e-2</span><span class="p">,</span>
+        <span class="s2">&quot;dm&quot;</span><span class="p">:</span> <span class="mf">1e-1</span><span class="p">,</span>
+        <span class="s2">&quot;meter&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;meters&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;km&quot;</span><span class="p">:</span> <span class="mf">1e3</span><span class="p">,</span>
+        <span class="s2">&quot;uin&quot;</span><span class="p">:</span> <span class="n">METER2IN</span> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">,</span>
+        <span class="s2">&quot;mil&quot;</span><span class="p">:</span> <span class="n">METER2IN</span> <span class="o">*</span> <span class="mf">1e-3</span><span class="p">,</span>
+        <span class="s2">&quot;in&quot;</span><span class="p">:</span> <span class="n">METER2IN</span><span class="p">,</span>
+        <span class="s2">&quot;ft&quot;</span><span class="p">:</span> <span class="n">METER2IN</span> <span class="o">*</span> <span class="mi">12</span><span class="p">,</span>
+        <span class="s2">&quot;yd&quot;</span><span class="p">:</span> <span class="n">METER2IN</span> <span class="o">*</span> <span class="mi">144</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;Mass&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;ug&quot;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="s2">&quot;mg&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="s2">&quot;g&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="s2">&quot;kg&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;ton&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span> <span class="s2">&quot;oz&quot;</span><span class="p">:</span> <span class="mf">0.0283495</span><span class="p">,</span> <span class="s2">&quot;lb&quot;</span><span class="p">:</span> <span class="mf">0.453592</span><span class="p">},</span>
+    <span class="s2">&quot;None&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;f&quot;</span><span class="p">:</span> <span class="mf">1e-15</span><span class="p">,</span>
+        <span class="s2">&quot;p&quot;</span><span class="p">:</span> <span class="mf">1e-12</span><span class="p">,</span>
+        <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span>
+        <span class="s2">&quot;u&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span>
+        <span class="s2">&quot;m&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>
+        <span class="s2">&quot;&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;k&quot;</span><span class="p">:</span> <span class="mf">1e3</span><span class="p">,</span>
+        <span class="s2">&quot;meg&quot;</span><span class="p">:</span> <span class="mf">1e6</span><span class="p">,</span>
+        <span class="s2">&quot;g&quot;</span><span class="p">:</span> <span class="mf">1e9</span><span class="p">,</span>
+        <span class="s2">&quot;t&quot;</span><span class="p">:</span> <span class="mf">1e12</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;Resistance&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;uOhm&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="s2">&quot;mOhm&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="s2">&quot;ohm&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;kOhm&quot;</span><span class="p">:</span> <span class="mf">1e3</span><span class="p">,</span> <span class="s2">&quot;megohm&quot;</span><span class="p">:</span> <span class="mf">1e6</span><span class="p">,</span> <span class="s2">&quot;GOhm&quot;</span><span class="p">:</span> <span class="mf">1e9</span><span class="p">},</span>
+    <span class="s2">&quot;Speed&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;mm_per_sec&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>
+        <span class="s2">&quot;cm_per_sec&quot;</span><span class="p">:</span> <span class="mf">1e-2</span><span class="p">,</span>
+        <span class="s2">&quot;m_per_sec&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;km_per_sec&quot;</span><span class="p">:</span> <span class="mf">1e3</span><span class="p">,</span>
+        <span class="s2">&quot;inches_per_sec&quot;</span><span class="p">:</span> <span class="n">METER2IN</span><span class="p">,</span>
+        <span class="s2">&quot;feet_per_sec&quot;</span><span class="p">:</span> <span class="n">METER2IN</span> <span class="o">*</span> <span class="mi">12</span><span class="p">,</span>
+        <span class="s2">&quot;feet_per_min&quot;</span><span class="p">:</span> <span class="n">METER2IN</span> <span class="o">*</span> <span class="mi">12</span> <span class="o">*</span> <span class="n">SEC2MIN</span><span class="p">,</span>
+        <span class="s2">&quot;km_per_min&quot;</span><span class="p">:</span> <span class="mf">60e3</span><span class="p">,</span>
+        <span class="s2">&quot;m_per_h&quot;</span><span class="p">:</span> <span class="mi">3600</span><span class="p">,</span>
+        <span class="s2">&quot;miles_per_hour&quot;</span><span class="p">:</span> <span class="n">METER2MILES</span> <span class="o">*</span> <span class="n">SEC2HOUR</span><span class="p">,</span>
+        <span class="s2">&quot;miles_per_minute&quot;</span><span class="p">:</span> <span class="n">METER2MILES</span> <span class="o">*</span> <span class="n">SEC2MIN</span><span class="p">,</span>
+        <span class="s2">&quot;miles_per_sec&quot;</span><span class="p">:</span> <span class="n">METER2MILES</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;Time&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;fs&quot;</span><span class="p">:</span> <span class="mf">1e-15</span><span class="p">,</span>
+        <span class="s2">&quot;ps&quot;</span><span class="p">:</span> <span class="mf">1e-12</span><span class="p">,</span>
+        <span class="s2">&quot;ns&quot;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span>
+        <span class="s2">&quot;us&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span>
+        <span class="s2">&quot;ms&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>
+        <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+        <span class="s2">&quot;hour&quot;</span><span class="p">:</span> <span class="mi">3600</span><span class="p">,</span>
+        <span class="s2">&quot;day&quot;</span><span class="p">:</span> <span class="mi">3600</span> <span class="o">*</span> <span class="mi">12</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;Torque&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;fNewtonMeter&quot;</span><span class="p">:</span> <span class="mf">1e-15</span><span class="p">,</span>
+        <span class="s2">&quot;pNewtonMeter&quot;</span><span class="p">:</span> <span class="mf">1e-12</span><span class="p">,</span>
+        <span class="s2">&quot;nNewtonMeter&quot;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span>
+        <span class="s2">&quot;uNewtonMeter&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span>
+        <span class="s2">&quot;mNewtonMeter&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>
+        <span class="s2">&quot;cNewtonMeter&quot;</span><span class="p">:</span> <span class="mf">1e-2</span><span class="p">,</span>
+        <span class="s2">&quot;NewtonMeter&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;kNewtonMeter&quot;</span><span class="p">:</span> <span class="mf">1e3</span><span class="p">,</span>
+        <span class="s2">&quot;megNewtonMeter&quot;</span><span class="p">:</span> <span class="mf">1e6</span><span class="p">,</span>
+        <span class="s2">&quot;gNewtonMeter&quot;</span><span class="p">:</span> <span class="mf">1e9</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;Voltage&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;fV&quot;</span><span class="p">:</span> <span class="mf">1e-15</span><span class="p">,</span>
+        <span class="s2">&quot;pV&quot;</span><span class="p">:</span> <span class="mf">1e-12</span><span class="p">,</span>
+        <span class="s2">&quot;nV&quot;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span>
+        <span class="s2">&quot;uV&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span>
+        <span class="s2">&quot;mV&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>
+        <span class="s2">&quot;V&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;kV&quot;</span><span class="p">:</span> <span class="mf">1e3</span><span class="p">,</span>
+        <span class="s2">&quot;MegV&quot;</span><span class="p">:</span> <span class="mf">1e6</span><span class="p">,</span>
+        <span class="s2">&quot;gV&quot;</span><span class="p">:</span> <span class="mf">1e9</span><span class="p">,</span>
+        <span class="s2">&quot;dBV&quot;</span><span class="p">:</span> <span class="n">db20</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;Temperature&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;kel&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="s2">&quot;cel&quot;</span><span class="p">:</span> <span class="n">cel2kel</span><span class="p">,</span> <span class="s2">&quot;fah&quot;</span><span class="p">:</span> <span class="n">fah2kel</span><span class="p">},</span>
+    <span class="s2">&quot;Power&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;fW&quot;</span><span class="p">:</span> <span class="mf">1e-15</span><span class="p">,</span>
+        <span class="s2">&quot;pW&quot;</span><span class="p">:</span> <span class="mf">1e-12</span><span class="p">,</span>
+        <span class="s2">&quot;nW&quot;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span>
+        <span class="s2">&quot;uW&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span>
+        <span class="s2">&quot;mW&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>
+        <span class="s2">&quot;W&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;kW&quot;</span><span class="p">:</span> <span class="mf">1e3</span><span class="p">,</span>
+        <span class="s2">&quot;megW&quot;</span><span class="p">:</span> <span class="mf">1e6</span><span class="p">,</span>
+        <span class="s2">&quot;gW&quot;</span><span class="p">:</span> <span class="mf">1e9</span><span class="p">,</span>
+        <span class="s2">&quot;Btu_per_hr&quot;</span><span class="p">:</span> <span class="mf">3.4129693</span><span class="p">,</span>
+        <span class="s2">&quot;Btu_per_sec&quot;</span><span class="p">:</span> <span class="mf">9.48047e-4</span><span class="p">,</span>
+        <span class="s2">&quot;dBm&quot;</span><span class="p">:</span> <span class="n">dbm</span><span class="p">,</span>
+        <span class="s2">&quot;dBW&quot;</span><span class="p">:</span> <span class="n">dbw</span><span class="p">,</span>
+        <span class="s2">&quot;HP&quot;</span><span class="p">:</span> <span class="mf">1.34102e-3</span><span class="p">,</span>
+        <span class="s2">&quot;erg_per_sec&quot;</span><span class="p">:</span> <span class="mf">1e7</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;B-field&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;ftesla&quot;</span><span class="p">:</span> <span class="mf">1e-15</span><span class="p">,</span>
+        <span class="s2">&quot;ptesla&quot;</span><span class="p">:</span> <span class="mf">1e-12</span><span class="p">,</span>
+        <span class="s2">&quot;ntesla&quot;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span>
+        <span class="s2">&quot;utesla&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span>
+        <span class="s2">&quot;mtesla&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>
+        <span class="s2">&quot;tesla&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;ktesla&quot;</span><span class="p">:</span> <span class="mf">1e3</span><span class="p">,</span>
+        <span class="s2">&quot;megtesla&quot;</span><span class="p">:</span> <span class="mf">1e6</span><span class="p">,</span>
+        <span class="s2">&quot;gtesla&quot;</span><span class="p">:</span> <span class="mf">1e9</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;E-field&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;fV_per_m&quot;</span><span class="p">:</span> <span class="mf">1e-15</span><span class="p">,</span>
+        <span class="s2">&quot;pV_per_m&quot;</span><span class="p">:</span> <span class="mf">1e-12</span><span class="p">,</span>
+        <span class="s2">&quot;nV_per_m&quot;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span>
+        <span class="s2">&quot;uV_per_m&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span>
+        <span class="s2">&quot;mV_per_m&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>
+        <span class="s2">&quot;V_per_m&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;kV_per_m&quot;</span><span class="p">:</span> <span class="mf">1e3</span><span class="p">,</span>
+        <span class="s2">&quot;megV_per_m&quot;</span><span class="p">:</span> <span class="mf">1e6</span><span class="p">,</span>
+        <span class="s2">&quot;gV_per_m&quot;</span><span class="p">:</span> <span class="mf">1e9</span><span class="p">,</span>
+        <span class="s2">&quot;fV_per_meter&quot;</span><span class="p">:</span> <span class="mf">1e-15</span><span class="p">,</span>
+        <span class="s2">&quot;pV_per_meter&quot;</span><span class="p">:</span> <span class="mf">1e-12</span><span class="p">,</span>
+        <span class="s2">&quot;nV_per_meter&quot;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span>
+        <span class="s2">&quot;uV_per_meter&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span>
+        <span class="s2">&quot;mV_per_meter&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>
+        <span class="s2">&quot;V_per_meter&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;kV_per_meter&quot;</span><span class="p">:</span> <span class="mf">1e3</span><span class="p">,</span>
+        <span class="s2">&quot;megV_per_meter&quot;</span><span class="p">:</span> <span class="mf">1e6</span><span class="p">,</span>
+        <span class="s2">&quot;gV_per_meter&quot;</span><span class="p">:</span> <span class="mf">1e9</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;H-field&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;fA_per_m&quot;</span><span class="p">:</span> <span class="mf">1e-15</span><span class="p">,</span>
+        <span class="s2">&quot;pA_per_m&quot;</span><span class="p">:</span> <span class="mf">1e-12</span><span class="p">,</span>
+        <span class="s2">&quot;nA_per_m&quot;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span>
+        <span class="s2">&quot;uA_per_m&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span>
+        <span class="s2">&quot;mA_per_m&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>
+        <span class="s2">&quot;A_per_m&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;kA_per_m&quot;</span><span class="p">:</span> <span class="mf">1e3</span><span class="p">,</span>
+        <span class="s2">&quot;megA_per_m&quot;</span><span class="p">:</span> <span class="mf">1e6</span><span class="p">,</span>
+        <span class="s2">&quot;gA_per_m&quot;</span><span class="p">:</span> <span class="mf">1e9</span><span class="p">,</span>
+        <span class="s2">&quot;fA_per_meter&quot;</span><span class="p">:</span> <span class="mf">1e-15</span><span class="p">,</span>
+        <span class="s2">&quot;pA_per_meter&quot;</span><span class="p">:</span> <span class="mf">1e-12</span><span class="p">,</span>
+        <span class="s2">&quot;nA_per_meter&quot;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span>
+        <span class="s2">&quot;uA_per_meter&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span>
+        <span class="s2">&quot;mA_per_meter&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>
+        <span class="s2">&quot;A_per_meter&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;kA_per_meter&quot;</span><span class="p">:</span> <span class="mf">1e3</span><span class="p">,</span>
+        <span class="s2">&quot;megA_per_meter&quot;</span><span class="p">:</span> <span class="mf">1e6</span><span class="p">,</span>
+        <span class="s2">&quot;gA_per_meter&quot;</span><span class="p">:</span> <span class="mf">1e9</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;SurfaceHeat&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;uW_per_m2&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span>
+        <span class="s2">&quot;mW_per_m2&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>
+        <span class="s2">&quot;irrad_W_per_m2&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;W_per_m2&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;kW_per_m2&quot;</span><span class="p">:</span> <span class="mf">1e3</span><span class="p">,</span>
+        <span class="s2">&quot;megW_per_m2&quot;</span><span class="p">:</span> <span class="mf">1e6</span><span class="p">,</span>
+        <span class="s2">&quot;irrad_W_per_cm2&quot;</span><span class="p">:</span> <span class="mf">1e4</span><span class="p">,</span>
+        <span class="s2">&quot;W_per_cm2&quot;</span><span class="p">:</span> <span class="mf">1e4</span><span class="p">,</span>
+        <span class="s2">&quot;W_per_in2&quot;</span><span class="p">:</span> <span class="mi">1550</span><span class="p">,</span>
+        <span class="s2">&quot;erg_per_s_per_cm2&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>
+        <span class="s2">&quot;btu_per_hr_per_ft2&quot;</span><span class="p">:</span> <span class="mf">3.15</span><span class="p">,</span>
+        <span class="s2">&quot;btu_per_s_per_ft2&quot;</span><span class="p">:</span> <span class="mf">11356.53</span><span class="p">,</span>
+        <span class="s2">&quot;irrad_W_per_mm2&quot;</span><span class="p">:</span> <span class="mf">1e6</span><span class="p">,</span>
+        <span class="s2">&quot;irrad_met&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;J-field&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;fA_per_m2&quot;</span><span class="p">:</span> <span class="mf">1e-15</span><span class="p">,</span>
+        <span class="s2">&quot;pA_per_m2&quot;</span><span class="p">:</span> <span class="mf">1e-12</span><span class="p">,</span>
+        <span class="s2">&quot;nA_per_m2&quot;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span>
+        <span class="s2">&quot;uA_per_m2&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span>
+        <span class="s2">&quot;mA_per_m2&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>
+        <span class="s2">&quot;A_per_m2&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;kA_per_m2&quot;</span><span class="p">:</span> <span class="mf">1e3</span><span class="p">,</span>
+        <span class="s2">&quot;megA_per_m2&quot;</span><span class="p">:</span> <span class="mf">1e6</span><span class="p">,</span>
+        <span class="s2">&quot;gA_per_m2&quot;</span><span class="p">:</span> <span class="mf">1e9</span><span class="p">,</span>
+        <span class="s2">&quot;fA_per_meter2&quot;</span><span class="p">:</span> <span class="mf">1e-15</span><span class="p">,</span>
+        <span class="s2">&quot;pA_per_meter2&quot;</span><span class="p">:</span> <span class="mf">1e-12</span><span class="p">,</span>
+        <span class="s2">&quot;nA_per_meter2&quot;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span>
+        <span class="s2">&quot;uA_per_meter2&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span>
+        <span class="s2">&quot;mA_per_meter2&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>
+        <span class="s2">&quot;A_per_meter2&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;kA_per_meter2&quot;</span><span class="p">:</span> <span class="mf">1e3</span><span class="p">,</span>
+        <span class="s2">&quot;megA_per_meter2&quot;</span><span class="p">:</span> <span class="mf">1e6</span><span class="p">,</span>
+        <span class="s2">&quot;gA_per_meter2&quot;</span><span class="p">:</span> <span class="mf">1e9</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+<span class="n">SI_UNITS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;AngularSpeed&quot;</span><span class="p">:</span> <span class="s2">&quot;rad_per_sec&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Angle&quot;</span><span class="p">:</span> <span class="s2">&quot;rad&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Area&quot;</span><span class="p">:</span> <span class="s2">&quot;m2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Capacitance&quot;</span><span class="p">:</span> <span class="s2">&quot;F&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Conductance&quot;</span><span class="p">:</span> <span class="s2">&quot;Sie&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Current&quot;</span><span class="p">:</span> <span class="s2">&quot;A&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Flux&quot;</span><span class="p">:</span> <span class="s2">&quot;vs&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Force&quot;</span><span class="p">:</span> <span class="s2">&quot;newton&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Freq&quot;</span><span class="p">:</span> <span class="s2">&quot;Hz&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Inductance&quot;</span><span class="p">:</span> <span class="s2">&quot;H&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Length&quot;</span><span class="p">:</span> <span class="s2">&quot;meter&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Mass&quot;</span><span class="p">:</span> <span class="s2">&quot;kg&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;None&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Resistance&quot;</span><span class="p">:</span> <span class="s2">&quot;ohm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Speed&quot;</span><span class="p">:</span> <span class="s2">&quot;m_per_sec&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SurfaceHeat&quot;</span><span class="p">:</span> <span class="s2">&quot;W_per_m2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Time&quot;</span><span class="p">:</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Torque&quot;</span><span class="p">:</span> <span class="s2">&quot;NewtonMeter&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Voltage&quot;</span><span class="p">:</span> <span class="s2">&quot;V&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Temperature&quot;</span><span class="p">:</span> <span class="s2">&quot;kel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Power&quot;</span><span class="p">:</span> <span class="s2">&quot;W&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;B-field&quot;</span><span class="p">:</span> <span class="s2">&quot;tesla&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;E-field&quot;</span><span class="p">:</span> <span class="s2">&quot;V_per_meter&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;H-field&quot;</span><span class="p">:</span> <span class="s2">&quot;A_per_meter&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;J-field&quot;</span><span class="p">:</span> <span class="s2">&quot;A_per_m2&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">UNIT_SYSTEM_OPERATIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># Multiplication of physical domains</span>
+    <span class="s2">&quot;Voltage_multiply_Current&quot;</span><span class="p">:</span> <span class="s2">&quot;Power&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Torque_multiply_AngularSpeed&quot;</span><span class="p">:</span> <span class="s2">&quot;Power&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;AngularSpeed_multiply_Time&quot;</span><span class="p">:</span> <span class="s2">&quot;Angle&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Current_multiply_Resistance&quot;</span><span class="p">:</span> <span class="s2">&quot;Voltage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;AngularSpeed_multiply_Inductance&quot;</span><span class="p">:</span> <span class="s2">&quot;Resistance&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Speed_multiply_Time&quot;</span><span class="p">:</span> <span class="s2">&quot;Length&quot;</span><span class="p">,</span>
+    <span class="c1"># Division of Physical Domains</span>
+    <span class="s2">&quot;Power_divide_Voltage&quot;</span><span class="p">:</span> <span class="s2">&quot;Current&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Power_divide_Current&quot;</span><span class="p">:</span> <span class="s2">&quot;Voltage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Power_divide_AngularSpeed&quot;</span><span class="p">:</span> <span class="s2">&quot;Torque&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Power_divide_Torque&quot;</span><span class="p">:</span> <span class="s2">&quot;AngularSpeed&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Angle_divide_AngularSpeed&quot;</span><span class="p">:</span> <span class="s2">&quot;Time&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Angle_divide_Time&quot;</span><span class="p">:</span> <span class="s2">&quot;AngularSpeed&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Voltage_divide_Current&quot;</span><span class="p">:</span> <span class="s2">&quot;Resistance&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Voltage_divide_Resistance&quot;</span><span class="p">:</span> <span class="s2">&quot;Current&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Resistance_divide_AngularSpeed&quot;</span><span class="p">:</span> <span class="s2">&quot;Inductance&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Resistance_divide_Inductance&quot;</span><span class="p">:</span> <span class="s2">&quot;AngularSpeed&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;None_divide_Freq&quot;</span><span class="p">:</span> <span class="s2">&quot;Time&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;None_divide_Time&quot;</span><span class="p">:</span> <span class="s2">&quot;Freq&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Length_divide_Time&quot;</span><span class="p">:</span> <span class="s2">&quot;Speed&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Length_divide_Speed&quot;</span><span class="p">:</span> <span class="s2">&quot;Time&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="INFINITE_SPHERE_TYPE"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.INFINITE_SPHERE_TYPE">[docs]</a><span class="k">class</span> <span class="nc">INFINITE_SPHERE_TYPE</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;INFINITE_SPHERE_TYPE Enumerator class.&quot;&quot;&quot;</span>
+
+    <span class="p">(</span><span class="n">ThetaPhi</span><span class="p">,</span> <span class="n">AzOverEl</span><span class="p">,</span> <span class="n">ElOverAz</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Theta-Phi&quot;</span><span class="p">,</span> <span class="s2">&quot;Az Over El&quot;</span><span class="p">,</span> <span class="s2">&quot;El Over Az&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FILLET"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.FILLET">[docs]</a><span class="k">class</span> <span class="nc">FILLET</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;FilletType Enumerator class.&quot;&quot;&quot;</span>
+
+    <span class="p">(</span><span class="n">Round</span><span class="p">,</span> <span class="n">Mitered</span><span class="p">)</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AXIS"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.AXIS">[docs]</a><span class="k">class</span> <span class="nc">AXIS</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;CoordinateSystemAxis Enumerator class.&quot;&quot;&quot;</span>
+
+    <span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">)</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PLANE"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.PLANE">[docs]</a><span class="k">class</span> <span class="nc">PLANE</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;CoordinateSystemPlane Enumerator class.&quot;&quot;&quot;</span>
+
+    <span class="p">(</span><span class="n">YZ</span><span class="p">,</span> <span class="n">ZX</span><span class="p">,</span> <span class="n">XY</span><span class="p">)</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GRAVITY"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.GRAVITY">[docs]</a><span class="k">class</span> <span class="nc">GRAVITY</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;GravityDirection Enumerator class.&quot;&quot;&quot;</span>
+
+    <span class="p">(</span><span class="n">XNeg</span><span class="p">,</span> <span class="n">YNeg</span><span class="p">,</span> <span class="n">ZNeg</span><span class="p">,</span> <span class="n">XPos</span><span class="p">,</span> <span class="n">YPos</span><span class="p">,</span> <span class="n">ZPos</span><span class="p">)</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VIEW"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.VIEW">[docs]</a><span class="k">class</span> <span class="nc">VIEW</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;View Enumerator class.&quot;&quot;&quot;</span>
+
+    <span class="p">(</span><span class="n">XY</span><span class="p">,</span> <span class="n">YZ</span><span class="p">,</span> <span class="n">ZX</span><span class="p">,</span> <span class="n">ISO</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;XY&quot;</span><span class="p">,</span> <span class="s2">&quot;YZ&quot;</span><span class="p">,</span> <span class="s2">&quot;ZX&quot;</span><span class="p">,</span> <span class="s2">&quot;iso&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GLOBALCS"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.GLOBALCS">[docs]</a><span class="k">class</span> <span class="nc">GLOBALCS</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;GlobalCS Enumerator class.&quot;&quot;&quot;</span>
+
+    <span class="p">(</span><span class="n">XY</span><span class="p">,</span> <span class="n">YZ</span><span class="p">,</span> <span class="n">ZX</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Global:XY&quot;</span><span class="p">,</span> <span class="s2">&quot;Global:YZ&quot;</span><span class="p">,</span> <span class="s2">&quot;Global:XZ&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MATRIXOPERATIONSQ3D"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.MATRIXOPERATIONSQ3D">[docs]</a><span class="k">class</span> <span class="nc">MATRIXOPERATIONSQ3D</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Matrix Reduction types.&quot;&quot;&quot;</span>
+
+    <span class="p">(</span><span class="n">JoinSeries</span><span class="p">,</span> <span class="n">JoinParallel</span><span class="p">,</span> <span class="n">FloatNet</span><span class="p">,</span> <span class="n">GroundNet</span><span class="p">,</span> <span class="n">FloatTerminal</span><span class="p">,</span> <span class="n">FloatInfinity</span><span class="p">,</span> <span class="n">ReturnPath</span><span class="p">,</span> <span class="n">AddSink</span><span class="p">,</span> <span class="n">MoveSink</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;JoinSeries&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;JoinParallel&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FloatNet&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GroundNet&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FloatTerminal&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FloatInfinity&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ReturnPath&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;AddSink&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;MoveSink&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MATRIXOPERATIONSQ2D"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.MATRIXOPERATIONSQ2D">[docs]</a><span class="k">class</span> <span class="nc">MATRIXOPERATIONSQ2D</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Matrix Reduction types.&quot;&quot;&quot;</span>
+
+    <span class="p">(</span><span class="n">AddGround</span><span class="p">,</span> <span class="n">SetReferenceGround</span><span class="p">,</span> <span class="n">Float</span><span class="p">,</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">DiffPair</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;AddGround&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;SetReferenceGround&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Float&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Parallel&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DiffPair&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CATEGORIESQ3D"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.CATEGORIESQ3D">[docs]</a><span class="k">class</span> <span class="nc">CATEGORIESQ3D</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot Categories for Q2d and Q3d.&quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">Q2D</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+        <span class="p">(</span>
+            <span class="n">CMatrix</span><span class="p">,</span>
+            <span class="n">GMatrix</span><span class="p">,</span>
+            <span class="n">RMatrix</span><span class="p">,</span>
+            <span class="n">LMatrix</span><span class="p">,</span>
+            <span class="n">LumpedC</span><span class="p">,</span>
+            <span class="n">LumpedG</span><span class="p">,</span>
+            <span class="n">LumpedR</span><span class="p">,</span>
+            <span class="n">LumpedL</span><span class="p">,</span>
+            <span class="n">CharacteristicImpedance</span><span class="p">,</span>
+            <span class="n">CrossTalkForward</span><span class="p">,</span>
+            <span class="n">LumpedCrossTalkForward</span><span class="p">,</span>
+            <span class="n">CrossTalkBackward</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;G&quot;</span><span class="p">,</span> <span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="s2">&quot;L&quot;</span><span class="p">,</span> <span class="s2">&quot;lumpC&quot;</span><span class="p">,</span> <span class="s2">&quot;lumpG&quot;</span><span class="p">,</span> <span class="s2">&quot;lumpR&quot;</span><span class="p">,</span> <span class="s2">&quot;lumpL&quot;</span><span class="p">,</span> <span class="s2">&quot;Z0&quot;</span><span class="p">,</span> <span class="s2">&quot;Kf&quot;</span><span class="p">,</span> <span class="s2">&quot;lumpKf&quot;</span><span class="p">,</span> <span class="s2">&quot;Kb&quot;</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">Q3D</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+        <span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">DCL</span><span class="p">,</span> <span class="n">DCR</span><span class="p">,</span> <span class="n">ACL</span><span class="p">,</span> <span class="n">ACR</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;G&quot;</span><span class="p">,</span> <span class="s2">&quot;DCL&quot;</span><span class="p">,</span> <span class="s2">&quot;DCR&quot;</span><span class="p">,</span> <span class="s2">&quot;ACL&quot;</span><span class="p">,</span> <span class="s2">&quot;ACR&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CSMODE"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.CSMODE">[docs]</a><span class="k">class</span> <span class="nc">CSMODE</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;COORDINATE SYSTEM MODE Enumerator class.&quot;&quot;&quot;</span>
+
+    <span class="p">(</span><span class="n">View</span><span class="p">,</span> <span class="n">Axis</span><span class="p">,</span> <span class="n">ZXZ</span><span class="p">,</span> <span class="n">ZYZ</span><span class="p">,</span> <span class="n">AXISROTATION</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;view&quot;</span><span class="p">,</span> <span class="s2">&quot;axis&quot;</span><span class="p">,</span> <span class="s2">&quot;zxz&quot;</span><span class="p">,</span> <span class="s2">&quot;zyz&quot;</span><span class="p">,</span> <span class="s2">&quot;axisrotation&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SEGMENTTYPE"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.SEGMENTTYPE">[docs]</a><span class="k">class</span> <span class="nc">SEGMENTTYPE</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;CROSSSECTION Enumerator class.&quot;&quot;&quot;</span>
+
+    <span class="p">(</span><span class="n">Line</span><span class="p">,</span> <span class="n">Arc</span><span class="p">,</span> <span class="n">Spline</span><span class="p">,</span> <span class="n">AngularArc</span><span class="p">)</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CROSSSECTION"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.CROSSSECTION">[docs]</a><span class="k">class</span> <span class="nc">CROSSSECTION</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;CROSSSECTION Enumerator class.&quot;&quot;&quot;</span>
+
+    <span class="p">(</span><span class="n">NONE</span><span class="p">,</span> <span class="n">Line</span><span class="p">,</span> <span class="n">Circle</span><span class="p">,</span> <span class="n">Rectangle</span><span class="p">,</span> <span class="n">Trapezoid</span><span class="p">)</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SWEEPDRAFT"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.SWEEPDRAFT">[docs]</a><span class="k">class</span> <span class="nc">SWEEPDRAFT</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;SweepDraftType Enumerator class.&quot;&quot;&quot;</span>
+
+    <span class="p">(</span><span class="n">Extended</span><span class="p">,</span> <span class="n">Round</span><span class="p">,</span> <span class="n">Natural</span><span class="p">,</span> <span class="n">Mixed</span><span class="p">)</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FlipChipOrientation"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.FlipChipOrientation">[docs]</a><span class="k">class</span> <span class="nc">FlipChipOrientation</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Chip orientation enumerator class.&quot;&quot;&quot;</span>
+
+    <span class="p">(</span><span class="n">Up</span><span class="p">,</span> <span class="n">Down</span><span class="p">)</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SolverType"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.SolverType">[docs]</a><span class="k">class</span> <span class="nc">SolverType</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Provides solver type classes.&quot;&quot;&quot;</span>
+
+    <span class="p">(</span><span class="n">Hfss</span><span class="p">,</span> <span class="n">Siwave</span><span class="p">,</span> <span class="n">Q3D</span><span class="p">,</span> <span class="n">Maxwell</span><span class="p">,</span> <span class="n">Nexxim</span><span class="p">,</span> <span class="n">TwinBuilder</span><span class="p">,</span> <span class="n">Hfss3dLayout</span><span class="p">,</span> <span class="n">SiwaveSYZ</span><span class="p">,</span> <span class="n">SiwaveDC</span><span class="p">)</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span></div>
+
+
+<span class="k">class</span> <span class="nc">CutoutSubdesignType</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="p">(</span><span class="n">BoundingBox</span><span class="p">,</span> <span class="n">Conformal</span><span class="p">,</span> <span class="n">ConvexHull</span><span class="p">,</span> <span class="n">Invalid</span><span class="p">)</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">RadiationBoxType</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="p">(</span><span class="n">BoundingBox</span><span class="p">,</span> <span class="n">Conformal</span><span class="p">,</span> <span class="n">ConvexHull</span><span class="p">,</span> <span class="n">Polygon</span><span class="p">,</span> <span class="n">Invalid</span><span class="p">)</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">SweepType</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="p">(</span><span class="n">Linear</span><span class="p">,</span> <span class="n">LogCount</span><span class="p">,</span> <span class="n">Invalid</span><span class="p">)</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="BasisOrder"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.BasisOrder">[docs]</a><span class="k">class</span> <span class="nc">BasisOrder</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration-class for HFSS basis order settings.</span>
+
+
+<span class="sd">    Warning: the value ``single`` has been renamed to ``Single`` for consistency. Please update references to</span>
+<span class="sd">    ``single``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="p">(</span><span class="n">Mixed</span><span class="p">,</span> <span class="n">Zero</span><span class="p">,</span> <span class="n">Single</span><span class="p">,</span> <span class="n">Double</span><span class="p">,</span> <span class="n">Invalid</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="NodeType"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.NodeType">[docs]</a><span class="k">class</span> <span class="nc">NodeType</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Type of node for source creation.&quot;&quot;&quot;</span>
+
+    <span class="p">(</span><span class="n">Positive</span><span class="p">,</span> <span class="n">Negative</span><span class="p">,</span> <span class="n">Floating</span><span class="p">)</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SourceType"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.SourceType">[docs]</a><span class="k">class</span> <span class="nc">SourceType</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Type of excitation enumerator.&quot;&quot;&quot;</span>
+
+    <span class="p">(</span><span class="n">CoaxPort</span><span class="p">,</span> <span class="n">CircPort</span><span class="p">,</span> <span class="n">LumpedPort</span><span class="p">,</span> <span class="n">Vsource</span><span class="p">,</span> <span class="n">Isource</span><span class="p">,</span> <span class="n">Rlc</span><span class="p">,</span> <span class="n">DcTerminal</span><span class="p">)</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SOLUTIONS"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.SOLUTIONS">[docs]</a><span class="k">class</span> <span class="nc">SOLUTIONS</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Provides the names of default solution types.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SOLUTIONS.Hfss"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.SOLUTIONS.Hfss">[docs]</a>    <span class="k">class</span> <span class="nc">Hfss</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Provides HFSS solution types.&quot;&quot;&quot;</span>
+
+        <span class="p">(</span><span class="n">DrivenModal</span><span class="p">,</span> <span class="n">DrivenTerminal</span><span class="p">,</span> <span class="n">EigenMode</span><span class="p">,</span> <span class="n">Transient</span><span class="p">,</span> <span class="n">SBR</span><span class="p">,</span> <span class="n">Characteristic</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;Modal&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Terminal&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Eigenmode&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Transient Network&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;SBR+&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Characteristic&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="SOLUTIONS.Maxwell3d"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.SOLUTIONS.Maxwell3d">[docs]</a>    <span class="k">class</span> <span class="nc">Maxwell3d</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Provides Maxwell 3D solution types.&quot;&quot;&quot;</span>
+
+        <span class="p">(</span>
+            <span class="n">Transient</span><span class="p">,</span>
+            <span class="n">Magnetostatic</span><span class="p">,</span>
+            <span class="n">EddyCurrent</span><span class="p">,</span>
+            <span class="n">ElectroStatic</span><span class="p">,</span>
+            <span class="n">ElectroDCConduction</span><span class="p">,</span>
+            <span class="n">ElectroDCTransient</span><span class="p">,</span>
+            <span class="n">TransientAPhiFormulation</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;Transient&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Magnetostatic&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;EddyCurrent&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Electrostatic&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ElectroDCConduction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ElectricTransient&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;TransientAPhiFormulation&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="SOLUTIONS.Maxwell2d"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.SOLUTIONS.Maxwell2d">[docs]</a>    <span class="k">class</span> <span class="nc">Maxwell2d</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Provides Maxwell 2D solution types.&quot;&quot;&quot;</span>
+
+        <span class="p">(</span>
+            <span class="n">TransientXY</span><span class="p">,</span>
+            <span class="n">TransientZ</span><span class="p">,</span>
+            <span class="n">MagnetostaticXY</span><span class="p">,</span>
+            <span class="n">MagnetostaticZ</span><span class="p">,</span>
+            <span class="n">EddyCurrentXY</span><span class="p">,</span>
+            <span class="n">EddyCurrentZ</span><span class="p">,</span>
+            <span class="n">ElectroStaticXY</span><span class="p">,</span>
+            <span class="n">ElectroStaticZ</span><span class="p">,</span>
+            <span class="n">ElectroDCConductionX</span><span class="p">,</span>
+            <span class="n">ElectroDCConductionZ</span><span class="p">,</span>
+            <span class="n">ElectroDCTransientXY</span><span class="p">,</span>
+            <span class="n">ElectroDCTransientZ</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;TransientXY&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;TransientZ&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;MagnetostaticXY&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;MagnetostaticZ&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;EddyCurrentXY&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;EddyCurrentZ&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ElectrostaticXY&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ElectrostaticZ&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ElectroDCConductionXY&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ElectroDCConductionZ&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ElectricTransientXY&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ElectricTransientZ&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="SOLUTIONS.Icepak"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.SOLUTIONS.Icepak">[docs]</a>    <span class="k">class</span> <span class="nc">Icepak</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Provides Icepak solution types.&quot;&quot;&quot;</span>
+
+        <span class="p">(</span>
+            <span class="n">SteadyTemperatureAndFlow</span><span class="p">,</span>
+            <span class="n">SteadyTemperatureOnly</span><span class="p">,</span>
+            <span class="n">SteadyFlowOnly</span><span class="p">,</span>
+            <span class="n">TransientTemperatureAndFlow</span><span class="p">,</span>
+            <span class="n">TransientTemperatureOnly</span><span class="p">,</span>
+            <span class="n">TransientFlowOnly</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;SteadyStateTemperatureAndFlow&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;SteadyStateTemperatureOnly&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;SteadyStateFlowOnly&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;TransientTemperatureAndFlow&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;TransientTemperatureOnly&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;TransientFlowOnly&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="SOLUTIONS.Circuit"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.SOLUTIONS.Circuit">[docs]</a>    <span class="k">class</span> <span class="nc">Circuit</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Provides Circuit solution types.&quot;&quot;&quot;</span>
+
+        <span class="p">(</span>
+            <span class="n">NexximLNA</span><span class="p">,</span>
+            <span class="n">NexximDC</span><span class="p">,</span>
+            <span class="n">NexximTransient</span><span class="p">,</span>
+            <span class="n">NexximQuickEye</span><span class="p">,</span>
+            <span class="n">NexximVerifEye</span><span class="p">,</span>
+            <span class="n">NexximAMI</span><span class="p">,</span>
+            <span class="n">NexximOscillatorRSF</span><span class="p">,</span>
+            <span class="n">NexximOscillator1T</span><span class="p">,</span>
+            <span class="n">NexximOscillatorNT</span><span class="p">,</span>
+            <span class="n">NexximHarmonicBalance1T</span><span class="p">,</span>
+            <span class="n">NexximHarmonicBalanceNT</span><span class="p">,</span>
+            <span class="n">NexximSystem</span><span class="p">,</span>
+            <span class="n">NexximTVNoise</span><span class="p">,</span>
+            <span class="n">HSPICE</span><span class="p">,</span>
+            <span class="n">TR</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;NexximLNA&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;NexximDC&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;NexximTransient&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;NexximQuickEye&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;NexximVerifEye&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;NexximAMI&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;NexximOscillatorRSF&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;NexximOscillator1T&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;NexximOscillatorNT&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;NexximHarmonicBalance1T&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;NexximHarmonicBalanceNT&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;NexximSystem&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;NexximTVNoise&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;HSPICE&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;TR&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="SOLUTIONS.Mechanical"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.SOLUTIONS.Mechanical">[docs]</a>    <span class="k">class</span> <span class="nc">Mechanical</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Provides Mechanical solution types.&quot;&quot;&quot;</span>
+
+        <span class="p">(</span><span class="n">Thermal</span><span class="p">,</span> <span class="n">Structural</span><span class="p">,</span> <span class="n">Modal</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Thermal&quot;</span><span class="p">,</span> <span class="s2">&quot;Structural&quot;</span><span class="p">,</span> <span class="s2">&quot;Modal&quot;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="SETUPS"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.SETUPS">[docs]</a><span class="k">class</span> <span class="nc">SETUPS</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Provides constants for the default setup types.&quot;&quot;&quot;</span>
+
+    <span class="p">(</span>
+        <span class="n">HFSSDrivenAuto</span><span class="p">,</span>
+        <span class="n">HFSSDrivenDefault</span><span class="p">,</span>
+        <span class="n">HFSSEigen</span><span class="p">,</span>
+        <span class="n">HFSSTransient</span><span class="p">,</span>
+        <span class="n">HFSSSBR</span><span class="p">,</span>
+        <span class="n">MaxwellTransient</span><span class="p">,</span>
+        <span class="n">Magnetostatic</span><span class="p">,</span>
+        <span class="n">EddyCurrent</span><span class="p">,</span>
+        <span class="n">Electrostatic</span><span class="p">,</span>
+        <span class="n">ElectrostaticDC</span><span class="p">,</span>
+        <span class="n">ElectricTransient</span><span class="p">,</span>
+        <span class="n">SteadyTemperatureAndFlow</span><span class="p">,</span>
+        <span class="n">SteadyTemperatureOnly</span><span class="p">,</span>
+        <span class="n">SteadyFlowOnly</span><span class="p">,</span>
+        <span class="n">Matrix</span><span class="p">,</span>
+        <span class="n">NexximLNA</span><span class="p">,</span>
+        <span class="n">NexximDC</span><span class="p">,</span>
+        <span class="n">NexximTransient</span><span class="p">,</span>
+        <span class="n">NexximQuickEye</span><span class="p">,</span>
+        <span class="n">NexximVerifEye</span><span class="p">,</span>
+        <span class="n">NexximAMI</span><span class="p">,</span>
+        <span class="n">NexximOscillatorRSF</span><span class="p">,</span>
+        <span class="n">NexximOscillator1T</span><span class="p">,</span>
+        <span class="n">NexximOscillatorNT</span><span class="p">,</span>
+        <span class="n">NexximHarmonicBalance1T</span><span class="p">,</span>
+        <span class="n">NexximHarmonicBalanceNT</span><span class="p">,</span>
+        <span class="n">NexximSystem</span><span class="p">,</span>
+        <span class="n">NexximTVNoise</span><span class="p">,</span>
+        <span class="n">HSPICE</span><span class="p">,</span>
+        <span class="n">HFSS3DLayout</span><span class="p">,</span>
+        <span class="n">Open</span><span class="p">,</span>
+        <span class="n">Close</span><span class="p">,</span>
+        <span class="n">MechTerm</span><span class="p">,</span>
+        <span class="n">MechModal</span><span class="p">,</span>
+        <span class="n">GRM</span><span class="p">,</span>
+        <span class="n">TR</span><span class="p">,</span>
+        <span class="n">TransientTemperatureAndFlow</span><span class="p">,</span>
+        <span class="n">TransientTemperatureOnly</span><span class="p">,</span>
+        <span class="n">TransientFlowOnly</span><span class="p">,</span>
+        <span class="n">DFIG</span><span class="p">,</span>
+        <span class="n">TPIM</span><span class="p">,</span>
+        <span class="n">SPIM</span><span class="p">,</span>
+        <span class="n">TPSM</span><span class="p">,</span>
+        <span class="n">BLDC</span><span class="p">,</span>
+        <span class="n">ASSM</span><span class="p">,</span>
+        <span class="n">PMDC</span><span class="p">,</span>
+        <span class="n">SRM</span><span class="p">,</span>
+        <span class="n">LSSM</span><span class="p">,</span>
+        <span class="n">UNIM</span><span class="p">,</span>
+        <span class="n">DCM</span><span class="p">,</span>
+        <span class="n">CPSM</span><span class="p">,</span>
+        <span class="n">NSSM</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">52</span><span class="p">)</span></div>
+
+
+<span class="n">CSS4_COLORS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;chocolate&quot;</span><span class="p">:</span> <span class="s2">&quot;#D2691E&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;darkgreen&quot;</span><span class="p">:</span> <span class="s2">&quot;#006400&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;orangered&quot;</span><span class="p">:</span> <span class="s2">&quot;#FF4500&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;darkseagreen&quot;</span><span class="p">:</span> <span class="s2">&quot;#8FBC8F&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;darkmagenta&quot;</span><span class="p">:</span> <span class="s2">&quot;#8B008B&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;saddlebrown&quot;</span><span class="p">:</span> <span class="s2">&quot;#8B4513&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mediumaquamarine&quot;</span><span class="p">:</span> <span class="s2">&quot;#66CDAA&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;limegreen&quot;</span><span class="p">:</span> <span class="s2">&quot;#32CD32&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;blue&quot;</span><span class="p">:</span> <span class="s2">&quot;#0000FF&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mediumseagreen&quot;</span><span class="p">:</span> <span class="s2">&quot;#3CB371&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;peru&quot;</span><span class="p">:</span> <span class="s2">&quot;#CD853F&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;turquoise&quot;</span><span class="p">:</span> <span class="s2">&quot;#40E0D0&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;darkcyan&quot;</span><span class="p">:</span> <span class="s2">&quot;#008B8B&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;olivedrab&quot;</span><span class="p">:</span> <span class="s2">&quot;#6B8E23&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cyan&quot;</span><span class="p">:</span> <span class="s2">&quot;#00FFFF&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;aquamarine&quot;</span><span class="p">:</span> <span class="s2">&quot;#7FFFD4&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;powderblue&quot;</span><span class="p">:</span> <span class="s2">&quot;#B0E0E6&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hotpink&quot;</span><span class="p">:</span> <span class="s2">&quot;#FF69B4&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;palegreen&quot;</span><span class="p">:</span> <span class="s2">&quot;#98FB98&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;darkturquoise&quot;</span><span class="p">:</span> <span class="s2">&quot;#00CED1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;magenta&quot;</span><span class="p">:</span> <span class="s2">&quot;#FF00FF&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;slateblue&quot;</span><span class="p">:</span> <span class="s2">&quot;#6A5ACD&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lightgreen&quot;</span><span class="p">:</span> <span class="s2">&quot;#90EE90&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sienna&quot;</span><span class="p">:</span> <span class="s2">&quot;#A0522D&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;darkorchid&quot;</span><span class="p">:</span> <span class="s2">&quot;#9932CC&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;orange&quot;</span><span class="p">:</span> <span class="s2">&quot;#FFA500&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;forestgreen&quot;</span><span class="p">:</span> <span class="s2">&quot;#228B22&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;palegoldenrod&quot;</span><span class="p">:</span> <span class="s2">&quot;#EEE8AA&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;blueviolet&quot;</span><span class="p">:</span> <span class="s2">&quot;#8A2BE2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;royalblue&quot;</span><span class="p">:</span> <span class="s2">&quot;#4169E1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;teal&quot;</span><span class="p">:</span> <span class="s2">&quot;#008080&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;darkgoldenrod&quot;</span><span class="p">:</span> <span class="s2">&quot;#B8860B&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lightskyblue&quot;</span><span class="p">:</span> <span class="s2">&quot;#87CEFA&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lime&quot;</span><span class="p">:</span> <span class="s2">&quot;#00FF00&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;orchid&quot;</span><span class="p">:</span> <span class="s2">&quot;#DA70D6&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mediumorchid&quot;</span><span class="p">:</span> <span class="s2">&quot;#BA55D3&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;indigo&quot;</span><span class="p">:</span> <span class="s2">&quot;#4B0082&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mediumspringgreen&quot;</span><span class="p">:</span> <span class="s2">&quot;#00FA9A&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tomato&quot;</span><span class="p">:</span> <span class="s2">&quot;#FF6347&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mediumblue&quot;</span><span class="p">:</span> <span class="s2">&quot;#0000CD&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;midnightblue&quot;</span><span class="p">:</span> <span class="s2">&quot;#191970&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;deepskyblue&quot;</span><span class="p">:</span> <span class="s2">&quot;#00BFFF&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;salmon&quot;</span><span class="p">:</span> <span class="s2">&quot;#FA8072&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;rosybrown&quot;</span><span class="p">:</span> <span class="s2">&quot;#BC8F8F&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mediumslateblue&quot;</span><span class="p">:</span> <span class="s2">&quot;#7B68EE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;moccasin&quot;</span><span class="p">:</span> <span class="s2">&quot;#FFE4B5&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;paleturquoise&quot;</span><span class="p">:</span> <span class="s2">&quot;#AFEEEE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;darkblue&quot;</span><span class="p">:</span> <span class="s2">&quot;#00008B&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;navy&quot;</span><span class="p">:</span> <span class="s2">&quot;#000080&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;steelblue&quot;</span><span class="p">:</span> <span class="s2">&quot;#4682B4&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;crimson&quot;</span><span class="p">:</span> <span class="s2">&quot;#DC143C&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;red&quot;</span><span class="p">:</span> <span class="s2">&quot;#FF0000&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bisque&quot;</span><span class="p">:</span> <span class="s2">&quot;#FFE4C4&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;darkslategray&quot;</span><span class="p">:</span> <span class="s2">&quot;#2F4F4F&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;maroon&quot;</span><span class="p">:</span> <span class="s2">&quot;#800000&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mediumpurple&quot;</span><span class="p">:</span> <span class="s2">&quot;#9370DB&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;darkslateblue&quot;</span><span class="p">:</span> <span class="s2">&quot;#483D8B&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;darksalmon&quot;</span><span class="p">:</span> <span class="s2">&quot;#E9967A&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;deeppink&quot;</span><span class="p">:</span> <span class="s2">&quot;#FF1493&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;seagreen&quot;</span><span class="p">:</span> <span class="s2">&quot;#2E8B57&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mediumvioletred&quot;</span><span class="p">:</span> <span class="s2">&quot;#C71585&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;greenyellow&quot;</span><span class="p">:</span> <span class="s2">&quot;#ADFF2F&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;springgreen&quot;</span><span class="p">:</span> <span class="s2">&quot;#00FF7F&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sandybrown&quot;</span><span class="p">:</span> <span class="s2">&quot;#F4A460&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;brown&quot;</span><span class="p">:</span> <span class="s2">&quot;#A52A2A&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lightpink&quot;</span><span class="p">:</span> <span class="s2">&quot;#FFB6C1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;olive&quot;</span><span class="p">:</span> <span class="s2">&quot;#808000&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;burlywood&quot;</span><span class="p">:</span> <span class="s2">&quot;#DEB887&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;dodgerblue&quot;</span><span class="p">:</span> <span class="s2">&quot;#1E90FF&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;darkolivegreen&quot;</span><span class="p">:</span> <span class="s2">&quot;#556B2F&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lightsalmon&quot;</span><span class="p">:</span> <span class="s2">&quot;#FFA07A&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;aqua&quot;</span><span class="p">:</span> <span class="s2">&quot;#00FFFF&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;khaki&quot;</span><span class="p">:</span> <span class="s2">&quot;#F0E68C&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pink&quot;</span><span class="p">:</span> <span class="s2">&quot;#FFC0CB&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;green&quot;</span><span class="p">:</span> <span class="s2">&quot;#008000&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;darkorange&quot;</span><span class="p">:</span> <span class="s2">&quot;#FF8C00&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;rebeccapurple&quot;</span><span class="p">:</span> <span class="s2">&quot;#663399&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;coral&quot;</span><span class="p">:</span> <span class="s2">&quot;#FF7F50&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;darkviolet&quot;</span><span class="p">:</span> <span class="s2">&quot;#9400D3&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;purple&quot;</span><span class="p">:</span> <span class="s2">&quot;#800080&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;palevioletred&quot;</span><span class="p">:</span> <span class="s2">&quot;#DB7093&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lightseagreen&quot;</span><span class="p">:</span> <span class="s2">&quot;#20B2AA&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;indianred&quot;</span><span class="p">:</span> <span class="s2">&quot;#CD5C5C&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;darkkhaki&quot;</span><span class="p">:</span> <span class="s2">&quot;#BDB76B&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lightcoral&quot;</span><span class="p">:</span> <span class="s2">&quot;#F08080&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mediumturquoise&quot;</span><span class="p">:</span> <span class="s2">&quot;#48D1CC&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;peachpuff&quot;</span><span class="p">:</span> <span class="s2">&quot;#FFDAB9&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;skyblue&quot;</span><span class="p">:</span> <span class="s2">&quot;#87CEEB&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fuchsia&quot;</span><span class="p">:</span> <span class="s2">&quot;#FF00FF&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;navajowhite&quot;</span><span class="p">:</span> <span class="s2">&quot;#FFDEAD&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lawngreen&quot;</span><span class="p">:</span> <span class="s2">&quot;#7CFC00&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cornflowerblue&quot;</span><span class="p">:</span> <span class="s2">&quot;#6495ED&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tan&quot;</span><span class="p">:</span> <span class="s2">&quot;#D2B48C&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;darkred&quot;</span><span class="p">:</span> <span class="s2">&quot;#8B0000&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;firebrick&quot;</span><span class="p">:</span> <span class="s2">&quot;#B22222&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gold&quot;</span><span class="p">:</span> <span class="s2">&quot;#FFD700&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;yellow&quot;</span><span class="p">:</span> <span class="s2">&quot;#FFFF00&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;wheat&quot;</span><span class="p">:</span> <span class="s2">&quot;#F5DEB3&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;chartreuse&quot;</span><span class="p">:</span> <span class="s2">&quot;#7FFF00&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;goldenrod&quot;</span><span class="p">:</span> <span class="s2">&quot;#DAA520&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;violet&quot;</span><span class="p">:</span> <span class="s2">&quot;#EE82EE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;yellowgreen&quot;</span><span class="p">:</span> <span class="s2">&quot;#9ACD32&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cadetblue&quot;</span><span class="p">:</span> <span class="s2">&quot;#5F9EA0&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plum&quot;</span><span class="p">:</span> <span class="s2">&quot;#DDA0DD&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="LineStyle"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.LineStyle">[docs]</a><span class="k">class</span> <span class="nc">LineStyle</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Provides trace line style constants.&quot;&quot;&quot;</span>
+
+    <span class="p">(</span><span class="n">Solid</span><span class="p">,</span> <span class="n">Dot</span><span class="p">,</span> <span class="n">ShortDash</span><span class="p">,</span> <span class="n">DotShortDash</span><span class="p">,</span> <span class="n">Dash</span><span class="p">,</span> <span class="n">DotDash</span><span class="p">,</span> <span class="n">DotDot</span><span class="p">,</span> <span class="n">DotDotDash</span><span class="p">,</span> <span class="n">LongDash</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Solid&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Dot&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ShortDash&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DotShortDash&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Dash&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DotDash&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DotDot&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DotDotDash&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;LongDash&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TraceType"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.TraceType">[docs]</a><span class="k">class</span> <span class="nc">TraceType</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Provides trace type constants.&quot;&quot;&quot;</span>
+
+    <span class="p">(</span><span class="n">Continuous</span><span class="p">,</span> <span class="n">Discrete</span><span class="p">,</span> <span class="n">StickZero</span><span class="p">,</span> <span class="n">StickInfinity</span><span class="p">,</span> <span class="n">BarZero</span><span class="p">,</span> <span class="n">BarInfinity</span><span class="p">,</span> <span class="n">Histogram</span><span class="p">,</span> <span class="n">Step</span><span class="p">,</span> <span class="n">Stair</span><span class="p">,</span> <span class="n">Digital</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Continuous&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Discrete&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Stick Zero&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Stick Infinity&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Bar Zero&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Bar Infinity&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Histogram&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Step&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Stair&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Digital&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SymbolStyle"><a class="viewcode-back" href="../../../API/Constants.html#pyaedt.generic.constants.SymbolStyle">[docs]</a><span class="k">class</span> <span class="nc">SymbolStyle</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Provides symbol style constants.&quot;&quot;&quot;</span>
+
+    <span class="p">(</span>
+        <span class="n">Box</span><span class="p">,</span>
+        <span class="n">Circle</span><span class="p">,</span>
+        <span class="n">VerticalEllipse</span><span class="p">,</span>
+        <span class="n">HorizontalEllipse</span><span class="p">,</span>
+        <span class="n">VerticalUpTriangle</span><span class="p">,</span>
+        <span class="n">VerticalDownTriangle</span><span class="p">,</span>
+        <span class="n">HorizontalLeftTriangle</span><span class="p">,</span>
+        <span class="n">HorizontalRightTriangle</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Box&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Circle&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;VerticalEllipse&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;HorizontalEllipse&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;VerticalUpTriangle&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;VerticalDownTriangle&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;HorizontalLeftTriangle&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;HorizontalRightTriangle&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+</pre></div>
+
+              </article>
+              
+
+              
+          </div>
+          
+      </div>
+    </div>
+
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695"></script>
+
+<footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    <p class="copyright">
+    &copy; Copyright (c) 2023 ANSYS, Inc. All rights reserved.<br>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+  </div>
+  
+</div>
+</footer>
+  </body>
+</html>

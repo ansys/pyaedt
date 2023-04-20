@@ -1,0 +1,6 @@
+assign\_roughness\_model
+========================
+
+.. currentmodule:: pyaedt.edb_core.edb_data.layer_data
+
+.. automethod:: LayerEdbClass.assign_roughness_model

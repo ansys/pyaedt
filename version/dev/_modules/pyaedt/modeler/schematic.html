@@ -1,0 +1,1221 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyaedt.modeler.schematic &#8212; PyAEDT</title>
+    
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/ansys_sphinx_theme.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    
+        <link href="../../../_static/css/breadcrumbs.css" rel="stylesheet">
+    
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/table.js"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pyaedt/modeler/schematic';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://aedt.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        </script>
+    <link rel="shortcut icon" href="../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container"><!-- Debugging: html_theme_options =  -->
+
+  <!-- If there is no MiliSearch enabled, use the PyData search -->
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../../../_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../Getting_started/index.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../User_guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../API/index.html">
+                        AEDT API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../EDBAPI/index.html">
+                        EDB API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../Contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      dev  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt/discussions" title="Support" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+</div>
+
+    </nav>
+  
+
+    
+    <div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(text => document.getElementById("announcement_msg").innerHTML = text)
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+    
+
+    
+    <div class="container-xl">
+    <div class="row">
+        <div class="col-12 col-md-3" id="breadcrumbs-spacer"></div>
+        <div class="col-12 col-md-11 col-xl-9" id="breadcrumbs">
+          
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-additional-breadcrumb"><a href="https://docs.pyansys.com/">PyAnsys</a> » </li>
+    
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PyAEDT</a> » </li>
+    
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> » </li>
+        <li class="nav-item nav-item-this"><a href="">pyaedt.modeler.schematic</a></li> 
+      </ul>
+    </div>
+        </div>
+  </div>
+</div>
+    
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../Getting_started/index.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../User_guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../API/index.html">
+                        AEDT API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../EDBAPI/index.html">
+                        EDB API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../Contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      dev  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt/discussions" title="Support" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article"></div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for pyaedt.modeler.schematic</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">from</span> <span class="nn">pyaedt.generic.constants</span> <span class="kn">import</span> <span class="n">AEDT_UNITS</span>
+<span class="kn">from</span> <span class="nn">pyaedt.generic.general_methods</span> <span class="kn">import</span> <span class="n">_retry_ntimes</span>
+<span class="kn">from</span> <span class="nn">pyaedt.generic.general_methods</span> <span class="kn">import</span> <span class="n">pyaedt_function_handler</span>
+<span class="kn">from</span> <span class="nn">pyaedt.modeler.cad.Modeler</span> <span class="kn">import</span> <span class="n">Modeler</span>
+<span class="kn">from</span> <span class="nn">pyaedt.modeler.circuits.PrimitivesEmit</span> <span class="kn">import</span> <span class="n">EmitComponent</span>
+<span class="kn">from</span> <span class="nn">pyaedt.modeler.circuits.PrimitivesEmit</span> <span class="kn">import</span> <span class="n">EmitComponents</span>
+<span class="kn">from</span> <span class="nn">pyaedt.modeler.circuits.PrimitivesMaxwellCircuit</span> <span class="kn">import</span> <span class="n">MaxwellCircuitComponents</span>
+<span class="kn">from</span> <span class="nn">pyaedt.modeler.circuits.PrimitivesNexxim</span> <span class="kn">import</span> <span class="n">NexximComponents</span>
+<span class="kn">from</span> <span class="nn">pyaedt.modeler.circuits.PrimitivesTwinBuilder</span> <span class="kn">import</span> <span class="n">TwinBuilderComponents</span>
+<span class="kn">from</span> <span class="nn">pyaedt.modeler.circuits.object3dcircuit</span> <span class="kn">import</span> <span class="n">CircuitComponent</span>
+<span class="kn">from</span> <span class="nn">pyaedt.modeler.circuits.object3dcircuit</span> <span class="kn">import</span> <span class="n">Wire</span>
+<span class="kn">from</span> <span class="nn">pyaedt.modeler.pcb.Primitives3DLayout</span> <span class="kn">import</span> <span class="n">Primitives3DLayout</span>
+<span class="kn">from</span> <span class="nn">pyaedt.modules.LayerStackup</span> <span class="kn">import</span> <span class="n">Layers</span>
+
+
+<span class="k">class</span> <span class="nc">ModelerCircuit</span><span class="p">(</span><span class="n">Modeler</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ModelerCircuit class.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    app : :class:`pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit`</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from pyaedt import Circuit</span>
+<span class="sd">    &gt;&gt;&gt; app = Circuit()</span>
+<span class="sd">    &gt;&gt;&gt; my_modeler = app.modeler</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_app</span> <span class="o">=</span> <span class="n">app</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schematic_units</span> <span class="o">=</span> <span class="s2">&quot;meter&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">o_def_manager</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">odefinition_manager</span>
+        <span class="n">Modeler</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wire</span> <span class="o">=</span> <span class="n">Wire</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">schematic_units</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Schematic units. Options are ``&quot;mm&quot;``, ``&quot;mil&quot;``, ``&quot;cm&quot;`` and all other metric and imperial units.</span>
+<span class="sd">        The default is ``&quot;meter&quot;``.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schematic_units</span>
+
+    <span class="nd">@schematic_units</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">schematic_units</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">AEDT_UNITS</span><span class="p">[</span><span class="s2">&quot;Length&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_schematic_units</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;The unit </span><span class="si">%s</span><span class="s2"> is not supported.&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">o_component_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Component manager object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">o_component_manager</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">o_model_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Model manager object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">o_model_manager</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">oeditor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Oeditor Module.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor = oDesign.SetActiveEditor(&quot;SchematicEditor&quot;)&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">oeditor</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">obounding_box</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Bounding box.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.GetModelBoundingBox()&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetModelBoundingBox</span><span class="p">()</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">zoom_to_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Zoom To Fit.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.ZoomToFit</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">ZoomToFit</span><span class="p">()</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">connect_schematic_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">firstcomponent</span><span class="p">,</span> <span class="n">secondcomponent</span><span class="p">,</span> <span class="n">pinnum_first</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">pinnum_second</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Connect schematic components.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        firstcomponent : str</span>
+<span class="sd">           Starting (right) component.</span>
+<span class="sd">        secondcomponent : str</span>
+<span class="sd">           Ending (left) component for the connection line.</span>
+<span class="sd">        pinnum_first : str, optional</span>
+<span class="sd">             Number of the pin at which to terminate the connection from the right end of the</span>
+<span class="sd">             starting component. The default is ``2``.</span>
+<span class="sd">        pinnum_second : str, optional</span>
+<span class="sd">             Number of the pin at which to terminate the connection from the left end of the</span>
+<span class="sd">             ending component. The default is ``1``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.CreateWire</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">design_type</span> <span class="o">==</span> <span class="s2">&quot;Maxwell Circuit&quot;</span><span class="p">:</span>
+            <span class="n">components</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schematic</span><span class="o">.</span><span class="n">components</span>
+            <span class="n">obj1</span> <span class="o">=</span> <span class="n">components</span><span class="p">[</span><span class="n">firstcomponent</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">components</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span>
+            <span class="n">obj1</span> <span class="o">=</span> <span class="n">components</span><span class="p">[</span><span class="n">firstcomponent</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;Port&quot;</span> <span class="ow">in</span> <span class="n">obj1</span><span class="o">.</span><span class="n">composed_name</span><span class="p">:</span>
+            <span class="n">pos1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetPropertyValue</span><span class="p">(</span><span class="s2">&quot;BaseElementTab&quot;</span><span class="p">,</span> <span class="n">obj1</span><span class="o">.</span><span class="n">composed_name</span><span class="p">,</span> <span class="s2">&quot;Component Location&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">)</span>
+            <span class="n">pos1</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">strip</span><span class="p">()[:</span><span class="o">-</span><span class="mi">3</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.0000254</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">pos1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s2">&quot;GPort&quot;</span> <span class="ow">in</span> <span class="n">obj1</span><span class="o">.</span><span class="n">composed_name</span><span class="p">:</span>
+                <span class="n">pos1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">0.00254</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">design_type</span> <span class="o">==</span> <span class="s2">&quot;Maxwell Circuit&quot;</span><span class="p">:</span>
+                <span class="n">pos1</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[^0-9.\-]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.0000254</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">obj1</span><span class="o">.</span><span class="n">location</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pins1</span> <span class="o">=</span> <span class="n">components</span><span class="o">.</span><span class="n">get_pins</span><span class="p">(</span><span class="n">firstcomponent</span><span class="p">)</span>
+                <span class="n">pos1</span> <span class="o">=</span> <span class="n">components</span><span class="o">.</span><span class="n">get_pin_location</span><span class="p">(</span><span class="n">firstcomponent</span><span class="p">,</span> <span class="n">pins1</span><span class="p">[</span><span class="n">pinnum_first</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">obj2</span> <span class="o">=</span> <span class="n">components</span><span class="p">[</span><span class="n">secondcomponent</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;Port&quot;</span> <span class="ow">in</span> <span class="n">obj2</span><span class="o">.</span><span class="n">composed_name</span><span class="p">:</span>
+            <span class="n">pos2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetPropertyValue</span><span class="p">(</span><span class="s2">&quot;BaseElementTab&quot;</span><span class="p">,</span> <span class="n">obj2</span><span class="o">.</span><span class="n">composed_name</span><span class="p">,</span> <span class="s2">&quot;Component Location&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">)</span>
+            <span class="n">pos2</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">strip</span><span class="p">()[:</span><span class="o">-</span><span class="mi">3</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.0000254</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">pos2</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s2">&quot;GPort&quot;</span> <span class="ow">in</span> <span class="n">obj2</span><span class="o">.</span><span class="n">composed_name</span><span class="p">:</span>
+                <span class="n">pos2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">0.00254</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">design_type</span> <span class="o">==</span> <span class="s2">&quot;Maxwell Circuit&quot;</span><span class="p">:</span>
+                <span class="n">pos2</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[^0-9.\-]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.0000254</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">obj2</span><span class="o">.</span><span class="n">location</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pins2</span> <span class="o">=</span> <span class="n">components</span><span class="o">.</span><span class="n">get_pins</span><span class="p">(</span><span class="n">secondcomponent</span><span class="p">)</span>
+                <span class="n">pos2</span> <span class="o">=</span> <span class="n">components</span><span class="o">.</span><span class="n">get_pin_location</span><span class="p">(</span><span class="n">secondcomponent</span><span class="p">,</span> <span class="n">pins2</span><span class="p">[</span><span class="n">pinnum_second</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">schematic</span><span class="o">.</span><span class="n">create_wire</span><span class="p">([</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">])</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">create_text</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">text</span><span class="p">,</span>
+        <span class="n">x_origin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">y_origin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">text_size</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+        <span class="n">text_angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">text_color</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">show_rect</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">x1</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">y1</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">x2</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">y2</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">rect_line_width</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">rect_border_color</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">rect_fill</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">rect_color</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Draw Text.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        text : string</span>
+<span class="sd">            Text to display.</span>
+<span class="sd">        x_origin : float, optional</span>
+<span class="sd">            x origin coordinate of the text box.</span>
+<span class="sd">            Default value is ``0``.</span>
+<span class="sd">        y_origin : float, optional</span>
+<span class="sd">            y origin coordinate of the text box .</span>
+<span class="sd">            Default value is ``0``.</span>
+<span class="sd">        text_size : int, optional</span>
+<span class="sd">            Size of text.</span>
+<span class="sd">            Default value is ``12``.</span>
+<span class="sd">        text_angle : float, optional</span>
+<span class="sd">            Angle of text.</span>
+<span class="sd">            Default value is ``0``.</span>
+<span class="sd">        text_color : int, optional</span>
+<span class="sd">            The RGB value of the text color.</span>
+<span class="sd">            Default value is ``0``.</span>
+<span class="sd">        show_rect : bool, optional</span>
+<span class="sd">            Show rectangle.</span>
+<span class="sd">            Default value is ``False``.</span>
+<span class="sd">        x1 : float, optional</span>
+<span class="sd">            The text rectangle left X value, in meters.</span>
+<span class="sd">            Default value is ``0``.</span>
+<span class="sd">        y1 : float, optional</span>
+<span class="sd">            The text rectangle upper Y value, in meters.</span>
+<span class="sd">            Default value is ``0``.</span>
+<span class="sd">        x2 : float, optional</span>
+<span class="sd">            The text rectangle right X value, in meters.</span>
+<span class="sd">            Default value is ``0``.</span>
+<span class="sd">        y2 : float, optional</span>
+<span class="sd">            The text rectangle lower Y value, in meters.</span>
+<span class="sd">            Default value is ``0``.</span>
+<span class="sd">        rect_line_width : float, optional</span>
+<span class="sd">            The width of the rectangle border, in meters.</span>
+<span class="sd">            Default value is ``0``.</span>
+<span class="sd">        rect_border_color : int, optional</span>
+<span class="sd">            The RGB value of the rectangle border color.</span>
+<span class="sd">            Default value is ``0``.</span>
+<span class="sd">        rect_fill : int, optional</span>
+<span class="sd">            The rectangle fill pattern id.</span>
+<span class="sd">            Available values are: 0 = hollow, 1 = solid, 2 = NEDiagonal, 3 = OrthoCross,</span>
+<span class="sd">            4 = DiagCross, 5 = NWDiagonal, 6 = Horizontal, 7 = Vertical.</span>
+<span class="sd">            Default value is ``0``.</span>
+<span class="sd">        rect_color : int, optional</span>
+<span class="sd">            The RGB value of the rectangle fill color.</span>
+<span class="sd">            Default value is ``0``.</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">             Unique id of the created object when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.CreateText</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">element_ids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetAllGraphics</span><span class="p">():</span>
+            <span class="n">element_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">system_random</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">SystemRandom</span><span class="p">()</span>
+        <span class="n">text_id</span> <span class="o">=</span> <span class="n">system_random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">20000</span><span class="p">,</span> <span class="mi">23000</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">text_id</span> <span class="ow">in</span> <span class="n">element_ids</span><span class="p">:</span>
+            <span class="n">text_id</span> <span class="o">=</span> <span class="n">system_random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">20000</span><span class="p">,</span> <span class="mi">23000</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;NAME:TextData&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;X:=&quot;</span><span class="p">,</span>
+            <span class="n">x_origin</span><span class="p">,</span>
+            <span class="s2">&quot;Y:=&quot;</span><span class="p">,</span>
+            <span class="n">y_origin</span><span class="p">,</span>
+            <span class="s2">&quot;Size:=&quot;</span><span class="p">,</span>
+            <span class="n">text_size</span><span class="p">,</span>
+            <span class="s2">&quot;Angle:=&quot;</span><span class="p">,</span>
+            <span class="n">text_angle</span><span class="p">,</span>
+            <span class="s2">&quot;Text:=&quot;</span><span class="p">,</span>
+            <span class="n">text</span><span class="p">,</span>
+            <span class="s2">&quot;Color:=&quot;</span><span class="p">,</span>
+            <span class="n">text_color</span><span class="p">,</span>
+            <span class="s2">&quot;Id:=&quot;</span><span class="p">,</span>
+            <span class="n">text_id</span><span class="p">,</span>
+            <span class="s2">&quot;ShowRect:=&quot;</span><span class="p">,</span>
+            <span class="n">show_rect</span><span class="p">,</span>
+            <span class="s2">&quot;X1:=&quot;</span><span class="p">,</span>
+            <span class="n">x1</span><span class="p">,</span>
+            <span class="s2">&quot;Y1:=&quot;</span><span class="p">,</span>
+            <span class="n">y1</span><span class="p">,</span>
+            <span class="s2">&quot;X2:=&quot;</span><span class="p">,</span>
+            <span class="n">x2</span><span class="p">,</span>
+            <span class="s2">&quot;Y2:=&quot;</span><span class="p">,</span>
+            <span class="n">y2</span><span class="p">,</span>
+            <span class="s2">&quot;RectLineWidth:=&quot;</span><span class="p">,</span>
+            <span class="n">rect_line_width</span><span class="p">,</span>
+            <span class="s2">&quot;RectBorderColor:=&quot;</span><span class="p">,</span>
+            <span class="n">rect_border_color</span><span class="p">,</span>
+            <span class="s2">&quot;RectFill:=&quot;</span><span class="p">,</span>
+            <span class="n">rect_fill</span><span class="p">,</span>
+            <span class="s2">&quot;RectColor:=&quot;</span><span class="p">,</span>
+            <span class="n">rect_color</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:Attributes&quot;</span><span class="p">,</span> <span class="s2">&quot;Page:=&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">CreateText</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="nd">@pyaedt_function_handler</span>
+    <span class="k">def</span> <span class="nf">change_text_property</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">property_id</span><span class="p">,</span> <span class="n">property_name</span><span class="p">,</span> <span class="n">property_value</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Change an oeditor property.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        property_id : str</span>
+<span class="sd">            Object id.</span>
+<span class="sd">        property_name : str</span>
+<span class="sd">            Name of the property. For example, ``Text``.</span>
+<span class="sd">        property_value : str, list, int</span>
+<span class="sd">            Value of the property. It can be a string, an int for a single value, a list of three elements for</span>
+<span class="sd">            ``[r,g,b]`` color values or a list of two elements for ``[x, y]`` coordinates.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.ChangeProperty</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">graphics_id</span> <span class="o">=</span> <span class="p">[</span><span class="nb">id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetAllGraphics</span><span class="p">()]</span>
+        <span class="k">if</span> <span class="n">property_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">graphics_id</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Invalid id.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">property_value</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">property_value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">property_value</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">int</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">property_value</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">int</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">property_value</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="nb">int</span><span class="p">)</span>
+            <span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Invalid RGB values for color&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">ChangeProperty</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;NAME:AllTabs&quot;</span><span class="p">,</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;NAME:BaseElementTab&quot;</span><span class="p">,</span>
+                        <span class="p">[</span><span class="s2">&quot;NAME:PropServers&quot;</span><span class="p">,</span> <span class="s2">&quot;SchObj@&quot;</span> <span class="o">+</span> <span class="n">property_id</span><span class="p">],</span>
+                        <span class="p">[</span>
+                            <span class="s2">&quot;NAME:ChangedProps&quot;</span><span class="p">,</span>
+                            <span class="p">[</span>
+                                <span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="n">property_name</span><span class="p">,</span>
+                                <span class="s2">&quot;R:=&quot;</span><span class="p">,</span>
+                                <span class="n">property_value</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                <span class="s2">&quot;G:=&quot;</span><span class="p">,</span>
+                                <span class="n">property_value</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                <span class="s2">&quot;B:=&quot;</span><span class="p">,</span>
+                                <span class="n">property_value</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                            <span class="p">],</span>
+                        <span class="p">],</span>
+                    <span class="p">],</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">property_value</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">property_value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">xpos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arg_with_dim</span><span class="p">(</span><span class="n">property_value</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">ypos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arg_with_dim</span><span class="p">(</span><span class="n">property_value</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">ChangeProperty</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;NAME:AllTabs&quot;</span><span class="p">,</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;NAME:BaseElementTab&quot;</span><span class="p">,</span>
+                        <span class="p">[</span><span class="s2">&quot;NAME:PropServers&quot;</span><span class="p">,</span> <span class="s2">&quot;SchObj@&quot;</span> <span class="o">+</span> <span class="n">property_id</span><span class="p">],</span>
+                        <span class="p">[</span><span class="s2">&quot;NAME:ChangedProps&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="n">property_name</span><span class="p">,</span> <span class="s2">&quot;X:=&quot;</span><span class="p">,</span> <span class="n">xpos</span><span class="p">,</span> <span class="s2">&quot;Y:=&quot;</span><span class="p">,</span> <span class="n">ypos</span><span class="p">]],</span>
+                    <span class="p">],</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">property_value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">ChangeProperty</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;NAME:AllTabs&quot;</span><span class="p">,</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;NAME:BaseElementTab&quot;</span><span class="p">,</span>
+                        <span class="p">[</span><span class="s2">&quot;NAME:PropServers&quot;</span><span class="p">,</span> <span class="s2">&quot;SchObj@&quot;</span> <span class="o">+</span> <span class="n">property_id</span><span class="p">],</span>
+                        <span class="p">[</span><span class="s2">&quot;NAME:ChangedProps&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="n">property_name</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="n">property_value</span><span class="p">]],</span>
+                    <span class="p">],</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">property_value</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">ChangeProperty</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;NAME:AllTabs&quot;</span><span class="p">,</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;NAME:BaseElementTab&quot;</span><span class="p">,</span>
+                        <span class="p">[</span><span class="s2">&quot;NAME:PropServers&quot;</span><span class="p">,</span> <span class="s2">&quot;SchObj@&quot;</span> <span class="o">+</span> <span class="n">property_id</span><span class="p">],</span>
+                        <span class="p">[</span><span class="s2">&quot;NAME:ChangedProps&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="n">property_name</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="n">property_value</span><span class="p">]],</span>
+                    <span class="p">],</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Wrong Property Value&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Property </span><span class="si">{}</span><span class="s2"> Changed correctly.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">property_name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_get_components_selections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selections</span><span class="p">,</span> <span class="n">return_as_list</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">sels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">selections</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">selections</span> <span class="o">=</span> <span class="p">[</span><span class="n">selections</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">sel</span> <span class="ow">in</span> <span class="n">selections</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sel</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="n">sels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schematic</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">sel</span><span class="p">]</span><span class="o">.</span><span class="n">composed_name</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sel</span><span class="p">,</span> <span class="p">(</span><span class="n">CircuitComponent</span><span class="p">,</span> <span class="n">EmitComponent</span><span class="p">)):</span>
+                <span class="n">sels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sel</span><span class="o">.</span><span class="n">composed_name</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schematic</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+                    <span class="k">if</span> <span class="n">sel</span> <span class="ow">in</span> <span class="p">[</span><span class="n">el</span><span class="o">.</span><span class="n">InstanceName</span><span class="p">,</span> <span class="n">el</span><span class="o">.</span><span class="n">composed_name</span><span class="p">,</span> <span class="n">el</span><span class="o">.</span><span class="n">name</span><span class="p">]:</span>
+                        <span class="n">sels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">composed_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">return_as_list</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sels</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sels</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_arg_with_dim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">units</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schematic_units</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">units</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">units</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">val</span>
+
+
+<div class="viewcode-block" id="ModelerNexxim"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modeler.schematic.ModelerNexxim.html#pyaedt.modeler.schematic.ModelerNexxim">[docs]</a><span class="k">class</span> <span class="nc">ModelerNexxim</span><span class="p">(</span><span class="n">ModelerCircuit</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ModelerNexxim class.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    app : :class:`pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_app</span> <span class="o">=</span> <span class="n">app</span>
+        <span class="n">ModelerCircuit</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schematic</span> <span class="o">=</span> <span class="n">NexximComponents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_layouteditor</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">=</span> <span class="n">Layers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">roughnessunits</span><span class="o">=</span><span class="s2">&quot;um&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span> <span class="o">=</span> <span class="n">Primitives3DLayout</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">layouteditor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the Circuit Layout Editor.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oDesign.SetActiveEditor(&quot;Layout&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">layouteditor</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">schematic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Schematic Component.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.modeler.circuits.PrimitivesNexxim.NexximComponents`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schematic</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">components</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Schematic Component.</span>
+
+<span class="sd">        .. deprecated:: 0.4.13</span>
+<span class="sd">           Use :func:`Circuit.modeler.schematic` instead.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.modeler.circuits.PrimitivesNexxim.NexximComponents`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schematic</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">edb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;EDB.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.Edb`</span>
+<span class="sd">            edb_core object if it exists.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO Check why it crashes when multiple circuits are created</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">model_units</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Layout model units.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.GetActiveUnits</span>
+<span class="sd">        &gt;&gt;&gt; oEditor.SetActiveUnits</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_retry_ntimes</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">layouteditor</span><span class="o">.</span><span class="n">GetActiveUnits</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Primitives.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.modeler.Primitives3DLayout.Primitives3DLayout`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">design_type</span> <span class="o">==</span> <span class="s2">&quot;Twin Builder&quot;</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">primitives</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Primitives.</span>
+
+<span class="sd">        .. deprecated:: 0.4.13</span>
+<span class="sd">           Use :func:`Circuit.modeler.layout` instead.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.modeler.Primitives3DLayout.Primitives3DLayout`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span>
+
+    <span class="nd">@model_units</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">model_units</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">units</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">units</span> <span class="ow">in</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="s2">&quot;Length&quot;</span><span class="p">],</span> <span class="s2">&quot;Invalid units string </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">units</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Set the model units as a string e.g. &quot;mm&quot; &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">SetActivelUnits</span><span class="p">([</span><span class="s2">&quot;NAME:Units Parameter&quot;</span><span class="p">,</span> <span class="s2">&quot;Units:=&quot;</span><span class="p">,</span> <span class="n">units</span><span class="p">,</span> <span class="s2">&quot;Rescale:=&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
+
+<div class="viewcode-block" id="ModelerNexxim.move"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modeler.schematic.ModelerNexxim.move.html#pyaedt.modeler.schematic.ModelerNexxim.move">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selections</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Move the selections by the specified ``[x, y]`` coordinates.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        selections : list</span>
+<span class="sd">            List of the selections.</span>
+<span class="sd">        pos : list</span>
+<span class="sd">            Offset for the ``[x, y]`` axis.</span>
+<span class="sd">        units : str</span>
+<span class="sd">            Units of the movement. The default is ``meter``. If ``None``, ``schematic_units`` are used.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.Move</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_components_selections</span><span class="p">(</span><span class="n">selections</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">sels</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No Component Found.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">units</span><span class="p">:</span>
+            <span class="n">x_location</span> <span class="o">=</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="s2">&quot;Length&quot;</span><span class="p">][</span><span class="n">units</span><span class="p">]</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">y_location</span> <span class="o">=</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="s2">&quot;Length&quot;</span><span class="p">][</span><span class="n">units</span><span class="p">]</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_location</span> <span class="o">=</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="s2">&quot;Length&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">schematic_units</span><span class="p">]</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">y_location</span> <span class="o">=</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="s2">&quot;Length&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">schematic_units</span><span class="p">]</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">Move</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;NAME:Selections&quot;</span><span class="p">,</span> <span class="s2">&quot;Selections:=&quot;</span><span class="p">,</span> <span class="n">sels</span><span class="p">],</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;NAME:MoveParameters&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;xdelta:=&quot;</span><span class="p">,</span>
+                <span class="n">x_location</span><span class="p">,</span>
+                <span class="s2">&quot;ydelta:=&quot;</span><span class="p">,</span>
+                <span class="n">y_location</span><span class="p">,</span>
+                <span class="s2">&quot;Disconnect:=&quot;</span><span class="p">,</span>
+                <span class="kc">False</span><span class="p">,</span>
+                <span class="s2">&quot;Rubberband:=&quot;</span><span class="p">,</span>
+                <span class="kc">False</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="ModelerNexxim.rotate"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modeler.schematic.ModelerNexxim.rotate.html#pyaedt.modeler.schematic.ModelerNexxim.rotate">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selections</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="mi">90</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Rotate the selections by degrees.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        selections : list</span>
+<span class="sd">            List of the selections.</span>
+<span class="sd">        degrees : optional</span>
+<span class="sd">            Angle rotation in degrees. The default is ``90``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.Rotate</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_components_selections</span><span class="p">(</span><span class="n">selections</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">sels</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No Component Found.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">Rotate</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;NAME:Selections&quot;</span><span class="p">,</span> <span class="s2">&quot;Selections:=&quot;</span><span class="p">,</span> <span class="n">sels</span><span class="p">],</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;NAME:RotateParameters&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Degrees:=&quot;</span><span class="p">,</span>
+                <span class="n">degrees</span><span class="p">,</span>
+                <span class="s2">&quot;Disconnect:=&quot;</span><span class="p">,</span>
+                <span class="kc">False</span><span class="p">,</span>
+                <span class="s2">&quot;Rubberband:=&quot;</span><span class="p">,</span>
+                <span class="kc">False</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div></div>
+
+
+<div class="viewcode-block" id="ModelerTwinBuilder"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modeler.schematic.ModelerTwinBuilder.html#pyaedt.modeler.schematic.ModelerTwinBuilder">[docs]</a><span class="k">class</span> <span class="nc">ModelerTwinBuilder</span><span class="p">(</span><span class="n">ModelerCircuit</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ModelerTwinBuilder class.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    app : :class:`pyaedt.application.AnalysisTwinBuilder.AnalysisTwinBuilder`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_app</span> <span class="o">=</span> <span class="n">app</span>
+        <span class="n">ModelerCircuit</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_components</span> <span class="o">=</span> <span class="n">TwinBuilderComponents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">components</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        .. deprecated:: 0.4.13</span>
+<span class="sd">           Use :func:`TwinBuilder.modeler.schematic` instead.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">schematic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Schematic Object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.modeler.PrimitivesTwinBuilder.TwinBuilderComponents`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span></div>
+
+
+<div class="viewcode-block" id="ModelerEmit"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modeler.schematic.ModelerEmit.html#pyaedt.modeler.schematic.ModelerEmit">[docs]</a><span class="k">class</span> <span class="nc">ModelerEmit</span><span class="p">(</span><span class="n">ModelerCircuit</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ModelerEmit class.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    app : :class:`pyaedt.application.AnalysisEmit`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_app</span> <span class="o">=</span> <span class="n">app</span>
+        <span class="n">ModelerCircuit</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">components</span> <span class="o">=</span> <span class="n">EmitComponents</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ModelerMaxwellCircuit"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modeler.schematic.ModelerMaxwellCircuit.html#pyaedt.modeler.schematic.ModelerMaxwellCircuit">[docs]</a><span class="k">class</span> <span class="nc">ModelerMaxwellCircuit</span><span class="p">(</span><span class="n">ModelerCircuit</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ModelerMaxwellCircuit class.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    app : :class:`pyaedt.application.AnalysisMaxwellCircuit`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_app</span> <span class="o">=</span> <span class="n">app</span>
+        <span class="n">ModelerCircuit</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_components</span> <span class="o">=</span> <span class="n">MaxwellCircuitComponents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">schematic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Schematic Object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.modeler.PrimitivesMaxwellCircuit.MaxwellCircuitComponents`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span></div>
+</pre></div>
+
+                </article>
+              
+              
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright (c) 2023 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

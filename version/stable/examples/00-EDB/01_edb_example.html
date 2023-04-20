@@ -1,0 +1,895 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>EDB: Siwave analysis from EDB setup &#8212; PyAEDT</title>
+    
+<script>
+  document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+  document.documentElement.dataset.theme = localStorage.getItem("theme") || "light"
+</script>
+
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+
+
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css\ansys_sphinx_theme.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695">
+
+    
+        <link href="../../_static/css/breadcrumbs.css" rel="stylesheet">
+    
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <link rel="shortcut icon" href="../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="EDB: IPC2581 export" href="02_edb_to_ipc2581.html" />
+    <link rel="prev" title="EDB: geometry creation" href="00_EDB_Create_VIA.html" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+    <div class="bd-header-announcement container-fluid" id="banner">
+      
+
+    </div>
+
+    
+    
+    <nav class="bd-header navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="bd-header__inner container-xl">
+
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+    <img src="../../_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="Logo image">
+    <img src="../../_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="fas fa-bars"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../Getting_started/index.html">
+  Getting started
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../User_guide/index.html">
+  User guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../API/index.html">
+  AEDT API
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../EDBAPI/index.html">
+  EDB API
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="../index.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../Contributing.html">
+  Contribute
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <div class="dropdown" id="version_switcher">
+    <button type="button" class="btn btn-sm navbar-btn dropdown-toggle" id="version_switcher_button" data-toggle="dropdown">
+        0.6  <!-- this text may get changed later by javascript -->
+        <span class="caret"></span>
+    </button>
+    <div id="version_switcher_menu" class="dropdown-menu list-group-flush py-0" aria-labelledby="version_switcher_button">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+</div>
+
+<!-- NOTE: this JS must live here (not in our global JS file) because it relies
+     on being processed by Jinja before it is run (specifically for replacing
+     variables examples/00-EDB/01_edb_example and {'json_url': 'https://aedt.docs.pyansys.com/release/versions.json', 'version_match': '0.6'}.
+-->
+
+<script type="text/javascript">
+// Check if corresponding page path exists in other version of docs
+// and, if so, go there instead of the homepage of the other docs version
+function checkPageExistsAndRedirect(event) {
+    const currentFilePath = "examples/00-EDB/01_edb_example.html",
+          tryUrl = event.target.getAttribute("href");
+    let otherDocsHomepage = tryUrl.replace(currentFilePath, "");
+    $.ajax({
+        type: 'HEAD',
+        url: tryUrl,
+        // if the page exists, go there
+        success: function() {
+            location.href = tryUrl;
+        }
+    }).fail(function() {
+        location.href = otherDocsHomepage;
+    });
+    // this prevents the browser from following the href of the clicked node
+    // (which is fine because this function takes care of redirecting)
+    return false;
+}
+
+// Populate the version switcher from the JSON config file
+(function () {
+    $.getJSON("https://aedt.docs.pyansys.com/release/versions.json", function(data, textStatus, jqXHR) {
+        const currentFilePath = "examples/00-EDB/01_edb_example.html";
+        let btn = document.getElementById("version_switcher_button");
+        // Set empty strings by default so that these attributes exist and can be used in CSS selectors
+        btn.dataset["activeVersionName"] = "";
+        btn.dataset["activeVersion"] = "";
+        // create links to the corresponding page in the other docs versions
+        $.each(data, function(index, entry) {
+            // if no custom name specified (e.g., "latest"), use version string
+            if (!("name" in entry)) {
+                entry.name = entry.version;
+            }
+            // create the node
+            const node = document.createElement("a");
+            node.setAttribute("class", "list-group-item list-group-item-action py-1");
+            node.textContent = `${entry.name}`;
+            node.setAttribute("href", `${entry.url}${currentFilePath}`);
+            // on click, AJAX calls will check if the linked page exists before
+            // trying to redirect, and if not, will redirect to the homepage
+            // for that version of the docs.
+            node.onclick = checkPageExistsAndRedirect;
+            // Add dataset values for the version and name in case people want
+            // to apply CSS styling based on this information.
+            node.dataset["versionName"] = entry.name;
+            node.dataset["version"] = entry.version;
+
+            $("#version_switcher_menu").append(node);
+            // replace dropdown button text with the preferred display name of
+            // this version, rather than using sphinx's 0.6.70 variable.
+            // also highlight the dropdown entry for the currently-viewed
+            // version's entry
+            if (entry.version == "0.6") {
+                node.classList.add("active");
+                btn.innerText = btn.dataset["activeVersionName"] = entry.name;
+                btn.dataset["activeVersion"] = entry.version;
+            }
+        });
+    });
+})();
+</script>
+      </div>
+      
+      <div class="navbar-end-item">
+        <span id="theme-switch" class="btn btn-sm btn-outline-primary navbar-btn rounded-circle">
+    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/pyansys/pyaedt" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/pyansys/pyaedt/discussions" rel="noopener" target="_blank" title="Support"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+     
+<div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(text => document.getElementById("announcement_msg").innerHTML = text)
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+
+    
+        <div class="container-xl">
+    <div class="row">
+        <div class="col-12 col-md-3" id="breadcrumbs-spacer"></div>
+        <div class="col-12 col-md-11 col-xl-9" id="breadcrumbs">
+          
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-additional-breadcrumb"><a href="https://docs.pyansys.com/">PyAnsys</a> » </li>
+    
+    
+        <li class="nav-item nav-item-0"><a href="../../index.html">PyAEDT</a> » </li>
+    
+
+          <li class="nav-item nav-item-1"><a href="../index.html" >Examples</a> » </li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">EDB examples</a> » </li>
+        <li class="nav-item nav-item-this"><a href="">EDB: Siwave analysis from EDB setup</a></li> 
+      </ul>
+    </div>
+        </div>
+  </div>
+</div>
+    
+
+
+    <div class="bd-container container-xl">
+      <div class="bd-container__inner row">
+          
+
+<!-- Only show if we have sidebars configured, else just a small margin  -->
+<div class="bd-sidebar-primary col-12 col-md-3 bd-sidebar">
+  <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="index.html">
+   EDB examples
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="00_EDB_Create_VIA.html">
+     EDB: geometry creation
+    </a>
+   </li>
+   <li class="toctree-l2 current active">
+    <a class="current reference internal" href="#">
+     EDB: Siwave analysis from EDB setup
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="02_edb_to_ipc2581.html">
+     EDB: IPC2581 export
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="03_5G_antenna_example.html">
+     EDB: 5G linear array antenna
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="04_edb_parametrized_design.html">
+     EDB: fully parametrized design
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="05_Plot_nets.html">
+     EDB: plot nets with Matplotlib
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="06_Advanced_EDB.html">
+     EDB: parametric via creation
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="07_WPF_Merge_Utility.html">
+     EDB: merge utility
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="08_CPWG.html">
+     EDB: fully parametrized CPWG design
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="09_Configuration.html">
+     EDB: fully configurable project
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../01-HFSS3DLayout/index.html">
+   HFSS 3D Layout examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../01-Modeling-Setup/index.html">
+   General model and setup examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../02-HFSS/index.html">
+   HFSS examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../02-SBR%2B/index.html">
+   SBR+ examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../03-Maxwell/index.html">
+   Maxwell examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../04-Icepak/index.html">
+   Icepak examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../05-Q3D/index.html">
+   2D Extractor and Q3D Extractor examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../06-Multiphysics/index.html">
+   Multiphysics examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../07-Circuit/index.html">
+   Circuit examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../07-EMIT/index.html">
+   EMIT examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../07-TwinBuilder/index.html">
+   Twin Builder examples
+  </a>
+ </li>
+</ul>
+
+  </div>
+</nav>
+  </div>
+  <div class="sidebar-end-items">
+  </div>
+</div>
+
+
+          
+
+
+<div class="bd-sidebar-secondary d-none d-xl-block col-xl-2 bd-toc">
+  
+    
+    <div class="toc-item">
+      
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#perform-required-imports">
+   Perform required imports
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#launch-edb">
+   Launch EDB
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#compute-nets-and-components">
+   Compute nets and components
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#get-pin-position">
+   Get pin position
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#get-all-nets-connected-to-a-component">
+   Get all nets connected to a component
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#compute-rats">
+   Compute rats
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#get-all-dc-connected-net-lists-through-inductance">
+   Get all DC-connected net lists through inductance
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#get-power-tree-based-on-a-specific-net">
+   Get power tree based on a specific net
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#delete-all-rlcs-with-only-one-pin">
+   Delete all RLCs with only one pin
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#delete-components">
+   Delete components
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#delete-nets">
+   Delete nets
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#get-stackup-limits">
+   Get stackup limits
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#create-coaxial-port">
+   Create coaxial port
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#edit-stackup-layers-and-material">
+   Edit stackup layers and material
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#create-voltage-source-and-siwave-dcir-analysis">
+   Create voltage source and Siwave DCIR analysis
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#save-modifications">
+   Save modifications
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#export-siwave-reports">
+   Export Siwave Reports
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#close-edb">
+   Close EDB
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#postprocess-in-siwave">
+   Postprocess in Siwave
+  </a>
+ </li>
+</ul>
+
+</nav>
+    </div>
+    
+    <div class="toc-item">
+      
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/pyansys/pyaedt/edit/main/doc/source/examples/00-EDB/01_edb_example.rst">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
+    </div>
+    
+  
+</div>
+
+
+          
+          
+          <div class="bd-content col-12 col-md-9 col-xl-7">
+              
+              <article class="bd-article" role="main">
+                
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-examples-00-edb-01-edb-example-py"><span class="std std-ref">here</span></a>
+to download the full example code</p>
+</div>
+<section class="sphx-glr-example-title" id="edb-siwave-analysis-from-edb-setup">
+<span id="sphx-glr-examples-00-edb-01-edb-example-py"></span><h1>EDB: Siwave analysis from EDB setup<a class="headerlink" href="#edb-siwave-analysis-from-edb-setup" title="Permalink to this heading">#</a></h1>
+<p>This example shows how you can use EDB to interact with a layout.</p>
+<section id="perform-required-imports">
+<h2>Perform required imports<a class="headerlink" href="#perform-required-imports" title="Permalink to this heading">#</a></h2>
+<p>Perform required imports.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">shutil</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">pyaedt</span>
+
+<a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">temp_folder</span></a> <span class="o">=</span> <span class="n">pyaedt</span><span class="o">.</span><span class="n">generate_unique_folder_name</span><span class="p">()</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">example_path</span></a> <span class="o">=</span> <span class="n">pyaedt</span><span class="o">.</span><span class="n">downloads</span><span class="o">.</span><span class="n">download_aedb</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">temp_folder</span></a><span class="p">)</span>
+
+<a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">targetfile</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/os.path.html#os.path.dirname" title="os.path.dirname" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span></a><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">example_path</span></a><span class="p">)</span>
+
+<a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">siwave_file</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><a href="https://docs.python.org/dev/library/os.path.html#os.path.dirname" title="os.path.dirname" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span></a><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">targetfile</span></a><span class="p">),</span> <span class="s2">&quot;Galileo.siw&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">targetfile</span></a><span class="p">)</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aedt_file</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">targetfile</span></a><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;aedt&quot;</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>D:\Temp\pyaedt_prj_9SZ\edb/Galileo.aedb
+</pre></div>
+</div>
+</section>
+<section id="launch-edb">
+<h2>Launch EDB<a class="headerlink" href="#launch-edb" title="Permalink to this heading">#</a></h2>
+<p>Launch the <code class="xref py py-class docutils literal notranslate"><span class="pre">pyaedt.Edb</span></code> class, using EDB 2023 R1 and SI units.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">edb_version</span></a> <span class="o">=</span> <span class="s2">&quot;2023.1&quot;</span>
+<span class="k">if</span> <a href="https://docs.python.org/dev/library/os.path.html#os.path.exists" title="os.path.exists" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span></a><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aedt_file</span></a><span class="p">):</span>
+    <a href="https://docs.python.org/dev/library/os.html#os.remove" title="os.remove" class="sphx-glr-backref-module-os sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">remove</span></a><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aedt_file</span></a><span class="p">)</span>
+<span class="n">edb</span> <span class="o">=</span> <span class="n">pyaedt</span><span class="o">.</span><span class="n">Edb</span><span class="p">(</span><span class="n">edbpath</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">targetfile</span></a><span class="p">,</span> <span class="n">edbversion</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">edb_version</span></a><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="compute-nets-and-components">
+<h2>Compute nets and components<a class="headerlink" href="#compute-nets-and-components" title="Permalink to this heading">#</a></h2>
+<p>Computes nets and components.
+There are queries for nets, stackups, layers, components, and geometries.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Nets </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">edb</span><span class="o">.</span><span class="n">nets</span><span class="o">.</span><span class="n">netlist</span><span class="p">)))</span>
+<a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">start</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/time.html#time.time" title="time.time" class="sphx-glr-backref-module-time sphx-glr-backref-type-py-function"><span class="n">time</span><span class="o">.</span><span class="n">time</span></a><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Components </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">edb</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;elapsed time = &quot;</span><span class="p">,</span> <a href="https://docs.python.org/dev/library/time.html#time.time" title="time.time" class="sphx-glr-backref-module-time sphx-glr-backref-type-py-function"><span class="n">time</span><span class="o">.</span><span class="n">time</span></a><span class="p">()</span> <span class="o">-</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">start</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Nets 432
+Components 531
+elapsed time =  0.0
+</pre></div>
+</div>
+</section>
+<section id="get-pin-position">
+<h2>Get pin position<a class="headerlink" href="#get-pin-position" title="Permalink to this heading">#</a></h2>
+<p>Get the position for a specific pin.
+The next section shows how to get all pins for a specific component and
+the positions of each of them.
+Each pin is a list of <code class="docutils literal notranslate"><span class="pre">[X,</span> <span class="pre">Y]</span></code> coordinate positions.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pins</span></a> <span class="o">=</span> <span class="n">edb</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="s2">&quot;U2&quot;</span><span class="p">]</span><span class="o">.</span><a href="https://docs.python.org/dev/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pins</span></a>
+<span class="k">for</span> <span class="n">pin</span> <span class="ow">in</span> <span class="n">edb</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="s2">&quot;U2&quot;</span><span class="p">]</span><span class="o">.</span><a href="https://docs.python.org/dev/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pins</span></a><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">pin</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[0.08144438899999999, 0.0313309]
+[0.082944411, 0.0313309]
+[0.08144438899999999, 0.0324739]
+[0.082944411, 0.0324739]
+[0.081944388, 0.0313309]
+[0.082444412, 0.0313309]
+[0.081944388, 0.0324739]
+[0.082444412, 0.0324739]
+[0.081407, 0.0319024]
+[0.0829818, 0.0319024]
+</pre></div>
+</div>
+</section>
+<section id="get-all-nets-connected-to-a-component">
+<h2>Get all nets connected to a component<a class="headerlink" href="#get-all-nets-connected-to-a-component" title="Permalink to this heading">#</a></h2>
+<p>Get all nets connected to a specific component.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">edb</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">get_component_net_connection_info</span><span class="p">(</span><span class="s2">&quot;U2&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;refdes&#39;: [&#39;U2&#39;, &#39;U2&#39;, &#39;U2&#39;, &#39;U2&#39;, &#39;U2&#39;, &#39;U2&#39;, &#39;U2&#39;, &#39;U2&#39;, &#39;U2&#39;, &#39;U2&#39;], &#39;pin_name&#39;: [&#39;1&#39;, &#39;4&#39;, &#39;9&#39;, &#39;6&#39;, &#39;2&#39;, &#39;3&#39;, &#39;8&#39;, &#39;7&#39;, &#39;10&#39;, &#39;5&#39;], &#39;net_name&#39;: [&#39;IO0_MUX&#39;, &#39;IO1_GPIO&#39;, &#39;LVL_RXD&#39;, &#39;IO1&#39;, &#39;IO0_GPIO&#39;, &#39;GND&#39;, &#39;VSHLD_S5&#39;, &#39;LVL_TXD&#39;, &#39;IO0&#39;, &#39;IO1_MUX&#39;]}
+</pre></div>
+</div>
+</section>
+<section id="compute-rats">
+<h2>Compute rats<a class="headerlink" href="#compute-rats" title="Permalink to this heading">#</a></h2>
+<p>Computes rats.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rats</span></a> <span class="o">=</span> <span class="n">edb</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">get_rats</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="get-all-dc-connected-net-lists-through-inductance">
+<h2>Get all DC-connected net lists through inductance<a class="headerlink" href="#get-all-dc-connected-net-lists-through-inductance" title="Permalink to this heading">#</a></h2>
+<p>Get all DC-connected net lists through inductance.
+The inputs needed are ground net lists. The returned list contains all nets
+connected to a ground through an inductor.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">GROUND_NETS</span></a> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;GND&quot;</span><span class="p">,</span> <span class="s2">&quot;PGND&quot;</span><span class="p">]</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">dc_connected_net_list</span></a> <span class="o">=</span> <span class="n">edb</span><span class="o">.</span><span class="n">nets</span><span class="o">.</span><span class="n">get_dcconnected_net_list</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">GROUND_NETS</span></a><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">dc_connected_net_list</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[{&#39;BST_V1P5_S5&#39;, &#39;V1P5_S5&#39;}, {&#39;BST_V1P0_S0&#39;, &#39;V1P0_S0&#39;}, {&#39;SW_RESET_N_SHLD&#39;, &#39;RESET_N_SHLD&#39;}, {&#39;I2C_SCL&#39;, &#39;SLT0_SCL&#39;}, {&#39;I2C_SDA&#39;, &#39;SLT0_SDA&#39;}, {&#39;V3P3_RTC&#39;, &#39;BST_V3P3_S5&#39;, &#39;V3P3_S5&#39;}, {&#39;RSVD_12&#39;, &#39;RSVD_11&#39;}, {&#39;RSVD_7&#39;, &#39;RSVD_8&#39;}, {&#39;RSVD_1&#39;, &#39;RSVD_0&#39;}, {&#39;RSVD_3&#39;, &#39;RSVD_2&#39;}, {&#39;RSVD_10&#39;, &#39;RSVD_9&#39;}, {&#39;RMII_REF_CLK_R&#39;, &#39;RMII_REF_CLK_OUT&#39;}]
+</pre></div>
+</div>
+</section>
+<section id="get-power-tree-based-on-a-specific-net">
+<h2>Get power tree based on a specific net<a class="headerlink" href="#get-power-tree-based-on-a-specific-net" title="Permalink to this heading">#</a></h2>
+<p>Get the power tree based on a specific net.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">VRM</span></a> <span class="o">=</span> <span class="s2">&quot;U3A1&quot;</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">OUTPUT_NET</span></a> <span class="o">=</span> <span class="s2">&quot;BST_V1P0_S0&quot;</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">powertree_df</span></a><span class="p">,</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">component_list_columns</span></a><span class="p">,</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">net_group</span></a> <span class="o">=</span> <span class="n">edb</span><span class="o">.</span><span class="n">nets</span><span class="o">.</span><span class="n">get_powertree</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">OUTPUT_NET</span></a><span class="p">,</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">GROUND_NETS</span></a><span class="p">)</span>
+<span class="k">for</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">el</span></a> <span class="ow">in</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">powertree_df</span></a><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">el</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[&#39;C4A2&#39;, &#39;1&#39;, &#39;BST_V1P0_S0&#39;, &#39;Capacitor&#39;, &#39;602433-057&#39;, &#39;1&#39;]
+[&#39;L4B1&#39;, &#39;1&#39;, &#39;BST_V1P0_S0&#39;, &#39;Inductor&#39;, &#39;A32422-019&#39;, &#39;1&#39;]
+[&#39;U3A1&#39;, &#39;36&#39;, &#39;BST_V1P0_S0&#39;, &#39;IC&#39;, &#39;G43225-001&#39;, &#39;36-37&#39;]
+[&#39;U3A1&#39;, &#39;37&#39;, &#39;BST_V1P0_S0&#39;, &#39;IC&#39;, &#39;G43225-001&#39;, &#39;36-37&#39;]
+[&#39;U2A5&#39;, &#39;Y14&#39;, &#39;V1P0_S0&#39;, &#39;IC&#39;, &#39;IPD031-201&#39;, &#39;Y14-AB14-AD14-V14-Y20-Y18-Y16-AB20-AB18-T18-V20-V18-V16&#39;]
+[&#39;U2A5&#39;, &#39;AB14&#39;, &#39;V1P0_S0&#39;, &#39;IC&#39;, &#39;IPD031-201&#39;, &#39;Y14-AB14-AD14-V14-Y20-Y18-Y16-AB20-AB18-T18-V20-V18-V16&#39;]
+[&#39;U2A5&#39;, &#39;AD14&#39;, &#39;V1P0_S0&#39;, &#39;IC&#39;, &#39;IPD031-201&#39;, &#39;Y14-AB14-AD14-V14-Y20-Y18-Y16-AB20-AB18-T18-V20-V18-V16&#39;]
+[&#39;U2A5&#39;, &#39;V14&#39;, &#39;V1P0_S0&#39;, &#39;IC&#39;, &#39;IPD031-201&#39;, &#39;Y14-AB14-AD14-V14-Y20-Y18-Y16-AB20-AB18-T18-V20-V18-V16&#39;]
+[&#39;U2A5&#39;, &#39;Y20&#39;, &#39;V1P0_S0&#39;, &#39;IC&#39;, &#39;IPD031-201&#39;, &#39;Y14-AB14-AD14-V14-Y20-Y18-Y16-AB20-AB18-T18-V20-V18-V16&#39;]
+[&#39;U2A5&#39;, &#39;Y18&#39;, &#39;V1P0_S0&#39;, &#39;IC&#39;, &#39;IPD031-201&#39;, &#39;Y14-AB14-AD14-V14-Y20-Y18-Y16-AB20-AB18-T18-V20-V18-V16&#39;]
+[&#39;U2A5&#39;, &#39;Y16&#39;, &#39;V1P0_S0&#39;, &#39;IC&#39;, &#39;IPD031-201&#39;, &#39;Y14-AB14-AD14-V14-Y20-Y18-Y16-AB20-AB18-T18-V20-V18-V16&#39;]
+[&#39;U2A5&#39;, &#39;AB20&#39;, &#39;V1P0_S0&#39;, &#39;IC&#39;, &#39;IPD031-201&#39;, &#39;Y14-AB14-AD14-V14-Y20-Y18-Y16-AB20-AB18-T18-V20-V18-V16&#39;]
+[&#39;U2A5&#39;, &#39;AB18&#39;, &#39;V1P0_S0&#39;, &#39;IC&#39;, &#39;IPD031-201&#39;, &#39;Y14-AB14-AD14-V14-Y20-Y18-Y16-AB20-AB18-T18-V20-V18-V16&#39;]
+[&#39;U2A5&#39;, &#39;T18&#39;, &#39;V1P0_S0&#39;, &#39;IC&#39;, &#39;IPD031-201&#39;, &#39;Y14-AB14-AD14-V14-Y20-Y18-Y16-AB20-AB18-T18-V20-V18-V16&#39;]
+[&#39;U2A5&#39;, &#39;V20&#39;, &#39;V1P0_S0&#39;, &#39;IC&#39;, &#39;IPD031-201&#39;, &#39;Y14-AB14-AD14-V14-Y20-Y18-Y16-AB20-AB18-T18-V20-V18-V16&#39;]
+[&#39;U2A5&#39;, &#39;V18&#39;, &#39;V1P0_S0&#39;, &#39;IC&#39;, &#39;IPD031-201&#39;, &#39;Y14-AB14-AD14-V14-Y20-Y18-Y16-AB20-AB18-T18-V20-V18-V16&#39;]
+[&#39;U2A5&#39;, &#39;V16&#39;, &#39;V1P0_S0&#39;, &#39;IC&#39;, &#39;IPD031-201&#39;, &#39;Y14-AB14-AD14-V14-Y20-Y18-Y16-AB20-AB18-T18-V20-V18-V16&#39;]
+[&#39;C2L14&#39;, &#39;1&#39;, &#39;V1P0_S0&#39;, &#39;Capacitor&#39;, &#39;A36096-066&#39;, &#39;1&#39;]
+[&#39;R2L19&#39;, &#39;1&#39;, &#39;V1P0_S0&#39;, &#39;Resistor&#39;, &#39;E41735-001&#39;, &#39;1&#39;]
+[&#39;C3L22&#39;, &#39;1&#39;, &#39;V1P0_S0&#39;, &#39;Capacitor&#39;, &#39;A36096-108&#39;, &#39;1&#39;]
+[&#39;C3B10&#39;, &#39;1&#39;, &#39;V1P0_S0&#39;, &#39;Capacitor&#39;, &#39;602433-081&#39;, &#39;1&#39;]
+[&#39;C2B2&#39;, &#39;1&#39;, &#39;V1P0_S0&#39;, &#39;Capacitor&#39;, &#39;602433-081&#39;, &#39;1&#39;]
+[&#39;C3L28&#39;, &#39;1&#39;, &#39;V1P0_S0&#39;, &#39;Capacitor&#39;, &#39;C83410-012&#39;, &#39;1&#39;]
+[&#39;C3L17&#39;, &#39;1&#39;, &#39;V1P0_S0&#39;, &#39;Capacitor&#39;, &#39;C83410-012&#39;, &#39;1&#39;]
+[&#39;C3L15&#39;, &#39;1&#39;, &#39;V1P0_S0&#39;, &#39;Capacitor&#39;, &#39;C83410-012&#39;, &#39;1&#39;]
+[&#39;C3L18&#39;, &#39;1&#39;, &#39;V1P0_S0&#39;, &#39;Capacitor&#39;, &#39;C83410-012&#39;, &#39;1&#39;]
+[&#39;C3L20&#39;, &#39;1&#39;, &#39;V1P0_S0&#39;, &#39;Capacitor&#39;, &#39;C83410-012&#39;, &#39;1&#39;]
+[&#39;C3L26&#39;, &#39;1&#39;, &#39;V1P0_S0&#39;, &#39;Capacitor&#39;, &#39;C83410-012&#39;, &#39;1&#39;]
+[&#39;C3L24&#39;, &#39;1&#39;, &#39;V1P0_S0&#39;, &#39;Capacitor&#39;, &#39;C83410-012&#39;, &#39;1&#39;]
+[&#39;C3L29&#39;, &#39;1&#39;, &#39;V1P0_S0&#39;, &#39;Capacitor&#39;, &#39;C83410-012&#39;, &#39;1&#39;]
+[&#39;C3B9&#39;, &#39;1&#39;, &#39;V1P0_S0&#39;, &#39;Capacitor&#39;, &#39;C97875-001&#39;, &#39;1&#39;]
+[&#39;C3B11&#39;, &#39;1&#39;, &#39;V1P0_S0&#39;, &#39;Capacitor&#39;, &#39;C97875-001&#39;, &#39;1&#39;]
+[&#39;FB3L1&#39;, &#39;2&#39;, &#39;V1P0_S0&#39;, &#39;Other&#39;, &#39;G22224-001&#39;, &#39;2&#39;]
+[&#39;L4B1&#39;, &#39;2&#39;, &#39;V1P0_S0&#39;, &#39;Inductor&#39;, &#39;A32422-019&#39;, &#39;2&#39;]
+[&#39;C2B12&#39;, &#39;1&#39;, &#39;V1P0_S0&#39;, &#39;Capacitor&#39;, &#39;E16347-001&#39;, &#39;1&#39;]
+[&#39;C3B17&#39;, &#39;1&#39;, &#39;V1P0_S0&#39;, &#39;Capacitor&#39;, &#39;E16347-001&#39;, &#39;1&#39;]
+</pre></div>
+</div>
+</section>
+<section id="delete-all-rlcs-with-only-one-pin">
+<h2>Delete all RLCs with only one pin<a class="headerlink" href="#delete-all-rlcs-with-only-one-pin" title="Permalink to this heading">#</a></h2>
+<p>Delete all RLCs with only one pin. This method provides a useful way of
+removing components not needed in the simulation.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">edb</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">delete_single_pin_rlc</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[&#39;R2B29&#39;, &#39;R3M13&#39;]
+</pre></div>
+</div>
+</section>
+<section id="delete-components">
+<h2>Delete components<a class="headerlink" href="#delete-components" title="Permalink to this heading">#</a></h2>
+<p>Delete manually one or more components.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">edb</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="s2">&quot;C3B17&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</section>
+<section id="delete-nets">
+<h2>Delete nets<a class="headerlink" href="#delete-nets" title="Permalink to this heading">#</a></h2>
+<p>Delete manually one or more nets.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">edb</span><span class="o">.</span><span class="n">nets</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="s2">&quot;A0_N&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[&#39;A0_N&#39;]
+</pre></div>
+</div>
+</section>
+<section id="get-stackup-limits">
+<h2>Get stackup limits<a class="headerlink" href="#get-stackup-limits" title="Permalink to this heading">#</a></h2>
+<p>Get the stackup limits (top and bottom layers and elevations).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">edb</span><span class="o">.</span><span class="n">stackup</span><span class="o">.</span><span class="n">limits</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(&#39;UNNAMED_000&#39;, 0.00203454, &#39;UNNAMED_012&#39;, 0.0)
+</pre></div>
+</div>
+</section>
+<section id="create-coaxial-port">
+<h2>Create coaxial port<a class="headerlink" href="#create-coaxial-port" title="Permalink to this heading">#</a></h2>
+<p>Create a coaxial port for the HFSS simulation.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">edb</span><span class="o">.</span><span class="n">hfss</span><span class="o">.</span><span class="n">create_coax_port_on_component</span><span class="p">(</span><span class="s2">&quot;U2A5&quot;</span><span class="p">,</span> <span class="s2">&quot;V1P0_S0&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[&#39;U2A5_V1P0_S0_Y14&#39;, &#39;U2A5_V1P0_S0_AB14&#39;, &#39;U2A5_V1P0_S0_AD14&#39;, &#39;U2A5_V1P0_S0_V14&#39;, &#39;U2A5_V1P0_S0_Y20&#39;, &#39;U2A5_V1P0_S0_Y18&#39;, &#39;U2A5_V1P0_S0_Y16&#39;, &#39;U2A5_V1P0_S0_AB20&#39;, &#39;U2A5_V1P0_S0_AB18&#39;, &#39;U2A5_V1P0_S0_T18&#39;, &#39;U2A5_V1P0_S0_V20&#39;, &#39;U2A5_V1P0_S0_V18&#39;, &#39;U2A5_V1P0_S0_V16&#39;]
+</pre></div>
+</div>
+</section>
+<section id="edit-stackup-layers-and-material">
+<h2>Edit stackup layers and material<a class="headerlink" href="#edit-stackup-layers-and-material" title="Permalink to this heading">#</a></h2>
+<p>Edit the stackup layers and material. You can change stackup layer
+properties with assignment and create materials and assign them to layers.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">edb</span><span class="o">.</span><span class="n">stackup</span><span class="p">[</span><span class="s2">&quot;TOP&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">thickness</span> <span class="o">=</span> <span class="s2">&quot;75um&quot;</span>
+<span class="n">edb</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">add_debye_material</span><span class="p">(</span><span class="s2">&quot;My_Debye&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">1e5</span><span class="p">,</span> <span class="mf">1e9</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;Ansys.Ansoft.Edb.Definition.MaterialDef object at 0x000002288104D480&gt;
+</pre></div>
+</div>
+</section>
+<section id="create-voltage-source-and-siwave-dcir-analysis">
+<h2>Create voltage source and Siwave DCIR analysis<a class="headerlink" href="#create-voltage-source-and-siwave-dcir-analysis" title="Permalink to this heading">#</a></h2>
+<p>Create a voltage source and then set up a DCIR analysis.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">edb</span><span class="o">.</span><span class="n">siwave</span><span class="o">.</span><span class="n">create_voltage_source_on_net</span><span class="p">(</span><span class="s2">&quot;U2A5&quot;</span><span class="p">,</span> <span class="s2">&quot;V1P5_S3&quot;</span><span class="p">,</span> <span class="s2">&quot;U2A5&quot;</span><span class="p">,</span> <span class="s2">&quot;GND&quot;</span><span class="p">,</span> <span class="mf">3.3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;V1&quot;</span><span class="p">)</span>
+<span class="n">edb</span><span class="o">.</span><span class="n">siwave</span><span class="o">.</span><span class="n">create_current_source_on_net</span><span class="p">(</span><span class="s2">&quot;U1B5&quot;</span><span class="p">,</span> <span class="s2">&quot;V1P5_S3&quot;</span><span class="p">,</span> <span class="s2">&quot;U1B5&quot;</span><span class="p">,</span> <span class="s2">&quot;GND&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;I1&quot;</span><span class="p">)</span>
+<span class="n">setup</span> <span class="o">=</span> <span class="n">edb</span><span class="o">.</span><span class="n">siwave</span><span class="o">.</span><span class="n">add_siwave_dc_analysis</span><span class="p">(</span><span class="s2">&quot;myDCIR_4&quot;</span><span class="p">)</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">use_dc_custom_settings</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">dc_slider_position</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">add_source_terminal_to_ground</span><span class="p">(</span><span class="s2">&quot;V1&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</section>
+<section id="save-modifications">
+<h2>Save modifications<a class="headerlink" href="#save-modifications" title="Permalink to this heading">#</a></h2>
+<p>Save modifications.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">edb</span><span class="o">.</span><span class="n">save_edb</span><span class="p">()</span>
+<span class="n">edb</span><span class="o">.</span><span class="n">nets</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;TOP&quot;</span><span class="p">,</span><span class="n">plot_components_on_top</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">siw_file</span></a> <span class="o">=</span> <span class="n">edb</span><span class="o">.</span><span class="n">solve_siwave</span><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_01_edb_example_001.png" srcset="../../_images/sphx_glr_01_edb_example_001.png" alt="Galileo_um" class = "sphx-glr-single-img"/></section>
+<section id="export-siwave-reports">
+<h2>Export Siwave Reports<a class="headerlink" href="#export-siwave-reports" title="Permalink to this heading">#</a></h2>
+<p>Export all DC Reports quantities.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">outputs</span></a> <span class="o">=</span> <span class="n">edb</span><span class="o">.</span><span class="n">export_siwave_dc_results</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">siw_file</span></a><span class="p">,</span> <span class="n">setup</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[&#39;&quot;C:\\Program Files\\AnsysEM\\v231\\Win64\\siwave.exe&quot;&#39;, &#39;-embedding&#39;, &#39;-RunScriptAndExit&#39;, &#39;&quot;D:\\Temp\\pyaedt_prj_9SZ\\edb\\export_results.py&quot;&#39;]
+</pre></div>
+</div>
+</section>
+<section id="close-edb">
+<h2>Close EDB<a class="headerlink" href="#close-edb" title="Permalink to this heading">#</a></h2>
+<p>Close EDB. After EDB is closed, it can be opened by AEDT.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">edb</span><span class="o">.</span><span class="n">close_edb</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</section>
+<section id="postprocess-in-siwave">
+<h2>Postprocess in Siwave<a class="headerlink" href="#postprocess-in-siwave" title="Permalink to this heading">#</a></h2>
+<p>Open Siwave and generate a report. This works on Window only.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># from pyaedt import Siwave</span>
+<span class="c1"># siwave = Siwave(&quot;2023.1&quot;)</span>
+<span class="c1"># siwave.open_project(siwave_file)</span>
+<span class="c1"># report_file = os.path.join(temp_folder,&#39;Galileo.htm&#39;)</span>
+<span class="c1">#</span>
+<span class="c1"># siwave.export_siwave_report(&quot;myDCIR_4&quot;, report_file)</span>
+<span class="c1"># siwave.close_project()</span>
+<span class="c1"># siwave.quit_application()</span>
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 1 minutes  11.865 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-00-edb-01-edb-example-py">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/5774d0d0329aed798c6bb385cb43883d/01_edb_example.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">01_edb_example.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/e5c2bcb06785a9702c44f837b85e5c62/01_edb_example.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">01_edb_example.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+              </article>
+              
+
+              
+          </div>
+          
+      </div>
+    </div>
+
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695"></script>
+
+<footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    <p class="copyright">
+    &copy; Copyright (c) 2023 ANSYS, Inc. All rights reserved.<br>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+  </div>
+  
+</div>
+</footer>
+  </body>
+</html>

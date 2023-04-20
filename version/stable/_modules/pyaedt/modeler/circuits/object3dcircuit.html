@@ -1,0 +1,1268 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyaedt.modeler.circuits.object3dcircuit &#8212; PyAEDT</title>
+    
+<script>
+  document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+  document.documentElement.dataset.theme = localStorage.getItem("theme") || "light"
+</script>
+
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+
+
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css\ansys_sphinx_theme.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-rendered-html.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css" />
+
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695">
+
+    
+        <link href="../../../../_static/css/breadcrumbs.css" rel="stylesheet">
+    
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
+    <link rel="shortcut icon" href="../../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+    <div class="bd-header-announcement container-fluid" id="banner">
+      
+
+    </div>
+
+    
+    
+    <nav class="bd-header navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="bd-header__inner container-xl">
+
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+    <img src="../../../../_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="Logo image">
+    <img src="../../../../_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="fas fa-bars"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../../Getting_started/index.html">
+  Getting started
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../../User_guide/index.html">
+  User guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../../API/index.html">
+  AEDT API
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../../EDBAPI/index.html">
+  EDB API
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../../examples/index.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../../Contributing.html">
+  Contribute
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <div class="dropdown" id="version_switcher">
+    <button type="button" class="btn btn-sm navbar-btn dropdown-toggle" id="version_switcher_button" data-toggle="dropdown">
+        0.6  <!-- this text may get changed later by javascript -->
+        <span class="caret"></span>
+    </button>
+    <div id="version_switcher_menu" class="dropdown-menu list-group-flush py-0" aria-labelledby="version_switcher_button">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+</div>
+
+<!-- NOTE: this JS must live here (not in our global JS file) because it relies
+     on being processed by Jinja before it is run (specifically for replacing
+     variables _modules/pyaedt/modeler/circuits/object3dcircuit and {'json_url': 'https://aedt.docs.pyansys.com/release/versions.json', 'version_match': '0.6'}.
+-->
+
+<script type="text/javascript">
+// Check if corresponding page path exists in other version of docs
+// and, if so, go there instead of the homepage of the other docs version
+function checkPageExistsAndRedirect(event) {
+    const currentFilePath = "_modules/pyaedt/modeler/circuits/object3dcircuit.html",
+          tryUrl = event.target.getAttribute("href");
+    let otherDocsHomepage = tryUrl.replace(currentFilePath, "");
+    $.ajax({
+        type: 'HEAD',
+        url: tryUrl,
+        // if the page exists, go there
+        success: function() {
+            location.href = tryUrl;
+        }
+    }).fail(function() {
+        location.href = otherDocsHomepage;
+    });
+    // this prevents the browser from following the href of the clicked node
+    // (which is fine because this function takes care of redirecting)
+    return false;
+}
+
+// Populate the version switcher from the JSON config file
+(function () {
+    $.getJSON("https://aedt.docs.pyansys.com/release/versions.json", function(data, textStatus, jqXHR) {
+        const currentFilePath = "_modules/pyaedt/modeler/circuits/object3dcircuit.html";
+        let btn = document.getElementById("version_switcher_button");
+        // Set empty strings by default so that these attributes exist and can be used in CSS selectors
+        btn.dataset["activeVersionName"] = "";
+        btn.dataset["activeVersion"] = "";
+        // create links to the corresponding page in the other docs versions
+        $.each(data, function(index, entry) {
+            // if no custom name specified (e.g., "latest"), use version string
+            if (!("name" in entry)) {
+                entry.name = entry.version;
+            }
+            // create the node
+            const node = document.createElement("a");
+            node.setAttribute("class", "list-group-item list-group-item-action py-1");
+            node.textContent = `${entry.name}`;
+            node.setAttribute("href", `${entry.url}${currentFilePath}`);
+            // on click, AJAX calls will check if the linked page exists before
+            // trying to redirect, and if not, will redirect to the homepage
+            // for that version of the docs.
+            node.onclick = checkPageExistsAndRedirect;
+            // Add dataset values for the version and name in case people want
+            // to apply CSS styling based on this information.
+            node.dataset["versionName"] = entry.name;
+            node.dataset["version"] = entry.version;
+
+            $("#version_switcher_menu").append(node);
+            // replace dropdown button text with the preferred display name of
+            // this version, rather than using sphinx's 0.6.70 variable.
+            // also highlight the dropdown entry for the currently-viewed
+            // version's entry
+            if (entry.version == "0.6") {
+                node.classList.add("active");
+                btn.innerText = btn.dataset["activeVersionName"] = entry.name;
+                btn.dataset["activeVersion"] = entry.version;
+            }
+        });
+    });
+})();
+</script>
+      </div>
+      
+      <div class="navbar-end-item">
+        <span id="theme-switch" class="btn btn-sm btn-outline-primary navbar-btn rounded-circle">
+    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/pyansys/pyaedt" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/pyansys/pyaedt/discussions" rel="noopener" target="_blank" title="Support"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+     
+<div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(text => document.getElementById("announcement_msg").innerHTML = text)
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+
+    
+        <div class="container-xl">
+    <div class="row">
+        <div class="col-12 col-md-3" id="breadcrumbs-spacer"></div>
+        <div class="col-12 col-md-11 col-xl-9" id="breadcrumbs">
+          
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-additional-breadcrumb"><a href="https://docs.pyansys.com/">PyAnsys</a> » </li>
+    
+    
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">PyAEDT</a> » </li>
+    
+
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> » </li>
+        <li class="nav-item nav-item-this"><a href="">pyaedt.modeler.circuits.object3dcircuit</a></li> 
+      </ul>
+    </div>
+        </div>
+  </div>
+</div>
+    
+
+
+    <div class="bd-container container-xl">
+      <div class="bd-container__inner row">
+          
+
+<!-- Only show if we have sidebars configured, else just a small margin  -->
+<div class="bd-sidebar-primary col-12 col-md-3 bd-sidebar">
+  <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+  </div>
+  <div class="sidebar-end-items">
+  </div>
+</div>
+
+
+          
+
+
+<div class="bd-sidebar-secondary d-none d-xl-block col-xl-2 bd-toc">
+  
+</div>
+
+
+          
+          
+          <div class="bd-content col-12 col-md-9 col-xl-7">
+              
+              <article class="bd-article" role="main">
+                
+  <h1>Source code for pyaedt.modeler.circuits.object3dcircuit</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">_retry_ntimes</span>
+<span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">pyaedt_function_handler</span>
+<span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">pyaedt.application.Variables</span> <span class="kn">import</span> <span class="n">decompose_variable_value</span>
+<span class="kn">from</span> <span class="nn">pyaedt.generic.constants</span> <span class="kn">import</span> <span class="n">AEDT_UNITS</span>
+<span class="kn">from</span> <span class="nn">pyaedt.generic.general_methods</span> <span class="kn">import</span> <span class="n">_arg2dict</span>
+<span class="kn">from</span> <span class="nn">pyaedt.generic.general_methods</span> <span class="kn">import</span> <span class="n">_dim_arg</span>
+<span class="kn">from</span> <span class="nn">pyaedt.modeler.cad.elements3d</span> <span class="kn">import</span> <span class="n">_dict2arg</span>
+<span class="kn">from</span> <span class="nn">pyaedt.modeler.geometry_operators</span> <span class="kn">import</span> <span class="n">GeometryOperators</span> <span class="k">as</span> <span class="n">go</span>
+
+
+<div class="viewcode-block" id="CircuitPins"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.circuits.object3dcircuit.CircuitPins.html#pyaedt.modeler.circuits.object3dcircuit.CircuitPins">[docs]</a><span class="k">class</span> <span class="nc">CircuitPins</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manages circuit component pins.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuit_comp</span><span class="p">,</span> <span class="n">pinname</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span> <span class="o">=</span> <span class="n">circuit_comp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">pinname</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_oeditor</span> <span class="o">=</span> <span class="n">circuit_comp</span><span class="o">.</span><span class="n">_oeditor</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">units</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Length units.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">units</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">location</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pin Position in [x,y] format.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oPadstackManager.GetComponentPinLocation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;Port&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">composed_name</span><span class="p">:</span>
+            <span class="n">pos1</span> <span class="o">=</span> <span class="n">_retry_ntimes</span><span class="p">(</span>
+                <span class="mi">30</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_oeditor</span><span class="o">.</span><span class="n">GetPropertyValue</span><span class="p">,</span>
+                <span class="s2">&quot;BaseElementTab&quot;</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">composed_name</span><span class="p">,</span>
+                <span class="s2">&quot;Component Location&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">pos1</span> <span class="o">=</span> <span class="n">pos1</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">)</span>
+                <span class="n">pos1</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">strip</span><span class="p">()[:</span><span class="o">-</span><span class="mi">3</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.0000254</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">pos1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s2">&quot;GPort&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">composed_name</span><span class="p">:</span>
+                    <span class="n">pos1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">0.00254</span>
+                <span class="n">pos1</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">i</span> <span class="o">/</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="s2">&quot;Length&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">],</span> <span class="mi">8</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">pos1</span><span class="p">]</span>
+                <span class="k">return</span> <span class="n">pos1</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="nb">round</span><span class="p">(</span>
+                <span class="n">_retry_ntimes</span><span class="p">(</span>
+                    <span class="mi">30</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oeditor</span><span class="o">.</span><span class="n">GetComponentPinLocation</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">composed_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="kc">True</span>
+                <span class="p">)</span>
+                <span class="o">/</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="s2">&quot;Length&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">],</span>
+                <span class="mi">8</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="nb">round</span><span class="p">(</span>
+                <span class="n">_retry_ntimes</span><span class="p">(</span>
+                    <span class="mi">30</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oeditor</span><span class="o">.</span><span class="n">GetComponentPinLocation</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">composed_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="kc">False</span>
+                <span class="p">)</span>
+                <span class="o">/</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="s2">&quot;Length&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">],</span>
+                <span class="mi">8</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">net</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get pin net.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;PagePort@&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">net</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">_circuit_components</span><span class="o">.</span><span class="n">nets</span><span class="p">:</span>
+            <span class="n">conns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oeditor</span><span class="o">.</span><span class="n">GetNetConnections</span><span class="p">(</span><span class="n">net</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">conn</span> <span class="ow">in</span> <span class="n">conns</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">conn</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+                    <span class="s2">&quot;;</span><span class="si">{}</span><span class="s2">;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="ow">in</span> <span class="n">conn</span> <span class="ow">or</span> <span class="s2">&quot;;</span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="ow">in</span> <span class="n">conn</span>
+                <span class="p">):</span>
+                    <span class="k">return</span> <span class="n">net</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">angle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pin angle.&quot;&quot;&quot;</span>
+        <span class="n">props</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_oeditor</span><span class="o">.</span><span class="n">GetComponentPinInfo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">composed_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">props</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;Angle=&quot;</span> <span class="ow">in</span> <span class="n">i</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">6</span><span class="p">:]))</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_is_inside_point</span><span class="p">(</span><span class="n">plist</span><span class="p">,</span> <span class="n">pa</span><span class="p">,</span> <span class="n">pb</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">plist</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">pa</span> <span class="o">&lt;</span> <span class="n">p</span> <span class="o">&lt;</span> <span class="n">pb</span> <span class="ow">or</span> <span class="n">pa</span> <span class="o">&gt;</span> <span class="n">p</span> <span class="o">&gt;</span> <span class="n">pb</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_add_point</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">pins</span><span class="p">,</span>
+        <span class="n">points</span><span class="p">,</span>
+        <span class="n">delta</span><span class="p">,</span>
+        <span class="n">target</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">inside</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">pa</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">pb</span> <span class="o">=</span> <span class="n">target</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">pin</span> <span class="ow">in</span> <span class="n">pins</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">go</span><span class="o">.</span><span class="n">is_between_points</span><span class="p">(</span><span class="n">pin</span><span class="p">,</span> <span class="n">pa</span><span class="p">,</span> <span class="n">pb</span><span class="p">):</span>
+                <span class="n">inside</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">inside</span><span class="p">:</span>
+            <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">pa</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">pb</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">deltax</span> <span class="o">=</span> <span class="n">target</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">delta</span>
+            <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">deltax</span><span class="p">,</span> <span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]])</span>
+            <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">deltax</span><span class="p">,</span> <span class="n">target</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">deltay</span> <span class="o">=</span> <span class="n">target</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">delta</span>
+            <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">deltay</span><span class="p">])</span>
+            <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">target</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">deltay</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_get_deltas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">,</span> <span class="n">move_x</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">move_y</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">positive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">positive</span><span class="p">:</span>
+            <span class="n">delta</span> <span class="o">=</span> <span class="o">+</span><span class="n">units</span> <span class="o">*</span> <span class="mf">0.00254</span> <span class="o">/</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="s2">&quot;Length&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">_circuit_components</span><span class="o">.</span><span class="n">schematic_units</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">delta</span> <span class="o">=</span> <span class="o">-</span><span class="n">units</span> <span class="o">*</span> <span class="mf">0.00254</span> <span class="o">/</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="s2">&quot;Length&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">_circuit_components</span><span class="o">.</span><span class="n">schematic_units</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">move_x</span><span class="p">:</span>
+            <span class="n">deltax</span> <span class="o">=</span> <span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">delta</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">deltax</span> <span class="o">=</span> <span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">move_y</span><span class="p">:</span>
+            <span class="n">deltay</span> <span class="o">=</span> <span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">delta</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">deltay</span> <span class="o">=</span> <span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">deltax</span><span class="p">,</span> <span class="n">deltay</span>
+
+<div class="viewcode-block" id="CircuitPins.connect_to_component"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.circuits.object3dcircuit.CircuitPins.connect_to_component.html#pyaedt.modeler.circuits.object3dcircuit.CircuitPins.connect_to_component">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">connect_to_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component_pin</span><span class="p">,</span> <span class="n">page_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">use_wire</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">wire_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">clearance_units</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Connect schematic components.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component_pin : :class:`pyaedt.modeler.circuits.PrimitivesNexxim.CircuitPins`</span>
+<span class="sd">           Component pin to attach.</span>
+<span class="sd">        page_name : str, optional</span>
+<span class="sd">            Page port name. The default value is ``None``, in which case</span>
+<span class="sd">            a name is automatically generated.</span>
+<span class="sd">        use_wire : bool, optional</span>
+<span class="sd">            Whether to use wires or a page port to connect the pins.</span>
+<span class="sd">            The default is ``False``, in which case a page port is used. Note</span>
+<span class="sd">            that if wires are used but not well placed, shorts can result.</span>
+<span class="sd">        wire_name : str, optional</span>
+<span class="sd">            Wire name used only when user_wire is ``True``. Default value is ``&quot;&quot;``.</span>
+<span class="sd">        clearance_units : int, optional</span>
+<span class="sd">            Number of snap units (100mil each) around the object to overcome pins and wires.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oPadstackManager.CreatePagePort</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tol</span> <span class="o">=</span> <span class="mf">1e-8</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component_pin</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">component_pin</span> <span class="o">=</span> <span class="p">[</span><span class="n">component_pin</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">use_wire</span><span class="p">:</span>
+            <span class="n">direction</span> <span class="o">=</span> <span class="p">(</span><span class="mi">180</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">angle</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">angle</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">180</span>
+            <span class="n">points</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">]</span>
+            <span class="n">cangles</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">angle</span><span class="p">]</span>
+            <span class="n">negative</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="o">&gt;=</span> <span class="n">direction</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">cpin</span> <span class="ow">in</span> <span class="n">component_pin</span><span class="p">:</span>
+                <span class="n">prev</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+                <span class="n">act</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">cpin</span><span class="o">.</span><span class="n">location</span><span class="p">]</span>
+                <span class="n">pins_x</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">location</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">pins</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+                <span class="n">pins_x</span> <span class="o">+=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">location</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">cpin</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">pins</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">cpin</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+                <span class="n">pins_y</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">location</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">pins</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+                <span class="n">pins_y</span> <span class="o">+=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">location</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">cpin</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">pins</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">cpin</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+                <span class="n">pins</span> <span class="o">=</span> <span class="p">[[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">pins_x</span><span class="p">,</span> <span class="n">pins_y</span><span class="p">)]</span>
+                <span class="n">delta</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_deltas</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">move_y</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">positive</span><span class="o">=</span><span class="ow">not</span> <span class="n">negative</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">clearance_units</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">cpin</span><span class="o">.</span><span class="n">location</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
+                    <span class="n">dx</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">prev</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">act</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_add_point</span><span class="p">(</span><span class="n">pins</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">act</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">act</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">act</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                        <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">act</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+                        <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">act</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">act</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">act</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                        <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">act</span><span class="p">)</span>
+
+                <span class="k">elif</span> <span class="nb">abs</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">cpin</span><span class="o">.</span><span class="n">location</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
+                    <span class="n">dy</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">prev</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">act</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_add_point</span><span class="p">(</span><span class="n">pins</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">act</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">act</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">act</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                        <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">act</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]])</span>
+                        <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">act</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">act</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">act</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                        <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">act</span><span class="p">)</span>
+
+                <span class="k">elif</span> <span class="n">cangles</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">180.0</span><span class="p">]:</span>
+                    <span class="n">dx</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">prev</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">act</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+                    <span class="n">p2</span> <span class="o">=</span> <span class="n">act</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_add_point</span><span class="p">(</span>
+                        <span class="n">pins</span><span class="p">,</span>
+                        <span class="n">points</span><span class="p">,</span>
+                        <span class="n">delta</span><span class="p">,</span>
+                        <span class="p">[</span><span class="n">prev</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p2</span><span class="p">],</span>
+                    <span class="p">)</span>
+                    <span class="n">p2</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_add_point</span><span class="p">(</span><span class="n">pins</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="p">[</span><span class="n">dx</span><span class="p">,</span> <span class="n">p2</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">dx</span><span class="p">:</span>
+                        <span class="n">dx</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+                    <span class="k">if</span> <span class="n">p2</span> <span class="o">==</span> <span class="n">act</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_add_point</span><span class="p">(</span><span class="n">pins</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="p">[</span><span class="n">act</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p2</span><span class="p">])</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">act</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p2</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">act</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">act</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                        <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">act</span><span class="p">)</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">dy</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">prev</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">act</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+                    <span class="n">p1</span> <span class="o">=</span> <span class="n">act</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_add_point</span><span class="p">(</span><span class="n">pins</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="p">[</span><span class="n">p1</span><span class="p">,</span> <span class="n">prev</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+                    <span class="n">p1</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_add_point</span><span class="p">(</span>
+                        <span class="n">pins</span><span class="p">,</span>
+                        <span class="n">points</span><span class="p">,</span>
+                        <span class="n">delta</span><span class="p">,</span>
+                        <span class="p">[</span><span class="n">act</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dy</span><span class="p">],</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">dy</span><span class="p">:</span>
+                        <span class="n">dy</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+                    <span class="k">if</span> <span class="n">p1</span> <span class="o">==</span> <span class="n">act</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_add_point</span><span class="p">(</span><span class="n">pins</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="p">[</span><span class="n">p1</span><span class="p">,</span> <span class="n">act</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">p1</span><span class="p">,</span> <span class="n">act</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+                    <span class="k">if</span> <span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">act</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">act</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                        <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">act</span><span class="p">)</span>
+
+                <span class="n">cangles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cpin</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">angle</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">_circuit_components</span><span class="o">.</span><span class="n">create_wire</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">wire_name</span><span class="o">=</span><span class="n">wire_name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="n">comp_angle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">angle</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">180</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">pins</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">comp_angle</span> <span class="o">+=</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="k">if</span> <span class="n">page_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">page_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">composed_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;CompInst@&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;Port&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">composed_name</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">page_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">cmp</span> <span class="ow">in</span> <span class="n">component_pin</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">&quot;Port&quot;</span> <span class="ow">in</span> <span class="n">cmp</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">composed_name</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">page_name</span> <span class="o">=</span> <span class="n">cmp</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+                        <span class="k">break</span>
+                    <span class="k">except</span><span class="p">:</span>
+                        <span class="k">continue</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">x_loc</span> <span class="o">=</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="s2">&quot;Length&quot;</span><span class="p">][</span><span class="n">decompose_variable_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">location</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span>
+                <span class="n">decompose_variable_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">location</span><span class="p">[</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">x_loc</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">location</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">x_loc</span><span class="p">:</span>
+            <span class="n">angle</span> <span class="o">=</span> <span class="n">comp_angle</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">angle</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">+</span> <span class="n">comp_angle</span>
+        <span class="n">ret1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">_circuit_components</span><span class="o">.</span><span class="n">create_page_port</span><span class="p">(</span><span class="n">page_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">cmp</span> <span class="ow">in</span> <span class="n">component_pin</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">x_loc</span> <span class="o">=</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="s2">&quot;Length&quot;</span><span class="p">][</span><span class="n">decompose_variable_value</span><span class="p">(</span><span class="n">cmp</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">location</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span>
+                    <span class="n">decompose_variable_value</span><span class="p">(</span><span class="n">cmp</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">location</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">x_loc</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">location</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">comp_pin_angle</span> <span class="o">=</span> <span class="n">cmp</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">angle</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">180</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cmp</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">pins</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">comp_pin_angle</span> <span class="o">+=</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="n">cmp</span><span class="o">.</span><span class="n">location</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">x_loc</span><span class="p">:</span>
+                <span class="n">angle</span> <span class="o">=</span> <span class="n">comp_pin_angle</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">angle</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">+</span> <span class="n">comp_pin_angle</span>
+            <span class="n">ret2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_comp</span><span class="o">.</span><span class="n">_circuit_components</span><span class="o">.</span><span class="n">create_page_port</span><span class="p">(</span>
+                <span class="n">page_name</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="n">cmp</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="n">angle</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">ret1</span> <span class="ow">and</span> <span class="n">ret2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">ComponentParameters</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="o">.</span><span class="n">_oeditor</span><span class="o">.</span><span class="n">ChangeProperty</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;NAME:AllTabs&quot;</span><span class="p">,</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tab</span><span class="p">,</span>
+                        <span class="p">[</span><span class="s2">&quot;NAME:PropServers&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="o">.</span><span class="n">composed_name</span><span class="p">],</span>
+                        <span class="p">[</span><span class="s2">&quot;NAME:ChangedProps&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="n">key</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)]],</span>
+                    <span class="p">],</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="nb">dict</span><span class="o">.</span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="o">.</span><span class="n">_circuit_components</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Property </span><span class="si">%s</span><span class="s2"> has not been edited.Check if readonly&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">tab</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="nb">dict</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_component</span> <span class="o">=</span> <span class="n">component</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tab</span> <span class="o">=</span> <span class="n">tab</span>
+
+
+<span class="k">class</span> <span class="nc">ModelParameters</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update the model properties.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">({})</span>
+            <span class="n">a</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">props</span>
+            <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+            <span class="n">_dict2arg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="o">.</span><span class="n">_circuit_components</span><span class="o">.</span><span class="n">o_model_manager</span><span class="o">.</span><span class="n">EditWithComps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="o">.</span><span class="n">_circuit_components</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Failed to update model </span><span class="si">%s</span><span class="s2"> &quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">props</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">props</span> <span class="o">=</span> <span class="n">props</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_component</span> <span class="o">=</span> <span class="n">component</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+
+<div class="viewcode-block" id="CircuitComponent"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.circuits.object3dcircuit.CircuitComponent.html#pyaedt.modeler.circuits.object3dcircuit.CircuitComponent">[docs]</a><span class="k">class</span> <span class="nc">CircuitComponent</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manages circuit components.&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">composed_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Composed names.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schematic_id</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schematic_id</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">circuit_components</span><span class="p">,</span> <span class="n">tabname</span><span class="o">=</span><span class="s2">&quot;PassedParameterTab&quot;</span><span class="p">,</span> <span class="n">custom_editor</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_components</span> <span class="o">=</span> <span class="n">circuit_components</span>
+        <span class="k">if</span> <span class="n">custom_editor</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_oeditor</span> <span class="o">=</span> <span class="n">custom_editor</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_oeditor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_components</span><span class="o">.</span><span class="n">oeditor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_modelName</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;Active&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">component</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">schematic_id</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">levels</span> <span class="o">=</span> <span class="mf">0.1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_angle</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_location</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mirror</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">usesymbolcolor</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tabname</span> <span class="o">=</span> <span class="n">tabname</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">InstanceName</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pins</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_component_info</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model_data</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">refdes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reference designator.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oeditor</span><span class="o">.</span><span class="n">GetPropertyValue</span><span class="p">(</span><span class="s2">&quot;Component&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">composed_name</span><span class="p">,</span> <span class="s2">&quot;RefDes&quot;</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">units</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Length units.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_components</span><span class="o">.</span><span class="n">schematic_units</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_property_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Property Data List.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_circuit_components</span><span class="o">.</span><span class="n">o_component_manager</span><span class="o">.</span><span class="n">GetData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">model_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return Model Name if present.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_property_data</span> <span class="ow">and</span> <span class="s2">&quot;ModelDefName:=&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_property_data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_property_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_property_data</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;ModelDefName:=&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">model_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the model data if the component has one.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.modeler.Object3d.ModelParameters`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the model data if the component has one.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_data</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">:</span>
+            <span class="n">_parameters</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">({})</span>
+            <span class="n">_arg2dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_circuit_components</span><span class="o">.</span><span class="n">o_model_manager</span><span class="o">.</span><span class="n">GetData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">)),</span> <span class="n">_parameters</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model_data</span> <span class="o">=</span> <span class="n">ModelParameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span> <span class="n">_parameters</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_data</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Circuit Parameters.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.GetProperties</span>
+<span class="sd">        &gt;&gt;&gt; oEditor.GetPropertyValue</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span>
+        <span class="n">_parameters</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_components</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">design_type</span> <span class="o">==</span> <span class="s2">&quot;Circuit Design&quot;</span><span class="p">:</span>
+            <span class="n">tab</span> <span class="o">=</span> <span class="s2">&quot;PassedParameterTab&quot;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_components</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">design_type</span> <span class="o">==</span> <span class="s2">&quot;Maxwell Circuit&quot;</span><span class="p">:</span>
+            <span class="n">tab</span> <span class="o">=</span> <span class="s2">&quot;PassedParameterTab&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tab</span> <span class="o">=</span> <span class="s2">&quot;Quantities&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">proparray</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oeditor</span><span class="o">.</span><span class="n">GetProperties</span><span class="p">(</span><span class="n">tab</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">composed_name</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">proparray</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">proparray</span><span class="p">:</span>
+            <span class="n">propval</span> <span class="o">=</span> <span class="n">_retry_ntimes</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oeditor</span><span class="o">.</span><span class="n">GetPropertyValue</span><span class="p">,</span> <span class="n">tab</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">composed_name</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>
+            <span class="n">_parameters</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">propval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="n">ComponentParameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tab</span><span class="p">,</span> <span class="n">_parameters</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">component_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Component parameters.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.GetProperties</span>
+<span class="sd">        &gt;&gt;&gt; oEditor.GetPropertyValue</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_component_info</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_components</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">design_type</span> <span class="o">!=</span> <span class="s2">&quot;Circuit Design&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_component_info</span>
+        <span class="n">_component_info</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">tab</span> <span class="o">=</span> <span class="s2">&quot;Component&quot;</span>
+        <span class="n">proparray</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oeditor</span><span class="o">.</span><span class="n">GetProperties</span><span class="p">(</span><span class="n">tab</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">composed_name</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">proparray</span><span class="p">:</span>
+            <span class="n">propval</span> <span class="o">=</span> <span class="n">_retry_ntimes</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oeditor</span><span class="o">.</span><span class="n">GetPropertyValue</span><span class="p">,</span> <span class="n">tab</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">composed_name</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>
+            <span class="n">_component_info</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">propval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_component_info</span> <span class="o">=</span> <span class="n">ComponentParameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tab</span><span class="p">,</span> <span class="n">_component_info</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_component_info</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bounding_box</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Component bounding box.&quot;&quot;&quot;</span>
+        <span class="n">comp_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oeditor</span><span class="o">.</span><span class="n">GetComponentInfo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">composed_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">comp_info</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">location</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.00254</span> <span class="o">/</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="s2">&quot;Length&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">_circuit_components</span><span class="o">.</span><span class="n">schematic_units</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">location</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="o">+</span> <span class="mf">0.00254</span> <span class="o">/</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="s2">&quot;Length&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">_circuit_components</span><span class="o">.</span><span class="n">schematic_units</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">location</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.00254</span> <span class="o">/</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="s2">&quot;Length&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">_circuit_components</span><span class="o">.</span><span class="n">schematic_units</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">location</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.00254</span> <span class="o">/</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="s2">&quot;Length&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">_circuit_components</span><span class="o">.</span><span class="n">schematic_units</span><span class="p">],</span>
+                <span class="p">]</span>
+            <span class="k">return</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">cp</span> <span class="ow">in</span> <span class="n">comp_info</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;BBoxLLx&quot;</span> <span class="ow">in</span> <span class="n">cp</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">bounding_box</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">comp_info</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">8</span><span class="p">:]),</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">comp_info</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="mi">8</span><span class="p">:]),</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">comp_info</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">][</span><span class="mi">8</span><span class="p">:]),</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">comp_info</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">3</span><span class="p">][</span><span class="mi">8</span><span class="p">:]),</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">i</span> <span class="o">/</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="s2">&quot;Length&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">_circuit_components</span><span class="o">.</span><span class="n">schematic_units</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">bounding_box</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pins</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pins of the component.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of :class:`pyaedt.modeler.Object3d.CircuitPins`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pins</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pins</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pins</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">pins</span> <span class="o">=</span> <span class="n">_retry_ntimes</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oeditor</span><span class="o">.</span><span class="n">GetComponentPins</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">composed_name</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">pins</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[]</span>
+            <span class="k">elif</span> <span class="n">pins</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_pins</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">CircuitPins</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">composed_name</span><span class="p">))</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pins</span>
+            <span class="k">for</span> <span class="n">pin</span> <span class="ow">in</span> <span class="n">pins</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_components</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">design_type</span> <span class="o">!=</span> <span class="s2">&quot;Twin Builder&quot;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_pins</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">CircuitPins</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pin</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">pin</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_pins</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">CircuitPins</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pin</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pins</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">CircuitPins</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">composed_name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pins</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">location</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the part location.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.GetPropertyValue</span>
+<span class="sd">        &gt;&gt;&gt; oEditor.ChangeProperty</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_location</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">loc</span> <span class="o">=</span> <span class="n">_retry_ntimes</span><span class="p">(</span>
+                <span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oeditor</span><span class="o">.</span><span class="n">GetPropertyValue</span><span class="p">,</span> <span class="s2">&quot;BaseElementTab&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">composed_name</span><span class="p">,</span> <span class="s2">&quot;Component Location&quot;</span>
+            <span class="p">)</span>
+            <span class="n">loc</span> <span class="o">=</span> <span class="p">[</span><span class="n">loc</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">loc</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
+            <span class="n">loc</span> <span class="o">=</span> <span class="p">[</span><span class="n">decompose_variable_value</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">loc</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_location</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="nb">round</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="s2">&quot;Length&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">/</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="s2">&quot;Length&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">],</span> <span class="mi">10</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">loc</span>
+            <span class="p">]</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_location</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_location</span>
+
+    <span class="nd">@location</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">location_xy</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the part location.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        location_xy : list</span>
+<span class="sd">            List of x and y coordinates. If float values are provided, the default units are used.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">i</span> <span class="o">/</span> <span class="n">AEDT_UNITS</span><span class="p">[</span><span class="s2">&quot;Length&quot;</span><span class="p">][</span><span class="s2">&quot;mil&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_components</span><span class="o">.</span><span class="n">_convert_point_to_meter</span><span class="p">(</span><span class="n">location_xy</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">x_location</span> <span class="o">=</span> <span class="n">_dim_arg</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s2">&quot;mil&quot;</span><span class="p">)</span>
+        <span class="n">y_location</span> <span class="o">=</span> <span class="n">_dim_arg</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="s2">&quot;mil&quot;</span><span class="p">)</span>
+
+        <span class="n">vMaterial</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:Component Location&quot;</span><span class="p">,</span> <span class="s2">&quot;X:=&quot;</span><span class="p">,</span> <span class="n">x_location</span><span class="p">,</span> <span class="s2">&quot;Y:=&quot;</span><span class="p">,</span> <span class="n">y_location</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_property</span><span class="p">(</span><span class="n">vMaterial</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">angle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the part angle.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.GetPropertyValue</span>
+<span class="sd">        &gt;&gt;&gt; oEditor.ChangeProperty</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">comp_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oeditor</span><span class="o">.</span><span class="n">GetComponentInfo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">composed_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_angle</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">if</span> <span class="n">comp_info</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">comp_info</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">&quot;Angle=&quot;</span> <span class="ow">in</span> <span class="n">info</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_angle</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="mi">6</span><span class="p">:])</span>
+                    <span class="k">break</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_angle</span>
+
+    <span class="nd">@angle</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">angle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the part angle.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">settings</span><span class="o">.</span><span class="n">use_grpc_api</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">angle</span><span class="p">:</span>
+                <span class="n">angle</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_angle</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;°&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">angle</span> <span class="o">=</span> <span class="n">_dim_arg</span><span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="s2">&quot;°&quot;</span><span class="p">)</span>
+            <span class="n">vMaterial</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:Component Angle&quot;</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="n">angle</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">change_property</span><span class="p">(</span><span class="n">vMaterial</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_circuit_components</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Grpc doesn&#39;t support angle settings because special characters are not supported.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mirror</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the part mirror.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.GetPropertyValue</span>
+<span class="sd">        &gt;&gt;&gt; oEditor.ChangeProperty</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mirror</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mirror</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_mirror</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">_retry_ntimes</span><span class="p">(</span>
+                    <span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oeditor</span><span class="o">.</span><span class="n">GetPropertyValue</span><span class="p">,</span> <span class="s2">&quot;BaseElementTab&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">composed_name</span><span class="p">,</span> <span class="s2">&quot;Component Mirror&quot;</span>
+                <span class="p">)</span>
+                <span class="o">==</span> <span class="s2">&quot;true&quot;</span>
+            <span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_mirror</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mirror</span>
+
+    <span class="nd">@mirror</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">mirror</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mirror_value</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Mirror part.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mirror_value : bool</span>
+<span class="sd">            Either to mirror the part. The default is ``True``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">vMaterial</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:Component Mirror&quot;</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="n">mirror_value</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_property</span><span class="p">(</span><span class="n">vMaterial</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CircuitComponent.set_use_symbol_color"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.circuits.object3dcircuit.CircuitComponent.set_use_symbol_color.html#pyaedt.modeler.circuits.object3dcircuit.CircuitComponent.set_use_symbol_color">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">set_use_symbol_color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symbol_color</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set symbol color usage.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        symbol_color : bool, optional</span>
+<span class="sd">            The default is ``None``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.ChangeProperty</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">symbol_color</span><span class="p">:</span>
+            <span class="n">symbol_color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">usesymbolcolor</span>
+        <span class="n">vMaterial</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:Use Symbol Color&quot;</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="n">symbol_color</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_property</span><span class="p">(</span><span class="n">vMaterial</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="CircuitComponent.set_color"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.circuits.object3dcircuit.CircuitComponent.set_color.html#pyaedt.modeler.circuits.object3dcircuit.CircuitComponent.set_color">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">set_color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">G</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set symbol color.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        R : int, optional</span>
+<span class="sd">            Red color value. The default is ``255``.</span>
+<span class="sd">        G : int, optional</span>
+<span class="sd">            Green color value. The default is ``128``.</span>
+<span class="sd">        B : int, optional</span>
+<span class="sd">            Blue color value. The default is ``0``</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.ChangeProperty</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">vMaterial</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:Component Color&quot;</span><span class="p">,</span> <span class="s2">&quot;R:=&quot;</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="s2">&quot;G:=&quot;</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="s2">&quot;B:=&quot;</span><span class="p">,</span> <span class="n">B</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_property</span><span class="p">(</span><span class="n">vMaterial</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="CircuitComponent.set_property"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.circuits.object3dcircuit.CircuitComponent.set_property.html#pyaedt.modeler.circuits.object3dcircuit.CircuitComponent.set_property">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">set_property</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">property_name</span><span class="p">,</span> <span class="n">property_value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set a part property.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        property_name : str</span>
+<span class="sd">            Name of the property.</span>
+<span class="sd">        property_value :</span>
+<span class="sd">            Value for the property.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.ChangeProperty</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">property_name</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">property_name</span><span class="p">,</span> <span class="n">property_value</span><span class="p">):</span>
+                <span class="n">v_prop</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="n">p</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="n">v</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">change_property</span><span class="p">(</span><span class="n">v_prop</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_parameters&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;_parameters&quot;</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;_parameters&quot;</span><span class="p">][</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">v_prop</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="n">property_name</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="n">property_value</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">change_property</span><span class="p">(</span><span class="n">v_prop</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_parameters&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="n">property_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;_parameters&quot;</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;_parameters&quot;</span><span class="p">][</span><span class="n">property_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">property_value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">property_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">property_value</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_add_property</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">property_name</span><span class="p">,</span> <span class="n">property_value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a property.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        property_name : str</span>
+<span class="sd">            Name of the property.</span>
+<span class="sd">        property_value :</span>
+<span class="sd">            Value for the property.</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">property_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">property_value</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="CircuitComponent.change_property"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.circuits.object3dcircuit.CircuitComponent.change_property.html#pyaedt.modeler.circuits.object3dcircuit.CircuitComponent.change_property">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">change_property</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vPropChange</span><span class="p">,</span> <span class="n">names_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Modify a property.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        vPropChange :</span>
+
+<span class="sd">        names_list : list, optional</span>
+<span class="sd">             The default is ``None``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.GetPropertyValue</span>
+<span class="sd">        &gt;&gt;&gt; oEditor.ChangeProperty</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">vChangedProps</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:ChangedProps&quot;</span><span class="p">,</span> <span class="n">vPropChange</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">names_list</span><span class="p">:</span>
+            <span class="n">vPropServers</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:PropServers&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">names_list</span><span class="p">:</span>
+                <span class="n">vPropServers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">vPropServers</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:PropServers&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">composed_name</span><span class="p">]</span>
+        <span class="n">tabname</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">vPropChange</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">5</span><span class="p">:]</span> <span class="ow">in</span> <span class="n">_retry_ntimes</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oeditor</span><span class="o">.</span><span class="n">GetProperties</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tabname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">composed_name</span><span class="p">):</span>
+            <span class="n">tabname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tabname</span>
+        <span class="k">elif</span> <span class="n">vPropChange</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">5</span><span class="p">:]</span> <span class="ow">in</span> <span class="n">_retry_ntimes</span><span class="p">(</span>
+            <span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oeditor</span><span class="o">.</span><span class="n">GetProperties</span><span class="p">,</span> <span class="s2">&quot;PassedParameterTab&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">composed_name</span>
+        <span class="p">):</span>
+            <span class="n">tabname</span> <span class="o">=</span> <span class="s2">&quot;PassedParameterTab&quot;</span>
+        <span class="k">elif</span> <span class="n">vPropChange</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">5</span><span class="p">:]</span> <span class="ow">in</span> <span class="n">_retry_ntimes</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oeditor</span><span class="o">.</span><span class="n">GetProperties</span><span class="p">,</span> <span class="s2">&quot;BaseElementTab&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">composed_name</span><span class="p">):</span>
+            <span class="n">tabname</span> <span class="o">=</span> <span class="s2">&quot;BaseElementTab&quot;</span>
+        <span class="k">if</span> <span class="n">tabname</span><span class="p">:</span>
+            <span class="n">vGeo3dlayout</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="n">tabname</span><span class="p">,</span> <span class="n">vPropServers</span><span class="p">,</span> <span class="n">vChangedProps</span><span class="p">]</span>
+            <span class="n">vOut</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:AllTabs&quot;</span><span class="p">,</span> <span class="n">vGeo3dlayout</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s2">&quot;NAME:Component Location&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">vChangedProps</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;PagePort&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">composed_name</span><span class="p">:</span>
+                <span class="n">_retry_ntimes</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oeditor</span><span class="o">.</span><span class="n">ChangeProperty</span><span class="p">,</span> <span class="n">vOut</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">_retry_ntimes</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oeditor</span><span class="o">.</span><span class="n">ChangeProperty</span><span class="p">,</span> <span class="n">vOut</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">Wire</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates and manipulates a wire.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">modeler</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_app</span> <span class="o">=</span> <span class="n">modeler</span><span class="o">.</span><span class="n">_app</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_modeler</span> <span class="o">=</span> <span class="n">modeler</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">points_in_segment</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_oeditor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modeler</span><span class="o">.</span><span class="n">oeditor</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">logger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Logger.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">logger</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">wires</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;List of all schematic wires in the design.&quot;&quot;&quot;</span>
+        <span class="n">wire_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">wire</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oeditor</span><span class="o">.</span><span class="n">GetAllElements</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s2">&quot;Wire&quot;</span> <span class="ow">in</span> <span class="n">wire</span><span class="p">:</span>
+                <span class="n">wire_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">wire</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">wire_names</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">display_wire_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wire_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">property_to_display</span><span class="o">=</span><span class="s2">&quot;NetName&quot;</span><span class="p">,</span> <span class="n">visibility</span><span class="o">=</span><span class="s2">&quot;Name&quot;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s2">&quot;Top&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Display wire properties.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        wire_name : str, optional</span>
+<span class="sd">            Wire name to display.</span>
+<span class="sd">            Default value is ``&quot;&quot;``.</span>
+<span class="sd">        property_to_display : str, optional</span>
+<span class="sd">            Property to display. Choices are: ``&quot;NetName&quot;``, ``&quot;PinCount&quot;``, ``&quot;AlignMicrowavePorts&quot;``,</span>
+<span class="sd">            ``&quot;SchematicID&quot;``, ``&quot;Segment0&quot;``.</span>
+<span class="sd">            Default value is ``&quot;NetName&quot;``.</span>
+<span class="sd">        visibility : str, optional</span>
+<span class="sd">            Visibility type. Choices are ``&quot;Name&quot;``, ``&quot;Value&quot;``, ``&quot;Both&quot;``, ``&quot;Evaluated Value&quot;``,</span>
+<span class="sd">            ``&quot;Evaluated Both&quot;``.</span>
+<span class="sd">            Default value is ``&quot;Name&quot;``.</span>
+<span class="sd">        location : str, optional</span>
+<span class="sd">            Wire name location. Choices are ``&quot;Left&quot;``, ``&quot;Top&quot;``, ``&quot;Right&quot;``, ``&quot;Bottom&quot;``, ``&quot;Center&quot;``.</span>
+<span class="sd">            Default value is ``&quot;Top&quot;``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">wire_exists</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">for</span> <span class="n">wire</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">wires</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">wire_name</span> <span class="o">==</span> <span class="n">wire</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">wire_id</span> <span class="o">=</span> <span class="n">wire</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">wire_exists</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">continue</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">wire_exists</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid wire name provided.&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_oeditor</span><span class="o">.</span><span class="n">ChangeProperty</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;NAME:AllTabs&quot;</span><span class="p">,</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;NAME:PropDisplayPropTab&quot;</span><span class="p">,</span>
+                        <span class="p">[</span><span class="s2">&quot;NAME:PropServers&quot;</span><span class="p">,</span> <span class="s2">&quot;Wire@</span><span class="si">{}</span><span class="s2">;</span><span class="si">{}</span><span class="s2">;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">wire_name</span><span class="p">,</span> <span class="n">wire_id</span><span class="p">,</span> <span class="mi">1</span><span class="p">)],</span>
+                        <span class="p">[</span>
+                            <span class="s2">&quot;NAME:NewProps&quot;</span><span class="p">,</span>
+                            <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="n">property_to_display</span><span class="p">,</span> <span class="s2">&quot;Format:=&quot;</span><span class="p">,</span> <span class="n">visibility</span><span class="p">,</span> <span class="s2">&quot;Location:=&quot;</span><span class="p">,</span> <span class="n">location</span><span class="p">],</span>
+                        <span class="p">],</span>
+                    <span class="p">],</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">False</span>
+</pre></div>
+
+              </article>
+              
+
+              
+          </div>
+          
+      </div>
+    </div>
+
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695"></script>
+
+<footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    <p class="copyright">
+    &copy; Copyright (c) 2023 ANSYS, Inc. All rights reserved.<br>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+  </div>
+  
+</div>
+</footer>
+  </body>
+</html>

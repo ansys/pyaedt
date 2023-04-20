@@ -1,0 +1,61 @@
+﻿pyaedt.modules.LayerStackup.Layers
+==================================
+
+.. currentmodule:: pyaedt.modules.LayerStackup
+
+.. autoclass:: Layers
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      Layers.add_layer
+      
+      
+      Layers.change_stackup_type
+      
+      
+      Layers.layer_id
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      
+      
+      Layers.all_diel_layers
+      
+      
+      Layers.all_layers
+      
+      
+      Layers.all_signal_layers
+      
+      
+      Layers.drawing_layers
+      
+      
+      Layers.layers
+      
+      
+      Layers.oeditor
+      
+      
+      Layers.stackup_layers
+      
+      
+      Layers.zones
+      
+   
+   

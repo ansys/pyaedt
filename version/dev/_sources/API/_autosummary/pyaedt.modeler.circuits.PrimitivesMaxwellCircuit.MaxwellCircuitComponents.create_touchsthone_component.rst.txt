@@ -1,0 +1,6 @@
+create\_touchsthone\_component
+==============================
+
+.. currentmodule:: pyaedt.modeler.circuits.PrimitivesMaxwellCircuit
+
+.. automethod:: MaxwellCircuitComponents.create_touchsthone_component

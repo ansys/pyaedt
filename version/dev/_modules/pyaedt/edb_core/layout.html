@@ -1,0 +1,1809 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyaedt.edb_core.layout &#8212; PyAEDT</title>
+    
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/ansys_sphinx_theme.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    
+        <link href="../../../_static/css/breadcrumbs.css" rel="stylesheet">
+    
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/table.js"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pyaedt/edb_core/layout';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://aedt.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        </script>
+    <link rel="shortcut icon" href="../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container"><!-- Debugging: html_theme_options =  -->
+
+  <!-- If there is no MiliSearch enabled, use the PyData search -->
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../../../_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../Getting_started/index.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../User_guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../API/index.html">
+                        AEDT API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../EDBAPI/index.html">
+                        EDB API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../Contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      dev  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt/discussions" title="Support" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+</div>
+
+    </nav>
+  
+
+    
+    <div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(text => document.getElementById("announcement_msg").innerHTML = text)
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+    
+
+    
+    <div class="container-xl">
+    <div class="row">
+        <div class="col-12 col-md-3" id="breadcrumbs-spacer"></div>
+        <div class="col-12 col-md-11 col-xl-9" id="breadcrumbs">
+          
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-additional-breadcrumb"><a href="https://docs.pyansys.com/">PyAnsys</a> » </li>
+    
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PyAEDT</a> » </li>
+    
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> » </li>
+        <li class="nav-item nav-item-this"><a href="">pyaedt.edb_core.layout</a></li> 
+      </ul>
+    </div>
+        </div>
+  </div>
+</div>
+    
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../Getting_started/index.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../User_guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../API/index.html">
+                        AEDT API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../EDBAPI/index.html">
+                        EDB API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../Contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      dev  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt/discussions" title="Support" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article"></div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for pyaedt.edb_core.layout</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module contains these classes: `EdbLayout` and `Shape`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">from</span> <span class="nn">pyaedt.edb_core.edb_data.primitives_data</span> <span class="kn">import</span> <span class="n">EDBPrimitives</span>
+<span class="kn">from</span> <span class="nn">pyaedt.edb_core.edb_data.utilities</span> <span class="kn">import</span> <span class="n">EDBStatistics</span>
+<span class="kn">from</span> <span class="nn">pyaedt.edb_core.general</span> <span class="kn">import</span> <span class="n">convert_py_list_to_net_list</span>
+<span class="kn">from</span> <span class="nn">pyaedt.generic.clr_module</span> <span class="kn">import</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">pyaedt.generic.general_methods</span> <span class="kn">import</span> <span class="n">pyaedt_function_handler</span>
+
+
+<div class="viewcode-block" id="EdbLayout"><a class="viewcode-back" href="../../../EDBAPI/_autosummary/pyaedt.edb_core.layout.EdbLayout.html#pyaedt.edb_core.layout.EdbLayout">[docs]</a><span class="k">class</span> <span class="nc">EdbLayout</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manages EDB methods for primitives management accessible from `Edb.modeler` property.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from pyaedt import Edb</span>
+<span class="sd">    &gt;&gt;&gt; edbapp = Edb(&quot;myaedbfolder&quot;, edbversion=&quot;2021.2&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; edb_layout = edbapp.modeler</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p_edb</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span> <span class="o">=</span> <span class="n">p_edb</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_edb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span>
+
+    <span class="k">def</span> <span class="nf">_get_edb_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb_value</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_logger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Logger.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">logger</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_builder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">builder</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_edbutils</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edbutils</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_active_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">active_layout</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_cell</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">active_cell</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Db object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">db</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">layers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dictionary of layers.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary of layers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">stackup</span><span class="o">.</span><span class="n">layers</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">primitives</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Primitives.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`</span>
+<span class="sd">            List of primitives.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_prims</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_active_layout</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">lay_obj</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_active_layout</span><span class="o">.</span><span class="n">Primitives</span><span class="p">):</span>
+                <span class="n">_prims</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">EDBPrimitives</span><span class="p">(</span><span class="n">lay_obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">_prims</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">polygons_by_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Primitives with layer names as keys.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary of primitives with layer names as keys.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_primitives_by_layer</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">lay</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
+            <span class="n">_primitives_by_layer</span><span class="p">[</span><span class="n">lay</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_polygons_by_layer</span><span class="p">(</span><span class="n">lay</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_primitives_by_layer</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">primitives_by_net</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Primitives with net names as keys.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary of primitives with nat names as keys.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_prim_by_net</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">net</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">nets</span><span class="o">.</span><span class="n">nets</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">_prim_by_net</span><span class="p">[</span><span class="n">net</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">EDBPrimitives</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_active_layout</span><span class="o">.</span><span class="n">Primitives</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">GetNet</span><span class="p">()</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span> <span class="o">==</span> <span class="n">net</span>
+            <span class="p">]</span>
+        <span class="k">return</span> <span class="n">_prim_by_net</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">primitives_by_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Primitives with layer names as keys.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary of primitives with layer names as keys.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_primitives_by_layer</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">lay</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
+            <span class="n">_primitives_by_layer</span><span class="p">[</span><span class="n">lay</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_active_layout</span><span class="o">.</span><span class="n">Primitives</span><span class="p">:</span>
+            <span class="n">lay</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">GetLayer</span><span class="p">()</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span>
+            <span class="n">_primitives_by_layer</span><span class="p">[</span><span class="n">lay</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">EDBPrimitives</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">_primitives_by_layer</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rectangles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Rectangles.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`</span>
+<span class="sd">            List of rectangles.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">primitives</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Rectangle&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">circles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Circles.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`</span>
+<span class="sd">            List of circles.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">primitives</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Circle&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Paths.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`</span>
+<span class="sd">            List of paths.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">primitives</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Path&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bondwires</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Bondwires.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`</span>
+<span class="sd">            List of bondwires.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">primitives</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Bondwire&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">polygons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Polygons.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`</span>
+<span class="sd">            List of polygons.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">primitives</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Polygon&quot;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="EdbLayout.get_polygons_by_layer"><a class="viewcode-back" href="../../../EDBAPI/_autosummary/pyaedt.edb_core.layout.EdbLayout.get_polygons_by_layer.html#pyaedt.edb_core.layout.EdbLayout.get_polygons_by_layer">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">get_polygons_by_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_name</span><span class="p">,</span> <span class="n">net_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve polygons by a layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layer_name : str</span>
+<span class="sd">            Name of the layer.</span>
+<span class="sd">        net_list : list, optional</span>
+<span class="sd">            List of net names.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of primitive objects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">objinst</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">polygons</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">el</span><span class="o">.</span><span class="n">GetLayer</span><span class="p">()</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span> <span class="o">==</span> <span class="n">layer_name</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">net_list</span> <span class="ow">and</span> <span class="n">el</span><span class="o">.</span><span class="n">GetNet</span><span class="p">()</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span> <span class="ow">in</span> <span class="n">net_list</span><span class="p">:</span>
+                    <span class="n">objinst</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">objinst</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">objinst</span></div>
+
+<div class="viewcode-block" id="EdbLayout.get_polygon_bounding_box"><a class="viewcode-back" href="../../../EDBAPI/_autosummary/pyaedt.edb_core.layout.EdbLayout.get_polygon_bounding_box.html#pyaedt.edb_core.layout.EdbLayout.get_polygon_bounding_box">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">get_polygon_bounding_box</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">polygon</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve a polygon bounding box.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        polygon :</span>
+<span class="sd">            Name of the polygon.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of bounding box coordinates in the format ``[-x, -y, +x, +y]``.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; poly = edb_core.modeler.get_polygons_by_layer(&quot;GND&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; bounding = edb_core.modeler.get_polygon_bounding_box(poly[0])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bounding</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">bounding_box</span> <span class="o">=</span> <span class="n">polygon</span><span class="o">.</span><span class="n">GetPolygonData</span><span class="p">()</span><span class="o">.</span><span class="n">GetBBox</span><span class="p">()</span>
+            <span class="n">bounding</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">bounding_box</span><span class="o">.</span><span class="n">Item1</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">(),</span>
+                <span class="n">bounding_box</span><span class="o">.</span><span class="n">Item1</span><span class="o">.</span><span class="n">Y</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">(),</span>
+                <span class="n">bounding_box</span><span class="o">.</span><span class="n">Item2</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">(),</span>
+                <span class="n">bounding_box</span><span class="o">.</span><span class="n">Item2</span><span class="o">.</span><span class="n">Y</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">(),</span>
+            <span class="p">]</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">bounding</span></div>
+
+<div class="viewcode-block" id="EdbLayout.get_polygon_points"><a class="viewcode-back" href="../../../EDBAPI/_autosummary/pyaedt.edb_core.layout.EdbLayout.get_polygon_points.html#pyaedt.edb_core.layout.EdbLayout.get_polygon_points">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">get_polygon_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">polygon</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve polygon points.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">           For arcs, one point is returned.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        polygon :</span>
+<span class="sd">            Name of the polygon.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of doubles.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+
+<span class="sd">        &gt;&gt;&gt; poly = edb_core.modeler.get_polygons_by_layer(&quot;GND&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; points  = edb_core.modeler.get_polygon_points(poly[0])</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">continue_iterate</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">prev_point</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">while</span> <span class="n">continue_iterate</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">point</span> <span class="o">=</span> <span class="n">polygon</span><span class="o">.</span><span class="n">GetPolygonData</span><span class="p">()</span><span class="o">.</span><span class="n">GetPoint</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">prev_point</span> <span class="o">!=</span> <span class="n">point</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">point</span><span class="o">.</span><span class="n">IsArc</span><span class="p">():</span>
+                        <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">point</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()])</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">point</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">(),</span> <span class="n">point</span><span class="o">.</span><span class="n">Y</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()])</span>
+                    <span class="n">prev_point</span> <span class="o">=</span> <span class="n">point</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">continue_iterate</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">continue_iterate</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">points</span></div>
+
+<div class="viewcode-block" id="EdbLayout.parametrize_polygon"><a class="viewcode-back" href="../../../EDBAPI/_autosummary/pyaedt.edb_core.layout.EdbLayout.parametrize_polygon.html#pyaedt.edb_core.layout.EdbLayout.parametrize_polygon">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">parametrize_polygon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">polygon</span><span class="p">,</span> <span class="n">selection_polygon</span><span class="p">,</span> <span class="n">offset_name</span><span class="o">=</span><span class="s2">&quot;offsetx&quot;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parametrize pieces of a polygon based on another polygon.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        polygon :</span>
+<span class="sd">            Name of the polygon.</span>
+<span class="sd">        selection_polygon :</span>
+<span class="sd">            Polygon to use as a filter.</span>
+<span class="sd">        offset_name : str, optional</span>
+<span class="sd">            Name of the offset to create.  The default is ``&quot;offsetx&quot;``.</span>
+<span class="sd">        origin : list, optional</span>
+<span class="sd">            List of the X and Y origins, which impacts the vector</span>
+<span class="sd">            computation and is needed to determine expansion direction.</span>
+<span class="sd">            The default is ``None``, in which case the vector is</span>
+<span class="sd">            computed from the polygon&#39;s center.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">calc_slope</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">origin</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">origin</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">slope</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">atan</span><span class="p">((</span><span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">origin</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">origin</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="n">xcoeff</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">slope</span><span class="p">)</span>
+                <span class="n">ycoeff</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">slope</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">xcoeff</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">ycoeff</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">xcoeff</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">ycoeff</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="k">if</span> <span class="n">ycoeff</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">ycoeff</span> <span class="o">=</span> <span class="s2">&quot;+&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ycoeff</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ycoeff</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">ycoeff</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">xcoeff</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">xcoeff</span> <span class="o">=</span> <span class="s2">&quot;+&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">xcoeff</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">xcoeff</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">xcoeff</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">xcoeff</span><span class="p">,</span> <span class="n">ycoeff</span>
+
+        <span class="n">selection_polygon_data</span> <span class="o">=</span> <span class="n">selection_polygon</span><span class="o">.</span><span class="n">GetPolygonData</span><span class="p">()</span>
+        <span class="n">poligon_data</span> <span class="o">=</span> <span class="n">polygon</span><span class="o">.</span><span class="n">GetPolygonData</span><span class="p">()</span>
+        <span class="n">bound_center</span> <span class="o">=</span> <span class="n">poligon_data</span><span class="o">.</span><span class="n">GetBoundingCircleCenter</span><span class="p">()</span>
+        <span class="n">bound_center2</span> <span class="o">=</span> <span class="n">selection_polygon_data</span><span class="o">.</span><span class="n">GetBoundingCircleCenter</span><span class="p">()</span>
+        <span class="n">center</span> <span class="o">=</span> <span class="p">[</span><span class="n">bound_center</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">(),</span> <span class="n">bound_center</span><span class="o">.</span><span class="n">Y</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()]</span>
+        <span class="n">center2</span> <span class="o">=</span> <span class="p">[</span><span class="n">bound_center2</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">(),</span> <span class="n">bound_center2</span><span class="o">.</span><span class="n">Y</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()]</span>
+        <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">calc_slope</span><span class="p">(</span><span class="n">center2</span><span class="p">,</span> <span class="n">center</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">origin</span><span class="p">:</span>
+            <span class="n">origin</span> <span class="o">=</span> <span class="p">[</span><span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">x1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">10000</span><span class="p">,</span> <span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">y1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">10000</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">add_design_variable</span><span class="p">(</span><span class="n">offset_name</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">is_parameter</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">continue_iterate</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">prev_point</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">while</span> <span class="n">continue_iterate</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">point</span> <span class="o">=</span> <span class="n">poligon_data</span><span class="o">.</span><span class="n">GetPoint</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">prev_point</span> <span class="o">!=</span> <span class="n">point</span><span class="p">:</span>
+                    <span class="n">check_inside</span> <span class="o">=</span> <span class="n">selection_polygon_data</span><span class="o">.</span><span class="n">PointInPolygon</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">check_inside</span><span class="p">:</span>
+                        <span class="n">xcoeff</span><span class="p">,</span> <span class="n">ycoeff</span> <span class="o">=</span> <span class="n">calc_slope</span><span class="p">([</span><span class="n">point</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">(),</span> <span class="n">point</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()],</span> <span class="n">origin</span><span class="p">)</span>
+
+                        <span class="n">new_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">PointData</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">ToString</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">*</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">xcoeff</span><span class="p">,</span> <span class="n">offset_name</span><span class="p">)),</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">Y</span><span class="o">.</span><span class="n">ToString</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">*</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ycoeff</span><span class="p">,</span> <span class="n">offset_name</span><span class="p">)),</span>
+                        <span class="p">)</span>
+                        <span class="n">poligon_data</span><span class="o">.</span><span class="n">SetPoint</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">new_points</span><span class="p">)</span>
+                    <span class="n">prev_point</span> <span class="o">=</span> <span class="n">point</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">continue_iterate</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">continue_iterate</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">polygon</span><span class="o">.</span><span class="n">SetPolygonData</span><span class="p">(</span><span class="n">poligon_data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_create_path</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path_list</span><span class="p">,</span>
+        <span class="n">layer_name</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">net_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">start_cap_style</span><span class="o">=</span><span class="s2">&quot;Round&quot;</span><span class="p">,</span>
+        <span class="n">end_cap_style</span><span class="o">=</span><span class="s2">&quot;Round&quot;</span><span class="p">,</span>
+        <span class="n">corner_style</span><span class="o">=</span><span class="s2">&quot;Round&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a path based on a list of points.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        path_list : :class:`pyaedt.edb_core.layout.Shape`</span>
+<span class="sd">            List of points.</span>
+<span class="sd">        layer_name : str</span>
+<span class="sd">            Name of the layer on which to create the path.</span>
+<span class="sd">        width : float, optional</span>
+<span class="sd">            Width of the path. The default is ``1``.</span>
+<span class="sd">        net_name : str, optional</span>
+<span class="sd">            Name of the net. The default is ``&quot;&quot;``.</span>
+<span class="sd">        start_cap_style : str, optional</span>
+<span class="sd">            Style of the cap at its start. Options are ``&quot;Round&quot;``,</span>
+<span class="sd">            ``&quot;Extended&quot;,`` and ``&quot;Flat&quot;``. The default is</span>
+<span class="sd">            ``&quot;Round&quot;``.</span>
+<span class="sd">        end_cap_style : str, optional</span>
+<span class="sd">            Style of the cap at its end. Options are ``&quot;Round&quot;``,</span>
+<span class="sd">            ``&quot;Extended&quot;,`` and ``&quot;Flat&quot;``. The default is</span>
+<span class="sd">            ``&quot;Round&quot;``.</span>
+<span class="sd">        corner_style : str, optional</span>
+<span class="sd">            Style of the corner. Options are ``&quot;Round&quot;``,</span>
+<span class="sd">            ``&quot;Sharp&quot;`` and ``&quot;Mitered&quot;``. The default is ``&quot;Round&quot;``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">net</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">nets</span><span class="o">.</span><span class="n">find_or_create_net</span><span class="p">(</span><span class="n">net_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">start_cap_style</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;round&quot;</span><span class="p">:</span>
+            <span class="n">start_cap_style</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Primitive</span><span class="o">.</span><span class="n">PathEndCapStyle</span><span class="o">.</span><span class="n">Round</span>
+        <span class="k">elif</span> <span class="n">start_cap_style</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;extended&quot;</span><span class="p">:</span>
+            <span class="n">start_cap_style</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Primitive</span><span class="o">.</span><span class="n">PathEndCapStyle</span><span class="o">.</span><span class="n">Extended</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">start_cap_style</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Primitive</span><span class="o">.</span><span class="n">PathEndCapStyle</span><span class="o">.</span><span class="n">Flat</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">if</span> <span class="n">end_cap_style</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;round&quot;</span><span class="p">:</span>
+            <span class="n">end_cap_style</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Primitive</span><span class="o">.</span><span class="n">PathEndCapStyle</span><span class="o">.</span><span class="n">Round</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">elif</span> <span class="n">end_cap_style</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;extended&quot;</span><span class="p">:</span>
+            <span class="n">end_cap_style</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Primitive</span><span class="o">.</span><span class="n">PathEndCapStyle</span><span class="o">.</span><span class="n">Extended</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">end_cap_style</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Primitive</span><span class="o">.</span><span class="n">PathEndCapStyle</span><span class="o">.</span><span class="n">Flat</span>
+        <span class="k">if</span> <span class="n">corner_style</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;round&quot;</span><span class="p">:</span>
+            <span class="n">corner_style</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Primitive</span><span class="o">.</span><span class="n">PathCornerStyle</span><span class="o">.</span><span class="n">RoundCorner</span>
+        <span class="k">elif</span> <span class="n">corner_style</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;sharp&quot;</span><span class="p">:</span>
+            <span class="n">corner_style</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Primitive</span><span class="o">.</span><span class="n">PathCornerStyle</span><span class="o">.</span><span class="n">SharpCorner</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">corner_style</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Primitive</span><span class="o">.</span><span class="n">PathCornerStyle</span><span class="o">.</span><span class="n">MiterCorner</span>  <span class="c1"># pragma: no cover</span>
+
+        <span class="n">pointlists</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">PointData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">path_list</span><span class="o">.</span><span class="n">points</span>
+        <span class="p">]</span>
+        <span class="n">polygonData</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">PolygonData</span><span class="p">(</span><span class="n">convert_py_list_to_net_list</span><span class="p">(</span><span class="n">pointlists</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">polygon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Primitive</span><span class="o">.</span><span class="n">Path</span><span class="o">.</span><span class="n">Create</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_active_layout</span><span class="p">,</span>
+            <span class="n">layer_name</span><span class="p">,</span>
+            <span class="n">net</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">width</span><span class="p">),</span>
+            <span class="n">start_cap_style</span><span class="p">,</span>
+            <span class="n">end_cap_style</span><span class="p">,</span>
+            <span class="n">corner_style</span><span class="p">,</span>
+            <span class="n">polygonData</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">polygon</span><span class="o">.</span><span class="n">IsNull</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Null path created&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">EDBPrimitives</span><span class="p">(</span><span class="n">polygon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="p">)</span>
+
+<div class="viewcode-block" id="EdbLayout.create_trace"><a class="viewcode-back" href="../../../EDBAPI/_autosummary/pyaedt.edb_core.layout.EdbLayout.create_trace.html#pyaedt.edb_core.layout.EdbLayout.create_trace">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">create_trace</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path_list</span><span class="p">,</span>
+        <span class="n">layer_name</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">net_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">start_cap_style</span><span class="o">=</span><span class="s2">&quot;Round&quot;</span><span class="p">,</span>
+        <span class="n">end_cap_style</span><span class="o">=</span><span class="s2">&quot;Round&quot;</span><span class="p">,</span>
+        <span class="n">corner_style</span><span class="o">=</span><span class="s2">&quot;Round&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a trace based on a list of points.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        path_list : list</span>
+<span class="sd">            List of points.</span>
+<span class="sd">        layer_name : str</span>
+<span class="sd">            Name of the layer on which to create the path.</span>
+<span class="sd">        width : float, optional</span>
+<span class="sd">            Width of the path. The default is ``1``.</span>
+<span class="sd">        net_name : str, optional</span>
+<span class="sd">            Name of the net. The default is ``&quot;&quot;``.</span>
+<span class="sd">        start_cap_style : str, optional</span>
+<span class="sd">            Style of the cap at its start. Options are ``&quot;Round&quot;``,</span>
+<span class="sd">            ``&quot;Extended&quot;,`` and ``&quot;Flat&quot;``. The default is</span>
+<span class="sd">            ``&quot;Round&quot;``.</span>
+<span class="sd">        end_cap_style : str, optional</span>
+<span class="sd">            Style of the cap at its end. Options are ``&quot;Round&quot;``,</span>
+<span class="sd">            ``&quot;Extended&quot;,`` and ``&quot;Flat&quot;``. The default is</span>
+<span class="sd">            ``&quot;Round&quot;``.</span>
+<span class="sd">        corner_style : str, optional</span>
+<span class="sd">            Style of the corner. Options are ``&quot;Round&quot;``,</span>
+<span class="sd">            ``&quot;Sharp&quot;`` and ``&quot;Mitered&quot;``. The default is ``&quot;Round&quot;``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Shape</span><span class="p">(</span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">path_list</span><span class="p">)</span>
+        <span class="n">primitive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_path</span><span class="p">(</span>
+            <span class="n">path</span><span class="p">,</span>
+            <span class="n">layer_name</span><span class="o">=</span><span class="n">layer_name</span><span class="p">,</span>
+            <span class="n">net_name</span><span class="o">=</span><span class="n">net_name</span><span class="p">,</span>
+            <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span>
+            <span class="n">start_cap_style</span><span class="o">=</span><span class="n">start_cap_style</span><span class="p">,</span>
+            <span class="n">end_cap_style</span><span class="o">=</span><span class="n">end_cap_style</span><span class="p">,</span>
+            <span class="n">corner_style</span><span class="o">=</span><span class="n">corner_style</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">primitive</span></div>
+
+<div class="viewcode-block" id="EdbLayout.create_polygon"><a class="viewcode-back" href="../../../EDBAPI/_autosummary/pyaedt.edb_core.layout.EdbLayout.create_polygon.html#pyaedt.edb_core.layout.EdbLayout.create_polygon">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">create_polygon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">main_shape</span><span class="p">,</span> <span class="n">layer_name</span><span class="p">,</span> <span class="n">voids</span><span class="o">=</span><span class="p">[],</span> <span class="n">net_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a polygon based on a list of points and voids.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        main_shape : list of points or PolygonData or ``modeler.Shape``</span>
+<span class="sd">            Shape or point lists of the main object.</span>
+<span class="sd">        layer_name : str</span>
+<span class="sd">            Name of the layer on which to create the polygon.</span>
+<span class="sd">        voids : list, optional</span>
+<span class="sd">            List of shape objects for voids or points that creates the shapes. The default is``[]``.</span>
+<span class="sd">        net_name : str, optional</span>
+<span class="sd">            Name of the net. The default is ``&quot;&quot;``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool, :class:`pyaedt.edb_core.edb_data.primitives.EDBPrimitives`</span>
+<span class="sd">            Polygon when successful, ``False`` when failed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">net</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">nets</span><span class="o">.</span><span class="n">find_or_create_net</span><span class="p">(</span><span class="n">net_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">main_shape</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Shape</span><span class="p">(</span><span class="s2">&quot;polygon&quot;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">main_shape</span><span class="p">)</span>
+            <span class="n">polygonData</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape_to_polygon_data</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">main_shape</span><span class="p">,</span> <span class="n">EdbLayout</span><span class="o">.</span><span class="n">Shape</span><span class="p">):</span>
+            <span class="n">polygonData</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape_to_polygon_data</span><span class="p">(</span><span class="n">main_shape</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">polygonData</span> <span class="o">=</span> <span class="n">main_shape</span>
+        <span class="k">if</span> <span class="n">polygonData</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">polygonData</span><span class="o">.</span><span class="n">IsNull</span><span class="p">()</span> <span class="ow">or</span> <span class="n">polygonData</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to create main shape polygon data&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">void</span> <span class="ow">in</span> <span class="n">voids</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">void</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">void</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Shape</span><span class="p">(</span><span class="s2">&quot;polygon&quot;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">void</span><span class="p">)</span>
+                <span class="n">voidPolygonData</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape_to_polygon_data</span><span class="p">(</span><span class="n">void</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">void</span><span class="p">,</span> <span class="n">EdbLayout</span><span class="o">.</span><span class="n">Shape</span><span class="p">):</span>
+                <span class="n">voidPolygonData</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape_to_polygon_data</span><span class="p">(</span><span class="n">void</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">voidPolygonData</span> <span class="o">=</span> <span class="n">void</span>
+            <span class="k">if</span> <span class="n">voidPolygonData</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">voidPolygonData</span><span class="o">.</span><span class="n">IsNull</span><span class="p">()</span> <span class="ow">or</span> <span class="n">polygonData</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to create void polygon data&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="n">polygonData</span><span class="o">.</span><span class="n">AddHole</span><span class="p">(</span><span class="n">voidPolygonData</span><span class="p">)</span>
+        <span class="n">polygon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Primitive</span><span class="o">.</span><span class="n">Polygon</span><span class="o">.</span><span class="n">Create</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_active_layout</span><span class="p">,</span> <span class="n">layer_name</span><span class="p">,</span> <span class="n">net</span><span class="p">,</span> <span class="n">polygonData</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">polygon</span><span class="o">.</span><span class="n">IsNull</span><span class="p">()</span> <span class="ow">or</span> <span class="n">polygonData</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Null polygon created&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">EDBPrimitives</span><span class="p">(</span><span class="n">polygon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EdbLayout.create_polygon_from_points"><a class="viewcode-back" href="../../../EDBAPI/_autosummary/pyaedt.edb_core.layout.EdbLayout.create_polygon_from_points.html#pyaedt.edb_core.layout.EdbLayout.create_polygon_from_points">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">create_polygon_from_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point_list</span><span class="p">,</span> <span class="n">layer_name</span><span class="p">,</span> <span class="n">net_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new polygon from a point list.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        point_list : list</span>
+<span class="sd">            Point list in the format of `[[x1,y1], [x2,y2],..,[xn,yn]]`.</span>
+<span class="sd">        layer_name : str</span>
+<span class="sd">            Name of layer on which create the polygon.</span>
+<span class="sd">        net_name : str, optional</span>
+<span class="sd">            Name of the net on which create the polygon.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">net</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">nets</span><span class="o">.</span><span class="n">find_or_create_net</span><span class="p">(</span><span class="n">net_name</span><span class="p">)</span>
+        <span class="n">plane</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Shape</span><span class="p">(</span><span class="s2">&quot;polygon&quot;</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">point_list</span><span class="p">)</span>
+        <span class="n">_poly</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape_to_polygon_data</span><span class="p">(</span><span class="n">plane</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">_poly</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">_poly</span><span class="o">.</span><span class="n">IsNull</span><span class="p">()</span> <span class="ow">or</span> <span class="n">_poly</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to create main shape polygon data&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">polygon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Primitive</span><span class="o">.</span><span class="n">Polygon</span><span class="o">.</span><span class="n">Create</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_active_layout</span><span class="p">,</span> <span class="n">layer_name</span><span class="p">,</span> <span class="n">net</span><span class="p">,</span> <span class="n">_poly</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">polygon</span><span class="o">.</span><span class="n">IsNull</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Null polygon created&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">EDBPrimitives</span><span class="p">(</span><span class="n">polygon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EdbLayout.create_rectangle"><a class="viewcode-back" href="../../../EDBAPI/_autosummary/pyaedt.edb_core.layout.EdbLayout.create_rectangle.html#pyaedt.edb_core.layout.EdbLayout.create_rectangle">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">create_rectangle</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">layer_name</span><span class="p">,</span>
+        <span class="n">net_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">lower_left_point</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">upper_right_point</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">center_point</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">representation_type</span><span class="o">=</span><span class="s2">&quot;LowerLeftUpperRight&quot;</span><span class="p">,</span>
+        <span class="n">corner_radius</span><span class="o">=</span><span class="s2">&quot;0mm&quot;</span><span class="p">,</span>
+        <span class="n">rotation</span><span class="o">=</span><span class="s2">&quot;0deg&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create rectangle.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layer_name : str</span>
+<span class="sd">            Name of the layer on which to create the rectangle.</span>
+<span class="sd">        net_name : str</span>
+<span class="sd">            Name of the net. The default is ``&quot;&quot;``.</span>
+<span class="sd">        lower_left_point : list</span>
+<span class="sd">            Lower left point when ``representation_type=&quot;LowerLeftUpperRight&quot;``. The default is ``&quot;&quot;``.</span>
+<span class="sd">        upper_right_point : list</span>
+<span class="sd">            Upper right point when ``representation_type=&quot;LowerLeftUpperRight&quot;``. The default is ``&quot;&quot;``.</span>
+<span class="sd">        center_point : list</span>
+<span class="sd">            Center point when ``representation_type=&quot;CenterWidthHeight&quot;``. The default is ``&quot;&quot;``.</span>
+<span class="sd">        width : str</span>
+<span class="sd">            Width of the rectangle when ``representation_type=&quot;CenterWidthHeight&quot;``. The default is ``&quot;&quot;``.</span>
+<span class="sd">        height : str</span>
+<span class="sd">            Height of the rectangle when ``representation_type=&quot;CenterWidthHeight&quot;``. The default is ``&quot;&quot;``.</span>
+<span class="sd">        representation_type : str, optional</span>
+<span class="sd">            Type of the rectangle representation. The default is ``LowerLeftUpperRight``. Options are</span>
+<span class="sd">            ``&quot;LowerLeftUpperRight&quot;`` and ``&quot;CenterWidthHeight&quot;``.</span>
+<span class="sd">        corner_radius : str, optional</span>
+<span class="sd">            Radius of the rectangle corner. The default is ``&quot;0mm&quot;``.</span>
+<span class="sd">        rotation : str, optional</span>
+<span class="sd">            Rotation of the rectangle. The default is ``&quot;0deg&quot;``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">         :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`</span>
+<span class="sd">            Rectangle when successful, ``False`` when failed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">edb_net</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">nets</span><span class="o">.</span><span class="n">find_or_create_net</span><span class="p">(</span><span class="n">net_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">representation_type</span> <span class="o">==</span> <span class="s2">&quot;LowerLeftUpperRight&quot;</span><span class="p">:</span>
+            <span class="n">rep_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Primitive</span><span class="o">.</span><span class="n">RectangleRepresentationType</span><span class="o">.</span><span class="n">LowerLeftUpperRight</span>
+            <span class="n">rect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Primitive</span><span class="o">.</span><span class="n">Rectangle</span><span class="o">.</span><span class="n">Create</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_active_layout</span><span class="p">,</span>
+                <span class="n">layer_name</span><span class="p">,</span>
+                <span class="n">edb_net</span><span class="p">,</span>
+                <span class="n">rep_type</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">lower_left_point</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">lower_left_point</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">upper_right_point</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">upper_right_point</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">corner_radius</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">rotation</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rep_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Primitive</span><span class="o">.</span><span class="n">RectangleRepresentationType</span><span class="o">.</span><span class="n">CenterWidthHeight</span>
+            <span class="n">rect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Primitive</span><span class="o">.</span><span class="n">Rectangle</span><span class="o">.</span><span class="n">Create</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_active_layout</span><span class="p">,</span>
+                <span class="n">layer_name</span><span class="p">,</span>
+                <span class="n">edb_net</span><span class="p">,</span>
+                <span class="n">rep_type</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">center_point</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">center_point</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">width</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">height</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">corner_radius</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">rotation</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">rect</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">EDBPrimitives</span><span class="p">(</span><span class="n">rect</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># pragma: no cover</span></div>
+
+<div class="viewcode-block" id="EdbLayout.create_circle"><a class="viewcode-back" href="../../../EDBAPI/_autosummary/pyaedt.edb_core.layout.EdbLayout.create_circle.html#pyaedt.edb_core.layout.EdbLayout.create_circle">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">create_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_name</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">net_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a circle on a specified layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layer_name : str</span>
+<span class="sd">            Name of the layer.</span>
+<span class="sd">        x : float</span>
+<span class="sd">            Position on the X axis.</span>
+<span class="sd">        y : float</span>
+<span class="sd">            Position on the Y axis.</span>
+<span class="sd">        radius : float</span>
+<span class="sd">            Radius of the circle.</span>
+<span class="sd">        net_name : str, optional</span>
+<span class="sd">            Name of the net. The default is ``None``, in which case the</span>
+<span class="sd">            default name is assigned.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`</span>
+<span class="sd">            Objects of the circle created when successful.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">edb_net</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">nets</span><span class="o">.</span><span class="n">find_or_create_net</span><span class="p">(</span><span class="n">net_name</span><span class="p">)</span>
+
+        <span class="n">circle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Primitive</span><span class="o">.</span><span class="n">Circle</span><span class="o">.</span><span class="n">Create</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_active_layout</span><span class="p">,</span>
+            <span class="n">layer_name</span><span class="p">,</span>
+            <span class="n">edb_net</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">x</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">y</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">radius</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">circle</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">EDBPrimitives</span><span class="p">(</span><span class="n">circle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># pragma: no cover</span></div>
+
+<div class="viewcode-block" id="EdbLayout.delete_primitives"><a class="viewcode-back" href="../../../EDBAPI/_autosummary/pyaedt.edb_core.layout.EdbLayout.delete_primitives.html#pyaedt.edb_core.layout.EdbLayout.delete_primitives">[docs]</a>    <span class="nd">@pyaedt_function_handler</span>
+    <span class="k">def</span> <span class="nf">delete_primitives</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">net_names</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete primitives by net names.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        net_names : str, list</span>
+<span class="sd">            Names of the nets to delete.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; Edb.modeler.delete_primitives(net_names=[&quot;GND&quot;])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">net_names</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+            <span class="n">net_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">net_names</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">primitives</span><span class="p">[:]:</span>
+            <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">net_name</span> <span class="ow">in</span> <span class="n">net_names</span><span class="p">:</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="EdbLayout.get_primitives"><a class="viewcode-back" href="../../../EDBAPI/_autosummary/pyaedt.edb_core.layout.EdbLayout.get_primitives.html#pyaedt.edb_core.layout.EdbLayout.get_primitives">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">get_primitives</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">net_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">layer_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prim_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">is_void</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get primitives by conditions.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        net_name : str, optional</span>
+<span class="sd">            Set filter on net_name. Default is `None`.</span>
+<span class="sd">        layer_name : str, optional</span>
+<span class="sd">            Set filter on layer_name. Default is `None`.</span>
+<span class="sd">        prim_type :  str, optional</span>
+<span class="sd">            Set filter on primitive type. Default is `None`.</span>
+<span class="sd">        is_void : bool</span>
+<span class="sd">            Set filter on is_void. Default is &#39;False&#39;</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of filtered primitives</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">prims</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">primitives</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">el</span><span class="o">.</span><span class="n">type</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">net_name</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">el</span><span class="o">.</span><span class="n">net_name</span> <span class="o">==</span> <span class="n">net_name</span><span class="p">:</span>
+                    <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">layer_name</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">el</span><span class="o">.</span><span class="n">layer_name</span> <span class="o">==</span> <span class="n">layer_name</span><span class="p">:</span>
+                    <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">prim_type</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">el</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">prim_type</span><span class="p">:</span>
+                    <span class="k">continue</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">el</span><span class="o">.</span><span class="n">is_void</span> <span class="o">==</span> <span class="n">is_void</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">prims</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">prims</span></div>
+
+<div class="viewcode-block" id="EdbLayout.fix_circle_void_for_clipping"><a class="viewcode-back" href="../../../EDBAPI/_autosummary/pyaedt.edb_core.layout.EdbLayout.fix_circle_void_for_clipping.html#pyaedt.edb_core.layout.EdbLayout.fix_circle_void_for_clipping">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">fix_circle_void_for_clipping</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fix issues when circle void are clipped due to a bug in EDB.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when no changes were applied.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">void_circle</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">circles</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">void_circle</span><span class="o">.</span><span class="n">is_void</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="p">(</span>
+                <span class="n">res</span><span class="p">,</span>
+                <span class="n">center_x</span><span class="p">,</span>
+                <span class="n">center_y</span><span class="p">,</span>
+                <span class="n">radius</span><span class="p">,</span>
+            <span class="p">)</span> <span class="o">=</span> <span class="n">void_circle</span><span class="o">.</span><span class="n">primitive_object</span><span class="o">.</span><span class="n">GetParameters</span><span class="p">()</span>
+
+            <span class="n">cloned_circle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Primitive</span><span class="o">.</span><span class="n">Circle</span><span class="o">.</span><span class="n">Create</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_active_layout</span><span class="p">,</span>
+                <span class="n">void_circle</span><span class="o">.</span><span class="n">layer_name</span><span class="p">,</span>
+                <span class="n">void_circle</span><span class="o">.</span><span class="n">net</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">center_x</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">center_y</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">radius</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">res</span><span class="p">:</span>
+                <span class="n">cloned_circle</span><span class="o">.</span><span class="n">SetIsNegative</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">void_circle</span><span class="o">.</span><span class="n">Delete</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="EdbLayout.add_void"><a class="viewcode-back" href="../../../EDBAPI/_autosummary/pyaedt.edb_core.layout.EdbLayout.add_void.html#pyaedt.edb_core.layout.EdbLayout.add_void">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">add_void</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">void_shape</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a void into a shape.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        shape : Polygon</span>
+<span class="sd">            Shape of the main object.</span>
+<span class="sd">        void_shape : list, Path</span>
+<span class="sd">            Shape of the voids.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">EDBPrimitives</span><span class="p">):</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">primitive_object</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">void_shape</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">void_shape</span> <span class="o">=</span> <span class="p">[</span><span class="n">void_shape</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">void</span> <span class="ow">in</span> <span class="n">void_shape</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">void</span><span class="p">,</span> <span class="n">EDBPrimitives</span><span class="p">):</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">AddVoid</span><span class="p">(</span><span class="n">void</span><span class="o">.</span><span class="n">primitive_object</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">AddVoid</span><span class="p">(</span><span class="n">void</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">flag</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">flag</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="EdbLayout.shape_to_polygon_data"><a class="viewcode-back" href="../../../EDBAPI/_autosummary/pyaedt.edb_core.layout.EdbLayout.shape_to_polygon_data.html#pyaedt.edb_core.layout.EdbLayout.shape_to_polygon_data">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">shape_to_polygon_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert a shape to polygon data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        shape : :class:`pyaedt.edb_core.layout.EdbLayout.Shape`</span>
+<span class="sd">            Type of the shape to convert. Options are ``&quot;rectangle&quot;`` and ``&quot;polygon&quot;``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">shape</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;polygon&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_createPolygonDataFromPolygon</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">shape</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;rectangle&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_createPolygonDataFromRectangle</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Unsupported shape type </span><span class="si">%s</span><span class="s2"> when creating a polygon primitive.&quot;</span><span class="p">,</span>
+                <span class="n">shape</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_createPolygonDataFromPolygon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">points</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validatePoint</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Error validating point.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">arcs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">is_parametric</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">startPoint</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">endPoint</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">startPoint</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">endPoint</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validatePoint</span><span class="p">(</span><span class="n">endPoint</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="n">startPoint</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">startPoint</span><span class="p">]</span>
+            <span class="n">endPoint</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">endPoint</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">endPoint</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">is_parametric</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">is_parametric</span>
+                    <span class="ow">or</span> <span class="n">startPoint</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">IsParametric</span><span class="p">()</span>
+                    <span class="ow">or</span> <span class="n">startPoint</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">IsParametric</span><span class="p">()</span>
+                    <span class="ow">or</span> <span class="n">endPoint</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">IsParametric</span><span class="p">()</span>
+                    <span class="ow">or</span> <span class="n">endPoint</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">IsParametric</span><span class="p">()</span>
+                <span class="p">)</span>
+                <span class="n">arc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">ArcData</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">PointData</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">startPoint</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()),</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">startPoint</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()),</span>
+                    <span class="p">),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">PointData</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">endPoint</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()),</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">endPoint</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()),</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+                <span class="n">arcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arc</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">endPoint</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+                <span class="n">is_parametric</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">is_parametric</span>
+                    <span class="ow">or</span> <span class="n">startPoint</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">IsParametric</span><span class="p">()</span>
+                    <span class="ow">or</span> <span class="n">startPoint</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">IsParametric</span><span class="p">()</span>
+                    <span class="ow">or</span> <span class="n">endPoint</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">IsParametric</span><span class="p">()</span>
+                    <span class="ow">or</span> <span class="n">endPoint</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">IsParametric</span><span class="p">()</span>
+                    <span class="ow">or</span> <span class="n">endPoint</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">IsParametric</span><span class="p">()</span>
+                    <span class="ow">or</span> <span class="n">endPoint</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">IsParametric</span><span class="p">()</span>
+                <span class="p">)</span>
+                <span class="n">rotationDirection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">RotationDirection</span><span class="o">.</span><span class="n">Colinear</span>
+                <span class="k">if</span> <span class="n">endPoint</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">ToString</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;cw&quot;</span><span class="p">:</span>
+                    <span class="n">rotationDirection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">RotationDirection</span><span class="o">.</span><span class="n">CW</span>
+                <span class="k">elif</span> <span class="n">endPoint</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">ToString</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;ccw&quot;</span><span class="p">:</span>
+                    <span class="n">rotationDirection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">RotationDirection</span><span class="o">.</span><span class="n">CCW</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Invalid rotation direction </span><span class="si">%s</span><span class="s2"> is specified.&quot;</span><span class="p">,</span> <span class="n">endPoint</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                    <span class="k">return</span> <span class="kc">None</span>
+                <span class="n">arc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">ArcData</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">PointData</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">startPoint</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()),</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">startPoint</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()),</span>
+                    <span class="p">),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">PointData</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">endPoint</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()),</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">endPoint</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()),</span>
+                    <span class="p">),</span>
+                    <span class="n">rotationDirection</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">PointData</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">endPoint</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()),</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">endPoint</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()),</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+                <span class="n">arcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arc</span><span class="p">)</span>
+        <span class="n">polygon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">PolygonData</span><span class="o">.</span><span class="n">CreateFromArcs</span><span class="p">(</span><span class="n">convert_py_list_to_net_list</span><span class="p">(</span><span class="n">arcs</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_parametric</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">polygon</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">points</span><span class="p">:</span>
+                <span class="n">point</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">pt</span><span class="p">]</span>
+                <span class="n">new_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">PointData</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">point</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">polygon</span><span class="o">.</span><span class="n">SetPoint</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">new_points</span><span class="p">)</span>
+                <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">polygon</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_validatePoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">,</span> <span class="n">allowArcs</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">point</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">)):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Point X value must be a number.&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">)):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Point Y value must be a number.&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">point</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">allowArcs</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Arc found but arcs are not allowed in _validatePoint.&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">)):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Point X value must be a number.&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">)):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Point Y value must be a number.&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="n">point</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;cw&quot;</span><span class="p">,</span> <span class="s2">&quot;ccw&quot;</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Invalid rotation direction </span><span class="si">{}</span><span class="s2"> is specified.&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">)):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Arc center point X value must be a number.&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">)):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Arc center point Y value must be a number.&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Arc point descriptor has incorrect number of elements (</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">point</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_createPolygonDataFromRectangle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validatePoint</span><span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">pointA</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validatePoint</span><span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">pointB</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">pointA</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">PointData</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">pointA</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">pointA</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="p">)</span>
+        <span class="n">pointB</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">PointData</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">pointB</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_edb_value</span><span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">pointB</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="p">)</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">Tuple</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">PointData</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">PointData</span><span class="p">](</span><span class="n">pointA</span><span class="p">,</span> <span class="n">pointB</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">PolygonData</span><span class="o">.</span><span class="n">CreateFromBBox</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">Shape</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Shape class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        type : str, optional</span>
+<span class="sd">            Type of the shape. Options are ``&quot;circle&quot;``, ``&quot;rectangle&quot;``, and ``&quot;polygon&quot;``.</span>
+<span class="sd">            The default is ``&quot;unknown``.</span>
+<span class="sd">        pointA : optional</span>
+<span class="sd">            Lower-left corner when ``type=&quot;rectangle&quot;``. The default is ``None``.</span>
+<span class="sd">        pointB : optional</span>
+<span class="sd">            Upper-right corner when ``type=&quot;rectangle&quot;``. The default is ``None``.</span>
+<span class="sd">        centerPoint : optional</span>
+<span class="sd">            Center point when ``type=&quot;circle&quot;``. The default is ``None``.</span>
+<span class="sd">        radius : optional</span>
+<span class="sd">            Radius when ``type=&quot;circle&quot;``. The default is ``None``.</span>
+<span class="sd">        points : list, optional</span>
+<span class="sd">            List of points when ``type=&quot;polygon&quot;``. The default is ``None``.</span>
+<span class="sd">        properties : dict, optional</span>
+<span class="sd">            Dictionary of properties associated with the shape. The default is ``{}``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;unknown&quot;</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">pointA</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">pointB</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">centerPoint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">radius</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">properties</span><span class="o">=</span><span class="p">{},</span>
+        <span class="p">):</span>  <span class="c1"># noqa</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">type</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pointA</span> <span class="o">=</span> <span class="n">pointA</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pointB</span> <span class="o">=</span> <span class="n">pointB</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">centerPoint</span> <span class="o">=</span> <span class="n">centerPoint</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">radius</span> <span class="o">=</span> <span class="n">radius</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="n">points</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">properties</span> <span class="o">=</span> <span class="n">properties</span>
+
+<div class="viewcode-block" id="EdbLayout.parametrize_trace_width"><a class="viewcode-back" href="../../../EDBAPI/_autosummary/pyaedt.edb_core.layout.EdbLayout.parametrize_trace_width.html#pyaedt.edb_core.layout.EdbLayout.parametrize_trace_width">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">parametrize_trace_width</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">nets_name</span><span class="p">,</span>
+        <span class="n">layers_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">parameter_name</span><span class="o">=</span><span class="s2">&quot;trace_width&quot;</span><span class="p">,</span>
+        <span class="n">variable_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parametrize a Trace on specific layer or all stackup.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nets_name : str, list</span>
+<span class="sd">            name of the net or list of nets to parametrize.</span>
+<span class="sd">        layers_name : str, optional</span>
+<span class="sd">            name of the layer or list of layers to which the net to parametrize has to be included.</span>
+<span class="sd">        parameter_name : str, optional</span>
+<span class="sd">            name of the parameter to create.</span>
+<span class="sd">        variable_value : str, float, optional</span>
+<span class="sd">            value with units of parameter to create.</span>
+<span class="sd">            If None, the first trace width of Net will be used as parameter value.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nets_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">nets_name</span> <span class="o">=</span> <span class="p">[</span><span class="n">nets_name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">layers_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">layers_name</span> <span class="o">=</span> <span class="p">[</span><span class="n">layers_name</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">net_name</span> <span class="ow">in</span> <span class="n">nets_name</span><span class="p">:</span>
+            <span class="n">var_server</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">GetNet</span><span class="p">()</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span> <span class="o">==</span> <span class="n">net_name</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">layers_name</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">var_server</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="n">variable_value</span><span class="p">:</span>
+                                <span class="n">variable_value</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">GetWidth</span><span class="p">()</span>
+                            <span class="n">result</span><span class="p">,</span> <span class="n">var_server</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">add_design_variable</span><span class="p">(</span>
+                                <span class="n">parameter_name</span><span class="p">,</span> <span class="n">variable_value</span><span class="p">,</span> <span class="n">is_parameter</span><span class="o">=</span><span class="kc">True</span>
+                            <span class="p">)</span>
+                        <span class="n">p</span><span class="o">.</span><span class="n">SetWidth</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb_value</span><span class="p">(</span><span class="n">parameter_name</span><span class="p">))</span>
+                    <span class="k">elif</span> <span class="n">p</span><span class="o">.</span><span class="n">GetLayer</span><span class="p">()</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span> <span class="ow">in</span> <span class="n">layers_name</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">var_server</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="n">variable_value</span><span class="p">:</span>
+                                <span class="n">variable_value</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">GetWidth</span><span class="p">()</span>
+                            <span class="n">result</span><span class="p">,</span> <span class="n">var_server</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">add_design_variable</span><span class="p">(</span>
+                                <span class="n">parameter_name</span><span class="p">,</span> <span class="n">variable_value</span><span class="p">,</span> <span class="n">is_parameter</span><span class="o">=</span><span class="kc">True</span>
+                            <span class="p">)</span>
+                        <span class="n">p</span><span class="o">.</span><span class="n">SetWidth</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb_value</span><span class="p">(</span><span class="n">parameter_name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="EdbLayout.unite_polygons_on_layer"><a class="viewcode-back" href="../../../EDBAPI/_autosummary/pyaedt.edb_core.layout.EdbLayout.unite_polygons_on_layer.html#pyaedt.edb_core.layout.EdbLayout.unite_polygons_on_layer">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">unite_polygons_on_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">delete_padstack_gemometries</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Try to unite all Polygons on specified layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layer_name : str, optional</span>
+<span class="sd">            Layer Name on which unite objects. If ``None``, all layers will be taken.</span>
+<span class="sd">        delete_padstack_gemometries : bool, optional</span>
+<span class="sd">            ``True`` to delete all padstack geometry.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` is successful.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">layer_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">layer_name</span> <span class="o">=</span> <span class="p">[</span><span class="n">layer_name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">layer_name</span><span class="p">:</span>
+            <span class="n">layer_name</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">stackup</span><span class="o">.</span><span class="n">signal_layers</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="k">for</span> <span class="n">lay</span> <span class="ow">in</span> <span class="n">layer_name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Uniting Objects on layer </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span> <span class="n">lay</span><span class="p">)</span>
+            <span class="n">poly_by_nets</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="n">lay</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">polygons_by_layer</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="k">for</span> <span class="n">poly</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">polygons_by_layer</span><span class="p">[</span><span class="n">lay</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">poly</span><span class="o">.</span><span class="n">GetNet</span><span class="p">()</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">poly_by_nets</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                        <span class="k">if</span> <span class="n">poly</span><span class="o">.</span><span class="n">GetNet</span><span class="p">()</span><span class="o">.</span><span class="n">GetName</span><span class="p">():</span>
+                            <span class="n">poly_by_nets</span><span class="p">[</span><span class="n">poly</span><span class="o">.</span><span class="n">GetNet</span><span class="p">()</span><span class="o">.</span><span class="n">GetName</span><span class="p">()]</span> <span class="o">=</span> <span class="p">[</span><span class="n">poly</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">poly</span><span class="o">.</span><span class="n">GetNet</span><span class="p">()</span><span class="o">.</span><span class="n">GetName</span><span class="p">():</span>
+                            <span class="n">poly_by_nets</span><span class="p">[</span><span class="n">poly</span><span class="o">.</span><span class="n">GetNet</span><span class="p">()</span><span class="o">.</span><span class="n">GetName</span><span class="p">()]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">poly</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">net</span> <span class="ow">in</span> <span class="n">poly_by_nets</span><span class="p">:</span>
+                <span class="n">list_polygon_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">GetPolygonData</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">poly_by_nets</span><span class="p">[</span><span class="n">net</span><span class="p">]]</span>
+                <span class="n">all_voids</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">Voids</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">poly_by_nets</span><span class="p">[</span><span class="n">net</span><span class="p">]]</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">PolygonData</span><span class="o">.</span><span class="n">Unite</span><span class="p">(</span><span class="n">convert_py_list_to_net_list</span><span class="p">(</span><span class="n">list_polygon_data</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">a</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">all_voids</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">void</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">GetIntersectionType</span><span class="p">(</span><span class="n">void</span><span class="o">.</span><span class="n">GetPolygonData</span><span class="p">()))</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                                <span class="n">item</span><span class="o">.</span><span class="n">AddHole</span><span class="p">(</span><span class="n">void</span><span class="o">.</span><span class="n">GetPolygonData</span><span class="p">())</span>
+                    <span class="n">poly</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">Primitive</span><span class="o">.</span><span class="n">Polygon</span><span class="o">.</span><span class="n">Create</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_active_layout</span><span class="p">,</span>
+                        <span class="n">lay</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">nets</span><span class="o">.</span><span class="n">nets</span><span class="p">[</span><span class="n">net</span><span class="p">]</span><span class="o">.</span><span class="n">net_object</span><span class="p">,</span>
+                        <span class="n">item</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="n">list_to_delete</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">poly_by_nets</span><span class="p">[</span><span class="n">net</span><span class="p">]]</span>
+                <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">all_voids</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">void</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">poly</span> <span class="ow">in</span> <span class="n">poly_by_nets</span><span class="p">[</span><span class="n">net</span><span class="p">]:</span>
+                            <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">void</span><span class="o">.</span><span class="n">GetPolygonData</span><span class="p">()</span><span class="o">.</span><span class="n">GetIntersectionType</span><span class="p">(</span><span class="n">poly</span><span class="o">.</span><span class="n">GetPolygonData</span><span class="p">()))</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                                <span class="k">try</span><span class="p">:</span>
+                                    <span class="nb">id</span> <span class="o">=</span> <span class="n">list_to_delete</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">poly</span><span class="p">)</span>
+                                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                                    <span class="nb">id</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                                <span class="k">if</span> <span class="nb">id</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                                    <span class="n">list_to_delete</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+
+                <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">Delete</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">list_to_delete</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">delete_padstack_gemometries</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Deleting Padstack Definitions&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">pad</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">padstacks</span><span class="o">.</span><span class="n">definitions</span><span class="p">:</span>
+                <span class="n">p1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">padstacks</span><span class="o">.</span><span class="n">definitions</span><span class="p">[</span><span class="n">pad</span><span class="p">]</span><span class="o">.</span><span class="n">edb_padstack</span><span class="o">.</span><span class="n">GetData</span><span class="p">()</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">p1</span><span class="o">.</span><span class="n">GetLayerNames</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">padstacks</span><span class="o">.</span><span class="n">remove_pads_from_padstack</span><span class="p">(</span><span class="n">pad</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="EdbLayout.defeature_polygon"><a class="viewcode-back" href="../../../EDBAPI/_autosummary/pyaedt.edb_core.layout.EdbLayout.defeature_polygon.html#pyaedt.edb_core.layout.EdbLayout.defeature_polygon">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">defeature_polygon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setup_info</span><span class="p">,</span> <span class="n">poly</span><span class="p">,</span> <span class="n">max_surface_deviation</span><span class="o">=</span><span class="mf">0.001</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Defeature the polygon based on the maximum surface deviation criteria.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        setup_info : EDB_Data_SimulatiomConfiguratio object</span>
+<span class="sd">            When the ``setup_info`` argument is provided, it overwrites the</span>
+<span class="sd">            ``maximum_surface_deviation`` value.</span>
+
+<span class="sd">        poly : Edb Polygon primitive</span>
+<span class="sd">            Polygon to defeature.</span>
+
+<span class="sd">        max_surface_deviation : float, optional</span>
+<span class="sd">            Maximum surface deviation criteria. The default is ``0.001``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">setup_info</span><span class="p">:</span>
+                <span class="n">max_surface_deviation</span> <span class="o">=</span> <span class="n">setup_info</span><span class="o">.</span><span class="n">max_suf_dev</span>
+            <span class="n">poly_data</span> <span class="o">=</span> <span class="n">poly</span><span class="o">.</span><span class="n">GetPolygonData</span><span class="p">()</span>
+            <span class="n">pts_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">pts</span> <span class="o">=</span> <span class="n">poly_data</span><span class="o">.</span><span class="n">Points</span>
+            <span class="n">defeaturing_step</span> <span class="o">=</span> <span class="mf">1e-6</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">poly_data</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">16</span><span class="p">:</span>
+                <span class="c1"># Defeaturing skipped for polygons with less than 16 points</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s2">&quot;Polygon </span><span class="si">{}</span><span class="s2"> is skipped for defeaturing because its number of point is less than 16. &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">poly</span><span class="o">.</span><span class="n">GetId</span><span class="p">()</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="n">poly_data</span>
+
+            <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">pts</span><span class="p">:</span>
+                <span class="n">pts_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span>
+            <span class="n">nb_ini_pts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pts_list</span><span class="p">)</span>
+            <span class="n">minimum_distance</span> <span class="o">=</span> <span class="n">defeaturing_step</span>  <span class="c1"># 1e-6</span>
+            <span class="n">init_surf</span> <span class="o">=</span> <span class="n">poly_data</span><span class="o">.</span><span class="n">Area</span><span class="p">()</span>
+            <span class="n">nb_pts_removed</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">surf_dev</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">new_poly</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">while</span> <span class="p">(</span><span class="n">surf_dev</span> <span class="o">&lt;</span> <span class="n">max_surface_deviation</span> <span class="ow">and</span> <span class="n">pts_list</span><span class="o">.</span><span class="n">Count</span> <span class="o">&gt;</span> <span class="mi">16</span> <span class="ow">and</span> <span class="n">minimum_distance</span> <span class="o">&lt;</span> <span class="mf">1000e-6</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">float</span><span class="p">(</span>
+                <span class="n">nb_pts_removed</span>
+            <span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">nb_ini_pts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.4</span><span class="p">:</span>
+                <span class="n">pts_list</span><span class="p">,</span> <span class="n">nb_pts_removed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trim_polygon_points</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">minimum_distance</span><span class="p">)</span>
+                <span class="n">new_poly</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Geometry</span><span class="o">.</span><span class="n">PolygonData</span><span class="p">(</span><span class="n">pts_list</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+                <span class="n">current_surf</span> <span class="o">=</span> <span class="n">new_poly</span><span class="o">.</span><span class="n">Area</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">current_surf</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">surf_dev</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">surf_dev</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">init_surf</span> <span class="o">-</span> <span class="n">current_surf</span><span class="p">)</span> <span class="o">/</span> <span class="n">init_surf</span>
+                    <span class="n">minimum_distance</span> <span class="o">=</span> <span class="n">minimum_distance</span> <span class="o">+</span> <span class="n">defeaturing_step</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;Defeaturing polygon </span><span class="si">{0}</span><span class="s2">: Final surface deviation = </span><span class="si">{1}</span><span class="s2"> , Maximum distance(um) = </span><span class="si">{2}</span><span class="s2">, &quot;</span>
+                <span class="s2">&quot;Number of points removed = </span><span class="si">{3}</span><span class="s2">/</span><span class="si">{4}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">poly</span><span class="o">.</span><span class="n">GetId</span><span class="p">()),</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">surf_dev</span><span class="p">),</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">minimum_distance</span> <span class="o">*</span> <span class="mf">1e6</span><span class="p">),</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">nb_pts_removed</span><span class="p">),</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">nb_ini_pts</span><span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">new_poly</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_trim_polygon_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">minimum_distance</span><span class="p">):</span>
+        <span class="n">pts_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">nb_pts_removed</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">points</span><span class="p">:</span>
+            <span class="n">pts_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span>
+        <span class="c1"># NbIniPts = pts_list.Count</span>
+
+        <span class="k">while</span> <span class="n">ind</span> <span class="o">&lt;</span> <span class="n">pts_list</span><span class="o">.</span><span class="n">Count</span> <span class="o">-</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">pts_list</span><span class="p">,</span> <span class="n">nb_pts_removed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_point_list_with_minimum_distance</span><span class="p">(</span>
+                <span class="n">pts_list</span><span class="p">,</span> <span class="n">minimum_distance</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="n">nb_pts_removed</span>
+            <span class="p">)</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="n">ind</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">pts_list</span><span class="p">,</span> <span class="n">nb_pts_removed</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_get_point_list_with_minimum_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pts_list</span><span class="p">,</span> <span class="n">minimum_distance</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="n">nb_pts_removed</span><span class="p">):</span>
+        <span class="n">pt_ind</span> <span class="o">=</span> <span class="n">ind</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="n">pts_list</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span><span class="o">.</span><span class="n">Distance</span><span class="p">(</span><span class="n">pts_list</span><span class="p">[</span><span class="n">pt_ind</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">minimum_distance</span> <span class="ow">and</span> <span class="n">pt_ind</span> <span class="o">&lt;</span> <span class="n">pts_list</span><span class="o">.</span><span class="n">Count</span> <span class="o">-</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">pts_list</span><span class="o">.</span><span class="n">RemoveAt</span><span class="p">(</span><span class="n">pt_ind</span><span class="p">)</span>
+            <span class="n">nb_pts_removed</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">pt_ind</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">pts_list</span><span class="p">,</span> <span class="n">nb_pts_removed</span>
+
+<div class="viewcode-block" id="EdbLayout.get_layout_statistics"><a class="viewcode-back" href="../../../EDBAPI/_autosummary/pyaedt.edb_core.layout.EdbLayout.get_layout_statistics.html#pyaedt.edb_core.layout.EdbLayout.get_layout_statistics">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">get_layout_statistics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluate_area</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">net_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return EDBStatistics object from a layout.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        evaluate_area : optional bool</span>
+<span class="sd">            When True evaluates the layout metal surface, can take time-consuming,</span>
+<span class="sd">            avoid using this option on large design.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        EDBStatistics object.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">stat_model</span> <span class="o">=</span> <span class="n">EDBStatistics</span><span class="p">()</span>
+        <span class="n">stat_model</span><span class="o">.</span><span class="n">num_layers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">stackup</span><span class="o">.</span><span class="n">stackup_layers</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+        <span class="n">stat_model</span><span class="o">.</span><span class="n">num_capacitors</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">capacitors</span><span class="p">)</span>
+        <span class="n">stat_model</span><span class="o">.</span><span class="n">num_resistors</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">resistors</span><span class="p">)</span>
+        <span class="n">stat_model</span><span class="o">.</span><span class="n">num_inductors</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">inductors</span><span class="p">)</span>
+        <span class="n">stat_model</span><span class="o">.</span><span class="n">layout_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">_hfss</span><span class="o">.</span><span class="n">get_layout_bounding_box</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_active_layout</span><span class="p">)</span>
+        <span class="n">stat_model</span><span class="o">.</span><span class="n">num_discrete_components</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">Others</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">ICs</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">IOs</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">stat_model</span><span class="o">.</span><span class="n">num_inductors</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">inductors</span><span class="p">)</span>
+        <span class="n">stat_model</span><span class="o">.</span><span class="n">num_resistors</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">resistors</span><span class="p">)</span>
+        <span class="n">stat_model</span><span class="o">.</span><span class="n">num_capacitors</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">capacitors</span><span class="p">)</span>
+        <span class="n">stat_model</span><span class="o">.</span><span class="n">num_nets</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">nets</span><span class="o">.</span><span class="n">nets</span><span class="p">)</span>
+        <span class="n">stat_model</span><span class="o">.</span><span class="n">num_traces</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">paths</span><span class="p">)</span>
+        <span class="n">stat_model</span><span class="o">.</span><span class="n">num_polygons</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">polygons</span><span class="p">)</span>
+        <span class="n">stat_model</span><span class="o">.</span><span class="n">num_vias</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">padstacks</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+        <span class="n">stat_model</span><span class="o">.</span><span class="n">stackup_thickness</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">stackup</span><span class="o">.</span><span class="n">get_layout_thickness</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">evaluate_area</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">net_list</span><span class="p">:</span>
+                <span class="n">netlist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">nets</span><span class="o">.</span><span class="n">nets</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+                <span class="n">_poly</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">get_conformal_polygon_from_netlist</span><span class="p">(</span><span class="n">netlist</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_poly</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">get_conformal_polygon_from_netlist</span><span class="p">()</span>
+            <span class="n">stat_model</span><span class="o">.</span><span class="n">occupying_surface</span> <span class="o">=</span> <span class="n">_poly</span><span class="o">.</span><span class="n">Area</span><span class="p">()</span>
+            <span class="n">outline_surface</span> <span class="o">=</span> <span class="p">(</span><span class="n">stat_model</span><span class="o">.</span><span class="n">layout_size</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">stat_model</span><span class="o">.</span><span class="n">layout_size</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span>
+                <span class="n">stat_model</span><span class="o">.</span><span class="n">layout_size</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">stat_model</span><span class="o">.</span><span class="n">layout_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">stat_model</span><span class="o">.</span><span class="n">occupying_ratio</span> <span class="o">=</span> <span class="n">stat_model</span><span class="o">.</span><span class="n">occupying_surface</span> <span class="o">/</span> <span class="n">outline_surface</span>
+        <span class="k">return</span> <span class="n">stat_model</span></div></div>
+</pre></div>
+
+                </article>
+              
+              
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright (c) 2023 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

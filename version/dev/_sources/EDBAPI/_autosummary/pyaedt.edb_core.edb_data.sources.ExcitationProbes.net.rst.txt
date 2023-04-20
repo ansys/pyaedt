@@ -1,0 +1,6 @@
+net
+===
+
+.. currentmodule:: pyaedt.edb_core.edb_data.sources
+
+.. autoproperty:: ExcitationProbes.net

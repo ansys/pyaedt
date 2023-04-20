@@ -1,0 +1,6 @@
+boundary\_type
+==============
+
+.. currentmodule:: pyaedt.edb_core.edb_data.sources
+
+.. autoproperty:: ExcitationSources.boundary_type

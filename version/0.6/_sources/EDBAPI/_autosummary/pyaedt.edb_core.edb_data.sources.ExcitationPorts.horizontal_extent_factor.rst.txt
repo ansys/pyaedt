@@ -1,0 +1,6 @@
+horizontal\_extent\_factor
+==========================
+
+.. currentmodule:: pyaedt.edb_core.edb_data.sources
+
+.. autoproperty:: ExcitationPorts.horizontal_extent_factor

@@ -1,0 +1,51 @@
+﻿ExcitationSources
+=================
+
+.. currentmodule:: pyaedt.edb_core.edb_data.sources
+
+.. autoclass:: ExcitationSources
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      ExcitationSources.get_edge_terminal_reference_primitive
+      
+      
+      ExcitationSources.get_pad_edge_terminal_reference_pin
+      
+      
+      ExcitationSources.get_padstack_terminal_reference_pin
+      
+      
+      ExcitationSources.get_pin_group_terminal_reference_pin
+      
+      
+      ExcitationSources.get_point_terminal_reference_primitive
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      ExcitationSources.boundary_type
+      ExcitationSources.magnitude
+      ExcitationSources.name
+      ExcitationSources.net
+      ExcitationSources.net_name
+      ExcitationSources.phase
+      ExcitationSources.reference_net_name
+      ExcitationSources.reference_object
+      ExcitationSources.terminal_type
+   
+   

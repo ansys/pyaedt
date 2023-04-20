@@ -1,0 +1,6 @@
+non\_model\_names
+=================
+
+.. currentmodule:: pyaedt.modeler.modeler2d
+
+.. autoproperty:: Modeler2D.non_model_names

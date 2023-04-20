@@ -1,0 +1,6 @@
+simplify\_objects
+=================
+
+.. currentmodule:: pyaedt.maxwell
+
+.. automethod:: Maxwell2d.simplify_objects

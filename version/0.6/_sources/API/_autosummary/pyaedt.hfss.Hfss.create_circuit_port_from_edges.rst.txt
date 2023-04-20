@@ -1,0 +1,6 @@
+create\_circuit\_port\_from\_edges
+==================================
+
+.. currentmodule:: pyaedt.hfss
+
+.. automethod:: Hfss.create_circuit_port_from_edges

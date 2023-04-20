@@ -1,0 +1,6 @@
+get\_roughness\_model
+=====================
+
+.. currentmodule:: pyaedt.edb_core.edb_data.layer_data
+
+.. automethod:: LayerEdbClass.get_roughness_model

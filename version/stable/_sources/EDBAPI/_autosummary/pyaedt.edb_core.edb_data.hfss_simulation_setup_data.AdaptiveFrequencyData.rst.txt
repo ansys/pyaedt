@@ -1,0 +1,30 @@
+﻿pyaedt.edb\_core.edb\_data.hfss\_simulation\_setup\_data.AdaptiveFrequencyData
+==============================================================================
+
+.. currentmodule:: pyaedt.edb_core.edb_data.hfss_simulation_setup_data
+
+.. autoclass:: AdaptiveFrequencyData
+
+   
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      
+      AdaptiveFrequencyData.adaptive_frequency
+      
+      
+      AdaptiveFrequencyData.max_delta
+      
+      
+      AdaptiveFrequencyData.max_passes
+      
+   
+   

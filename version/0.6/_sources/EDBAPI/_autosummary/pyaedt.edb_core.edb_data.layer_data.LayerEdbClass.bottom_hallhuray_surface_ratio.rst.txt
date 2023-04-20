@@ -1,0 +1,6 @@
+bottom\_hallhuray\_surface\_ratio
+=================================
+
+.. currentmodule:: pyaedt.edb_core.edb_data.layer_data
+
+.. autoproperty:: LayerEdbClass.bottom_hallhuray_surface_ratio

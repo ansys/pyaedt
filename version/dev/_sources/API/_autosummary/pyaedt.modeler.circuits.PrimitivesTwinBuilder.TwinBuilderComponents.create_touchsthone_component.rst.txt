@@ -1,0 +1,6 @@
+create\_touchsthone\_component
+==============================
+
+.. currentmodule:: pyaedt.modeler.circuits.PrimitivesTwinBuilder
+
+.. automethod:: TwinBuilderComponents.create_touchsthone_component

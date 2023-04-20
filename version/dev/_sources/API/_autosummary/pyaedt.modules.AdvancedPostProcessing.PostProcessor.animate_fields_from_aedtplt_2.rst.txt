@@ -1,0 +1,6 @@
+animate\_fields\_from\_aedtplt\_2
+=================================
+
+.. currentmodule:: pyaedt.modules.AdvancedPostProcessing
+
+.. automethod:: PostProcessor.animate_fields_from_aedtplt_2

@@ -1,0 +1,33 @@
+﻿pyaedt.edb\_core.edb\_data.edbvalue.EdbValue
+============================================
+
+.. currentmodule:: pyaedt.edb_core.edb_data.edbvalue
+
+.. autoclass:: EdbValue
+
+   
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      
+      EdbValue.name
+      
+      
+      EdbValue.tofloat
+      
+      
+      EdbValue.tostring
+      
+      
+      EdbValue.value
+      
+   
+   

@@ -1,0 +1,6 @@
+net\_name
+=========
+
+.. currentmodule:: pyaedt.edb_core.edb_data.sources
+
+.. autoproperty:: ExcitationSources.net_name

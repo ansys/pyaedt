@@ -1,0 +1,187 @@
+
+
+.. _sphx_glr_examples_02-HFSS:
+
+HFSS examples
+~~~~~~~~~~~~~
+These examples use PyAEDT to show some end-to-end workflows for HFSS 3D.
+This includes model generation, setup, meshing, and postprocessing.
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="HFSS: Cable Modeling">
+
+.. only:: html
+
+  .. image:: /examples/02-HFSS/images/thumb/sphx_glr_01-Cable_Modeling_Workflow_thumb.png
+    :alt: HFSS: Cable Modeling
+
+  :ref:`sphx_glr_examples_02-HFSS_01-Cable_Modeling_Workflow.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">HFSS: Cable Modeling</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="HFSS: advanced far field postprocessing">
+
+.. only:: html
+
+  .. image:: /examples/02-HFSS/images/thumb/sphx_glr_Advanced_Far_Field_thumb.png
+    :alt: HFSS: advanced far field postprocessing
+
+  :ref:`sphx_glr_examples_02-HFSS_Advanced_Far_Field.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">HFSS: advanced far field postprocessing</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="HFSS: component antenna array">
+
+.. only:: html
+
+  .. image:: /examples/02-HFSS/images/thumb/sphx_glr_Array_thumb.png
+    :alt: HFSS: component antenna array
+
+  :ref:`sphx_glr_examples_02-HFSS_Array.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">HFSS: component antenna array</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="HFSS: flex cable CPWG">
+
+.. only:: html
+
+  .. image:: /examples/02-HFSS/images/thumb/sphx_glr_Flex_CPWG_thumb.png
+    :alt: HFSS: flex cable CPWG
+
+  :ref:`sphx_glr_examples_02-HFSS_Flex_CPWG.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">HFSS: flex cable CPWG</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="HFSS: choke">
+
+.. only:: html
+
+  .. image:: /examples/02-HFSS/images/thumb/sphx_glr_HFSS_Choke_thumb.png
+    :alt: HFSS: choke
+
+  :ref:`sphx_glr_examples_02-HFSS_HFSS_Choke.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">HFSS: choke</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="HFSS: dipole antenna">
+
+.. only:: html
+
+  .. image:: /examples/02-HFSS/images/thumb/sphx_glr_HFSS_Dipole_thumb.png
+    :alt: HFSS: dipole antenna
+
+  :ref:`sphx_glr_examples_02-HFSS_HFSS_Dipole.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">HFSS: dipole antenna</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="HFSS: spiral inductor">
+
+.. only:: html
+
+  .. image:: /examples/02-HFSS/images/thumb/sphx_glr_HFSS_Spiral_thumb.png
+    :alt: HFSS: spiral inductor
+
+  :ref:`sphx_glr_examples_02-HFSS_HFSS_Spiral.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">HFSS: spiral inductor</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="#. Generate the database. #. Create the machine learning algorithm. #. Implement the model in a...">
+
+.. only:: html
+
+  .. image:: /examples/02-HFSS/images/thumb/sphx_glr_Machine_learning_applied_to_Patch_thumb.png
+    :alt: HFSS: machine learning applied to a patch
+
+  :ref:`sphx_glr_examples_02-HFSS_Machine_learning_applied_to_Patch.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">HFSS: machine learning applied to a patch</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="HFSS: Inductive Iris waveguide filter">
+
+.. only:: html
+
+  .. image:: /examples/02-HFSS/images/thumb/sphx_glr_Waveguide_Filter_thumb.png
+    :alt: HFSS: Inductive Iris waveguide filter
+
+  :ref:`sphx_glr_examples_02-HFSS_Waveguide_Filter.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">HFSS: Inductive Iris waveguide filter</div>
+    </div>
+
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/02-HFSS/01-Cable_Modeling_Workflow
+   /examples/02-HFSS/Advanced_Far_Field
+   /examples/02-HFSS/Array
+   /examples/02-HFSS/Flex_CPWG
+   /examples/02-HFSS/HFSS_Choke
+   /examples/02-HFSS/HFSS_Dipole
+   /examples/02-HFSS/HFSS_Spiral
+   /examples/02-HFSS/Machine_learning_applied_to_Patch
+   /examples/02-HFSS/Waveguide_Filter
+

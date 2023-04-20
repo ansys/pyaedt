@@ -1,0 +1,1564 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyaedt.application.Analysis3D &#8212; PyAEDT</title>
+    
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/ansys_sphinx_theme.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    
+        <link href="../../../_static/css/breadcrumbs.css" rel="stylesheet">
+    
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/table.js"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pyaedt/application/Analysis3D';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://aedt.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        </script>
+    <link rel="shortcut icon" href="../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container"><!-- Debugging: html_theme_options =  -->
+
+  <!-- If there is no MiliSearch enabled, use the PyData search -->
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../../../_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../Getting_started/index.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../User_guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../API/index.html">
+                        AEDT API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../EDBAPI/index.html">
+                        EDB API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../Contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      dev  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt/discussions" title="Support" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+</div>
+
+    </nav>
+  
+
+    
+    <div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(text => document.getElementById("announcement_msg").innerHTML = text)
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+    
+
+    
+    <div class="container-xl">
+    <div class="row">
+        <div class="col-12 col-md-3" id="breadcrumbs-spacer"></div>
+        <div class="col-12 col-md-11 col-xl-9" id="breadcrumbs">
+          
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-additional-breadcrumb"><a href="https://docs.pyansys.com/">PyAnsys</a> » </li>
+    
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PyAEDT</a> » </li>
+    
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> » </li>
+        <li class="nav-item nav-item-this"><a href="">pyaedt.application.Analysis3D</a></li> 
+      </ul>
+    </div>
+        </div>
+  </div>
+</div>
+    
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../Getting_started/index.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../User_guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../API/index.html">
+                        AEDT API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../EDBAPI/index.html">
+                        EDB API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../Contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      dev  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt/discussions" title="Support" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article"></div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for pyaedt.application.Analysis3D</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">ntpath</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">pyaedt.application.Analysis</span> <span class="kn">import</span> <span class="n">Analysis</span>
+<span class="kn">from</span> <span class="nn">pyaedt.generic.configurations</span> <span class="kn">import</span> <span class="n">Configurations</span>
+<span class="kn">from</span> <span class="nn">pyaedt.generic.general_methods</span> <span class="kn">import</span> <span class="n">_retry_ntimes</span>
+<span class="kn">from</span> <span class="nn">pyaedt.generic.general_methods</span> <span class="kn">import</span> <span class="n">generate_unique_name</span>
+<span class="kn">from</span> <span class="nn">pyaedt.generic.general_methods</span> <span class="kn">import</span> <span class="n">is_ironpython</span>
+<span class="kn">from</span> <span class="nn">pyaedt.generic.general_methods</span> <span class="kn">import</span> <span class="n">open_file</span>
+<span class="kn">from</span> <span class="nn">pyaedt.generic.general_methods</span> <span class="kn">import</span> <span class="n">pyaedt_function_handler</span>
+
+
+<span class="k">class</span> <span class="nc">FieldAnalysis3D</span><span class="p">(</span><span class="n">Analysis</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manages 3D field analysis setup in HFSS, Maxwell 3D, and Q3D.</span>
+
+<span class="sd">    This class is automatically initialized by an application call from one of</span>
+<span class="sd">    the 3D tools. See the application function for parameter definitions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    application : str</span>
+<span class="sd">        3D application that is to initialize the call.</span>
+<span class="sd">    projectname : str, optional</span>
+<span class="sd">        Name of the project to select or the full path to the project</span>
+<span class="sd">        or AEDTZ archive to open. The default is ``None``, in which</span>
+<span class="sd">        case an attempt is made to get an active project. If no</span>
+<span class="sd">        projects are present, an empty project is created.</span>
+<span class="sd">    designname : str, optional</span>
+<span class="sd">        Name of the design to select. The default is ``None``, in</span>
+<span class="sd">        which case an attempt is made to get an active design. If no</span>
+<span class="sd">        designs are present, an empty design is created.</span>
+<span class="sd">    solution_type : str, optional</span>
+<span class="sd">        Solution type to apply to the design. The default is</span>
+<span class="sd">        ``None``, in which case the default type is applied.</span>
+<span class="sd">    setup_name : str, optional</span>
+<span class="sd">        Name of the setup to use as the nominal. The default is</span>
+<span class="sd">        ``None``, in which case the active setup is used or</span>
+<span class="sd">        nothing is used.</span>
+<span class="sd">    specified_version : str, optional</span>
+<span class="sd">        Version of AEDT  to use. The default is ``None``, in which case</span>
+<span class="sd">        the active version or latest installed version is used.</span>
+<span class="sd">    non_graphical : bool, optional</span>
+<span class="sd">        Whether to run AEDT in non-graphical mode. The default</span>
+<span class="sd">        is ``False``, in which case AEDT is launched in the graphical mode.</span>
+<span class="sd">    new_desktop_session : bool, optional</span>
+<span class="sd">        Whether to launch an instance of AEDT in a new thread, even if</span>
+<span class="sd">        another instance of the ``specified_version`` is active on the</span>
+<span class="sd">        machine. The default is ``True``.</span>
+<span class="sd">    close_on_exit : bool, optional</span>
+<span class="sd">        Whether to release AEDT on exit. The default is ``False``.</span>
+<span class="sd">    student_version : bool, optional</span>
+<span class="sd">        Whether to enable the student version of AEDT. The default</span>
+<span class="sd">        is ``False``.</span>
+<span class="sd">    aedt_process_id : int, optional</span>
+<span class="sd">        Only used when ``new_desktop_session = False``, specifies by process ID which instance</span>
+<span class="sd">        of Electronics Desktop to point PyAEDT at.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">application</span><span class="p">,</span>
+        <span class="n">projectname</span><span class="p">,</span>
+        <span class="n">designname</span><span class="p">,</span>
+        <span class="n">solution_type</span><span class="p">,</span>
+        <span class="n">setup_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">specified_version</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">non_graphical</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">new_desktop_session</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">close_on_exit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">student_version</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">machine</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">port</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">aedt_process_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">Analysis</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">application</span><span class="p">,</span>
+            <span class="n">projectname</span><span class="p">,</span>
+            <span class="n">designname</span><span class="p">,</span>
+            <span class="n">solution_type</span><span class="p">,</span>
+            <span class="n">setup_name</span><span class="p">,</span>
+            <span class="n">specified_version</span><span class="p">,</span>
+            <span class="n">non_graphical</span><span class="p">,</span>
+            <span class="n">new_desktop_session</span><span class="p">,</span>
+            <span class="n">close_on_exit</span><span class="p">,</span>
+            <span class="n">student_version</span><span class="p">,</span>
+            <span class="n">machine</span><span class="p">,</span>
+            <span class="n">port</span><span class="p">,</span>
+            <span class="n">aedt_process_id</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_post</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_modeler</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mesh</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_configurations</span> <span class="o">=</span> <span class="n">Configurations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">configurations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Property to import and export configuration files.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.generic.configurations.Configurations`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configurations</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">modeler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Modeler.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.modeler.modeler3d.Modeler3D` or :class:`pyaedt.modeler.modeler2d.Modeler2D`</span>
+<span class="sd">            Modeler object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modeler</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">pyaedt.modeler.modeler2d</span> <span class="kn">import</span> <span class="n">Modeler2D</span>
+            <span class="kn">from</span> <span class="nn">pyaedt.modeler.modeler3d</span> <span class="kn">import</span> <span class="n">Modeler3D</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_modeler</span> <span class="o">=</span> <span class="n">Modeler2D</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">design_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Maxwell 2D&quot;</span><span class="p">,</span> <span class="s2">&quot;2D Extractor&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="n">Modeler3D</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modeler</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Mesh.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.modules.Mesh.Mesh` or :class:`pyaedt.modules.MeshIcepak.IcepakMesh`</span>
+<span class="sd">            Mesh object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mesh</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">pyaedt.modules.Mesh</span> <span class="kn">import</span> <span class="n">Mesh</span>
+            <span class="kn">from</span> <span class="nn">pyaedt.modules.MeshIcepak</span> <span class="kn">import</span> <span class="n">IcepakMesh</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_mesh</span> <span class="o">=</span> <span class="n">IcepakMesh</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">design_type</span> <span class="o">==</span> <span class="s2">&quot;Icepak&quot;</span> <span class="k">else</span> <span class="n">Mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mesh</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;PostProcessor.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.modules.AdvancedPostProcessing.PostProcessor`</span>
+<span class="sd">            PostProcessor object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_post</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">is_ironpython</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+                <span class="kn">from</span> <span class="nn">pyaedt.modules.PostProcessor</span> <span class="kn">import</span> <span class="n">PostProcessor</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="kn">from</span> <span class="nn">pyaedt.modules.AdvancedPostProcessing</span> <span class="kn">import</span> <span class="n">PostProcessor</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_post</span> <span class="o">=</span> <span class="n">PostProcessor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_post</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">components3d</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;3D components.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary of 3D components with their absolute paths.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">components_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Define libraries where 3d components may exist.</span>
+        <span class="c1"># libs = [syslib, userlib]</span>
+
+        <span class="n">libs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">syslib</span><span class="p">,</span> <span class="s2">&quot;3DComponents&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design_type</span><span class="p">),</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">userlib</span><span class="p">,</span> <span class="s2">&quot;3DComponents&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design_type</span><span class="p">),</span>
+        <span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">lib</span> <span class="ow">in</span> <span class="n">libs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">lib</span><span class="p">):</span>
+                <span class="n">listfiles</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">lib</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.a3dcomp&quot;</span><span class="p">):</span>
+                            <span class="n">listfiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">file</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">listfiles</span><span class="p">:</span>
+                    <span class="n">head</span><span class="p">,</span> <span class="n">tail</span> <span class="o">=</span> <span class="n">ntpath</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
+                    <span class="n">components_dict</span><span class="p">[</span><span class="n">tail</span><span class="p">[:</span><span class="o">-</span><span class="mi">8</span><span class="p">]]</span> <span class="o">=</span> <span class="n">el</span>
+        <span class="k">return</span> <span class="n">components_dict</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">objects</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">export_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">plot_as_separate_objects</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">plot_air_objects</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">force_opacity_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">clean_files</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">view</span><span class="o">=</span><span class="s2">&quot;isometric&quot;</span><span class="p">,</span>
+        <span class="n">show_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot the model or a subset of objects.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        objects : list, optional</span>
+<span class="sd">            List of objects to plot. The default is ``None``, in which case all objects</span>
+<span class="sd">            are exported.</span>
+<span class="sd">        show : bool, optional</span>
+<span class="sd">            Whether to show the plot after generation. The default is ``True``. If</span>
+<span class="sd">            ``False``, the generated class is returned for more customization before</span>
+<span class="sd">            plot generation.</span>
+<span class="sd">        export_path : str, optional</span>
+<span class="sd">            If available, an image is saved to file. If ``None`` no image will be saved.</span>
+<span class="sd">        plot_as_separate_objects : bool, optional</span>
+<span class="sd">            Whether to plot each object separately. The default is ``True``, which may</span>
+<span class="sd">            require more time to export from AEDT.</span>
+<span class="sd">        plot_air_objects : bool, optional</span>
+<span class="sd">            Whether to also plot air and vacuum objects. The default is ``True``.</span>
+<span class="sd">        force_opacity_value : float, optional</span>
+<span class="sd">            Opacity value between 0 and 1 to applied to all of the model. The</span>
+<span class="sd">            default is ``None``, which means the AEDT opacity is applied to each object.</span>
+<span class="sd">        clean_files : bool, optional</span>
+<span class="sd">            Whether to clean created files after plot generation. The default is ``False``,</span>
+<span class="sd">            which means that the cache is maintained in the model object that is returned.</span>
+<span class="sd">        view : str, optional</span>
+<span class="sd">           View to export. Options are ``&quot;isometric&quot;``, ``&quot;xy&quot;``, ``&quot;xz&quot;``, ``&quot;yz&quot;``.</span>
+<span class="sd">           The default is ``&quot;isometric&quot;``.</span>
+<span class="sd">        show_legend : bool, optional</span>
+<span class="sd">            Whether to display the legend or not. The default is ``True``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.generic.plot.ModelPlotter`</span>
+<span class="sd">            Model Object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">is_ironpython</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Plot is available only on CPython&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aedt_version</span> <span class="o">&lt;</span> <span class="s2">&quot;2021.2&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Plot is supported from AEDT 2021 R2.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">plot_model_obj</span><span class="p">(</span>
+                <span class="n">objects</span><span class="o">=</span><span class="n">objects</span><span class="p">,</span>
+                <span class="n">show</span><span class="o">=</span><span class="n">show</span><span class="p">,</span>
+                <span class="n">export_path</span><span class="o">=</span><span class="n">export_path</span><span class="p">,</span>
+                <span class="n">plot_as_separate_objects</span><span class="o">=</span><span class="n">plot_as_separate_objects</span><span class="p">,</span>
+                <span class="n">plot_air_objects</span><span class="o">=</span><span class="n">plot_air_objects</span><span class="p">,</span>
+                <span class="n">force_opacity_value</span><span class="o">=</span><span class="n">force_opacity_value</span><span class="p">,</span>
+                <span class="n">clean_files</span><span class="o">=</span><span class="n">clean_files</span><span class="p">,</span>
+                <span class="n">view</span><span class="o">=</span><span class="n">view</span><span class="p">,</span>
+                <span class="n">show_legend</span><span class="o">=</span><span class="n">show_legend</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">export_mesh_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setup_name</span><span class="p">,</span> <span class="n">variation_string</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">mesh_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Export mesh statistics to a file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        setup_name : str</span>
+<span class="sd">            Setup name.</span>
+<span class="sd">        variation_string : str, optional</span>
+<span class="sd">            Variation list. The default is ``&quot;&quot;``.</span>
+<span class="sd">        mesh_path : str, optional</span>
+<span class="sd">            Full path to the mesh statistics file. The default is ``None``, in which</span>
+<span class="sd">            caswe the working directory is used.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            File path.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+<span class="sd">        &gt;&gt;&gt; oDesign.ExportMeshStats</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">mesh_path</span><span class="p">:</span>
+            <span class="n">mesh_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">working_directory</span><span class="p">,</span> <span class="s2">&quot;meshstats.ms&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">ExportMeshStats</span><span class="p">(</span><span class="n">setup_name</span><span class="p">,</span> <span class="n">variation_string</span><span class="p">,</span> <span class="n">mesh_path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mesh_path</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">get_components3d_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component3dname</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read the A3DCOMP file and check for variables.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component3dname :</span>
+<span class="sd">            Name of the 3D component, which must be in the ``syslib`` or ``userlib`` directory. Otherwise,</span>
+<span class="sd">            you must specify the full absolute path to the AEDCOMP file with the file name and the extension.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary of variables in the A3DCOMP file.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">vars</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">component3dname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components3d</span><span class="p">:</span>
+            <span class="n">aedt_fh</span> <span class="o">=</span> <span class="n">open_file</span><span class="p">(</span><span class="n">component3dname</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">aedt_fh</span><span class="p">:</span>
+                <span class="n">temp</span> <span class="o">=</span> <span class="n">aedt_fh</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+                <span class="n">_all_lines</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">temp</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">_all_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">))</span>
+                    <span class="k">except</span> <span class="ne">UnicodeDecodeError</span><span class="p">:</span>
+                        <span class="k">break</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">_all_lines</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s2">&quot;VariableProp(&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                        <span class="n">line_list</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
+                        <span class="nb">vars</span><span class="p">[</span><span class="n">line_list</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">line_list</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">line_list</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="p">]</span>
+                <span class="n">aedt_fh</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="k">return</span> <span class="nb">vars</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">with</span> <span class="n">open_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components3d</span><span class="p">[</span><span class="n">component3dname</span><span class="p">],</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">aedt_fh</span><span class="p">:</span>
+            <span class="n">temp</span> <span class="o">=</span> <span class="n">aedt_fh</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+        <span class="n">_all_lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">temp</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">_all_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">UnicodeDecodeError</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">_all_lines</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;VariableProp(&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">line_list</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
+                <span class="nb">vars</span><span class="p">[</span><span class="n">line_list</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">line_list</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">line_list</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">vars</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">get_property_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objectname</span><span class="p">,</span> <span class="nb">property</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve a property value.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        objectname : str</span>
+<span class="sd">            Name of the object.</span>
+<span class="sd">        property : str</span>
+<span class="sd">            Name of the property.</span>
+<span class="sd">        type : str, optional</span>
+<span class="sd">            Type of the property. Options are ``&quot;boundary&quot;``, ``&quot;excitation&quot;``,</span>
+<span class="sd">            ``&quot;setup&quot;,`` and ``&quot;mesh&quot;``. The default is ``None``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type</span>
+<span class="sd">            Value of the property.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oDesign.GetPropertyValue</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">boundary</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;HFSS&quot;</span><span class="p">:</span> <span class="s2">&quot;HfssTab&quot;</span><span class="p">,</span> <span class="s2">&quot;Icepak&quot;</span><span class="p">:</span> <span class="s2">&quot;Icepak&quot;</span><span class="p">,</span> <span class="s2">&quot;Q3D&quot;</span><span class="p">:</span> <span class="s2">&quot;Q3D&quot;</span><span class="p">,</span> <span class="s2">&quot;Maxwell3D&quot;</span><span class="p">:</span> <span class="s2">&quot;Maxwell3D&quot;</span><span class="p">}</span>
+        <span class="n">excitation</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;HFSS&quot;</span><span class="p">:</span> <span class="s2">&quot;HfssTab&quot;</span><span class="p">,</span> <span class="s2">&quot;Icepak&quot;</span><span class="p">:</span> <span class="s2">&quot;Icepak&quot;</span><span class="p">,</span> <span class="s2">&quot;Q3D&quot;</span><span class="p">:</span> <span class="s2">&quot;Q3D&quot;</span><span class="p">,</span> <span class="s2">&quot;Maxwell3D&quot;</span><span class="p">:</span> <span class="s2">&quot;Maxwell3D&quot;</span><span class="p">}</span>
+        <span class="n">setup</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;HFSS&quot;</span><span class="p">:</span> <span class="s2">&quot;HfssTab&quot;</span><span class="p">,</span> <span class="s2">&quot;Icepak&quot;</span><span class="p">:</span> <span class="s2">&quot;Icepak&quot;</span><span class="p">,</span> <span class="s2">&quot;Q3D&quot;</span><span class="p">:</span> <span class="s2">&quot;General&quot;</span><span class="p">,</span> <span class="s2">&quot;Maxwell3D&quot;</span><span class="p">:</span> <span class="s2">&quot;General&quot;</span><span class="p">}</span>
+        <span class="n">mesh</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;HFSS&quot;</span><span class="p">:</span> <span class="s2">&quot;MeshSetupTab&quot;</span><span class="p">,</span> <span class="s2">&quot;Icepak&quot;</span><span class="p">:</span> <span class="s2">&quot;Icepak&quot;</span><span class="p">,</span> <span class="s2">&quot;Q3D&quot;</span><span class="p">:</span> <span class="s2">&quot;Q3D&quot;</span><span class="p">,</span> <span class="s2">&quot;Maxwell3D&quot;</span><span class="p">:</span> <span class="s2">&quot;Maxwell3D&quot;</span><span class="p">}</span>
+        <span class="nb">all</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;HFSS&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;HfssTab&quot;</span><span class="p">,</span> <span class="s2">&quot;MeshSetupTab&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;Icepak&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Icepak&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;Q3D&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Q3D&quot;</span><span class="p">,</span> <span class="s2">&quot;General&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;Maxwell3D&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Maxwell3D&quot;</span><span class="p">,</span> <span class="s2">&quot;General&quot;</span><span class="p">],</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;Boundary&quot;</span><span class="p">:</span>
+            <span class="n">propserv</span> <span class="o">=</span> <span class="n">boundary</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_design_type</span><span class="p">]</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">_retry_ntimes</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetPropertyValue</span><span class="p">,</span> <span class="n">propserv</span><span class="p">,</span> <span class="n">objectname</span><span class="p">,</span> <span class="nb">property</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">val</span>
+        <span class="k">elif</span> <span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;Setup&quot;</span><span class="p">:</span>
+            <span class="n">propserv</span> <span class="o">=</span> <span class="n">setup</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_design_type</span><span class="p">]</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">_retry_ntimes</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetPropertyValue</span><span class="p">,</span> <span class="n">propserv</span><span class="p">,</span> <span class="n">objectname</span><span class="p">,</span> <span class="nb">property</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">val</span>
+
+        <span class="k">elif</span> <span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;Excitation&quot;</span><span class="p">:</span>
+            <span class="n">propserv</span> <span class="o">=</span> <span class="n">excitation</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_design_type</span><span class="p">]</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">_retry_ntimes</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetPropertyValue</span><span class="p">,</span> <span class="n">propserv</span><span class="p">,</span> <span class="n">objectname</span><span class="p">,</span> <span class="nb">property</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">val</span>
+
+        <span class="k">elif</span> <span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;Mesh&quot;</span><span class="p">:</span>
+            <span class="n">propserv</span> <span class="o">=</span> <span class="n">mesh</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_design_type</span><span class="p">]</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">_retry_ntimes</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetPropertyValue</span><span class="p">,</span> <span class="n">propserv</span><span class="p">,</span> <span class="n">objectname</span><span class="p">,</span> <span class="nb">property</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">val</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">propservs</span> <span class="o">=</span> <span class="nb">all</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_design_type</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">propserv</span> <span class="ow">in</span> <span class="n">propservs</span><span class="p">:</span>
+                <span class="n">properties</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetProperties</span><span class="p">(</span><span class="n">propserv</span><span class="p">,</span> <span class="n">objectname</span><span class="p">))</span>
+                <span class="k">if</span> <span class="nb">property</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">:</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="n">_retry_ntimes</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetPropertyValue</span><span class="p">,</span> <span class="n">propserv</span><span class="p">,</span> <span class="n">objectname</span><span class="p">,</span> <span class="nb">property</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">val</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">copy_solid_bodies_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">design</span><span class="p">,</span> <span class="n">object_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">no_vacuum</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">no_pec</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">include_sheets</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Copy a list of objects and user defined models from one design to the active design.</span>
+<span class="sd">        If user defined models are selected, the project will be saved automatically.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        design :</span>
+<span class="sd">            Starting application object. For example, ``hfss1= HFSS3DLayout``.</span>
+<span class="sd">        object_list : list, optional</span>
+<span class="sd">            List of objects and user defined components to copy. The default is ``None``.</span>
+<span class="sd">        no_vacuum : bool, optional</span>
+<span class="sd">            Whether to include vacuum objects for the copied objects.</span>
+<span class="sd">            The default is ``True``.</span>
+<span class="sd">        no_pec :</span>
+<span class="sd">            Whether to include pec objects for the copied objects. The</span>
+<span class="sd">            default is ``True``.</span>
+<span class="sd">        include_sheets :</span>
+<span class="sd">            Whether to include sheets for the copied objects. The</span>
+<span class="sd">            default is ``False``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+<span class="sd">        &gt;&gt;&gt; oEditor.Copy</span>
+<span class="sd">        &gt;&gt;&gt; oEditor.Paste</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">body_list</span> <span class="o">=</span> <span class="n">design</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">solid_names</span>
+        <span class="n">udc_list</span> <span class="o">=</span> <span class="n">design</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">user_defined_component_names</span>
+        <span class="n">original_design_type</span> <span class="o">=</span> <span class="n">design</span><span class="o">.</span><span class="n">design_type</span>
+        <span class="n">dest_design_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">design_type</span>
+        <span class="n">new_udc_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">include_sheets</span><span class="p">:</span>
+            <span class="n">body_list</span> <span class="o">+=</span> <span class="n">design</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">sheet_names</span>
+        <span class="k">if</span> <span class="n">udc_list</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">udc</span> <span class="ow">in</span> <span class="n">udc_list</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">original_design_type</span> <span class="o">!=</span> <span class="n">dest_design_type</span>
+                    <span class="ow">and</span> <span class="ow">not</span> <span class="n">design</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">user_defined_components</span><span class="p">[</span><span class="n">udc</span><span class="p">]</span><span class="o">.</span><span class="n">is3dcomponent</span>
+                    <span class="ow">or</span> <span class="n">original_design_type</span> <span class="o">==</span> <span class="n">dest_design_type</span>
+                <span class="p">):</span>
+                    <span class="n">new_udc_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">udc</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">part_id</span> <span class="ow">in</span> <span class="n">design</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">user_defined_components</span><span class="p">[</span><span class="n">udc</span><span class="p">]</span><span class="o">.</span><span class="n">parts</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">design</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">user_defined_components</span><span class="p">[</span><span class="n">udc</span><span class="p">]</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="n">part_id</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">body_list</span><span class="p">:</span>
+                        <span class="n">body_list</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">design</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">user_defined_components</span><span class="p">[</span><span class="n">udc</span><span class="p">]</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="n">part_id</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="n">selection_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">udc_selection</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">material_properties</span> <span class="o">=</span> <span class="n">design</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">objects</span>
+        <span class="n">selections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">convert_to_selections</span><span class="p">(</span><span class="n">object_list</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">selections</span><span class="p">:</span>
+            <span class="n">selection_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">selections</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">body_list</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">udc</span> <span class="ow">in</span> <span class="n">new_udc_list</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">udc</span> <span class="ow">in</span> <span class="n">selections</span><span class="p">:</span>
+                    <span class="n">udc_selection</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">udc</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">body</span> <span class="ow">in</span> <span class="n">body_list</span><span class="p">:</span>
+                <span class="n">include_object</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">material_properties</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">val</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">body</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">no_vacuum</span> <span class="ow">and</span> <span class="n">val</span><span class="o">.</span><span class="n">material_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;vacuum&quot;</span><span class="p">:</span>
+                            <span class="n">include_object</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="k">if</span> <span class="n">no_pec</span> <span class="ow">and</span> <span class="n">val</span><span class="o">.</span><span class="n">material_name</span> <span class="o">==</span> <span class="s2">&quot;pec&quot;</span><span class="p">:</span>
+                            <span class="n">include_object</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="n">include_object</span><span class="p">:</span>
+                    <span class="n">selection_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">udm</span> <span class="ow">in</span> <span class="n">new_udc_list</span><span class="p">:</span>
+                <span class="n">udc_selection</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">udm</span><span class="p">)</span>
+        <span class="n">selection_list</span> <span class="o">=</span> <span class="n">selection_list</span> <span class="o">+</span> <span class="n">udc_selection</span>
+        <span class="n">design</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">Copy</span><span class="p">([</span><span class="s2">&quot;NAME:Selections&quot;</span><span class="p">,</span> <span class="s2">&quot;Selections:=&quot;</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">selection_list</span><span class="p">)])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">Paste</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">udc_selection</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save_project</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_project_dictionary</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">refresh_all_ids</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">export_3d_model</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">file_format</span><span class="o">=</span><span class="s2">&quot;.step&quot;</span><span class="p">,</span> <span class="n">object_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">removed_objects</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Export the 3D model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_name : str, optional</span>
+<span class="sd">            Name of the file.</span>
+<span class="sd">        file_path : str, optional</span>
+<span class="sd">            Path for the file.</span>
+<span class="sd">        file_format : str, optional</span>
+<span class="sd">            Format of the file. The default is ``&quot;.step&quot;``.</span>
+<span class="sd">        object_list : list, optional</span>
+<span class="sd">            List of objects to export. The default is ``None``.</span>
+<span class="sd">        removed_objects : list, optional</span>
+<span class="sd">            The default is ``None``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.Export</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;fileName&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;`fileName` is deprecated. Use `file_name` instead.&quot;</span><span class="p">,</span>
+                <span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">file_name</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;fileName&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;filePath&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;`filePath` is deprecated. Use `file_path` instead.&quot;</span><span class="p">,</span>
+                <span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">file_path</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;filePath&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;fileFormat&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;`fileFormat` is deprecated. Use `file_format` instead.&quot;</span><span class="p">,</span>
+                <span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">file_format</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;fileFormat&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">file_name</span><span class="p">:</span>
+            <span class="n">file_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_name</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">design_name</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">file_path</span><span class="p">:</span>
+            <span class="n">file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">working_directory</span>
+        <span class="k">if</span> <span class="n">object_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">object_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">removed_objects</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">removed_objects</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">object_list</span><span class="p">:</span>
+            <span class="n">allObjects</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">object_names</span>
+            <span class="k">if</span> <span class="n">removed_objects</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">rem</span> <span class="ow">in</span> <span class="n">removed_objects</span><span class="p">:</span>
+                    <span class="n">allObjects</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">rem</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">&quot;Region&quot;</span> <span class="ow">in</span> <span class="n">allObjects</span><span class="p">:</span>
+                    <span class="n">allObjects</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;Region&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">allObjects</span> <span class="o">=</span> <span class="n">object_list</span><span class="p">[:]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Exporting </span><span class="si">{}</span><span class="s2"> objects&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">allObjects</span><span class="p">)))</span>
+        <span class="n">major</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">minor</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="c1"># actual version supported by AEDT is 29.0</span>
+        <span class="k">if</span> <span class="n">file_format</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;.sm3&quot;</span><span class="p">,</span> <span class="s2">&quot;.sat&quot;</span><span class="p">,</span> <span class="s2">&quot;.sab&quot;</span><span class="p">]:</span>
+            <span class="n">major</span> <span class="o">=</span> <span class="mi">29</span>
+            <span class="n">minor</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">stringa</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">allObjects</span><span class="p">)</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;NAME:ExportParameters&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;AllowRegionDependentPartSelectionForPMLCreation:=&quot;</span><span class="p">,</span>
+            <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;AllowRegionSelectionForPMLCreation:=&quot;</span><span class="p">,</span>
+            <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;Selections:=&quot;</span><span class="p">,</span>
+            <span class="n">stringa</span><span class="p">,</span>
+            <span class="s2">&quot;File Name:=&quot;</span><span class="p">,</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">file_name</span> <span class="o">+</span> <span class="n">file_format</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;Major Version:=&quot;</span><span class="p">,</span>
+            <span class="n">major</span><span class="p">,</span>
+            <span class="s2">&quot;Minor Version:=&quot;</span><span class="p">,</span>
+            <span class="n">minor</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">Export</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">get_all_sources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve all setup sources.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of str</span>
+<span class="sd">            List of all setup sources.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oModule.GetAllSources</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">osolution</span><span class="o">.</span><span class="n">GetAllSources</span><span class="p">())</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">set_source_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">,</span> <span class="n">number_of_modes</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the source context.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sources : list</span>
+<span class="sd">            List of source names.</span>
+<span class="sd">        number_of_modes : int, optional</span>
+<span class="sd">            Number of modes. The default is ``1``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oModule.SetSourceContexts</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">contexts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">s</span>
+            <span class="k">if</span> <span class="n">number_of_modes</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number_of_modes</span><span class="p">):</span>
+                    <span class="n">value</span> <span class="o">+=</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">contexts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>  <span class="c1"># use one based indexing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">osolution</span><span class="o">.</span><span class="n">SetSourceContexts</span><span class="p">(</span><span class="n">contexts</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">assign_material</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">mat</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assign a material to one or more objects.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        obj : str, list</span>
+<span class="sd">            One or more objects to assign materials to.</span>
+<span class="sd">        mat : str</span>
+<span class="sd">            Material to assign. If this material is not present, it is</span>
+<span class="sd">            created.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.AssignMaterial</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        The method :func:`assign_material` is used to assign a material to a list of objects.</span>
+
+<span class="sd">        Open a design and create the objects.</span>
+
+<span class="sd">        &gt;&gt;&gt; from pyaedt import Hfss</span>
+<span class="sd">        &gt;&gt;&gt; hfss = Hfss()</span>
+<span class="sd">        &gt;&gt;&gt; box1 = hfss.modeler.create_box([10, 10, 10], [4, 5, 5])</span>
+<span class="sd">        &gt;&gt;&gt; box2 = hfss.modeler.create_box([0, 0, 0], [2, 3, 4])</span>
+<span class="sd">        &gt;&gt;&gt; cylinder1 = hfss.modeler.create_cylinder(cs_axis=&quot;X&quot;, position=[5, 0, 0], radius=1, height=20)</span>
+<span class="sd">        &gt;&gt;&gt; cylinder2 = hfss.modeler.create_cylinder(cs_axis=&quot;Z&quot;, position=[0, 0, 5], radius=1, height=10)</span>
+
+<span class="sd">        Assign the material ``&quot;copper&quot;`` to all the objects.</span>
+
+<span class="sd">        &gt;&gt;&gt; objects_list = [box1, box2, cylinder1, cylinder2]</span>
+<span class="sd">        &gt;&gt;&gt; hfss.assign_material(objects_list, &quot;copper&quot;)</span>
+
+<span class="sd">        The method also accepts a list of object names.</span>
+
+<span class="sd">        &gt;&gt;&gt; obj_names_list = [box1.name, box2.name, cylinder1.name, cylinder2.name]</span>
+<span class="sd">        &gt;&gt;&gt; hfss.assign_material(obj_names_list, &quot;aluminum&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">matobj</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">selections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">convert_to_selections</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">mat</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">material_keys</span><span class="p">:</span>
+            <span class="n">matobj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">material_keys</span><span class="p">[</span><span class="n">mat</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">_get_aedt_case_name</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span> <span class="ow">or</span> <span class="n">settings</span><span class="o">.</span><span class="n">remote_api</span><span class="p">:</span>
+            <span class="n">matobj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">_aedmattolibrary</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">matobj</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">design_type</span> <span class="o">==</span> <span class="s2">&quot;HFSS&quot;</span><span class="p">:</span>
+                <span class="n">solve_inside</span> <span class="o">=</span> <span class="n">matobj</span><span class="o">.</span><span class="n">is_dielectric</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">solve_inside</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">slice_sel</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">selections</span><span class="p">))</span>
+            <span class="n">num_objects</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">selections</span><span class="p">)</span>
+            <span class="n">remaining</span> <span class="o">=</span> <span class="n">num_objects</span>
+            <span class="k">while</span> <span class="n">remaining</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">objs</span> <span class="o">=</span> <span class="n">selections</span><span class="p">[:</span><span class="n">slice_sel</span><span class="p">]</span>
+                <span class="n">szSelections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">convert_to_selections</span><span class="p">(</span><span class="n">objs</span><span class="p">)</span>
+                <span class="n">vArg1</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="s2">&quot;NAME:Selections&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;AllowRegionDependentPartSelectionForPMLCreation:=&quot;</span><span class="p">,</span>
+                    <span class="kc">True</span><span class="p">,</span>
+                    <span class="s2">&quot;AllowRegionSelectionForPMLCreation:=&quot;</span><span class="p">,</span>
+                    <span class="kc">True</span><span class="p">,</span>
+                    <span class="s2">&quot;Selections:=&quot;</span><span class="p">,</span>
+                    <span class="n">szSelections</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="n">vArg2</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="s2">&quot;NAME:Attributes&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;MaterialValue:=&quot;</span><span class="p">,</span>
+                    <span class="s1">&#39;&quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">matobj</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+                    <span class="s2">&quot;SolveInside:=&quot;</span><span class="p">,</span>
+                    <span class="n">solve_inside</span><span class="p">,</span>
+                    <span class="s2">&quot;ShellElement:=&quot;</span><span class="p">,</span>
+                    <span class="kc">False</span><span class="p">,</span>
+                    <span class="s2">&quot;ShellElementThickness:=&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;nan &quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;IsMaterialEditable:=&quot;</span><span class="p">,</span>
+                    <span class="kc">True</span><span class="p">,</span>
+                    <span class="s2">&quot;UseMaterialAppearance:=&quot;</span><span class="p">,</span>
+                    <span class="kc">True</span><span class="p">,</span>
+                    <span class="s2">&quot;IsLightweight:=&quot;</span><span class="p">,</span>
+                    <span class="kc">False</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">AssignMaterial</span><span class="p">(</span><span class="n">vArg1</span><span class="p">,</span> <span class="n">vArg2</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">objs</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">_material_name</span> <span class="o">=</span> <span class="n">matobj</span><span class="o">.</span><span class="n">name</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="n">matobj</span><span class="o">.</span><span class="n">material_appearance</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">_solve_inside</span> <span class="o">=</span> <span class="n">solve_inside</span>
+                <span class="n">remaining</span> <span class="o">-=</span> <span class="n">slice_sel</span>
+                <span class="k">if</span> <span class="n">remaining</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">selections</span> <span class="o">=</span> <span class="n">selections</span><span class="p">[</span><span class="n">slice_sel</span><span class="p">:]</span>
+
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Material does not exist.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">get_all_conductors_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve all conductors in the active design.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of str</span>
+<span class="sd">            List of all conductors.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.GetObjectsByMaterial</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">objects</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">object_names</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">refresh_all_ids</span><span class="p">()</span>
+        <span class="n">obj_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">val</span><span class="o">.</span><span class="n">material_name</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">materials</span><span class="p">[</span><span class="n">val</span><span class="o">.</span><span class="n">material_name</span><span class="p">]</span><span class="o">.</span><span class="n">is_conductor</span><span class="p">():</span>
+                    <span class="n">obj_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">obj_names</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">get_all_dielectrics_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve all dielectrics in the active design.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of str</span>
+<span class="sd">           List of all dielectrics.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+<span class="sd">        &gt;&gt;&gt; oEditor.GetObjectsByMaterial</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">objects</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">object_names</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">refresh_all_ids</span><span class="p">()</span>
+        <span class="n">diel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">dielectrics</span>
+        <span class="n">obj_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">val</span><span class="o">.</span><span class="n">material_name</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">materials</span><span class="p">[</span><span class="n">val</span><span class="o">.</span><span class="n">material_name</span><span class="p">]</span><span class="o">.</span><span class="n">is_dielectric</span><span class="p">():</span>
+                    <span class="n">obj_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">obj_names</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_create_dataset_from_sherlock</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">material_string</span><span class="p">,</span> <span class="n">property_name</span><span class="o">=</span><span class="s2">&quot;Mass_Density&quot;</span><span class="p">):</span>
+        <span class="n">mats</span> <span class="o">=</span> <span class="n">material_string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+        <span class="n">mat_temp</span> <span class="o">=</span> <span class="p">[[</span><span class="n">i</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">i</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">mats</span><span class="p">]</span>
+        <span class="n">nominal_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">mat_temp</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">nominal_val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">mat_temp</span><span class="p">[</span><span class="n">nominal_id</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">ds_name</span> <span class="o">=</span> <span class="n">generate_unique_name</span><span class="p">(</span><span class="n">property_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
+            <span class="n">ds_name</span><span class="p">,</span>
+            <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;K&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;F&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">mat_temp</span><span class="p">],</span>
+            <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">nominal_val</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">mat_temp</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">nominal_val</span><span class="p">,</span> <span class="s2">&quot;$&quot;</span> <span class="o">+</span> <span class="n">ds_name</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">assignmaterial_from_sherlock_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_component</span><span class="p">,</span> <span class="n">csv_material</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assign material to objects in a design based on a CSV file obtained from Sherlock.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        csv_component :  str</span>
+<span class="sd">            Name of the CSV file containing the component properties, including the</span>
+<span class="sd">            material name.</span>
+<span class="sd">        csv_material : str</span>
+<span class="sd">            Name of the CSV file containing the material properties.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.AssignMaterial</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">open_file</span><span class="p">(</span><span class="n">csv_material</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+            <span class="n">csv_input</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">csvfile</span><span class="p">)</span>
+            <span class="n">material_header</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">csv_input</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">csv_input</span><span class="p">)</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">material_data</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">material_header</span><span class="p">:</span>
+                <span class="n">material_data</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+                <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">with</span> <span class="n">open_file</span><span class="p">(</span><span class="n">csv_component</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+            <span class="n">csv_input</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">csvfile</span><span class="p">)</span>
+            <span class="n">component_header</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">csv_input</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">csv_input</span><span class="p">)</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">component_data</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">component_header</span><span class="p">:</span>
+                <span class="n">component_data</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+                <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">all_objs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">object_names</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">mat</span> <span class="ow">in</span> <span class="n">material_data</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">]:</span>
+            <span class="n">list_mat_obj</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s2">&quot;COMP_&quot;</span> <span class="o">+</span> <span class="n">rd</span> <span class="k">for</span> <span class="n">rd</span><span class="p">,</span> <span class="n">md</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">component_data</span><span class="p">[</span><span class="s2">&quot;Ref Des&quot;</span><span class="p">],</span> <span class="n">component_data</span><span class="p">[</span><span class="s2">&quot;Material&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="n">md</span> <span class="o">==</span> <span class="n">mat</span>
+            <span class="p">]</span>
+            <span class="n">list_mat_obj</span> <span class="o">+=</span> <span class="p">[</span><span class="n">rd</span> <span class="k">for</span> <span class="n">rd</span><span class="p">,</span> <span class="n">md</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">component_data</span><span class="p">[</span><span class="s2">&quot;Ref Des&quot;</span><span class="p">],</span> <span class="n">component_data</span><span class="p">[</span><span class="s2">&quot;Material&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="n">md</span> <span class="o">==</span> <span class="n">mat</span><span class="p">]</span>
+            <span class="n">list_mat_obj</span> <span class="o">=</span> <span class="p">[</span><span class="n">mo</span> <span class="k">for</span> <span class="n">mo</span> <span class="ow">in</span> <span class="n">list_mat_obj</span> <span class="k">if</span> <span class="n">mo</span> <span class="ow">in</span> <span class="n">all_objs</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">list_mat_obj</span><span class="p">:</span>
+                <span class="n">newmat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">checkifmaterialexists</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">newmat</span><span class="p">:</span>
+                    <span class="n">newmat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">add_material</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+                <span class="k">if</span> <span class="s2">&quot;Material Density&quot;</span> <span class="ow">in</span> <span class="n">material_data</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s2">&quot;@&quot;</span> <span class="ow">in</span> <span class="n">material_data</span><span class="p">[</span><span class="s2">&quot;Material Density&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="ow">and</span> <span class="s2">&quot;,&quot;</span> <span class="ow">in</span> <span class="n">material_data</span><span class="p">[</span><span class="s2">&quot;Material Density&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]:</span>
+                        <span class="n">nominal_val</span><span class="p">,</span> <span class="n">dataset_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_dataset_from_sherlock</span><span class="p">(</span>
+                            <span class="n">material_data</span><span class="p">[</span><span class="s2">&quot;Material Density&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="s2">&quot;Mass_Density&quot;</span>
+                        <span class="p">)</span>
+                        <span class="n">newmat</span><span class="o">.</span><span class="n">mass_density</span> <span class="o">=</span> <span class="n">nominal_val</span>
+                        <span class="n">newmat</span><span class="o">.</span><span class="n">mass_density</span><span class="o">.</span><span class="n">thermalmodifier</span> <span class="o">=</span> <span class="s2">&quot;pwl(</span><span class="si">{}</span><span class="s2">, Temp)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="n">material_data</span><span class="p">[</span><span class="s2">&quot;Material Density&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                        <span class="n">newmat</span><span class="o">.</span><span class="n">mass_density</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="k">if</span> <span class="s2">&quot;Thermal Conductivity&quot;</span> <span class="ow">in</span> <span class="n">material_data</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="s2">&quot;@&quot;</span> <span class="ow">in</span> <span class="n">material_data</span><span class="p">[</span><span class="s2">&quot;Thermal Conductivity&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                        <span class="ow">and</span> <span class="s2">&quot;,&quot;</span> <span class="ow">in</span> <span class="n">material_data</span><span class="p">[</span><span class="s2">&quot;Thermal Conductivity&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                    <span class="p">):</span>
+                        <span class="n">nominal_val</span><span class="p">,</span> <span class="n">dataset_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_dataset_from_sherlock</span><span class="p">(</span>
+                            <span class="n">material_data</span><span class="p">[</span><span class="s2">&quot;Thermal Conductivity&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="s2">&quot;Thermal_Conductivity&quot;</span>
+                        <span class="p">)</span>
+                        <span class="n">newmat</span><span class="o">.</span><span class="n">thermal_conductivity</span> <span class="o">=</span> <span class="n">nominal_val</span>
+                        <span class="n">newmat</span><span class="o">.</span><span class="n">thermal_conductivity</span><span class="o">.</span><span class="n">thermalmodifier</span> <span class="o">=</span> <span class="s2">&quot;pwl(</span><span class="si">{}</span><span class="s2">, Temp)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="n">material_data</span><span class="p">[</span><span class="s2">&quot;Thermal Conductivity&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                        <span class="n">newmat</span><span class="o">.</span><span class="n">thermal_conductivity</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="k">if</span> <span class="s2">&quot;Material CTE&quot;</span> <span class="ow">in</span> <span class="n">material_data</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s2">&quot;@&quot;</span> <span class="ow">in</span> <span class="n">material_data</span><span class="p">[</span><span class="s2">&quot;Material CTE&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="ow">and</span> <span class="s2">&quot;,&quot;</span> <span class="ow">in</span> <span class="n">material_data</span><span class="p">[</span><span class="s2">&quot;Material CTE&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]:</span>
+                        <span class="n">nominal_val</span><span class="p">,</span> <span class="n">dataset_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_dataset_from_sherlock</span><span class="p">(</span>
+                            <span class="n">material_data</span><span class="p">[</span><span class="s2">&quot;Material CTE&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="s2">&quot;CTE&quot;</span>
+                        <span class="p">)</span>
+                        <span class="n">newmat</span><span class="o">.</span><span class="n">thermal_expansion_coefficient</span> <span class="o">=</span> <span class="n">nominal_val</span>
+                        <span class="n">newmat</span><span class="o">.</span><span class="n">thermal_expansion_coefficient</span><span class="o">.</span><span class="n">thermalmodifier</span> <span class="o">=</span> <span class="s2">&quot;pwl(</span><span class="si">{}</span><span class="s2">, Temp)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="n">material_data</span><span class="p">[</span><span class="s2">&quot;Material CTE&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                        <span class="n">newmat</span><span class="o">.</span><span class="n">thermal_expansion_coefficient</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="k">if</span> <span class="s2">&quot;Poisson Ratio&quot;</span> <span class="ow">in</span> <span class="n">material_data</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s2">&quot;@&quot;</span> <span class="ow">in</span> <span class="n">material_data</span><span class="p">[</span><span class="s2">&quot;Poisson Ratio&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="ow">and</span> <span class="s2">&quot;,&quot;</span> <span class="ow">in</span> <span class="n">material_data</span><span class="p">[</span><span class="s2">&quot;Poisson Ratio&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]:</span>
+                        <span class="n">nominal_val</span><span class="p">,</span> <span class="n">dataset_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_dataset_from_sherlock</span><span class="p">(</span>
+                            <span class="n">material_data</span><span class="p">[</span><span class="s2">&quot;Poisson Ratio&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="s2">&quot;Poisson_Ratio&quot;</span>
+                        <span class="p">)</span>
+                        <span class="n">newmat</span><span class="o">.</span><span class="n">poissons_ratio</span> <span class="o">=</span> <span class="n">nominal_val</span>
+                        <span class="n">newmat</span><span class="o">.</span><span class="n">poissons_ratio</span><span class="o">.</span><span class="n">thermalmodifier</span> <span class="o">=</span> <span class="s2">&quot;pwl(</span><span class="si">{}</span><span class="s2">, Temp)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="n">material_data</span><span class="p">[</span><span class="s2">&quot;Poisson Ratio&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                        <span class="n">newmat</span><span class="o">.</span><span class="n">poissons_ratio</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="k">if</span> <span class="s2">&quot;Elastic Modulus&quot;</span> <span class="ow">in</span> <span class="n">material_data</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s2">&quot;@&quot;</span> <span class="ow">in</span> <span class="n">material_data</span><span class="p">[</span><span class="s2">&quot;Elastic Modulus&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="ow">and</span> <span class="s2">&quot;,&quot;</span> <span class="ow">in</span> <span class="n">material_data</span><span class="p">[</span><span class="s2">&quot;Elastic Modulus&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]:</span>
+                        <span class="n">nominal_val</span><span class="p">,</span> <span class="n">dataset_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_dataset_from_sherlock</span><span class="p">(</span>
+                            <span class="n">material_data</span><span class="p">[</span><span class="s2">&quot;Elastic Modulus&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="s2">&quot;Youngs_Modulus&quot;</span>
+                        <span class="p">)</span>
+                        <span class="n">newmat</span><span class="o">.</span><span class="n">youngs_modulus</span> <span class="o">=</span> <span class="n">nominal_val</span>
+                        <span class="n">newmat</span><span class="o">.</span><span class="n">youngs_modulus</span><span class="o">.</span><span class="n">thermalmodifier</span> <span class="o">=</span> <span class="s2">&quot;pwl(</span><span class="si">{}</span><span class="s2">, Temp)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="n">material_data</span><span class="p">[</span><span class="s2">&quot;Elastic Modulus&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                        <span class="n">newmat</span><span class="o">.</span><span class="n">youngs_modulus</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assign_material</span><span class="p">(</span><span class="n">list_mat_obj</span><span class="p">,</span> <span class="n">mat</span><span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">obj_name</span> <span class="ow">in</span> <span class="n">list_mat_obj</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="p">[</span><span class="n">obj_name</span><span class="p">]</span><span class="o">.</span><span class="n">surface_material_name</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="p">[</span><span class="n">obj_name</span><span class="p">]</span><span class="o">.</span><span class="n">surface_material_name</span> <span class="o">=</span> <span class="s2">&quot;Steel-oxidised-surface&quot;</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">all_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">ao</span> <span class="k">for</span> <span class="n">ao</span> <span class="ow">in</span> <span class="n">all_objs</span> <span class="k">if</span> <span class="n">ao</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">list_mat_obj</span><span class="p">]</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">cleanup_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variations</span><span class="o">=</span><span class="s2">&quot;All&quot;</span><span class="p">,</span> <span class="n">entire_solution</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mesh</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">linked_data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete a set of Solution Variations or part of them.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        variations : List, str, optional</span>
+<span class="sd">            All variations to delete. Default is `&quot;All&quot;` which deletes all available solutions.</span>
+<span class="sd">        entire_solution : bool, optional</span>
+<span class="sd">            Either if delete entire Solution or part of it. If `True` other booleans will be ignored</span>
+<span class="sd">            as solution will be entirely deleted.</span>
+<span class="sd">        field : bool, optional</span>
+<span class="sd">            Either if delete entire Fields of variation or not. Default is `True`.</span>
+<span class="sd">        mesh : bool, optional</span>
+<span class="sd">            Either if delete entire Mesh of variation or not. Default is `True`.</span>
+<span class="sd">        linked_data : bool, optional</span>
+<span class="sd">            Either if delete entire Linked Data of variation or not. Default is `True`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            `True` if Delete operation succeeded.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variations</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">variations</span> <span class="o">=</span> <span class="p">[</span><span class="n">variations</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">entire_solution</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">DeleteFullVariation</span><span class="p">(</span><span class="n">variations</span><span class="p">,</span> <span class="n">linked_data</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">field</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">DeleteFieldVariation</span><span class="p">(</span><span class="n">variations</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">linked_data</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">linked_data</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">DeleteLinkedDataVariation</span><span class="p">(</span><span class="n">variations</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="nd">@pyaedt_function_handler</span>
+    <span class="k">def</span> <span class="nf">add_stackup_3d</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a stackup 3D object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.modeler.stackup_3d.Stackup3D`</span>
+<span class="sd">            Stackup class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pyaedt.modeler.advanced_cad.stackup_3d</span> <span class="kn">import</span> <span class="n">Stackup3D</span>
+
+        <span class="k">return</span> <span class="n">Stackup3D</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">flatten_3d_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">purge_history</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Flatten one or multiple 3d components in the actual layout. Each 3d Component is replaced with objects.</span>
+<span class="sd">        This function will work only if the reference coordinate system of the 3d component is the global one.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component_name : str, list, optional</span>
+<span class="sd">            List of user defined components. Default is `None` for all 3d Components.</span>
+<span class="sd">        purge_history : bool, optional</span>
+<span class="sd">            Define if the 3D Component will be purged before copied.</span>
+<span class="sd">            This is needed when more than 1 component with the same definition is present.</span>
+<span class="sd">        password : str, optional</span>
+<span class="sd">            Password for encrypted 3d component.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            `True` if succeeded.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">native_comp_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">nc</span><span class="o">.</span><span class="n">component_name</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">nc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">native_components</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">component_name</span><span class="p">:</span>
+            <span class="n">component_name</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">key</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">user_defined_components</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">val</span><span class="o">.</span><span class="n">definition_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">native_comp_names</span>
+            <span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">component_name</span> <span class="o">=</span> <span class="p">[</span><span class="n">component_name</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">cmp</span> <span class="ow">in</span> <span class="n">component_name</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">cmp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">user_defined_component_names</span><span class="p">,</span> <span class="s2">&quot;Component Definition not found.&quot;</span>
+
+        <span class="k">for</span> <span class="n">cmp</span> <span class="ow">in</span> <span class="n">component_name</span><span class="p">:</span>
+            <span class="n">comp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">user_defined_components</span><span class="p">[</span><span class="n">cmp</span><span class="p">]</span>
+            <span class="n">target_cs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">_create_reference_cs_from_3dcomp</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">)</span>
+            <span class="n">app</span> <span class="o">=</span> <span class="n">comp</span><span class="o">.</span><span class="n">edit_definition</span><span class="p">(</span><span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">comp</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">app</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+            <span class="k">if</span> <span class="n">purge_history</span><span class="p">:</span>
+                <span class="n">app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">purge_history</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">_all_object_names</span><span class="p">)</span>
+            <span class="n">monitor_cache</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">design_type</span> <span class="o">==</span> <span class="s2">&quot;Icepak&quot;</span><span class="p">:</span>
+                <span class="n">objs_monitors</span> <span class="o">=</span> <span class="p">[</span><span class="n">part</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">comp</span><span class="o">.</span><span class="n">parts</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+                <span class="k">for</span> <span class="n">mon_name</span><span class="p">,</span> <span class="n">mon_obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">all_monitors</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">obj_name</span> <span class="o">=</span> <span class="n">mon_obj</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;Geometry Assignment&quot;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">obj_name</span> <span class="ow">in</span> <span class="n">objs_monitors</span><span class="p">:</span>
+                        <span class="n">monitor_cache</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">mon_obj</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">mon_obj</span><span class="o">.</span><span class="n">properties</span><span class="p">})</span>
+                        <span class="n">monitor_cache</span><span class="p">[</span><span class="n">mon_obj</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;Native Assignment&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;placeholder&quot;</span>
+                        <span class="k">if</span> <span class="n">monitor_cache</span><span class="p">[</span><span class="n">mon_obj</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;Type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Face&quot;</span><span class="p">:</span>
+                            <span class="n">monitor_cache</span><span class="p">[</span><span class="n">mon_obj</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;Area Assignment&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">get_face_area</span><span class="p">(</span>
+                                <span class="n">monitor_cache</span><span class="p">[</span><span class="n">mon_obj</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span>
+                            <span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">monitor_cache</span><span class="p">[</span><span class="n">mon_obj</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;Type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Surface&quot;</span><span class="p">:</span>
+                            <span class="n">monitor_cache</span><span class="p">[</span><span class="n">mon_obj</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;Area Assignment&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">get_face_area</span><span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">get_object_from_name</span><span class="p">(</span><span class="n">monitor_cache</span><span class="p">[</span><span class="n">mon_obj</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;ID&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">faces</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">id</span>
+                            <span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">monitor_cache</span><span class="p">[</span><span class="n">mon_obj</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;Type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Object&quot;</span><span class="p">:</span>
+                            <span class="n">monitor_cache</span><span class="p">[</span><span class="n">mon_obj</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;Volume Assignment&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">get_object_from_name</span><span class="p">(</span>
+                                <span class="n">monitor_cache</span><span class="p">[</span><span class="n">mon_obj</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span>
+                            <span class="p">)</span><span class="o">.</span><span class="n">volume</span>
+                <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">mon_dict</span> <span class="ow">in</span> <span class="n">monitor_cache</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">del</span> <span class="n">mon_dict</span><span class="p">[</span><span class="s2">&quot;Object&quot;</span><span class="p">]</span>
+            <span class="n">oldcs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetActiveCoordinateSystem</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">set_working_coordinate_system</span><span class="p">(</span><span class="n">target_cs</span><span class="p">)</span>
+            <span class="n">comp</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+            <span class="n">obj_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">copy_solid_bodies_from</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">no_vacuum</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">no_pec</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_sheets</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">refresh_all_ids</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">set_working_coordinate_system</span><span class="p">(</span><span class="n">oldcs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">design_type</span> <span class="o">==</span> <span class="s2">&quot;Icepak&quot;</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">monitor_obj</span><span class="p">,</span> <span class="n">mon_dict</span> <span class="ow">in</span> <span class="n">monitor_cache</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">insert_monitor_object_from_dict</span><span class="p">(</span><span class="n">mon_dict</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+                        <span class="n">dict_in</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;monitor&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">monitor_obj</span><span class="p">:</span> <span class="n">mon_dict</span><span class="p">}}</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">configurations</span><span class="o">.</span><span class="n">_monitor_assignment_finder</span><span class="p">(</span><span class="n">dict_in</span><span class="p">,</span> <span class="n">monitor_obj</span><span class="p">,</span> <span class="n">obj_set</span><span class="p">)</span>
+                        <span class="n">m_type</span> <span class="o">=</span> <span class="n">dict_in</span><span class="p">[</span><span class="s2">&quot;monitor&quot;</span><span class="p">][</span><span class="n">monitor_obj</span><span class="p">][</span><span class="s2">&quot;Type&quot;</span><span class="p">]</span>
+                        <span class="n">m_obj</span> <span class="o">=</span> <span class="n">dict_in</span><span class="p">[</span><span class="s2">&quot;monitor&quot;</span><span class="p">][</span><span class="n">monitor_obj</span><span class="p">][</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">configurations</span><span class="o">.</span><span class="n">update_monitor</span><span class="p">(</span>
+                            <span class="n">m_type</span><span class="p">,</span> <span class="n">m_obj</span><span class="p">,</span> <span class="n">dict_in</span><span class="p">[</span><span class="s2">&quot;monitor&quot;</span><span class="p">][</span><span class="n">monitor_obj</span><span class="p">][</span><span class="s2">&quot;Quantity&quot;</span><span class="p">],</span> <span class="n">monitor_obj</span>
+                        <span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+                            <span class="k">return</span> <span class="kc">False</span>
+            <span class="n">app</span><span class="o">.</span><span class="n">oproject</span><span class="o">.</span><span class="n">Close</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">design_type</span> <span class="o">==</span> <span class="s2">&quot;Icepak&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">_refresh_mesh_operations</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">True</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright (c) 2023 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

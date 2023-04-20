@@ -1,0 +1,652 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyaedt.emit &#8212; PyAEDT</title>
+    
+<script>
+  document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+  document.documentElement.dataset.theme = localStorage.getItem("theme") || "light"
+</script>
+
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+
+
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css\ansys_sphinx_theme.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695">
+
+    
+        <link href="../../_static/css/breadcrumbs.css" rel="stylesheet">
+    
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <link rel="shortcut icon" href="../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+    <div class="bd-header-announcement container-fluid" id="banner">
+      
+
+    </div>
+
+    
+    
+    <nav class="bd-header navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="bd-header__inner container-xl">
+
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+    <img src="../../_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="Logo image">
+    <img src="../../_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="fas fa-bars"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../Getting_started/index.html">
+  Getting started
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../User_guide/index.html">
+  User guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../API/index.html">
+  AEDT API
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../EDBAPI/index.html">
+  EDB API
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../examples/index.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../Contributing.html">
+  Contribute
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <div class="dropdown" id="version_switcher">
+    <button type="button" class="btn btn-sm navbar-btn dropdown-toggle" id="version_switcher_button" data-toggle="dropdown">
+        0.6  <!-- this text may get changed later by javascript -->
+        <span class="caret"></span>
+    </button>
+    <div id="version_switcher_menu" class="dropdown-menu list-group-flush py-0" aria-labelledby="version_switcher_button">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+</div>
+
+<!-- NOTE: this JS must live here (not in our global JS file) because it relies
+     on being processed by Jinja before it is run (specifically for replacing
+     variables _modules/pyaedt/emit and {'json_url': 'https://aedt.docs.pyansys.com/release/versions.json', 'version_match': '0.6'}.
+-->
+
+<script type="text/javascript">
+// Check if corresponding page path exists in other version of docs
+// and, if so, go there instead of the homepage of the other docs version
+function checkPageExistsAndRedirect(event) {
+    const currentFilePath = "_modules/pyaedt/emit.html",
+          tryUrl = event.target.getAttribute("href");
+    let otherDocsHomepage = tryUrl.replace(currentFilePath, "");
+    $.ajax({
+        type: 'HEAD',
+        url: tryUrl,
+        // if the page exists, go there
+        success: function() {
+            location.href = tryUrl;
+        }
+    }).fail(function() {
+        location.href = otherDocsHomepage;
+    });
+    // this prevents the browser from following the href of the clicked node
+    // (which is fine because this function takes care of redirecting)
+    return false;
+}
+
+// Populate the version switcher from the JSON config file
+(function () {
+    $.getJSON("https://aedt.docs.pyansys.com/release/versions.json", function(data, textStatus, jqXHR) {
+        const currentFilePath = "_modules/pyaedt/emit.html";
+        let btn = document.getElementById("version_switcher_button");
+        // Set empty strings by default so that these attributes exist and can be used in CSS selectors
+        btn.dataset["activeVersionName"] = "";
+        btn.dataset["activeVersion"] = "";
+        // create links to the corresponding page in the other docs versions
+        $.each(data, function(index, entry) {
+            // if no custom name specified (e.g., "latest"), use version string
+            if (!("name" in entry)) {
+                entry.name = entry.version;
+            }
+            // create the node
+            const node = document.createElement("a");
+            node.setAttribute("class", "list-group-item list-group-item-action py-1");
+            node.textContent = `${entry.name}`;
+            node.setAttribute("href", `${entry.url}${currentFilePath}`);
+            // on click, AJAX calls will check if the linked page exists before
+            // trying to redirect, and if not, will redirect to the homepage
+            // for that version of the docs.
+            node.onclick = checkPageExistsAndRedirect;
+            // Add dataset values for the version and name in case people want
+            // to apply CSS styling based on this information.
+            node.dataset["versionName"] = entry.name;
+            node.dataset["version"] = entry.version;
+
+            $("#version_switcher_menu").append(node);
+            // replace dropdown button text with the preferred display name of
+            // this version, rather than using sphinx's 0.6.70 variable.
+            // also highlight the dropdown entry for the currently-viewed
+            // version's entry
+            if (entry.version == "0.6") {
+                node.classList.add("active");
+                btn.innerText = btn.dataset["activeVersionName"] = entry.name;
+                btn.dataset["activeVersion"] = entry.version;
+            }
+        });
+    });
+})();
+</script>
+      </div>
+      
+      <div class="navbar-end-item">
+        <span id="theme-switch" class="btn btn-sm btn-outline-primary navbar-btn rounded-circle">
+    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/pyansys/pyaedt" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/pyansys/pyaedt/discussions" rel="noopener" target="_blank" title="Support"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+     
+<div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(text => document.getElementById("announcement_msg").innerHTML = text)
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+
+    
+        <div class="container-xl">
+    <div class="row">
+        <div class="col-12 col-md-3" id="breadcrumbs-spacer"></div>
+        <div class="col-12 col-md-11 col-xl-9" id="breadcrumbs">
+          
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-additional-breadcrumb"><a href="https://docs.pyansys.com/">PyAnsys</a> » </li>
+    
+    
+        <li class="nav-item nav-item-0"><a href="../../index.html">PyAEDT</a> » </li>
+    
+
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> » </li>
+        <li class="nav-item nav-item-this"><a href="">pyaedt.emit</a></li> 
+      </ul>
+    </div>
+        </div>
+  </div>
+</div>
+    
+
+
+    <div class="bd-container container-xl">
+      <div class="bd-container__inner row">
+          
+
+<!-- Only show if we have sidebars configured, else just a small margin  -->
+<div class="bd-sidebar-primary col-12 col-md-3 bd-sidebar">
+  <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+  </div>
+  <div class="sidebar-end-items">
+  </div>
+</div>
+
+
+          
+
+
+<div class="bd-sidebar-secondary d-none d-xl-block col-xl-2 bd-toc">
+  
+</div>
+
+
+          
+          
+          <div class="bd-content col-12 col-md-9 col-xl-7">
+              
+              <article class="bd-article" role="main">
+                
+  <h1>Source code for pyaedt.emit</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">generate_unique_project_name</span>
+<span class="kn">from</span> <span class="nn">pyaedt.application.Design</span> <span class="kn">import</span> <span class="n">Design</span>
+<span class="kn">from</span> <span class="nn">pyaedt.emit_core</span> <span class="kn">import</span> <span class="n">EMIT_MODULE</span>
+<span class="kn">from</span> <span class="nn">pyaedt.emit_core</span> <span class="kn">import</span> <span class="n">EmitConstants</span>
+<span class="kn">from</span> <span class="nn">pyaedt.emit_core.Couplings</span> <span class="kn">import</span> <span class="n">CouplingsEmit</span>
+<span class="kn">from</span> <span class="nn">pyaedt.emit_core.results.results</span> <span class="kn">import</span> <span class="n">Results</span>
+<span class="kn">from</span> <span class="nn">pyaedt.generic.general_methods</span> <span class="kn">import</span> <span class="n">pyaedt_function_handler</span>
+<span class="kn">from</span> <span class="nn">pyaedt.modeler.schematic</span> <span class="kn">import</span> <span class="n">ModelerEmit</span>
+
+
+<div class="viewcode-block" id="Emit"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.emit.Emit.html#pyaedt.emit.Emit">[docs]</a><span class="k">class</span> <span class="nc">Emit</span><span class="p">(</span><span class="n">Design</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Provides the Emit application interface.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    projectname : str, optional</span>
+<span class="sd">        Name of the project to select or the full path to the project</span>
+<span class="sd">        or AEDTZ archive to open.  The default is ``None``, in which case</span>
+<span class="sd">        an attempt is made to get an active project. If no projects are</span>
+<span class="sd">        present, an empty project is created.</span>
+<span class="sd">    designname : str, optional</span>
+<span class="sd">        Name of the design to select. The default is ``None``, in which case</span>
+<span class="sd">        an attempt is made to get an active design. If no designs are</span>
+<span class="sd">        present, an empty design is created.</span>
+<span class="sd">    solution_type : str, optional</span>
+<span class="sd">        Solution type to apply to the design. The default is ``None``, in which</span>
+<span class="sd">        case the default type is applied.</span>
+<span class="sd">    setup_name : str, optional</span>
+<span class="sd">        Name of the setup to use as the nominal. The default is</span>
+<span class="sd">        ``None``, in which case the active setup is used or</span>
+<span class="sd">        nothing is used.</span>
+<span class="sd">    specified_version : str, optional</span>
+<span class="sd">        Version of AEDT to use. The default is ``None``, in which case</span>
+<span class="sd">        the active setup is used or the latest installed version is</span>
+<span class="sd">        used.</span>
+<span class="sd">    non_graphical : bool, optional</span>
+<span class="sd">        Whether to launch AEDT in non-graphical mode. The default</span>
+<span class="sd">        is ``False``, in which case AEDT is launched in graphical mode.</span>
+<span class="sd">        This parameter is ignored when a script is launched within AEDT.</span>
+<span class="sd">    new_desktop_session : bool, optional</span>
+<span class="sd">        Whether to launch an instance of AEDT in a new thread, even if</span>
+<span class="sd">        another instance of the ``specified_version`` is active on the</span>
+<span class="sd">        machine.  The default is ``True``.</span>
+<span class="sd">    close_on_exit : bool, optional</span>
+<span class="sd">        Whether to release AEDT on exit. The default is ``False``.</span>
+<span class="sd">    student_version : bool, optional</span>
+<span class="sd">        Whether to start the AEDT student version. The default is ``False``.</span>
+<span class="sd">    port : int, optional</span>
+<span class="sd">        Port number on which to start the oDesktop communication on an already existing server.</span>
+<span class="sd">        This parameter is ignored when creating a server. This parameter works only in 2022 R2 or later.</span>
+<span class="sd">        The remote server must be up and running with the command `&quot;ansysedt.exe -grpcsrv portnum&quot;`.</span>
+<span class="sd">    machine : str, optional</span>
+<span class="sd">        Machine name that the Desktop session is to connect to. This</span>
+<span class="sd">        parameter works only in 2022 R2 and later. The remote server must be</span>
+<span class="sd">        up and running with the command `&quot;ansysedt.exe -grpcsrv portnum&quot;`.</span>
+<span class="sd">        If the machine is `&quot;localhost&quot;`, the server starts if it is not present.</span>
+<span class="sd">    aedt_process_id : int, optional</span>
+<span class="sd">        Process ID for the instance of AEDT to point PyAEDT at. The default is</span>
+<span class="sd">        ``None``. This parameter is only used when ``new_desktop_session = False``.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Create an ``Emit`` instance. You can also choose to define parameters for this instance here.</span>
+
+<span class="sd">    &gt;&gt;&gt; from pyaedt import Emit</span>
+<span class="sd">    &gt;&gt;&gt; aedtapp = Emit()</span>
+
+<span class="sd">    Typically, it is desirable to specify a project name, design name, and other parameters.</span>
+
+<span class="sd">    &gt;&gt;&gt; aedtapp = Emit(projectname, designame)</span>
+
+<span class="sd">    Once an ``Emit`` instance is initialized, you can edit the schematic:</span>
+
+<span class="sd">    &gt;&gt;&gt; rad1 = aedtapp.modeler.components.create_component(&quot;Bluetooth&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; ant1 = aedtapp.modeler.components.create_component(&quot;Antenna&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; if rad1 and ant1:</span>
+<span class="sd">    &gt;&gt;&gt;     ant1.move_and_connect_to(rad1)</span>
+
+<span class="sd">    Once the schematic is generated, the ``Emit`` object can be analyzed to generate</span>
+<span class="sd">    a revision. Each revision is added as an element of the ``Emit`` object member&#39;s</span>
+<span class="sd">    revisions_list.</span>
+
+<span class="sd">    &gt;&gt;&gt; aedtapp.analyze()</span>
+
+<span class="sd">    A revision within PyAEDT is analogous to a revision in AEDT. An interaction domain must</span>
+<span class="sd">    be defined and then used as the input to the run command used on that revision.</span>
+
+<span class="sd">    &gt;&gt;&gt; domain = aedtapp.interaction_domain()</span>
+<span class="sd">    &gt;&gt;&gt; domain.rx_radio_name = &quot;UE - HandHeld&quot;</span>
+<span class="sd">    &gt;&gt;&gt; interaction = aedtapp.revisions_list[0].run(domain)</span>
+
+<span class="sd">    The output of the run command is an ``interaction`` object. This object summarizes the interaction data</span>
+<span class="sd">    that is defined in the interaction domain.</span>
+
+<span class="sd">    &gt;&gt;&gt; instance = interaction.worst_instance(Emit.result_type().sensitivity)</span>
+<span class="sd">    &gt;&gt;&gt; val = instance.value(Emit.result_type().sensitivity)</span>
+<span class="sd">    &gt;&gt;&gt; print(&quot;Worst-case sensitivity for Rx &#39;{}&#39; is {}dB.&quot;.format(domain.rx_radio_name, val))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">projectname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">designname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">solution_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">setup_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">specified_version</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">non_graphical</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">new_desktop_session</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">close_on_exit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">student_version</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">machine</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">port</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">aedt_process_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="n">projectname</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">projectname</span> <span class="o">=</span> <span class="n">generate_unique_project_name</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__emit_api_enabled</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor for the ``FieldAnalysisEmit`` class&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_units</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;Power&quot;</span><span class="p">:</span> <span class="s2">&quot;dBm&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Frequency&quot;</span><span class="p">:</span> <span class="s2">&quot;MHz&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Length&quot;</span><span class="p">:</span> <span class="s2">&quot;meter&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Time&quot;</span><span class="p">:</span> <span class="s2">&quot;ns&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Voltage&quot;</span><span class="p">:</span> <span class="s2">&quot;mV&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Data Rate&quot;</span><span class="p">:</span> <span class="s2">&quot;bps&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Resistance&quot;</span><span class="p">:</span> <span class="s2">&quot;ohm&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Default Emit units.&quot;&quot;&quot;</span>
+
+        <span class="n">Design</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="s2">&quot;EMIT&quot;</span><span class="p">,</span>
+            <span class="n">projectname</span><span class="p">,</span>
+            <span class="n">designname</span><span class="p">,</span>
+            <span class="n">solution_type</span><span class="p">,</span>
+            <span class="n">specified_version</span><span class="p">,</span>
+            <span class="n">non_graphical</span><span class="p">,</span>
+            <span class="n">new_desktop_session</span><span class="p">,</span>
+            <span class="n">close_on_exit</span><span class="p">,</span>
+            <span class="n">student_version</span><span class="p">,</span>
+            <span class="n">machine</span><span class="o">=</span><span class="n">machine</span><span class="p">,</span>
+            <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span>
+            <span class="n">aedt_process_id</span><span class="o">=</span><span class="n">aedt_process_id</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_modeler</span> <span class="o">=</span> <span class="n">ModelerEmit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_couplings</span> <span class="o">=</span> <span class="n">CouplingsEmit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aedt_version</span> <span class="o">&gt;=</span> <span class="s2">&quot;2023.1&quot;</span> <span class="ow">and</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="o">.</span><span class="n">major</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="o">.</span><span class="n">minor</span> <span class="o">==</span> <span class="mi">7</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_emit_api</span> <span class="o">=</span> <span class="n">EMIT_MODULE</span><span class="o">.</span><span class="n">EmitApi</span><span class="p">()</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Instance of the Emit api.&quot;&quot;&quot;</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="n">Results</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;&#39;&#39;Result&#39;&#39; object for the selected design.&quot;&quot;&quot;</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">__emit_api_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">modeler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Modeler.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pyaedt.modeler.schematic.ModelerEmit</span>
+<span class="sd">            Design oModeler</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modeler</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">couplings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Emit Couplings.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pyaedt.emit_core.Couplings.CouplingsEmit</span>
+<span class="sd">            Couplings within the EMIT Design</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_couplings</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+<div class="viewcode-block" id="Emit.version"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.emit.Emit.version.html#pyaedt.emit.Emit.version">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detailed</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get version information.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        detailed : bool, optional</span>
+<span class="sd">            Whether to return a verbose description. The default is ``False``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ver : str</span>
+<span class="sd">            All of the version information.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; print(aedtapp.version())</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__emit_api_enabled</span><span class="p">:</span>
+            <span class="n">ver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_emit_api</span><span class="o">.</span><span class="n">get_version</span><span class="p">(</span><span class="n">detailed</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">ver</span></div>
+
+<div class="viewcode-block" id="Emit.set_units"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.emit.Emit.set_units.html#pyaedt.emit.Emit.set_units">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">set_units</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unit_type</span><span class="p">,</span> <span class="n">unit_value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set units for the component.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        unit_type : str</span>
+<span class="sd">            System of units.</span>
+<span class="sd">        unit_value : str</span>
+<span class="sd">            Units to use.</span>
+
+<span class="sd">        Power : mW, W, kW, dBm, dBW</span>
+<span class="sd">        Frequency : Hz, kHz, MHz, GHz, THz</span>
+<span class="sd">        Length : pm, nm, um, mm, cm, dm, meter, km, mil, in, ft, yd, mile</span>
+<span class="sd">        Time : ps, ns, us, ms, s</span>
+<span class="sd">        Voltage : mV, V</span>
+<span class="sd">        Data Rate : bps, kbps, Mbps, Gbps</span>
+<span class="sd">        Resistance : uOhm, mOhm, Ohm, kOhm, megOhm, GOhm</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Bool</span>
+<span class="sd">            ``True`` if the units were successfully changed and ``False``</span>
+<span class="sd">            if there was an error.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">valid_type</span> <span class="o">=</span> <span class="n">EmitConstants</span><span class="o">.</span><span class="n">EMIT_UNIT_TYPE</span>
+        <span class="n">valid_units</span> <span class="o">=</span> <span class="n">EmitConstants</span><span class="o">.</span><span class="n">EMIT_VALID_UNITS</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">unit_type</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">unit_type</span><span class="p">,</span> <span class="n">unit_value</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">t</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_type</span><span class="p">:</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">{}</span><span class="s2">] units are not supported by EMIT. The options are: </span><span class="si">{}</span><span class="s2">: &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">valid_type</span><span class="p">))</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_units</span><span class="p">[</span><span class="n">t</span><span class="p">]:</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">{}</span><span class="s2">] are not supported by EMIT. The options are: </span><span class="si">{}</span><span class="s2">: &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">valid_units</span><span class="p">[</span><span class="n">t</span><span class="p">]))</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+                <span class="n">ut</span> <span class="o">=</span> <span class="n">EmitConstants</span><span class="o">.</span><span class="n">EMIT_UNIT_TYPE_STRING_TO_ENUM</span><span class="p">[</span><span class="n">t</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_emit_api</span><span class="o">.</span><span class="n">set_units</span><span class="p">(</span><span class="n">ut</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_units</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">unit_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_type</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;[</span><span class="si">{}</span><span class="s2">] units are not supported by EMIT. The options are: </span><span class="si">{}</span><span class="s2">: &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">unit_type</span><span class="p">,</span> <span class="n">valid_type</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">unit_value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_units</span><span class="p">[</span><span class="n">unit_type</span><span class="p">]:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;[</span><span class="si">{}</span><span class="s2">] are not supported by EMIT. The options are: </span><span class="si">{}</span><span class="s2">: &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">unit_value</span><span class="p">,</span> <span class="n">valid_units</span><span class="p">[</span><span class="n">unit_type</span><span class="p">])</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="c1"># keep the backend global units synced</span>
+            <span class="n">ut</span> <span class="o">=</span> <span class="n">EmitConstants</span><span class="o">.</span><span class="n">EMIT_UNIT_TYPE_STRING_TO_ENUM</span><span class="p">[</span><span class="n">unit_type</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_emit_api</span><span class="o">.</span><span class="n">set_units</span><span class="p">(</span><span class="n">ut</span><span class="p">,</span> <span class="n">unit_value</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_units</span><span class="p">[</span><span class="n">unit_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">unit_value</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Emit.get_units"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.emit.Emit.get_units.html#pyaedt.emit.Emit.get_units">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">get_units</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unit_type</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get units for the component.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        unit_type : str</span>
+<span class="sd">            System of units: options are power, frequency,</span>
+<span class="sd">                length, time, voltage, data rate, or resistance.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Str or Dict</span>
+<span class="sd">            If unit_type is specified returns the units for that type</span>
+<span class="sd">            and if unit_type=&quot;&quot;, returns a Dict of all units.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">unit_type</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_units</span>
+        <span class="k">if</span> <span class="n">unit_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">EmitConstants</span><span class="o">.</span><span class="n">EMIT_UNIT_TYPE</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;[</span><span class="si">{}</span><span class="s2">] units are not supported by EMIT. The options are: </span><span class="si">{}</span><span class="s2">: &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">unit_type</span><span class="p">,</span> <span class="n">EmitConstants</span><span class="o">.</span><span class="n">EMIT_UNIT_TYPE</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_units</span><span class="p">[</span><span class="n">unit_type</span><span class="p">]</span></div></div>
+</pre></div>
+
+              </article>
+              
+
+              
+          </div>
+          
+      </div>
+    </div>
+
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695"></script>
+
+<footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    <p class="copyright">
+    &copy; Copyright (c) 2023 ANSYS, Inc. All rights reserved.<br>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+  </div>
+  
+</div>
+</footer>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+version\_keys
+=============
+
+.. currentmodule:: pyaedt.desktop
+
+.. autoproperty:: Desktop.version_keys

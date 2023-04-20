@@ -1,0 +1,6 @@
+setup\_ctrlprog
+===============
+
+.. currentmodule:: pyaedt.maxwell
+
+.. automethod:: Maxwell3d.setup_ctrlprog
