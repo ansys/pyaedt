@@ -6,6 +6,8 @@ updates:
       interval: "daily"
     reviewers: 
       - "MaxJPRey"
+    commit-message:
+      prefix: "MAINT"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -13,3 +15,5 @@ updates:
       interval: "daily"
     reviewers: 
       - "MaxJPRey"
+    commit-message:
+      prefix: "MAINT"
