@@ -1,5 +1,4 @@
 from collections import defaultdict
-
 import sys
 
 from pyaedt.emit_core import EmitConstants as emit_consts

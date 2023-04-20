@@ -531,9 +531,9 @@ class TestClass(BasisTest, object):
             py_version = "EmitApiPython38"
         elif sys.version_info < (3, 10):
             py_version = "EmitApiPython39"
-        elif sys.version_info < (3, 11): 
+        elif sys.version_info < (3, 11):
             py_version = "EmitApiPython310"
-        elif sys.version_info < (3,12):
+        elif sys.version_info < (3, 12):
             py_version = "EmitApiPython311"
         assert str(type(domain)) == "<class '{}.InteractionDomain'>".format(py_version)
 
