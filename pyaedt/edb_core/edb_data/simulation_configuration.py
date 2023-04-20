@@ -190,7 +190,7 @@ class SimulationConfigurationBatch(object):
 
     @property
     def use_airbox_negative_vertical_extent_multiple(self):
-        """Negative extent multiple value of the airbox.
+        """Multiple value for the negative extent of the airbox.
 
         Returns
         -------
