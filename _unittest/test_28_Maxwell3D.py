@@ -1,13 +1,13 @@
 # Setup paths for module imports
 import os
 import shutil
-import tempfile
 
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 
+from pyaedt import Maxwell2d
 from pyaedt import Maxwell3d
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name
@@ -26,6 +26,8 @@ else:
     core_loss_file = "PlanarTransformer"
 transient = "Transient_StrandedWindings"
 cyl_gap = "Motor3D_cyl_gap"
+ctrl_prg = "TimeStepCtrl"
+ctrl_prg_file = "timestep_only.py"
 
 
 class TestClass(BasisTest, object):
@@ -38,6 +40,9 @@ class TestClass(BasisTest, object):
             self, application=Maxwell3d, project_name=transient, subfolder=test_subfolder
         )
         self.cyl_gap = BasisTest.add_app(self, application=Maxwell3d, project_name=cyl_gap, subfolder=test_subfolder)
+        self.m2d_ctrl_prg = BasisTest.add_app(
+            self, application=Maxwell2d, project_name=ctrl_prg, subfolder=test_subfolder
+        )
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -199,7 +204,6 @@ class TestClass(BasisTest, object):
         assert Setup.props["UseCacheFor"] == ["Pass", "Freq"]
         assert Setup.disable()
         assert Setup.enable()
-        assert self.aedtapp.setup_ctrlprog(Setup.name)
 
     def test_07b_create_parametrics(self):
         self.aedtapp["w1"] = "10mm"
@@ -224,10 +228,6 @@ class TestClass(BasisTest, object):
         transient_setup.props["Frequency"] = "200Hz"
         transient_setup.update()
         transient_setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
-
-        # Test the creation of the control program file
-        with tempfile.TemporaryFile("w+") as fp:
-            assert self.aedtapp.setup_ctrlprog(transient_setup.name, file_str=fp.name)
 
     def test_22_create_length_mesh(self):
         assert self.aedtapp.mesh.assign_length_mesh(["Plate"])
@@ -833,4 +833,51 @@ class TestClass(BasisTest, object):
         )
         assert not self.cyl_gap.mesh.assign_cylindrical_gap(
             "Band", meshop_name="cyl_gap_test", clone_mesh=True, band_mapping_angle=2, static_side_layers=0
+        )
+
+    def test_50_control_program(self):
+        ctrl_prg_path = os.path.join(local_path, "example_models", test_subfolder, ctrl_prg_file)
+        assert self.m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path)
+        assert self.m2d_ctrl_prg.setups[0].enable_control_program(
+            control_program_path=ctrl_prg_path, control_program_args="3"
+        )
+        assert not self.m2d_ctrl_prg.setups[0].enable_control_program(
+            control_program_path=ctrl_prg_path, control_program_args=3
+        )
+        assert self.m2d_ctrl_prg.setups[0].enable_control_program(
+            control_program_path=ctrl_prg_path, call_after_last_step=True
+        )
+        invalid_ctrl_prg_path = os.path.join(local_path, "example_models", test_subfolder, "invalid.py")
+        assert not self.m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=invalid_ctrl_prg_path)
+        self.m2d_ctrl_prg.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
+        assert not self.m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path)
+
+    def test_51_objects_segmentation(self):
+        segments_number = 5
+        object_name = "PM_I1"
+        sheets = self.cyl_gap.modeler.objects_segmentation(object_name, segments_number=segments_number)
+        assert isinstance(sheets, tuple)
+        assert isinstance(sheets[0], dict)
+        assert isinstance(sheets[1], dict)
+        assert isinstance(sheets[0][object_name], list)
+        assert len(sheets[0][object_name]) == segments_number - 1
+        segments_number = 4
+        object_name = "PM_I1_1"
+        magnet_id = [obj.id for obj in self.cyl_gap.modeler.object_list if obj.name == object_name][0]
+        sheets = self.cyl_gap.modeler.objects_segmentation(magnet_id, segments_number=segments_number)
+        assert isinstance(sheets, tuple)
+        assert isinstance(sheets[0][object_name], list)
+        assert len(sheets[0][object_name]) == segments_number - 1
+        segmentation_thickness = 1
+        object_name = "PM_O1"
+        magnet = [obj for obj in self.cyl_gap.modeler.object_list if obj.name == object_name][0]
+        sheets = self.cyl_gap.modeler.objects_segmentation(magnet, segmentation_thickness=segmentation_thickness)
+        assert isinstance(sheets, tuple)
+        assert isinstance(sheets[0][object_name], list)
+        segments_number = round(magnet.top_edge_y.length / segmentation_thickness)
+        assert len(sheets[0][object_name]) == segments_number - 1
+
+        assert not self.cyl_gap.modeler.objects_segmentation(object_name)
+        assert not self.cyl_gap.modeler.objects_segmentation(
+            object_name, segments_number=segments_number, segmentation_thickness=segmentation_thickness
         )

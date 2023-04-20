@@ -313,6 +313,23 @@ class EDBComponent(object):
         ]
 
     @property
+    def is_enabled(self):
+        """Get or Set the component to active mode.
+
+        Returns
+        -------
+        bool
+            ``True`` if component is active, ``False`` if is disabled..
+        """
+        return self.component_property.IsEnabled()
+
+    @is_enabled.setter
+    def is_enabled(self, value):
+        cmp_prop = self.component_property.Clone()
+        cmp_prop.SetEnabled(value)
+        self.edbcomponent.SetComponentProperty(cmp_prop)
+
+    @property
     def spice_model(self):
         """Get assigned Spice model properties."""
         if not self.model_type == "SPICEModel":

@@ -353,7 +353,7 @@ class TestClass(BasisTest, object):
     def test_14_translate_delete_self(self):
         o = self.create_copper_box()
         v0 = o.vertices[0].position
-        o.translate([1, 0, 0])
+        o.move([1, 0, 0])
         v1 = o.vertices[0].position
         assert v1[0] == v0[0] + 1.0
         assert v1[1] == v0[1]

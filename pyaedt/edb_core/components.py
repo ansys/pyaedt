@@ -169,7 +169,7 @@ class Components(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`]
+        Dict[str, :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`]
             Default dictionary for the EDB component.
 
         Examples
@@ -310,7 +310,7 @@ class Components(object):
         >>> edbapp.components.resistors
         """
         self._res = {}
-        for el, val in self.components.items():
+        for el, val in self.instances.items():
             if val.type == "Resistor":
                 self._res[el] = val
         return self._res
@@ -332,7 +332,7 @@ class Components(object):
         >>> edbapp.components.capacitors
         """
         self._cap = {}
-        for el, val in self.components.items():
+        for el, val in self.instances.items():
             if val.type == "Capacitor":
                 self._cap[el] = val
         return self._cap
@@ -355,7 +355,7 @@ class Components(object):
 
         """
         self._ind = {}
-        for el, val in self.components.items():
+        for el, val in self.instances.items():
             if val.type == "Inductor":
                 self._ind[el] = val
         return self._ind
@@ -378,7 +378,7 @@ class Components(object):
 
         """
         self._ics = {}
-        for el, val in self.components.items():
+        for el, val in self.instances.items():
             if val.type == "IC":
                 self._ics[el] = val
         return self._ics
@@ -401,7 +401,7 @@ class Components(object):
 
         """
         self._ios = {}
-        for el, val in self.components.items():
+        for el, val in self.instances.items():
             if val.type == "IO":
                 self._ios[el] = val
         return self._ios
@@ -424,7 +424,7 @@ class Components(object):
 
         """
         self._others = {}
-        for el, val in self.components.items():
+        for el, val in self.instances.items():
             if val.type == "Other":
                 self._others[el] = val
         return self._others
@@ -447,7 +447,7 @@ class Components(object):
 
         """
         self._comps_by_part = {}
-        for el, val in self.components.items():
+        for el, val in self.instances.items():
             if val.partname in self._comps_by_part.keys():
                 self._comps_by_part[val.partname].append(val)
             else:
@@ -509,7 +509,7 @@ class Components(object):
         cmp_list = []
         if isinstance(netlist, str):
             netlist = [netlist]
-        components = list(self.components.keys())
+        components = list(self.instances.keys())
         for refdes in components:
             cmpnets = self._cmp[refdes].nets
             if set(cmpnets).intersection(set(netlist)):
@@ -777,7 +777,7 @@ class Components(object):
 
         """
         if isinstance(component, str):
-            component = self.components[component].edbcomponent
+            component = self.instances[component].edbcomponent
         if not isinstance(net_list, list):
             net_list = [net_list]
         for net in net_list:
@@ -953,7 +953,7 @@ class Components(object):
         if not component:
             return False
         if isinstance(component, str):
-            component = self.components[component]
+            component = self.instances[component]
             if not component:
                 self._logger.error("component %s not found.", component)
                 return False
@@ -965,11 +965,10 @@ class Components(object):
         ):
             self._logger.info("Component %s passed to deactivate is not an RLC.", component.refdes)
             return False
+        component.is_enabled = False
         if create_circuit_port:
-            self.add_port_on_rlc_component(component.refdes)
-            return True
-        else:
-            return self.set_component_rlc(component.refdes)
+            return self.add_port_on_rlc_component(component.refdes)
+        return True
 
     @pyaedt_function_handler()
     def add_port_on_rlc_component(self, component=None):
@@ -987,7 +986,7 @@ class Components(object):
             ``True`` when successful, ``False`` when failed.
         """
         if isinstance(component, str):  # pragma: no cover
-            component = self.components[component]
+            component = self.instances[component]
         if not isinstance(component, EDBComponent):  # pragma: no cover
             return False
         self.set_component_rlc(component.refdes)
@@ -1449,7 +1448,7 @@ class Components(object):
 
         """
         deleted_comps = []
-        for comp, val in self.components.items():
+        for comp, val in self.instances.items():
             if val.numpins < 2 and val.type in ["Resistor", "Capacitor", "Inductor"]:
                 val.edbcomponent.Delete()
                 deleted_comps.append(comp)
@@ -1511,7 +1510,7 @@ class Components(object):
         edb_cmp = self.get_component_by_name(component_name)
         if edb_cmp is not None:
             edb_cmp.Delete()
-            if edb_cmp in list(self.components.keys()):
+            if edb_cmp in list(self.instances.keys()):
                 del self.components[edb_cmp]
             return True
         return False
@@ -1683,6 +1682,10 @@ class Components(object):
         ... )
 
         """
+        if res_value is None and ind_value is None and cap_value is None:
+            self.instances[componentname].is_enabled = False
+            self._logger.info("No parameters passed, component %s  is disabled.", componentname)
+            return True
         edb_component = self.get_component_by_name(componentname)
         edb_rlc_component_property = self._edb.Cell.Hierarchy.RLCComponentProperty()
         component_pins = self.get_pin_from_component(componentname)
@@ -1722,7 +1725,7 @@ class Components(object):
                 componentname,
             )
             return False
-        self._logger.warning("RLC properties for Component %s has been assigned.", componentname)
+        self._logger.info("RLC properties for Component %s has been assigned.", componentname)
         return True
 
     @pyaedt_function_handler()
@@ -1768,7 +1771,7 @@ class Components(object):
             refdescolumn = None
             comptypecolumn = None
             valuecolumn = None
-            unmount_comp_list = list(self.components.keys())
+            unmount_comp_list = list(self.instances.keys())
             for line in Lines:
                 content_line = [i.strip() for i in line.split(delimiter)]
                 if valuefield in content_line:
@@ -1829,7 +1832,7 @@ class Components(object):
         """
         with open(bom_file, "r") as f:
             lines = f.readlines()
-            unmount_comp_list = list(self.components.keys())
+            unmount_comp_list = list(self.instances.keys())
             for l in lines[1:]:
                 l = l.replace(" ", "").replace("\n", "")
                 if not l:
@@ -1898,7 +1901,7 @@ class Components(object):
         """
         with open(bom_file, "w") as f:
             f.writelines([delimiter.join(["RefDes", "Part name", "Type", "Value\n"])])
-            for refdes, comp in self.components.items():
+            for refdes, comp in self.instances.items():
                 if not comp.is_enabled and comp.type in ["Resistor", "Capacitor", "Inductor"]:
                     continue
                 part_name = comp.partname
@@ -2154,7 +2157,7 @@ class Components(object):
 
         """
         df_list = []
-        for refdes in self.components.keys():
+        for refdes in self.instances.keys():
             df = self.get_component_net_connection_info(refdes)
             df_list.append(df)
         return df_list

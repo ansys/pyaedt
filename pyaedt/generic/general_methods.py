@@ -99,6 +99,7 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     if message_to_print:
         _write_mes(message_to_print)
     _write_mes("Arguments with values: ")
+    args_name = []
     try:
         if int(sys.version[0]) > 2:
             args_name = list(OrderedDict.fromkeys(inspect.getfullargspec(func)[0] + list(kwargs.keys())))
@@ -112,8 +113,12 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
                 _write_mes("    {} = {} ".format(el, args_dict[el]))
     except:
         pass
-
-    _write_mes("Check Online documentation on: https://aedt.docs.pyansys.com/search.html?q={}".format(func.__name__))
+    args = [func.__name__] + [i for i in args_name if i not in ["self"]]
+    _write_mes(
+        "Check Online documentation on: https://aedt.docs.pyansys.com/version/stable/search.html?q={}".format(
+            "+".join(args)
+        )
+    )
 
 
 def _check_types(arg):
@@ -1614,6 +1619,45 @@ class Settings(object):
         self._lsf_aedt_command = "ansysedt"
         self._lsf_timeout = 3600
         self._lsf_queue = None
+        self._aedt_environment_variables = {
+            "ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3": "1",
+            "ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE": "1",
+            "ANSYSEM_FEATURE_SF159726_SCRIPTOBJECT_ENABLE": "1",
+            "ANSYSEM_FEATURE_SF222134_CABLE_MODELING_ENHANCEMENTS_ENABLE": "1",
+            "ANSYSEM_FEATURE_F395486_RIGID_FLEX_BENDING_ENABLE": "1",
+        }
+        if is_linux:
+            self._aedt_environment_variables["ANS_NODEPCHECK"] = "1"
+        self._desktop_launch_timeout = 90
+
+    @property
+    def desktop_launch_timeout(self):
+        """Set the desktop launcher max timeout. Default is ``90`` seconds.
+
+        Returns
+        -------
+        int
+        """
+        return self._desktop_launch_timeout
+
+    @desktop_launch_timeout.setter
+    def desktop_launch_timeout(self, value):
+        self._desktop_launch_timeout = int(value)
+
+    @property
+    def aedt_environment_variables(self):
+        """Set environment variables to be set before launching a new aedt session.
+        This includes beta features enablemement.
+
+        Returns
+        -------
+        dict
+        """
+        return self._aedt_environment_variables
+
+    @aedt_environment_variables.setter
+    def aedt_environment_variables(self, value):
+        self._aedt_environment_variables = value
 
     @property
     def lsf_queue(self):

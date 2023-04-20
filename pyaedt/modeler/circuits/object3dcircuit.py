@@ -21,7 +21,7 @@ class CircuitPins(object):
     def __init__(self, circuit_comp, pinname):
         self._circuit_comp = circuit_comp
         self.name = pinname
-        self.m_Editor = circuit_comp.m_Editor
+        self._oeditor = circuit_comp._oeditor
 
     @property
     def units(self):
@@ -40,7 +40,7 @@ class CircuitPins(object):
         if "Port" in self._circuit_comp.composed_name:
             pos1 = _retry_ntimes(
                 30,
-                self.m_Editor.GetPropertyValue,
+                self._oeditor.GetPropertyValue,
                 "BaseElementTab",
                 self._circuit_comp.composed_name,
                 "Component Location",
@@ -56,14 +56,14 @@ class CircuitPins(object):
         return [
             round(
                 _retry_ntimes(
-                    30, self.m_Editor.GetComponentPinLocation, self._circuit_comp.composed_name, self.name, True
+                    30, self._oeditor.GetComponentPinLocation, self._circuit_comp.composed_name, self.name, True
                 )
                 / AEDT_UNITS["Length"][self.units],
                 8,
             ),
             round(
                 _retry_ntimes(
-                    30, self.m_Editor.GetComponentPinLocation, self._circuit_comp.composed_name, self.name, False
+                    30, self._oeditor.GetComponentPinLocation, self._circuit_comp.composed_name, self.name, False
                 )
                 / AEDT_UNITS["Length"][self.units],
                 8,
@@ -76,7 +76,7 @@ class CircuitPins(object):
         if "PagePort@" in self.name:
             return self._circuit_comp.name.split("@")[1]
         for net in self._circuit_comp._circuit_components.nets:
-            conns = self.m_Editor.GetNetConnections(net)
+            conns = self._oeditor.GetNetConnections(net)
             for conn in conns:
                 if conn.endswith(self.name) and (
                     ";{};".format(self._circuit_comp.id) in conn or ";{} ".format(self._circuit_comp.id) in conn
@@ -87,7 +87,7 @@ class CircuitPins(object):
     @property
     def angle(self):
         """Pin angle."""
-        props = list(self.m_Editor.GetComponentPinInfo(self._circuit_comp.composed_name, self.name))
+        props = list(self._oeditor.GetComponentPinInfo(self._circuit_comp.composed_name, self.name))
         for i in props:
             if "Angle=" in i:
                 return round(float(i[6:]))
@@ -309,9 +309,11 @@ class CircuitPins(object):
 
 
 class ComponentParameters(dict):
+    """Manages component parameters."""
+
     def __setitem__(self, key, value):
         try:
-            self._component.m_Editor.ChangeProperty(
+            self._component._oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",
                     [
@@ -332,6 +334,8 @@ class ComponentParameters(dict):
 
 
 class ModelParameters(object):
+    """Manages model parameters."""
+
     def update(self):
         """Update the model properties.
 
@@ -371,9 +375,9 @@ class CircuitComponent(object):
         self.name = ""
         self._circuit_components = circuit_components
         if custom_editor:
-            self.m_Editor = custom_editor
+            self._oeditor = custom_editor
         else:
-            self.m_Editor = self._circuit_components.oeditor
+            self._oeditor = self._circuit_components.oeditor
         self._modelName = None
         self.status = "Active"
         self.component = None
@@ -395,7 +399,7 @@ class CircuitComponent(object):
     def refdes(self):
         """Reference designator."""
         try:
-            return self.m_Editor.GetPropertyValue("Component", self.composed_name, "RefDes")
+            return self._oeditor.GetPropertyValue("Component", self.composed_name, "RefDes")
         except:
             return ""
 
@@ -462,12 +466,12 @@ class CircuitComponent(object):
         else:
             tab = "Quantities"
         try:
-            proparray = self.m_Editor.GetProperties(tab, self.composed_name)
+            proparray = self._oeditor.GetProperties(tab, self.composed_name)
         except:
             proparray = []
 
         for j in proparray:
-            propval = _retry_ntimes(10, self.m_Editor.GetPropertyValue, tab, self.composed_name, j)
+            propval = _retry_ntimes(10, self._oeditor.GetPropertyValue, tab, self.composed_name, j)
             _parameters[j] = propval
         self._parameters = ComponentParameters(self, tab, _parameters)
         return self._parameters
@@ -486,10 +490,10 @@ class CircuitComponent(object):
             return self._component_info
         _component_info = {}
         tab = "Component"
-        proparray = self.m_Editor.GetProperties(tab, self.composed_name)
+        proparray = self._oeditor.GetProperties(tab, self.composed_name)
 
         for j in proparray:
-            propval = _retry_ntimes(10, self.m_Editor.GetPropertyValue, tab, self.composed_name, j)
+            propval = _retry_ntimes(10, self._oeditor.GetPropertyValue, tab, self.composed_name, j)
             _component_info[j] = propval
         self._component_info = ComponentParameters(self, tab, _component_info)
         return self._component_info
@@ -497,7 +501,7 @@ class CircuitComponent(object):
     @property
     def bounding_box(self):
         """Component bounding box."""
-        comp_info = self.m_Editor.GetComponentInfo(self.composed_name)
+        comp_info = self._oeditor.GetComponentInfo(self.composed_name)
         if not comp_info:
             if len(self.pins) == 1:
                 return [
@@ -535,7 +539,7 @@ class CircuitComponent(object):
         self._pins = []
 
         try:
-            pins = _retry_ntimes(10, self.m_Editor.GetComponentPins, self.composed_name)
+            pins = _retry_ntimes(10, self._oeditor.GetComponentPins, self.composed_name)
 
             if not pins:
                 return []
@@ -564,7 +568,7 @@ class CircuitComponent(object):
         self._location = []
         try:
             loc = _retry_ntimes(
-                10, self.m_Editor.GetPropertyValue, "BaseElementTab", self.composed_name, "Component Location"
+                10, self._oeditor.GetPropertyValue, "BaseElementTab", self.composed_name, "Component Location"
             )
             loc = [loc.split(",")[0].strip(), loc.split(",")[1].strip()]
             loc = [decompose_variable_value(i) for i in loc]
@@ -604,7 +608,7 @@ class CircuitComponent(object):
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
         """
-        comp_info = self.m_Editor.GetComponentInfo(self.composed_name)
+        comp_info = self._oeditor.GetComponentInfo(self.composed_name)
         self._angle = 0.0
         if comp_info:
             for info in comp_info:
@@ -643,7 +647,7 @@ class CircuitComponent(object):
         try:
             self._mirror = (
                 _retry_ntimes(
-                    10, self.m_Editor.GetPropertyValue, "BaseElementTab", self.composed_name, "Component Mirror"
+                    10, self._oeditor.GetPropertyValue, "BaseElementTab", self.composed_name, "Component Mirror"
                 )
                 == "true"
             )
@@ -807,20 +811,20 @@ class CircuitComponent(object):
         else:
             vPropServers = ["NAME:PropServers", self.composed_name]
         tabname = None
-        if vPropChange[0][5:] in _retry_ntimes(10, self.m_Editor.GetProperties, self.tabname, self.composed_name):
+        if vPropChange[0][5:] in _retry_ntimes(10, self._oeditor.GetProperties, self.tabname, self.composed_name):
             tabname = self.tabname
         elif vPropChange[0][5:] in _retry_ntimes(
-            10, self.m_Editor.GetProperties, "PassedParameterTab", self.composed_name
+            10, self._oeditor.GetProperties, "PassedParameterTab", self.composed_name
         ):
             tabname = "PassedParameterTab"
-        elif vPropChange[0][5:] in _retry_ntimes(10, self.m_Editor.GetProperties, "BaseElementTab", self.composed_name):
+        elif vPropChange[0][5:] in _retry_ntimes(10, self._oeditor.GetProperties, "BaseElementTab", self.composed_name):
             tabname = "BaseElementTab"
         if tabname:
             vGeo3dlayout = ["NAME:" + tabname, vPropServers, vChangedProps]
             vOut = ["NAME:AllTabs", vGeo3dlayout]
             if "NAME:Component Location" in str(vChangedProps) and "PagePort" not in self.composed_name:
-                _retry_ntimes(10, self.m_Editor.ChangeProperty, vOut)
-            return _retry_ntimes(10, self.m_Editor.ChangeProperty, vOut)
+                _retry_ntimes(10, self._oeditor.ChangeProperty, vOut)
+            return _retry_ntimes(10, self._oeditor.ChangeProperty, vOut)
         return False
 
 

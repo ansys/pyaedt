@@ -29,7 +29,7 @@ else:
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, "Test_20")
+        self.aedtapp = BasisTest.add_app(self, "Test_20", "test_20")
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -108,6 +108,7 @@ class TestClass(BasisTest, object):
             name="sheet1_Port",
             renormalize=False,
             reference=["outer"],
+            terminals_rename=False,
         )
         assert port.name == "sheet1_Port"
         assert port.name in [i.name for i in self.aedtapp.boundaries]
@@ -599,6 +600,7 @@ class TestClass(BasisTest, object):
         )
 
     def test_11_create_circuit_on_objects(self):
+        self.aedtapp.set_active_design("test_20")
         box1 = self.aedtapp.modeler.create_box([0, 0, 80], [10, 10, 5], "BoxCircuit1", "Copper")
         box2 = self.aedtapp.modeler.create_box([0, 0, 100], [10, 10, 5], "BoxCircuit2", "copper")
         box2.material_name = "Copper"
@@ -1357,7 +1359,7 @@ class TestClass(BasisTest, object):
         assert len(exported_files) > 0
 
     def test_52_crate_setup_hybrid_sbr(self):
-        aedtapp = Hfss(projectname="test_52")
+        aedtapp = Hfss(projectname="test_52", specified_version=desktop_version)
         udp = aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 200
         aedtapp.modeler.create_cylinder(aedtapp.AXIS.X, udp, 3, coax_dimension, 0, "inner")
@@ -1372,7 +1374,7 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(is_ironpython, reason="Method usese Pandas")
     def test_53_import_source_excitation(self):
-        aedtapp = Hfss(solution_type="Modal", projectname="test_53")
+        aedtapp = Hfss(solution_type="Modal", projectname="test_53", specified_version=desktop_version)
         freq_domain = os.path.join(local_path, "example_models", test_subfolder, "S Parameter Table 1.csv")
         time_domain = os.path.join(local_path, "example_models", test_subfolder, "Sinusoidal.csv")
 
@@ -1394,7 +1396,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.close_project(name=aedtapp.project_name, save_project=False)
 
     def test_54_assign_symmetry(self):
-        aedtapp = Hfss(projectname="test_54")
+        aedtapp = Hfss(projectname="test_54", specified_version=desktop_version)
         aedtapp.modeler.create_box([0, -100, 0], [200, 200, 200], name="SymmetryForFaces")
         ids = [i.id for i in aedtapp.modeler["SymmetryForFaces"].faces]
         assert aedtapp.assign_symmetry(ids)
@@ -1491,3 +1493,23 @@ class TestClass(BasisTest, object):
         self.aedtapp["var_test"] = "234"
         assert "var_test" in self.aedtapp.variable_manager.design_variable_names
         assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
+
+    def test_61_create_lumped_ports_on_object_driven_terminal(self):
+        self.aedtapp.insert_design("test_61")
+        self.aedtapp.solution_type = "Terminal"
+        box1 = self.aedtapp.modeler.create_box([0, 0, 50], [10, 10, 5], "BoxLumped1")
+        box1.material_name = "Copper"
+        box2 = self.aedtapp.modeler.create_box([0, 0, 60], [10, 10, 5], "BoxLumped2")
+        box2.material_name = "Copper"
+        port = self.aedtapp.create_lumped_port_between_objects(
+            "BoxLumped1", "BoxLumped2", self.aedtapp.AxisDir.XNeg, 50, "Lump1xx", True, False
+        )
+
+        self.aedtapp.save_project()
+        self.aedtapp.boundaries.__init__()
+        term = [term for term in self.aedtapp.boundaries if term.type == "Terminal"][0]
+        assert term
+        term.name = "test"
+        assert term.name == "test"
+        term.props["TerminalResistance"] = "1ohm"
+        assert term.props["TerminalResistance"] == "1ohm"

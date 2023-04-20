@@ -2010,7 +2010,7 @@ class SimulationConfiguration(object):
 
     >>> sim_setup.dc_per_pin_use_pin_format = True
 
-    When ``True activate the pin format.
+    When ``True`` activate the pin format.
 
     >>> sim_setup.dc_use_loop_res_for_per_pin = True
 

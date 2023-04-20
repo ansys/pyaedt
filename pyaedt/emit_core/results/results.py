@@ -140,16 +140,53 @@ class Results:
         """
         return [rev.name for rev in self.revisions]
 
-    @pyaedt_function_handler()
-    def analyze(self, revision_name=None):
+    @pyaedt_function_handler
+    def get_revision(self, revision_name=None):
         """
-        Analyze the specified design.
+        Load the specified revision.
 
         Parameters
         ----------
         revision_name : str
-            Revision to analyze. The default is ``None``,in which case the most recent revision
-            is loaded if it matches the current design revision.
+            Revision to load. The default is  ``None`` in which
+            case the latest revision will be returned.
+
+        Returns
+        -------
+        rev:class:`pyaedt.modules.Revision`
+            Specified ``Revision`` object that was loaded.
+
+        Examples
+        --------
+        >>> rev = aedtapp.results.get_revision("Revision 15")
+        >>> interferers = rev.get_interferer_names()
+        >>> receivers = rev.get_receiver_names()
+        """
+        # no revisions to load, create a new one
+        if len(self.revisions) == 0:
+            return self.analyze()
+        # retrieve the latest revision if nothing specified
+        if revision_name is None:
+            # unload the current revision and load the latest
+            self.current_revision.revision_loaded = False
+            self.current_revision = self.revisions[-1]
+            self.current_revision._load_revision()
+        else:
+            rev = [x for x in self.revisions if revision_name == x.name]
+            if len(rev) > 0:
+                # unload the current revision and load the specified revision
+                self.current_revision.revision_loaded = False
+                self.current_revision = rev[0]
+                self.current_revision._load_revision()
+            else:
+                warnings.warn("{} not found.".format(revision_name))
+        return self.current_revision
+
+    @pyaedt_function_handler()
+    def analyze(self):
+        """
+        Analyze the current revision or create a new revision if
+        the design has changed.
 
         Returns
         -------
@@ -162,29 +199,19 @@ class Results:
         >>> interferers = rev.get_interferer_names()
         >>> receivers = rev.get_receiver_names()
         """
-        if revision_name is None:
-            # analyze the current design revision
-            if self.current_revision is None:
-                self.current_revision = self._add_revision()
-            elif (
-                self.current_revision.revision_number
-                == self.emit_project.odesktop.GetActiveProject().GetActiveDesign().GetRevision()
-            ):
-                # Revision exists for design rev #, load if it needed
-                if not self.current_revision.revision_loaded:
-                    self.current_revision._load_revision()
-            else:
-                # there are changes since the current revision was analyzed, create
-                # a new revision
-                self.current_revision.revision_loaded = False
-                self.current_revision = self._add_revision()
+        # No revisions exist, add one
+        if self.current_revision is None:
+            self.current_revision = self._add_revision()
+        # no changes since last created revision, load it
+        elif (
+            self.revisions[-1].revision_number
+            == self.emit_project.odesktop.GetActiveProject().GetActiveDesign().GetRevision()
+        ):
+            self.get_revision(self.revisions[-1].name)
         else:
-            rev = [x for x in self.revisions if revision_name == x.name]
-            if len(rev) > 0:
-                # unload the current revision and load the specified revision
-                self.current_revision.revision_loaded = False
-                self.current_revision = rev[0]
-                self.current_revision._load_revision()
-            else:
-                print("{} not found.".format(revision_name))
+            # there are changes since the current revision was analyzed, create
+            # a new revision
+            self.current_revision.revision_loaded = False
+            self.current_revision = self._add_revision()
+
         return self.current_revision

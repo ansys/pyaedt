@@ -557,7 +557,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             List of ``[x, y, z]`` coordinates for the starting position.
         axis : int
             Coordinate system AXIS (integer ``0`` for X, ``1`` for Y, ``2`` for Z) or
-            the :class:`Application.CoordinateSystemAxis` enumerator.
+            the :class:`Application.AXIS` enumerator.
         innerradius : float, optional
             Inner coax radius. The default is ``1``.
         outerradius : float, optional
@@ -639,7 +639,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             List of ``[x, y, z]`` coordinates for the original position.
         wg_direction_axis : int
             Coordinate system axis (integer ``0`` for X, ``1`` for Y, ``2`` for Z) or
-            the :class:`Application.CoordinateSystemAxis` enumerator.
+            the :class:`Application.AXIS` enumerator.
         wgmodel : str, optional
             Waveguide model. The default is ``"WG0"``.
         wg_length : float, optional
@@ -1153,3 +1153,68 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                     self[obj].transparency = transparency
                     self[obj].color = color
         return scene
+
+    @pyaedt_function_handler
+    def objects_segmentation(self, objects_list, segmentation_thickness=None, segments_number=None):
+        """Get segmentation of an object given the segmentation thickness or number of segments.
+
+        Parameters
+        ----------
+        objects_list : list
+            List of objects to apply the segmentation to.
+            It can either be a list of strings (object names), integers (object IDs), or
+            a list of :class:`pyaedt.modeler.cad.object3d.Object3d` classes.
+        segmentation_thickness : float, optional
+            Segmentation thickness.
+            Model units are automatically assigned. The default is ``None``.
+        segments_number : int, optional
+            Number of segments to segment the object to. The default is ``None``.
+
+        Returns
+        -------
+        tuple
+            First dictionary is the segments that the object has been divided into.
+            Second dictionary is the mesh sheets eventually needed to apply the mesh
+            to inside the object. Keys are the object names, and values are respectively
+            segments sheets and mesh sheets of the
+            :class:`pyaedt.modeler.cad.object3d.Object3d` class.
+            ``False`` is returned if the method fails.
+        """
+        if not segmentation_thickness and not segments_number:
+            self.logger.error("Provide at least one option to segment the objects in the list.")
+            return False
+        elif segmentation_thickness and segments_number:
+            self.logger.error("Only one segmentation option can be selected.")
+            return False
+
+        objects_list = self.convert_to_selections(objects_list, True)
+
+        mesh_sheets = {}
+        segment_sheets = {}
+        for obj_name in objects_list:
+            obj = self[obj_name]
+            if segments_number:
+                segmentation_thickness = obj.top_edge_y.length / segments_number
+            elif segmentation_thickness:
+                segments_number = round(obj.top_edge_y.length / segmentation_thickness)
+            face_object = self.modeler.create_object_from_face(obj.bottom_face_z)
+            # segment sheets
+            segment_sheets[obj.name] = face_object.duplicate_along_line(
+                ["0", "0", segmentation_thickness], segments_number
+            )
+            # mesh sheets
+            self.move(face_object, [0, 0, segmentation_thickness / 4])
+            mesh_sheets[obj.name] = face_object.duplicate_along_line(
+                [0, 0, (segmentation_thickness * 2.0) / 4.0], segments_number * 2
+            )
+        segment_objects = {}
+        for key, values in segment_sheets.items():
+            segment_objects[key] = []
+            for value in values:
+                segment_objects[key].append([x for x in self.sheet_objects if x.name == value][0])
+        mesh_objects = {}
+        for key, values in mesh_sheets.items():
+            mesh_objects[key] = []
+            for value in values:
+                mesh_objects[key].append([x for x in self.sheet_objects if x.name == value][0])
+        return segment_objects, mesh_objects

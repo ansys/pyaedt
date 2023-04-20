@@ -23,12 +23,8 @@ from pyaedt.application.JobManager import update_hpc_option
 from pyaedt.application.Variables import Variable
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import AXIS
-from pyaedt.generic.constants import CoordinateSystemAxis
-from pyaedt.generic.constants import CoordinateSystemPlane
 from pyaedt.generic.constants import GRAVITY
-from pyaedt.generic.constants import GravityDirection
 from pyaedt.generic.constants import PLANE
-from pyaedt.generic.constants import Plane
 from pyaedt.generic.constants import SETUPS
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.constants import VIEW
@@ -213,66 +209,6 @@ class Analysis(Design, object):
 
         """
         return self._available_variations
-
-    @property
-    def CoordinateSystemAxis(self):
-        """Coordinate system axis constant.
-
-        .. deprecated:: 0.4.8
-           Use :attr:`AXIS` instead.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.constants.AXIS`
-            Coordinate system axis constants tuple (.X, .Y, .Z).
-
-        """
-        return CoordinateSystemAxis()
-
-    @property
-    def CoordinateSystemPlane(self):
-        """Coordinate system plane constants.
-
-        .. deprecated:: 0.4.8
-           Use :attr:`PLANE` instead.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.constants.PLANE`
-            Coordinate system plane constants tuple (.XY, .YZ, .XZ).
-
-        """
-        return CoordinateSystemPlane()
-
-    @property
-    def View(self):
-        """Planes.
-
-        .. deprecated:: 0.4.8
-           Use :attr:`VIEW` instead.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.constants.PLANE`
-            Coordinate system plane string tuple ("XY", "YZ", "XZ").
-
-        """
-        return Plane()
-
-    @property
-    def GravityDirection(self):
-        """Gravity direction.
-
-        .. deprecated:: 0.4.8
-           Use :attr:`GRAVITY` instead.
-
-        Returns
-        -------
-        tuple
-            Gravity direction tuple (XNeg, YNeg, ZNeg, XPos, YPos, ZPos).
-
-        """
-        return GravityDirection()
 
     @property
     def active_setup(self):
@@ -490,27 +426,6 @@ class Analysis(Design, object):
             return list_names
         except:
             return []
-
-    @pyaedt_function_handler()
-    def get_excitations_name(self):
-        """Get all excitation names.
-
-        .. deprecated:: 0.4.27
-           Use :func:`excitations` property instead.
-
-        Returns
-        -------
-        list
-            List of excitation names. Excitations with multiple modes will return one
-            excitation for each mode.
-
-        References
-        ----------
-
-        >>> oModule.GetExcitations
-        """
-        warnings.warn("`get_excitations_name` is deprecated. Use `excitations` property instead.", DeprecationWarning)
-        return self.excitations
 
     @pyaedt_function_handler()
     def get_traces_for_plot(
@@ -1560,16 +1475,6 @@ class Analysis(Design, object):
         return True
 
     @pyaedt_function_handler()
-    def analyse_nominal(self):
-        """Solve the nominal design.
-
-        .. deprecated:: 0.4.0
-           Use :func:`Analysis.analyze` instead.
-        """
-        warnings.warn("`analyse_nominal` is deprecated. Use `analyze` instead.", DeprecationWarning)
-        self.analyze(self.active_setup)
-
-    @pyaedt_function_handler()
     def analyze_nominal(self, num_cores=1, num_tasks=1, num_gpu=0, acf_file=None, use_auto_settings=True):
         """Solve the nominal design.
 
@@ -1959,7 +1864,7 @@ class Analysis(Design, object):
             self.logger.info("Batch job finished.")
 
         if machine == "localhost":
-            while not os.path.exists(queue_file_completed):
+            while not os.path.exists(queue_file):
                 time.sleep(0.5)
             with open(queue_file, "r") as f:
                 lines = f.readlines()
@@ -1968,6 +1873,8 @@ class Analysis(Design, object):
                         ls = line.split("=")[1].strip().strip("'")
                         self.last_run_job = ls
                         self.last_run_log = os.path.join(filename + ".batchinfo", project_name + "-" + ls + ".log")
+            while not os.path.exists(queue_file_completed):
+                time.sleep(0.5)
         return True
 
     @pyaedt_function_handler()

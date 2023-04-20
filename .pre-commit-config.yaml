@@ -9,6 +9,7 @@ exclude: |
     (?x)(
         ^pyaedt/dlls/|
         ^pyaedt/rpc/|
+        ^pyaedt/sbrplus/matlab/|
         ^pyaedt/third_party/|
         pyaedt/conftest.py|
         _unittest/example_models/
@@ -16,7 +17,7 @@ exclude: |
 
 repos:
 - repo: https://github.com/psf/black
-  rev: 23.1.0  # IF VERSION CHANGES --> MODIFY "blacken-docs" MANUALLY AS WELL!!
+  rev: 23.3.0  # IF VERSION CHANGES --> MODIFY "blacken-docs" MANUALLY AS WELL!!
   hooks:
   - id: black
     args:
@@ -46,6 +47,8 @@ repos:
   rev: v4.4.0
   hooks:
   - id: requirements-txt-fixer
+  - id: debug-statements
+  - id: trailing-whitespace
 
 # validate GitHub workflow files
 - repo: https://github.com/python-jsonschema/check-jsonschema

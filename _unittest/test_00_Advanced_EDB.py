@@ -55,7 +55,7 @@ class TestClass(BasisTest, object):
         edb1 = Edb(edb_path, edbversion=desktop_version)
 
         edb2 = Edb(self.target_path, edbversion=desktop_version)
-        assert edb2.core_stackup.place_in_layout_3d_placement(
+        assert edb2.stackup.place_in_layout_3d_placement(
             edb1,
             angle=0.0,
             offset_x="41.783mm",
@@ -66,7 +66,7 @@ class TestClass(BasisTest, object):
         )
         edb2.close_edb()
         edb2 = Edb(self.target_path, edbversion=desktop_version)
-        assert edb2.core_stackup.place_in_layout_3d_placement(
+        assert edb2.stackup.place_in_layout_3d_placement(
             edb1,
             angle=0.0,
             offset_x="41.783mm",
@@ -77,7 +77,7 @@ class TestClass(BasisTest, object):
         )
         edb2.close_edb()
         edb2 = Edb(self.target_path, edbversion=desktop_version)
-        assert edb2.core_stackup.place_in_layout_3d_placement(
+        assert edb2.stackup.place_in_layout_3d_placement(
             edb1,
             angle=0.0,
             offset_x="41.783mm",
@@ -88,8 +88,52 @@ class TestClass(BasisTest, object):
         )
         edb2.close_edb()
         edb2 = Edb(self.target_path, edbversion=desktop_version)
-        assert edb2.core_stackup.place_in_layout_3d_placement(
+        assert edb2.stackup.place_in_layout_3d_placement(
             edb1,
+            angle=0.0,
+            offset_x="41.783mm",
+            offset_y="35.179mm",
+            flipped_stackup=True,
+            place_on_top=True,
+            solder_height=0.0,
+        )
+        edb2.close_edb()
+        edb1.close_edb()
+
+    def test_01B_flip_layer_stackup(self):
+        edb_path = os.path.join(self.target_path2, "edb.def")
+        edb1 = Edb(edb_path, edbversion=desktop_version)
+
+        edb2 = Edb(self.target_path, edbversion=desktop_version)
+        assert edb1.stackup.place_instance(
+            edb2,
+            angle=0.0,
+            offset_x="41.783mm",
+            offset_y="35.179mm",
+            flipped_stackup=False,
+            place_on_top=False,
+            solder_height=0.0,
+        )
+        assert edb1.stackup.place_instance(
+            edb2,
+            angle=0.0,
+            offset_x="41.783mm",
+            offset_y="35.179mm",
+            flipped_stackup=True,
+            place_on_top=False,
+            solder_height=0.0,
+        )
+        assert edb1.stackup.place_instance(
+            edb2,
+            angle=0.0,
+            offset_x="41.783mm",
+            offset_y="35.179mm",
+            flipped_stackup=False,
+            place_on_top=True,
+            solder_height=0.0,
+        )
+        assert edb1.stackup.place_instance(
+            edb2,
             angle=0.0,
             offset_x="41.783mm",
             offset_y="35.179mm",
@@ -102,7 +146,7 @@ class TestClass(BasisTest, object):
 
     def test_02_flip_layer_stackup_2(self):
         edb2 = Edb(self.target_path, edbversion=desktop_version)
-        assert edb2.core_stackup.place_in_layout(
+        assert edb2.stackup.place_in_layout(
             self.edbapp,
             angle=0.0,
             offset_x="41.783mm",
@@ -204,7 +248,7 @@ class TestClass(BasisTest, object):
             layout = laminateEdb.active_layout
             cellInstances = list(layout.CellInstances)
             assert len(cellInstances) == 0
-            assert chipEdb.core_stackup.place_in_layout_3d_placement(
+            assert chipEdb.stackup.place_in_layout_3d_placement(
                 laminateEdb,
                 angle=0.0,
                 offset_x=0.0,
@@ -267,7 +311,7 @@ class TestClass(BasisTest, object):
             layout = laminateEdb.active_layout
             cellInstances = list(layout.CellInstances)
             assert len(cellInstances) == 0
-            assert chipEdb.core_stackup.place_in_layout_3d_placement(
+            assert chipEdb.stackup.place_in_layout_3d_placement(
                 laminateEdb,
                 angle=0.0,
                 offset_x=0.0,
@@ -330,7 +374,7 @@ class TestClass(BasisTest, object):
             layout = laminateEdb.active_layout
             cellInstances = list(layout.CellInstances)
             assert len(cellInstances) == 0
-            assert chipEdb.core_stackup.place_in_layout_3d_placement(
+            assert chipEdb.stackup.place_in_layout_3d_placement(
                 laminateEdb,
                 angle=0.0,
                 offset_x=0.0,
@@ -393,7 +437,7 @@ class TestClass(BasisTest, object):
             layout = laminateEdb.active_layout
             cellInstances = list(layout.CellInstances)
             assert len(cellInstances) == 0
-            assert chipEdb.core_stackup.place_in_layout_3d_placement(
+            assert chipEdb.stackup.place_in_layout_3d_placement(
                 laminateEdb,
                 angle=0.0,
                 offset_x=0.0,
@@ -456,7 +500,7 @@ class TestClass(BasisTest, object):
             layout = laminateEdb.active_layout
             cellInstances = list(layout.CellInstances)
             assert len(cellInstances) == 0
-            assert chipEdb.core_stackup.place_in_layout_3d_placement(
+            assert chipEdb.stackup.place_in_layout_3d_placement(
                 laminateEdb,
                 angle=0.0,
                 offset_x=0.0,
@@ -519,7 +563,7 @@ class TestClass(BasisTest, object):
             layout = laminateEdb.active_layout
             cellInstances = list(layout.CellInstances)
             assert len(cellInstances) == 0
-            assert chipEdb.core_stackup.place_in_layout_3d_placement(
+            assert chipEdb.stackup.place_in_layout_3d_placement(
                 laminateEdb,
                 angle=0.0,
                 offset_x=0.0,
@@ -582,7 +626,7 @@ class TestClass(BasisTest, object):
             layout = laminateEdb.active_layout
             cellInstances = list(layout.CellInstances)
             assert len(cellInstances) == 0
-            assert chipEdb.core_stackup.place_in_layout_3d_placement(
+            assert chipEdb.stackup.place_in_layout_3d_placement(
                 laminateEdb,
                 angle=0.0,
                 offset_x=0.0,
@@ -645,7 +689,7 @@ class TestClass(BasisTest, object):
             layout = laminateEdb.active_layout
             cellInstances = list(layout.CellInstances)
             assert len(cellInstances) == 0
-            assert chipEdb.core_stackup.place_in_layout_3d_placement(
+            assert chipEdb.stackup.place_in_layout_3d_placement(
                 laminateEdb,
                 angle=0.0,
                 offset_x=0.0,
@@ -705,7 +749,7 @@ class TestClass(BasisTest, object):
             f.writelines("PowerNets = ['GND']\n")
             f.writelines("Components = ['U2A5', 'U1B5']")
         sim_config = SimulationConfiguration(cfg_file)
-        assert Edb(target_path).build_simulation_project(sim_config)
+        assert Edb(target_path, edbversion=desktop_version).build_simulation_project(sim_config)
 
     @pytest.mark.skipif(is_ironpython or is_linux, reason="Not supported in IPY")
     def test_16_solve(self):
@@ -838,7 +882,7 @@ class TestClass(BasisTest, object):
                         assert (pedb_lay.side_hallhuray_nodule_radius - layer["side_hallhuray_nodule_radius"]) < delta
                         assert (pedb_lay.side_hallhuray_surface_ratio - layer["side_hallhuray_surface_ratio"]) < delta
         edbapp.close_edb()
-        edbapp = Edb()
+        edbapp = Edb(edbversion=desktop_version)
         json_path = os.path.join(local_path, "example_models", test_subfolder, "test_mat2.json")
         assert edbapp.stackup.import_stackup(json_path)
         assert "SOLDER" in edbapp.stackup.stackup_layers
@@ -925,6 +969,7 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(is_ironpython, reason="This test uses Matplotlib, which is not supported by IronPython.")
     def test_023_plot_on_matplotlib(self):
         edb_plot = Edb(self.target_path3, edbversion=desktop_version)
+
         local_png1 = os.path.join(self.local_scratch.path, "test1.png")
         edb_plot.nets.plot(
             nets=None,
@@ -945,6 +990,7 @@ class TestClass(BasisTest, object):
             plot_components_on_bottom=True,
         )
         assert os.path.exists(local_png2)
+
         local_png3 = os.path.join(self.local_scratch.path, "test3.png")
         edb_plot.nets.plot(
             nets=["LVL_I2C_SCL", "V3P3_S5", "GATE_V5_USB"],
@@ -955,10 +1001,18 @@ class TestClass(BasisTest, object):
             plot_components_on_bottom=True,
         )
         assert os.path.exists(local_png3)
-        local_png4 = os.path.join(self.local_scratch.path, "test4.png")
 
+        local_png4 = os.path.join(self.local_scratch.path, "test4.png")
         edb_plot.stackup.plot(
             save_plot=local_png4,
+            plot_definitions=list(edb_plot.padstacks.definitions.keys())[0],
+        )
+        assert os.path.exists(local_png4)
+
+        local_png5 = os.path.join(self.local_scratch.path, "test5.png")
+        edb_plot.stackup.plot(
+            scale_elevation=False,
+            save_plot=local_png5,
             plot_definitions=list(edb_plot.padstacks.definitions.keys())[0],
         )
         assert os.path.exists(local_png4)

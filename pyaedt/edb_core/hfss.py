@@ -705,6 +705,9 @@ class EdbHfss(object):
         )
         if force_circuit_port:
             edge_term.SetIsCircuitPort(True)
+        else:
+            edge_term.SetIsCircuitPort(False)
+
         if port_impedance:
             edge_term.SetImpedance(self._pedb.edb_value(port_impedance))
         edge_term.SetName(port_name)
@@ -718,6 +721,9 @@ class EdbHfss(object):
                 ref_edge_term.SetReferenceLayer(reference_layer)
             if force_circuit_port:
                 ref_edge_term.SetIsCircuitPort(True)
+            else:
+                ref_edge_term.SetIsCircuitPort(False)
+
             if port_impedance:
                 ref_edge_term.SetImpedance(self._pedb.edb_value(port_impedance))
             edge_term.SetReferenceTerminal(ref_edge_term)

@@ -172,7 +172,9 @@ fields.AddNamedExpression("e_tan_poly2", "Fields")
 # the ground, the electrode and the region
 # and as ``In surface objects`` only the region.
 
-plot = M2D.post.create_fieldplot_line_traces(["Ground", "Electrode", "Region"], "Region", plot_name="LineTracesTest")
+plot = M2D.post.create_fieldplot_line_traces(["Ground", "Electrode", "Region"],
+                                             "Region",
+                                             plot_name="LineTracesTest")
 
 ###################################################################################
 # Update Field Line Traces Plot

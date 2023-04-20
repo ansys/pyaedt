@@ -485,6 +485,7 @@ class CommonExcitation(object):
     def __init__(self, pedb, edb_terminal):
         self._pedb = pedb
         self._edb_terminal = edb_terminal
+        self._reference_object = None
 
     @property
     def _edb(self):
@@ -540,114 +541,6 @@ class CommonExcitation(object):
         """
         return self._edb_terminal.GetBoundaryType()
 
-
-class ExcitationPorts(CommonExcitation):
-    """Manages excitation properties.
-
-    Parameters
-    ----------
-    pedb : pyaedt.edb.Edb
-        Edb object from Edblib.
-    edb_terminal : Ansys.Ansoft.Edb.Cell.Terminal.EdgeTerminal
-        Edge terminal instance from Edb.
-
-
-    Examples
-    --------
-    This example shows how to access this class.
-    >>> from pyaedt import Edb
-    >>> edb = Edb("myaedb.aedb")
-    >>> exc = edb.excitations
-    >>> print(exc["Port1"].name)
-    """
-
-    def __init__(self, pedb, edb_terminal):
-        CommonExcitation.__init__(self, pedb, edb_terminal)
-        self._reference_object = None
-
-    @property
-    def _edb_properties(self):
-        p = self._edb_terminal.GetProductSolverOption(self._edb.ProductId.Designer, "HFSS")
-        return p
-
-    @property
-    def hfss_type(self):
-        """Get hfss port type."""
-        txt = re.search(r"'HFSS Type'='.*?'", self._edb_properties).group()
-        return txt.split("=")[1].replace("'", "")
-
-    @property
-    def horizontal_extent_factor(self):
-        """Get horizontal extent factor."""
-        txt = re.search(r"'Horizontal Extent Factor'='.*?'", self._edb_properties).group()
-        return float(txt.split("=")[1].replace("'", ""))
-
-    @property
-    def vertical_extent_factor(self):
-        """Get vertical extent factor."""
-        txt = re.search(r"'Vertical Extent Factor'='.*?'", self._edb_properties).group()
-        return float(txt.split("=")[1].replace("'", ""))
-
-    @property
-    def radial_extent_factor(self):
-        """Get radial extent factor."""
-        txt = re.search(r"'Radial Extent Factor'='.*?'", self._edb_properties).group()
-        return float(txt.split("=")[1].replace("'", ""))
-
-    @property
-    def pec_launch_width(self):
-        """Get pec launch width."""
-        txt = re.search(r"'PEC Launch Width'='.*?'", self._edb_properties).group()
-        return txt.split("=")[1].replace("'", "")
-
-    @property
-    def impedance(self):
-        """Impedance of the port."""
-        return self._edb_terminal.GetImpedance().ToDouble()
-
-    @property
-    def is_circuit(self):
-        """Return ``True`` if is a circuit port."""
-        return self._edb_terminal.GetIsCircuitPort()
-
-    @property
-    def magnitude(self):
-        """Magnitude."""
-        return self._edb_terminal.GetSourceAmplitude().ToDouble()
-
-    @property
-    def phase(self):
-        """Phase."""
-        return self._edb_terminal.GetSourcePhase().ToDouble()
-
-    @property
-    def renormalize(self):
-        """Either if renormalize is active or not."""
-        return self._edb_terminal.GetPortPostProcessingProp().DoRenormalize
-
-    @property
-    def deembed(self):
-        """Either if deembed is active or not."""
-        return self._edb_terminal.GetPortPostProcessingProp().DoDeembed
-
-    @property
-    def deembed_gapport_inductance(self):
-        """Deembed Gap Port Inductance value."""
-        return self._edb_terminal.GetPortPostProcessingProp().DoDeembedGapL
-
-    @property
-    def deembed_length(self):
-        """Deembed Length."""
-        return self._edb_terminal.GetPortPostProcessingProp().DeembedLength.ToDouble()
-
-    @property
-    def renormalize_z0(self):
-        """Renormalize Z0 value (real, imag)."""
-        return (
-            self._edb_terminal.GetPortPostProcessingProp().RenormalizionZ0.ToComplex().Item1,
-            self._edb_terminal.GetPortPostProcessingProp().RenormalizionZ0.ToComplex().Item2,
-        )
-
     @property
     def reference_object(self):
         """This returns the object assigned as reference. It can be a primitive or a padstack instance.
@@ -660,30 +553,38 @@ class ExcitationPorts(CommonExcitation):
         """
         if not self._reference_object:
             term = self._edb_terminal
-            if self.terminal_type == self._pedb.edb.Cell.Terminal.TerminalType.EdgeTerminal:
-                edges = self._edb_terminal.GetEdges()
-                edgeType = edges[0].GetEdgeType()
-                if edgeType == self._pedb.edb.Cell.Terminal.EdgeType.PadEdge:
-                    self._reference_object = self.get_pad_edge_terminal_reference_pin()
+            try:
+                if self.terminal_type == self._pedb.edb.Cell.Terminal.TerminalType.EdgeTerminal:
+                    edges = self._edb_terminal.GetEdges()
+                    edgeType = edges[0].GetEdgeType()
+                    if edgeType == self._pedb.edb.Cell.Terminal.EdgeType.PadEdge:
+                        self._reference_object = self.get_pad_edge_terminal_reference_pin()
+                    else:
+                        self._reference_object = self.get_edge_terminal_reference_primitive()
+                elif self.terminal_type == self._pedb.edb.Cell.Terminal.TerminalType.PinGroupTerminal:
+                    self._reference_object = self.get_pin_group_terminal_reference_pin()
+                elif self.terminal_type == self._pedb.edb.Cell.Terminal.TerminalType.PointTerminal:
+                    self._reference_object = self.get_point_terminal_reference_primitive()
+                elif self.terminal_type == self._pedb.edb.Cell.Terminal.TerminalType.PadstackInstanceTerminal:
+                    self._reference_object = self.get_padstack_terminal_reference_pin()
                 else:
-                    self._reference_object = self.get_edge_terminal_reference_primitive()
-            elif self.terminal_type == self._pedb.edb.Cell.Terminal.TerminalType.PinGroupTerminal:
-                self._reference_object = self.get_pin_group_terminal_reference_pin()
-            elif self.terminal_type == self._pedb.edb.Cell.Terminal.TerminalType.PointTerminal:
-                self._reference_object = self.get_point_terminal_reference_primitive()
-            elif self.terminal_type == self._pedb.edb.Cell.Terminal.TerminalType.PadstackInstanceTerminal:
-                self._reference_object = self.get_padstack_terminal_reference_pin()
-            else:
-                self._pedb.logger.warning("Invalid Terminal Type={}".format(term.GetTerminalType()))  # pragma: no cover
+                    self._pedb.logger.warning(
+                        "Invalid Terminal Type={}".format(term.GetTerminalType())
+                    )  # pragma: no cover
+            except:
+                pass
         return self._reference_object
 
     @property
     def reference_net_name(self):
         """Net name to which reference_object belongs."""
-        ref_obj = self._reference_object if self._reference_object else self.reference_object
-        if ref_obj:
-            return ref_obj.net_name
-        return  # pragma: no cover
+        try:
+            ref_obj = self._reference_object if self._reference_object else self.reference_object
+            if ref_obj:
+                return ref_obj.net_name
+        except:
+            pass
+        return ""
 
     @pyaedt_function_handler()
     def get_padstack_terminal_reference_pin(self, gnd_net_name_preference=None):
@@ -852,6 +753,113 @@ class ExcitationPorts(CommonExcitation):
             return EDBPadstackInstance(pin_obj, self._pedb)
 
 
+class ExcitationPorts(CommonExcitation):
+    """Manages excitation properties.
+
+    Parameters
+    ----------
+    pedb : pyaedt.edb.Edb
+        EDB object from the ``Edblib`` library.
+    edb_terminal : Ansys.Ansoft.Edb.Cell.Terminal.EdgeTerminal
+        Edge terminal instance from EDB.
+
+
+    Examples
+    --------
+    This example shows how to access the ``ExcitationPorts`` class.
+    >>> from pyaedt import Edb
+    >>> edb = Edb("myaedb.aedb")
+    >>> exc = edb.excitations
+    >>> print(exc["Port1"].name)
+    """
+
+    def __init__(self, pedb, edb_terminal):
+        CommonExcitation.__init__(self, pedb, edb_terminal)
+
+    @property
+    def _edb_properties(self):
+        p = self._edb_terminal.GetProductSolverOption(self._edb.ProductId.Designer, "HFSS")
+        return p
+
+    @property
+    def hfss_type(self):
+        """HFSS port type."""
+        txt = re.search(r"'HFSS Type'='.*?'", self._edb_properties).group()
+        return txt.split("=")[1].replace("'", "")
+
+    @property
+    def horizontal_extent_factor(self):
+        """Horizontal extent factor."""
+        txt = re.search(r"'Horizontal Extent Factor'='.*?'", self._edb_properties).group()
+        return float(txt.split("=")[1].replace("'", ""))
+
+    @property
+    def vertical_extent_factor(self):
+        """Vvertical extent factor."""
+        txt = re.search(r"'Vertical Extent Factor'='.*?'", self._edb_properties).group()
+        return float(txt.split("=")[1].replace("'", ""))
+
+    @property
+    def radial_extent_factor(self):
+        """Radial extent factor."""
+        txt = re.search(r"'Radial Extent Factor'='.*?'", self._edb_properties).group()
+        return float(txt.split("=")[1].replace("'", ""))
+
+    @property
+    def pec_launch_width(self):
+        """Launch width for the printed electronic component (PEC)."""
+        txt = re.search(r"'PEC Launch Width'='.*?'", self._edb_properties).group()
+        return txt.split("=")[1].replace("'", "")
+
+    @property
+    def impedance(self):
+        """Impedance of the port."""
+        return self._edb_terminal.GetImpedance().ToDouble()
+
+    @property
+    def is_circuit(self):
+        """Whether it is a circuit port."""
+        return self._edb_terminal.GetIsCircuitPort()
+
+    @property
+    def magnitude(self):
+        """Magnitude."""
+        return self._edb_terminal.GetSourceAmplitude().ToDouble()
+
+    @property
+    def phase(self):
+        """Phase."""
+        return self._edb_terminal.GetSourcePhase().ToDouble()
+
+    @property
+    def renormalize(self):
+        """Whether renormalize is active."""
+        return self._edb_terminal.GetPortPostProcessingProp().DoRenormalize
+
+    @property
+    def deembed(self):
+        """Whether deembed is active."""
+        return self._edb_terminal.GetPortPostProcessingProp().DoDeembed
+
+    @property
+    def deembed_gapport_inductance(self):
+        """Inductance value of the deembed gap port."""
+        return self._edb_terminal.GetPortPostProcessingProp().DoDeembedGapL
+
+    @property
+    def deembed_length(self):
+        """Deembed Length."""
+        return self._edb_terminal.GetPortPostProcessingProp().DeembedLength.ToDouble()
+
+    @property
+    def renormalize_z0(self):
+        """Renormalize Z0 value (real, imag)."""
+        return (
+            self._edb_terminal.GetPortPostProcessingProp().RenormalizionZ0.ToComplex().Item1,
+            self._edb_terminal.GetPortPostProcessingProp().RenormalizionZ0.ToComplex().Item2,
+        )
+
+
 class ExcitationSources(CommonExcitation):
     """Manage sources properties.
 
@@ -953,3 +961,24 @@ class ExcitationDifferential(ExcitationBundle):
 
     def __init__(self, pedb, edb_boundle_terminal):
         ExcitationBundle.__init__(self, pedb, edb_boundle_terminal)
+
+    @property
+    def net_name(self):
+        """Net name.
+
+        Returns
+        -------
+        str
+             Name of the net.
+        """
+        return self._edb_bundle_terminal.GetNet().GetName()
+
+    @property
+    def net(self):
+        """Net object.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.nets_data.EDBNetsData`
+        """
+        return EDBNetsData(self._edb_bundle_terminal.GetNet(), self._pedb)
