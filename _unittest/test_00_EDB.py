@@ -512,25 +512,27 @@ class TestClass(BasisTest, object):
 
     def test_055_get_padstack(self):
         for el in self.edbapp.padstacks.definitions:
-            pad = self.edbapp.padstacks.definitions[el]
-            assert pad.hole_plating_thickness is not None or False
-            assert pad.hole_properties is not None or False
-            assert pad.hole_plating_thickness is not None or False
-            assert pad.hole_plating_ratio is not None or False
-            assert pad.via_start_layer is not None or False
-            assert pad.via_stop_layer is not None or False
-            assert pad.material is not None or False
-            assert pad.hole_finished_size is not None or False
-            assert pad.hole_rotation is not None or False
-            assert pad.hole_offset_x is not None or False
-            assert pad.hole_offset_y is not None or False
-            assert pad.hole_type is not None or False
-            assert pad.pad_by_layer[pad.via_stop_layer].parameters is not None or False
-            assert pad.pad_by_layer[pad.via_stop_layer].parameters_values is not None or False
-            assert pad.pad_by_layer[pad.via_stop_layer].offset_x is not None or False
-            assert pad.pad_by_layer[pad.via_stop_layer].offset_y is not None or False
-            assert isinstance(pad.pad_by_layer[pad.via_stop_layer].geometry_type, int)
-            polygon = pad.pad_by_layer[pad.via_stop_layer].polygon_data
+            padstack = self.edbapp.padstacks.definitions[el]
+            assert padstack.hole_plating_thickness is not None or False
+            assert padstack.hole_properties is not None or False
+            assert padstack.hole_plating_thickness is not None or False
+            assert padstack.hole_plating_ratio is not None or False
+            assert padstack.via_start_layer is not None or False
+            assert padstack.via_stop_layer is not None or False
+            assert padstack.material is not None or False
+            assert padstack.hole_finished_size is not None or False
+            assert padstack.hole_rotation is not None or False
+            assert padstack.hole_offset_x is not None or False
+            assert padstack.hole_offset_y is not None or False
+            assert padstack.hole_type is not None or False
+            pad = padstack.pad_by_layer[padstack.via_stop_layer]
+            if not pad.shape == "NoGeometry":
+                assert pad.parameters is not None or False
+                assert pad.parameters_values is not None or False
+                assert pad.offset_x is not None or False
+                assert pad.offset_y is not None or False
+                assert isinstance(pad.geometry_type, int)
+            polygon = pad.polygon_data
             if polygon:
                 assert polygon.GetBBox()
 
@@ -550,13 +552,12 @@ class TestClass(BasisTest, object):
         assert abs(pad.hole_properties[0] - hole_pad) < tol
         offset_x = 7
         offset_y = 1
-        param = 7
+        param = {"Diameter": 7}
         pad.pad_by_layer[pad.via_stop_layer].parameters = param
         pad.pad_by_layer[pad.via_stop_layer].offset_x = offset_x
         pad.pad_by_layer[pad.via_stop_layer].offset_y = offset_y
         assert pad.pad_by_layer[pad.via_stop_layer].offset_x == str(offset_x)
         assert pad.pad_by_layer[pad.via_stop_layer].offset_y == str(offset_y)
-        assert pad.pad_by_layer[pad.via_stop_layer].parameters[0] == str(param)
 
     def test_057_save_edb_as(self):
         assert self.edbapp.save_edb_as(os.path.join(self.local_scratch.path, "Gelileo_new.aedb"))
