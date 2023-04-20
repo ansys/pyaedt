@@ -121,7 +121,7 @@ class Emit(Design, object):
         self.__emit_api_enabled = False
         self.results = None
         """Constructor for the ``FieldAnalysisEmit`` class"""
-        
+
         self._units = {}
         """Default Emit units."""
 
