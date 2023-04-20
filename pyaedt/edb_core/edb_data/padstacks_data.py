@@ -186,18 +186,20 @@ class EDBPadProperties(object):
     @parameters.setter
     def parameters(self, value):
         """Set parameters.
-                "Circle", {"Diameter": "0.5mm"}
+        "Circle", {"Diameter": "0.5mm"}
 
-                Parameters
-                ----------
-                value : dict
-                    Pad parameters in dictionary.
-                >>> pad = Edb.padstacks["PlanarEMVia"]["TOP"]
-                >>> pad.shape = "Circle"
-                >>> pad.pad_parameters{"Diameter": "0.5mm"}
-                >>> pad.shape = "Bullet"
-                >>> pad.pad_parameters{"XSize": "0.5mm", "YSize": "0.5mm"}
-                """
+        Parameters
+        ----------
+        value : dict
+            Pad parameters in dictionary.
+        >>> pad = Edb.padstacks["PlanarEMVia"]["TOP"]
+        >>> pad.shape = "Circle"
+        >>> pad.pad_parameters{"Diameter": "0.5mm"}
+        >>> pad.shape = "Bullet"
+        >>> pad.pad_parameters{"XSize": "0.5mm", "YSize": "0.5mm"}
+        """
+        value = {k: v.tostring if isinstance(v, EdbValue) else v for k, v in value.items()}
+
         if self.shape == PadGeometryTpe.Circle.name:
             params = [self._get_edb_value(value["Diameter"])]
         elif self.shape == PadGeometryTpe.Square.name:
@@ -205,11 +207,17 @@ class EDBPadProperties(object):
         elif self.shape == PadGeometryTpe.Rectangle.name:
             params = [self._get_edb_value(value["XSize"]), self._get_edb_value(value["YSize"])]
         elif self.shape == [PadGeometryTpe.Oval.name, PadGeometryTpe.Bullet.name]:
-            params = [self._get_edb_value(value["XSize"]), self._get_edb_value(value["YSize"]),
-                      self._get_edb_value(value["CornerRadius"])]
+            params = [
+                self._get_edb_value(value["XSize"]),
+                self._get_edb_value(value["YSize"]),
+                self._get_edb_value(value["CornerRadius"]),
+            ]
         elif self.shape in [PadGeometryTpe.Round45.name, PadGeometryTpe.Round90.name]:
-            params = [self._get_edb_value(value["Inner"]), self._get_edb_value(value["ChannelWidth"]),
-                      self._get_edb_value(value["IsolationGap"])]
+            params = [
+                self._get_edb_value(value["Inner"]),
+                self._get_edb_value(value["ChannelWidth"]),
+                self._get_edb_value(value["IsolationGap"]),
+            ]
         else:
             params = None
         self._update_pad_parameters_parameters(params=params)
