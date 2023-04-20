@@ -1,7 +1,7 @@
+from enum import Enum
+from enum import Enum
 import math
 import warnings
-
-from enum import Enum
 
 from pyaedt import is_ironpython
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
@@ -198,8 +198,8 @@ class EDBPadProperties(object):
         >>> pad.shape = "Bullet"
         >>> pad.pad_parameters{"XSize": "0.5mm", "YSize": "0.5mm"}
         """
-        value = {k: v.tostring if isinstance(v, EdbValue) else v for k, v in value.items()}
 
+        value = {k: v.tostring if isinstance(v, EdbValue) else v for k, v in value.items()}
         if self.shape == PadGeometryTpe.Circle.name:
             params = [self._get_edb_value(value["Diameter"])]
         elif self.shape == PadGeometryTpe.Square.name:
