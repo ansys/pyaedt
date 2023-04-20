@@ -1559,7 +1559,7 @@ class Object3d(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
+        list of str
             List of names of the newly added objects.
 
         References
