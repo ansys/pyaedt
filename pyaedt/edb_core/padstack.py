@@ -590,7 +590,7 @@ class EdbPadstacks(object):
             ]
             offset_x = padparams[2]
             offset_y = padparams[3]
-            rot = padparams[4]
+            rotation = padparams[4]
             geometry_type = 7
             return geometry_type, parameters, offset_x, offset_y, rotation
 
