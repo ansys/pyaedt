@@ -181,7 +181,7 @@ function checkPageExistsAndRedirect(event) {
 
 // Populate the version switcher from the JSON config file
 (function () {
-    $.getJSON("https://aedt.docs.pyansys.com/release/versions.json", function(data, textStatus, jqXHR) {
+    $.getJSON("https://aedt.docs.pyansys.com/versions.json", function(data, textStatus, jqXHR) {
         const currentFilePath = "index.html";
         let btn = document.getElementById("version_switcher_button");
         // Set empty strings by default so that these attributes exist and can be used in CSS selectors
