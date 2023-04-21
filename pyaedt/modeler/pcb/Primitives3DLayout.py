@@ -1304,7 +1304,7 @@ class Primitives3DLayout(object):
         Parameters
         ----------
         Value :
-
+            The value of the quantity.
         sUnits :
              The default is ``None``.
 
@@ -1312,13 +1312,16 @@ class Primitives3DLayout(object):
         -------
         str
             String containing the value or value and the units if `sUnits` is not ``None``.
+
         """
         warnings.warn("Use :func:`number_with_units` instead.", DeprecationWarning)
         return self._app.number_with_units(Value, sUnits)
 
     @pyaedt_function_handler()
     def number_with_units(self, value, units=None):
-        """Convert a number to a string with units. If value is a string, it's returned as is.
+        """Convert a number to a string with units.
+
+        If value is a string, it's returned as is.
 
         Parameters
         ----------

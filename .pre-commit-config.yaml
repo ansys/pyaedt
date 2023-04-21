@@ -68,3 +68,5 @@ repos:
 #   - id: pydocstyle
 #     additional_dependencies: [toml]
 #     files: ^pyaedt/
+#     args:
+#     - --ignore=D412,D413,D213
