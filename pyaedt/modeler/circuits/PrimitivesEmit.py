@@ -712,7 +712,7 @@ class EmitRadioComponent(EmitComponent):
         Returns
         -------
         List
-            List of the bands in the radio."""
+            List of the band nodes in the radio."""
         band_nodes = self.get_prop_nodes({"Type": "Band"})
         return band_nodes
 

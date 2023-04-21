@@ -1,6 +1,6 @@
 import warnings
 
-from pyaedt.emit_core import EMIT_MODULE
+from pyaedt import emit_core
 from pyaedt.emit_core.results.revision import Revision
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
@@ -103,7 +103,7 @@ class Results:
 
         """
         try:
-            domain = EMIT_MODULE.InteractionDomain()
+            domain = emit_core.emit_api_python().InteractionDomain()
         except NameError:
             raise ValueError("An Emit object must be initialized before any static member of the Results.")
         return domain
