@@ -1182,7 +1182,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             Depending on value ``apply_mesh_sheets`` it returns either a dictionary or a tuple.
             If mesh sheets are applied the method returns a tuple where:
             - First dictionary is the segments that the object has been divided into.
-            - Second dictionary is the mesh sheets eventually needed to apply the mesh
+            - Second dictionary is the mesh sheets eventually needed to apply the mesh.
             to inside the object. Keys are the object names, and values are respectively
             segments sheets and mesh sheets of the
             :class:`pyaedt.modeler.cad.object3d.Object3d` class.
