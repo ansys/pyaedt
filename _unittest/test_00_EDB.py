@@ -2259,6 +2259,84 @@ class TestClass(BasisTest, object):
         assert pad_instance2.start_layer == "top"
         assert pad_instance2.stop_layer == "top"
 
+    def test_131_assign_hfss_extent_non_multiple_with_simconfig(self):
+        edb = Edb()
+        edb.stackup.add_layer(layer_name="GND", fillMaterial="AIR", thickness="30um")
+        edb.stackup.add_layer(layer_name="FR4", base_layer="gnd", thickness="250um")
+        edb.stackup.add_layer(layer_name="SIGNAL", base_layer="FR4", thickness="30um")
+        edb.core_primitives.create_trace(
+            layer_name="SIGNAL", width=0.02, net_name="net1", path_list=[[-1e3, 0, 1e-3, 0]]
+        )
+        edb.core_primitives.create_rectangle(
+            layer_name="GND",
+            representation_type="CenterWidthHeight",
+            center_point=["0mm", "0mm"],
+            width="4mm",
+            height="4mm",
+            net_name="GND",
+        )
+        sim_setup = edb.new_simulation_configuration()
+        sim_setup.signal_nets = ["net1"]
+        sim_setup.power_nets = ["GND"]
+        sim_setup.use_dielectric_extent_multiple = False
+        sim_setup.use_airbox_horizontal_extent_multiple = False
+        sim_setup.use_airbox_negative_vertical_extent_multiple = False
+        sim_setup.use_airbox_positive_vertical_extent_multiple = False
+        sim_setup.dielectric_extent = 0.0005
+        sim_setup.airbox_horizontal_extent = 0.001
+        sim_setup.airbox_negative_vertical_extent = 0.05
+        sim_setup.airbox_positive_vertical_extent = 0.04
+        edb.build_simulation_project(sim_setup)
+        hfss_ext_info = edb.active_cell.GetHFSSExtentInfo()
+        assert hfss_ext_info
+        assert hfss_ext_info.AirBoxHorizontalExtent.Item1 == 0.001
+        assert not hfss_ext_info.AirBoxHorizontalExtent.Item2
+        assert hfss_ext_info.AirBoxNegativeVerticalExtent.Item1 == 0.05
+        assert not hfss_ext_info.AirBoxNegativeVerticalExtent.Item2
+        assert hfss_ext_info.AirBoxPositiveVerticalExtent.Item1 == 0.04
+        assert not hfss_ext_info.AirBoxPositiveVerticalExtent.Item2
+        assert hfss_ext_info.DielectricExtentSize.Item1 == 0.0005
+        assert not hfss_ext_info.AirBoxPositiveVerticalExtent.Item2
+
+    def test_132_assign_hfss_extent_multiple_with_simconfig(self):
+        edb = Edb()
+        edb.stackup.add_layer(layer_name="GND", fillMaterial="AIR", thickness="30um")
+        edb.stackup.add_layer(layer_name="FR4", base_layer="gnd", thickness="250um")
+        edb.stackup.add_layer(layer_name="SIGNAL", base_layer="FR4", thickness="30um")
+        edb.core_primitives.create_trace(
+            layer_name="SIGNAL", width=0.02, net_name="net1", path_list=[[-1e3, 0, 1e-3, 0]]
+        )
+        edb.core_primitives.create_rectangle(
+            layer_name="GND",
+            representation_type="CenterWidthHeight",
+            center_point=["0mm", "0mm"],
+            width="4mm",
+            height="4mm",
+            net_name="GND",
+        )
+        sim_setup = edb.new_simulation_configuration()
+        sim_setup.signal_nets = ["net1"]
+        sim_setup.power_nets = ["GND"]
+        sim_setup.use_dielectric_extent_multiple = True
+        sim_setup.use_airbox_horizontal_extent_multiple = True
+        sim_setup.use_airbox_negative_vertical_extent_multiple = True
+        sim_setup.use_airbox_positive_vertical_extent_multiple = True
+        sim_setup.dielectric_extent = 0.0005
+        sim_setup.airbox_horizontal_extent = 0.001
+        sim_setup.airbox_negative_vertical_extent = 0.05
+        sim_setup.airbox_positive_vertical_extent = 0.04
+        edb.build_simulation_project(sim_setup)
+        hfss_ext_info = edb.active_cell.GetHFSSExtentInfo()
+        assert hfss_ext_info
+        assert hfss_ext_info.AirBoxHorizontalExtent.Item1 == 0.001
+        assert hfss_ext_info.AirBoxHorizontalExtent.Item2
+        assert hfss_ext_info.AirBoxNegativeVerticalExtent.Item1 == 0.05
+        assert hfss_ext_info.AirBoxNegativeVerticalExtent.Item2
+        assert hfss_ext_info.AirBoxPositiveVerticalExtent.Item1 == 0.04
+        assert hfss_ext_info.AirBoxPositiveVerticalExtent.Item2
+        assert hfss_ext_info.DielectricExtentSize.Item1 == 0.0005
+        assert hfss_ext_info.AirBoxPositiveVerticalExtent.Item2
+
     def test_133_stackup_properties(self):
         edb = Edb(edbversion=desktop_version)
         edb.stackup.add_layer(layer_name="gnd", fillMaterial="AIR", thickness="10um")
