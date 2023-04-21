@@ -23,7 +23,6 @@ import sys
 import tempfile
 import time
 import traceback
-import warnings
 
 from pyaedt.generic.constants import CSS4_COLORS
 
@@ -325,30 +324,25 @@ def open_file(file_path, file_options="r"):
 
     file = None
     try:
-        if os.path.exists(dir_name):
-            file = open(file_path, file_options)
-            yield file
-        elif settings.remote_rpc_session:
-            file = settings.remote_rpc_session.open_file(file_path, file_options)
-            yield file
+        if "r" in file_options:
+            if os.path.exists(file_path):
+                file = open(file_path, file_options)
+                yield file
+            elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(
+                file_path
+            ):  # pragma: no cover
+                file = os.path.join(tempfile.gettempdir(), os.path.split(file_path)[-1])
+                settings.remote_rpc_session.filemanager.download_file(file_path, file)
+                open(file, file_options)
+                yield file
+        elif os.path.exists(dir_name):
+            return open(file_path, file_options)
+        else:
+            settings.logger.error("The file or folder %s does not exist", dir_name)
     except:
         return False
     finally:
         file.close()
-
-    if "r" in file_options:
-        if os.path.exists(file_path):
-            return open(file_path, file_options)
-        elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(
-            file_path
-        ):  # pragma: no cover
-            local_file = os.path.join(tempfile.gettempdir(), os.path.split(file_path)[-1])
-            settings.remote_rpc_session.filemanager.download_file(file_path, local_file)
-            return open(local_file, file_options)
-    elif os.path.exists(dir_name):
-        return open(file_path, file_options)
-    else:
-        settings.logger.error("The file or folder %s does not exist", dir_name)
 
 
 def _log_method(func, new_args, new_kwargs):
