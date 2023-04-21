@@ -650,9 +650,9 @@ class TestClass(BasisTest, object):
         ant1 = self.aedtapp.modeler.components.create_component("Antenna")
         if rad1 and ant1:
             ant1.move_and_connect_to(rad1)
-        bns = rad1.bands()
-        for bn in bns:
-            bn.enabled = True
+        bands = rad1.bands()
+        for band in bands:
+            band.enabled = True
         rad2 = self.aedtapp.modeler.components.create_component("Bluetooth Low Energy (LE)")
         ant2 = self.aedtapp.modeler.components.create_component("Antenna")
         if rad2 and ant2:
