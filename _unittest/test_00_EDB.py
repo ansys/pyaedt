@@ -541,8 +541,8 @@ class TestClass(BasisTest, object):
         pins = self.edbapp.components.get_pin_from_component("R13")
         component = self.edbapp.components.create(pins, "newcomp")
         assert component
-        assert component.GetName() == "newcomp"
-        assert len(list(component.LayoutObjs)) == 2
+        assert component.part_name == "newcomp"
+        assert len(component.pins) == 2
 
     def test_062_create_cutout(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
