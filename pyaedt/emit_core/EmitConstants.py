@@ -1,13 +1,4 @@
-from pyaedt.emit_core import EMIT_MODULE
-
-
-# this is called by the main Emit object
-# to set the Emit API for the corresponding
-# AEDT version
-def _set_api(emodule):
-    global EMIT_MODULE
-    EMIT_MODULE = emodule
-
+from pyaedt import emit_core
 
 def result_type():
     """
@@ -25,7 +16,7 @@ def result_type():
 
     """
     try:
-        result = EMIT_MODULE.result_type()
+        result = emit_core.emit_api_python().result_type()
     except NameError:
         raise ValueError("An Emit object must be initialized before any static member of EmitConstants is accessed.")
     return result
@@ -46,7 +37,7 @@ def tx_rx_mode():
 
     """
     try:
-        tx_rx = EMIT_MODULE.tx_rx_mode()
+        tx_rx = emit_core.emit_api_python().tx_rx_mode()
     except NameError:
         raise ValueError("An Emit object must be initialized before any static member of EmitConstants is accessed.")
     return tx_rx
@@ -65,7 +56,7 @@ def interferer_type():
     >>> tx_only = int_type.transmitters
     """
     try:
-        inter_type = EMIT_MODULE.interferer_type()
+        inter_type = emit_core.emit_api_python().interferer_type()
     except NameError:
         raise ValueError("An Emit object must be initialized before any static member of EmitConstants is accessed.")
     return inter_type
@@ -82,7 +73,7 @@ def unit_type():
     >>> unit_type = EmitConstants.unit_type()
     """
     try:
-        unit_type = EMIT_MODULE.unit_type()
+        unit_type = emit_core.emit_api_python().unit_type()
     except NameError:
         raise ValueError("An Emit object must be initialized before any static member of EmitConstants is accessed.")
     return unit_type
