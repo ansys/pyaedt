@@ -1,7 +1,10 @@
+from collections import OrderedDict
 import math
 import warnings
 
 from pyaedt import is_ironpython
+from pyaedt.edb_core.edb_data.edbvalue import EdbValue
+from pyaedt.edb_core.general import PadGeometryTpe
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.clr_module import String
 from pyaedt.generic.clr_module import _clr
@@ -36,8 +39,6 @@ class EDBPadProperties(object):
         self._pedbpadstack = p_edb_padstack
         self.layer_name = layer_name
         self.pad_type = pad_type
-        self._parameters_values = None
-        pass
 
     @property
     def _padstack_methods(self):
@@ -57,6 +58,13 @@ class EDBPadProperties(object):
 
     def _get_edb_value(self, value):
         return self._pedbpadstack._get_edb_value(value)
+
+    @property
+    def _pad_parameter_value(self):
+        pad_params = self._edb_padstack.GetData().GetPadParametersValue(
+            self.layer_name, self.int_to_pad_type(self.pad_type)
+        )
+        return pad_params
 
     @property
     def geometry_type(self):
@@ -96,6 +104,15 @@ class EDBPadProperties(object):
         self._update_pad_parameters_parameters(geom_type=geom_type, params=params)
 
     @property
+    def shape(self):
+        """Get the shape of the pad."""
+        return self._pad_parameter_value[1].ToString()
+
+    @shape.setter
+    def shape(self, value):
+        self._update_pad_parameters_parameters(geom_type=PadGeometryTpe[value].value)
+
+    @property
     def parameters_values(self):
         """Parameters.
 
@@ -104,12 +121,7 @@ class EDBPadProperties(object):
         list
             List of parameters.
         """
-        self._parameters_values = []
-        pad_values = self._edb_padstack.GetData().GetPadParametersValue(
-            self.layer_name, self.int_to_pad_type(self.pad_type)
-        )
-        self._parameters_values = [i.ToDouble() for i in pad_values[2]]
-        return self._parameters_values
+        return [i.tofloat for i in self.parameters.values()]
 
     @property
     def polygon_data(self):
@@ -130,27 +142,75 @@ class EDBPadProperties(object):
 
     @property
     def parameters(self):
-        """Parameters.
+        """Get parameters.
 
         Returns
         -------
-        list
-            List of parameters.
+        dict
         """
-        pad_values = self._edb_padstack.GetData().GetPadParametersValue(
-            self.layer_name, self.int_to_pad_type(self.pad_type)
-        )
-
-        # pad_values = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self)
-        return [i.ToString() for i in pad_values[2]]
+        value = list(self._pad_parameter_value[2])
+        if self.shape == PadGeometryTpe.Circle.name:
+            return OrderedDict({"Diameter": EdbValue(value[0])})
+        elif self.shape == PadGeometryTpe.Square.name:
+            return OrderedDict({"Size": EdbValue(value[0])})
+        elif self.shape == PadGeometryTpe.Rectangle.name:
+            return OrderedDict({"XSize": EdbValue(value[0]), "YSize": EdbValue(value[1])})
+        elif self.shape in [PadGeometryTpe.Oval.name, PadGeometryTpe.Bullet.name]:
+            return OrderedDict(
+                {"XSize": EdbValue(value[0]), "YSize": EdbValue(value[1]), "CornerRadius": EdbValue(value[2])}
+            )
+        elif self.shape == PadGeometryTpe.NSidedPolygon.name:
+            return OrderedDict({"Size": EdbValue(value[0]), "NumSides": EdbValue(value[1])})
+        elif self.shape in [PadGeometryTpe.Round45.name, PadGeometryTpe.Round90.name]:  # pragma: no cover
+            return OrderedDict(
+                {"Inner": EdbValue(value[0]), "ChannelWidth": EdbValue(value[1]), "IsolationGap": EdbValue(value[2])}
+            )
+        else:
+            return OrderedDict()  # pragma: no cover
 
     @parameters.setter
-    def parameters(self, propertylist):
-        if not isinstance(propertylist, list):
-            propertylist = [self._get_edb_value(propertylist)]
+    def parameters(self, value):
+        """Set parameters.
+        "Circle", {"Diameter": "0.5mm"}
+
+        Parameters
+        ----------
+        value : dict
+            Pad parameters in dictionary.
+        >>> pad = Edb.padstacks["PlanarEMVia"]["TOP"]
+        >>> pad.shape = "Circle"
+        >>> pad.pad_parameters{"Diameter": "0.5mm"}
+        >>> pad.shape = "Bullet"
+        >>> pad.pad_parameters{"XSize": "0.5mm", "YSize": "0.5mm"}
+        """
+
+        if isinstance(value, dict):
+            value = {k: v.tostring if isinstance(v, EdbValue) else v for k, v in value.items()}
+            if self.shape == PadGeometryTpe.Circle.name:
+                params = [self._get_edb_value(value["Diameter"])]
+            elif self.shape == PadGeometryTpe.Square.name:
+                params = [self._get_edb_value(value["Size"])]
+            elif self.shape == PadGeometryTpe.Rectangle.name:
+                params = [self._get_edb_value(value["XSize"]), self._get_edb_value(value["YSize"])]
+            elif self.shape == [PadGeometryTpe.Oval.name, PadGeometryTpe.Bullet.name]:
+                params = [
+                    self._get_edb_value(value["XSize"]),
+                    self._get_edb_value(value["YSize"]),
+                    self._get_edb_value(value["CornerRadius"]),
+                ]
+            elif self.shape in [PadGeometryTpe.Round45.name, PadGeometryTpe.Round90.name]:  # pragma: no cover
+                params = [
+                    self._get_edb_value(value["Inner"]),
+                    self._get_edb_value(value["ChannelWidth"]),
+                    self._get_edb_value(value["IsolationGap"]),
+                ]
+            else:  # pragma: no cover
+                params = None
+        elif isinstance(value, list):
+            params = [self._get_edb_value(i) for i in value]
         else:
-            propertylist = [self._get_edb_value(i) for i in propertylist]
-        self._update_pad_parameters_parameters(params=propertylist)
+            params = [self._get_edb_value(value)]
+        self._update_pad_parameters_parameters(params=params)
 
     @property
     def offset_x(self):
@@ -280,8 +340,10 @@ class EDBPadProperties(object):
             pad_type = self.pad_type
         if not geom_type:
             geom_type = self.geometry_type
-        if not params:
-            params = [self._get_edb_value(i) for i in self.parameters]
+        if params:
+            params = convert_py_list_to_net_list(params)
+        else:
+            params = self._pad_parameter_value[2]
         if not offsetx:
             offsetx = self.offset_x
         if not offsety:
@@ -295,7 +357,7 @@ class EDBPadProperties(object):
             layer_name,
             self.int_to_pad_type(pad_type),
             self.int_to_geometry_type(geom_type),
-            convert_py_list_to_net_list(params),
+            params,
             self._get_edb_value(offsetx),
             self._get_edb_value(offsety),
             self._get_edb_value(rotation),

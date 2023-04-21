@@ -8,7 +8,8 @@ delcross_python_path = os.environ.get("ANSYS_DELCROSS_PYTHON_PATH")
 if delcross_python_path:
     sys.path.append(delcross_python_path)
 
-# need this as a function so that it can be set 
+
+# need this as a function so that it can be set
 # for the correct aedt version that the user is running
 def _set_api(aedt_version):
     numeric_version = int(aedt_version[-3:])

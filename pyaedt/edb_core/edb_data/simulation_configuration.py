@@ -39,9 +39,13 @@ class SimulationConfigurationBatch(object):
         self._coplanar_instances = []
         self._signal_layer_etching_instances = []
         self._etching_factor_instances = []
-        self._dielectric_extent = 0.01
-        self._airbox_horizontal_extent = 0.04
+        self._use_dielectric_extent_multiple = True
+        self._dielectric_extent = 0.001
+        self._use_airbox_horizontal_multiple = True
+        self._airbox_horizontal_extent = 0.1
+        self._use_airbox_negative_vertical_extent_multiple = True
         self._airbox_negative_vertical_extent = 0.1
+        self._use_airbox_positive_vertical_extent_multiple = True
         self._airbox_positive_vertical_extent = 0.1
         self._honor_user_dielectric = False
         self._truncate_airbox_at_ground = False
@@ -104,8 +108,9 @@ class SimulationConfigurationBatch(object):
 
         Returns
         -------
-            float
-            Value of the dielectric extent.
+        float
+            Value of the dielectric extent. When absolute dimensions are used,
+            the values are in meters.
         """
         return self._dielectric_extent
 
@@ -115,8 +120,26 @@ class SimulationConfigurationBatch(object):
             self._dielectric_extent = value
 
     @property
+    def use_dielectric_extent_multiple(self):
+        """Whether the multiple value of the dielectric extent is used.
+
+        Returns
+        -------
+        bool
+           ``True`` when the multiple value (extent factor) is used. ``False`` when
+           absolute dimensions are used.
+        """
+        return self._use_dielectric_extent_multiple
+
+    @use_dielectric_extent_multiple.setter
+    def use_dielectric_extent_multiple(self, value):
+        if isinstance(value, bool):
+            self._use_dielectric_extent_multiple = value
+
+    @property
     def airbox_horizontal_extent(self):  # pragma: no cover
-        """Retrieve the air box horizontal extent size for HFSS.
+        """Horizontal extent of the airbox for HFSS. When absolute dimensions are used,
+        the values are in meters.
 
         Returns
         -------
@@ -131,8 +154,27 @@ class SimulationConfigurationBatch(object):
             self._airbox_horizontal_extent = value
 
     @property
+    def use_airbox_horizontal_extent_multiple(self):
+        """Whether the multiple value is used for the horizontal extent of the air box.
+
+        Returns
+        -------
+        bool
+            ``True`` when the multiple value (extent factor) is used. ``False`` when
+            absolute dimensions are used.
+
+        """
+        return self._use_airbox_horizontal_multiple
+
+    @use_airbox_horizontal_extent_multiple.setter
+    def use_airbox_horizontal_extent_multiple(self, value):
+        if isinstance(value, bool):
+            self._use_airbox_horizontal_multiple = value
+
+    @property
     def airbox_negative_vertical_extent(self):  # pragma: no cover
-        """Retrieve the air box negative vertical extent size for HFSS.
+        """Negative vertical extent of the airbox for HFSS. When absolute dimensions
+        are used, the values are in meters.
 
         Returns
         -------
@@ -147,8 +189,27 @@ class SimulationConfigurationBatch(object):
             self._airbox_negative_vertical_extent = value
 
     @property
+    def use_airbox_negative_vertical_extent_multiple(self):
+        """Multiple value for the negative extent of the airbox.
+
+        Returns
+        -------
+        bool
+            ``True`` when the multiple value (extent factor) is used. ``False`` when
+            absolute dimensions are used.
+
+        """
+        return self._use_airbox_negative_vertical_extent_multiple
+
+    @use_airbox_negative_vertical_extent_multiple.setter
+    def use_airbox_negative_vertical_extent_multiple(self, value):
+        if isinstance(value, bool):
+            self._use_airbox_negative_vertical_extent_multiple = value
+
+    @property
     def airbox_positive_vertical_extent(self):  # pragma: no cover
-        """Retrieve the air box positive vertical extent size for HFSS.
+        """Positive vertical extent of the airbox for HFSS. When absolute dimensions are
+        used, the values are in meters.
 
         Returns
         -------
@@ -163,8 +224,25 @@ class SimulationConfigurationBatch(object):
             self._airbox_positive_vertical_extent = value
 
     @property
+    def use_airbox_positive_vertical_extent_multiple(self):
+        """Whether the multiple value for the positive extent of the airbox is used.
+
+        Returns
+        -------
+        bool
+            ``True`` when the multiple value (extent factor) is used. ``False`` when
+            absolute dimensions are used.
+        """
+        return self._use_airbox_positive_vertical_extent_multiple
+
+    @use_airbox_positive_vertical_extent_multiple.setter
+    def use_airbox_positive_vertical_extent_multiple(self, value):
+        if isinstance(value, bool):
+            self._use_airbox_positive_vertical_extent_multiple = value
+
+    @property
     def use_default_cutout(self):  # pragma: no cover
-        """Either if use the default EDB Cutout or new pyaedt cutout.
+        """Whether the default EDB cutout or a new PyAEDT cutout is used.
 
         Returns
         -------

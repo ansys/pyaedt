@@ -2,9 +2,9 @@ from __future__ import absolute_import
 
 import warnings
 
+from pyaedt import emit_core
 from pyaedt import generate_unique_project_name
 from pyaedt.application.Design import Design
-from pyaedt import emit_core
 from pyaedt.emit_core import EmitConstants
 from pyaedt.emit_core.Couplings import CouplingsEmit
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -143,10 +143,11 @@ class Emit(Design, object):
         self._couplings = CouplingsEmit(self)
         if self._aedt_version > "2023.1":
             # the next 4 lines of code are needed to point
-            # the Emit object to the correct EmiApiPython 
+            # the Emit object to the correct EmiApiPython
             # module for the current AEDT version
-            emit_core._set_api(self.aedt_version_id)            
+            emit_core._set_api(self.aedt_version_id)
             from pyaedt.emit_core import EMIT_MODULE
+
             # need to call this here in case EmitConstants
             # were imported BEFORE the EMIT_MODULE was set
             EmitConstants._set_api(EMIT_MODULE)
@@ -155,6 +156,7 @@ class Emit(Design, object):
 
             # needs to be imported AFTER the EmitApi is set/imported
             from pyaedt.emit_core.results.results import Results
+
             self.results = Results(self)
             """''Result'' object for the selected design."""
 
