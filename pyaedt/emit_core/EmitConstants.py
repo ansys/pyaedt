@@ -1,12 +1,14 @@
 from pyaedt.emit_core import EMIT_MODULE
 from pyaedt.misc.misc import list_installed_ansysem
 
+
 # this is called by the main Emit object
 # to set the Emit API for the corresponding
 # AEDT version
 def _set_api(emodule):
     global EMIT_MODULE
     EMIT_MODULE = emodule
+
 
 def result_type():
     """
@@ -100,6 +102,7 @@ EMIT_VALID_UNITS = {
     "Resistance": ["uOhm", "mOhm", "Ohm", "kOhm", "megOhm", "GOhm"],
 }
 """Valid units for each unit type."""
+
 
 def emit_unit_type_string_to_enum(unit_string):
     EMIT_UNIT_TYPE_STRING_TO_ENUM = {
