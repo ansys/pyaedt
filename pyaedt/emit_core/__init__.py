@@ -2,8 +2,6 @@ from importlib import import_module
 import os
 import sys
 
-from pyaedt.misc.misc import list_installed_ansysem
-
 EMIT_MODULE = None
 
 delcross_python_path = os.environ.get("ANSYS_DELCROSS_PYTHON_PATH")

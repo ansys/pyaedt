@@ -36,7 +36,7 @@ class TestClass(BasisTest, object):
         assert isinstance(self.aedtapp.modeler.components, EmitComponents)
         assert self.aedtapp.modeler
         assert self.aedtapp.oanalysis is None
-        if self.aedtapp._aedt_version >= "2023.1":
+        if self.aedtapp._aedt_version > "2023.1":
             if sys.version_info.major == 3 and sys.version_info.minor == 7:
                 assert str(type(self.aedtapp._emit_api)) == "<class 'EmitApiPython.EmitApi'>"
                 assert self.aedtapp.results is not None
@@ -114,9 +114,11 @@ class TestClass(BasisTest, object):
         mux5 = self.aedtapp.modeler.components.create_component("5 Port", "Test5port")
         assert mux5.name == "Test5port"
         assert isinstance(mux5, EmitComponent)
-        mux6 = self.aedtapp.modeler.components.create_component("6 Port", "Test6port")
-        assert mux6.name == "Test6port"
-        assert isinstance(mux6, EmitComponent)
+        # Multiplexer 6 port added at 2023.2
+        if self.aedtapp._aedt_version > "2023.1":
+            mux6 = self.aedtapp.modeler.components.create_component("6 Port", "Test6port")
+            assert mux6.name == "Test6port"
+            assert isinstance(mux6, EmitComponent)
         switch = self.aedtapp.modeler.components.create_component("TR Switch", "TestSwitch")
         assert switch.name == "TestSwitch"
         assert isinstance(switch, EmitComponent)
@@ -183,36 +185,38 @@ class TestClass(BasisTest, object):
         except:
             exception_raised = True
         assert exception_raised
-        # test band.set_band_power_level
-        band.set_band_power_level(100)
-        power = band.get_band_power_level()
-        assert power == 100.0
-        # test band.set_band_power_level
-        band.set_band_power_level(10, "W")
-        power = band.get_band_power_level("mW")
-        assert power == 10000.0
-        # test frequency unit conversions
-        start_freq = radio.band_start_frequency(band)
-        assert start_freq == 100.0
-        start_freq = radio.band_start_frequency(band, "Hz")
-        assert start_freq == 100000000.0
-        start_freq = radio.band_start_frequency(band, "kHz")
-        assert start_freq == 100000.0
-        start_freq = radio.band_start_frequency(band, "GHz")
-        assert start_freq == 0.1
-        start_freq = radio.band_start_frequency(band, "THz")
-        assert start_freq == 0.0001
-        # test power unit conversions
-        band_power = radio.band_tx_power(band)
-        assert band_power == 40.0
-        band_power = radio.band_tx_power(band, "dBW")
-        assert band_power == 10.0
-        band_power = radio.band_tx_power(band, "mW")
-        assert band_power == 10000.0
-        band_power = radio.band_tx_power(band, "W")
-        assert band_power == 10.0
-        band_power = radio.band_tx_power(band, "kW")
-        assert band_power == 0.01
+        # full units support added with 2023.2
+        if self.aedtapp._aedt_version > "2023.1":
+            # test band.set_band_power_level
+            band.set_band_power_level(100)
+            power = band.get_band_power_level()
+            assert power == 100.0
+            # test band.set_band_power_level
+            band.set_band_power_level(10, "W")
+            power = band.get_band_power_level("mW")
+            assert power == 10000.0
+            # test frequency unit conversions
+            start_freq = radio.band_start_frequency(band)
+            assert start_freq == 100.0
+            start_freq = radio.band_start_frequency(band, "Hz")
+            assert start_freq == 100000000.0
+            start_freq = radio.band_start_frequency(band, "kHz")
+            assert start_freq == 100000.0
+            start_freq = radio.band_start_frequency(band, "GHz")
+            assert start_freq == 0.1
+            start_freq = radio.band_start_frequency(band, "THz")
+            assert start_freq == 0.0001
+            # test power unit conversions
+            band_power = radio.band_tx_power(band)
+            assert band_power == 40.0
+            band_power = radio.band_tx_power(band, "dBW")
+            assert band_power == 10.0
+            band_power = radio.band_tx_power(band, "mW")
+            assert band_power == 10000.0
+            band_power = radio.band_tx_power(band, "W")
+            assert band_power == 10.0
+            band_power = radio.band_tx_power(band, "kW")
+            assert band_power == 0.01
 
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2022 R2."
@@ -315,7 +319,7 @@ class TestClass(BasisTest, object):
         assert valid is False
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2021 R2."
+        config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions earlier than 2023 R2."
     )
     def test_antenna_component(self):
         self.aedtapp = BasisTest.add_app(self, application=Emit)

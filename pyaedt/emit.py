@@ -141,7 +141,7 @@ class Emit(Design, object):
         )
         self._modeler = ModelerEmit(self)
         self._couplings = CouplingsEmit(self)
-        if self._aedt_version >= "2023.1":
+        if self._aedt_version > "2023.1":
             # the next 4 lines of code are needed to point
             # the Emit object to the correct EmiApiPython 
             # module for the current AEDT version

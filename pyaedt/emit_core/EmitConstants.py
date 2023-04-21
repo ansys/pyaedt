@@ -1,5 +1,4 @@
 from pyaedt.emit_core import EMIT_MODULE
-from pyaedt.misc.misc import list_installed_ansysem
 
 # this is called by the main Emit object
 # to set the Emit API for the corresponding
