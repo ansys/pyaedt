@@ -76,7 +76,8 @@ class SolutionData(object):
 
     @property
     def enable_pandas_output(self):
-        """Set/Get a flag to use Pandas to export dict and lists. This applies to Solution data output.
+        """
+        Set/Get a flag to use Pandas to export dict and lists. This applies to Solution data output.
         If ``True`` the property or method will return a pandas object in CPython environment.
         Default is ``False``.
 
@@ -213,15 +214,17 @@ class SolutionData(object):
     @staticmethod
     @pyaedt_function_handler()
     def _quantity(unit):
-        """
+        """Get the corresponding AEDT units.
 
         Parameters
         ----------
-        unit :
-
+        unit : str
+            The unit to be looked among the available AEDT units.
 
         Returns
         -------
+            str
+            The AEDT units.
 
         """
         for el in AEDT_UNITS:
@@ -232,7 +235,7 @@ class SolutionData(object):
 
     @pyaedt_function_handler()
     def init_solutions_data(self):
-        "Initialize the database and store info in variables."
+        """Initialize the database and store info in variables."""
         self._solutions_real = self._init_solution_data_real()
         self._solutions_imag = self._init_solution_data_imag()
         self._solutions_mag = self._init_solution_data_mag()
@@ -1267,7 +1270,8 @@ class FfdSolutionData(object):
 
     @pyaedt_function_handler()
     def array_center_and_edge(self):
-        """Find the center and edge of our array, assumes all ports in far field
+        """
+        Find the center and edge of our array, assuming all ports in far field
         mapping file are active ports.
 
         Returns
@@ -1998,10 +2002,6 @@ class FfdSolutionData(object):
         export_image_path : str, optional
             Full path to image file. Default is None to not export.
 
-
-        Returns
-        -------
-
         """
         data = self.beamform(phi_scan, theta_scan)
 
@@ -2437,12 +2437,12 @@ class UpdateBeamForm:
         return
 
     def update_phi(self, phi):
-        """Updates the Pyvista Plot with new phi value."""
+        """Update the Pyvista Plot with new phi value."""
         self._phi = phi
         self._update_both()
 
     def update_theta(self, theta):
-        """Updates the Pyvista Plot with new theta value."""
+        """Update the Pyvista Plot with new theta value."""
         self._theta = theta
         self._update_both()
 
@@ -2472,17 +2472,17 @@ class Update2BeamForms:
         return
 
     def update_phi1(self, phi1):
-        """Updates the Pyvista Plot with new phi1 value."""
+        """Update the Pyvista Plot with new phi1 value."""
         self._phi1 = phi1
         self._update_both()
 
     def update_theta1(self, theta1):
-        """Updates the Pyvista Plot with new theta1 value."""
+        """Update the Pyvista Plot with new theta1 value."""
         self._theta1 = theta1
         self._update_both()
 
     def update_phi2(self, phi2):
-        """Updates the Pyvista Plot with new phi2 value."""
+        """Update the Pyvista Plot with new phi2 value."""
         self._phi2 = phi2
         self._update_both()
 
@@ -3369,7 +3369,6 @@ class VRTFieldPlot:
     @pyaedt_function_handler()
     def update(self):
         """Update the field plot.
-
 
         Returns
         -------

@@ -1825,7 +1825,8 @@ class Settings(object):
 
     @property
     def enable_pandas_output(self):
-        """Set/Get a flag to use Pandas to export dict and lists. This applies to Solution data output.
+        """
+        Set/Get a flag to use Pandas to export dict and lists. This applies to Solution data output.
         If ``True`` the property or method will return a pandas object in CPython environment.
         Default is ``False``.
 
@@ -1841,7 +1842,8 @@ class Settings(object):
 
     @property
     def enable_debug_methods_argument_logger(self):
-        """Set/Get a flag to plot methods argument in debug logger.
+        """
+        Set/Get a flag to plot methods argument in debug logger.
         Default is ``False``.
 
         Returns
