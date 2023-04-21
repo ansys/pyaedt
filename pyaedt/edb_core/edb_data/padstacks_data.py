@@ -161,7 +161,7 @@ class EDBPadProperties(object):
             )
         elif self.shape == PadGeometryTpe.NSidedPolygon.name:
             return OrderedDict({"Size": EdbValue(value[0]), "NumSides": EdbValue(value[1])})
-        elif self.shape in [PadGeometryTpe.Round45.name, PadGeometryTpe.Round90.name]:
+        elif self.shape in [PadGeometryTpe.Round45.name, PadGeometryTpe.Round90.name]:  # pragma: no cover
             return OrderedDict(
                 {"Inner": EdbValue(value[0]), "ChannelWidth": EdbValue(value[1]), "IsolationGap": EdbValue(value[2])}
             )
@@ -198,13 +198,13 @@ class EDBPadProperties(object):
                     self._get_edb_value(value["YSize"]),
                     self._get_edb_value(value["CornerRadius"]),
                 ]
-            elif self.shape in [PadGeometryTpe.Round45.name, PadGeometryTpe.Round90.name]:  # pramga: no cover
+            elif self.shape in [PadGeometryTpe.Round45.name, PadGeometryTpe.Round90.name]:  # pragma: no cover
                 params = [
                     self._get_edb_value(value["Inner"]),
                     self._get_edb_value(value["ChannelWidth"]),
                     self._get_edb_value(value["IsolationGap"]),
                 ]
-            else:
+            else:  # pragma: no cover
                 params = None
         elif isinstance(value, list):
             params = [self._get_edb_value(i) for i in value]
