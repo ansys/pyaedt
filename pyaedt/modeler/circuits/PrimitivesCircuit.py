@@ -739,7 +739,7 @@ class CircuitComponents(object):
         return True
 
     @pyaedt_function_handler()
-    def enable_global_netlist(self, component_name, global_netlist_list=[]):
+    def enable_global_netlist(self, component_name, global_netlist_list=None):
         """Enable Nexxim global net list.
 
         Parameters
@@ -747,7 +747,7 @@ class CircuitComponents(object):
         component_name : str
             Name of the component.
         global_netlist_list : list
-            A list of lines to include. The default is ``[]``.
+            A list of lines to include. The default is ``None``.
 
         Returns
         -------
@@ -760,6 +760,9 @@ class CircuitComponents(object):
         >>> oComponentManager.GetData
         >>> oComponentManager.Edit
         """
+        if global_netlist_list is None:
+            global_netlist_list = []
+
         name = component_name
 
         properties = self.o_component_manager.GetData(name)
