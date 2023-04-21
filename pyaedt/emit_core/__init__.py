@@ -8,12 +8,14 @@ delcross_python_path = os.environ.get("ANSYS_DELCROSS_PYTHON_PATH")
 if delcross_python_path:
     sys.path.append(delcross_python_path)
 
+
 def emit_api_python():
     """
     Get the Emit backend API.
 
     """
     return EMIT_API_PYTHON
+
 
 # need this as a function so that it can be set
 # for the correct aedt version that the user is running

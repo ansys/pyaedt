@@ -3,13 +3,14 @@ from __future__ import absolute_import
 import warnings
 
 from pyaedt import emit_core
-from pyaedt.emit_core.results.results import Results
 from pyaedt import generate_unique_project_name
 from pyaedt.application.Design import Design
 from pyaedt.emit_core import EmitConstants
 from pyaedt.emit_core.Couplings import CouplingsEmit
+from pyaedt.emit_core.results.results import Results
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.schematic import ModelerEmit
+
 
 class Emit(Design, object):
     """Provides the Emit application interface.

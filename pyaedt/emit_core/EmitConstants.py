@@ -1,5 +1,6 @@
 from pyaedt import emit_core
 
+
 def result_type():
     """
     Get a result type.
