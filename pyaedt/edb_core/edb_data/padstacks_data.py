@@ -1507,14 +1507,15 @@ class EDBPadstackInstance(object):
 
     @pyaedt_function_handler()
     def create_rectangle_in_pad(self, layer_name, return_points=False, partition_max_order=16):
-        """Create a rectangle inscribed inside a padstack instance pad. The rectangle is fully inscribed in the
-        pad and has the maximum area. It is necessary to specify the layer on which the rectangle will be created.
+        """Create a rectangle inscribed inside a padstack instance pad.
+
+        The rectangle is fully inscribed in the pad and has the maximum area.
+        It is necessary to specify the layer on which the rectangle will be created.
 
         Parameters
         ----------
         layer_name : str
             Name of the layer on which to create the polygon.
-
         return_points : bool, optional
             If `True` does not create the rectangle and just returns a list containing the rectangle vertices.
             Default is `False`.
