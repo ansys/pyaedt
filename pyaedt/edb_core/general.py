@@ -7,10 +7,19 @@ from __future__ import absolute_import  # noreorder
 
 import logging
 
+from pyaedt import is_ironpython
 from pyaedt.generic.clr_module import Dictionary
 from pyaedt.generic.clr_module import List
 from pyaedt.generic.clr_module import Tuple
 from pyaedt.generic.general_methods import pyaedt_function_handler
+
+if not is_ironpython:  # pragma: no cover
+    try:
+        from enum import Enum
+    except ImportError:
+        Enum = None
+else:  # pragma: no cover
+    Enum = object
 
 logger = logging.getLogger(__name__)
 
@@ -118,3 +127,18 @@ def convert_net_list_to_py_list(netlist):
     for el in netlist:
         pylist.__add__(el)
     return pylist
+
+
+class PadGeometryTpe(Enum):  # pragma: no cover
+    Circle = 1
+    Square = 2
+    Rectangle = 3
+    Oval = 4
+    Bullet = 5
+    NSidedPolygon = 6
+    Polygon = 7
+    Round45 = 8
+    Round90 = 9
+    Square45 = 10
+    Square90 = 11
+    InvalidGeometry = 12
