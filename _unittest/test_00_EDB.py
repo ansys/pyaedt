@@ -500,15 +500,15 @@ class TestClass(BasisTest, object):
         assert pad.pad_by_layer[pad.via_stop_layer].offset_y == str(offset_y)
         pad.pad_by_layer[pad.via_stop_layer].parameters = {"Diameter": 8}
         assert pad.pad_by_layer[pad.via_stop_layer].parameters["Diameter"].tofloat == 8
-        pad.pad_by_layer[pad.via_stop_layer].parameter = {"Diameter": 1}
+        pad.pad_by_layer[pad.via_stop_layer].parameters = {"Diameter": 1}
         pad.pad_by_layer[pad.via_stop_layer].shape = "Square"
-        pad.pad_by_layer[pad.via_stop_layer].parameter = {"Size": 1}
+        pad.pad_by_layer[pad.via_stop_layer].parameters = {"Size": 1}
         pad.pad_by_layer[pad.via_stop_layer].shape = "Rectangle"
-        pad.pad_by_layer[pad.via_stop_layer].parameter = {"XSize": 1, "YSize": 1}
+        pad.pad_by_layer[pad.via_stop_layer].parameters = {"XSize": 1, "YSize": 1}
         pad.pad_by_layer[pad.via_stop_layer].shape = "Oval"
-        pad.pad_by_layer[pad.via_stop_layer].parameter = {"XSize": 1, "YSize": 1, "CornerRadius": 1}
-        pad.pad_by_layer[pad.via_stop_layer].parameter = {"XSize": 1, "YSize": 1, "CornerRadius": 1}
-        pad.pad_by_layer[pad.via_stop_layer].parameter = [1, 1, 1]
+        pad.pad_by_layer[pad.via_stop_layer].parameters = {"XSize": 1, "YSize": 1, "CornerRadius": 1}
+        pad.pad_by_layer[pad.via_stop_layer].parameters = {"XSize": 1, "YSize": 1, "CornerRadius": 1}
+        pad.pad_by_layer[pad.via_stop_layer].parameters = [1, 1, 1]
 
     def test_057_save_edb_as(self):
         assert self.edbapp.save_edb_as(os.path.join(self.local_scratch.path, "Gelileo_new.aedb"))
