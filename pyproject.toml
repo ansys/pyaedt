@@ -45,7 +45,7 @@ tests = [
     "osmnx",
     "pandas==1.3.5; python_version <= '3.7'",
     "pandas==2.0.0; python_version > '3.7'",
-    "pytest==7.2.2",
+    "pytest==7.3.1",
     "pytest-cov==4.0.0",
     "pytest-xdist==3.2.1",
     "pyvista==0.37.0",
