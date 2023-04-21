@@ -246,6 +246,7 @@ class EmitComponents(object):
         -------
         EmitComponent
             The component when successful, None when failed.
+
         """
         for el in self.components:
             if self.components[el].name == object_name:
@@ -265,7 +266,6 @@ class EmitComponents(object):
         -------
         type
             Object with properties.
-
         """
         o.update_property_tree()
         comp_type = o.root_prop_node.props["Type"]

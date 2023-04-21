@@ -39,14 +39,15 @@ def _conv_number(number, typen=float):
 
     Parameters
     ----------
-    number
+    number : int, float
        Number represented a float.
-
-    typen :
+    typen : type
          The default is ``float``.
 
     Returns
     -------
+    int or float
+        Number converted either to ``int`` or ``float``.
 
     """
     if typen is float:
@@ -89,10 +90,10 @@ def _getRGBfromI(value):
     ----------
     value : int
 
-
     Returns
     -------
     list
+
     """
     r = (value >> 16) & 0xFF
     g = (value >> 8) & 0xFF
@@ -891,13 +892,15 @@ class Layer(object):
 
         Parameters
         ----------
-        value :
-
+        value : str, float
+            Value of the quantity.
         units :
-             The default is ``None``.
+            Unit of the quantity. The default is ``None``.
 
         Returns
         -------
+        str
+            String containing both the value and the unit properly formatted.
 
         """
         if units is None:
@@ -1206,7 +1209,6 @@ class Layers(object):
 
         >>> oEditor.GetAllLayerNames()
         """
-
         return [v for k, v in self.layers.items() if v.type not in ["signal", "via", "dielectric"]]
 
     @property
@@ -1223,7 +1225,6 @@ class Layers(object):
 
         >>> oEditor.GetAllLayerNames()
         """
-
         return [v for k, v in self.layers.items() if v.type in ["signal", "via", "dielectric"]]
 
     @property
@@ -1235,7 +1236,6 @@ class Layers(object):
         List of :class:`pyaedt.modules.LayerStackup.Layer`
             List of signal layers.
         """
-
         return [v for k, v in self.layers.items() if v.type == "signal"]
 
     @property
@@ -1284,7 +1284,6 @@ class Layers(object):
 
         >>> oEditor.GetAllLayerNames()
         """
-
         return {k: v for k, v in self.layers.items() if v.type in ["signal", "via", "dielectric"]}
 
     @property

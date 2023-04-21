@@ -585,10 +585,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         >>> oEditor.CreateCylinder
         >>> oEditor.AssignMaterial
 
-
         Examples
         --------
-
         This example shows how to create a Coaxial Along X Axis waveguide.
 
         >>> from pyaedt import Hfss
@@ -673,7 +671,6 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
 
         Examples
         --------
-
         This example shows how to create a WG9 waveguide.
 
         >>> from pyaedt import Hfss
