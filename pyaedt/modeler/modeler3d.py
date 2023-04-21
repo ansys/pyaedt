@@ -1199,8 +1199,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
 
         objects_list = self.convert_to_selections(objects_list, True)
 
-        mesh_sheets = {}
         segment_sheets = {}
+        segment_objects = {}
         for obj_name in objects_list:
             obj = self[obj_name]
             if segments_number:
@@ -1212,23 +1212,21 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             segment_sheets[obj.name] = face_object.duplicate_along_line(
                 ["0", "0", segmentation_thickness], segments_number
             )
+            segment_objects[obj.name] = []
+            for value in segment_sheets[obj.name]:
+                segment_objects[obj.name].append([x for x in self.sheet_objects if x.name == value][0])
             if apply_mesh_sheets:
+                mesh_sheets = {}
+                mesh_objects = {}
                 # mesh sheets
                 self.move(face_object, [0, 0, segmentation_thickness / 4])
                 mesh_sheets[obj.name] = face_object.duplicate_along_line(
                     [0, 0, (segmentation_thickness * 2.0) / 4.0], segments_number * 2
                 )
-        segment_objects = {}
-        for key, values in segment_sheets.items():
-            segment_objects[key] = []
-            for value in values:
-                segment_objects[key].append([x for x in self.sheet_objects if x.name == value][0])
+                mesh_objects[obj.name] = []
+                for value in mesh_sheets[obj.name]:
+                    mesh_objects[obj.name].append([x for x in self.sheet_objects if x.name == value][0])
         if apply_mesh_sheets:
-            mesh_objects = {}
-            for key, values in mesh_sheets.items():
-                mesh_objects[key] = []
-                for value in values:
-                    mesh_objects[key].append([x for x in self.sheet_objects if x.name == value][0])
             return segment_objects, mesh_objects
         else:
             return segment_objects
