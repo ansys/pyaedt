@@ -1155,7 +1155,9 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         return scene
 
     @pyaedt_function_handler
-    def objects_segmentation(self, objects_list, segmentation_thickness=None, segments_number=None):
+    def objects_segmentation(
+        self, objects_list, segmentation_thickness=None, segments_number=None, apply_mesh_sheets=False
+    ):
         """Get segmentation of an object given the segmentation thickness or number of segments.
 
         Parameters
@@ -1169,15 +1171,23 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             Model units are automatically assigned. The default is ``None``.
         segments_number : int, optional
             Number of segments to segment the object to. The default is ``None``.
+        apply_mesh_sheets : bool, optional
+            Whether to apply mesh sheets to selected objects.
+            Mesh sheets are needed in case the user would like to have additional layers
+            inside the objects for a finer mesh and more accurate results. The default is ``False``.
 
         Returns
         -------
-        tuple
-            First dictionary is the segments that the object has been divided into.
-            Second dictionary is the mesh sheets eventually needed to apply the mesh
+        dict or tuple
+            Depending on value ``apply_mesh_sheets`` it returns either a dictionary or a tuple.
+            If mesh sheets are applied the method returns a tuple where:
+            - First dictionary is the segments that the object has been divided into.
+            - Second dictionary is the mesh sheets eventually needed to apply the mesh.
             to inside the object. Keys are the object names, and values are respectively
             segments sheets and mesh sheets of the
             :class:`pyaedt.modeler.cad.object3d.Object3d` class.
+            If mesh sheets are not applied the method returns only the dictionary of
+            segments that the object has been divided into.
             ``False`` is returned if the method fails.
         """
         if not segmentation_thickness and not segments_number:
@@ -1189,8 +1199,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
 
         objects_list = self.convert_to_selections(objects_list, True)
 
-        mesh_sheets = {}
         segment_sheets = {}
+        segment_objects = {}
         for obj_name in objects_list:
             obj = self[obj_name]
             if segments_number:
@@ -1202,19 +1212,21 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             segment_sheets[obj.name] = face_object.duplicate_along_line(
                 ["0", "0", segmentation_thickness], segments_number
             )
-            # mesh sheets
-            self.move(face_object, [0, 0, segmentation_thickness / 4])
-            mesh_sheets[obj.name] = face_object.duplicate_along_line(
-                [0, 0, (segmentation_thickness * 2.0) / 4.0], segments_number * 2
-            )
-        segment_objects = {}
-        for key, values in segment_sheets.items():
-            segment_objects[key] = []
-            for value in values:
-                segment_objects[key].append([x for x in self.sheet_objects if x.name == value][0])
-        mesh_objects = {}
-        for key, values in mesh_sheets.items():
-            mesh_objects[key] = []
-            for value in values:
-                mesh_objects[key].append([x for x in self.sheet_objects if x.name == value][0])
-        return segment_objects, mesh_objects
+            segment_objects[obj.name] = []
+            for value in segment_sheets[obj.name]:
+                segment_objects[obj.name].append([x for x in self.sheet_objects if x.name == value][0])
+            if apply_mesh_sheets:
+                mesh_sheets = {}
+                mesh_objects = {}
+                # mesh sheets
+                self.move(face_object, [0, 0, segmentation_thickness / 4])
+                mesh_sheets[obj.name] = face_object.duplicate_along_line(
+                    [0, 0, (segmentation_thickness * 2.0) / 4.0], segments_number * 2
+                )
+                mesh_objects[obj.name] = []
+                for value in mesh_sheets[obj.name]:
+                    mesh_objects[obj.name].append([x for x in self.sheet_objects if x.name == value][0])
+        if apply_mesh_sheets:
+            return segment_objects, mesh_objects
+        else:
+            return segment_objects
