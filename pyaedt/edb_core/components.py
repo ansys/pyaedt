@@ -1256,8 +1256,9 @@ class Components(object):
             ):
                 return False  # pragma no cover
         new_cmp.SetTransform(hosting_component_location)
-        self._cmp[new_cmp.GetName()] = EDBComponent(self, new_cmp)
-        return new_cmp
+        new_edb_comp = EDBComponent(self, new_cmp)
+        self._cmp[new_cmp.GetName()] = new_edb_comp
+        return new_edb_comp
 
     @pyaedt_function_handler()
     def create_component_from_pins(
