@@ -2240,8 +2240,6 @@ class TestClass(BasisTest, object):
             padstackname="pad",
             x_size="350um",
             y_size="500um",
-            startlayer="top",
-            endlayer="top",
             holediam=0,
         )
         pad_instance1 = edb.padstacks.place(position=["-0.65mm", "-0.665mm"], definition_name="pad")
