@@ -136,10 +136,10 @@ class Mechanical(FieldAnalysis3D, object):
         setupname="Setup1",
         sweepname="LastAdaptive",
         map_frequency=None,
-        surface_objects=[],
+        surface_objects=None,
         source_project_name=None,
-        paramlist=[],
-        object_list=[],
+        paramlist=None,
+        object_list=None,
     ):
         """Map EM losses to a Mechanical design.
 
@@ -155,14 +155,14 @@ class Mechanical(FieldAnalysis3D, object):
             Frequency to map. The default is ``None``. The value must be ``None`` for
             Eigenmode analysis.
         surface_objects : list, optional
-            List objects in the source that are metals. The default is ``[]``.
+            List objects in the source that are metals. The default is ``None``.
         source_project_name : str, optional
             Name of the source project. The default is ``None``, in which case
             the source from the same project is used.
         paramlist : list, optional
-            List of all parameters in the EM to map. The default is ``[]``.
+            List of all parameters in the EM to map. The default is ``None``.
         object_list : list, optional
-             The default is ``[]``.
+             The default is ``None``.
 
         Returns
         -------
@@ -173,6 +173,13 @@ class Mechanical(FieldAnalysis3D, object):
 
         >>> oModule.AssignEMLoss
         """
+        if surface_objects is None:
+            surface_objects = []
+        if paramlist is None:
+            paramlist = []
+        if object_list is None:
+            object_list = []
+
         assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
 
         self.logger.info("Mapping HFSS EM Lossess")
@@ -235,7 +242,7 @@ class Mechanical(FieldAnalysis3D, object):
         setupname="Setup1",
         sweepname="SteadyState",
         source_project_name=None,
-        paramlist=[],
+        paramlist=None,
     ):
         """Map thermal losses to a Mechanical design.
 
@@ -256,7 +263,7 @@ class Mechanical(FieldAnalysis3D, object):
             Name of the source project. The default is ``None``, in which case the
             source from the same project is used.
         paramlist : list, optional
-            List of all parameters in the EM to map. The default is ``[]``.
+            List of all parameters in the EM to map. The default is ``None``.
 
         Returns
         -------
@@ -268,6 +275,8 @@ class Mechanical(FieldAnalysis3D, object):
 
         >>> oModule.AssignThermalCondition
         """
+        if paramlist is None:
+            paramlist = []
 
         assert self.solution_type == "Structural", "This method works only in a Mechanical Structural analysis."
 
