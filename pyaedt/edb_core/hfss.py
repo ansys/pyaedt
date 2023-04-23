@@ -34,6 +34,7 @@ class EdbHfss(object):
     @property
     def hfss_extent_info(self):
         return HfssExtentInfo(self._pedb)
+
     @property
     def _logger(self):
         return self._pedb.logger
