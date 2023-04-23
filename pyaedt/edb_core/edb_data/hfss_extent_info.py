@@ -16,14 +16,16 @@ class HfssExtentInfo:
     def __init__(self, pedb):
         self._pedb = pedb
 
-        self._hfss_extent_info_type = {"BoundingBox": self._pedb.edb.Utility.HFSSExtentInfoType.BoundingBox,
-                                        "Conforming" : self._pedb.edb.Utility.HFSSExtentInfoType.Conforming,
-                                        "ConvexHull": self._pedb.edb.Utility.HFSSExtentInfoType.ConvexHull,
-                                        "Polygon": self._pedb.edb.Utility.HFSSExtentInfoType.Polygon,
-                                       }
-        self._open_region_type = {"Radiation": self._pedb.edb.Utility.OpenRegionType.Radiation,
-                                  "PML": self._pedb.edb.Utility.OpenRegionType.PML
-                                  }
+        self._hfss_extent_info_type = {
+            "BoundingBox": self._pedb.edb.Utility.HFSSExtentInfoType.BoundingBox,
+            "Conforming": self._pedb.edb.Utility.HFSSExtentInfoType.Conforming,
+            "ConvexHull": self._pedb.edb.Utility.HFSSExtentInfoType.ConvexHull,
+            "Polygon": self._pedb.edb.Utility.HFSSExtentInfoType.Polygon,
+        }
+        self._open_region_type = {
+            "Radiation": self._pedb.edb.Utility.OpenRegionType.Radiation,
+            "PML": self._pedb.edb.Utility.OpenRegionType.PML,
+        }
         pass
 
     @pyaedt_function_handler
@@ -47,9 +49,7 @@ class HfssExtentInfo:
     @air_box_horizontal_extent_enabled.setter
     def air_box_horizontal_extent_enabled(self, value):
         info = self._edb_hfss_extent_info
-        info.AirBoxHorizontalExtent = convert_pytuple_to_nettuple(
-            (self.air_box_horizontal_extent, value)
-        )
+        info.AirBoxHorizontalExtent = convert_pytuple_to_nettuple((self.air_box_horizontal_extent, value))
         self._update_hfss_extent_info(info)
 
     @property
@@ -64,9 +64,7 @@ class HfssExtentInfo:
     @air_box_horizontal_extent.setter
     def air_box_horizontal_extent(self, value):
         info = self._edb_hfss_extent_info
-        info.AirBoxHorizontalExtent = convert_pytuple_to_nettuple(
-            (value, self.air_box_horizontal_extent_enabled)
-        )
+        info.AirBoxHorizontalExtent = convert_pytuple_to_nettuple((value, self.air_box_horizontal_extent_enabled))
         self._update_hfss_extent_info(info)
 
     @property
@@ -77,9 +75,7 @@ class HfssExtentInfo:
     @air_box_negative_vertical_extent_enabled.setter
     def air_box_negative_vertical_extent_enabled(self, value):
         info = self._edb_hfss_extent_info
-        info.AirBoxNegativeVerticalExtent = convert_pytuple_to_nettuple(
-            (self.air_box_negative_vertical_extent, value)
-        )
+        info.AirBoxNegativeVerticalExtent = convert_pytuple_to_nettuple((self.air_box_negative_vertical_extent, value))
         self._update_hfss_extent_info(info)
 
     @property
@@ -135,9 +131,7 @@ class HfssExtentInfo:
     @dielectric_extent_size_enabled.setter
     def dielectric_extent_size_enabled(self, value):
         info = self._edb_hfss_extent_info
-        info.DielectricExtentSize = convert_pytuple_to_nettuple(
-            (self.dielectric_extent_size, value)
-        )
+        info.DielectricExtentSize = convert_pytuple_to_nettuple((self.dielectric_extent_size, value))
         self._update_hfss_extent_info(info)
 
     @property
@@ -148,9 +142,7 @@ class HfssExtentInfo:
     @dielectric_extent_size.setter
     def dielectric_extent_size(self, value):
         info = self._edb_hfss_extent_info
-        info.DielectricExtentSize = convert_pytuple_to_nettuple(
-            (value, self.dielectric_extent_size_enabled)
-        )
+        info.DielectricExtentSize = convert_pytuple_to_nettuple((value, self.dielectric_extent_size_enabled))
         self._update_hfss_extent_info(info)
 
     @property
@@ -311,4 +303,3 @@ class HfssExtentInfo:
             else:
                 config[i] = getattr(self, i)
         return config
-
