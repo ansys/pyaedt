@@ -26,7 +26,6 @@ class HfssExtentInfo:
             "Radiation": self._pedb.edb.Utility.OpenRegionType.Radiation,
             "PML": self._pedb.edb.Utility.OpenRegionType.PML,
         }
-        pass
 
     @pyaedt_function_handler
     def _get_edb_value(self, value):
