@@ -10,7 +10,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class MaxwellCircuit(AnalysisMaxwellCircuit, object):
-    """Provides the Maxwell Circuit application interface.
+    """Provide the Maxwell Circuit application interface.
 
     Parameters
     ----------

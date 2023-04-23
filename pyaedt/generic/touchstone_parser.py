@@ -20,15 +20,18 @@ keys = {REAL_IMAG: ("real", "imag"), MAG_ANGLE: ("mag", "deg"), DB_ANGLE: ("db20
 
 
 def _parse_ports_name(file):
-    """Parse and interpret the option line in the touchstone file
+    """Parse and interpret the option line in the touchstone file.
+
     Parameters
     ----------
     file : str
         Path of the touchstone file.
+
     Returns
     -------
     List of str
         Names of the ports in the touchstone file.
+
     """
     portnames = []
     line = file.readline()

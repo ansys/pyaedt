@@ -1,11 +1,10 @@
 from __future__ import absolute_import
 
-import sys
 import warnings
 
+from pyaedt import emit_core
 from pyaedt import generate_unique_project_name
 from pyaedt.application.Design import Design
-from pyaedt.emit_core import EMIT_MODULE
 from pyaedt.emit_core import EmitConstants
 from pyaedt.emit_core.Couplings import CouplingsEmit
 from pyaedt.emit_core.results.results import Results
@@ -123,15 +122,7 @@ class Emit(Design, object):
         self.results = None
         """Constructor for the ``FieldAnalysisEmit`` class"""
 
-        self._units = {
-            "Power": "dBm",
-            "Frequency": "MHz",
-            "Length": "meter",
-            "Time": "ns",
-            "Voltage": "mV",
-            "Data Rate": "bps",
-            "Resistance": "ohm",
-        }
+        self._units = {}
         """Default Emit units."""
 
         Design.__init__(
@@ -151,14 +142,24 @@ class Emit(Design, object):
         )
         self._modeler = ModelerEmit(self)
         self._couplings = CouplingsEmit(self)
-        if self._aedt_version >= "2023.1" and sys.version_info.major == 3 and sys.version_info.minor == 7:
-            self._emit_api = EMIT_MODULE.EmitApi()
-            """Instance of the Emit api."""
+        if self._aedt_version > "2023.1":
+            # the next 2 lines of code are needed to point
+            # the Emit object to the correct EmiApiPython
+            # module for the current AEDT version
+            emit_core._set_api(self.aedt_version_id)
+            self._emit_api = emit_core.emit_api_python().EmitApi()
+            """Instance of the EMIT API."""
 
             self.results = Results(self)
             """''Result'' object for the selected design."""
 
             self.__emit_api_enabled = True
+
+            # set the default units here to make sure the EmitApi level
+            # stays synced with pyaedt
+            unit_types = ["Power", "Frequency", "Length", "Time", "Voltage", "Data Rate", "Resistance"]
+            unit_values = ["dBm", "MHz", "meter", "ns", "mV", "bps", "Ohm"]
+            self.set_units(unit_types, unit_values)
 
     @property
     def modeler(self):
@@ -246,7 +247,7 @@ class Emit(Design, object):
                 if v not in valid_units[t]:
                     warnings.warn("[{}] are not supported by EMIT. The options are: {}: ".format(v, valid_units[t]))
                     return False
-                ut = EmitConstants.EMIT_UNIT_TYPE_STRING_TO_ENUM[t]
+                ut = EmitConstants.emit_unit_type_string_to_enum(t)
                 self._emit_api.set_units(ut, v)
                 self._units[t] = v
         else:
@@ -261,7 +262,7 @@ class Emit(Design, object):
                 )
                 return False
             # keep the backend global units synced
-            ut = EmitConstants.EMIT_UNIT_TYPE_STRING_TO_ENUM[unit_type]
+            ut = EmitConstants.emit_unit_type_string_to_enum(unit_type)
             self._emit_api.set_units(ut, unit_value)
             self._units[unit_type] = unit_value
         return True
