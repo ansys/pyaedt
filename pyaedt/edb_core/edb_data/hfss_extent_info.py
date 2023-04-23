@@ -1,6 +1,6 @@
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
-from pyaedt.edb_core.general import convert_pytuple_to_nettuple
 from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
+from pyaedt.edb_core.general import convert_pytuple_to_nettuple
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
