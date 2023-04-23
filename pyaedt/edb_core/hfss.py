@@ -3,6 +3,7 @@ This module contains the ``EdbHfss`` class.
 """
 import math
 
+from pyaedt.edb_core.edb_data.hfss_extent_info import HfssExtentInfo
 from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.sources import ExcitationBundle
@@ -31,11 +32,19 @@ class EdbHfss(object):
         self._pedb = p_edb
 
     @property
+    def hfss_extent_info(self):
+        return HfssExtentInfo(self._pedb)
+    @property
     def _logger(self):
         return self._pedb.logger
 
     @property
     def _edb(self):
+        """
+        Returns
+        -------
+        Ansys.Ansoft.Edb
+        """
         return self._pedb.edb
 
     @property
