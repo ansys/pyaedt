@@ -90,7 +90,7 @@ sheets_3 = mod3D.objects_segmentation(magnet, segmentation_thickness=segmentatio
 
 object_name = "PM_O1_1"
 segments_number = 10
-sheets_4 = mod3D.objects_segmentation(magnet, segments_number=segments_number)
+sheets_4 = mod3D.objects_segmentation(object_name, segments_number=segments_number)
 
 ###################################################################################
 # Save project and close AEDT
