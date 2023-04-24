@@ -44,7 +44,7 @@ m3d = Maxwell3d(projectname=aedt_file,
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create the object ``mod3D`` to access the 3D modeler easily.
 
-mod3D = m3d.modeler
+modeler = m3d.modeler
 
 ##################################################################################
 # Segment first magnet by specifying the number of segments
