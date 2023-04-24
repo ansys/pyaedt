@@ -1,6 +1,6 @@
 """
 Maxwell 3D: magnet segmentation
-------------------------------
+-------------------------------
 This example shows how you can use PyAEDT to segment magnets of an electric motor.
 The method is valid and usable for any object the user would like to segment.
 """
