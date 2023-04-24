@@ -53,7 +53,7 @@ class HfssExtentInfo:
 
     @property
     def air_box_horizontal_extent(self):
-        """Get air box horizontal extent size.
+        """Size of horizontal extent for the air box.
 
         Returns:
         pyaedt.edb_core.edb_data.edbvalue.EdbValue
