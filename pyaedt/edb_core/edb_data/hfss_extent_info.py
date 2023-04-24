@@ -42,7 +42,7 @@ class HfssExtentInfo:
 
     @property
     def air_box_horizontal_extent_enabled(self):
-        """Enable air box horizontal extent."""
+        """Whether horizontal extent is enabled for the airbox."""
         return self._edb_hfss_extent_info.AirBoxHorizontalExtent.Item2
 
     @air_box_horizontal_extent_enabled.setter
