@@ -225,7 +225,7 @@ class HfssExtentInfo:
 
     @property
     def operating_freq(self):
-        """Get operating frequency.
+        """Operating frequency.
 
         Returns
         -------
