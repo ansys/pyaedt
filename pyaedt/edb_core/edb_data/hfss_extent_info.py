@@ -5,7 +5,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class HfssExtentInfo:
-    """Manages EDB functionalities for hfss extent information.
+    """Manages EDB functionalities for HFSS extent information.
 
     Parameters
     ----------
