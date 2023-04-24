@@ -287,7 +287,7 @@ class HfssExtentInfo:
 
     @property
     def use_xy_data_extent_for_vertical_expansion(self):
-        """Enable use xy data extent for vertical expansion."""
+        """Whether using the xy data extent for vertical expansion is enabled."""
         return self._edb_hfss_extent_info.UseXYDataExtentForVerticalExpansion
 
     @use_xy_data_extent_for_vertical_expansion.setter
