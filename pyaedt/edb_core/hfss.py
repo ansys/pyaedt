@@ -33,6 +33,7 @@ class EdbHfss(object):
 
     @property
     def hfss_extent_info(self):
+        """Get hfss extent information."""
         return HfssExtentInfo(self._pedb)
 
     @property
