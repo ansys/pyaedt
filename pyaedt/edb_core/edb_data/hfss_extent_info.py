@@ -192,7 +192,7 @@ class HfssExtentInfo:
 
     @property
     def honor_user_dielectric(self):
-        """Get honor user dielectric."""
+        """Honor user dielectric."""
         return self._edb_hfss_extent_info.HonorUserDielectric
 
     @honor_user_dielectric.setter
