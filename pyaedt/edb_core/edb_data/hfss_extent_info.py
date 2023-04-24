@@ -29,7 +29,7 @@ class HfssExtentInfo:
 
     @pyaedt_function_handler
     def _get_edb_value(self, value):
-        """Get edb value."""
+        """Get EDB value."""
         return self._pedb.edb_value(value)
 
     @pyaedt_function_handler
