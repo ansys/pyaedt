@@ -132,7 +132,7 @@ class HfssExtentInfo:
 
     @property
     def dielectric_base_polygon(self):
-        """Get dielectric base polygon.
+        """Dielectric base polygon.
 
         Returns
         -------
