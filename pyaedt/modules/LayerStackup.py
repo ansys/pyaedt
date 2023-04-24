@@ -68,18 +68,19 @@ def _getIfromRGB(rgb):
 
     Parameters
     ----------
-    rgb :
-
+    rgb : list
+        List representing the color. IT is made of 3 values: blue, green, and red.
 
     Returns
     -------
+    int
 
     """
     red = rgb[2]
     green = rgb[1]
     blue = rgb[0]
-    RGBint = (red << 16) + (green << 8) + blue
-    return RGBint
+    rgb_int = (red << 16) + (green << 8) + blue
+    return rgb_int
 
 
 @pyaedt_function_handler()
@@ -89,6 +90,7 @@ def _getRGBfromI(value):
     Parameters
     ----------
     value : int
+        Integer value representing the layer color.
 
     Returns
     -------
@@ -175,10 +177,11 @@ class Layer(object):
 
     @property
     def color(self):
-        """Get/Set the property of the active layer. Color it is list of rgb values (0,255).
+        """Return or set the property of the active layer. Color it is list of rgb values (0,255).
 
         Returns
         -------
+        list
 
         """
         if isinstance(self._color, list):
@@ -448,7 +451,7 @@ class Layer(object):
 
     @property
     def roughness(self):
-        """Get/Set the active layer roughness (with units).
+        """Return or set the active layer roughness (with units).
 
         Returns
         -------
@@ -457,13 +460,13 @@ class Layer(object):
         return self._roughness
 
     @roughness.setter
-    def roughness(self, val):
-        self._roughness = val
+    def roughness(self, value):
+        self._roughness = value
         self.update_stackup_layer()
 
     @property
     def bottom_roughness(self):
-        """Get/Set the active layer bottom roughness (with units).
+        """Return or set the active layer bottom roughness (with units).
 
         Returns
         -------
@@ -472,8 +475,8 @@ class Layer(object):
         return self._botroughness
 
     @bottom_roughness.setter
-    def bottom_roughness(self, val):
-        self._botroughness = val
+    def bottom_roughness(self, value):
+        self._botroughness = value
         self.update_stackup_layer()
 
     @property
@@ -1156,7 +1159,8 @@ class Layers(object):
         References
         ----------
 
-        >>> oEditor = oDesign.SetActiveEditor("Layout")"""
+        >>> oEditor = oDesign.SetActiveEditor("Layout")
+        """
         return self._modeler.oeditor
 
     @property
@@ -1303,7 +1307,7 @@ class Layers(object):
 
         Parameters
         ----------
-        name :  str
+        name : str
             Name of the layer.
 
         Returns
@@ -1322,7 +1326,7 @@ class Layers(object):
 
         Returns
         -------
-         Dict[int,  :class:`pyaedt.modules.LayerStackup.Layer`]
+         Dict[int, :class:`pyaedt.modules.LayerStackup.Layer`]
             Number of layers in the current stackup.
         """
         layers = OrderedDict({})

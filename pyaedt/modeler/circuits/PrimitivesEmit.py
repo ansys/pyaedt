@@ -350,10 +350,6 @@ class EmitComponent(object):
             The component or name of component to move this component to
             and connect. For example, "Radio1"
 
-        Returns
-        -------
-        None
-
         """
         if isinstance(component, EmitComponent):
             self.oeditor.PlaceComponent(self.name, component.name)

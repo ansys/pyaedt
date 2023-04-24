@@ -2678,6 +2678,7 @@ class Edb(object):
             Either if generate or not power tree image. Default is `True`.
         loop_res : bool, optional
             Either if generate or not loop resistance report. Default is `True`.
+
         Returns
         -------
         list
