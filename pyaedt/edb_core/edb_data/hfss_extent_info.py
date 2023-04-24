@@ -303,7 +303,7 @@ class HfssExtentInfo:
         Parameters
         ----------
         config: dict
-            Parameters of hfss extent information.
+            Parameters of the HFSS extent information.
         """
         for i, j in config.items():
             if hasattr(self, i):
