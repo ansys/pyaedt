@@ -159,7 +159,7 @@ class HfssExtentInfo:
 
     @property
     def dielectric_extent_size(self):
-        """Get dielectric extent size."""
+        """Dielectric extent size."""
         return self._edb_hfss_extent_info.DielectricExtentSize.Item1
 
     @dielectric_extent_size.setter
