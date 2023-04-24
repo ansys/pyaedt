@@ -68,7 +68,7 @@ class HfssExtentInfo:
 
     @property
     def air_box_positive_vertical_extent_enabled(self):
-        """Enable air box positive vertical extent."""
+        """Whether positive vertical extent is enabled for the air box."""
         return self._edb_hfss_extent_info.AirBoxPositiveVerticalExtent.Item2
 
     @air_box_positive_vertical_extent_enabled.setter
