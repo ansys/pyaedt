@@ -58,7 +58,7 @@ modeler = m3d.modeler
 
 segments_number = 5
 object_name = "PM_I1"
-sheets_1 = mod3D.objects_segmentation(object_name, segments_number=segments_number, apply_mesh_sheets=True)
+sheets_1 = modeler.objects_segmentation(object_name, segments_number=segments_number, apply_mesh_sheets=True)
 
 ##################################################################################
 # Segment second magnet by specifying the number of segments
@@ -68,8 +68,8 @@ sheets_1 = mod3D.objects_segmentation(object_name, segments_number=segments_numb
 
 segments_number = 4
 object_name = "PM_I1_1"
-magnet_id = [obj.id for obj in mod3D.object_list if obj.name == object_name][0]
-sheets_2 = mod3D.objects_segmentation(magnet_id, segments_number=segments_number, apply_mesh_sheets=True)
+magnet_id = [obj.id for obj in modeler.object_list if obj.name == object_name][0]
+sheets_2 = modeler.objects_segmentation(magnet_id, segments_number=segments_number, apply_mesh_sheets=True)
 
 ##################################################################################
 # Segment third magnet by specifying the segmentation thickness
@@ -79,8 +79,8 @@ sheets_2 = mod3D.objects_segmentation(magnet_id, segments_number=segments_number
 
 segmentation_thickness = 1
 object_name = "PM_O1"
-magnet = [obj for obj in mod3D.object_list if obj.name == object_name][0]
-sheets_3 = mod3D.objects_segmentation(magnet, segmentation_thickness=segmentation_thickness, apply_mesh_sheets=True)
+magnet = [obj for obj in modeler.object_list if obj.name == object_name][0]
+sheets_3 = modeler.objects_segmentation(magnet, segmentation_thickness=segmentation_thickness, apply_mesh_sheets=True)
 
 ##################################################################################
 # Segment fourth magnet by specifying the number of segments
@@ -90,7 +90,7 @@ sheets_3 = mod3D.objects_segmentation(magnet, segmentation_thickness=segmentatio
 
 object_name = "PM_O1_1"
 segments_number = 10
-sheets_4 = mod3D.objects_segmentation(object_name, segments_number=segments_number)
+sheets_4 = modeler.objects_segmentation(object_name, segments_number=segments_number)
 
 ###################################################################################
 # Save project and close AEDT
