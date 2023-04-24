@@ -311,7 +311,7 @@ class HfssExtentInfo:
 
     @pyaedt_function_handler
     def export_config(self):
-        """Export hfss extent information.
+        """Export HFSS extent information.
 
         Returns:
         dict
