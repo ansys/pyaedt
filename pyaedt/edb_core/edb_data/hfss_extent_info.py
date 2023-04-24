@@ -265,7 +265,7 @@ class HfssExtentInfo:
 
     @property
     def truncate_air_box_at_ground(self):
-        """Get truncate air box at ground."""
+        """Truncate air box at ground."""
         return self._edb_hfss_extent_info.TruncateAirBoxAtGround
 
     @truncate_air_box_at_ground.setter
