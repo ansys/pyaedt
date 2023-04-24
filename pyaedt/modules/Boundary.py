@@ -661,7 +661,6 @@ class BoundaryObject(BoundaryCommon, object):
                     ],
                 ]
             )
-            # self._app.oboundary.EditTerminal(self._boundary_name, self._get_args())
         else:
             return False  # pragma: no cover
         self._boundary_name = self.name
