@@ -242,7 +242,7 @@ class HfssExtentInfo:
 
     @property
     def radiation_level(self):
-        """Get radiation level."""
+        """Radiation level."""
         return EdbValue(self._edb_hfss_extent_info.RadiationLevel)
 
     @radiation_level.setter
