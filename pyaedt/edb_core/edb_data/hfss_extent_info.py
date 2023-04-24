@@ -116,7 +116,7 @@ class HfssExtentInfo:
 
     @property
     def base_polygon(self):
-        """Get base polygon
+        """Base polygon.
 
         Returns
         -------
