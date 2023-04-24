@@ -315,7 +315,7 @@ class HfssExtentInfo:
 
         Returns:
         dict
-            Parameters of hfss extent information.
+            Parameters of the HFSS extent information.
         """
         config = dict()
         for i in dir(self):
