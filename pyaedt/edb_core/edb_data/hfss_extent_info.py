@@ -136,7 +136,7 @@ class HfssExtentInfo:
 
         Returns
         -------
-        pyaedt.edb_core.edb_data.primitives_data.EDBPrimitive
+        :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitive`
         """
         return EDBPrimitives(self._edb_hfss_extent_info.DielectricBasePolygon, self._pedb)
 
