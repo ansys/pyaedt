@@ -214,7 +214,7 @@ class HfssExtentInfo:
 
     @property
     def open_region_type(self):
-        """Get open region type."""
+        """Open region type."""
         return self._edb_hfss_extent_info.OpenRegionType.ToString()
 
     @open_region_type.setter
