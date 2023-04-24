@@ -254,7 +254,7 @@ class HfssExtentInfo:
 
     @property
     def sync_air_box_vertical_extent(self):
-        """Get sync air box vertical extent."""
+        """Vertical extent of the sync air box."""
         return self._edb_hfss_extent_info.SyncAirBoxVerticalExtent
 
     @sync_air_box_vertical_extent.setter
