@@ -203,7 +203,7 @@ class HfssExtentInfo:
 
     @property
     def is_pml_visible(self):
-        """Enable pml visible."""
+        """Whether visibility of the PML is enabled."""
         return self._edb_hfss_extent_info.IsPMLVisible
 
     @is_pml_visible.setter
