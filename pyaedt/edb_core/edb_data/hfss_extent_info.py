@@ -181,7 +181,7 @@ class HfssExtentInfo:
 
     @property
     def extent_type(self):
-        """Get extent type."""
+        """Extent type."""
         return self._edb_hfss_extent_info.ExtentType.ToString()
 
     @extent_type.setter
