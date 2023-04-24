@@ -43,7 +43,7 @@ class EdbHfss(object):
     @property
     def _edb(self):
         """EDB object.
-        
+
         Returns
         -------
         Ansys.Ansoft.Edb
