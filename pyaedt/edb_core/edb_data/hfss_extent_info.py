@@ -276,7 +276,7 @@ class HfssExtentInfo:
 
     @property
     def use_open_region(self):
-        """Enable use open region"""
+        """Whether using an open region is enabled."""
         return self._edb_hfss_extent_info.UseOpenRegion
 
     @use_open_region.setter
