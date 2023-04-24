@@ -67,6 +67,30 @@ class HfssExtentInfo:
         self._update_hfss_extent_info(info)
 
     @property
+    def air_box_positive_vertical_extent_enabled(self):
+        """Enable air box positive vertical extent."""
+        return self._edb_hfss_extent_info.AirBoxPositiveVerticalExtent.Item2
+
+    @air_box_positive_vertical_extent_enabled.setter
+    def air_box_positive_vertical_extent_enabled(self, value):
+        info = self._edb_hfss_extent_info
+        info.AirBoxPositiveVerticalExtent = convert_pytuple_to_nettuple((self.air_box_positive_vertical_extent, value))
+        self._update_hfss_extent_info(info)
+
+    @property
+    def air_box_positive_vertical_extent(self):
+        """Get air box negative vertical extent."""
+        return self._edb_hfss_extent_info.AirBoxPositiveVerticalExtent.Item1
+
+    @air_box_positive_vertical_extent.setter
+    def air_box_positive_vertical_extent(self, value):
+        info = self._edb_hfss_extent_info
+        info.AirBoxPositiveVerticalExtent = convert_pytuple_to_nettuple(
+            (value, self.air_box_positive_vertical_extent_enabled)
+        )
+        self._update_hfss_extent_info(info)
+
+    @property
     def air_box_negative_vertical_extent_enabled(self):
         """Enable air box negative vertical extent."""
         return self._edb_hfss_extent_info.AirBoxNegativeVerticalExtent.Item2

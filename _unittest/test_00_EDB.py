@@ -2365,6 +2365,8 @@ class TestClass(BasisTest, object):
         config = {
             "air_box_horizontal_extent_enabled": False,
             "air_box_horizontal_extent": 0.01,
+            "air_box_positive_vertical_extent": 0.3,
+            "air_box_positive_vertical_extent_enabled": False,
             "air_box_negative_vertical_extent": 0.1,
             "air_box_negative_vertical_extent_enabled": False,
             "base_polygon": self.edbapp.modeler.polygons[0],
