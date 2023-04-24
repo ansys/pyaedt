@@ -298,7 +298,7 @@ class HfssExtentInfo:
 
     @pyaedt_function_handler
     def load_config(self, config):
-        """Load hfss extent configuration.
+        """Load HFSS extent configuration.
 
         Parameters
         ----------
