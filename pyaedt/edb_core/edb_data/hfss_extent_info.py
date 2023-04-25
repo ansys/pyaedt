@@ -79,7 +79,7 @@ class HfssExtentInfo:
 
     @property
     def air_box_positive_vertical_extent(self):
-        """Get air box negative vertical extent."""
+        """Negative vertical extent for the air box."""
         return self._edb_hfss_extent_info.AirBoxPositiveVerticalExtent.Item1
 
     @air_box_positive_vertical_extent.setter
