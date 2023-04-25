@@ -142,3 +142,10 @@ class PadGeometryTpe(Enum):  # pragma: no cover
     Square45 = 10
     Square90 = 11
     InvalidGeometry = 12
+
+
+class DielectricExtentType(Enum):
+    BoundingBox = 0
+    Conforming = 1
+    ConvexHull = 2
+    Polygon = 3
