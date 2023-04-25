@@ -109,7 +109,6 @@ class Layer(object):
     Parameters
     ----------
     app : :class:`pyaedt.modules.LayerStackup.Layers`
-
     layertype : string, optional
         The default is ``"signal"``.
     negative : bool, optional
