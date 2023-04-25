@@ -51,9 +51,14 @@ class Results:
         ``Revision`` object that was created.
         """
         if name == None:
-            self.design.AddResult()
-            rev_num = self.design.GetRevision()
-            name = "Revision {}".format(rev_num)
+            # check for a Current Revision that just hasn't been
+            # loaded by pyaedt
+            if self.design.GetCurrentResult() == "":
+                self.design.AddResult()
+                rev_num = self.design.GetRevision()
+                name = "Revision {}".format(rev_num)
+            else:
+                name = self.design.GetCurrentResult()        
         revision = Revision(self, self.emit_project, name)
         self.revisions.append(revision)
         return revision
@@ -147,7 +152,7 @@ class Results:
 
         Parameters
         ----------
-        revision_name : str
+        revision_name : str, optional
             Revision to load. The default is  ``None`` in which
             case the latest revision will be returned.
 
@@ -179,7 +184,15 @@ class Results:
                 self.current_revision = rev[0]
                 self.current_revision._load_revision()
             else:
-                warnings.warn("{} not found.".format(revision_name))
+                # might be an old revision that was never loaded by pyaedt
+                aedt_result_list = self.design.GetResultList()
+                rev = [x for x in aedt_result_list if revision_name == x]
+                if len(rev) > 0:
+                    # unload the current revision and load the specified revision
+                    self.current_revision.revision_loaded = False
+                    self.current_revision = self._add_revision(rev[0])
+                else:
+                    warnings.warn("{} not found.".format(revision_name))
         return self.current_revision
 
     @pyaedt_function_handler()
@@ -201,7 +214,7 @@ class Results:
         """
         # No revisions exist, add one
         if self.current_revision is None:
-            self.current_revision = self._add_revision()
+            self.current_revision = self._add_revision()             
         # no changes since last created revision, load it
         elif (
             self.revisions[-1].revision_number

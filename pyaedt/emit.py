@@ -273,9 +273,11 @@ class Emit(Design, object):
 
         Parameters
         ----------
-        unit_type : str
+        unit_type : str, optional
             System of units: options are power, frequency,
-                length, time, voltage, data rate, or resistance.
+            length, time, voltage, data rate, or resistance.
+            The default is ``None`` which uses the units
+            specified globally for the project. 
 
         Returns
         -------

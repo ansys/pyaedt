@@ -695,6 +695,31 @@ class TestClass(BasisTest, object):
             assert not rev.name in self.aedtapp.results.revision_names()
             assert not engine.is_domain_valid(domain)
             assert not rev.is_domain_valid(domain)
+            rad4 = self.aedtapp.modeler.components.create_component("MD400C")
+            ant4 = self.aedtapp.modeler.components.create_component("Antenna")
+            if rad4 and ant4:
+                ant4.move_and_connect_to(rad4)
+            self.aedtapp.oeditor.Delete([rad1.name, ant1.name])
+            rev2 = self.aedtapp.results.analyze()
+            domain2 = self.aedtapp.results.interaction_domain()
+            domain2.set_receiver("MD400C")
+            assert rev2.is_domain_valid(domain2)
+            interaction3 = rev2.run(domain2)
+            assert interaction3 is not None
+            assert interaction3.is_valid()
+            modeEmi = econsts.result_type().emi
+            worst_domain = interaction3.get_worst_instance(modeEmi).get_domain()
+            assert worst_domain.receiver_name == rad4.name
+            assert worst_domain.interferer_names[0] == rad2.name
+            domain2.set_receiver(rad3.name)
+            assert rev2.is_domain_valid(domain2)
+            interaction3 = rev2.run(domain2)
+            assert interaction3 is not None
+            assert interaction3.is_valid()
+            worst_domain = interaction3.get_worst_instance(modeEmi).get_domain()
+            assert worst_domain.receiver_name == rad3.name
+            assert worst_domain.interferer_names[0] == rad2.name
+            
 
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2023.1" or is_ironpython,

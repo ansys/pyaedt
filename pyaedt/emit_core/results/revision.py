@@ -60,7 +60,9 @@ class Revision:
         self.emit_project = emit_obj
         """Emit project."""
 
-        self.revision_number = design.GetRevision()
+        result_props = design.GetResultProperties(name)
+        # Strip off the Revision #
+        self.revision_number = result_props[0][9:]
         """Unique revision number from the Emit design"""
 
         result_props = design.GetResultProperties(name)
@@ -79,13 +81,7 @@ class Revision:
     @pyaedt_function_handler()
     def _load_revision(self):
         """
-        Load a specific revision.
-
-        Parameters
-        ----------
-        path : str
-            Path to an AEDT EMIT result directory.
-            For example, "Revision 1.emit"
+        Load this revision.
 
         Examples
         ----------
@@ -158,12 +154,13 @@ class Revision:
     @pyaedt_function_handler()
     def get_instance_count(self, domain):
         """
-                Return the number of instances in the domain for the current revision.
+        Return the number of instances in the domain for the current revision.
 
-                Parameters
-                ----------
-                domain :
-                    ``InteractionDomain`` object for constraining the analysis parameters.
+        Parameters
+        ----------
+        domain :
+            ``InteractionDomain`` object for constraining the analysis parameters.
+            
         Returns
         --------
         count : int
@@ -214,8 +211,9 @@ class Revision:
 
         Parameters
         ----------
-        interferer_type : interferer_type object
-            Type of interferer to return. Options are:
+        interferer_type : interferer_type object, optional
+            Type of interferer to return. The default is ``None``, in which 
+            case both transmitters and emitters are returned. Options are:
                 - transmitters
                 - emitters
                 - transmitters_and_emitters
@@ -247,7 +245,7 @@ class Revision:
         return radios
 
     @pyaedt_function_handler()
-    def get_band_names(self, radio_name, tx_rx_mode):
+    def get_band_names(self, radio_name, tx_rx_mode=None):
         """
         Get a list of all ``tx`` or ``rx`` bands (or waveforms) in
         a given radio/emitter.
@@ -256,8 +254,9 @@ class Revision:
         ----------
         radio_name : str
             Name of the radio/emitter.
-        tx_rx : tx_rx_mode object
-            Specifies whether to get ``tx`` or ``rx`` band names.
+        tx_rx : tx_rx_mode object, optional
+            Specifies whether to get ``tx`` or ``rx`` band names. The default
+            is ``None``, in which case the names of all enabled bands are returned.
 
         Returns
         -------
@@ -269,6 +268,8 @@ class Revision:
         >>> bands = aedtapp.results.current_revision.get_band_names('Bluetooth', Emit.tx_rx_mode.rx)
         >>> waveforms = aedtapp.results.current_revision.get_band_names('USB_3.x', Emit.tx_rx_mode.tx)
         """
+        if tx_rx_mode is None:
+            tx_rx_mode = emitConsts.tx_rx_mode().both
         if self.revision_loaded:
             bands = self.emit_project._emit_api.get_band_names(radio_name, tx_rx_mode)
         else:
@@ -277,7 +278,7 @@ class Revision:
         return bands
 
     @pyaedt_function_handler()
-    def get_active_frequencies(self, radio_name, band_name, tx_rx_mode, units=""):
+    def get_active_frequencies(self, radio_name, band_name, tx_rx_mode=None, units=""):
         """
         Get a list of active frequencies for a ``tx`` or ``rx`` band in a radio/emitter.
 
@@ -287,10 +288,12 @@ class Revision:
             Name of the radio/emitter.
         band_name : str
            Name of the band.
-        tx_rx : tx_rx_mode object
-            Specifies whether to get ``tx`` or ``rx`` radio freqs.
-        units : str
-            Units for the frequencies.
+        tx_rx : tx_rx_mode object, optional
+            Specifies whether to get ``tx`` or ``rx`` radio freqs. The default
+            is ``None``, in which case both ``tx`` and ``rx`` freqs are returned.
+        units : str, optional
+            Units for the frequencies. The default is ``None`` which uses the units
+            specified globally for the project.            
 
         Returns
         -------
@@ -302,6 +305,8 @@ class Revision:
         >>> freqs = aedtapp.results.current_revision.get_active_frequencies(
                 'Bluetooth', 'Rx - Base Data Rate', Emit.tx_rx_mode.rx)
         """
+        if tx_rx_mode is None:
+            tx_rx_mode = emitConsts.tx_rx_mode().both
         if self.revision_loaded:
             freqs = self.emit_project._emit_api.get_active_frequencies(radio_name, band_name, tx_rx_mode, units)
         else:

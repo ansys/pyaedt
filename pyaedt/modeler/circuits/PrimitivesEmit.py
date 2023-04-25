@@ -644,7 +644,7 @@ class EmitAntennaComponent(EmitComponent):
 
         Parameters
         ----------
-        units : str
+        units : str, optional
             Units of the antenna position. If None specified, units are meters.
 
         Returns
@@ -718,8 +718,8 @@ class EmitRadioComponent(EmitComponent):
         Parameters
         ----------
         band_node : Instance of the band node.
-        units : str
-            Units of the start frequency.
+        units : str, optional 
+            If None specified, global units are used.
 
         Returns
         -------
@@ -872,8 +872,8 @@ class EmitComponentPropNode(object):
         ----------
         power : float
             Peak amplitude of the fundamental [dBm].
-        units : str
-            Units of the input power.
+        units : str, optional
+            Units of the input power. If None specified, global units are used.
 
         Return
         ------
@@ -897,8 +897,8 @@ class EmitComponentPropNode(object):
 
         Parameters
         ----------
-        units : str
-            Units to use for the power.
+        units : str, optional
+            Units to use for the power. If None specified, global units are used.
 
         Return
         ------
