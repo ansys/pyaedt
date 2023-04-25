@@ -2682,7 +2682,7 @@ class Edb(object):
         Returns
         -------
         list
-            list of files generated.
+            List of files generated.
         """
         process = SiwaveSolve(self.edbpath, aedt_version=self.edbversion)
         try:
