@@ -719,7 +719,6 @@ class TestClass(BasisTest, object):
             worst_domain = interaction3.get_worst_instance(modeEmi).get_domain()
             assert worst_domain.receiver_name == rad3.name
             assert worst_domain.interferer_names[0] == rad2.name
-            
 
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2023.1" or is_ironpython,

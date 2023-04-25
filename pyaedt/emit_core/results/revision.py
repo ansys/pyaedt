@@ -160,7 +160,7 @@ class Revision:
         ----------
         domain :
             ``InteractionDomain`` object for constraining the analysis parameters.
-            
+
         Returns
         --------
         count : int
@@ -212,7 +212,7 @@ class Revision:
         Parameters
         ----------
         interferer_type : interferer_type object, optional
-            Type of interferer to return. The default is ``None``, in which 
+            Type of interferer to return. The default is ``None``, in which
             case both transmitters and emitters are returned. Options are:
                 - transmitters
                 - emitters
@@ -293,7 +293,7 @@ class Revision:
             is ``None``, in which case both ``tx`` and ``rx`` freqs are returned.
         units : str, optional
             Units for the frequencies. The default is ``None`` which uses the units
-            specified globally for the project.            
+            specified globally for the project.
 
         Returns
         -------

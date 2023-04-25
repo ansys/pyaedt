@@ -277,7 +277,7 @@ class Emit(Design, object):
             System of units: options are power, frequency,
             length, time, voltage, data rate, or resistance.
             The default is ``None`` which uses the units
-            specified globally for the project. 
+            specified globally for the project.
 
         Returns
         -------

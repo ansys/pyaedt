@@ -58,7 +58,7 @@ class Results:
                 rev_num = self.design.GetRevision()
                 name = "Revision {}".format(rev_num)
             else:
-                name = self.design.GetCurrentResult()        
+                name = self.design.GetCurrentResult()
         revision = Revision(self, self.emit_project, name)
         self.revisions.append(revision)
         return revision
@@ -214,7 +214,7 @@ class Results:
         """
         # No revisions exist, add one
         if self.current_revision is None:
-            self.current_revision = self._add_revision()             
+            self.current_revision = self._add_revision()
         # no changes since last created revision, load it
         elif (
             self.revisions[-1].revision_number
