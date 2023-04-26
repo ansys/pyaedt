@@ -1,0 +1,6 @@
+heal\_objects
+=============
+
+.. currentmodule:: pyaedt.maxwell
+
+.. automethod:: Maxwell2d.heal_objects

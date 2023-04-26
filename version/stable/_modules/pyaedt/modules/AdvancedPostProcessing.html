@@ -1,0 +1,1134 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyaedt.modules.AdvancedPostProcessing &#8212; PyAEDT</title>
+    
+<script>
+  document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+  document.documentElement.dataset.theme = localStorage.getItem("theme") || "light"
+</script>
+
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+
+
+  <link rel="stylesheet"
+    href="../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css\ansys_sphinx_theme.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695">
+
+    
+        <link href="../../../_static/css/breadcrumbs.css" rel="stylesheet">
+    
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <link rel="shortcut icon" href="../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+    <div class="bd-header-announcement container-fluid" id="banner">
+      
+
+    </div>
+
+    
+    
+    <nav class="bd-header navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="bd-header__inner container-xl">
+
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+    <img src="../../../_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="Logo image">
+    <img src="../../../_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="fas fa-bars"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../Getting_started/index.html">
+  Getting started
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../User_guide/index.html">
+  User guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../API/index.html">
+  AEDT API
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../EDBAPI/index.html">
+  EDB API
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../examples/index.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../Contributing.html">
+  Contribute
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <div class="dropdown" id="version_switcher">
+    <button type="button" class="btn btn-sm navbar-btn dropdown-toggle" id="version_switcher_button" data-toggle="dropdown">
+        0.6  <!-- this text may get changed later by javascript -->
+        <span class="caret"></span>
+    </button>
+    <div id="version_switcher_menu" class="dropdown-menu list-group-flush py-0" aria-labelledby="version_switcher_button">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+</div>
+
+<!-- NOTE: this JS must live here (not in our global JS file) because it relies
+     on being processed by Jinja before it is run (specifically for replacing
+     variables _modules/pyaedt/modules/AdvancedPostProcessing and {'json_url': 'https://aedt.docs.pyansys.com/release/versions.json', 'version_match': '0.6'}.
+-->
+
+<script type="text/javascript">
+// Check if corresponding page path exists in other version of docs
+// and, if so, go there instead of the homepage of the other docs version
+function checkPageExistsAndRedirect(event) {
+    const currentFilePath = "_modules/pyaedt/modules/AdvancedPostProcessing.html",
+          tryUrl = event.target.getAttribute("href");
+    let otherDocsHomepage = tryUrl.replace(currentFilePath, "");
+    $.ajax({
+        type: 'HEAD',
+        url: tryUrl,
+        // if the page exists, go there
+        success: function() {
+            location.href = tryUrl;
+        }
+    }).fail(function() {
+        location.href = otherDocsHomepage;
+    });
+    // this prevents the browser from following the href of the clicked node
+    // (which is fine because this function takes care of redirecting)
+    return false;
+}
+
+// Populate the version switcher from the JSON config file
+(function () {
+    $.getJSON("https://aedt.docs.pyansys.com/release/versions.json", function(data, textStatus, jqXHR) {
+        const currentFilePath = "_modules/pyaedt/modules/AdvancedPostProcessing.html";
+        let btn = document.getElementById("version_switcher_button");
+        // Set empty strings by default so that these attributes exist and can be used in CSS selectors
+        btn.dataset["activeVersionName"] = "";
+        btn.dataset["activeVersion"] = "";
+        // create links to the corresponding page in the other docs versions
+        $.each(data, function(index, entry) {
+            // if no custom name specified (e.g., "latest"), use version string
+            if (!("name" in entry)) {
+                entry.name = entry.version;
+            }
+            // create the node
+            const node = document.createElement("a");
+            node.setAttribute("class", "list-group-item list-group-item-action py-1");
+            node.textContent = `${entry.name}`;
+            node.setAttribute("href", `${entry.url}${currentFilePath}`);
+            // on click, AJAX calls will check if the linked page exists before
+            // trying to redirect, and if not, will redirect to the homepage
+            // for that version of the docs.
+            node.onclick = checkPageExistsAndRedirect;
+            // Add dataset values for the version and name in case people want
+            // to apply CSS styling based on this information.
+            node.dataset["versionName"] = entry.name;
+            node.dataset["version"] = entry.version;
+
+            $("#version_switcher_menu").append(node);
+            // replace dropdown button text with the preferred display name of
+            // this version, rather than using sphinx's 0.6.70 variable.
+            // also highlight the dropdown entry for the currently-viewed
+            // version's entry
+            if (entry.version == "0.6") {
+                node.classList.add("active");
+                btn.innerText = btn.dataset["activeVersionName"] = entry.name;
+                btn.dataset["activeVersion"] = entry.version;
+            }
+        });
+    });
+})();
+</script>
+      </div>
+      
+      <div class="navbar-end-item">
+        <span id="theme-switch" class="btn btn-sm btn-outline-primary navbar-btn rounded-circle">
+    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/pyansys/pyaedt" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/pyansys/pyaedt/discussions" rel="noopener" target="_blank" title="Support"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+     
+<div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(text => document.getElementById("announcement_msg").innerHTML = text)
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+
+    
+        <div class="container-xl">
+    <div class="row">
+        <div class="col-12 col-md-3" id="breadcrumbs-spacer"></div>
+        <div class="col-12 col-md-11 col-xl-9" id="breadcrumbs">
+          
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-additional-breadcrumb"><a href="https://docs.pyansys.com/">PyAnsys</a> » </li>
+    
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PyAEDT</a> » </li>
+    
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> » </li>
+        <li class="nav-item nav-item-this"><a href="">pyaedt.modules.AdvancedPostProcessing</a></li> 
+      </ul>
+    </div>
+        </div>
+  </div>
+</div>
+    
+
+
+    <div class="bd-container container-xl">
+      <div class="bd-container__inner row">
+          
+
+<!-- Only show if we have sidebars configured, else just a small margin  -->
+<div class="bd-sidebar-primary col-12 col-md-3 bd-sidebar">
+  <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+  </div>
+  <div class="sidebar-end-items">
+  </div>
+</div>
+
+
+          
+
+
+<div class="bd-sidebar-secondary d-none d-xl-block col-xl-2 bd-toc">
+  
+</div>
+
+
+          
+          
+          <div class="bd-content col-12 col-md-9 col-xl-7">
+              
+              <article class="bd-article" role="main">
+                
+  <h1>Source code for pyaedt.modules.AdvancedPostProcessing</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module contains the `PostProcessor` class.</span>
+
+<span class="sd">It contains all advanced postprocessing functionalities that require Python 3.x packages like NumPy and Matplotlib.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>  <span class="c1"># noreorder</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">pyaedt.generic.general_methods</span> <span class="kn">import</span> <span class="n">is_ironpython</span>
+<span class="kn">from</span> <span class="nn">pyaedt.generic.general_methods</span> <span class="kn">import</span> <span class="n">open_file</span>
+<span class="kn">from</span> <span class="nn">pyaedt.generic.general_methods</span> <span class="kn">import</span> <span class="n">pyaedt_function_handler</span>
+<span class="kn">from</span> <span class="nn">pyaedt.generic.plot</span> <span class="kn">import</span> <span class="n">ModelPlotter</span>
+<span class="kn">from</span> <span class="nn">pyaedt.modules.PostProcessor</span> <span class="kn">import</span> <span class="n">PostProcessor</span> <span class="k">as</span> <span class="n">Post</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">is_ironpython</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;The NumPy module is required to run some functionalities of PostProcess.</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;Install with </span><span class="se">\n\n</span><span class="s2">pip install numpy</span><span class="se">\n\n</span><span class="s2">Requires CPython.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">Image</span>
+
+        <span class="n">ipython_available</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="n">ipython_available</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<div class="viewcode-block" id="PostProcessor"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.AdvancedPostProcessing.PostProcessor.html#pyaedt.modules.AdvancedPostProcessing.PostProcessor">[docs]</a><span class="k">class</span> <span class="nc">PostProcessor</span><span class="p">(</span><span class="n">Post</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Contains advanced postprocessing functionalities that require Python 3.x packages like NumPy and Matplotlib.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    app :</span>
+<span class="sd">        Inherited parent object.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Basic usage demonstrated with an HFSS, Maxwell, or any other design:</span>
+
+<span class="sd">    &gt;&gt;&gt; from pyaedt import Hfss</span>
+<span class="sd">    &gt;&gt;&gt; aedtapp = Hfss()</span>
+<span class="sd">    &gt;&gt;&gt; post = aedtapp.post</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">):</span>
+        <span class="n">Post</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PostProcessor.nb_display"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.AdvancedPostProcessing.PostProcessor.nb_display.html#pyaedt.modules.AdvancedPostProcessing.PostProcessor.nb_display">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">nb_display</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">show_axis</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_grid</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_ruler</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Show the Jupyter Notebook display.</span>
+
+<span class="sd">          .. note::</span>
+<span class="sd">              .assign_curvature_extraction Jupyter Notebook is not supported by IronPython.</span>
+
+<span class="sd">         Parameters</span>
+<span class="sd">         ----------</span>
+<span class="sd">         show_axis : bool, optional</span>
+<span class="sd">             Whether to show the axes. The default is ``True``.</span>
+<span class="sd">         show_grid : bool, optional</span>
+<span class="sd">             Whether to show the grid. The default is ``True``.</span>
+<span class="sd">         show_ruler : bool, optional</span>
+<span class="sd">             Whether to show the ruler. The default is ``True``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`IPython.core.display.Image`</span>
+<span class="sd">            Jupyter notebook image.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">ipython_available</span><span class="p">:</span>
+            <span class="n">file_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">export_model_picture</span><span class="p">(</span><span class="n">show_axis</span><span class="o">=</span><span class="n">show_axis</span><span class="p">,</span> <span class="n">show_grid</span><span class="o">=</span><span class="n">show_grid</span><span class="p">,</span> <span class="n">show_ruler</span><span class="o">=</span><span class="n">show_ruler</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Image</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;The Ipython package is missing and must be installed.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PostProcessor.get_efields_data"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.AdvancedPostProcessing.PostProcessor.get_efields_data.html#pyaedt.modules.AdvancedPostProcessing.PostProcessor.get_efields_data">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">get_efields_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setup_sweep_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">ff_setup</span><span class="o">=</span><span class="s2">&quot;Infinite Sphere1&quot;</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s2">&quot;All&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute Etheta and EPhi.</span>
+
+<span class="sd">        .. warning::</span>
+<span class="sd">           This method requires NumPy to be installed on your machine.</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        setup_sweep_name : str, optional</span>
+<span class="sd">            Name of the setup for computing the report. The default is ``&quot;&quot;``, in</span>
+<span class="sd">            which case the nominal adaptive is applied.</span>
+<span class="sd">        ff_setup : str, optional</span>
+<span class="sd">            Far field setup. The default is ``&quot;Infinite Sphere1&quot;``.</span>
+<span class="sd">        freq : str, optional</span>
+<span class="sd">            The default is ``&quot;All&quot;``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            Numpy array containing ``[theta_range, phi_range, Etheta, Ephi]``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">setup_sweep_name</span><span class="p">:</span>
+            <span class="n">setup_sweep_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">nominal_adaptive</span>
+        <span class="n">results_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">all_sources</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_osolution</span><span class="o">.</span><span class="n">GetAllSources</span><span class="p">()</span>
+        <span class="c1"># assuming only 1 mode</span>
+        <span class="n">all_sources_with_modes</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="o">+</span> <span class="s2">&quot;:1&quot;</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">all_sources</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">source</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_sources_with_modes</span><span class="p">):</span>
+            <span class="n">edit_sources_ctxt</span> <span class="o">=</span> <span class="p">[[</span><span class="s2">&quot;IncludePortPostProcessing:=&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;SpecifySystemPower:=&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">]]</span>
+            <span class="k">for</span> <span class="n">m</span><span class="p">,</span> <span class="n">each</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_sources_with_modes</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="n">m</span><span class="p">:</span>  <span class="c1"># set only 1 source to 1W, all the rest to 0</span>
+                    <span class="n">mag</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">mag</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">phase</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">edit_sources_ctxt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;Name:=&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">each</span><span class="p">),</span> <span class="s2">&quot;Magnitude:=&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">W&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mag</span><span class="p">),</span> <span class="s2">&quot;Phase:=&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">deg&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">phase</span><span class="p">)]</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">post_osolution</span><span class="o">.</span><span class="n">EditSources</span><span class="p">(</span><span class="n">edit_sources_ctxt</span><span class="p">)</span>
+
+            <span class="n">ctxt</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Context:=&quot;</span><span class="p">,</span> <span class="n">ff_setup</span><span class="p">]</span>
+
+            <span class="n">sweeps</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Theta:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;All&quot;</span><span class="p">],</span> <span class="s2">&quot;Phi:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;All&quot;</span><span class="p">],</span> <span class="s2">&quot;Freq:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">freq</span><span class="p">]]</span>
+
+            <span class="n">trace_name</span> <span class="o">=</span> <span class="s2">&quot;rETheta&quot;</span>
+            <span class="n">solnData</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_far_field_data</span><span class="p">(</span>
+                <span class="n">setup_sweep_name</span><span class="o">=</span><span class="n">setup_sweep_name</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="n">ff_setup</span><span class="p">,</span> <span class="n">expression</span><span class="o">=</span><span class="n">trace_name</span>
+            <span class="p">)</span>
+
+            <span class="n">data</span> <span class="o">=</span> <span class="n">solnData</span><span class="o">.</span><span class="n">nominal_variation</span>
+
+            <span class="n">theta_vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">GetSweepValues</span><span class="p">(</span><span class="s2">&quot;Theta&quot;</span><span class="p">)))</span>
+            <span class="n">phi_vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">GetSweepValues</span><span class="p">(</span><span class="s2">&quot;Phi&quot;</span><span class="p">)))</span>
+            <span class="c1"># phi is outer loop</span>
+            <span class="n">theta_unique</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">theta_vals</span><span class="p">)</span>
+            <span class="n">phi_unique</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">phi_vals</span><span class="p">)</span>
+            <span class="n">theta_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">theta_vals</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">theta_vals</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">theta_unique</span><span class="p">))</span>
+            <span class="n">phi_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">phi_vals</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">phi_vals</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">phi_unique</span><span class="p">))</span>
+            <span class="n">real_theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">GetRealDataValues</span><span class="p">(</span><span class="n">trace_name</span><span class="p">))</span>
+            <span class="n">imag_theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">GetImagDataValues</span><span class="p">(</span><span class="n">trace_name</span><span class="p">))</span>
+
+            <span class="n">trace_name</span> <span class="o">=</span> <span class="s2">&quot;rEPhi&quot;</span>
+            <span class="n">solnData</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_far_field_data</span><span class="p">(</span>
+                <span class="n">setup_sweep_name</span><span class="o">=</span><span class="n">setup_sweep_name</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="n">ff_setup</span><span class="p">,</span> <span class="n">expression</span><span class="o">=</span><span class="n">trace_name</span>
+            <span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">solnData</span><span class="o">.</span><span class="n">nominal_variation</span>
+
+            <span class="n">real_phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">GetRealDataValues</span><span class="p">(</span><span class="n">trace_name</span><span class="p">))</span>
+            <span class="n">imag_phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">GetImagDataValues</span><span class="p">(</span><span class="n">trace_name</span><span class="p">))</span>
+
+            <span class="n">Etheta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="nb">complex</span><span class="p">)(</span><span class="n">real_theta</span><span class="p">,</span> <span class="n">imag_theta</span><span class="p">)</span>
+            <span class="n">Ephi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="nb">complex</span><span class="p">)(</span><span class="n">real_phi</span><span class="p">,</span> <span class="n">imag_phi</span><span class="p">)</span>
+            <span class="n">source_name_without_mode</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;:1&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">results_dict</span><span class="p">[</span><span class="n">source_name_without_mode</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">theta_range</span><span class="p">,</span> <span class="n">phi_range</span><span class="p">,</span> <span class="n">Etheta</span><span class="p">,</span> <span class="n">Ephi</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">results_dict</span></div>
+
+<div class="viewcode-block" id="PostProcessor.get_model_plotter_geometries"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.AdvancedPostProcessing.PostProcessor.get_model_plotter_geometries.html#pyaedt.modules.AdvancedPostProcessing.PostProcessor.get_model_plotter_geometries">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">get_model_plotter_geometries</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">objects</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">plot_as_separate_objects</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">plot_air_objects</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">force_opacity_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">array_coordinates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">generate_mesh</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">get_objects_from_aedt</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the Model Plotter object with actual modeler objects and return it.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        objects : list, optional</span>
+<span class="sd">            Optional list of objects to plot. If `None` all objects will be exported.</span>
+<span class="sd">        plot_as_separate_objects : bool, optional</span>
+<span class="sd">            Plot each object separately. It may require more time to export from AEDT.</span>
+<span class="sd">        plot_air_objects : bool, optional</span>
+<span class="sd">            Plot also air and vacuum objects.</span>
+<span class="sd">        force_opacity_value : float, optional</span>
+<span class="sd">            Opacity value between 0 and 1 to be applied to all model.</span>
+<span class="sd">            If `None` aedt opacity will be applied to each object.</span>
+<span class="sd">        array_coordinates : list of list</span>
+<span class="sd">            List of array element centers. The modeler objects will be duplicated and translated.</span>
+<span class="sd">            List of [[x1,y1,z1], [x2,y2,z2]...].</span>
+<span class="sd">        generate_mesh : bool, optional</span>
+<span class="sd">            Whether to generate the mesh after importing objects. The default is ``True``.</span>
+<span class="sd">        get_objects_from_aedt : bool, optional</span>
+<span class="sd">            Whether to export objects from AEDT and initialize them. The default is ``True``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.generic.plot.ModelPlotter`</span>
+<span class="sd">            Model Object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">_aedt_version</span> <span class="o">&gt;=</span> <span class="s2">&quot;2021.2&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Object is supported from AEDT 2021 R2.&quot;</span><span class="p">)</span>
+
+        <span class="n">files</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">get_objects_from_aedt</span><span class="p">:</span>
+            <span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">export_model_obj</span><span class="p">(</span>
+                <span class="n">obj_list</span><span class="o">=</span><span class="n">objects</span><span class="p">,</span>
+                <span class="n">export_as_single_objects</span><span class="o">=</span><span class="n">plot_as_separate_objects</span><span class="p">,</span>
+                <span class="n">air_objects</span><span class="o">=</span><span class="n">plot_air_objects</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="n">ModelPlotter</span><span class="p">()</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">off_screen</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">model_units</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">force_opacity_value</span><span class="p">:</span>
+                <span class="n">model</span><span class="o">.</span><span class="n">add_object</span><span class="p">(</span><span class="n">file</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">file</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">force_opacity_value</span><span class="p">,</span> <span class="n">units</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">model</span><span class="o">.</span><span class="n">add_object</span><span class="p">(</span><span class="n">file</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">file</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">file</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">units</span><span class="p">)</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">array_coordinates</span> <span class="o">=</span> <span class="n">array_coordinates</span>
+        <span class="k">if</span> <span class="n">generate_mesh</span><span class="p">:</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">generate_geometry_mesh</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">model</span></div>
+
+<div class="viewcode-block" id="PostProcessor.plot_model_obj"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.AdvancedPostProcessing.PostProcessor.plot_model_obj.html#pyaedt.modules.AdvancedPostProcessing.PostProcessor.plot_model_obj">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">plot_model_obj</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">objects</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">export_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">plot_as_separate_objects</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">plot_air_objects</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">force_opacity_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">clean_files</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">array_coordinates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">view</span><span class="o">=</span><span class="s2">&quot;isometric&quot;</span><span class="p">,</span>
+        <span class="n">show_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot the model or a substet of objects.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        objects : list, optional</span>
+<span class="sd">            Optional list of objects to plot. If `None` all objects will be exported.</span>
+<span class="sd">        show : bool, optional</span>
+<span class="sd">            Show the plot after generation or simply return the</span>
+<span class="sd">            generated Class for more customization before plot.</span>
+<span class="sd">        export_path : str, optional</span>
+<span class="sd">            If available, an image is saved to file. If `None` no image will be saved.</span>
+<span class="sd">        plot_as_separate_objects : bool, optional</span>
+<span class="sd">            Plot each object separately. It may require more time to export from AEDT.</span>
+<span class="sd">        plot_air_objects : bool, optional</span>
+<span class="sd">            Plot also air and vacuum objects.</span>
+<span class="sd">        force_opacity_value : float, optional</span>
+<span class="sd">            Opacity value between 0 and 1 to be applied to all model.</span>
+<span class="sd">            If `None` aedt opacity will be applied to each object.</span>
+<span class="sd">        clean_files : bool, optional</span>
+<span class="sd">            Clean created files after plot. Cache is mainteined into the model object returned.</span>
+<span class="sd">        array_coordinates : list of list</span>
+<span class="sd">            List of array element centers. The modeler objects will be duplicated and translated.</span>
+<span class="sd">            List of [[x1,y1,z1], [x2,y2,z2]...].</span>
+<span class="sd">        view : str, optional</span>
+<span class="sd">           View to export. Options are ``&quot;isometric&quot;``, ``&quot;xy&quot;``, ``&quot;xz&quot;``, ``&quot;yz&quot;``.</span>
+<span class="sd">            The default is ``&quot;isometric&quot;``.</span>
+<span class="sd">        show_legend : bool, optional</span>
+<span class="sd">            Whether to display the legend or not. The default is ``True``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.generic.plot.ModelPlotter`</span>
+<span class="sd">            Model Object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_model_plotter_geometries</span><span class="p">(</span>
+            <span class="n">objects</span><span class="o">=</span><span class="n">objects</span><span class="p">,</span>
+            <span class="n">plot_as_separate_objects</span><span class="o">=</span><span class="n">plot_as_separate_objects</span><span class="p">,</span>
+            <span class="n">plot_air_objects</span><span class="o">=</span><span class="n">plot_air_objects</span><span class="p">,</span>
+            <span class="n">force_opacity_value</span><span class="o">=</span><span class="n">force_opacity_value</span><span class="p">,</span>
+            <span class="n">array_coordinates</span><span class="o">=</span><span class="n">array_coordinates</span><span class="p">,</span>
+            <span class="n">generate_mesh</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">model</span><span class="o">.</span><span class="n">show_legend</span> <span class="o">=</span> <span class="n">show_legend</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">off_screen</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">show</span>
+        <span class="k">if</span> <span class="n">view</span> <span class="o">!=</span> <span class="s2">&quot;isometric&quot;</span> <span class="ow">and</span> <span class="n">view</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;xy&quot;</span><span class="p">,</span> <span class="s2">&quot;xz&quot;</span><span class="p">,</span> <span class="s2">&quot;yz&quot;</span><span class="p">]:</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">camera_position</span> <span class="o">=</span> <span class="n">view</span>
+        <span class="k">elif</span> <span class="n">view</span> <span class="o">!=</span> <span class="s2">&quot;isometric&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Wrong view setup. It has to be one of xy, xz, yz, isometric.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">export_path</span><span class="p">:</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">export_path</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">show</span><span class="p">:</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">clean_files</span><span class="p">:</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">clean_cache_and_files</span><span class="p">(</span><span class="n">clean_cache</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">model</span></div>
+
+<div class="viewcode-block" id="PostProcessor.plot_field_from_fieldplot"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.AdvancedPostProcessing.PostProcessor.plot_field_from_fieldplot.html#pyaedt.modules.AdvancedPostProcessing.PostProcessor.plot_field_from_fieldplot">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">plot_field_from_fieldplot</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">plotname</span><span class="p">,</span>
+        <span class="n">project_path</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">meshplot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">imageformat</span><span class="o">=</span><span class="s2">&quot;jpg&quot;</span><span class="p">,</span>
+        <span class="n">view</span><span class="o">=</span><span class="s2">&quot;isometric&quot;</span><span class="p">,</span>
+        <span class="n">plot_label</span><span class="o">=</span><span class="s2">&quot;Temperature&quot;</span><span class="p">,</span>
+        <span class="n">plot_folder</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">scale_min</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">scale_max</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">plot_cad_objs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">log_scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Export a field plot to an image file (JPG or PNG) using Python PyVista.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">           The PyVista module rebuilds the mesh and the overlap fields on the mesh.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        plotname : str</span>
+<span class="sd">            Name of the field plot to export.</span>
+<span class="sd">        project_path : str, optional</span>
+<span class="sd">            Path for saving the image file. The default is ``&quot;&quot;``.</span>
+<span class="sd">        meshplot : bool, optional</span>
+<span class="sd">            Whether to create and plot the mesh over the fields. The</span>
+<span class="sd">            default is ``False``.</span>
+<span class="sd">        imageformat : str, optional</span>
+<span class="sd">            Format of the image file. Options are ``&quot;jpg&quot;``,</span>
+<span class="sd">            ``&quot;png&quot;``, ``&quot;svg&quot;``, and ``&quot;webp&quot;``. The default is</span>
+<span class="sd">            ``&quot;jpg&quot;``.</span>
+<span class="sd">        view : str, optional</span>
+<span class="sd">           View to export. Options are ``&quot;isometric&quot;``, ``&quot;xy&quot;``, ``&quot;xz&quot;``, ``&quot;yz&quot;``.</span>
+<span class="sd">        plot_label : str, optional</span>
+<span class="sd">            Type of the plot. The default is ``&quot;Temperature&quot;``.</span>
+<span class="sd">        plot_folder : str, optional</span>
+<span class="sd">            Plot folder to update before exporting the field.</span>
+<span class="sd">            The default is ``None``, in which case all plot</span>
+<span class="sd">            folders are updated.</span>
+<span class="sd">        show : bool, optional</span>
+<span class="sd">            Export Image without plotting on UI.</span>
+<span class="sd">        scale_min : float, optional</span>
+<span class="sd">            Fix the Scale Minimum value.</span>
+<span class="sd">        scale_max : float, optional</span>
+<span class="sd">            Fix the Scale Maximum value.</span>
+<span class="sd">        plot_cad_objs : bool, optional</span>
+<span class="sd">            Whether to include objects in the plot. The default is ``True``.</span>
+<span class="sd">        log_scale : bool, optional</span>
+<span class="sd">            Whether to plot fields in log scale. The default is ``True``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.generic.plot.ModelPlotter`</span>
+<span class="sd">            Model Object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">plot_folder</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ofieldsreporter</span><span class="o">.</span><span class="n">UpdateAllFieldsPlots</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ofieldsreporter</span><span class="o">.</span><span class="n">UpdateQuantityFieldsPlots</span><span class="p">(</span><span class="n">plot_folder</span><span class="p">)</span>
+
+        <span class="n">file_to_add</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">export_field_plot</span><span class="p">(</span><span class="n">plotname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">working_directory</span><span class="p">)</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_model_plotter_geometries</span><span class="p">(</span><span class="n">generate_mesh</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">get_objects_from_aedt</span><span class="o">=</span><span class="n">plot_cad_objs</span><span class="p">)</span>
+
+        <span class="n">model</span><span class="o">.</span><span class="n">off_screen</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">show</span>
+        <span class="k">if</span> <span class="n">file_to_add</span><span class="p">:</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">add_field_from_file</span><span class="p">(</span>
+                <span class="n">file_to_add</span><span class="p">,</span> <span class="n">coordinate_units</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">model_units</span><span class="p">,</span> <span class="n">show_edges</span><span class="o">=</span><span class="n">meshplot</span><span class="p">,</span> <span class="n">log_scale</span><span class="o">=</span><span class="n">log_scale</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">plot_label</span><span class="p">:</span>
+                <span class="n">model</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">plot_label</span>
+
+        <span class="k">if</span> <span class="n">view</span> <span class="o">!=</span> <span class="s2">&quot;isometric&quot;</span> <span class="ow">and</span> <span class="n">view</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;xy&quot;</span><span class="p">,</span> <span class="s2">&quot;xz&quot;</span><span class="p">,</span> <span class="s2">&quot;yz&quot;</span><span class="p">]:</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">camera_position</span> <span class="o">=</span> <span class="n">view</span>
+        <span class="k">elif</span> <span class="n">view</span> <span class="o">!=</span> <span class="s2">&quot;isometric&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Wrong view setup. It has to be one of xy, xz, yz, isometric.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">scale_min</span> <span class="ow">and</span> <span class="n">scale_max</span><span class="p">:</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">range_min</span> <span class="o">=</span> <span class="n">scale_min</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">range_max</span> <span class="o">=</span> <span class="n">scale_max</span>
+        <span class="k">if</span> <span class="n">project_path</span><span class="p">:</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">project_name</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">imageformat</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">show</span><span class="p">:</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">model</span></div>
+
+<div class="viewcode-block" id="PostProcessor.plot_field"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.AdvancedPostProcessing.PostProcessor.plot_field.html#pyaedt.modules.AdvancedPostProcessing.PostProcessor.plot_field">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">plot_field</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">quantity</span><span class="p">,</span>
+        <span class="n">object_list</span><span class="p">,</span>
+        <span class="n">plot_type</span><span class="o">=</span><span class="s2">&quot;Surface&quot;</span><span class="p">,</span>
+        <span class="n">setup_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">intrinsics</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">mesh_on_fields</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">view</span><span class="o">=</span><span class="s2">&quot;isometric&quot;</span><span class="p">,</span>
+        <span class="n">plot_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">scale_min</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">scale_max</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">plot_cad_objs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">log_scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">export_path</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">imageformat</span><span class="o">=</span><span class="s2">&quot;jpg&quot;</span><span class="p">,</span>
+        <span class="n">keep_plot_after_generation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a field plot  using Python PyVista and export to an image file (JPG or PNG).</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">           The PyVista module rebuilds the mesh and the overlap fields on the mesh.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        quantity : str</span>
+<span class="sd">            Quantity to plot (e.g. ``&quot;Mag_E&quot;``).</span>
+<span class="sd">        object_list : str</span>
+<span class="sd">            List of objects or faces to which apply the Field Plot.</span>
+<span class="sd">        plot_type  : str, optional</span>
+<span class="sd">            Plot type. Options are ``&quot;Surface&quot;``, ``&quot;Volume&quot;``, ``&quot;CutPlane&quot;``.</span>
+<span class="sd">        setup_name : str, optional</span>
+<span class="sd">            Setup and sweep name on which create the field plot. Default is None for nominal setup usage.</span>
+<span class="sd">        intrinsics : dict, optional.</span>
+<span class="sd">            Intrinsic dictionary that is needed for the export.</span>
+<span class="sd">            The default is ``None`` which try to retrieve intrinsics from setup.</span>
+<span class="sd">        mesh_on_fields : bool, optional</span>
+<span class="sd">            Whether to create and plot the mesh over the fields. The</span>
+<span class="sd">            default is ``False``.</span>
+<span class="sd">        view : str, optional</span>
+<span class="sd">           View to export. Options are ``&quot;isometric&quot;``, ``&quot;xy&quot;``, ``&quot;xz&quot;``, ``&quot;yz&quot;``.</span>
+<span class="sd">        plot_label : str, optional</span>
+<span class="sd">            Type of the plot. The default is ``&quot;Temperature&quot;``.</span>
+<span class="sd">        show : bool, optional</span>
+<span class="sd">            Export Image without plotting on UI.</span>
+<span class="sd">        scale_min : float, optional</span>
+<span class="sd">            Fix the Scale Minimum value.</span>
+<span class="sd">        scale_max : float, optional</span>
+<span class="sd">            Fix the Scale Maximum value.</span>
+<span class="sd">        plot_cad_objs : bool, optional</span>
+<span class="sd">            Whether to include objects in the plot. The default is ``True``.</span>
+<span class="sd">        log_scale : bool, optional</span>
+<span class="sd">            Whether to plot fields in log scale. The default is ``True``.</span>
+<span class="sd">        export_path : str, optional</span>
+<span class="sd">            Image export path. Default is ``None`` to not export the image.</span>
+<span class="sd">        imageformat : str, optional</span>
+<span class="sd">            Format of the image file. Options are ``&quot;jpg&quot;``,</span>
+<span class="sd">            ``&quot;png&quot;``, ``&quot;svg&quot;``, and ``&quot;webp&quot;``. The default is</span>
+<span class="sd">            ``&quot;jpg&quot;``.</span>
+<span class="sd">        keep_plot_after_generation : bool, optional</span>
+<span class="sd">            Either to keep the Field Plot in AEDT after the generation is completed. Default is ``False``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.generic.plot.ModelPlotter`</span>
+<span class="sd">            Model Object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">setup_name</span><span class="p">:</span>
+            <span class="n">setup_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">existing_analysis_sweeps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">intrinsics</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">setups</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">setup_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; : &quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">intrinsics</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">default_intrinsics</span>
+
+        <span class="c1"># file_to_add = []</span>
+        <span class="k">if</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s2">&quot;Surface&quot;</span><span class="p">:</span>
+            <span class="n">plotf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_fieldplot_surface</span><span class="p">(</span><span class="n">object_list</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">setup_name</span><span class="p">,</span> <span class="n">intrinsics</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s2">&quot;Volume&quot;</span><span class="p">:</span>
+            <span class="n">plotf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_fieldplot_volume</span><span class="p">(</span><span class="n">object_list</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">setup_name</span><span class="p">,</span> <span class="n">intrinsics</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plotf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_fieldplot_cutplane</span><span class="p">(</span><span class="n">object_list</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">setup_name</span><span class="p">,</span> <span class="n">intrinsics</span><span class="p">)</span>
+        <span class="c1"># if plotf:</span>
+        <span class="c1">#     file_to_add = self.export_field_plot(plotf.name, self._app.working_directory, plotf.name)</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_field_from_fieldplot</span><span class="p">(</span>
+            <span class="n">plotf</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">export_path</span><span class="p">,</span>
+            <span class="n">mesh_on_fields</span><span class="p">,</span>
+            <span class="n">imageformat</span><span class="p">,</span>
+            <span class="n">view</span><span class="p">,</span>
+            <span class="n">plot_label</span> <span class="k">if</span> <span class="n">plot_label</span> <span class="k">else</span> <span class="n">quantity</span><span class="p">,</span>
+            <span class="kc">None</span><span class="p">,</span>
+            <span class="n">show</span><span class="p">,</span>
+            <span class="n">scale_min</span><span class="p">,</span>
+            <span class="n">scale_max</span><span class="p">,</span>
+            <span class="n">plot_cad_objs</span><span class="p">,</span>
+            <span class="n">log_scale</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">keep_plot_after_generation</span><span class="p">:</span>
+            <span class="n">plotf</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">model</span></div>
+
+<div class="viewcode-block" id="PostProcessor.animate_fields_from_aedtplt"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.AdvancedPostProcessing.PostProcessor.animate_fields_from_aedtplt.html#pyaedt.modules.AdvancedPostProcessing.PostProcessor.animate_fields_from_aedtplt">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">animate_fields_from_aedtplt</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">plotname</span><span class="p">,</span>
+        <span class="n">plot_folder</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">meshplot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">variation_variable</span><span class="o">=</span><span class="s2">&quot;Phi&quot;</span><span class="p">,</span>
+        <span class="n">variation_list</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;0deg&quot;</span><span class="p">],</span>
+        <span class="n">project_path</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">export_gif</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate a field plot to an image file (JPG or PNG) using PyVista.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">           The PyVista module rebuilds the mesh and the overlap fields on the mesh.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        plotname : str</span>
+<span class="sd">            Name of the plot or the name of the object.</span>
+<span class="sd">        plot_folder : str, optional</span>
+<span class="sd">            Name of the folder in which the plot resides. The default</span>
+<span class="sd">            is ``None``.</span>
+<span class="sd">        variation_variable : str, optional</span>
+<span class="sd">            Variable to vary. The default is ``&quot;Phi&quot;``.</span>
+<span class="sd">        variation_list : list, optional</span>
+<span class="sd">            List of variation values with units. The default is</span>
+<span class="sd">            ``[&quot;0deg&quot;]``.</span>
+<span class="sd">        project_path : str, optional</span>
+<span class="sd">            Path for the export. The default is ``&quot;&quot;`` which export file in working_directory.</span>
+<span class="sd">        meshplot : bool, optional</span>
+<span class="sd">             The default is ``False``. Valid from Version 2021.2.</span>
+<span class="sd">        export_gif : bool, optional</span>
+<span class="sd">             The default is ``False``.</span>
+<span class="sd">                show=False,</span>
+<span class="sd">        show : bool, optional</span>
+<span class="sd">             Generate the animation without showing an interactive plot.  The default is ``True``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.generic.plot.ModelPlotter`</span>
+<span class="sd">            Model Object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">plot_folder</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ofieldsreporter</span><span class="o">.</span><span class="n">UpdateAllFieldsPlots</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ofieldsreporter</span><span class="o">.</span><span class="n">UpdateQuantityFieldsPlots</span><span class="p">(</span><span class="n">plot_folder</span><span class="p">)</span>
+
+        <span class="n">fields_to_add</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">project_path</span><span class="p">:</span>
+            <span class="n">project_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">working_directory</span>
+        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">variation_list</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">_odesign</span><span class="o">.</span><span class="n">ChangeProperty</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;NAME:AllTabs&quot;</span><span class="p">,</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;NAME:FieldsPostProcessorTab&quot;</span><span class="p">,</span>
+                        <span class="p">[</span><span class="s2">&quot;NAME:PropServers&quot;</span><span class="p">,</span> <span class="s2">&quot;FieldsReporter:&quot;</span> <span class="o">+</span> <span class="n">plotname</span><span class="p">],</span>
+                        <span class="p">[</span><span class="s2">&quot;NAME:ChangedProps&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="n">variation_variable</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="n">el</span><span class="p">]],</span>
+                    <span class="p">],</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">fields_to_add</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">export_field_plot</span><span class="p">(</span><span class="n">plotname</span><span class="p">,</span> <span class="n">project_path</span><span class="p">,</span> <span class="n">plotname</span> <span class="o">+</span> <span class="n">variation_variable</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">el</span><span class="p">))</span>
+            <span class="p">)</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_model_plotter_geometries</span><span class="p">(</span><span class="n">generate_mesh</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">off_screen</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">show</span>
+
+        <span class="k">if</span> <span class="n">fields_to_add</span><span class="p">:</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">add_frames_from_file</span><span class="p">(</span><span class="n">fields_to_add</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">export_gif</span><span class="p">:</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">gif_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">working_directory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">project_name</span> <span class="o">+</span> <span class="s2">&quot;.gif&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">show</span> <span class="ow">or</span> <span class="n">export_gif</span><span class="p">:</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">animate</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">model</span></div>
+
+<div class="viewcode-block" id="PostProcessor.animate_fields_from_aedtplt_2"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.AdvancedPostProcessing.PostProcessor.animate_fields_from_aedtplt_2.html#pyaedt.modules.AdvancedPostProcessing.PostProcessor.animate_fields_from_aedtplt_2">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">animate_fields_from_aedtplt_2</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">quantityname</span><span class="p">,</span>
+        <span class="n">object_list</span><span class="p">,</span>
+        <span class="n">plottype</span><span class="p">,</span>
+        <span class="n">meshplot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">setup_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">intrinsic_dict</span><span class="o">=</span><span class="p">{},</span>
+        <span class="n">variation_variable</span><span class="o">=</span><span class="s2">&quot;Phi&quot;</span><span class="p">,</span>
+        <span class="n">variation_list</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;0deg&quot;</span><span class="p">],</span>
+        <span class="n">project_path</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">export_gif</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">zoom</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">log_scale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate a field plot to an animated gif file using PyVista.</span>
+
+<span class="sd">         .. note::</span>
+<span class="sd">            The PyVista module rebuilds the mesh and the overlap fields on the mesh.</span>
+
+<span class="sd">        This method creates the plot and exports it.</span>
+<span class="sd">        It is an alternative to the method :func:`animate_fields_from_aedtplt`,</span>
+<span class="sd">        which uses an existing plot.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        quantityname : str</span>
+<span class="sd">            Name of the plot or the name of the object.</span>
+<span class="sd">        object_list : list, optional</span>
+<span class="sd">            Name of the ``folderplot`` folder.</span>
+<span class="sd">        plottype : str</span>
+<span class="sd">            Type of the plot. Options are ``&quot;Surface&quot;``, ``&quot;Volume&quot;``, and</span>
+<span class="sd">            ``&quot;CutPlane&quot;``.</span>
+<span class="sd">        meshplot : bool, optional</span>
+<span class="sd">            The default is ``False``.</span>
+<span class="sd">        setup_name : str, optional</span>
+<span class="sd">            Name of the setup (sweep) to use for the export. The default is</span>
+<span class="sd">            ``None``.</span>
+<span class="sd">        intrinsic_dict : dict, optional</span>
+<span class="sd">            Intrinsic dictionary that is needed for the export.</span>
+<span class="sd">            The default is ``{}``.</span>
+<span class="sd">        variation_variable : str, optional</span>
+<span class="sd">            Variable to vary. The default is ``&quot;Phi&quot;``.</span>
+<span class="sd">        variation_list : list, option</span>
+<span class="sd">            List of variation values with units. The default is</span>
+<span class="sd">            ``[&quot;0deg&quot;]``.</span>
+<span class="sd">        project_path : str, optional</span>
+<span class="sd">            Path for the export. The default is ``&quot;&quot;`` which export file in working_directory.</span>
+<span class="sd">        export_gif : bool, optional</span>
+<span class="sd">            Whether to export to a GIF file. The default is ``False``,</span>
+<span class="sd">            in which case the plot is exported to a JPG file.</span>
+<span class="sd">        show : bool, optional</span>
+<span class="sd">            Generate the animation without showing an interactive plot.  The default is ``True``.</span>
+<span class="sd">        zoom : float, optional</span>
+<span class="sd">            Zoom factor.</span>
+<span class="sd">        log_scale : bool, optional</span>
+<span class="sd">            Whether to plot fields in log scale. The default is ``True``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.generic.plot.ModelPlotter`</span>
+<span class="sd">            Model Object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">project_path</span><span class="p">:</span>
+            <span class="n">project_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">working_directory</span>
+
+        <span class="n">v</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">fields_to_add</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">variation_list</span><span class="p">:</span>
+            <span class="n">intrinsic_dict</span><span class="p">[</span><span class="n">variation_variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">el</span>
+            <span class="k">if</span> <span class="n">plottype</span> <span class="o">==</span> <span class="s2">&quot;Surface&quot;</span><span class="p">:</span>
+                <span class="n">plotf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_fieldplot_surface</span><span class="p">(</span><span class="n">object_list</span><span class="p">,</span> <span class="n">quantityname</span><span class="p">,</span> <span class="n">setup_name</span><span class="p">,</span> <span class="n">intrinsic_dict</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">plottype</span> <span class="o">==</span> <span class="s2">&quot;Volume&quot;</span><span class="p">:</span>
+                <span class="n">plotf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_fieldplot_volume</span><span class="p">(</span><span class="n">object_list</span><span class="p">,</span> <span class="n">quantityname</span><span class="p">,</span> <span class="n">setup_name</span><span class="p">,</span> <span class="n">intrinsic_dict</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">plotf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_fieldplot_cutplane</span><span class="p">(</span><span class="n">object_list</span><span class="p">,</span> <span class="n">quantityname</span><span class="p">,</span> <span class="n">setup_name</span><span class="p">,</span> <span class="n">intrinsic_dict</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">plotf</span><span class="p">:</span>
+                <span class="n">file_to_add</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">export_field_plot</span><span class="p">(</span><span class="n">plotf</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">project_path</span><span class="p">,</span> <span class="n">plotf</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">file_to_add</span><span class="p">:</span>
+                    <span class="n">fields_to_add</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">file_to_add</span><span class="p">)</span>
+                <span class="n">plotf</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+            <span class="n">v</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_model_plotter_geometries</span><span class="p">(</span><span class="n">generate_mesh</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">off_screen</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">show</span>
+
+        <span class="k">if</span> <span class="n">fields_to_add</span><span class="p">:</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">add_frames_from_file</span><span class="p">(</span><span class="n">fields_to_add</span><span class="p">,</span> <span class="n">log_scale</span><span class="o">=</span><span class="n">log_scale</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">export_gif</span><span class="p">:</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">gif_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">working_directory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">project_name</span> <span class="o">+</span> <span class="s2">&quot;.gif&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">zoom</span><span class="p">:</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">zoom</span> <span class="o">=</span> <span class="n">zoom</span>
+        <span class="k">if</span> <span class="n">show</span> <span class="ow">or</span> <span class="n">export_gif</span><span class="p">:</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">animate</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">model</span></div>
+
+<div class="viewcode-block" id="PostProcessor.create_3d_plot"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.AdvancedPostProcessing.PostProcessor.create_3d_plot.html#pyaedt.modules.AdvancedPostProcessing.PostProcessor.create_3d_plot">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">create_3d_plot</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">solution_data</span><span class="p">,</span> <span class="n">nominal_sweep</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nominal_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">primary_sweep</span><span class="o">=</span><span class="s2">&quot;Theta&quot;</span><span class="p">,</span> <span class="n">secondary_sweep</span><span class="o">=</span><span class="s2">&quot;Phi&quot;</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a 3D plot using Matplotlib.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solution_data : :class:`pyaedt.modules.solutions.SolutionData`</span>
+<span class="sd">            Input data for the solution.</span>
+<span class="sd">        nominal_sweep : str, optional</span>
+<span class="sd">            Name of the nominal sweep. The default is ``None``.</span>
+<span class="sd">        nominal_value : str, optional</span>
+<span class="sd">            Value for the nominal sweep. The default is ``None``.</span>
+<span class="sd">        primary_sweep : str, optional</span>
+<span class="sd">            Primary sweep. The default is ``&quot;Theta&quot;``.</span>
+<span class="sd">        secondary_sweep : str, optional</span>
+<span class="sd">            Secondary sweep. The default is ``&quot;Phi&quot;``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">         bool</span>
+<span class="sd">             ``True`` when successful, ``False`` when failed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">nominal_value</span><span class="p">:</span>
+            <span class="n">solution_data</span><span class="o">.</span><span class="n">intrinsics</span><span class="p">[</span><span class="n">nominal_sweep</span><span class="p">]</span> <span class="o">=</span> <span class="n">nominal_value</span>
+        <span class="k">if</span> <span class="n">nominal_value</span><span class="p">:</span>
+            <span class="n">solution_data</span><span class="o">.</span><span class="n">primary_sweep</span> <span class="o">=</span> <span class="n">primary_sweep</span>
+        <span class="k">return</span> <span class="n">solution_data</span><span class="o">.</span><span class="n">plot_3d</span><span class="p">(</span><span class="n">x_axis</span><span class="o">=</span><span class="n">primary_sweep</span><span class="p">,</span> <span class="n">y_axis</span><span class="o">=</span><span class="n">secondary_sweep</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PostProcessor.plot_scene"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.AdvancedPostProcessing.PostProcessor.plot_scene.html#pyaedt.modules.AdvancedPostProcessing.PostProcessor.plot_scene">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">plot_scene</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">frames_list</span><span class="p">,</span>
+        <span class="n">output_gif_path</span><span class="p">,</span>
+        <span class="n">norm_index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">dy_rng</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+        <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">view</span><span class="o">=</span><span class="s2">&quot;yz&quot;</span><span class="p">,</span>
+        <span class="n">zoom</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+        <span class="n">convert_fields_in_db</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">log_multiplier</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot the current model 3D scene with overlapping animation coming from a file list and save the gif.</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        frames_list : list or str</span>
+<span class="sd">            File list containing animation frames to plot in csv format or</span>
+<span class="sd">            path to a txt index file containing full path to csv files.</span>
+<span class="sd">        output_gif_path : str</span>
+<span class="sd">            Full path to output gif file.</span>
+<span class="sd">        norm_index : int, optional</span>
+<span class="sd">            Pick the frame to use to normalize your images.</span>
+<span class="sd">            Data is already saved as dB : 100 for usual traffic scenes.</span>
+<span class="sd">        dy_rng : int, optional</span>
+<span class="sd">            Specify how many dB below you would like to specify the range_min.</span>
+<span class="sd">            Tweak this a couple of times with small number of frames.</span>
+<span class="sd">        fps : int, optional</span>
+<span class="sd">            Frames per Second.</span>
+<span class="sd">        show : bool, optional</span>
+<span class="sd">            Either if show or only export gif.</span>
+<span class="sd">        view : str, optional</span>
+<span class="sd">           View to export. Options are ``&quot;isometric&quot;``, ``&quot;xy&quot;``, ``&quot;xz&quot;``, and ``&quot;yz&quot;``.</span>
+<span class="sd">           The default is ``&quot;isometric&quot;``.</span>
+<span class="sd">        zoom : float, optional</span>
+<span class="sd">            Default zoom. Default Value is `2`.</span>
+<span class="sd">        convert_fields_in_db : bool, optional</span>
+<span class="sd">            Either if convert the fields before plotting in dB. Default Value is `False`.</span>
+<span class="sd">        log_multiplier : float, optional</span>
+<span class="sd">            Field multiplier if field in dB. Default Value is `10.0`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">frames_list</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">frames_list</span><span class="p">):</span>
+            <span class="k">with</span> <span class="n">open_file</span><span class="p">(</span><span class="n">frames_list</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="n">temp_list</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+            <span class="n">frames_paths_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">temp_list</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">frames_list</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Path doesn&#39;t exists&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">frames_paths_list</span> <span class="o">=</span> <span class="n">frames_list</span>
+        <span class="n">scene</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_model_plotter_geometries</span><span class="p">(</span><span class="n">generate_mesh</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">norm_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">frames_paths_list</span><span class="p">[</span><span class="n">norm_index</span><span class="p">],</span> <span class="n">skiprows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+        <span class="n">norm_val</span> <span class="o">=</span> <span class="n">norm_data</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">v_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">norm_val</span><span class="p">)</span>
+        <span class="n">v_min</span> <span class="o">=</span> <span class="n">v_max</span> <span class="o">-</span> <span class="n">dy_rng</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">add_frames_from_file</span><span class="p">(</span><span class="n">frames_paths_list</span><span class="p">,</span> <span class="n">log_scale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">color_map</span><span class="o">=</span><span class="s2">&quot;jet&quot;</span><span class="p">,</span> <span class="n">header_lines</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">opacity</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+
+        <span class="c1"># Specifying the attributes of the scene through the ModelPlotter object</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">off_screen</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">show</span>
+        <span class="k">if</span> <span class="n">view</span> <span class="o">!=</span> <span class="s2">&quot;isometric&quot;</span> <span class="ow">and</span> <span class="n">view</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;xy&quot;</span><span class="p">,</span> <span class="s2">&quot;xz&quot;</span><span class="p">,</span> <span class="s2">&quot;yz&quot;</span><span class="p">]:</span>
+            <span class="n">scene</span><span class="o">.</span><span class="n">camera_position</span> <span class="o">=</span> <span class="n">view</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">range_min</span> <span class="o">=</span> <span class="n">v_min</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">range_max</span> <span class="o">=</span> <span class="n">v_max</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">show_grid</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">windows_size</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1920</span><span class="p">,</span> <span class="mi">1080</span><span class="p">]</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">show_legend</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">show_boundingbox</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">legend</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">frame_per_seconds</span> <span class="o">=</span> <span class="n">fps</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">zoom</span> <span class="o">=</span> <span class="n">zoom</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">bounding_box</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">color_bar</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">gif_file</span> <span class="o">=</span> <span class="n">output_gif_path</span>  <span class="c1"># This gif may be a bit slower so we can speed it up a bit</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">convert_fields_in_db</span> <span class="o">=</span> <span class="n">convert_fields_in_db</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">log_multiplier</span> <span class="o">=</span> <span class="n">log_multiplier</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">animate</span><span class="p">()</span></div></div>
+</pre></div>
+
+              </article>
+              
+
+              
+          </div>
+          
+      </div>
+    </div>
+
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695"></script>
+
+<footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    <p class="copyright">
+    &copy; Copyright (c) 2023 ANSYS, Inc. All rights reserved.<br>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+  </div>
+  
+</div>
+</footer>
+  </body>
+</html>

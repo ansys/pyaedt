@@ -1,0 +1,1124 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyaedt.edb_core.edb_data.layer_data &#8212; PyAEDT</title>
+    
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/ansys_sphinx_theme.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    
+        <link href="../../../../_static/css/breadcrumbs.css" rel="stylesheet">
+    
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
+    <script src="../../../../_static/js/table.js"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pyaedt/edb_core/edb_data/layer_data';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://aedt.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        </script>
+    <link rel="icon" href="../../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container"><!-- Debugging: html_theme_options =  -->
+
+  <!-- Include the MeiliSearch CSS stylesheet only if theme present -->
+  <link href="../../../../_static/css/meilisearch.css" rel="stylesheet">
+
+  <!-- Create a search bar form with a text input and a dropdown selector for the search index -->
+  <form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+    <input type="search" placeholder="Search" class="form-control" id="search-bar-input" autofocus />
+
+    
+      <select id="indexUidSelector" class="index-select">
+      
+        <option value="pyansys-pyaedt-sphinx-docs">PyAEDT</option>
+      
+        <option value="pyansys-pyedb-sphinx-docs">EDB API</option>
+      
+      </select>
+    
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <!-- Include the MeiliSearch JavaScript library for the search bar -->
+    <script src="https://cdn.jsdelivr.net/npm/docs-searchbar.js@latest/dist/cdn/docs-searchbar.min.js"></script>
+    
+      <!-- If no credentials provided, use the default ones  -->
+      
+        
+        
+      
+      <script>
+      // Initialize the MeiliSearch bar with the given API key and host
+      // inspect the first value of index UID as default
+      let theSearchBar = docsSearchBar({
+        hostUrl: "https://backend.search.pyansys.com/",
+        apiKey: "A1Qxly2sls6g1rb1sIKEVEtE7R1UsHad0VgqnvKhD5nhBNf5de",
+        indexUid: "pyansys-pyaedt-sphinx-docs",
+        inputSelector: '#search-bar-input, #indexUidSelector',
+        enableDarkMode: 'auto',
+        debug: true // Set debug to true if you want to inspect the dropdown
+      });
+
+      document.getElementById('indexUidSelector').addEventListener('change', function() {
+        theSearchBar.indexUid = this.value;
+        theSearchBar.inputSelector = '#docs-searchbar-suggestion';
+      });
+
+      // Set the focus on the search bar input
+      document.getElementById('docs-searchbar-suggestion').focus();
+    </script>
+  </form>
+
+</div>
+  </div>
+  
+    
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../../../../_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../Getting_started/index.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../User_guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../API/index.html">
+                        AEDT API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../EDBAPI/index.html">
+                        EDB API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../Contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      dev  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt/discussions" title="Support" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+</div>
+
+    </nav>
+  
+
+    
+    <div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(text => document.getElementById("announcement_msg").innerHTML = text)
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+    
+
+    
+    <div class="container-xl">
+    <div class="row">
+        <div class="col-12 col-md-3" id="breadcrumbs-spacer"></div>
+        <div class="col-12 col-md-11 col-xl-9" id="breadcrumbs">
+          
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-additional-breadcrumb"><a href="https://docs.pyansys.com/">PyAnsys</a> » </li>
+    
+    
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">PyAEDT</a> » </li>
+    
+
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> » </li>
+        <li class="nav-item nav-item-this"><a href="">pyaedt.edb_core.edb_data.layer_data</a></li> 
+      </ul>
+    </div>
+        </div>
+  </div>
+</div>
+    
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../Getting_started/index.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../User_guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../API/index.html">
+                        AEDT API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../EDBAPI/index.html">
+                        EDB API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../Contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      dev  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt/discussions" title="Support" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article"></div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for pyaedt.edb_core.edb_data.layer_data</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">pyaedt_function_handler</span>
+
+
+<div class="viewcode-block" id="LayerEdbClass"><a class="viewcode-back" href="../../../../EDBAPI/_autosummary/pyaedt.edb_core.edb_data.layer_data.LayerEdbClass.html#pyaedt.edb_core.edb_data.layer_data.LayerEdbClass">[docs]</a><span class="k">class</span> <span class="nc">LayerEdbClass</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manages Edb Layers. Replaces EDBLayer.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pclass</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span> <span class="o">=</span> <span class="n">pclass</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_type</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_material</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_conductivity</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_permittivity</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loss_tangent</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dielectric_fill</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_thickness</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_etch_factor</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_roughness_enabled</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_top_hallhuray_nodule_radius</span> <span class="o">=</span> <span class="mf">0.5e-6</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_top_hallhuray_surface_ratio</span> <span class="o">=</span> <span class="mf">2.9</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bottom_hallhuray_nodule_radius</span> <span class="o">=</span> <span class="mf">0.5e-6</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bottom_hallhuray_surface_ratio</span> <span class="o">=</span> <span class="mf">2.9</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_side_hallhuray_nodule_radius</span> <span class="o">=</span> <span class="mf">0.5e-6</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_side_hallhuray_surface_ratio</span> <span class="o">=</span> <span class="mf">2.9</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_material</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_upper_elevation</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lower_elevation</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lower_elevation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Lower elevation.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Lower elevation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lower_elevation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span><span class="o">.</span><span class="n">GetLowerElevation</span><span class="p">()</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lower_elevation</span>
+
+    <span class="nd">@lower_elevation</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">lower_elevation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">layer_clone</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span>
+        <span class="n">layer_clone</span><span class="o">.</span><span class="n">SetLowerElevation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_edb_value</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_set_layout_stackup</span><span class="p">(</span><span class="n">layer_clone</span><span class="p">,</span> <span class="s2">&quot;change_attribute&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">upper_elevation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Upper elevation.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Upper elevation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_upper_elevation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span><span class="o">.</span><span class="n">GetUpperElevation</span><span class="p">()</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_upper_elevation</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_edb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_edb_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_edb_layer_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">l</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">l</span><span class="o">.</span><span class="n">Clone</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_stackup_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Determine whether this layer is a stackup layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if this layer is a stackup layer, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span><span class="o">.</span><span class="n">IsStackupLayer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_negative</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Determine whether this layer is a negative layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if this layer is a negative layer, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span><span class="o">.</span><span class="n">GetNegative</span><span class="p">()</span>
+
+    <span class="nd">@is_negative</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">is_negative</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">layer_clone</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span>
+        <span class="n">layer_clone</span><span class="o">.</span><span class="n">SetNegative</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_set_layout_stackup</span><span class="p">(</span><span class="n">layer_clone</span><span class="p">,</span> <span class="s2">&quot;change_attribute&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">color</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve color of the layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            RGB.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">layer_color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span><span class="o">.</span><span class="n">GetColor</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">layer_color</span><span class="o">.</span><span class="n">Item1</span><span class="p">,</span> <span class="n">layer_color</span><span class="o">.</span><span class="n">Item2</span><span class="p">,</span> <span class="n">layer_color</span><span class="o">.</span><span class="n">Item3</span>
+
+    <span class="nd">@color</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rgb</span><span class="p">):</span>
+        <span class="n">layer_clone</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span>
+        <span class="n">layer_clone</span><span class="o">.</span><span class="n">SetColor</span><span class="p">(</span><span class="o">*</span><span class="n">rgb</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_set_layout_stackup</span><span class="p">(</span><span class="n">layer_clone</span><span class="p">,</span> <span class="s2">&quot;change_attribute&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="n">rgb</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">transparency</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve transparency of the layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            An integer between 0 and 100 with 0 being fully opaque and 100 being fully transparent.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span><span class="o">.</span><span class="n">GetTransparency</span><span class="p">()</span>
+
+    <span class="nd">@transparency</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">transparency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trans</span><span class="p">):</span>
+        <span class="n">layer_clone</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span>
+        <span class="n">layer_clone</span><span class="o">.</span><span class="n">SetTransparency</span><span class="p">(</span><span class="n">trans</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_set_layout_stackup</span><span class="p">(</span><span class="n">layer_clone</span><span class="p">,</span> <span class="s2">&quot;change_attribute&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve name of the layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span>
+
+    <span class="nd">@name</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">layer_clone</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span>
+        <span class="n">layer_clone</span><span class="o">.</span><span class="n">SetName</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_set_layout_stackup</span><span class="p">(</span><span class="n">layer_clone</span><span class="p">,</span> <span class="s2">&quot;change_name&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve type of the layer.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Layer$&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span><span class="o">.</span><span class="n">GetLayerType</span><span class="p">()</span><span class="o">.</span><span class="n">ToString</span><span class="p">())</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+    <span class="nd">@type</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_type</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">new_type</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">new_type</span> <span class="o">==</span> <span class="s2">&quot;signal&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span><span class="o">.</span><span class="n">SetLayerType</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">LayerType</span><span class="o">.</span><span class="n">SignalLayer</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_type</span> <span class="o">=</span> <span class="n">new_type</span>
+        <span class="k">elif</span> <span class="n">new_type</span> <span class="o">==</span> <span class="s2">&quot;dielectric&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span><span class="o">.</span><span class="n">SetLayerType</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">LayerType</span><span class="o">.</span><span class="n">DielectricLayer</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_type</span> <span class="o">=</span> <span class="n">new_type</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">material</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the material loss_tangent.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span><span class="o">.</span><span class="n">GetMaterial</span><span class="p">()</span>
+
+    <span class="nd">@material</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">material</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">layer_clone</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span>
+        <span class="n">layer_clone</span><span class="o">.</span><span class="n">SetMaterial</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_set_layout_stackup</span><span class="p">(</span><span class="n">layer_clone</span><span class="p">,</span> <span class="s2">&quot;change_attribute&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_material</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">conductivity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the material conductivity.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">material</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">materials</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_conductivity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">materials</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">material</span><span class="p">]</span><span class="o">.</span><span class="n">conductivity</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conductivity</span>
+
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">permittivity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the material permittivity.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">material</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">materials</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_permittivity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">materials</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">material</span><span class="p">]</span><span class="o">.</span><span class="n">permittivity</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_permittivity</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">loss_tangent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the material loss_tangent.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">material</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">materials</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_loss_tangent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">materials</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">material</span><span class="p">]</span><span class="o">.</span><span class="n">loss_tangent</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss_tangent</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dielectric_fill</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve material name of the layer dielectric fill.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;signal&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dielectric_fill</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span><span class="o">.</span><span class="n">GetFillMaterial</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dielectric_fill</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span>
+
+    <span class="nd">@dielectric_fill</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">dielectric_fill</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;signal&quot;</span><span class="p">:</span>
+            <span class="n">layer_clone</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span>
+            <span class="n">layer_clone</span><span class="o">.</span><span class="n">SetFillMaterial</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_set_layout_stackup</span><span class="p">(</span><span class="n">layer_clone</span><span class="p">,</span> <span class="s2">&quot;change_attribute&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dielectric_fill</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">thickness</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve thickness of the layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_stackup_layer</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_thickness</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span><span class="o">.</span><span class="n">GetThicknessValue</span><span class="p">()</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thickness</span>
+
+    <span class="nd">@thickness</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">thickness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_stackup_layer</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">return</span>
+        <span class="n">layer_clone</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span>
+        <span class="n">layer_clone</span><span class="o">.</span><span class="n">SetThickness</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_edb_value</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_set_layout_stackup</span><span class="p">(</span><span class="n">layer_clone</span><span class="p">,</span> <span class="s2">&quot;change_attribute&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_thickness</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">etch_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve etch factor of this layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_etch_factor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span><span class="o">.</span><span class="n">GetEtchFactor</span><span class="p">()</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_etch_factor</span>
+
+    <span class="nd">@etch_factor</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">etch_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_stackup_layer</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
+            <span class="n">layer_clone</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span>
+            <span class="n">layer_clone</span><span class="o">.</span><span class="n">SetEtchFactorEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">layer_clone</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span>
+            <span class="n">layer_clone</span><span class="o">.</span><span class="n">SetEtchFactorEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">layer_clone</span><span class="o">.</span><span class="n">SetEtchFactor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_edb_value</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_set_layout_stackup</span><span class="p">(</span><span class="n">layer_clone</span><span class="p">,</span> <span class="s2">&quot;change_attribute&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_etch_factor</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">roughness_enabled</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Determine whether roughness is enabled on this layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_stackup_layer</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_roughness_enabled</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span><span class="o">.</span><span class="n">IsRoughnessEnabled</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_roughness_enabled</span>
+
+    <span class="nd">@roughness_enabled</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">roughness_enabled</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">set_enable</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_stackup_layer</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_roughness_enabled</span> <span class="o">=</span> <span class="n">set_enable</span>
+        <span class="k">if</span> <span class="n">set_enable</span><span class="p">:</span>
+            <span class="n">layer_clone</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span>
+            <span class="n">layer_clone</span><span class="o">.</span><span class="n">SetRoughnessEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_set_layout_stackup</span><span class="p">(</span><span class="n">layer_clone</span><span class="p">,</span> <span class="s2">&quot;change_attribute&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assign_roughness_model</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">layer_clone</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span>
+            <span class="n">layer_clone</span><span class="o">.</span><span class="n">SetRoughnessEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_set_layout_stackup</span><span class="p">(</span><span class="n">layer_clone</span><span class="p">,</span> <span class="s2">&quot;change_attribute&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">top_hallhuray_nodule_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve huray model nodule radius on top of the conductor.&quot;&quot;&quot;</span>
+        <span class="n">top_roughness_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_roughness_model</span><span class="p">(</span><span class="s2">&quot;top&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">top_roughness_model</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_top_hallhuray_nodule_radius</span> <span class="o">=</span> <span class="n">top_roughness_model</span><span class="o">.</span><span class="n">NoduleRadius</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_top_hallhuray_nodule_radius</span>
+
+    <span class="nd">@top_hallhuray_nodule_radius</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">top_hallhuray_nodule_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_top_hallhuray_nodule_radius</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">top_hallhuray_surface_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve huray model surface ratio on top of the conductor.&quot;&quot;&quot;</span>
+        <span class="n">top_roughness_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_roughness_model</span><span class="p">(</span><span class="s2">&quot;top&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">top_roughness_model</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_top_hallhuray_surface_ratio</span> <span class="o">=</span> <span class="n">top_roughness_model</span><span class="o">.</span><span class="n">SurfaceRatio</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_top_hallhuray_surface_ratio</span>
+
+    <span class="nd">@top_hallhuray_surface_ratio</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">top_hallhuray_surface_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_top_hallhuray_surface_ratio</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bottom_hallhuray_nodule_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve huray model nodule radius on bottom of the conductor.&quot;&quot;&quot;</span>
+        <span class="n">bottom_roughness_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_roughness_model</span><span class="p">(</span><span class="s2">&quot;bottom&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">bottom_roughness_model</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_bottom_hallhuray_nodule_radius</span> <span class="o">=</span> <span class="n">bottom_roughness_model</span><span class="o">.</span><span class="n">NoduleRadius</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bottom_hallhuray_nodule_radius</span>
+
+    <span class="nd">@bottom_hallhuray_nodule_radius</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">bottom_hallhuray_nodule_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bottom_hallhuray_nodule_radius</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bottom_hallhuray_surface_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve huray model surface ratio on bottom of the conductor.&quot;&quot;&quot;</span>
+        <span class="n">bottom_roughness_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_roughness_model</span><span class="p">(</span><span class="s2">&quot;bottom&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">bottom_roughness_model</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_bottom_hallhuray_surface_ratio</span> <span class="o">=</span> <span class="n">bottom_roughness_model</span><span class="o">.</span><span class="n">SurfaceRatio</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bottom_hallhuray_surface_ratio</span>
+
+    <span class="nd">@bottom_hallhuray_surface_ratio</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">bottom_hallhuray_surface_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bottom_hallhuray_surface_ratio</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">side_hallhuray_nodule_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve huray model nodule radius on sides of the conductor.&quot;&quot;&quot;</span>
+        <span class="n">side_roughness_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_roughness_model</span><span class="p">(</span><span class="s2">&quot;side&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">side_roughness_model</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_side_hallhuray_nodule_radius</span> <span class="o">=</span> <span class="n">side_roughness_model</span><span class="o">.</span><span class="n">NoduleRadius</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_side_hallhuray_nodule_radius</span>
+
+    <span class="nd">@side_hallhuray_nodule_radius</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">side_hallhuray_nodule_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_side_hallhuray_nodule_radius</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">side_hallhuray_surface_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve huray model surface ratio on sides of the conductor.&quot;&quot;&quot;</span>
+        <span class="n">side_roughness_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_roughness_model</span><span class="p">(</span><span class="s2">&quot;side&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">side_roughness_model</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_side_hallhuray_surface_ratio</span> <span class="o">=</span> <span class="n">side_roughness_model</span><span class="o">.</span><span class="n">SurfaceRatio</span><span class="o">.</span><span class="n">ToDouble</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_side_hallhuray_surface_ratio</span>
+
+    <span class="nd">@side_hallhuray_surface_ratio</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">side_hallhuray_surface_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_side_hallhuray_surface_ratio</span> <span class="o">=</span> <span class="n">value</span>
+
+<div class="viewcode-block" id="LayerEdbClass.get_roughness_model"><a class="viewcode-back" href="../../../../EDBAPI/_autosummary/pyaedt.edb_core.edb_data.layer_data.LayerEdbClass.get_roughness_model.html#pyaedt.edb_core.edb_data.layer_data.LayerEdbClass.get_roughness_model">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">get_roughness_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">surface</span><span class="o">=</span><span class="s2">&quot;top&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get roughness model of the layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        surface : str, optional</span>
+<span class="sd">            Where to fetch roughness model. The default is ``&quot;top&quot;``. Options are ``&quot;top&quot;``, ``&quot;bottom&quot;``, ``&quot;side&quot;``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ``&quot;Ansys.Ansoft.Edb.Cell.RoughnessModel&quot;``</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_stackup_layer</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">surface</span> <span class="o">==</span> <span class="s2">&quot;top&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span><span class="o">.</span><span class="n">GetRoughnessModel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">RoughnessModel</span><span class="o">.</span><span class="n">Region</span><span class="o">.</span><span class="n">Top</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">surface</span> <span class="o">==</span> <span class="s2">&quot;bottom&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span><span class="o">.</span><span class="n">GetRoughnessModel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">RoughnessModel</span><span class="o">.</span><span class="n">Region</span><span class="o">.</span><span class="n">Bottom</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">surface</span> <span class="o">==</span> <span class="s2">&quot;side&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span><span class="o">.</span><span class="n">GetRoughnessModel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">RoughnessModel</span><span class="o">.</span><span class="n">Region</span><span class="o">.</span><span class="n">Side</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LayerEdbClass.assign_roughness_model"><a class="viewcode-back" href="../../../../EDBAPI/_autosummary/pyaedt.edb_core.edb_data.layer_data.LayerEdbClass.assign_roughness_model.html#pyaedt.edb_core.edb_data.layer_data.LayerEdbClass.assign_roughness_model">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">assign_roughness_model</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">model_type</span><span class="o">=</span><span class="s2">&quot;huray&quot;</span><span class="p">,</span>
+        <span class="n">huray_radius</span><span class="o">=</span><span class="s2">&quot;0.5um&quot;</span><span class="p">,</span>
+        <span class="n">huray_surface_ratio</span><span class="o">=</span><span class="s2">&quot;2.9&quot;</span><span class="p">,</span>
+        <span class="n">groisse_roughness</span><span class="o">=</span><span class="s2">&quot;1um&quot;</span><span class="p">,</span>
+        <span class="n">apply_on_surface</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assign roughness model on this layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        model_type : str, optional</span>
+<span class="sd">            Type of roughness model. The default is ``&quot;huray&quot;``. Options are ``&quot;huray&quot;``, ``&quot;groisse&quot;``.</span>
+<span class="sd">        huray_radius : str, float, optional</span>
+<span class="sd">            Radius of huray model. The default is ``&quot;0.5um&quot;``.</span>
+<span class="sd">        huray_surface_ratio : str, float, optional.</span>
+<span class="sd">            Surface ratio of huray model. The default is ``&quot;2.9&quot;``.</span>
+<span class="sd">        groisse_roughness : str, float, optional</span>
+<span class="sd">            Roughness of groisse model. The default is ``&quot;1um&quot;``.</span>
+<span class="sd">        apply_on_surface : str, optional.</span>
+<span class="sd">            Where to assign roughness model. The default is ``&quot;all&quot;``. Options are ``&quot;top&quot;``, ``&quot;bottom&quot;``,</span>
+<span class="sd">             ``&quot;side&quot;``.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_stackup_layer</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">return</span>
+
+        <span class="n">radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_edb_value</span><span class="p">(</span><span class="n">huray_radius</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hurray_nodule_radius</span> <span class="o">=</span> <span class="n">huray_radius</span>
+        <span class="n">surface_ratio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_edb_value</span><span class="p">(</span><span class="n">huray_surface_ratio</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hurray_surface_ratio</span> <span class="o">=</span> <span class="n">huray_surface_ratio</span>
+        <span class="n">groisse_roughness</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_edb_value</span><span class="p">(</span><span class="n">groisse_roughness</span><span class="p">)</span>
+        <span class="n">regions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">apply_on_surface</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_side_roughness</span> <span class="o">=</span> <span class="s2">&quot;all&quot;</span>
+            <span class="n">regions</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">RoughnessModel</span><span class="o">.</span><span class="n">Region</span><span class="o">.</span><span class="n">Top</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">RoughnessModel</span><span class="o">.</span><span class="n">Region</span><span class="o">.</span><span class="n">Side</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">RoughnessModel</span><span class="o">.</span><span class="n">Region</span><span class="o">.</span><span class="n">Bottom</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="k">elif</span> <span class="n">apply_on_surface</span> <span class="o">==</span> <span class="s2">&quot;top&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_side_roughness</span> <span class="o">=</span> <span class="s2">&quot;top&quot;</span>
+            <span class="n">regions</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">RoughnessModel</span><span class="o">.</span><span class="n">Region</span><span class="o">.</span><span class="n">Top</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">apply_on_surface</span> <span class="o">==</span> <span class="s2">&quot;bottom&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_side_roughness</span> <span class="o">=</span> <span class="s2">&quot;bottom&quot;</span>
+            <span class="n">regions</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">RoughnessModel</span><span class="o">.</span><span class="n">Region</span><span class="o">.</span><span class="n">Bottom</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">apply_on_surface</span> <span class="o">==</span> <span class="s2">&quot;side&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_side_roughness</span> <span class="o">=</span> <span class="s2">&quot;side&quot;</span>
+            <span class="n">regions</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">RoughnessModel</span><span class="o">.</span><span class="n">Region</span><span class="o">.</span><span class="n">Side</span><span class="p">]</span>
+
+        <span class="n">layer_clone</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edb_layer</span>
+        <span class="n">layer_clone</span><span class="o">.</span><span class="n">SetRoughnessEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">regions</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">model_type</span> <span class="o">==</span> <span class="s2">&quot;huray&quot;</span><span class="p">:</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">HurrayRoughnessModel</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">surface_ratio</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">edb</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">GroisseRoughnessModel</span><span class="p">(</span><span class="n">groisse_roughness</span><span class="p">)</span>
+            <span class="n">layer_clone</span><span class="o">.</span><span class="n">SetRoughnessModel</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_set_layout_stackup</span><span class="p">(</span><span class="n">layer_clone</span><span class="p">,</span> <span class="s2">&quot;change_attribute&quot;</span><span class="p">)</span></div>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_json_format</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">dict_out</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">color</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dielectric_fill</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dielectric_fill</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_etch_factor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">etch_factor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_material</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">material</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_roughness_enabled</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">roughness_enabled</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_thickness</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_roughness_enabled</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">roughness_enabled</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_top_hallhuray_nodule_radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_hallhuray_nodule_radius</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_top_hallhuray_surface_ratio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_hallhuray_surface_ratio</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_side_hallhuray_nodule_radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">side_hallhuray_nodule_radius</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_side_hallhuray_surface_ratio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">side_hallhuray_surface_ratio</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bottom_hallhuray_nodule_radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bottom_hallhuray_nodule_radius</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bottom_hallhuray_surface_ratio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bottom_hallhuray_surface_ratio</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="ow">not</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">&quot;_pclass&quot;</span>
+                <span class="ow">and</span> <span class="ow">not</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">&quot;_conductivity&quot;</span>
+                <span class="ow">and</span> <span class="ow">not</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">&quot;_permittivity&quot;</span>
+                <span class="ow">and</span> <span class="ow">not</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">&quot;_loss_tangent&quot;</span>
+            <span class="p">):</span>
+                <span class="n">dict_out</span><span class="p">[</span><span class="n">k</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">return</span> <span class="n">dict_out</span>
+
+    <span class="k">def</span> <span class="nf">_load_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">layer</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">layer</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">layer</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">layer</span><span class="p">[</span><span class="s2">&quot;material&quot;</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">material</span> <span class="o">=</span> <span class="n">layer</span><span class="p">[</span><span class="s2">&quot;material&quot;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">_load_materials</span><span class="p">(</span><span class="n">layer</span><span class="p">[</span><span class="s2">&quot;material&quot;</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">material</span> <span class="o">=</span> <span class="n">layer</span><span class="p">[</span><span class="s2">&quot;material&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">layer</span><span class="p">[</span><span class="s2">&quot;dielectric_fill&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">layer</span><span class="p">[</span><span class="s2">&quot;dielectric_fill&quot;</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dielectric_fill</span> <span class="o">=</span> <span class="n">layer</span><span class="p">[</span><span class="s2">&quot;dielectric_fill&quot;</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_pclass</span><span class="o">.</span><span class="n">_pedb</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">_load_materials</span><span class="p">(</span><span class="n">layer</span><span class="p">[</span><span class="s2">&quot;dielectric_fill&quot;</span><span class="p">])</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dielectric_fill</span> <span class="o">=</span> <span class="n">layer</span><span class="p">[</span><span class="s2">&quot;dielectric_fill&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span> <span class="o">=</span> <span class="n">layer</span><span class="p">[</span><span class="s2">&quot;thickness&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">etch_factor</span> <span class="o">=</span> <span class="n">layer</span><span class="p">[</span><span class="s2">&quot;etch_factor&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">roughness_enabled</span> <span class="o">=</span> <span class="n">layer</span><span class="p">[</span><span class="s2">&quot;roughness_enabled&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">roughness_enabled</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">top_hallhuray_nodule_radius</span> <span class="o">=</span> <span class="n">layer</span><span class="p">[</span><span class="s2">&quot;top_hallhuray_nodule_radius&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">top_hallhuray_surface_ratio</span> <span class="o">=</span> <span class="n">layer</span><span class="p">[</span><span class="s2">&quot;top_hallhuray_surface_ratio&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assign_roughness_model</span><span class="p">(</span>
+                    <span class="s2">&quot;huray&quot;</span><span class="p">,</span>
+                    <span class="n">layer</span><span class="p">[</span><span class="s2">&quot;top_hallhuray_nodule_radius&quot;</span><span class="p">],</span>
+                    <span class="n">layer</span><span class="p">[</span><span class="s2">&quot;top_hallhuray_surface_ratio&quot;</span><span class="p">],</span>
+                    <span class="n">apply_on_surface</span><span class="o">=</span><span class="s2">&quot;top&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bottom_hallhuray_nodule_radius</span> <span class="o">=</span> <span class="n">layer</span><span class="p">[</span><span class="s2">&quot;bottom_hallhuray_nodule_radius&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bottom_hallhuray_surface_ratio</span> <span class="o">=</span> <span class="n">layer</span><span class="p">[</span><span class="s2">&quot;bottom_hallhuray_surface_ratio&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assign_roughness_model</span><span class="p">(</span>
+                    <span class="s2">&quot;huray&quot;</span><span class="p">,</span>
+                    <span class="n">layer</span><span class="p">[</span><span class="s2">&quot;bottom_hallhuray_nodule_radius&quot;</span><span class="p">],</span>
+                    <span class="n">layer</span><span class="p">[</span><span class="s2">&quot;bottom_hallhuray_surface_ratio&quot;</span><span class="p">],</span>
+                    <span class="n">apply_on_surface</span><span class="o">=</span><span class="s2">&quot;bottom&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">side_hallhuray_nodule_radius</span> <span class="o">=</span> <span class="n">layer</span><span class="p">[</span><span class="s2">&quot;side_hallhuray_nodule_radius&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">side_hallhuray_surface_ratio</span> <span class="o">=</span> <span class="n">layer</span><span class="p">[</span><span class="s2">&quot;side_hallhuray_surface_ratio&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assign_roughness_model</span><span class="p">(</span>
+                    <span class="s2">&quot;huray&quot;</span><span class="p">,</span>
+                    <span class="n">layer</span><span class="p">[</span><span class="s2">&quot;side_hallhuray_nodule_radius&quot;</span><span class="p">],</span>
+                    <span class="n">layer</span><span class="p">[</span><span class="s2">&quot;side_hallhuray_surface_ratio&quot;</span><span class="p">],</span>
+                    <span class="n">apply_on_surface</span><span class="o">=</span><span class="s2">&quot;side&quot;</span><span class="p">,</span>
+                <span class="p">)</span></div>
+</pre></div>
+
+                </article>
+              
+              
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright (c) 2023 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+    Built with the <a href="https://sphinxdocs.ansys.com/version/stable/index.html">Ansys Sphinx Theme</a> 0.9.8.
+    <br>Last updated on <span id="date"></span></br>
+</p>
+<script>
+  var options = { day: 'numeric', month: 'long', year: 'numeric' };
+  var lastModifiedDate = new Date(document.lastModified);
+  var date = lastModifiedDate.toLocaleDateString('en-US', options);
+  document.getElementById("date").innerHTML = date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

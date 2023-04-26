@@ -1,0 +1,1170 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyaedt.modeler.cad.components_3d &#8212; PyAEDT</title>
+    
+<script>
+  document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+  document.documentElement.dataset.theme = localStorage.getItem("theme") || "light"
+</script>
+
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+
+
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css\ansys_sphinx_theme.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-rendered-html.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css" />
+
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695">
+
+    
+        <link href="../../../../_static/css/breadcrumbs.css" rel="stylesheet">
+    
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
+    <link rel="shortcut icon" href="../../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+    <div class="bd-header-announcement container-fluid" id="banner">
+      
+
+    </div>
+
+    
+    
+    <nav class="bd-header navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="bd-header__inner container-xl">
+
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+    <img src="../../../../_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="Logo image">
+    <img src="../../../../_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="fas fa-bars"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../../Getting_started/index.html">
+  Getting started
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../../User_guide/index.html">
+  User guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../../API/index.html">
+  AEDT API
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../../EDBAPI/index.html">
+  EDB API
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../../examples/index.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../../Contributing.html">
+  Contribute
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <div class="dropdown" id="version_switcher">
+    <button type="button" class="btn btn-sm navbar-btn dropdown-toggle" id="version_switcher_button" data-toggle="dropdown">
+        0.6  <!-- this text may get changed later by javascript -->
+        <span class="caret"></span>
+    </button>
+    <div id="version_switcher_menu" class="dropdown-menu list-group-flush py-0" aria-labelledby="version_switcher_button">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+</div>
+
+<!-- NOTE: this JS must live here (not in our global JS file) because it relies
+     on being processed by Jinja before it is run (specifically for replacing
+     variables _modules/pyaedt/modeler/cad/components_3d and {'json_url': 'https://aedt.docs.pyansys.com/release/versions.json', 'version_match': '0.6'}.
+-->
+
+<script type="text/javascript">
+// Check if corresponding page path exists in other version of docs
+// and, if so, go there instead of the homepage of the other docs version
+function checkPageExistsAndRedirect(event) {
+    const currentFilePath = "_modules/pyaedt/modeler/cad/components_3d.html",
+          tryUrl = event.target.getAttribute("href");
+    let otherDocsHomepage = tryUrl.replace(currentFilePath, "");
+    $.ajax({
+        type: 'HEAD',
+        url: tryUrl,
+        // if the page exists, go there
+        success: function() {
+            location.href = tryUrl;
+        }
+    }).fail(function() {
+        location.href = otherDocsHomepage;
+    });
+    // this prevents the browser from following the href of the clicked node
+    // (which is fine because this function takes care of redirecting)
+    return false;
+}
+
+// Populate the version switcher from the JSON config file
+(function () {
+    $.getJSON("https://aedt.docs.pyansys.com/release/versions.json", function(data, textStatus, jqXHR) {
+        const currentFilePath = "_modules/pyaedt/modeler/cad/components_3d.html";
+        let btn = document.getElementById("version_switcher_button");
+        // Set empty strings by default so that these attributes exist and can be used in CSS selectors
+        btn.dataset["activeVersionName"] = "";
+        btn.dataset["activeVersion"] = "";
+        // create links to the corresponding page in the other docs versions
+        $.each(data, function(index, entry) {
+            // if no custom name specified (e.g., "latest"), use version string
+            if (!("name" in entry)) {
+                entry.name = entry.version;
+            }
+            // create the node
+            const node = document.createElement("a");
+            node.setAttribute("class", "list-group-item list-group-item-action py-1");
+            node.textContent = `${entry.name}`;
+            node.setAttribute("href", `${entry.url}${currentFilePath}`);
+            // on click, AJAX calls will check if the linked page exists before
+            // trying to redirect, and if not, will redirect to the homepage
+            // for that version of the docs.
+            node.onclick = checkPageExistsAndRedirect;
+            // Add dataset values for the version and name in case people want
+            // to apply CSS styling based on this information.
+            node.dataset["versionName"] = entry.name;
+            node.dataset["version"] = entry.version;
+
+            $("#version_switcher_menu").append(node);
+            // replace dropdown button text with the preferred display name of
+            // this version, rather than using sphinx's 0.6.70 variable.
+            // also highlight the dropdown entry for the currently-viewed
+            // version's entry
+            if (entry.version == "0.6") {
+                node.classList.add("active");
+                btn.innerText = btn.dataset["activeVersionName"] = entry.name;
+                btn.dataset["activeVersion"] = entry.version;
+            }
+        });
+    });
+})();
+</script>
+      </div>
+      
+      <div class="navbar-end-item">
+        <span id="theme-switch" class="btn btn-sm btn-outline-primary navbar-btn rounded-circle">
+    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/pyansys/pyaedt" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/pyansys/pyaedt/discussions" rel="noopener" target="_blank" title="Support"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+     
+<div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(text => document.getElementById("announcement_msg").innerHTML = text)
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+
+    
+        <div class="container-xl">
+    <div class="row">
+        <div class="col-12 col-md-3" id="breadcrumbs-spacer"></div>
+        <div class="col-12 col-md-11 col-xl-9" id="breadcrumbs">
+          
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-additional-breadcrumb"><a href="https://docs.pyansys.com/">PyAnsys</a> » </li>
+    
+    
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">PyAEDT</a> » </li>
+    
+
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> » </li>
+        <li class="nav-item nav-item-this"><a href="">pyaedt.modeler.cad.components_3d</a></li> 
+      </ul>
+    </div>
+        </div>
+  </div>
+</div>
+    
+
+
+    <div class="bd-container container-xl">
+      <div class="bd-container__inner row">
+          
+
+<!-- Only show if we have sidebars configured, else just a small margin  -->
+<div class="bd-sidebar-primary col-12 col-md-3 bd-sidebar">
+  <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+  </div>
+  <div class="sidebar-end-items">
+  </div>
+</div>
+
+
+          
+
+
+<div class="bd-sidebar-secondary d-none d-xl-block col-xl-2 bd-toc">
+  
+</div>
+
+
+          
+          
+          <div class="bd-content col-12 col-md-9 col-xl-7">
+              
+              <article class="bd-article" role="main">
+                
+  <h1>Source code for pyaedt.modeler.cad.components_3d</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">pyaedt_function_handler</span>
+<span class="kn">from</span> <span class="nn">pyaedt.generic.general_methods</span> <span class="kn">import</span> <span class="n">_uname</span>
+<span class="kn">from</span> <span class="nn">pyaedt.modeler.cad.elements3d</span> <span class="kn">import</span> <span class="n">BinaryTreeNode</span>
+<span class="kn">from</span> <span class="nn">pyaedt.modeler.cad.elements3d</span> <span class="kn">import</span> <span class="n">_dict2arg</span>
+
+
+<span class="k">class</span> <span class="nc">UserDefinedComponentParameters</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="o">.</span><span class="n">_m_Editor</span><span class="o">.</span><span class="n">ChangeProperty</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;NAME:AllTabs&quot;</span><span class="p">,</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;NAME:Parameters&quot;</span><span class="p">,</span>
+                        <span class="p">[</span><span class="s2">&quot;NAME:PropServers&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="o">.</span><span class="n">name</span><span class="p">],</span>
+                        <span class="p">[</span><span class="s2">&quot;NAME:ChangedProps&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="n">key</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)]],</span>
+                    <span class="p">],</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="nb">dict</span><span class="o">.</span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Property </span><span class="si">%s</span><span class="s2"> has not been edited.Check if readonly&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="nb">dict</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_component</span> <span class="o">=</span> <span class="n">component</span>
+
+
+<span class="k">class</span> <span class="nc">UserDefinedComponentProps</span><span class="p">(</span><span class="n">OrderedDict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;User Defined Component Internal Parameters.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">OrderedDict</span><span class="o">.</span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pyaedt_user_defined_component</span><span class="o">.</span><span class="n">auto_update</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pyaedt_user_defined_component</span><span class="o">.</span><span class="n">update_native</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">res</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_pyaedt_user_defined_component</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Update of </span><span class="si">%s</span><span class="s2"> failed. Check needed arguments&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_defined_components</span><span class="p">,</span> <span class="n">props</span><span class="p">):</span>
+        <span class="n">OrderedDict</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">props</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">props</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">)):</span>
+                    <span class="n">OrderedDict</span><span class="o">.</span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">UserDefinedComponentProps</span><span class="p">(</span><span class="n">user_defined_components</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">OrderedDict</span><span class="o">.</span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pyaedt_user_defined_component</span> <span class="o">=</span> <span class="n">user_defined_components</span>
+
+    <span class="k">def</span> <span class="nf">_setitem_without_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">OrderedDict</span><span class="o">.</span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="UserDefinedComponent"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.cad.components_3d.UserDefinedComponent.html#pyaedt.modeler.cad.components_3d.UserDefinedComponent">[docs]</a><span class="k">class</span> <span class="nc">UserDefinedComponent</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manages object attributes for 3DComponent and User Defined Model.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    primitives : :class:`pyaedt.modeler.Primitives3D.Primitives3D`</span>
+<span class="sd">        Inherited parent object.</span>
+<span class="sd">    name : str, optional</span>
+<span class="sd">        Name of the component. The default value is ``None``.</span>
+<span class="sd">    props : dict, optional</span>
+<span class="sd">        Dictionary of properties. The default value is ``None``.</span>
+<span class="sd">    component_type : str, optional</span>
+<span class="sd">        Type of the component. The default value is ``None``.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Basic usage demonstrated with an HFSS design:</span>
+
+<span class="sd">    &gt;&gt;&gt; from pyaedt import Hfss</span>
+<span class="sd">    &gt;&gt;&gt; aedtapp = Hfss()</span>
+<span class="sd">    &gt;&gt;&gt; prim = aedtapp.modeler.user_defined_components</span>
+
+<span class="sd">    Obtain user defined component names, to return a :class:`pyaedt.modeler.cad.components_3d.UserDefinedComponent`.</span>
+
+<span class="sd">    &gt;&gt;&gt; component_names = aedtapp.modeler.user_defined_components</span>
+<span class="sd">    &gt;&gt;&gt; component = aedtapp.modeler[component_names[&quot;3DC_Cell_Radome_In1&quot;]]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitives</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">props</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">component_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fix_udm_props</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;General[Name]&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Group&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Target Coordinate System&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Target Coordinate System/Choices&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Info[Name]&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Location&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Location/Choices&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Company&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Date&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Purpose&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Version&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_group_name</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is3dcomponent</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mesh_assembly</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_m_name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_m_name</span> <span class="o">=</span> <span class="n">_uname</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parts</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span> <span class="o">=</span> <span class="n">primitives</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target_coordinate_system</span> <span class="o">=</span> <span class="s2">&quot;Global&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_updated</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_all_props</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">defined_components</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">Get3DComponentDefinitionNames</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">defined_components</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_m_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">Get3DComponentInstanceNames</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">definition_name</span> <span class="o">=</span> <span class="n">component</span>
+        <span class="k">if</span> <span class="n">component_type</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">auto_update</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_props</span> <span class="o">=</span> <span class="n">UserDefinedComponentProps</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span>
+                <span class="n">OrderedDict</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;TargetCS&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target_coordinate_system</span><span class="p">,</span>
+                        <span class="s2">&quot;SubmodelDefinitionName&quot;</span><span class="p">:</span> <span class="n">component</span><span class="p">,</span>
+                        <span class="s2">&quot;ComponentPriorityLists&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">({}),</span>
+                        <span class="s2">&quot;NextUniqueID&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                        <span class="s2">&quot;MoveBackwards&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                        <span class="s2">&quot;DatasetType&quot;</span><span class="p">:</span> <span class="s2">&quot;ComponentDatasetType&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;DatasetDefinitions&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">({}),</span>
+                        <span class="s2">&quot;BasicComponentInfo&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">(</span>
+                            <span class="p">{</span>
+                                <span class="s2">&quot;ComponentName&quot;</span><span class="p">:</span> <span class="n">component</span><span class="p">,</span>
+                                <span class="s2">&quot;Company&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;Company URL&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;Model Number&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;Help URL&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;Version&quot;</span><span class="p">:</span> <span class="s2">&quot;1.0&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;Notes&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;IconType&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                            <span class="p">}</span>
+                        <span class="p">),</span>
+                        <span class="s2">&quot;GeometryDefinitionParameters&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;VariableOrders&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">({})}),</span>
+                        <span class="s2">&quot;DesignDefinitionParameters&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;VariableOrders&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">({})}),</span>
+                        <span class="s2">&quot;MaterialDefinitionParameters&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;VariableOrders&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">({})}),</span>
+                        <span class="s2">&quot;MapInstanceParameters&quot;</span><span class="p">:</span> <span class="s2">&quot;DesignVariable&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;UniqueDefinitionIdentifier&quot;</span><span class="p">:</span> <span class="s2">&quot;89d26167-fb77-480e-a7ab-&quot;</span>
+                        <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="s2">&quot;abcdef0123456789&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="mi">12</span><span class="p">))),</span>
+                        <span class="s2">&quot;OriginFilePath&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;IsLocal&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                        <span class="s2">&quot;ChecksumString&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;ChecksumHistory&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                        <span class="s2">&quot;VersionHistory&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                        <span class="s2">&quot;NativeComponentDefinitionProvider&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;Type&quot;</span><span class="p">:</span> <span class="n">component_type</span><span class="p">}),</span>
+                        <span class="s2">&quot;InstanceParameters&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">(</span>
+                            <span class="p">{</span><span class="s2">&quot;GeometryParameters&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;MaterialParameters&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;DesignParameters&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">}</span>
+                        <span class="p">),</span>
+                    <span class="p">}</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">props</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_update_props</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_props</span><span class="p">[</span><span class="s2">&quot;NativeComponentDefinitionProvider&quot;</span><span class="p">],</span> <span class="n">props</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">native_properties</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_props</span><span class="p">[</span><span class="s2">&quot;NativeComponentDefinitionProvider&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">auto_update</span> <span class="o">=</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="UserDefinedComponent.history"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.cad.components_3d.UserDefinedComponent.history.html#pyaedt.modeler.cad.components_3d.UserDefinedComponent.history">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">history</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Component history.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            :class:`pyaedt.modeler.cad.elements3d.BinaryTree` when successful,</span>
+<span class="sd">            ``False`` when failed.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">child_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">BinaryTreeNode</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">child_object</span><span class="o">.</span><span class="n">GetChildNames</span><span class="p">(</span><span class="s2">&quot;Operations&quot;</span><span class="p">))[</span><span class="mi">0</span><span class="p">],</span> <span class="n">child_object</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;Operations&quot;</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">group_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Group the component belongs to.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Name of the group.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.GetPropertyValue</span>
+<span class="sd">        &gt;&gt;&gt; oEditor.ChangeProperty</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s2">&quot;Group&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">GetPropNames</span><span class="p">():</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">GetPropValue</span><span class="p">(</span><span class="s2">&quot;Group&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">group</span>
+
+    <span class="nd">@group_name</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">group_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assign component to a specific group. A new group is created if the specified group doesn&#39;t exist.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            Name of the group to assign the component to. A group is created if the one</span>
+<span class="sd">            specified does not exist.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Name of the group.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.GetPropertyValue</span>
+<span class="sd">        &gt;&gt;&gt; oEditor.ChangeProperty</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;Group&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">GetPropNames</span><span class="p">()</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetChildNames</span><span class="p">(</span><span class="s2">&quot;Groups&quot;</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s2">&quot;NAME:GroupParameter&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ParentGroupID:=&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Model&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Parts:=&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;SubmodelInstances:=&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Groups:=&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+            <span class="n">assigned_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">CreateGroup</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">ChangeProperty</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;NAME:AllTabs&quot;</span><span class="p">,</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;NAME:Attributes&quot;</span><span class="p">,</span>
+                        <span class="p">[</span><span class="s2">&quot;NAME:PropServers&quot;</span><span class="p">,</span> <span class="n">assigned_name</span><span class="p">],</span>
+                        <span class="p">[</span><span class="s2">&quot;NAME:ChangedProps&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;NAME:Name&quot;</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">]],</span>
+                    <span class="p">],</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+
+        <span class="n">pcs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:Group&quot;</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_change_property</span><span class="p">(</span><span class="n">pcs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_group_name</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is3dcomponent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;3DComponent flag.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">           ``True`` if a 3DComponent, ``False`` if a user-defined model.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">definitions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">Get3DComponentDefinitionNames</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="n">definitions</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">Get3DComponentInstanceNames</span><span class="p">(</span><span class="n">comp</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_is3dcomponent</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is3dcomponent</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mesh_assembly</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Mesh assembly flag.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">           ``True`` if mesh assembly is checked, ``None`` if a user-defined model.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;Do Mesh Assembly&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is3dcomponent</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">GetPropNames</span><span class="p">():</span>
+            <span class="n">ma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">GetPropValue</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_mesh_assembly</span> <span class="o">=</span> <span class="n">ma</span>
+            <span class="k">return</span> <span class="n">ma</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@mesh_assembly</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">mesh_assembly</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ma</span><span class="p">):</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;Do Mesh Assembly&quot;</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is3dcomponent</span>
+            <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ma</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">GetPropNames</span><span class="p">()</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">SetPropValue</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">ma</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_mesh_assembly</span> <span class="o">=</span> <span class="n">ma</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Name of the object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">           Name of the object.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.GetPropertyValue</span>
+<span class="sd">        &gt;&gt;&gt; oEditor.ChangeProperty</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_m_name</span>
+
+    <span class="nd">@name</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component_name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">component_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">user_defined_component_names</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">object_names</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">Get3DComponentDefinitionNames</span><span class="p">()</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="n">component_name</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_m_name</span><span class="p">:</span>
+                <span class="n">pcs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:Name&quot;</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="n">component_name</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_change_property</span><span class="p">(</span><span class="n">pcs</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">user_defined_components</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">component_name</span><span class="p">:</span> <span class="bp">self</span><span class="p">})</span>
+                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">user_defined_components</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_m_name</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_project_dictionary</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_m_name</span> <span class="o">=</span> <span class="n">component_name</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Name </span><span class="si">%s</span><span class="s2"> already assigned in the design&quot;</span><span class="p">,</span> <span class="n">component_name</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Component parameters.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            :class:`pyaedt.modeler.cad.components_3d.UserDefinedComponentParameters`.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.GetPropertyValue</span>
+<span class="sd">        &gt;&gt;&gt; oEditor.ChangeProperty</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is3dcomponent</span><span class="p">:</span>
+            <span class="n">parameters_tuple</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">Get3DComponentParameters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+            <span class="n">parameters</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">parameters_tuple</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">GetPropValue</span><span class="p">(</span><span class="n">parameter</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">parameters</span><span class="p">[</span><span class="n">parameter</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="n">UserDefinedComponentParameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">props</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">GetPropNames</span><span class="p">())</span>
+            <span class="n">parameters_aedt</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">props</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fix_udm_props</span><span class="p">))</span>
+            <span class="n">parameter_name</span> <span class="o">=</span> <span class="p">[</span><span class="n">par</span> <span class="k">for</span> <span class="n">par</span> <span class="ow">in</span> <span class="n">parameters_aedt</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="n">par</span><span class="p">)]</span>
+            <span class="n">parameters</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">parameter_name</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">GetPropValue</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
+                <span class="n">parameters</span><span class="p">[</span><span class="n">parameter</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="n">UserDefinedComponentParameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dictionary of objects that belong to the user-defined component.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">           :class:`pyaedt.modeler.Object3d`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">component_parts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">GetChildNames</span><span class="p">())</span>
+        <span class="n">parts_id</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">_object_names_to_ids</span><span class="p">[</span><span class="n">part</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">_object_names_to_ids</span>
+            <span class="k">if</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">component_parts</span>
+        <span class="p">]</span>
+        <span class="n">parts_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">part_id</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="n">part_id</span><span class="p">]</span> <span class="k">for</span> <span class="n">part_id</span> <span class="ow">in</span> <span class="n">parts_id</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">parts_dict</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">target_coordinate_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Target coordinate system.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Name of the target coordinate system.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.GetPropertyValue</span>
+<span class="sd">        &gt;&gt;&gt; oEditor.ChangeProperty</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target_coordinate_system</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s2">&quot;Target Coordinate System&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">GetPropNames</span><span class="p">():</span>
+            <span class="n">tCS</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">GetPropValue</span><span class="p">(</span><span class="s2">&quot;Target Coordinate System&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_target_coordinate_system</span> <span class="o">=</span> <span class="n">tCS</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target_coordinate_system</span>
+
+    <span class="nd">@target_coordinate_system</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">target_coordinate_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tCS</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="s2">&quot;Target Coordinate System&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">GetPropNames</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="s2">&quot;Target Coordinate System/Choices&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">GetPropNames</span><span class="p">()</span>
+        <span class="p">):</span>
+            <span class="n">tCS_options</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">GetPropValue</span><span class="p">(</span><span class="s2">&quot;Target Coordinate System/Choices&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">tCS</span> <span class="ow">in</span> <span class="n">tCS_options</span><span class="p">:</span>
+                <span class="n">pcs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:Target Coordinate System&quot;</span><span class="p">,</span> <span class="s2">&quot;Value:=&quot;</span><span class="p">,</span> <span class="n">tCS</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_change_property</span><span class="p">(</span><span class="n">pcs</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_target_coordinate_system</span> <span class="o">=</span> <span class="n">tCS</span>
+
+<div class="viewcode-block" id="UserDefinedComponent.delete"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.cad.components_3d.UserDefinedComponent.delete.html#pyaedt.modeler.cad.components_3d.UserDefinedComponent.delete">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete the object. The project must be saved after the operation to update the list</span>
+<span class="sd">        of names for user-defined components.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.Delete</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+
+<span class="sd">        &gt;&gt;&gt; from pyaedt import hfss</span>
+<span class="sd">        &gt;&gt;&gt; hfss = Hfss()</span>
+<span class="sd">        &gt;&gt;&gt; hfss.modeler[&quot;UDM&quot;].delete()</span>
+<span class="sd">        &gt;&gt;&gt; hfss.save_project()</span>
+<span class="sd">        &gt;&gt;&gt; hfss._project_dictionary = None</span>
+<span class="sd">        &gt;&gt;&gt; udc = hfss.modeler.user_defined_component_names</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:Selections&quot;</span><span class="p">,</span> <span class="s2">&quot;Selections:=&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_m_name</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_m_Editor</span><span class="o">.</span><span class="n">Delete</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">user_defined_components</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">cleanup_objects</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span> <span class="o">=</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="UserDefinedComponent.duplicate_and_mirror"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.cad.components_3d.UserDefinedComponent.duplicate_and_mirror.html#pyaedt.modeler.cad.components_3d.UserDefinedComponent.duplicate_and_mirror">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">duplicate_and_mirror</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">vector</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Duplicate and mirror a selection.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        position : float</span>
+<span class="sd">            List of the ``[x, y, z]`` coordinates or</span>
+<span class="sd">            Application.Position object for the selection.</span>
+<span class="sd">        vector : float</span>
+<span class="sd">            List of the ``[x1, y1, z1]`` coordinates or</span>
+<span class="sd">            Application.Position object for the vector.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of objects created or an empty list.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.DuplicateMirror</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">duplicate_and_mirror</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="n">is_3d_comp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">duplicate_assignment</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="UserDefinedComponent.mirror"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.cad.components_3d.UserDefinedComponent.mirror.html#pyaedt.modeler.cad.components_3d.UserDefinedComponent.mirror">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">mirror</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">vector</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Mirror a selection.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        position : list, Position</span>
+<span class="sd">            List of the ``[x, y, z]`` coordinates or</span>
+<span class="sd">            the Application.Position object for the selection.</span>
+<span class="sd">        vector : float</span>
+<span class="sd">            List of the ``[x1, y1, z1]`` coordinates or</span>
+<span class="sd">            the Application.Position object for the vector.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pyaedt.modeler.cad.components_3d.UserDefinedComponent, bool</span>
+<span class="sd">            3D object when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.Mirror</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is3dcomponent</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">mirror</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="n">position</span><span class="p">,</span> <span class="n">vector</span><span class="o">=</span><span class="n">vector</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parts</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">mirror</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="n">position</span><span class="p">,</span> <span class="n">vector</span><span class="o">=</span><span class="n">vector</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="UserDefinedComponent.rotate"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.cad.components_3d.UserDefinedComponent.rotate.html#pyaedt.modeler.cad.components_3d.UserDefinedComponent.rotate">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cs_axis</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mf">90.0</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;deg&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Rotate the selection.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cs_axis</span>
+<span class="sd">            Coordinate system axis or the Application.AXIS object.</span>
+<span class="sd">        angle : float, optional</span>
+<span class="sd">            Angle of rotation. The units, defined by ``unit``, can be either</span>
+<span class="sd">            degrees or radians. The default is ``90.0``.</span>
+<span class="sd">        unit : text, optional</span>
+<span class="sd">             Units for the angle. Options are ``&quot;deg&quot;`` or ``&quot;rad&quot;``.</span>
+<span class="sd">             The default is ``&quot;deg&quot;``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pyaedt.modeler.cad.components_3d.UserDefinedComponent, bool</span>
+<span class="sd">            3D object when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.Rotate</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is3dcomponent</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">cs_axis</span><span class="o">=</span><span class="n">cs_axis</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">unit</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parts</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="n">cs_axis</span><span class="o">=</span><span class="n">cs_axis</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">unit</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="UserDefinedComponent.move"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.cad.components_3d.UserDefinedComponent.move.html#pyaedt.modeler.cad.components_3d.UserDefinedComponent.move">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vector</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Move component from a list.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        vector : list</span>
+<span class="sd">            Vector of the direction move. It can be a list of the ``[x, y, z]``</span>
+<span class="sd">            coordinates or a ``Position`` object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pyaedt.modeler.cad.components_3d.UserDefinedComponent, bool</span>
+<span class="sd">            3D object when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+<span class="sd">        &gt;&gt;&gt; oEditor.Move</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is3dcomponent</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">vector</span><span class="o">=</span><span class="n">vector</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parts</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="n">vector</span><span class="o">=</span><span class="n">vector</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="UserDefinedComponent.duplicate_around_axis"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.cad.components_3d.UserDefinedComponent.duplicate_around_axis.html#pyaedt.modeler.cad.components_3d.UserDefinedComponent.duplicate_around_axis">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">duplicate_around_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cs_axis</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="n">nclones</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">create_new_objects</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Duplicate the component around the axis.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cs_axis : Application.AXIS object</span>
+<span class="sd">            Coordinate system axis of the object.</span>
+<span class="sd">        angle : float, optional</span>
+<span class="sd">            Angle of rotation in degrees. The default is ``90``.</span>
+<span class="sd">        nclones : int, optional</span>
+<span class="sd">            Number of clones. The default is ``2``.</span>
+<span class="sd">        create_new_objects : bool, optional</span>
+<span class="sd">            Whether to create copies as new objects. The default is ``True``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of names of the newly added objects.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.DuplicateAroundAxis</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is3dcomponent</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">,</span> <span class="n">added_objects</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">duplicate_around_axis</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">cs_axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="n">nclones</span><span class="p">,</span> <span class="n">create_new_objects</span><span class="p">,</span> <span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">added_objects</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;User-defined models do not support this operation.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="UserDefinedComponent.duplicate_along_line"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.cad.components_3d.UserDefinedComponent.duplicate_along_line.html#pyaedt.modeler.cad.components_3d.UserDefinedComponent.duplicate_along_line">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">duplicate_along_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="n">nclones</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">attach_object</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Duplicate the object along a line.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        vector : list</span>
+<span class="sd">            List of ``[x1 ,y1, z1]`` coordinates for the vector or the Application.Position object.</span>
+<span class="sd">        nclones : int, optional</span>
+<span class="sd">            Number of clones. The default is ``2``.</span>
+<span class="sd">        attach_object : bool, optional</span>
+<span class="sd">            Whether to attach the object. The default is ``False``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of names of the newly added objects.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.DuplicateAlongLine</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;attachObject&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;``attachObject`` is deprecated. Use ``attach_object`` instead.&quot;</span><span class="p">,</span>
+                <span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">attach_object</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;attachObject&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is3dcomponent</span><span class="p">:</span>
+            <span class="n">old_component_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">user_defined_component_names</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">added_objects</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">duplicate_along_line</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="n">nclones</span><span class="p">,</span> <span class="n">attach_object</span><span class="p">,</span> <span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">added_objects</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">old_component_list</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;User-defined models do not support this operation.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="UserDefinedComponent.update_native"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.cad.components_3d.UserDefinedComponent.update_native.html#pyaedt.modeler.cad.components_3d.UserDefinedComponent.update_native">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">update_native</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update the Native Component in AEDT.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_props</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">({})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_props</span><span class="p">[</span><span class="s2">&quot;DefinitionName&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_props</span><span class="p">[</span><span class="s2">&quot;SubmodelDefinitionName&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_props</span><span class="p">[</span><span class="s2">&quot;GeometryDefinitionParameters&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_props</span><span class="p">[</span><span class="s2">&quot;GeometryDefinitionParameters&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_props</span><span class="p">[</span><span class="s2">&quot;DesignDefinitionParameters&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_props</span><span class="p">[</span><span class="s2">&quot;DesignDefinitionParameters&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_props</span><span class="p">[</span><span class="s2">&quot;MaterialDefinitionParameters&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_props</span><span class="p">[</span><span class="s2">&quot;MaterialDefinitionParameters&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_props</span><span class="p">[</span><span class="s2">&quot;NextUniqueID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_props</span><span class="p">[</span><span class="s2">&quot;NextUniqueID&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_props</span><span class="p">[</span><span class="s2">&quot;MoveBackwards&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_props</span><span class="p">[</span><span class="s2">&quot;MoveBackwards&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_props</span><span class="p">[</span><span class="s2">&quot;DatasetType&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_props</span><span class="p">[</span><span class="s2">&quot;DatasetType&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_props</span><span class="p">[</span><span class="s2">&quot;DatasetDefinitions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_props</span><span class="p">[</span><span class="s2">&quot;DatasetDefinitions&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_props</span><span class="p">[</span><span class="s2">&quot;NativeComponentDefinitionProvider&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_props</span><span class="p">[</span><span class="s2">&quot;NativeComponentDefinitionProvider&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_props</span><span class="p">[</span><span class="s2">&quot;ComponentName&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_props</span><span class="p">[</span><span class="s2">&quot;BasicComponentInfo&quot;</span><span class="p">][</span><span class="s2">&quot;ComponentName&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_props</span><span class="p">[</span><span class="s2">&quot;Company&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_props</span><span class="p">[</span><span class="s2">&quot;BasicComponentInfo&quot;</span><span class="p">][</span><span class="s2">&quot;Company&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_props</span><span class="p">[</span><span class="s2">&quot;Model Number&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_props</span><span class="p">[</span><span class="s2">&quot;BasicComponentInfo&quot;</span><span class="p">][</span><span class="s2">&quot;Model Number&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_props</span><span class="p">[</span><span class="s2">&quot;Help URL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_props</span><span class="p">[</span><span class="s2">&quot;BasicComponentInfo&quot;</span><span class="p">][</span><span class="s2">&quot;Help URL&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_props</span><span class="p">[</span><span class="s2">&quot;Version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_props</span><span class="p">[</span><span class="s2">&quot;BasicComponentInfo&quot;</span><span class="p">][</span><span class="s2">&quot;Version&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_props</span><span class="p">[</span><span class="s2">&quot;Notes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_props</span><span class="p">[</span><span class="s2">&quot;BasicComponentInfo&quot;</span><span class="p">][</span><span class="s2">&quot;Notes&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_props</span><span class="p">[</span><span class="s2">&quot;IconType&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_props</span><span class="p">[</span><span class="s2">&quot;BasicComponentInfo&quot;</span><span class="p">][</span><span class="s2">&quot;IconType&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">EditNativeComponentDefinition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_args</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_props</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bounding_box</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get bounding dimension of a user defined model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of floats containing [x_min, y_min, z_min, x_max, y_max, z_max].</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bb</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)]</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;-inf&quot;</span><span class="p">)]</span> <span class="o">*</span> <span class="mi">3</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">bbox</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">bounding_box</span>
+            <span class="n">bb</span> <span class="o">=</span> <span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">bb</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">bbox</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="n">bb</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">3</span><span class="p">],</span> <span class="n">bbox</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">3</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">bb</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">center</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get center coordinates of a user defined model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of floats containing [x_center, y_center, z_center].</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x_min</span><span class="p">,</span> <span class="n">y_min</span><span class="p">,</span> <span class="n">z_min</span><span class="p">,</span> <span class="n">x_max</span><span class="p">,</span> <span class="n">y_max</span><span class="p">,</span> <span class="n">z_max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounding_box</span>
+        <span class="n">x_center</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_min</span> <span class="o">+</span> <span class="n">x_max</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">y_center</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_min</span> <span class="o">+</span> <span class="n">y_max</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">z_center</span> <span class="o">=</span> <span class="p">(</span><span class="n">z_min</span> <span class="o">+</span> <span class="n">z_max</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">x_center</span><span class="p">,</span> <span class="n">y_center</span><span class="p">,</span> <span class="n">z_center</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_logger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Logger.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">logger</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_get_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">props</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">props</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">props</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">props</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">_dict2arg</span><span class="p">(</span><span class="n">props</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">arg</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_change_property</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vPropChange</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">_change_component_property</span><span class="p">(</span><span class="n">vPropChange</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_m_name</span><span class="p">)</span>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_update_props</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">u</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">u</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                    <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">({})</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_props</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">v</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">return</span> <span class="n">d</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_m_Editor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pointer to the oEditor object in the AEDT API. This property is</span>
+<span class="sd">        intended primarily to be used by FacePrimitive, EdgePrimitive, and</span>
+<span class="sd">        VertexPrimitive child objects.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        oEditor COM Object</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">         </span><span class="si">{}</span>
+<span class="s2">         is3dcomponent: </span><span class="si">{}</span><span class="s2">   parts: </span><span class="si">{}</span>
+<span class="s2">         --- read/write properties  ----</span>
+<span class="s2">         name: </span><span class="si">{}</span>
+<span class="s2">         group_name: </span><span class="si">{}</span>
+<span class="s2">         mesh_assembly: </span><span class="si">{}</span>
+<span class="s2">         parameters: </span><span class="si">{}</span>
+<span class="s2">         target_coordinate_system: </span><span class="si">{}</span>
+<span class="s2">         &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is3dcomponent</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parts</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_name</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mesh_assembly</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">target_coordinate_system</span><span class="p">,</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="UserDefinedComponent.edit_definition"><a class="viewcode-back" href="../../../../API/_autosummary/pyaedt.modeler.cad.components_3d.UserDefinedComponent.edit_definition.html#pyaedt.modeler.cad.components_3d.UserDefinedComponent.edit_definition">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">edit_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Edit 3d Definition. Open AEDT Project and return Pyaedt Object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        password : str, optional</span>
+<span class="sd">            Password for encrypted models. The default value is ``&quot;&quot;``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.hfss.Hfss` or :class:`pyaedt.Icepak.Icepak`</span>
+<span class="sd">            Pyaedt object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pyaedt.generic.design_types</span> <span class="kn">import</span> <span class="n">get_pyaedt_app</span>
+        <span class="kn">from</span> <span class="nn">pyaedt.generic.general_methods</span> <span class="kn">import</span> <span class="n">is_linux</span>
+
+        <span class="n">project_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">project_list</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">Edit3DComponentDefinition</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;NAME:EditDefinitionData&quot;</span><span class="p">,</span>
+                <span class="p">[</span><span class="s2">&quot;NAME:DefinitionAndPassword&quot;</span><span class="p">,</span> <span class="s2">&quot;Definition:=&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">definition_name</span><span class="p">,</span> <span class="s2">&quot;Password:=&quot;</span><span class="p">,</span> <span class="n">password</span><span class="p">],</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="n">new_project</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">project_list</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">project_list</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">new_project</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">odesktop</span><span class="o">.</span><span class="n">SetActiveProject</span><span class="p">(</span><span class="n">new_project</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">project</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitives</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">odesktop</span><span class="o">.</span><span class="n">GetActiveProject</span><span class="p">()</span>
+            <span class="n">project_name</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">is_linux</span><span class="p">:</span>
+                <span class="n">design_name</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">GetDesigns</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">design_name</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">GetActiveDesign</span><span class="p">()</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">get_pyaedt_app</span><span class="p">(</span><span class="n">project_name</span><span class="p">,</span> <span class="n">design_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span></div></div>
+</pre></div>
+
+              </article>
+              
+
+              
+          </div>
+          
+      </div>
+    </div>
+
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695"></script>
+
+<footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    <p class="copyright">
+    &copy; Copyright (c) 2023 ANSYS, Inc. All rights reserved.<br>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+  </div>
+  
+</div>
+</footer>
+  </body>
+</html>

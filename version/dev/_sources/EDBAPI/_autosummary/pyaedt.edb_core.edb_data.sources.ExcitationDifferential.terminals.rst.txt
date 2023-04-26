@@ -1,0 +1,6 @@
+terminals
+=========
+
+.. currentmodule:: pyaedt.edb_core.edb_data.sources
+
+.. autoproperty:: ExcitationDifferential.terminals

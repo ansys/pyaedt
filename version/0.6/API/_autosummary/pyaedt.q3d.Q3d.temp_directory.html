@@ -1,0 +1,1585 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>temp_directory &#8212; PyAEDT</title>
+    
+<script>
+  document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+  document.documentElement.dataset.theme = localStorage.getItem("theme") || "light"
+</script>
+
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+
+
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css\ansys_sphinx_theme.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695">
+
+    
+        <link href="../../_static/css/breadcrumbs.css" rel="stylesheet">
+    
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <link rel="shortcut icon" href="../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="toolkit_directory" href="pyaedt.q3d.Q3d.toolkit_directory.html" />
+    <link rel="prev" title="syslib" href="pyaedt.q3d.Q3d.syslib.html" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+    <div class="bd-header-announcement container-fluid" id="banner">
+      
+
+    </div>
+
+    
+    
+    <nav class="bd-header navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="bd-header__inner container-xl">
+
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+    <img src="../../_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="Logo image">
+    <img src="../../_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="fas fa-bars"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../Getting_started/index.html">
+  Getting started
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../User_guide/index.html">
+  User guide
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="../index.html">
+  AEDT API
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../EDBAPI/index.html">
+  EDB API
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../examples/index.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../Contributing.html">
+  Contribute
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <div class="dropdown" id="version_switcher">
+    <button type="button" class="btn btn-sm navbar-btn dropdown-toggle" id="version_switcher_button" data-toggle="dropdown">
+        0.6  <!-- this text may get changed later by javascript -->
+        <span class="caret"></span>
+    </button>
+    <div id="version_switcher_menu" class="dropdown-menu list-group-flush py-0" aria-labelledby="version_switcher_button">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+</div>
+
+<!-- NOTE: this JS must live here (not in our global JS file) because it relies
+     on being processed by Jinja before it is run (specifically for replacing
+     variables API/_autosummary/pyaedt.q3d.Q3d.temp_directory and {'json_url': 'https://aedt.docs.pyansys.com/release/versions.json', 'version_match': '0.6'}.
+-->
+
+<script type="text/javascript">
+// Check if corresponding page path exists in other version of docs
+// and, if so, go there instead of the homepage of the other docs version
+function checkPageExistsAndRedirect(event) {
+    const currentFilePath = "API/_autosummary/pyaedt.q3d.Q3d.temp_directory.html",
+          tryUrl = event.target.getAttribute("href");
+    let otherDocsHomepage = tryUrl.replace(currentFilePath, "");
+    $.ajax({
+        type: 'HEAD',
+        url: tryUrl,
+        // if the page exists, go there
+        success: function() {
+            location.href = tryUrl;
+        }
+    }).fail(function() {
+        location.href = otherDocsHomepage;
+    });
+    // this prevents the browser from following the href of the clicked node
+    // (which is fine because this function takes care of redirecting)
+    return false;
+}
+
+// Populate the version switcher from the JSON config file
+(function () {
+    $.getJSON("https://aedt.docs.pyansys.com/release/versions.json", function(data, textStatus, jqXHR) {
+        const currentFilePath = "API/_autosummary/pyaedt.q3d.Q3d.temp_directory.html";
+        let btn = document.getElementById("version_switcher_button");
+        // Set empty strings by default so that these attributes exist and can be used in CSS selectors
+        btn.dataset["activeVersionName"] = "";
+        btn.dataset["activeVersion"] = "";
+        // create links to the corresponding page in the other docs versions
+        $.each(data, function(index, entry) {
+            // if no custom name specified (e.g., "latest"), use version string
+            if (!("name" in entry)) {
+                entry.name = entry.version;
+            }
+            // create the node
+            const node = document.createElement("a");
+            node.setAttribute("class", "list-group-item list-group-item-action py-1");
+            node.textContent = `${entry.name}`;
+            node.setAttribute("href", `${entry.url}${currentFilePath}`);
+            // on click, AJAX calls will check if the linked page exists before
+            // trying to redirect, and if not, will redirect to the homepage
+            // for that version of the docs.
+            node.onclick = checkPageExistsAndRedirect;
+            // Add dataset values for the version and name in case people want
+            // to apply CSS styling based on this information.
+            node.dataset["versionName"] = entry.name;
+            node.dataset["version"] = entry.version;
+
+            $("#version_switcher_menu").append(node);
+            // replace dropdown button text with the preferred display name of
+            // this version, rather than using sphinx's 0.6.70 variable.
+            // also highlight the dropdown entry for the currently-viewed
+            // version's entry
+            if (entry.version == "0.6") {
+                node.classList.add("active");
+                btn.innerText = btn.dataset["activeVersionName"] = entry.name;
+                btn.dataset["activeVersion"] = entry.version;
+            }
+        });
+    });
+})();
+</script>
+      </div>
+      
+      <div class="navbar-end-item">
+        <span id="theme-switch" class="btn btn-sm btn-outline-primary navbar-btn rounded-circle">
+    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/pyansys/pyaedt" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/pyansys/pyaedt/discussions" rel="noopener" target="_blank" title="Support"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+     
+<div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(text => document.getElementById("announcement_msg").innerHTML = text)
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+
+    
+        <div class="container-xl">
+    <div class="row">
+        <div class="col-12 col-md-3" id="breadcrumbs-spacer"></div>
+        <div class="col-12 col-md-11 col-xl-9" id="breadcrumbs">
+          
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-additional-breadcrumb"><a href="https://docs.pyansys.com/">PyAnsys</a> » </li>
+    
+    
+        <li class="nav-item nav-item-0"><a href="../../index.html">PyAEDT</a> » </li>
+    
+
+          <li class="nav-item nav-item-1"><a href="../index.html" >AEDT API</a> » </li>
+          <li class="nav-item nav-item-2"><a href="../Application.html" >Application and solvers</a> » </li>
+          <li class="nav-item nav-item-3"><a href="pyaedt.q3d.Q3d.html" accesskey="U">pyaedt.q3d.Q3d</a> » </li>
+        <li class="nav-item nav-item-this"><a href="">temp_directory</a></li> 
+      </ul>
+    </div>
+        </div>
+  </div>
+</div>
+    
+
+
+    <div class="bd-container container-xl">
+      <div class="bd-container__inner row">
+          
+
+<!-- Only show if we have sidebars configured, else just a small margin  -->
+<div class="bd-sidebar-primary col-12 col-md-3 bd-sidebar">
+  <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../Application.html">
+   Application and solvers
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="pyaedt.desktop.Desktop.html">
+     pyaedt.desktop.Desktop
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="pyaedt.hfss.Hfss.html">
+     pyaedt.hfss.Hfss
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="pyaedt.q3d.Q3d.html">
+     pyaedt.q3d.Q3d
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.activate_variable_optimization.html">
+       activate_variable_optimization
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.activate_variable_sensitivity.html">
+       activate_variable_sensitivity
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.activate_variable_statistical.html">
+       activate_variable_statistical
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.activate_variable_tuning.html">
+       activate_variable_tuning
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.add_error_message.html">
+       add_error_message
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.add_from_toolkit.html">
+       add_from_toolkit
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.add_info_message.html">
+       add_info_message
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.add_stackup_3d.html">
+       add_stackup_3d
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.add_warning_message.html">
+       add_warning_message
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.analyze.html">
+       analyze
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.analyze_setup.html">
+       analyze_setup
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.archive_project.html">
+       archive_project
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.assign_material.html">
+       assign_material
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.assign_net.html">
+       assign_net
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.assign_sink_to_objectface.html">
+       assign_sink_to_objectface
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.assign_sink_to_sheet.html">
+       assign_sink_to_sheet
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.assign_source_to_objectface.html">
+       assign_source_to_objectface
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.assign_source_to_sheet.html">
+       assign_source_to_sheet
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.assignmaterial_from_sherlock_files.html">
+       assignmaterial_from_sherlock_files
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.auto_identify_nets.html">
+       auto_identify_nets
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.autosave_disable.html">
+       autosave_disable
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.autosave_enable.html">
+       autosave_enable
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.change_automatically_use_causal_materials.html">
+       change_automatically_use_causal_materials
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.change_design_settings.html">
+       change_design_settings
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.change_material_override.html">
+       change_material_override
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.change_property.html">
+       change_property
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.change_validation_settings.html">
+       change_validation_settings
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.check_beta_option_enabled.html">
+       check_beta_option_enabled
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.check_if_project_is_loaded.html">
+       check_if_project_is_loaded
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.clean_proj_folder.html">
+       clean_proj_folder
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.cleanup_solution.html">
+       cleanup_solution
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.close_desktop.html">
+       close_desktop
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.close_project.html">
+       close_project
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.copy_design_from.html">
+       copy_design_from
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.copy_project.html">
+       copy_project
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.copy_solid_bodies_from.html">
+       copy_solid_bodies_from
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.create_dataset.html">
+       create_dataset
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.create_dataset1d_design.html">
+       create_dataset1d_design
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.create_dataset1d_project.html">
+       create_dataset1d_project
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.create_dataset3d.html">
+       create_dataset3d
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.create_discrete_sweep.html">
+       create_discrete_sweep
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.create_frequency_sweep.html">
+       create_frequency_sweep
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.create_new_project.html">
+       create_new_project
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.create_output_variable.html">
+       create_output_variable
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.create_setup.html">
+       create_setup
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.dataset_exists.html">
+       dataset_exists
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.deactivate_variable_optimization.html">
+       deactivate_variable_optimization
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.deactivate_variable_sensitivity.html">
+       deactivate_variable_sensitivity
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.deactivate_variable_statistical.html">
+       deactivate_variable_statistical
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.deactivate_variable_tuning.html">
+       deactivate_variable_tuning
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.delete_design.html">
+       delete_design
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.delete_project.html">
+       delete_project
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.delete_separator.html">
+       delete_separator
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.delete_setup.html">
+       delete_setup
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.delete_variable.html">
+       delete_variable
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.design_variation.html">
+       design_variation
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.duplicate_design.html">
+       duplicate_design
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.edit_setup.html">
+       edit_setup
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.edit_sources.html">
+       edit_sources
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.evaluate_expression.html">
+       evaluate_expression
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.export_3d_model.html">
+       export_3d_model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.export_convergence.html">
+       export_convergence
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.export_design_preview_to_jpg.html">
+       export_design_preview_to_jpg
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.export_equivalent_circuit.html">
+       export_equivalent_circuit
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.export_matrix_data.html">
+       export_matrix_data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.export_mesh_stats.html">
+       export_mesh_stats
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.export_parametric_results.html">
+       export_parametric_results
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.export_profile.html">
+       export_profile
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.export_results.html">
+       export_results
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.export_rl_matrix.html">
+       export_rl_matrix
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.export_variables_to_csv.html">
+       export_variables_to_csv
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.flatten_3d_components.html">
+       flatten_3d_components
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.generate_temp_project_directory.html">
+       generate_temp_project_directory
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.generate_unique_setup_name.html">
+       generate_unique_setup_name
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.get_all_conductors_names.html">
+       get_all_conductors_names
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.get_all_dielectrics_names.html">
+       get_all_dielectrics_names
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.get_all_sources.html">
+       get_all_sources
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.get_components3d_vars.html">
+       get_components3d_vars
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.get_evaluated_value.html">
+       get_evaluated_value
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.get_module.html">
+       get_module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.get_nominal_variation.html">
+       get_nominal_variation
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.get_object_material_properties.html">
+       get_object_material_properties
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.get_oo_name.html">
+       get_oo_name
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.get_oo_object.html">
+       get_oo_object
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.get_oo_properties.html">
+       get_oo_properties
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.get_oo_property_value.html">
+       get_oo_property_value
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.get_output_variable.html">
+       get_output_variable
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.get_property_value.html">
+       get_property_value
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.get_registry_key_int.html">
+       get_registry_key_int
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.get_registry_key_string.html">
+       get_registry_key_string
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.get_setup.html">
+       get_setup
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.get_setups.html">
+       get_setups
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.get_sweeps.html">
+       get_sweeps
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.get_traces_for_plot.html">
+       get_traces_for_plot
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.hidden_variable.html">
+       hidden_variable
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.import_dataset1d.html">
+       import_dataset1d
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.import_dataset3d.html">
+       import_dataset3d
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.insert_design.html">
+       insert_design
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.insert_reduced_matrix.html">
+       insert_reduced_matrix
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.list_of_variations.html">
+       list_of_variations
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.load_project.html">
+       load_project
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.net_sinks.html">
+       net_sinks
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.net_sources.html">
+       net_sources
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.number_with_units.html">
+       number_with_units
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.objects_from_nets.html">
+       objects_from_nets
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.plot.html">
+       plot
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.read_design_data.html">
+       read_design_data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.read_only_variable.html">
+       read_only_variable
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.release_desktop.html">
+       release_desktop
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.rename_design.html">
+       rename_design
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.save_project.html">
+       save_project
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.set_active_design.html">
+       set_active_design
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.set_active_dso_config_name.html">
+       set_active_dso_config_name
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.set_license_type.html">
+       set_license_type
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.set_material_thresholds.html">
+       set_material_thresholds
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.set_registry_from_file.html">
+       set_registry_from_file
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.set_registry_key.html">
+       set_registry_key
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.set_source_context.html">
+       set_source_context
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.solve_in_batch.html">
+       solve_in_batch
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.submit_job.html">
+       submit_job
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.validate_simple.html">
+       validate_simple
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.value_with_units.html">
+       value_with_units
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.active_setup.html">
+       active_setup
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.aedt_version_id.html">
+       aedt_version_id
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.available_variations.html">
+       available_variations
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.boundaries.html">
+       boundaries
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.components3d.html">
+       components3d
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.configurations.html">
+       configurations
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.default_solution_type.html">
+       default_solution_type
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.design_datasets.html">
+       design_datasets
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.design_file.html">
+       design_file
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.design_list.html">
+       design_list
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.design_name.html">
+       design_name
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.design_properties.html">
+       design_properties
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.design_type.html">
+       design_type
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.desktop_install_dir.html">
+       desktop_install_dir
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.excitations.html">
+       excitations
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.existing_analysis_setups.html">
+       existing_analysis_setups
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.existing_analysis_sweeps.html">
+       existing_analysis_sweeps
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.layouteditor.html">
+       layouteditor
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.library_list.html">
+       library_list
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.lock_file.html">
+       lock_file
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.logger.html">
+       logger
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.materials.html">
+       materials
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.mesh.html">
+       mesh
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.modeler.html">
+       modeler
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.native_components.html">
+       native_components
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.nets.html">
+       nets
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.nominal_adaptive.html">
+       nominal_adaptive
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.nominal_sweep.html">
+       nominal_sweep
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.o_component_manager.html">
+       o_component_manager
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.o_maxwell_parameters.html">
+       o_maxwell_parameters
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.o_model_manager.html">
+       o_model_manager
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.o_symbol_manager.html">
+       o_symbol_manager
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.oanalysis.html">
+       oanalysis
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.oboundary.html">
+       oboundary
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.odefinition_manager.html">
+       odefinition_manager
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.odesign.html">
+       odesign
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.odesktop.html">
+       odesktop
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.oeditor.html">
+       oeditor
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.oexcitation.html">
+       oexcitation
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.ofieldsreporter.html">
+       ofieldsreporter
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.oimport_export.html">
+       oimport_export
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.omaterial_manager.html">
+       omaterial_manager
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.omatrix.html">
+       omatrix
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.omeshmodule.html">
+       omeshmodule
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.omodelsetup.html">
+       omodelsetup
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.omonitor.html">
+       omonitor
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.ooptimetrics.html">
+       ooptimetrics
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.ooutput_variable.html">
+       ooutput_variable
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.opadstackmanager.html">
+       opadstackmanager
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.oproject.html">
+       oproject
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.oradfield.html">
+       oradfield
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.oreportsetup.html">
+       oreportsetup
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.osolution.html">
+       osolution
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.output_variables.html">
+       output_variables
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.personallib.html">
+       personallib
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.post.html">
+       post
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.project_datasets.html">
+       project_datasets
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.project_file.html">
+       project_file
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.project_list.html">
+       project_list
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.project_name.html">
+       project_name
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.project_path.html">
+       project_path
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.project_properties.html">
+       project_properties
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.project_time_stamp.html">
+       project_time_stamp
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.project_timestamp_changed.html">
+       project_timestamp_changed
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.pyaedt_dir.html">
+       pyaedt_dir
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.results_directory.html">
+       results_directory
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.settings.html">
+       settings
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.setup_names.html">
+       setup_names
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.solution_type.html">
+       solution_type
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.src_dir.html">
+       src_dir
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.syslib.html">
+       syslib
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="#">
+       temp_directory
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.toolkit_directory.html">
+       toolkit_directory
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.userlib.html">
+       userlib
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.valid_design.html">
+       valid_design
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.variable_manager.html">
+       variable_manager
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pyaedt.q3d.Q3d.working_directory.html">
+       working_directory
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="pyaedt.q3d.Q2d.html">
+     pyaedt.q3d.Q2d
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="pyaedt.maxwell.Maxwell2d.html">
+     pyaedt.maxwell.Maxwell2d
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="pyaedt.maxwell.Maxwell3d.html">
+     pyaedt.maxwell.Maxwell3d
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="pyaedt.icepak.Icepak.html">
+     pyaedt.icepak.Icepak
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="pyaedt.hfss3dlayout.Hfss3dLayout.html">
+     pyaedt.hfss3dlayout.Hfss3dLayout
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="pyaedt.mechanical.Mechanical.html">
+     pyaedt.mechanical.Mechanical
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="pyaedt.rmxprt.Rmxprt.html">
+     pyaedt.rmxprt.Rmxprt
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="pyaedt.circuit.Circuit.html">
+     pyaedt.circuit.Circuit
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="pyaedt.maxwellcircuit.MaxwellCircuit.html">
+     pyaedt.maxwellcircuit.MaxwellCircuit
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="pyaedt.emit.Emit.html">
+     pyaedt.emit.Emit
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="pyaedt.twinbuilder.TwinBuilder.html">
+     pyaedt.twinbuilder.TwinBuilder
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../MaterialManagement.html">
+   Material and stackup
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../Primitives3D.html">
+   3D modeler
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../Primitives2D.html">
+   2D modeler
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../Primitive_Objects.html">
+   Primitives
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../Primitives3DLayout.html">
+   Modeler in  HFSS 3D Layout
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../PrimitivesCircuit.html">
+   Modeler and components Circuit
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../Boundaries.html">
+   Boundary objects
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../Mesh.html">
+   Mesh operations
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../Setup.html">
+   Setup
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../Post.html">
+   Postprocessing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../DesktopMessenger.html">
+   Logger
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../Optimetrics.html">
+   Optimetrics
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../Variables.html">
+   Variable
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../Constants.html">
+   Constants
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../Configuration.html">
+   Configuration files
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../SetupTemplates.html">
+   Setup templates
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../CableModeling.html">
+   Cable modeling
+  </a>
+ </li>
+</ul>
+
+  </div>
+</nav>
+  </div>
+  <div class="sidebar-end-items">
+  </div>
+</div>
+
+
+          
+
+
+<div class="bd-sidebar-secondary d-none d-xl-block col-xl-2 bd-toc">
+  
+    
+    <div class="toc-item">
+      
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#pyaedt.q3d.Q3d.temp_directory">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     temp_directory
+    </span>
+   </code>
+  </a>
+ </li>
+</ul>
+
+</nav>
+    </div>
+    
+    <div class="toc-item">
+      
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/pyansys/pyaedt/edit/main/doc/source/API/_autosummary/pyaedt.q3d.Q3d.temp_directory.rst">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
+    </div>
+    
+  
+</div>
+
+
+          
+          
+          <div class="bd-content col-12 col-md-9 col-xl-7">
+              
+              <article class="bd-article" role="main">
+                
+  <section id="temp-directory">
+<h1>temp_directory<a class="headerlink" href="#temp-directory" title="Permalink to this heading">#</a></h1>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyaedt.q3d.Q3d.temp_directory">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Q3d.</span></span><span class="sig-name descname"><span class="pre">temp_directory</span></span><a class="headerlink" href="#pyaedt.q3d.Q3d.temp_directory" title="Permalink to this definition">#</a></dt>
+<dd><p>Path to the temporary directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference external" href="https://docs.python.org/dev/library/stdtypes.html#str" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">str</span></code></a></dt><dd><p>Full absolute path for the <code class="docutils literal notranslate"><span class="pre">temp</span></code> directory.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+              </article>
+              
+
+              
+          </div>
+          
+      </div>
+    </div>
+
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695"></script>
+
+<footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    <p class="copyright">
+    &copy; Copyright (c) 2023 ANSYS, Inc. All rights reserved.<br>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+  </div>
+  
+</div>
+</footer>
+  </body>
+</html>

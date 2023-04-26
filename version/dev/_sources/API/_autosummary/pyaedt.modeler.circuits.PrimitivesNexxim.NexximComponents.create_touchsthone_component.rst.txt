@@ -1,0 +1,6 @@
+create\_touchsthone\_component
+==============================
+
+.. currentmodule:: pyaedt.modeler.circuits.PrimitivesNexxim
+
+.. automethod:: NexximComponents.create_touchsthone_component

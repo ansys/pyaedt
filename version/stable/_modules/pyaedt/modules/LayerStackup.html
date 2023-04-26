@@ -1,0 +1,1748 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyaedt.modules.LayerStackup &#8212; PyAEDT</title>
+    
+<script>
+  document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+  document.documentElement.dataset.theme = localStorage.getItem("theme") || "light"
+</script>
+
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+
+
+  <link rel="stylesheet"
+    href="../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css\ansys_sphinx_theme.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695">
+
+    
+        <link href="../../../_static/css/breadcrumbs.css" rel="stylesheet">
+    
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <link rel="shortcut icon" href="../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+    <div class="bd-header-announcement container-fluid" id="banner">
+      
+
+    </div>
+
+    
+    
+    <nav class="bd-header navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="bd-header__inner container-xl">
+
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+    <img src="../../../_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="Logo image">
+    <img src="../../../_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="fas fa-bars"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../Getting_started/index.html">
+  Getting started
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../User_guide/index.html">
+  User guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../API/index.html">
+  AEDT API
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../EDBAPI/index.html">
+  EDB API
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../examples/index.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../Contributing.html">
+  Contribute
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <div class="dropdown" id="version_switcher">
+    <button type="button" class="btn btn-sm navbar-btn dropdown-toggle" id="version_switcher_button" data-toggle="dropdown">
+        0.6  <!-- this text may get changed later by javascript -->
+        <span class="caret"></span>
+    </button>
+    <div id="version_switcher_menu" class="dropdown-menu list-group-flush py-0" aria-labelledby="version_switcher_button">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+</div>
+
+<!-- NOTE: this JS must live here (not in our global JS file) because it relies
+     on being processed by Jinja before it is run (specifically for replacing
+     variables _modules/pyaedt/modules/LayerStackup and {'json_url': 'https://aedt.docs.pyansys.com/release/versions.json', 'version_match': '0.6'}.
+-->
+
+<script type="text/javascript">
+// Check if corresponding page path exists in other version of docs
+// and, if so, go there instead of the homepage of the other docs version
+function checkPageExistsAndRedirect(event) {
+    const currentFilePath = "_modules/pyaedt/modules/LayerStackup.html",
+          tryUrl = event.target.getAttribute("href");
+    let otherDocsHomepage = tryUrl.replace(currentFilePath, "");
+    $.ajax({
+        type: 'HEAD',
+        url: tryUrl,
+        // if the page exists, go there
+        success: function() {
+            location.href = tryUrl;
+        }
+    }).fail(function() {
+        location.href = otherDocsHomepage;
+    });
+    // this prevents the browser from following the href of the clicked node
+    // (which is fine because this function takes care of redirecting)
+    return false;
+}
+
+// Populate the version switcher from the JSON config file
+(function () {
+    $.getJSON("https://aedt.docs.pyansys.com/release/versions.json", function(data, textStatus, jqXHR) {
+        const currentFilePath = "_modules/pyaedt/modules/LayerStackup.html";
+        let btn = document.getElementById("version_switcher_button");
+        // Set empty strings by default so that these attributes exist and can be used in CSS selectors
+        btn.dataset["activeVersionName"] = "";
+        btn.dataset["activeVersion"] = "";
+        // create links to the corresponding page in the other docs versions
+        $.each(data, function(index, entry) {
+            // if no custom name specified (e.g., "latest"), use version string
+            if (!("name" in entry)) {
+                entry.name = entry.version;
+            }
+            // create the node
+            const node = document.createElement("a");
+            node.setAttribute("class", "list-group-item list-group-item-action py-1");
+            node.textContent = `${entry.name}`;
+            node.setAttribute("href", `${entry.url}${currentFilePath}`);
+            // on click, AJAX calls will check if the linked page exists before
+            // trying to redirect, and if not, will redirect to the homepage
+            // for that version of the docs.
+            node.onclick = checkPageExistsAndRedirect;
+            // Add dataset values for the version and name in case people want
+            // to apply CSS styling based on this information.
+            node.dataset["versionName"] = entry.name;
+            node.dataset["version"] = entry.version;
+
+            $("#version_switcher_menu").append(node);
+            // replace dropdown button text with the preferred display name of
+            // this version, rather than using sphinx's 0.6.70 variable.
+            // also highlight the dropdown entry for the currently-viewed
+            // version's entry
+            if (entry.version == "0.6") {
+                node.classList.add("active");
+                btn.innerText = btn.dataset["activeVersionName"] = entry.name;
+                btn.dataset["activeVersion"] = entry.version;
+            }
+        });
+    });
+})();
+</script>
+      </div>
+      
+      <div class="navbar-end-item">
+        <span id="theme-switch" class="btn btn-sm btn-outline-primary navbar-btn rounded-circle">
+    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/pyansys/pyaedt" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/pyansys/pyaedt/discussions" rel="noopener" target="_blank" title="Support"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+     
+<div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(text => document.getElementById("announcement_msg").innerHTML = text)
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+
+    
+        <div class="container-xl">
+    <div class="row">
+        <div class="col-12 col-md-3" id="breadcrumbs-spacer"></div>
+        <div class="col-12 col-md-11 col-xl-9" id="breadcrumbs">
+          
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-additional-breadcrumb"><a href="https://docs.pyansys.com/">PyAnsys</a> » </li>
+    
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PyAEDT</a> » </li>
+    
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> » </li>
+        <li class="nav-item nav-item-this"><a href="">pyaedt.modules.LayerStackup</a></li> 
+      </ul>
+    </div>
+        </div>
+  </div>
+</div>
+    
+
+
+    <div class="bd-container container-xl">
+      <div class="bd-container__inner row">
+          
+
+<!-- Only show if we have sidebars configured, else just a small margin  -->
+<div class="bd-sidebar-primary col-12 col-md-3 bd-sidebar">
+  <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+  </div>
+  <div class="sidebar-end-items">
+  </div>
+</div>
+
+
+          
+
+
+<div class="bd-sidebar-secondary d-none d-xl-block col-xl-2 bd-toc">
+  
+</div>
+
+
+          
+          
+          <div class="bd-content col-12 col-md-9 col-xl-7">
+              
+              <article class="bd-article" role="main">
+                
+  <h1>Source code for pyaedt.modules.LayerStackup</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module contains these classes: `Layer` and `Layers`.</span>
+
+<span class="sd">This module provides all layer stackup functionalities for the Circuit and HFSS 3D Layout tools.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>  <span class="c1"># noreorder</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+
+<span class="kn">from</span> <span class="nn">pyaedt.generic.general_methods</span> <span class="kn">import</span> <span class="n">pyaedt_function_handler</span>
+
+
+<span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">_str2bool</span><span class="p">(</span><span class="n">str0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a string to a Boolean value.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    str0 : str</span>
+<span class="sd">       String to convert.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        ``True`` when successful, ``False`` when failed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">str0</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;false&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">elif</span> <span class="n">str0</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">_conv_number</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">typen</span><span class="o">=</span><span class="nb">float</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a number.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    number</span>
+<span class="sd">       Number represented a float.</span>
+
+<span class="sd">    typen :</span>
+<span class="sd">         The default is ``float``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">typen</span> <span class="ow">is</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">number</span>
+    <span class="k">elif</span> <span class="n">typen</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">number</span>
+
+
+<span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">_getIfromRGB</span><span class="p">(</span><span class="n">rgb</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieve if from a specific layer color.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    rgb :</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">red</span> <span class="o">=</span> <span class="n">rgb</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">green</span> <span class="o">=</span> <span class="n">rgb</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">blue</span> <span class="o">=</span> <span class="n">rgb</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">RGBint</span> <span class="o">=</span> <span class="p">(</span><span class="n">red</span> <span class="o">&lt;&lt;</span> <span class="mi">16</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">green</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">+</span> <span class="n">blue</span>
+    <span class="k">return</span> <span class="n">RGBint</span>
+
+
+<span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">_getRGBfromI</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieve the Integer from a specific layer color.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value : int</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="p">(</span><span class="n">value</span> <span class="o">&gt;&gt;</span> <span class="mi">16</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFF</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="p">(</span><span class="n">value</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFF</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="n">value</span> <span class="o">&gt;&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFF</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="Layer"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.LayerStackup.Layer.html#pyaedt.modules.LayerStackup.Layer">[docs]</a><span class="k">class</span> <span class="nc">Layer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manages the stackup layer for the Circuit and HFSS 3D Layout tools.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    app : :class:`pyaedt.modules.LayerStackup.Layers`</span>
+
+<span class="sd">    layertype : string, optional</span>
+<span class="sd">        The default is ``&quot;signal&quot;``.</span>
+<span class="sd">    negative : bool, optional</span>
+<span class="sd">        Whether the geometry on the layer is cut away</span>
+<span class="sd">        from the layer. The default is ``False``.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from pyaedt import Hfss3dLayout</span>
+<span class="sd">    &gt;&gt;&gt; app = Hfss3dLayout()</span>
+<span class="sd">    &gt;&gt;&gt; layers = app.modeler.layers[&quot;Top&quot;]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">layertype</span><span class="o">=</span><span class="s2">&quot;signal&quot;</span><span class="p">,</span> <span class="n">negative</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LengthUnit</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">LengthUnit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LengthUnitRough</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">LengthUnit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_layers</span> <span class="o">=</span> <span class="n">app</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">layertype</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="p">[</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_transparency</span> <span class="o">=</span> <span class="mi">60</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">IsVisible</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">IsVisibleShape</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">IsVisiblePath</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">IsVisiblePad</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">IsVisibleHole</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">IsVisibleComponent</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">IsMeshBackgroundMaterial</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">IsMeshOverlay</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_locked</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_topbottom</span> <span class="o">=</span> <span class="s2">&quot;neither&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pattern</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_drawoverride</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_thickness</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lower_elevation</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_roughness</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_botroughness</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_toprounghenss</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sideroughness</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_material</span> <span class="o">=</span> <span class="s2">&quot;copper&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fillmaterial</span> <span class="o">=</span> <span class="s2">&quot;FR4_epoxy&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">IsNegative</span> <span class="o">=</span> <span class="n">negative</span>
+        <span class="c1"># Etch option</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_useetch</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_etch</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># Rough option</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_user</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">RMdl</span> <span class="o">=</span> <span class="s2">&quot;Huray&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NR</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">HRatio</span> <span class="o">=</span> <span class="mf">2.9</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">BRMdl</span> <span class="o">=</span> <span class="s2">&quot;Huray&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">BNR</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">BHRatio</span> <span class="o">=</span> <span class="mf">2.9</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SRMdl</span> <span class="o">=</span> <span class="s2">&quot;Huray&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SNR</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SHRatio</span> <span class="o">=</span> <span class="mf">2.9</span>
+        <span class="c1"># Solver option</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_usp</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hfssSp</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;si&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;dt&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;dtv&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">planaremSp</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ifg&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;vly&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_zones</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">color</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the property of the active layer. Color it is list of rgb values (0,255).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_color</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="n">_getRGBfromI</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_color</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color</span>
+
+    <span class="nd">@color</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="n">_getRGBfromI</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">transparency</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the property to the active layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transparency</span>
+
+    <span class="nd">@transparency</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">transparency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_transparency</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_visible</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer visibility.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">IsVisible</span>
+
+    <span class="nd">@is_visible</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">is_visible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">IsVisible</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_visible_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer shape visibility.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">IsVisibleShape</span>
+
+    <span class="nd">@is_visible_shape</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">is_visible_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">IsVisibleShape</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_visible_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer paths visibility.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">IsVisiblePath</span>
+
+    <span class="nd">@is_visible_path</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">is_visible_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">IsVisiblePath</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_visible_pad</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer pad visibility.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">IsVisiblePad</span>
+
+    <span class="nd">@is_visible_pad</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">is_visible_pad</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">IsVisiblePad</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_visible_hole</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer hole visibility.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">IsVisibleHole</span>
+
+    <span class="nd">@is_visible_hole</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">is_visible_hole</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">IsVisibleHole</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_visible_component</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer component visibility.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">IsVisibleComponent</span>
+
+    <span class="nd">@is_visible_component</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">is_visible_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">IsVisibleComponent</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_mesh_background</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer mesh backgraound.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">IsMeshBackgroundMaterial</span>
+
+    <span class="nd">@is_mesh_background</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">is_mesh_background</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">IsMeshBackgroundMaterial</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_mesh_overlay</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer mesh overlay.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">IsMeshOverlay</span>
+
+    <span class="nd">@is_mesh_overlay</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">is_mesh_overlay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">IsMeshOverlay</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">locked</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer lock flag.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locked</span>
+
+    <span class="nd">@locked</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">locked</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_locked</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">top_bottom</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer top bottom alignment.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_topbottom</span>
+
+    <span class="nd">@top_bottom</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">top_bottom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_topbottom</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer pattern.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern</span>
+
+    <span class="nd">@pattern</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pattern</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">draw_override</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer draw override value.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drawoverride</span>
+
+    <span class="nd">@draw_override</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">draw_override</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_drawoverride</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">thickness</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer thickness value.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thickness</span>
+
+    <span class="nd">@thickness</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">thickness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_thickness</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lower_elevation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer lower elevation.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lower_elevation</span>
+
+    <span class="nd">@lower_elevation</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">lower_elevation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lower_elevation</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">roughness</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer roughness (with units).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_roughness</span>
+
+    <span class="nd">@roughness</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">roughness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_roughness</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bottom_roughness</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer bottom roughness (with units).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_botroughness</span>
+
+    <span class="nd">@bottom_roughness</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">bottom_roughness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_botroughness</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">top_roughness</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer top roughness (with units).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_toprounghenss</span>
+
+    <span class="nd">@top_roughness</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">top_roughness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_toprounghenss</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">side_roughness</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer side roughness (with units).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sideroughness</span>
+
+    <span class="nd">@side_roughness</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">side_roughness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sideroughness</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">material</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer material name.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_material</span>
+
+    <span class="nd">@material</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">material</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_material</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fill_material</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer filling material.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fillmaterial</span>
+
+    <span class="nd">@fill_material</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">fill_material</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fillmaterial</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer index.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index</span>
+
+    <span class="nd">@index</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_negative</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer negative flag. When `True` the layer will be negative.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">IsNegative</span>
+
+    <span class="nd">@is_negative</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">is_negative</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">IsNegative</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">use_etch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer etiching flag. When `True` the layer will use etch.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_useetch</span>
+
+    <span class="nd">@use_etch</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">use_etch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_useetch</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">etch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer etch value.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_etch</span>
+
+    <span class="nd">@etch</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">etch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_etch</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">user</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer user flag.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user</span>
+
+    <span class="nd">@user</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">user</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_user</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">top_roughness_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer top roughness model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">RMdl</span>
+
+    <span class="nd">@top_roughness_model</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">top_roughness_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">RMdl</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">top_nodule_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer top roughness radius.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">NR</span>
+
+    <span class="nd">@top_nodule_radius</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">top_nodule_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NR</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">top_huray_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer top roughness ratio.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">HRatio</span>
+
+    <span class="nd">@top_huray_ratio</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">top_huray_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">HRatio</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bottom_roughness_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer bottom roughness model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">BRMdl</span>
+
+    <span class="nd">@bottom_roughness_model</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">bottom_roughness_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">BRMdl</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bottom_nodule_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer bottom roughness radius.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">BNR</span>
+
+    <span class="nd">@bottom_nodule_radius</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">bottom_nodule_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">BNR</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bottom_huray_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer bottom roughness ratio.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">BHRatio</span>
+
+    <span class="nd">@bottom_huray_ratio</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">bottom_huray_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">BHRatio</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">side_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer side roughness model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">SRMdl</span>
+
+    <span class="nd">@side_model</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">side_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SRMdl</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">side_nodule_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer side roughness radius.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">SNR</span>
+
+    <span class="nd">@side_nodule_radius</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">side_nodule_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SNR</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">side_huray_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer bottom roughness ratio.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">SHRatio</span>
+
+    <span class="nd">@side_huray_ratio</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">side_huray_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SHRatio</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">usp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer usp flag.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_usp</span>
+
+    <span class="nd">@usp</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">usp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_usp</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">hfss_solver_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer hfss solver settings.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">hfssSp</span>
+
+    <span class="nd">@hfss_solver_settings</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">hfss_solver_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hfssSp</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">planar_em_solver_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer PlanarEm solver settings.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">planaremSp</span>
+
+    <span class="nd">@planar_em_solver_settings</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">planar_em_solver_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">planaremSp</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">zones</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get/Set the active layer zoness.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zones</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_zones</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_layers</span><span class="o">.</span><span class="n">all_layers</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">i</span> <span class="ow">and</span> <span class="s2">&quot;;&quot;</span> <span class="ow">in</span> <span class="n">i</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zones</span>
+
+    <span class="nd">@zones</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">zones</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_zones</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stackup_layer</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">oeditor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Oeditor Module.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_layers</span><span class="o">.</span><span class="n">oeditor</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">visflag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Visibility flag for objects on the layer.&quot;&quot;&quot;</span>
+        <span class="n">visflag</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">IsVisible</span><span class="p">:</span>
+            <span class="n">visflag</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">IsMeshBackgroundMaterial</span><span class="p">:</span>
+                <span class="n">visflag</span> <span class="o">+=</span> <span class="mi">64</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">IsMeshOverlay</span><span class="p">:</span>
+                <span class="n">visflag</span> <span class="o">+=</span> <span class="mi">32</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">IsVisibleShape</span><span class="p">:</span>
+                <span class="n">visflag</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">IsVisiblePath</span><span class="p">:</span>
+                <span class="n">visflag</span> <span class="o">+=</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">IsVisiblePad</span><span class="p">:</span>
+                <span class="n">visflag</span> <span class="o">+=</span> <span class="mi">4</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">IsVisibleHole</span><span class="p">:</span>
+                <span class="n">visflag</span> <span class="o">+=</span> <span class="mi">8</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">IsVisibleComponent</span><span class="p">:</span>
+                <span class="n">visflag</span> <span class="o">+=</span> <span class="mi">16</span>
+        <span class="k">return</span> <span class="n">visflag</span>
+
+<div class="viewcode-block" id="Layer.set_layer_color"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.LayerStackup.Layer.set_layer_color.html#pyaedt.modules.LayerStackup.Layer.set_layer_color">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">set_layer_color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update the color of the layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        r : int</span>
+<span class="sd">            Red color value.</span>
+<span class="sd">        g : int</span>
+<span class="sd">            Green color value.</span>
+<span class="sd">        b :  int</span>
+<span class="sd">            Blue color value.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.ChangeLayer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rgb</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">_getIfromRGB</span><span class="p">(</span><span class="n">rgb</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Layer.create_stackup_layer"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.LayerStackup.Layer.create_stackup_layer.html#pyaedt.modules.LayerStackup.Layer.create_stackup_layer">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">create_stackup_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a stackup layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.AddStackupLayer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remove_stackup_layer</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">AddStackupLayer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_layer_arg</span><span class="p">)</span>
+        <span class="n">infos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetLayerInfo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">infos</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;: &quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">infos</span><span class="p">]</span>
+        <span class="n">infosdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">infos</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">infosdict</span><span class="p">[</span><span class="s2">&quot;LayerId&quot;</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_arg_with_dim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Argument with dimensions.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value :</span>
+
+<span class="sd">        units :</span>
+<span class="sd">             The default is ``None``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">units</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">LengthUnit</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">units</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">val</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_get_layer_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;signal&quot;</span><span class="p">,</span> <span class="s2">&quot;via&quot;</span><span class="p">,</span> <span class="s2">&quot;dielectric&quot;</span><span class="p">]:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s2">&quot;NAME:stackup layer&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Name:=&quot;</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s2">&quot;NAME:layer&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Name:=&quot;</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="p">[</span><span class="s2">&quot;ID:=&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">],</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;signal&quot;</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;Type:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
+                    <span class="s2">&quot;Top Bottom:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">top_bottom</span><span class="p">,</span>
+                    <span class="s2">&quot;Color:=&quot;</span><span class="p">,</span>
+                    <span class="n">_getIfromRGB</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="p">),</span>
+                    <span class="s2">&quot;Transparency:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">transparency</span><span class="p">,</span>
+                    <span class="s2">&quot;Pattern:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span><span class="p">,</span>
+                    <span class="s2">&quot;VisFlag:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">visflag</span><span class="p">,</span>
+                    <span class="s2">&quot;Locked:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">locked</span><span class="p">,</span>
+                    <span class="s2">&quot;DrawOverride:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">draw_override</span><span class="p">,</span>
+                    <span class="s2">&quot;Zones:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">zones</span><span class="p">,</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;NAME:Sublayer&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;Thickness:=&quot;</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span><span class="p">,</span>
+                        <span class="s2">&quot;LowerElevation:=&quot;</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_arg_with_dim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lower_elevation</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">LengthUnit</span><span class="p">),</span>
+                        <span class="s2">&quot;Roughness:=&quot;</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_arg_with_dim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">roughness</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">LengthUnitRough</span><span class="p">),</span>
+                        <span class="s2">&quot;BotRoughness:=&quot;</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_arg_with_dim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bottom_roughness</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">LengthUnitRough</span><span class="p">),</span>
+                        <span class="s2">&quot;SideRoughness:=&quot;</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_arg_with_dim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">top_roughness</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">LengthUnitRough</span><span class="p">),</span>
+                        <span class="s2">&quot;Material:=&quot;</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">material</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+                        <span class="s2">&quot;FillMaterial:=&quot;</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">fill_material</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+                    <span class="p">],</span>
+                    <span class="s2">&quot;Neg:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">IsNegative</span><span class="p">,</span>
+                    <span class="s2">&quot;Usp:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">usp</span><span class="p">,</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;NAME:Sp&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;Sn:=&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;HFSS&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;Sv:=&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;so(si=&quot;</span>
+                        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hfssSp</span><span class="p">[</span><span class="s2">&quot;si&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                        <span class="o">+</span> <span class="s2">&quot; , dt=&quot;</span>
+                        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hfssSp</span><span class="p">[</span><span class="s2">&quot;dt&quot;</span><span class="p">])</span>
+                        <span class="o">+</span> <span class="s2">&quot;, dtv=&#39;&quot;</span>
+                        <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arg_with_dim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hfssSp</span><span class="p">[</span><span class="s2">&quot;dtv&quot;</span><span class="p">])</span>
+                        <span class="o">+</span> <span class="s2">&quot;&#39;)&quot;</span><span class="p">,</span>
+                    <span class="p">],</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;NAME:Sp&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;Sn:=&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;PlanarEM&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;Sv:=&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;so(ifg=&quot;</span>
+                        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">planaremSp</span><span class="p">[</span><span class="s2">&quot;ifg&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                        <span class="o">+</span> <span class="s2">&quot;, vly=&quot;</span>
+                        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">planaremSp</span><span class="p">[</span><span class="s2">&quot;vly&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                        <span class="o">+</span> <span class="s2">&quot;)&quot;</span><span class="p">,</span>
+                    <span class="p">],</span>
+                    <span class="s2">&quot;Etch:=&quot;</span><span class="p">,</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">etch</span><span class="p">),</span>
+                    <span class="s2">&quot;UseEtch:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">use_etch</span><span class="p">,</span>
+                    <span class="s2">&quot;UseR:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
+                    <span class="s2">&quot;RMdl:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">RMdl</span><span class="p">,</span>
+                    <span class="s2">&quot;NR:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_arg_with_dim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">LengthUnitRough</span><span class="p">),</span>
+                    <span class="s2">&quot;HRatio:=&quot;</span><span class="p">,</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">HRatio</span><span class="p">),</span>
+                    <span class="s2">&quot;BRMdl:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">BRMdl</span><span class="p">,</span>
+                    <span class="s2">&quot;BNR:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_arg_with_dim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">BNR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">LengthUnitRough</span><span class="p">),</span>
+                    <span class="s2">&quot;BHRatio:=&quot;</span><span class="p">,</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">BHRatio</span><span class="p">),</span>
+                    <span class="s2">&quot;SRMdl:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">SRMdl</span><span class="p">,</span>
+                    <span class="s2">&quot;SNR:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_arg_with_dim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">SNR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">LengthUnitRough</span><span class="p">),</span>
+                    <span class="s2">&quot;SHRatio:=&quot;</span><span class="p">,</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">SHRatio</span><span class="p">),</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;dielectric&quot;</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;Type:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
+                    <span class="s2">&quot;Top Bottom:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">top_bottom</span><span class="p">,</span>
+                    <span class="s2">&quot;Color:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="p">,</span>
+                    <span class="s2">&quot;Transparency:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">transparency</span><span class="p">,</span>
+                    <span class="s2">&quot;Pattern:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span><span class="p">,</span>
+                    <span class="s2">&quot;VisFlag:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">visflag</span><span class="p">,</span>
+                    <span class="s2">&quot;Locked:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">locked</span><span class="p">,</span>
+                    <span class="s2">&quot;DrawOverride:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">draw_override</span><span class="p">,</span>
+                    <span class="s2">&quot;Zones:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">zones</span><span class="p">,</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;NAME:Sublayer&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;Thickness:=&quot;</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span><span class="p">,</span>
+                        <span class="s2">&quot;LowerElevation:=&quot;</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">lower_elevation</span><span class="p">,</span>
+                        <span class="s2">&quot;Roughness:=&quot;</span><span class="p">,</span>
+                        <span class="mi">0</span><span class="p">,</span>
+                        <span class="s2">&quot;BotRoughness:=&quot;</span><span class="p">,</span>
+                        <span class="mi">0</span><span class="p">,</span>
+                        <span class="s2">&quot;SideRoughness:=&quot;</span><span class="p">,</span>
+                        <span class="mi">0</span><span class="p">,</span>
+                        <span class="s2">&quot;Material:=&quot;</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">material</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+                    <span class="p">],</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;Type:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
+                    <span class="s2">&quot;Top Bottom:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">top_bottom</span><span class="p">,</span>
+                    <span class="s2">&quot;Color:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="p">,</span>
+                    <span class="s2">&quot;Transparency:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">transparency</span><span class="p">,</span>
+                    <span class="s2">&quot;Pattern:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span><span class="p">,</span>
+                    <span class="s2">&quot;VisFlag:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">visflag</span><span class="p">,</span>
+                    <span class="s2">&quot;Locked:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">locked</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">args</span>
+
+<div class="viewcode-block" id="Layer.update_stackup_layer"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.LayerStackup.Layer.update_stackup_layer.html#pyaedt.modules.LayerStackup.Layer.update_stackup_layer">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">update_stackup_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update the stackup layer.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">           This method is valid for release 2021 R1 and later.</span>
+<span class="sd">           This method works only for signal and dielectric layers.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.ChangeLayer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">ChangeLayer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_layer_arg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Layer.remove_stackup_layer"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.LayerStackup.Layer.remove_stackup_layer.html#pyaedt.modules.LayerStackup.Layer.remove_stackup_layer">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">remove_stackup_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove the stackup layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.RemoveLayer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetStackupLayerNames</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">RemoveLayer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div></div>
+
+
+<div class="viewcode-block" id="Layers"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.LayerStackup.Layers.html#pyaedt.modules.LayerStackup.Layers">[docs]</a><span class="k">class</span> <span class="nc">Layers</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manages stackup for the Circuit and HFSS 3D Layout tools.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    modeler : :class:`pyaedt.modeler.modelerpcb.Modeler3DLayout`</span>
+
+<span class="sd">    roughnessunits : str, optional</span>
+<span class="sd">       Units for the roughness of layers. The default is ``&quot;um&quot;``.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from pyaedt import Hfss3dLayout</span>
+<span class="sd">    &gt;&gt;&gt; app = Hfss3dLayout()</span>
+<span class="sd">    &gt;&gt;&gt; layers = app.modeler.layers</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">modeler</span><span class="p">,</span> <span class="n">roughnessunits</span><span class="o">=</span><span class="s2">&quot;um&quot;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_modeler</span> <span class="o">=</span> <span class="n">modeler</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_app</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modeler</span><span class="o">.</span><span class="n">_app</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_currentId</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lengthUnitRough</span> <span class="o">=</span> <span class="n">roughnessunits</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">logger</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">oeditor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Editor.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor = oDesign.SetActiveEditor(&quot;Layout&quot;)&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modeler</span><span class="o">.</span><span class="n">oeditor</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">zones</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;List of all available zones.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">all_layers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_modeler</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetStackupLayerNames</span><span class="p">())</span>
+        <span class="n">zones</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">lay</span> <span class="ow">in</span> <span class="n">all_layers</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;;&quot;</span> <span class="ow">in</span> <span class="n">lay</span><span class="p">:</span>
+                <span class="n">zones</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lay</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">zones</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">LengthUnit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Length units.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modeler</span><span class="o">.</span><span class="n">model_units</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">all_layers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;All stackup layers.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">           List of stackup layers.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.GetStackupLayerNames()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetAllLayerNames</span><span class="p">()</span> <span class="k">if</span> <span class="s2">&quot;;&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">i</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">drawing_layers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;All drawing layers.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">           List of drawing layers.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.GetAllLayerNames()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;signal&quot;</span><span class="p">,</span> <span class="s2">&quot;via&quot;</span><span class="p">,</span> <span class="s2">&quot;dielectric&quot;</span><span class="p">]]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">stackup_layers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;All stackup layers.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        List of :class:`pyaedt.modules.LayerStackup.Layer`</span>
+<span class="sd">           List of stackup layers.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oEditor.GetAllLayerNames()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;signal&quot;</span><span class="p">,</span> <span class="s2">&quot;via&quot;</span><span class="p">,</span> <span class="s2">&quot;dielectric&quot;</span><span class="p">]]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">all_signal_layers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;All signal layers.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        List of :class:`pyaedt.modules.LayerStackup.Layer`</span>
+<span class="sd">            List of signal layers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;signal&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">all_diel_layers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;All dielectric layers.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        List of :class:`pyaedt.modules.LayerStackup.Layer`</span>
+<span class="sd">            List of dielectric layers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;dielectric&quot;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Layers.layer_id"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.LayerStackup.Layers.layer_id.html#pyaedt.modules.LayerStackup.Layers.layer_id">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">layer_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve a layer ID.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name :  str</span>
+<span class="sd">            Name of the layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.modules.LayerStackup.Layer`</span>
+<span class="sd">            Layer objecy if the layer name exists.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">el</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">layers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Refresh all layers in the current stackup.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">         Dict[int,  :class:`pyaedt.modules.LayerStackup.Layer`]</span>
+<span class="sd">            Number of layers in the current stackup.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">layers</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">({})</span>
+        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_layers</span><span class="p">:</span>
+            <span class="n">o</span> <span class="o">=</span> <span class="n">Layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;signal&quot;</span><span class="p">)</span>
+            <span class="n">o</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">el</span>
+            <span class="n">infos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetLayerInfo</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
+            <span class="n">infos</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;: &quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">infos</span><span class="p">]</span>
+            <span class="n">infosdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span> <span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">infos</span><span class="p">}</span>
+            <span class="n">o</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">infosdict</span><span class="p">[</span><span class="s2">&quot;LayerId&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">infosdict</span><span class="p">[</span><span class="s2">&quot;Type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;metalizedsignal&quot;</span><span class="p">:</span>
+                <span class="n">o</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s2">&quot;signal&quot;</span>
+                <span class="n">o</span><span class="o">.</span><span class="n">IsNegative</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">o</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">infosdict</span><span class="p">[</span><span class="s2">&quot;Type&quot;</span><span class="p">]</span>
+                <span class="n">o</span><span class="o">.</span><span class="n">IsNegative</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">o</span><span class="o">.</span><span class="n">_locked</span> <span class="o">=</span> <span class="n">_str2bool</span><span class="p">(</span><span class="n">infosdict</span><span class="p">[</span><span class="s2">&quot;IsLocked&quot;</span><span class="p">])</span>
+            <span class="n">o</span><span class="o">.</span><span class="n">_top_bottom</span> <span class="o">=</span> <span class="n">infosdict</span><span class="p">[</span><span class="s2">&quot;TopBottomAssociation&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="n">o</span><span class="o">.</span><span class="n">IsVisible</span> <span class="o">=</span> <span class="n">infosdict</span><span class="p">[</span><span class="s2">&quot;IsVisible&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s2">&quot;IsVisiblePath&quot;</span> <span class="ow">in</span> <span class="n">infosdict</span><span class="p">:</span>
+                <span class="n">o</span><span class="o">.</span><span class="n">IsVisiblePath</span> <span class="o">=</span> <span class="n">infosdict</span><span class="p">[</span><span class="s2">&quot;IsVisiblePath&quot;</span><span class="p">]</span>
+                <span class="n">o</span><span class="o">.</span><span class="n">IsVisiblePad</span> <span class="o">=</span> <span class="n">infosdict</span><span class="p">[</span><span class="s2">&quot;IsVisiblePad&quot;</span><span class="p">]</span>
+                <span class="n">o</span><span class="o">.</span><span class="n">IsVisibleComponent</span> <span class="o">=</span> <span class="n">infosdict</span><span class="p">[</span><span class="s2">&quot;IsVisibleComponent&quot;</span><span class="p">]</span>
+                <span class="n">o</span><span class="o">.</span><span class="n">IsVisibleShape</span> <span class="o">=</span> <span class="n">infosdict</span><span class="p">[</span><span class="s2">&quot;IsVisibleShape&quot;</span><span class="p">]</span>
+                <span class="n">o</span><span class="o">.</span><span class="n">IsVisibleHole</span> <span class="o">=</span> <span class="n">infosdict</span><span class="p">[</span><span class="s2">&quot;IsVisibleHole&quot;</span><span class="p">]</span>
+            <span class="n">o</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="n">_getRGBfromI</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">infosdict</span><span class="p">[</span><span class="s2">&quot;Color&quot;</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="k">if</span> <span class="n">o</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;signal&quot;</span><span class="p">,</span> <span class="s2">&quot;dielectric&quot;</span><span class="p">,</span> <span class="s2">&quot;via&quot;</span><span class="p">]:</span>
+                <span class="n">o</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">infosdict</span><span class="p">[</span><span class="s2">&quot;Index&quot;</span><span class="p">])</span>
+                <span class="n">o</span><span class="o">.</span><span class="n">_thickness</span> <span class="o">=</span> <span class="n">_conv_number</span><span class="p">(</span><span class="n">infosdict</span><span class="p">[</span><span class="s2">&quot;LayerThickness&quot;</span><span class="p">])</span>
+                <span class="n">o</span><span class="o">.</span><span class="n">_lower_elevation</span> <span class="o">=</span> <span class="n">_conv_number</span><span class="p">(</span><span class="n">infosdict</span><span class="p">[</span><span class="s2">&quot;LowerElevation0&quot;</span><span class="p">])</span>
+                <span class="n">o</span><span class="o">.</span><span class="n">_fillmaterial</span> <span class="o">=</span> <span class="n">infosdict</span><span class="p">[</span><span class="s2">&quot;FillMaterial0&quot;</span><span class="p">]</span>
+                <span class="n">o</span><span class="o">.</span><span class="n">_material</span> <span class="o">=</span> <span class="n">infosdict</span><span class="p">[</span><span class="s2">&quot;Material0&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s2">&quot;EtchFactor&quot;</span> <span class="ow">in</span> <span class="n">infosdict</span><span class="p">:</span>
+                    <span class="n">o</span><span class="o">.</span><span class="n">_useetch</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">o</span><span class="o">.</span><span class="n">_etch</span> <span class="o">=</span> <span class="n">_conv_number</span><span class="p">(</span><span class="n">infosdict</span><span class="p">[</span><span class="s2">&quot;EtchFactor&quot;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="s2">&quot;Roughness0 Type&quot;</span> <span class="ow">in</span> <span class="n">infosdict</span><span class="p">:</span>
+                    <span class="n">o</span><span class="o">.</span><span class="n">_user</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">o</span><span class="o">.</span><span class="n">RMdl</span> <span class="o">=</span> <span class="n">infosdict</span><span class="p">[</span><span class="s2">&quot;Roughness0 Type&quot;</span><span class="p">]</span>
+                    <span class="n">o</span><span class="o">.</span><span class="n">NR</span> <span class="o">=</span> <span class="n">infosdict</span><span class="p">[</span><span class="s2">&quot;Roughness0&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">o</span><span class="o">.</span><span class="n">HRatio</span> <span class="o">=</span> <span class="n">_conv_number</span><span class="p">(</span><span class="n">infosdict</span><span class="p">[</span><span class="s2">&quot;Roughness0&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">if</span> <span class="s2">&quot;BottomRoughness0 Type&quot;</span> <span class="ow">in</span> <span class="n">infosdict</span><span class="p">:</span>
+                    <span class="n">o</span><span class="o">.</span><span class="n">_user</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">o</span><span class="o">.</span><span class="n">BRMdl</span> <span class="o">=</span> <span class="n">infosdict</span><span class="p">[</span><span class="s2">&quot;BottomRoughness0 Type&quot;</span><span class="p">]</span>
+                    <span class="n">o</span><span class="o">.</span><span class="n">BNR</span> <span class="o">=</span> <span class="n">infosdict</span><span class="p">[</span><span class="s2">&quot;BottomRoughness0&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">o</span><span class="o">.</span><span class="n">BHRatio</span> <span class="o">=</span> <span class="n">_conv_number</span><span class="p">(</span><span class="n">infosdict</span><span class="p">[</span><span class="s2">&quot;BottomRoughness0&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">if</span> <span class="s2">&quot;SideRoughness0 Type&quot;</span> <span class="ow">in</span> <span class="n">infosdict</span><span class="p">:</span>
+                    <span class="n">o</span><span class="o">.</span><span class="n">_user</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">o</span><span class="o">.</span><span class="n">SRMdl</span> <span class="o">=</span> <span class="n">infosdict</span><span class="p">[</span><span class="s2">&quot;SideRoughness0 Type&quot;</span><span class="p">]</span>
+                    <span class="n">o</span><span class="o">.</span><span class="n">SNR</span> <span class="o">=</span> <span class="n">infosdict</span><span class="p">[</span><span class="s2">&quot;SideRoughness0&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">o</span><span class="o">.</span><span class="n">SHRatio</span> <span class="o">=</span> <span class="n">_conv_number</span><span class="p">(</span><span class="n">infosdict</span><span class="p">[</span><span class="s2">&quot;SideRoughness0&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">layers</span><span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">o</span>
+        <span class="k">return</span> <span class="n">layers</span>
+
+<div class="viewcode-block" id="Layers.add_layer"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.LayerStackup.Layers.add_layer.html#pyaedt.modules.LayerStackup.Layers.add_layer">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">add_layer</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">layername</span><span class="p">,</span> <span class="n">layertype</span><span class="o">=</span><span class="s2">&quot;signal&quot;</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="s2">&quot;0mm&quot;</span><span class="p">,</span> <span class="n">elevation</span><span class="o">=</span><span class="s2">&quot;0mm&quot;</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="s2">&quot;copper&quot;</span><span class="p">,</span> <span class="n">isnegative</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layername : str</span>
+<span class="sd">            Name of the layer.</span>
+<span class="sd">        layertype : str, optional</span>
+<span class="sd">            Type of the layer. The default is ``&quot;signal&quot;``.</span>
+<span class="sd">        thickness : str, optional</span>
+<span class="sd">            Thickness with units. The default is ``&quot;0mm&quot;``.</span>
+<span class="sd">        elevation : str, optional</span>
+<span class="sd">            Elevation with units. The default is ``&quot;0mm&quot;``.</span>
+<span class="sd">        material : str, optional</span>
+<span class="sd">            Name of the material. The default is ``&quot;copper&quot;``.</span>
+<span class="sd">        isnegative : bool, optional</span>
+<span class="sd">            If ``True``, the geometry on the layer is cut away from the layer. The default is ``False``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`pyaedt.modules.LayerStackup.Layer`</span>
+<span class="sd">            Layer object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">newlayer</span> <span class="o">=</span> <span class="n">Layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layertype</span><span class="p">,</span> <span class="n">isnegative</span><span class="p">)</span>
+        <span class="n">newlayer</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">layername</span>
+        <span class="n">newlayer</span><span class="o">.</span><span class="n">_thickness</span> <span class="o">=</span> <span class="n">thickness</span>
+
+        <span class="k">if</span> <span class="n">elevation</span> <span class="o">==</span> <span class="s2">&quot;0mm&quot;</span><span class="p">:</span>
+            <span class="n">el</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="mi">0</span>
+                <span class="k">if</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;dielectric&quot;</span><span class="p">,</span> <span class="s2">&quot;signal&quot;</span><span class="p">,</span> <span class="s2">&quot;via&quot;</span><span class="p">]</span>
+                <span class="k">else</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">+</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower_elevation</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">thickness</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">el</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">variable_manager</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span>
+                    <span class="s2">&quot;pyaedt_evaluator&quot;</span><span class="p">,</span>
+                    <span class="n">expression</span><span class="o">=</span><span class="n">el</span><span class="p">,</span>
+                    <span class="n">readonly</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">hidden</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">newlayer</span><span class="o">.</span><span class="n">_lower_elevation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">get_evaluated_value</span><span class="p">(</span><span class="s2">&quot;pyaedt_evaluator&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">newlayer</span><span class="o">.</span><span class="n">_lower_elevation</span> <span class="o">=</span> <span class="s2">&quot;0mm&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">newlayer</span><span class="o">.</span><span class="n">_lower_elevation</span> <span class="o">=</span> <span class="n">elevation</span>
+        <span class="n">newlayer</span><span class="o">.</span><span class="n">_material</span> <span class="o">=</span> <span class="n">material</span>
+        <span class="n">newlayer</span><span class="o">.</span><span class="n">create_stackup_layer</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">newlayer</span><span class="o">.</span><span class="n">id</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Layers.change_stackup_type"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.LayerStackup.Layers.change_stackup_type.html#pyaedt.modules.LayerStackup.Layers.change_stackup_type">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">change_stackup_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;MultiZone&quot;</span><span class="p">,</span> <span class="n">number_zones</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Change the stackup type between Multizone, Overlap and Laminate.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mode : str, optional</span>
+<span class="sd">            Stackup type. Default is `&quot;Multizone&quot;`. Options are `&quot;Overlap&quot;` and `&quot;Laminate&quot;`.</span>
+<span class="sd">        number_zones : int, optional</span>
+<span class="sd">            Number of zones of multizone. By default all layers will be enabled in all zones.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            `True` if successful.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;multizone&quot;</span><span class="p">:</span>
+            <span class="n">zones</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:Zones&quot;</span><span class="p">,</span> <span class="s2">&quot;Primary&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number_zones</span><span class="p">):</span>
+                <span class="n">zones</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Zone</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:layers&quot;</span><span class="p">,</span> <span class="s2">&quot;Mode:=&quot;</span><span class="p">,</span> <span class="s2">&quot;Multizone&quot;</span><span class="p">,</span> <span class="n">zones</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;NAME:pps&quot;</span><span class="p">]]</span>
+        <span class="k">elif</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;overlap&quot;</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:layers&quot;</span><span class="p">,</span> <span class="s2">&quot;Mode:=&quot;</span><span class="p">,</span> <span class="s2">&quot;Overlap&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;NAME:pps&quot;</span><span class="p">]]</span>
+        <span class="k">elif</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;laminate&quot;</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NAME:layers&quot;</span><span class="p">,</span> <span class="s2">&quot;Mode:=&quot;</span><span class="p">,</span> <span class="s2">&quot;Laminate&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;NAME:pps&quot;</span><span class="p">]]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Stackup mode has to be Multizone, Overlap or Laminate.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;signal&quot;</span><span class="p">,</span> <span class="s2">&quot;dielectric&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;multizone&quot;</span><span class="p">:</span>
+                    <span class="n">v</span><span class="o">.</span><span class="n">_zones</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number_zones</span><span class="p">)]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">v</span><span class="o">.</span><span class="n">_zones</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">_get_layer_arg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">ChangeLayers</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div></div>
+</pre></div>
+
+              </article>
+              
+
+              
+          </div>
+          
+      </div>
+    </div>
+
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695"></script>
+
+<footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    <p class="copyright">
+    &copy; Copyright (c) 2023 ANSYS, Inc. All rights reserved.<br>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+  </div>
+  
+</div>
+</footer>
+  </body>
+</html>

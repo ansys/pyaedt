@@ -1,0 +1,752 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Maxwell 2D: transient winding analysis &#8212; PyAEDT</title>
+    
+<script>
+  document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+  document.documentElement.dataset.theme = localStorage.getItem("theme") || "light"
+</script>
+
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+
+
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css\ansys_sphinx_theme.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695">
+
+    
+        <link href="../../_static/css/breadcrumbs.css" rel="stylesheet">
+    
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <link rel="shortcut icon" href="../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Maxwell 3D: bath plate analysis" href="Maxwell3DTeam3.html" />
+    <link rel="prev" title="Maxwell 2D: PM synchronous motor transient analysis" href="Maxwell2D_NissanLeaf.html" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+    <div class="bd-header-announcement container-fluid" id="banner">
+      
+
+    </div>
+
+    
+    
+    <nav class="bd-header navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="bd-header__inner container-xl">
+
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+    <img src="../../_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="Logo image">
+    <img src="../../_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="fas fa-bars"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../Getting_started/index.html">
+  Getting started
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../User_guide/index.html">
+  User guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../API/index.html">
+  AEDT API
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../EDBAPI/index.html">
+  EDB API
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="../index.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../Contributing.html">
+  Contribute
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <div class="dropdown" id="version_switcher">
+    <button type="button" class="btn btn-sm navbar-btn dropdown-toggle" id="version_switcher_button" data-toggle="dropdown">
+        0.6  <!-- this text may get changed later by javascript -->
+        <span class="caret"></span>
+    </button>
+    <div id="version_switcher_menu" class="dropdown-menu list-group-flush py-0" aria-labelledby="version_switcher_button">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+</div>
+
+<!-- NOTE: this JS must live here (not in our global JS file) because it relies
+     on being processed by Jinja before it is run (specifically for replacing
+     variables examples/03-Maxwell/Maxwell2D_Transient and {'json_url': 'https://aedt.docs.pyansys.com/release/versions.json', 'version_match': '0.6'}.
+-->
+
+<script type="text/javascript">
+// Check if corresponding page path exists in other version of docs
+// and, if so, go there instead of the homepage of the other docs version
+function checkPageExistsAndRedirect(event) {
+    const currentFilePath = "examples/03-Maxwell/Maxwell2D_Transient.html",
+          tryUrl = event.target.getAttribute("href");
+    let otherDocsHomepage = tryUrl.replace(currentFilePath, "");
+    $.ajax({
+        type: 'HEAD',
+        url: tryUrl,
+        // if the page exists, go there
+        success: function() {
+            location.href = tryUrl;
+        }
+    }).fail(function() {
+        location.href = otherDocsHomepage;
+    });
+    // this prevents the browser from following the href of the clicked node
+    // (which is fine because this function takes care of redirecting)
+    return false;
+}
+
+// Populate the version switcher from the JSON config file
+(function () {
+    $.getJSON("https://aedt.docs.pyansys.com/release/versions.json", function(data, textStatus, jqXHR) {
+        const currentFilePath = "examples/03-Maxwell/Maxwell2D_Transient.html";
+        let btn = document.getElementById("version_switcher_button");
+        // Set empty strings by default so that these attributes exist and can be used in CSS selectors
+        btn.dataset["activeVersionName"] = "";
+        btn.dataset["activeVersion"] = "";
+        // create links to the corresponding page in the other docs versions
+        $.each(data, function(index, entry) {
+            // if no custom name specified (e.g., "latest"), use version string
+            if (!("name" in entry)) {
+                entry.name = entry.version;
+            }
+            // create the node
+            const node = document.createElement("a");
+            node.setAttribute("class", "list-group-item list-group-item-action py-1");
+            node.textContent = `${entry.name}`;
+            node.setAttribute("href", `${entry.url}${currentFilePath}`);
+            // on click, AJAX calls will check if the linked page exists before
+            // trying to redirect, and if not, will redirect to the homepage
+            // for that version of the docs.
+            node.onclick = checkPageExistsAndRedirect;
+            // Add dataset values for the version and name in case people want
+            // to apply CSS styling based on this information.
+            node.dataset["versionName"] = entry.name;
+            node.dataset["version"] = entry.version;
+
+            $("#version_switcher_menu").append(node);
+            // replace dropdown button text with the preferred display name of
+            // this version, rather than using sphinx's 0.6.70 variable.
+            // also highlight the dropdown entry for the currently-viewed
+            // version's entry
+            if (entry.version == "0.6") {
+                node.classList.add("active");
+                btn.innerText = btn.dataset["activeVersionName"] = entry.name;
+                btn.dataset["activeVersion"] = entry.version;
+            }
+        });
+    });
+})();
+</script>
+      </div>
+      
+      <div class="navbar-end-item">
+        <span id="theme-switch" class="btn btn-sm btn-outline-primary navbar-btn rounded-circle">
+    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/pyansys/pyaedt" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/pyansys/pyaedt/discussions" rel="noopener" target="_blank" title="Support"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+     
+<div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(text => document.getElementById("announcement_msg").innerHTML = text)
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+
+    
+        <div class="container-xl">
+    <div class="row">
+        <div class="col-12 col-md-3" id="breadcrumbs-spacer"></div>
+        <div class="col-12 col-md-11 col-xl-9" id="breadcrumbs">
+          
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-additional-breadcrumb"><a href="https://docs.pyansys.com/">PyAnsys</a> » </li>
+    
+    
+        <li class="nav-item nav-item-0"><a href="../../index.html">PyAEDT</a> » </li>
+    
+
+          <li class="nav-item nav-item-1"><a href="../index.html" >Examples</a> » </li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">Maxwell examples</a> » </li>
+        <li class="nav-item nav-item-this"><a href="">Maxwell 2D: transient winding analysis</a></li> 
+      </ul>
+    </div>
+        </div>
+  </div>
+</div>
+    
+
+
+    <div class="bd-container container-xl">
+      <div class="bd-container__inner row">
+          
+
+<!-- Only show if we have sidebars configured, else just a small margin  -->
+<div class="bd-sidebar-primary col-12 col-md-3 bd-sidebar">
+  <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../00-EDB/index.html">
+   EDB examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../01-HFSS3DLayout/index.html">
+   HFSS 3D Layout examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../01-Modeling-Setup/index.html">
+   General model and setup examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../02-HFSS/index.html">
+   HFSS examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../02-SBR%2B/index.html">
+   SBR+ examples
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="index.html">
+   Maxwell examples
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="Maxwell2D_Electrostatic.html">
+     Maxwell 2D Electrostatic analysis
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Maxwell2D_NissanLeaf.html">
+     Maxwell 2D: PM synchronous motor transient analysis
+    </a>
+   </li>
+   <li class="toctree-l2 current active">
+    <a class="current reference internal" href="#">
+     Maxwell 2D: transient winding analysis
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Maxwell3DTeam3.html">
+     Maxwell 3D: bath plate analysis
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Maxwell3DTeam7.html">
+     Maxwell 3D: asymmetric conductor analysis
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Maxwell3D_Choke.html">
+     Maxwell 3D: choke setup
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Maxwell_Magnet.html">
+     Maxwell 3D: magnet DC analysis
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../04-Icepak/index.html">
+   Icepak examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../05-Q3D/index.html">
+   2D Extractor and Q3D Extractor examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../06-Multiphysics/index.html">
+   Multiphysics examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../07-Circuit/index.html">
+   Circuit examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../07-EMIT/index.html">
+   EMIT examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../07-TwinBuilder/index.html">
+   Twin Builder examples
+  </a>
+ </li>
+</ul>
+
+  </div>
+</nav>
+  </div>
+  <div class="sidebar-end-items">
+  </div>
+</div>
+
+
+          
+
+
+<div class="bd-sidebar-secondary d-none d-xl-block col-xl-2 bd-toc">
+  
+    
+    <div class="toc-item">
+      
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#perform-required-imports">
+   Perform required imports
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#set-non-graphical-mode">
+   Set non-graphical mode
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#insert-maxwell-2d-design-and-save-project">
+   Insert Maxwell 2D design and save project
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#create-rectangle-and-duplicate-it">
+   Create rectangle and duplicate it
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#create-air-region">
+   Create air region
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#assign-windings-and-balloon">
+   Assign windings and balloon
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#plot-model">
+   Plot model
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#create-setup">
+   Create setup
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#create-rectangular-plot">
+   Create rectangular plot
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#solve-model">
+   Solve model
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#create-output-and-plot-using-pyvista">
+   Create output and plot using PyVista
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#generate-plot-outside-of-aedt">
+   Generate plot outside of AEDT
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#close-aedt">
+   Close AEDT
+  </a>
+ </li>
+</ul>
+
+</nav>
+    </div>
+    
+    <div class="toc-item">
+      
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/pyansys/pyaedt/edit/main/doc/source/examples/03-Maxwell/Maxwell2D_Transient.rst">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
+    </div>
+    
+  
+</div>
+
+
+          
+          
+          <div class="bd-content col-12 col-md-9 col-xl-7">
+              
+              <article class="bd-article" role="main">
+                
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-examples-03-maxwell-maxwell2d-transient-py"><span class="std std-ref">here</span></a>
+to download the full example code</p>
+</div>
+<section class="sphx-glr-example-title" id="maxwell-2d-transient-winding-analysis">
+<span id="sphx-glr-examples-03-maxwell-maxwell2d-transient-py"></span><h1>Maxwell 2D: transient winding analysis<a class="headerlink" href="#maxwell-2d-transient-winding-analysis" title="Permalink to this heading">#</a></h1>
+<p>This example shows how you can use PyAEDT to create a project in Maxwell 2D
+and run a transient simulation. It runs only on Windows using CPython.</p>
+<p>The following libraries are required for the advanced postprocessing features
+used in this example:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://pypi.org/project/matplotlib/">Matplotlib</a></p></li>
+<li><p><a class="reference external" href="https://pypi.org/project/numpy/">Numpty</a></p></li>
+<li><p><a class="reference external" href="https://pypi.org/project/pyvista/">PyVista</a></p></li>
+</ul>
+<p>Install these libraries with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">numpy</span> <span class="n">pyvista</span> <span class="n">matplotlib</span>
+</pre></div>
+</div>
+<section id="perform-required-imports">
+<h2>Perform required imports<a class="headerlink" href="#perform-required-imports" title="Permalink to this heading">#</a></h2>
+<p>Perform required imports.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pyaedt</span>
+</pre></div>
+</div>
+</section>
+<section id="set-non-graphical-mode">
+<h2>Set non-graphical mode<a class="headerlink" href="#set-non-graphical-mode" title="Permalink to this heading">#</a></h2>
+<p>Set non-graphical mode. <code class="docutils literal notranslate"><span class="pre">&quot;PYAEDT_NON_GRAPHICAL&quot;</span></code> is needed to generate
+documentation only.
+You can set <code class="docutils literal notranslate"><span class="pre">non_graphical</span></code> either to <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/functions.html#bool" title="builtins.bool" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">non_graphical</span></a> <span class="o">=</span> <span class="kc">False</span>
+</pre></div>
+</div>
+</section>
+<section id="insert-maxwell-2d-design-and-save-project">
+<h2>Insert Maxwell 2D design and save project<a class="headerlink" href="#insert-maxwell-2d-design-and-save-project" title="Permalink to this heading">#</a></h2>
+<p>Insert a Maxwell 2D design and save the project.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">maxwell_2d</span> <span class="o">=</span> <span class="n">pyaedt</span><span class="o">.</span><span class="n">Maxwell2d</span><span class="p">(</span><span class="n">solution_type</span><span class="o">=</span><span class="s2">&quot;TransientXY&quot;</span><span class="p">,</span> <span class="n">specified_version</span><span class="o">=</span><span class="s2">&quot;2023.1&quot;</span><span class="p">,</span> <a href="https://docs.python.org/dev/library/functions.html#bool" title="builtins.bool" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">non_graphical</span></a><span class="o">=</span><a href="https://docs.python.org/dev/library/functions.html#bool" title="builtins.bool" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">non_graphical</span></a><span class="p">,</span>
+                              <span class="n">new_desktop_session</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">projectname</span><span class="o">=</span><span class="n">pyaedt</span><span class="o">.</span><span class="n">generate_unique_project_name</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>C:\actions-runner\_work\_tool\Python\3.8.10\x64\lib\subprocess.py:946: ResourceWarning: subprocess 11068 is still running
+  _warn(&quot;subprocess %s is still running&quot; % self.pid,
+c:\actions-runner\_work\pyaedt\pyaedt\testenv\lib\site-packages\pyaedt\desktop.py:79: ResourceWarning: unclosed file &lt;_io.BufferedReader name=11&gt;
+  subprocess.Popen(&quot; &quot;.join(command), env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+c:\actions-runner\_work\pyaedt\pyaedt\testenv\lib\site-packages\pyaedt\desktop.py:86: ResourceWarning: unclosed &lt;socket.socket fd=5340, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=(&#39;0.0.0.0&#39;, 53757)&gt;
+  while not _check_grpc_port(port):
+c:\actions-runner\_work\pyaedt\pyaedt\testenv\lib\site-packages\pyaedt\desktop.py:86: ResourceWarning: unclosed &lt;socket.socket fd=4768, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=(&#39;0.0.0.0&#39;, 53763)&gt;
+  while not _check_grpc_port(port):
+c:\actions-runner\_work\pyaedt\pyaedt\testenv\lib\site-packages\pyaedt\desktop.py:86: ResourceWarning: unclosed &lt;socket.socket fd=9724, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=(&#39;0.0.0.0&#39;, 53767)&gt;
+  while not _check_grpc_port(port):
+c:\actions-runner\_work\pyaedt\pyaedt\testenv\lib\site-packages\pyaedt\desktop.py:86: ResourceWarning: unclosed &lt;socket.socket fd=9724, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=(&#39;0.0.0.0&#39;, 53770)&gt;
+  while not _check_grpc_port(port):
+</pre></div>
+</div>
+</section>
+<section id="create-rectangle-and-duplicate-it">
+<h2>Create rectangle and duplicate it<a class="headerlink" href="#create-rectangle-and-duplicate-it" title="Permalink to this heading">#</a></h2>
+<p>Create a rectangle and duplicate it.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">rect1</span> <span class="o">=</span> <span class="n">maxwell_2d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_rectangle</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;winding&quot;</span><span class="p">,</span> <span class="n">matname</span><span class="o">=</span><span class="s2">&quot;copper&quot;</span><span class="p">)</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">added</span></a> <span class="o">=</span> <span class="n">rect1</span><span class="o">.</span><span class="n">duplicate_along_line</span><span class="p">([</span><span class="mi">14</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">rect2</span> <span class="o">=</span> <span class="n">maxwell_2d</span><span class="o">.</span><span class="n">modeler</span><span class="p">[</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">added</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+</pre></div>
+</div>
+</section>
+<section id="create-air-region">
+<h2>Create air region<a class="headerlink" href="#create-air-region" title="Permalink to this heading">#</a></h2>
+<p>Create an air region.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">region</span> <span class="o">=</span> <span class="n">maxwell_2d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_region</span><span class="p">([</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="assign-windings-and-balloon">
+<h2>Assign windings and balloon<a class="headerlink" href="#assign-windings-and-balloon" title="Permalink to this heading">#</a></h2>
+<p>Assigns windings to the sheets and a balloon to the air region.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">maxwell_2d</span><span class="o">.</span><span class="n">assign_winding</span><span class="p">([</span><span class="n">rect1</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">rect2</span><span class="o">.</span><span class="n">name</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;PHA&quot;</span><span class="p">)</span>
+<span class="n">maxwell_2d</span><span class="o">.</span><span class="n">assign_balloon</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;pyaedt.modules.Boundary.BoundaryObject object at 0x00000228A9688AC0&gt;
+</pre></div>
+</div>
+</section>
+<section id="plot-model">
+<h2>Plot model<a class="headerlink" href="#plot-model" title="Permalink to this heading">#</a></h2>
+<p>Plot the model.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">maxwell_2d</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">export_path</span><span class="o">=</span><a href="https://docs.python.org/dev/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">maxwell_2d</span><span class="o">.</span><span class="n">working_directory</span><span class="p">,</span> <span class="s2">&quot;Image.jpg&quot;</span><span class="p">),</span> <span class="n">plot_air_objects</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_Maxwell2D_Transient_001.png" srcset="../../_images/sphx_glr_Maxwell2D_Transient_001.png" alt="Maxwell2D Transient" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;pyaedt.generic.plot.ModelPlotter object at 0x00000228A83B7FA0&gt;
+</pre></div>
+</div>
+</section>
+<section id="create-setup">
+<h2>Create setup<a class="headerlink" href="#create-setup" title="Permalink to this heading">#</a></h2>
+<p>Create the transient setup.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">setup</span> <span class="o">=</span> <span class="n">maxwell_2d</span><span class="o">.</span><span class="n">create_setup</span><span class="p">()</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;StopTime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;0.02s&quot;</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;TimeStep&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;0.0002s&quot;</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;SaveFieldsType&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Every N Steps&quot;</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;N Steps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Steps From&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;0s&quot;</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Steps To&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;0.002s&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="create-rectangular-plot">
+<h2>Create rectangular plot<a class="headerlink" href="#create-rectangular-plot" title="Permalink to this heading">#</a></h2>
+<p>Create a rectangular plot.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">maxwell_2d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">create_report</span><span class="p">(</span>
+    <span class="s2">&quot;InputCurrent(PHA)&quot;</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="n">primary_sweep_variable</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="n">plotname</span><span class="o">=</span><span class="s2">&quot;Winding Plot 1&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;pyaedt.modules.report_templates.Standard object at 0x00000228A9688D30&gt;
+</pre></div>
+</div>
+</section>
+<section id="solve-model">
+<h2>Solve model<a class="headerlink" href="#solve-model" title="Permalink to this heading">#</a></h2>
+<p>Solve the model.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">maxwell_2d</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="n">use_auto_settings</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</section>
+<section id="create-output-and-plot-using-pyvista">
+<h2>Create output and plot using PyVista<a class="headerlink" href="#create-output-and-plot-using-pyvista" title="Permalink to this heading">#</a></h2>
+<p>Create the output and plot it using PyVista.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cutlist</span></a> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Global:XY&quot;</span><span class="p">]</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">face_lists</span></a> <span class="o">=</span> <span class="n">rect1</span><span class="o">.</span><span class="n">faces</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">face_lists</span></a> <span class="o">+=</span> <span class="n">rect2</span><span class="o">.</span><span class="n">faces</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">timesteps</span></a> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="mf">2e-4</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;s&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">11</span><span class="p">)]</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">id_list</span></a> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">face_lists</span></a><span class="p">]</span>
+<span class="n">animatedGif</span> <span class="o">=</span> <span class="n">maxwell_2d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">animate_fields_from_aedtplt_2</span><span class="p">(</span>
+    <span class="s2">&quot;Mag_B&quot;</span><span class="p">,</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">id_list</span></a><span class="p">,</span>
+    <span class="s2">&quot;Surface&quot;</span><span class="p">,</span>
+    <span class="n">intrinsic_dict</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Time&quot;</span><span class="p">:</span> <span class="s2">&quot;0s&quot;</span><span class="p">},</span>
+    <span class="n">variation_variable</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span>
+    <span class="n">variation_list</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">timesteps</span></a><span class="p">,</span>
+    <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">export_gif</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">animatedGif</span><span class="o">.</span><span class="n">isometric_view</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">animatedGif</span><span class="o">.</span><span class="n">camera_position</span> <span class="o">=</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">80</span><span class="p">]</span>
+<span class="n">animatedGif</span><span class="o">.</span><span class="n">focal_point</span> <span class="o">=</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">animatedGif</span><span class="o">.</span><span class="n">roll_angle</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">animatedGif</span><span class="o">.</span><span class="n">elevation_angle</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">animatedGif</span><span class="o">.</span><span class="n">azimuth_angle</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="c1"># Set off_screen to False to visualize the animation.</span>
+<span class="c1"># animatedGif.off_screen = False</span>
+<span class="n">animatedGif</span><span class="o">.</span><span class="n">animate</span><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_Maxwell2D_Transient_002.png" srcset="../../_images/sphx_glr_Maxwell2D_Transient_002.png" alt="Maxwell2D Transient" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</section>
+<section id="generate-plot-outside-of-aedt">
+<h2>Generate plot outside of AEDT<a class="headerlink" href="#generate-plot-outside-of-aedt" title="Permalink to this heading">#</a></h2>
+<p>Generate the same plot outside AEDT.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">solutions</span> <span class="o">=</span> <span class="n">maxwell_2d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">get_solution_data</span><span class="p">(</span><span class="s2">&quot;InputCurrent(PHA)&quot;</span><span class="p">,</span> <span class="n">primary_sweep_variable</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">)</span>
+<span class="n">solutions</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_Maxwell2D_Transient_003.png" srcset="../../_images/sphx_glr_Maxwell2D_Transient_003.png" alt="Simulation Results Plot" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 2000x1000 with 1 Axes&gt;
+</pre></div>
+</div>
+</section>
+<section id="close-aedt">
+<h2>Close AEDT<a class="headerlink" href="#close-aedt" title="Permalink to this heading">#</a></h2>
+<p>Close AEDT.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">maxwell_2d</span><span class="o">.</span><span class="n">release_desktop</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 1 minutes  11.828 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-03-maxwell-maxwell2d-transient-py">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/38cf371f204fc873b69798fddc2da554/Maxwell2D_Transient.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">Maxwell2D_Transient.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/d7d9a08b704eb0aee0cbb960f24fe37f/Maxwell2D_Transient.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">Maxwell2D_Transient.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+              </article>
+              
+
+              
+          </div>
+          
+      </div>
+    </div>
+
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695"></script>
+
+<footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    <p class="copyright">
+    &copy; Copyright (c) 2023 ANSYS, Inc. All rights reserved.<br>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+  </div>
+  
+</div>
+</footer>
+  </body>
+</html>

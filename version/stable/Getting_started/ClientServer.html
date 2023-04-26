@@ -1,0 +1,486 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Client-server &#8212; PyAEDT</title>
+    
+<script>
+  document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+  document.documentElement.dataset.theme = localStorage.getItem("theme") || "light"
+</script>
+
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+
+
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css\ansys_sphinx_theme.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695">
+
+    
+        <link href="../_static/css/breadcrumbs.css" rel="stylesheet">
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <link rel="shortcut icon" href="../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="User guide" href="../User_guide/index.html" />
+    <link rel="prev" title="Installation" href="Installation.html" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+    <div class="bd-header-announcement container-fluid" id="banner">
+      
+
+    </div>
+
+    
+    
+    <nav class="bd-header navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="bd-header__inner container-xl">
+
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+    <img src="../_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="Logo image">
+    <img src="../_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="fas fa-bars"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="index.html">
+  Getting started
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../User_guide/index.html">
+  User guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../API/index.html">
+  AEDT API
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../EDBAPI/index.html">
+  EDB API
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../examples/index.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../Contributing.html">
+  Contribute
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <div class="dropdown" id="version_switcher">
+    <button type="button" class="btn btn-sm navbar-btn dropdown-toggle" id="version_switcher_button" data-toggle="dropdown">
+        0.6  <!-- this text may get changed later by javascript -->
+        <span class="caret"></span>
+    </button>
+    <div id="version_switcher_menu" class="dropdown-menu list-group-flush py-0" aria-labelledby="version_switcher_button">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+</div>
+
+<!-- NOTE: this JS must live here (not in our global JS file) because it relies
+     on being processed by Jinja before it is run (specifically for replacing
+     variables Getting_started/ClientServer and {'json_url': 'https://aedt.docs.pyansys.com/release/versions.json', 'version_match': '0.6'}.
+-->
+
+<script type="text/javascript">
+// Check if corresponding page path exists in other version of docs
+// and, if so, go there instead of the homepage of the other docs version
+function checkPageExistsAndRedirect(event) {
+    const currentFilePath = "Getting_started/ClientServer.html",
+          tryUrl = event.target.getAttribute("href");
+    let otherDocsHomepage = tryUrl.replace(currentFilePath, "");
+    $.ajax({
+        type: 'HEAD',
+        url: tryUrl,
+        // if the page exists, go there
+        success: function() {
+            location.href = tryUrl;
+        }
+    }).fail(function() {
+        location.href = otherDocsHomepage;
+    });
+    // this prevents the browser from following the href of the clicked node
+    // (which is fine because this function takes care of redirecting)
+    return false;
+}
+
+// Populate the version switcher from the JSON config file
+(function () {
+    $.getJSON("https://aedt.docs.pyansys.com/release/versions.json", function(data, textStatus, jqXHR) {
+        const currentFilePath = "Getting_started/ClientServer.html";
+        let btn = document.getElementById("version_switcher_button");
+        // Set empty strings by default so that these attributes exist and can be used in CSS selectors
+        btn.dataset["activeVersionName"] = "";
+        btn.dataset["activeVersion"] = "";
+        // create links to the corresponding page in the other docs versions
+        $.each(data, function(index, entry) {
+            // if no custom name specified (e.g., "latest"), use version string
+            if (!("name" in entry)) {
+                entry.name = entry.version;
+            }
+            // create the node
+            const node = document.createElement("a");
+            node.setAttribute("class", "list-group-item list-group-item-action py-1");
+            node.textContent = `${entry.name}`;
+            node.setAttribute("href", `${entry.url}${currentFilePath}`);
+            // on click, AJAX calls will check if the linked page exists before
+            // trying to redirect, and if not, will redirect to the homepage
+            // for that version of the docs.
+            node.onclick = checkPageExistsAndRedirect;
+            // Add dataset values for the version and name in case people want
+            // to apply CSS styling based on this information.
+            node.dataset["versionName"] = entry.name;
+            node.dataset["version"] = entry.version;
+
+            $("#version_switcher_menu").append(node);
+            // replace dropdown button text with the preferred display name of
+            // this version, rather than using sphinx's 0.6.70 variable.
+            // also highlight the dropdown entry for the currently-viewed
+            // version's entry
+            if (entry.version == "0.6") {
+                node.classList.add("active");
+                btn.innerText = btn.dataset["activeVersionName"] = entry.name;
+                btn.dataset["activeVersion"] = entry.version;
+            }
+        });
+    });
+})();
+</script>
+      </div>
+      
+      <div class="navbar-end-item">
+        <span id="theme-switch" class="btn btn-sm btn-outline-primary navbar-btn rounded-circle">
+    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/pyansys/pyaedt" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/pyansys/pyaedt/discussions" rel="noopener" target="_blank" title="Support"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+     
+<div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(text => document.getElementById("announcement_msg").innerHTML = text)
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+
+    
+        <div class="container-xl">
+    <div class="row">
+        <div class="col-12 col-md-3" id="breadcrumbs-spacer"></div>
+        <div class="col-12 col-md-11 col-xl-9" id="breadcrumbs">
+          
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-additional-breadcrumb"><a href="https://docs.pyansys.com/">PyAnsys</a> » </li>
+    
+    
+        <li class="nav-item nav-item-0"><a href="../index.html">PyAEDT</a> » </li>
+    
+
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Getting started</a> » </li>
+        <li class="nav-item nav-item-this"><a href="">Client-server</a></li> 
+      </ul>
+    </div>
+        </div>
+  </div>
+</div>
+    
+
+
+    <div class="bd-container container-xl">
+      <div class="bd-container__inner row">
+          
+
+<!-- Only show if we have sidebars configured, else just a small margin  -->
+<div class="bd-sidebar-primary col-12 col-md-3 bd-sidebar">
+  <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="Installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Client-server
+  </a>
+ </li>
+</ul>
+
+  </div>
+</nav>
+  </div>
+  <div class="sidebar-end-items">
+  </div>
+</div>
+
+
+          
+
+
+<div class="bd-sidebar-secondary d-none d-xl-block col-xl-2 bd-toc">
+  
+    
+    <div class="toc-item">
+      
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#grpc-connection-in-aedt-2022-r2-and-later">
+   gRPC connection in AEDT 2022 R2 and later
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#pyaedt-remote-service-manager">
+   PyAEDT remote service manager
+  </a>
+ </li>
+</ul>
+
+</nav>
+    </div>
+    
+    <div class="toc-item">
+      
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/pyansys/pyaedt/edit/main/doc/source/Getting_started/ClientServer.rst">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
+    </div>
+    
+  
+</div>
+
+
+          
+          
+          <div class="bd-content col-12 col-md-9 col-xl-7">
+              
+              <article class="bd-article" role="main">
+                
+  <section id="client-server">
+<h1>Client-server<a class="headerlink" href="#client-server" title="Permalink to this heading">#</a></h1>
+<p>You can launch PyAEDT on a remote machine if these conditions are met:</p>
+<ul class="simple">
+<li><p>PyAEDT is installed on client and server machines. (There is no need to have AEDT
+installed on the client machine.)</p></li>
+<li><p>The same Python version is used on the client and server machines. (CPython 3.7+ or
+IronPython is embedded in the AEDT installation.)</p></li>
+</ul>
+<section id="grpc-connection-in-aedt-2022-r2-and-later">
+<h2>gRPC connection in AEDT 2022 R2 and later<a class="headerlink" href="#grpc-connection-in-aedt-2022-r2-and-later" title="Permalink to this heading">#</a></h2>
+<p>In AEDT 2022 R2 and later, PyAEDT fully supports the gRPC API (except for EDB):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Launch the latest installed version of AEDT in graphical mode.</span>
+<span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">Hfss</span>
+<span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">settings</span>
+<span class="n">settings</span><span class="o">.</span><span class="n">use_grpc_api</span><span class="o">=</span><span class="kc">True</span>
+<span class="n">hfss</span> <span class="o">=</span> <span class="n">Hfss</span><span class="p">(</span><span class="n">machine</span><span class="o">=</span><span class="s2">&quot;fullmachinename&quot;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">portnumber</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If the <code class="docutils literal notranslate"><span class="pre">machine</span></code> argument is provided and the machine is a remote machine, AEDT
+must be up and running on the remote server listening on the specified port <code class="docutils literal notranslate"><span class="pre">portnumber</span></code>.</p>
+<p>To start AEDT in listening mode on the remote machine:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">ANSYSEM</span><span class="o">/</span><span class="n">v222</span><span class="o">/</span><span class="n">Win64</span><span class="o">/</span><span class="n">ansysedt</span><span class="o">.</span><span class="n">exe</span> <span class="o">-</span><span class="n">grpcsrv</span> <span class="n">portnumber</span>  <span class="c1">#windows</span>
+<span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">ANSYSEM</span><span class="o">/</span><span class="n">v222</span><span class="o">/</span><span class="n">Lin64</span><span class="o">/</span><span class="n">ansysedt</span> <span class="o">-</span><span class="n">grpcsrv</span> <span class="n">portnumber</span>   <span class="c1">#linux</span>
+</pre></div>
+</div>
+<p>If the connection is local, the <code class="docutils literal notranslate"><span class="pre">machine</span></code> argument must be left empty. PyAEDT then
+starts the AEDT session automatically. Machine and port arguments are available to
+all applications except EDB.</p>
+</section>
+<section id="pyaedt-remote-service-manager">
+<h2>PyAEDT remote service manager<a class="headerlink" href="#pyaedt-remote-service-manager" title="Permalink to this heading">#</a></h2>
+<p>PyAEDT includes a service manager that can be run on the server machine and can be
+launched on-demand in AEDT sessions and act as a file manager.
+You can make a remote application call on a CPython server
+or any Windows client machine in AEDT 2022 R2 and later.</p>
+<p>On a CPython Server run the <code class="docutils literal notranslate"><span class="pre">pyaedt_service_manager</span></code> service that listens on port 17878
+for incoming requests of connections from clients. The port is configurable.
+Requirements:</p>
+<ul class="simple">
+<li><p>Python 3.7+ Virtual Environment.</p></li>
+<li><p>pyaedt &gt; 0.6.0</p></li>
+</ul>
+<p>On Linux, in addition to the preceding requirements, these environments are needed:
+- You can use the CPython version in the AEDT installation folder if you first
+add the Python library folder to the <code class="docutils literal notranslate"><span class="pre">LD_LIBRARY_PATH</span></code> environment variable.
+- You can use the Python 3.7 or later version that is installed.
+- You can export <code class="docutils literal notranslate"><span class="pre">ANSYSEM_ROOT222=/path/to/AnsysEM/v222/Linux64</span></code>.
+- You can export <code class="docutils literal notranslate"><span class="pre">LD_LIBRARY_PATH=$ANSYSEM_ROOT222/common/mono/Linux64/lib:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH</span></code>.</p>
+<p>On the server, the <code class="docutils literal notranslate"><span class="pre">pyaedt_service_manager</span></code> service listen for incoming connections:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Launch PyAEDT remote server on CPython</span>
+<span class="kn">from</span> <span class="nn">pyaedt.common_rpc</span> <span class="kn">import</span> <span class="n">pyaedt_service_manager</span>
+<span class="n">pyaedt_service_manager</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>On any client machine, the user must establish the connection as shown in following example.
+AEDT can be launched directly while creating the session or after the connection is established.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyaedt.common_rpc</span> <span class="kn">import</span> <span class="n">create_session</span>
+<span class="c1"># User can establish the connection and start a new AEDT session</span>
+<span class="n">cl1</span> <span class="o">=</span> <span class="n">create_session</span><span class="p">(</span><span class="s2">&quot;server_name&quot;</span><span class="p">,</span> <span class="n">launch_aedt_on_server</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">aedt_port</span><span class="o">=</span><span class="mi">17880</span><span class="p">,</span> <span class="n">non_graphical</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Optionally AEDT can be launched after the connection is established</span>
+<span class="n">cl2</span> <span class="o">=</span> <span class="n">create_session</span><span class="p">(</span><span class="s2">&quot;server_name&quot;</span><span class="p">,</span> <span class="n">launch_aedt_on_server</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">cl2</span><span class="o">.</span><span class="n">aedt</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">17880</span><span class="p">,</span> <span class="n">non_graphical</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Once AEDT is started then user can connect an application to it.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">hfss</span> <span class="o">=</span> <span class="n">Hfss</span><span class="p">(</span><span class="n">machine</span><span class="o">=</span><span class="n">cl1</span><span class="o">.</span><span class="n">server_name</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">cl1</span><span class="o">.</span><span class="n">aedt_port</span><span class="p">)</span>
+<span class="c1"># your code here</span>
+</pre></div>
+</div>
+<p>The client can be used also to upload or download files from the server.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cl1</span><span class="o">.</span><span class="n">filemanager</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="n">remote_path</span><span class="p">)</span>
+<span class="n">file_content</span> <span class="o">=</span> <span class="n">cl1</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="n">remote_file</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+              </article>
+              
+
+              
+          </div>
+          
+      </div>
+    </div>
+
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695"></script>
+
+<footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    <p class="copyright">
+    &copy; Copyright (c) 2023 ANSYS, Inc. All rights reserved.<br>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+  </div>
+  
+</div>
+</footer>
+  </body>
+</html>

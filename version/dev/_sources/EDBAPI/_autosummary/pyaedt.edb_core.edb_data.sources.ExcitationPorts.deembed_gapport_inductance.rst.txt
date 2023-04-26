@@ -1,0 +1,6 @@
+deembed\_gapport\_inductance
+============================
+
+.. currentmodule:: pyaedt.edb_core.edb_data.sources
+
+.. autoproperty:: ExcitationPorts.deembed_gapport_inductance

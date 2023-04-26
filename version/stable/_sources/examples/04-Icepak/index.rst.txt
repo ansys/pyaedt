@@ -1,0 +1,80 @@
+
+
+.. _sphx_glr_examples_04-Icepak:
+
+Icepak examples
+~~~~~~~~~~~~~~~
+These examples use PyAEDT to show end-to-end workflows for Icepak. This includes
+schematic generation, setup, and thermal postprocessing.
+
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Icepak: thermal analysis with 3D components">
+
+.. only:: html
+
+  .. image:: /examples/04-Icepak/images/thumb/sphx_glr_Icepak_3DComponents_Example_thumb.png
+    :alt: Icepak: thermal analysis with 3D components
+
+  :ref:`sphx_glr_examples_04-Icepak_Icepak_3DComponents_Example.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Icepak: thermal analysis with 3D components</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Icepak: graphic card thermal analysis">
+
+.. only:: html
+
+  .. image:: /examples/04-Icepak/images/thumb/sphx_glr_Icepak_Example_thumb.png
+    :alt: Icepak: graphic card thermal analysis
+
+  :ref:`sphx_glr_examples_04-Icepak_Icepak_Example.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Icepak: graphic card thermal analysis</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Icepak: setup from Sherlock inputs">
+
+.. only:: html
+
+  .. image:: /examples/04-Icepak/images/thumb/sphx_glr_Sherlock_Example_thumb.png
+    :alt: Icepak: setup from Sherlock inputs
+
+  :ref:`sphx_glr_examples_04-Icepak_Sherlock_Example.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Icepak: setup from Sherlock inputs</div>
+    </div>
+
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/04-Icepak/Icepak_3DComponents_Example
+   /examples/04-Icepak/Icepak_Example
+   /examples/04-Icepak/Sherlock_Example
+

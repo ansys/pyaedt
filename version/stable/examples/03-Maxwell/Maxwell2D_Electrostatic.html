@@ -1,0 +1,811 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Maxwell 2D Electrostatic analysis &#8212; PyAEDT</title>
+    
+<script>
+  document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+  document.documentElement.dataset.theme = localStorage.getItem("theme") || "light"
+</script>
+
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+
+
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css\ansys_sphinx_theme.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695">
+
+    
+        <link href="../../_static/css/breadcrumbs.css" rel="stylesheet">
+    
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <link rel="shortcut icon" href="../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Maxwell 2D: PM synchronous motor transient analysis" href="Maxwell2D_NissanLeaf.html" />
+    <link rel="prev" title="Maxwell examples" href="index.html" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+    <div class="bd-header-announcement container-fluid" id="banner">
+      
+
+    </div>
+
+    
+    
+    <nav class="bd-header navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="bd-header__inner container-xl">
+
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+    <img src="../../_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="Logo image">
+    <img src="../../_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="fas fa-bars"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../Getting_started/index.html">
+  Getting started
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../User_guide/index.html">
+  User guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../API/index.html">
+  AEDT API
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../EDBAPI/index.html">
+  EDB API
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="../index.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../Contributing.html">
+  Contribute
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <div class="dropdown" id="version_switcher">
+    <button type="button" class="btn btn-sm navbar-btn dropdown-toggle" id="version_switcher_button" data-toggle="dropdown">
+        0.6  <!-- this text may get changed later by javascript -->
+        <span class="caret"></span>
+    </button>
+    <div id="version_switcher_menu" class="dropdown-menu list-group-flush py-0" aria-labelledby="version_switcher_button">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+</div>
+
+<!-- NOTE: this JS must live here (not in our global JS file) because it relies
+     on being processed by Jinja before it is run (specifically for replacing
+     variables examples/03-Maxwell/Maxwell2D_Electrostatic and {'json_url': 'https://aedt.docs.pyansys.com/release/versions.json', 'version_match': '0.6'}.
+-->
+
+<script type="text/javascript">
+// Check if corresponding page path exists in other version of docs
+// and, if so, go there instead of the homepage of the other docs version
+function checkPageExistsAndRedirect(event) {
+    const currentFilePath = "examples/03-Maxwell/Maxwell2D_Electrostatic.html",
+          tryUrl = event.target.getAttribute("href");
+    let otherDocsHomepage = tryUrl.replace(currentFilePath, "");
+    $.ajax({
+        type: 'HEAD',
+        url: tryUrl,
+        // if the page exists, go there
+        success: function() {
+            location.href = tryUrl;
+        }
+    }).fail(function() {
+        location.href = otherDocsHomepage;
+    });
+    // this prevents the browser from following the href of the clicked node
+    // (which is fine because this function takes care of redirecting)
+    return false;
+}
+
+// Populate the version switcher from the JSON config file
+(function () {
+    $.getJSON("https://aedt.docs.pyansys.com/release/versions.json", function(data, textStatus, jqXHR) {
+        const currentFilePath = "examples/03-Maxwell/Maxwell2D_Electrostatic.html";
+        let btn = document.getElementById("version_switcher_button");
+        // Set empty strings by default so that these attributes exist and can be used in CSS selectors
+        btn.dataset["activeVersionName"] = "";
+        btn.dataset["activeVersion"] = "";
+        // create links to the corresponding page in the other docs versions
+        $.each(data, function(index, entry) {
+            // if no custom name specified (e.g., "latest"), use version string
+            if (!("name" in entry)) {
+                entry.name = entry.version;
+            }
+            // create the node
+            const node = document.createElement("a");
+            node.setAttribute("class", "list-group-item list-group-item-action py-1");
+            node.textContent = `${entry.name}`;
+            node.setAttribute("href", `${entry.url}${currentFilePath}`);
+            // on click, AJAX calls will check if the linked page exists before
+            // trying to redirect, and if not, will redirect to the homepage
+            // for that version of the docs.
+            node.onclick = checkPageExistsAndRedirect;
+            // Add dataset values for the version and name in case people want
+            // to apply CSS styling based on this information.
+            node.dataset["versionName"] = entry.name;
+            node.dataset["version"] = entry.version;
+
+            $("#version_switcher_menu").append(node);
+            // replace dropdown button text with the preferred display name of
+            // this version, rather than using sphinx's 0.6.70 variable.
+            // also highlight the dropdown entry for the currently-viewed
+            // version's entry
+            if (entry.version == "0.6") {
+                node.classList.add("active");
+                btn.innerText = btn.dataset["activeVersionName"] = entry.name;
+                btn.dataset["activeVersion"] = entry.version;
+            }
+        });
+    });
+})();
+</script>
+      </div>
+      
+      <div class="navbar-end-item">
+        <span id="theme-switch" class="btn btn-sm btn-outline-primary navbar-btn rounded-circle">
+    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/pyansys/pyaedt" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/pyansys/pyaedt/discussions" rel="noopener" target="_blank" title="Support"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+     
+<div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(text => document.getElementById("announcement_msg").innerHTML = text)
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+
+    
+        <div class="container-xl">
+    <div class="row">
+        <div class="col-12 col-md-3" id="breadcrumbs-spacer"></div>
+        <div class="col-12 col-md-11 col-xl-9" id="breadcrumbs">
+          
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-additional-breadcrumb"><a href="https://docs.pyansys.com/">PyAnsys</a> » </li>
+    
+    
+        <li class="nav-item nav-item-0"><a href="../../index.html">PyAEDT</a> » </li>
+    
+
+          <li class="nav-item nav-item-1"><a href="../index.html" >Examples</a> » </li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">Maxwell examples</a> » </li>
+        <li class="nav-item nav-item-this"><a href="">Maxwell 2D Electrostatic analysis</a></li> 
+      </ul>
+    </div>
+        </div>
+  </div>
+</div>
+    
+
+
+    <div class="bd-container container-xl">
+      <div class="bd-container__inner row">
+          
+
+<!-- Only show if we have sidebars configured, else just a small margin  -->
+<div class="bd-sidebar-primary col-12 col-md-3 bd-sidebar">
+  <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../00-EDB/index.html">
+   EDB examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../01-HFSS3DLayout/index.html">
+   HFSS 3D Layout examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../01-Modeling-Setup/index.html">
+   General model and setup examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../02-HFSS/index.html">
+   HFSS examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../02-SBR%2B/index.html">
+   SBR+ examples
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="index.html">
+   Maxwell examples
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2 current active">
+    <a class="current reference internal" href="#">
+     Maxwell 2D Electrostatic analysis
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Maxwell2D_NissanLeaf.html">
+     Maxwell 2D: PM synchronous motor transient analysis
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Maxwell2D_Transient.html">
+     Maxwell 2D: transient winding analysis
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Maxwell3DTeam3.html">
+     Maxwell 3D: bath plate analysis
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Maxwell3DTeam7.html">
+     Maxwell 3D: asymmetric conductor analysis
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Maxwell3D_Choke.html">
+     Maxwell 3D: choke setup
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Maxwell_Magnet.html">
+     Maxwell 3D: magnet DC analysis
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../04-Icepak/index.html">
+   Icepak examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../05-Q3D/index.html">
+   2D Extractor and Q3D Extractor examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../06-Multiphysics/index.html">
+   Multiphysics examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../07-Circuit/index.html">
+   Circuit examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../07-EMIT/index.html">
+   EMIT examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../07-TwinBuilder/index.html">
+   Twin Builder examples
+  </a>
+ </li>
+</ul>
+
+  </div>
+</nav>
+  </div>
+  <div class="sidebar-end-items">
+  </div>
+</div>
+
+
+          
+
+
+<div class="bd-sidebar-secondary d-none d-xl-block col-xl-2 bd-toc">
+  
+    
+    <div class="toc-item">
+      
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#perform-required-imports">
+   Perform required imports
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#initialize-maxwell-2d">
+   Initialize Maxwell 2D
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#download-xlsx-file">
+   Download .xlsx file
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#initialize-dictionaries">
+   Initialize dictionaries
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#launch-maxwell-2d">
+   Launch Maxwell 2D
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#create-object-to-access-2d-modeler">
+   Create object to access 2D modeler
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#define-variables-from-dictionaries">
+   Define variables from dictionaries
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#read-materials-from-xslx-file">
+   Read materials from .xslx file
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#create-design-geometries">
+   Create design geometries
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#define-excitations">
+   Define excitations
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#create-initial-mesh-settings">
+   Create initial mesh settings
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#create-validate-and-analyze-the-setup">
+   Create, validate and analyze the setup
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#evaluate-the-e-field-tangential-component">
+   Evaluate the E Field tangential component
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#create-field-line-traces-plot">
+   Create Field Line Traces Plot
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#update-field-line-traces-plot">
+   Update Field Line Traces Plot
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#save-project-and-close-aedt">
+   Save project and close AEDT
+  </a>
+ </li>
+</ul>
+
+</nav>
+    </div>
+    
+    <div class="toc-item">
+      
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/pyansys/pyaedt/edit/main/doc/source/examples/03-Maxwell/Maxwell2D_Electrostatic.rst">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
+    </div>
+    
+  
+</div>
+
+
+          
+          
+          <div class="bd-content col-12 col-md-9 col-xl-7">
+              
+              <article class="bd-article" role="main">
+                
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-examples-03-maxwell-maxwell2d-electrostatic-py"><span class="std std-ref">here</span></a>
+to download the full example code</p>
+</div>
+<section class="sphx-glr-example-title" id="maxwell-2d-electrostatic-analysis">
+<span id="sphx-glr-examples-03-maxwell-maxwell2d-electrostatic-py"></span><h1>Maxwell 2D Electrostatic analysis<a class="headerlink" href="#maxwell-2d-electrostatic-analysis" title="Permalink to this heading">#</a></h1>
+<p>This example shows how you can use PyAEDT to create a Maxwell 2D electrostatic analysis.
+It shows how to create the geometry, load material properties from an Excel file and
+set up the mesh settings. Moreover, it focuses on post-processing operations, in particular how to
+plot field line traces, relevant for an electrostatic analysis.</p>
+<section id="perform-required-imports">
+<h2>Perform required imports<a class="headerlink" href="#perform-required-imports" title="Permalink to this heading">#</a></h2>
+<p>Perform required imports.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyaedt</span>
+</pre></div>
+</div>
+</section>
+<section id="initialize-maxwell-2d">
+<h2>Initialize Maxwell 2D<a class="headerlink" href="#initialize-maxwell-2d" title="Permalink to this heading">#</a></h2>
+<p>Initialize Maxwell 2D, providing the version, path to the project, and the design
+name and type.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">desktopVersion</span></a> <span class="o">=</span> <span class="s1">&#39;2023.1&#39;</span>
+
+<a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sName</span></a> <span class="o">=</span> <span class="s1">&#39;MySetupAuto&#39;</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sType</span></a> <span class="o">=</span> <span class="s1">&#39;Electrostatic&#39;</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">dName</span></a> <span class="o">=</span> <span class="s1">&#39;Design1&#39;</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pName</span></a> <span class="o">=</span> <span class="n">pyaedt</span><span class="o">.</span><span class="n">generate_unique_project_name</span><span class="p">()</span>
+<a href="https://docs.python.org/dev/library/functions.html#bool" title="builtins.bool" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">non_graphical</span></a> <span class="o">=</span> <span class="kc">False</span>
+</pre></div>
+</div>
+</section>
+<section id="download-xlsx-file">
+<h2>Download .xlsx file<a class="headerlink" href="#download-xlsx-file" title="Permalink to this heading">#</a></h2>
+<p>Set local temporary folder to export the .xlsx file to.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">file_name_xlsx</span></a> <span class="o">=</span> <span class="n">pyaedt</span><span class="o">.</span><span class="n">downloads</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="s2">&quot;field_line_traces&quot;</span><span class="p">,</span> <span class="s2">&quot;my_copper.xlsx&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="initialize-dictionaries">
+<h2>Initialize dictionaries<a class="headerlink" href="#initialize-dictionaries" title="Permalink to this heading">#</a></h2>
+<p>Initialize dictionaries that contain all the definitions for the design variables.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">geom_params_circle</span></a> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;circle_x0&#39;</span><span class="p">:</span> <span class="s1">&#39;-10mm&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;circle_y0&#39;</span><span class="p">:</span> <span class="s1">&#39;0mm&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;circle_z0&#39;</span><span class="p">:</span> <span class="s1">&#39;0mm&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;circle_axis&#39;</span><span class="p">:</span> <span class="s1">&#39;Z&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;circle_radius&#39;</span><span class="p">:</span> <span class="s1">&#39;1mm&#39;</span>
+<span class="p">}</span>
+
+<a href="https://docs.python.org/dev/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">geom_params_rectangle</span></a> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;r_x0&#39;</span><span class="p">:</span> <span class="s1">&#39;1mm&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;r_y0&#39;</span><span class="p">:</span> <span class="s1">&#39;5mm&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;r_z0&#39;</span><span class="p">:</span> <span class="s1">&#39;0mm&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;r_axis&#39;</span><span class="p">:</span> <span class="s1">&#39;Z&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;r_dx&#39;</span><span class="p">:</span> <span class="s1">&#39;-1mm&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;r_dy&#39;</span><span class="p">:</span> <span class="s1">&#39;-10mm&#39;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="launch-maxwell-2d">
+<h2>Launch Maxwell 2D<a class="headerlink" href="#launch-maxwell-2d" title="Permalink to this heading">#</a></h2>
+<p>Launch Maxwell 2D and save the project.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">M2D</span> <span class="o">=</span> <span class="n">pyaedt</span><span class="o">.</span><span class="n">Maxwell2d</span><span class="p">(</span><span class="n">projectname</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pName</span></a><span class="p">,</span>
+                       <span class="n">specified_version</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">desktopVersion</span></a><span class="p">,</span>
+                       <span class="n">designname</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">dName</span></a><span class="p">,</span>
+                       <span class="n">solution_type</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sType</span></a><span class="p">,</span>
+                       <span class="n">new_desktop_session</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                       <a href="https://docs.python.org/dev/library/functions.html#bool" title="builtins.bool" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">non_graphical</span></a><span class="o">=</span><a href="https://docs.python.org/dev/library/functions.html#bool" title="builtins.bool" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">non_graphical</span></a>
+                       <span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>C:\actions-runner\_work\_tool\Python\3.8.10\x64\lib\subprocess.py:946: ResourceWarning: subprocess 6988 is still running
+  _warn(&quot;subprocess %s is still running&quot; % self.pid,
+c:\actions-runner\_work\pyaedt\pyaedt\testenv\lib\site-packages\pyaedt\desktop.py:79: ResourceWarning: unclosed file &lt;_io.BufferedReader name=11&gt;
+  subprocess.Popen(&quot; &quot;.join(command), env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+c:\actions-runner\_work\pyaedt\pyaedt\testenv\lib\site-packages\pyaedt\desktop.py:86: ResourceWarning: unclosed &lt;socket.socket fd=4604, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=(&#39;0.0.0.0&#39;, 53618)&gt;
+  while not _check_grpc_port(port):
+c:\actions-runner\_work\pyaedt\pyaedt\testenv\lib\site-packages\pyaedt\desktop.py:86: ResourceWarning: unclosed &lt;socket.socket fd=4604, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=(&#39;0.0.0.0&#39;, 53624)&gt;
+  while not _check_grpc_port(port):
+c:\actions-runner\_work\pyaedt\pyaedt\testenv\lib\site-packages\pyaedt\desktop.py:86: ResourceWarning: unclosed &lt;socket.socket fd=4604, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=(&#39;0.0.0.0&#39;, 53627)&gt;
+  while not _check_grpc_port(port):
+c:\actions-runner\_work\pyaedt\pyaedt\testenv\lib\site-packages\pyaedt\desktop.py:86: ResourceWarning: unclosed &lt;socket.socket fd=7784, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=(&#39;0.0.0.0&#39;, 53631)&gt;
+  while not _check_grpc_port(port):
+</pre></div>
+</div>
+</section>
+<section id="create-object-to-access-2d-modeler">
+<h2>Create object to access 2D modeler<a class="headerlink" href="#create-object-to-access-2d-modeler" title="Permalink to this heading">#</a></h2>
+<p>Create the object <code class="docutils literal notranslate"><span class="pre">mod2D</span></code> to access the 2D modeler easily.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mod2D</span> <span class="o">=</span> <span class="n">M2D</span><span class="o">.</span><span class="n">modeler</span>
+<span class="n">mod2D</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+<span class="n">mod2D</span><span class="o">.</span><span class="n">model_units</span> <span class="o">=</span> <span class="s2">&quot;mm&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="define-variables-from-dictionaries">
+<h2>Define variables from dictionaries<a class="headerlink" href="#define-variables-from-dictionaries" title="Permalink to this heading">#</a></h2>
+<p>Define design variables from the created dictionaries.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">k</span></a><span class="p">,</span> <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">v</span></a> <span class="ow">in</span> <a href="https://docs.python.org/dev/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">geom_params_circle</span></a><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">M2D</span><span class="p">[</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">k</span></a><span class="p">]</span> <span class="o">=</span> <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">v</span></a>
+<span class="k">for</span> <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">k</span></a><span class="p">,</span> <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">v</span></a> <span class="ow">in</span> <a href="https://docs.python.org/dev/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">geom_params_rectangle</span></a><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">M2D</span><span class="p">[</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">k</span></a><span class="p">]</span> <span class="o">=</span> <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">v</span></a>
+</pre></div>
+</div>
+</section>
+<section id="read-materials-from-xslx-file">
+<h2>Read materials from .xslx file<a class="headerlink" href="#read-materials-from-xslx-file" title="Permalink to this heading">#</a></h2>
+<p>Read materials from .xslx file into and set into design.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mats</span></a> <span class="o">=</span> <span class="n">M2D</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">import_materials_from_excel</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">file_name_xlsx</span></a><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="create-design-geometries">
+<h2>Create design geometries<a class="headerlink" href="#create-design-geometries" title="Permalink to this heading">#</a></h2>
+<p>Create rectangle and a circle and assign the material read from the .xlsx file.
+Create two new polylines and a region.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">rect</span> <span class="o">=</span> <span class="n">mod2D</span><span class="o">.</span><span class="n">create_rectangle</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;r_x0&#39;</span><span class="p">,</span> <span class="s1">&#39;r_y0&#39;</span><span class="p">,</span> <span class="s1">&#39;r_z0&#39;</span><span class="p">],</span>
+                              <span class="n">dimension_list</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;r_dx&#39;</span><span class="p">,</span> <span class="s1">&#39;r_dy&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                              <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Ground&#39;</span><span class="p">,</span> <span class="n">matname</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mats</span></a><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">rect</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>  <span class="c1"># rgb</span>
+<span class="n">rect</span><span class="o">.</span><span class="n">solve_inside</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="n">circle</span> <span class="o">=</span> <span class="n">mod2D</span><span class="o">.</span><span class="n">create_circle</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;circle_x0&#39;</span><span class="p">,</span> <span class="s1">&#39;circle_y0&#39;</span><span class="p">,</span> <span class="s1">&#39;circle_z0&#39;</span><span class="p">],</span> <span class="n">radius</span><span class="o">=</span><span class="s1">&#39;circle_radius&#39;</span><span class="p">,</span>
+                             <span class="n">num_sides</span><span class="o">=</span><span class="s1">&#39;0&#39;</span><span class="p">,</span> <span class="n">is_covered</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Electrode&#39;</span><span class="p">,</span> <span class="n">matname</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mats</span></a><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">circle</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>  <span class="c1"># rgb</span>
+<span class="n">circle</span><span class="o">.</span><span class="n">solve_inside</span> <span class="o">=</span> <span class="kc">False</span>
+
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">poly1_points</span></a> <span class="o">=</span> <span class="p">[[</span><span class="o">-</span><span class="mi">9</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">poly2_points</span></a> <span class="o">=</span> <span class="p">[[</span><span class="o">-</span><span class="mi">9</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>
+<span class="n">poly1_id</span> <span class="o">=</span> <span class="n">mod2D</span><span class="o">.</span><span class="n">create_polyline</span><span class="p">(</span><span class="n">position_list</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">poly1_points</span></a><span class="p">,</span><span class="n">segment_type</span><span class="o">=</span><span class="s1">&#39;Spline&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Poly1&#39;</span><span class="p">)</span>
+<span class="n">poly2_id</span> <span class="o">=</span> <span class="n">mod2D</span><span class="o">.</span><span class="n">create_polyline</span><span class="p">(</span><span class="n">position_list</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">poly2_points</span></a><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Poly2&#39;</span><span class="p">)</span>
+<span class="n">mod2D</span><span class="o">.</span><span class="n">split</span><span class="p">([</span><span class="n">poly1_id</span><span class="p">,</span> <span class="n">poly2_id</span><span class="p">],</span> <span class="s1">&#39;YZ&#39;</span><span class="p">,</span> <span class="n">sides</span><span class="o">=</span><span class="s1">&#39;NegativeOnly&#39;</span><span class="p">)</span>
+<span class="n">mod2D</span><span class="o">.</span><span class="n">create_region</span><span class="p">([</span><span class="mi">20</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">100</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;pyaedt.modeler.cad.object3d.Object3d object at 0x00000228AA35AA30&gt;
+</pre></div>
+</div>
+</section>
+<section id="define-excitations">
+<h2>Define excitations<a class="headerlink" href="#define-excitations" title="Permalink to this heading">#</a></h2>
+<p>Assign voltage excitations to rectangle and circle.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">M2D</span><span class="o">.</span><span class="n">assign_voltage</span><span class="p">(</span><span class="n">rect</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">amplitude</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Ground&#39;</span><span class="p">)</span>
+<span class="n">M2D</span><span class="o">.</span><span class="n">assign_voltage</span><span class="p">(</span><span class="n">circle</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">amplitude</span><span class="o">=</span><span class="mf">50e6</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;50kV&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;pyaedt.modules.Boundary.BoundaryObject object at 0x00000228AA383430&gt;
+</pre></div>
+</div>
+</section>
+<section id="create-initial-mesh-settings">
+<h2>Create initial mesh settings<a class="headerlink" href="#create-initial-mesh-settings" title="Permalink to this heading">#</a></h2>
+<p>Assign a surface mesh to the rectangle.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">M2D</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">assign_surface_mesh_manual</span><span class="p">(</span><span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Ground&#39;</span><span class="p">],</span> <span class="n">surf_dev</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;pyaedt.modules.Mesh.MeshOperation object at 0x00000228AA383760&gt;
+</pre></div>
+</div>
+</section>
+<section id="create-validate-and-analyze-the-setup">
+<h2>Create, validate and analyze the setup<a class="headerlink" href="#create-validate-and-analyze-the-setup" title="Permalink to this heading">#</a></h2>
+<p>Create, update, validate and analyze the setup.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">setup</span> <span class="o">=</span> <span class="n">M2D</span><span class="o">.</span><span class="n">create_setup</span><span class="p">(</span><span class="n">setupname</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sName</span></a><span class="p">)</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s1">&#39;PercentError&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+<span class="n">M2D</span><span class="o">.</span><span class="n">validate_simple</span><span class="p">()</span>
+<span class="n">M2D</span><span class="o">.</span><span class="n">analyze_setup</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sName</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</section>
+<section id="evaluate-the-e-field-tangential-component">
+<h2>Evaluate the E Field tangential component<a class="headerlink" href="#evaluate-the-e-field-tangential-component" title="Permalink to this heading">#</a></h2>
+<p>Evaluate the E Field tangential component along the given polylines.
+Add these operations to the Named Expression list in Field Calculator.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fields</span> <span class="o">=</span> <span class="n">M2D</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetModule</span><span class="p">(</span><span class="s1">&#39;FieldsReporter&#39;</span><span class="p">)</span>
+<span class="n">fields</span><span class="o">.</span><span class="n">CalcStack</span><span class="p">(</span><span class="s2">&quot;clear&quot;</span><span class="p">)</span>
+<span class="n">fields</span><span class="o">.</span><span class="n">EnterQty</span><span class="p">(</span><span class="s2">&quot;E&quot;</span><span class="p">)</span>
+<span class="n">fields</span><span class="o">.</span><span class="n">EnterEdge</span><span class="p">(</span><span class="s2">&quot;Poly1&quot;</span><span class="p">)</span>
+<span class="n">fields</span><span class="o">.</span><span class="n">CalcOp</span><span class="p">(</span><span class="s2">&quot;Tangent&quot;</span><span class="p">)</span>
+<span class="n">fields</span><span class="o">.</span><span class="n">CalcOp</span><span class="p">(</span><span class="s2">&quot;Dot&quot;</span><span class="p">)</span>
+<span class="n">fields</span><span class="o">.</span><span class="n">AddNamedExpression</span><span class="p">(</span><span class="s2">&quot;e_tan_poly1&quot;</span><span class="p">,</span> <span class="s2">&quot;Fields&quot;</span><span class="p">)</span>
+<span class="n">fields</span><span class="o">.</span><span class="n">EnterQty</span><span class="p">(</span><span class="s2">&quot;E&quot;</span><span class="p">)</span>
+<span class="n">fields</span><span class="o">.</span><span class="n">EnterEdge</span><span class="p">(</span><span class="s2">&quot;Poly2&quot;</span><span class="p">)</span>
+<span class="n">fields</span><span class="o">.</span><span class="n">CalcOp</span><span class="p">(</span><span class="s2">&quot;Tangent&quot;</span><span class="p">)</span>
+<span class="n">fields</span><span class="o">.</span><span class="n">CalcOp</span><span class="p">(</span><span class="s2">&quot;Dot&quot;</span><span class="p">)</span>
+<span class="n">fields</span><span class="o">.</span><span class="n">AddNamedExpression</span><span class="p">(</span><span class="s2">&quot;e_tan_poly2&quot;</span><span class="p">,</span> <span class="s2">&quot;Fields&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="create-field-line-traces-plot">
+<h2>Create Field Line Traces Plot<a class="headerlink" href="#create-field-line-traces-plot" title="Permalink to this heading">#</a></h2>
+<p>Create Field Line Traces Plot specifying as seeding faces
+the ground, the electrode and the region
+and as <code class="docutils literal notranslate"><span class="pre">In</span> <span class="pre">surface</span> <span class="pre">objects</span></code> only the region.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plot</span> <span class="o">=</span> <span class="n">M2D</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">create_fieldplot_line_traces</span><span class="p">([</span><span class="s2">&quot;Ground&quot;</span><span class="p">,</span> <span class="s2">&quot;Electrode&quot;</span><span class="p">,</span> <span class="s2">&quot;Region&quot;</span><span class="p">],</span> <span class="s2">&quot;Region&quot;</span><span class="p">,</span> <span class="n">plot_name</span><span class="o">=</span><span class="s2">&quot;LineTracesTest&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="update-field-line-traces-plot">
+<h2>Update Field Line Traces Plot<a class="headerlink" href="#update-field-line-traces-plot" title="Permalink to this heading">#</a></h2>
+<p>Update field line traces plot.
+Update seeding points number, line style and line width.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">plot</span><span class="o">.</span><span class="n">SeedingPointsNumber</span></a> <span class="o">=</span> <span class="mi">20</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">plot</span><span class="o">.</span><span class="n">LineStyle</span></a> <span class="o">=</span> <span class="s2">&quot;Cylinder&quot;</span>
+<a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">plot</span><span class="o">.</span><span class="n">LineWidth</span></a> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">plot</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</section>
+<section id="save-project-and-close-aedt">
+<h2>Save project and close AEDT<a class="headerlink" href="#save-project-and-close-aedt" title="Permalink to this heading">#</a></h2>
+<p>Save the project and close AEDT.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">M2D</span><span class="o">.</span><span class="n">save_project</span><span class="p">()</span>
+<span class="n">M2D</span><span class="o">.</span><span class="n">release_desktop</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 1 minutes  3.544 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-03-maxwell-maxwell2d-electrostatic-py">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/1b65bb1c2b6fa4a75be74dab0ca3a4c8/Maxwell2D_Electrostatic.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">Maxwell2D_Electrostatic.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/c93e8acfbbb9605ddf59857c4622d5e9/Maxwell2D_Electrostatic.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">Maxwell2D_Electrostatic.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+              </article>
+              
+
+              
+          </div>
+          
+      </div>
+    </div>
+
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695"></script>
+
+<footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    <p class="copyright">
+    &copy; Copyright (c) 2023 ANSYS, Inc. All rights reserved.<br>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+  </div>
+  
+</div>
+</footer>
+  </body>
+</html>

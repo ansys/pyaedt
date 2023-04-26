@@ -1,0 +1,1366 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>HFSS: machine learning applied to a patch &#8212; PyAEDT</title>
+    
+<script>
+  document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+  document.documentElement.dataset.theme = localStorage.getItem("theme") || "light"
+</script>
+
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+
+
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css\ansys_sphinx_theme.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695">
+
+    
+        <link href="../../_static/css/breadcrumbs.css" rel="stylesheet">
+    
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <link rel="shortcut icon" href="../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="HFSS: Inductive Iris waveguide filter" href="Waveguide_Filter.html" />
+    <link rel="prev" title="HFSS: spiral inductor" href="HFSS_Spiral.html" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+    <div class="bd-header-announcement container-fluid" id="banner">
+      
+
+    </div>
+
+    
+    
+    <nav class="bd-header navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="bd-header__inner container-xl">
+
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+    <img src="../../_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="Logo image">
+    <img src="../../_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="fas fa-bars"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../Getting_started/index.html">
+  Getting started
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../User_guide/index.html">
+  User guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../API/index.html">
+  AEDT API
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../EDBAPI/index.html">
+  EDB API
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="../index.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../Contributing.html">
+  Contribute
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <div class="dropdown" id="version_switcher">
+    <button type="button" class="btn btn-sm navbar-btn dropdown-toggle" id="version_switcher_button" data-toggle="dropdown">
+        0.6  <!-- this text may get changed later by javascript -->
+        <span class="caret"></span>
+    </button>
+    <div id="version_switcher_menu" class="dropdown-menu list-group-flush py-0" aria-labelledby="version_switcher_button">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+</div>
+
+<!-- NOTE: this JS must live here (not in our global JS file) because it relies
+     on being processed by Jinja before it is run (specifically for replacing
+     variables examples/02-HFSS/Machine_learning_applied_to_Patch and {'json_url': 'https://aedt.docs.pyansys.com/release/versions.json', 'version_match': '0.6'}.
+-->
+
+<script type="text/javascript">
+// Check if corresponding page path exists in other version of docs
+// and, if so, go there instead of the homepage of the other docs version
+function checkPageExistsAndRedirect(event) {
+    const currentFilePath = "examples/02-HFSS/Machine_learning_applied_to_Patch.html",
+          tryUrl = event.target.getAttribute("href");
+    let otherDocsHomepage = tryUrl.replace(currentFilePath, "");
+    $.ajax({
+        type: 'HEAD',
+        url: tryUrl,
+        // if the page exists, go there
+        success: function() {
+            location.href = tryUrl;
+        }
+    }).fail(function() {
+        location.href = otherDocsHomepage;
+    });
+    // this prevents the browser from following the href of the clicked node
+    // (which is fine because this function takes care of redirecting)
+    return false;
+}
+
+// Populate the version switcher from the JSON config file
+(function () {
+    $.getJSON("https://aedt.docs.pyansys.com/release/versions.json", function(data, textStatus, jqXHR) {
+        const currentFilePath = "examples/02-HFSS/Machine_learning_applied_to_Patch.html";
+        let btn = document.getElementById("version_switcher_button");
+        // Set empty strings by default so that these attributes exist and can be used in CSS selectors
+        btn.dataset["activeVersionName"] = "";
+        btn.dataset["activeVersion"] = "";
+        // create links to the corresponding page in the other docs versions
+        $.each(data, function(index, entry) {
+            // if no custom name specified (e.g., "latest"), use version string
+            if (!("name" in entry)) {
+                entry.name = entry.version;
+            }
+            // create the node
+            const node = document.createElement("a");
+            node.setAttribute("class", "list-group-item list-group-item-action py-1");
+            node.textContent = `${entry.name}`;
+            node.setAttribute("href", `${entry.url}${currentFilePath}`);
+            // on click, AJAX calls will check if the linked page exists before
+            // trying to redirect, and if not, will redirect to the homepage
+            // for that version of the docs.
+            node.onclick = checkPageExistsAndRedirect;
+            // Add dataset values for the version and name in case people want
+            // to apply CSS styling based on this information.
+            node.dataset["versionName"] = entry.name;
+            node.dataset["version"] = entry.version;
+
+            $("#version_switcher_menu").append(node);
+            // replace dropdown button text with the preferred display name of
+            // this version, rather than using sphinx's 0.6.70 variable.
+            // also highlight the dropdown entry for the currently-viewed
+            // version's entry
+            if (entry.version == "0.6") {
+                node.classList.add("active");
+                btn.innerText = btn.dataset["activeVersionName"] = entry.name;
+                btn.dataset["activeVersion"] = entry.version;
+            }
+        });
+    });
+})();
+</script>
+      </div>
+      
+      <div class="navbar-end-item">
+        <span id="theme-switch" class="btn btn-sm btn-outline-primary navbar-btn rounded-circle">
+    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/pyansys/pyaedt" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/pyansys/pyaedt/discussions" rel="noopener" target="_blank" title="Support"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+     
+<div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(text => document.getElementById("announcement_msg").innerHTML = text)
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+
+    
+        <div class="container-xl">
+    <div class="row">
+        <div class="col-12 col-md-3" id="breadcrumbs-spacer"></div>
+        <div class="col-12 col-md-11 col-xl-9" id="breadcrumbs">
+          
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-additional-breadcrumb"><a href="https://docs.pyansys.com/">PyAnsys</a> » </li>
+    
+    
+        <li class="nav-item nav-item-0"><a href="../../index.html">PyAEDT</a> » </li>
+    
+
+          <li class="nav-item nav-item-1"><a href="../index.html" >Examples</a> » </li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">HFSS examples</a> » </li>
+        <li class="nav-item nav-item-this"><a href="">HFSS: machine learning applied to a patch</a></li> 
+      </ul>
+    </div>
+        </div>
+  </div>
+</div>
+    
+
+
+    <div class="bd-container container-xl">
+      <div class="bd-container__inner row">
+          
+
+<!-- Only show if we have sidebars configured, else just a small margin  -->
+<div class="bd-sidebar-primary col-12 col-md-3 bd-sidebar">
+  <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../00-EDB/index.html">
+   EDB examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../01-HFSS3DLayout/index.html">
+   HFSS 3D Layout examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../01-Modeling-Setup/index.html">
+   General model and setup examples
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="index.html">
+   HFSS examples
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="01-Cable_Modeling_Workflow.html">
+     HFSS: Cable Modeling
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Advanced_Far_Field.html">
+     HFSS: advanced far field postprocessing
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Array.html">
+     HFSS: component antenna array
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Flex_CPWG.html">
+     HFSS: flex cable CPWG
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="HFSS_Choke.html">
+     HFSS: choke
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="HFSS_Dipole.html">
+     HFSS: dipole antenna
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="HFSS_Spiral.html">
+     HFSS: spiral inductor
+    </a>
+   </li>
+   <li class="toctree-l2 current active">
+    <a class="current reference internal" href="#">
+     HFSS: machine learning applied to a patch
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Waveguide_Filter.html">
+     HFSS: Inductive Iris waveguide filter
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../02-SBR%2B/index.html">
+   SBR+ examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../03-Maxwell/index.html">
+   Maxwell examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../04-Icepak/index.html">
+   Icepak examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../05-Q3D/index.html">
+   2D Extractor and Q3D Extractor examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../06-Multiphysics/index.html">
+   Multiphysics examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../07-Circuit/index.html">
+   Circuit examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../07-EMIT/index.html">
+   EMIT examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../07-TwinBuilder/index.html">
+   Twin Builder examples
+  </a>
+ </li>
+</ul>
+
+  </div>
+</nav>
+  </div>
+  <div class="sidebar-end-items">
+  </div>
+</div>
+
+
+          
+
+
+<div class="bd-sidebar-secondary d-none d-xl-block col-xl-2 bd-toc">
+  
+    
+    <div class="toc-item">
+      
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   HFSS: machine learning applied to a patch
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#perform-required-imports">
+     Perform required imports
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#set-non-graphical-mode">
+     Set non-graphical mode
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#generate-database">
+   Generate database
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#generate-input">
+     Generate input
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#generate-hfss-design">
+     Generate HFSS design
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#resize-layers-around-patch">
+     Resize layers around patch
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#create-lumped-port">
+     Create lumped port
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#create-line">
+     Create line
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#plot">
+     Plot
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#create-setup-and-sweep">
+     Create setup and sweep
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#define-function">
+     Define function
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#create-parametric-variation-by-case">
+     Create parametric variation by case
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#print-error">
+     Print error
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#end-data-recovery-step">
+     End data recovery step
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#create-machine-learning-algorithm">
+   Create machine learning algorithm
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#import-training-cases">
+     Import training cases
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#create-lists">
+     Create lists
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#fill-list-for-input-of-training">
+     Fill list for input of training
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#convert-lists-in-array">
+     Convert lists in array
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#create-model">
+     Create model
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#train-model">
+     Train model
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#dump-model-into-joblib-file">
+     Dump model into JOBLIB file
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#implement-model-in-pyaedt-method">
+   Implement model in PyAEDT method
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#load-model">
+     Load model
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#predict-length-of-patch">
+     Predict length of patch
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#measure-model-efficiency">
+     Measure model efficiency
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#release-aedt">
+   Release AEDT
+  </a>
+ </li>
+</ul>
+
+</nav>
+    </div>
+    
+    <div class="toc-item">
+      
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/pyansys/pyaedt/edit/main/doc/source/examples/02-HFSS/Machine_learning_applied_to_Patch.rst">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
+    </div>
+    
+  
+</div>
+
+
+          
+          
+          <div class="bd-content col-12 col-md-9 col-xl-7">
+              
+              <article class="bd-article" role="main">
+                
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-examples-02-hfss-machine-learning-applied-to-patch-py"><span class="std std-ref">here</span></a>
+to download the full example code</p>
+</div>
+<section class="sphx-glr-example-title" id="hfss-machine-learning-applied-to-a-patch">
+<span id="sphx-glr-examples-02-hfss-machine-learning-applied-to-patch-py"></span><h1>HFSS: machine learning applied to a patch<a class="headerlink" href="#hfss-machine-learning-applied-to-a-patch" title="Permalink to this heading">#</a></h1>
+<p>This example shows how you can use PyAEDT to create a machine learning algorithm in three steps:</p>
+<ol class="arabic simple">
+<li><p>Generate the database.</p></li>
+<li><p>Create the machine learning algorithm.</p></li>
+<li><p>Implement the model in a PyAEDT method.</p></li>
+</ol>
+<p>While this example supplies the code for all three steps in one Python file, it would be
+better to separate the code for each step into its own Python file.</p>
+<section id="perform-required-imports">
+<h2>Perform required imports<a class="headerlink" href="#perform-required-imports" title="Permalink to this heading">#</a></h2>
+<p>Perform required imports.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <a href="https://docs.python.org/dev/library/math.html#math.sqrt" title="math.sqrt" class="sphx-glr-backref-module-math sphx-glr-backref-type-py-function"><span class="n">sqrt</span></a>
+
+<span class="kn">import</span> <span class="nn">joblib</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="kn">import</span> <span class="n">make_pipeline</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span> <span class="nn">sklearn.svm</span> <span class="kn">import</span> <span class="n">SVR</span>
+
+<span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">Hfss</span>
+<span class="kn">from</span> <span class="nn">pyaedt.modeler.advanced_cad.stackup_3d</span> <span class="kn">import</span> <span class="n">Stackup3D</span>
+</pre></div>
+</div>
+</section>
+<section id="set-non-graphical-mode">
+<h2>Set non-graphical mode<a class="headerlink" href="#set-non-graphical-mode" title="Permalink to this heading">#</a></h2>
+<p>Set non-graphical mode. <code class="docutils literal notranslate"><span class="pre">&quot;PYAEDT_NON_GRAPHICAL&quot;</span></code> is needed to generate
+documentation only.
+You can set <code class="docutils literal notranslate"><span class="pre">non_graphical</span></code> either to <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/functions.html#bool" title="builtins.bool" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">non_graphical</span></a> <span class="o">=</span> <span class="kc">False</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="generate-database">
+<h1>Generate database<a class="headerlink" href="#generate-database" title="Permalink to this heading">#</a></h1>
+<p>This section describes the first step, which is for generating the database.</p>
+<section id="generate-input">
+<h2>Generate input<a class="headerlink" href="#generate-input" title="Permalink to this heading">#</a></h2>
+<p>Generate input randomly by creating a function with four inputs: frequency,
+substrate permittivity, substrate thickness, and patch width. Frequency ranges
+from 0.1 GHz to 1 GHz. Permittivity is from 1 to 12.</p>
+<p>The following code generates a database of 1 frequency x 2 permittivity
+x 2 thickness x 2 width. It creates eight cases, which are far too few to
+use to train the model but are a sufficient number for testing
+the model. Later in this example, you import more than 3,300 different
+cases in a previously generated database of 74 frequencies
+x 5 permittivity x 3 thickness x 3 width.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tuple_random_frequency_permittivity</span></a> <span class="o">=</span> <span class="p">[]</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">frequency_list</span></a> <span class="o">=</span> <span class="p">[</span><span class="mi">150</span> <span class="o">*</span> <span class="mf">1e6</span><span class="p">]</span>
+<span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">in_list</span></a> <span class="ow">in</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">frequency_list</span></a><span class="p">:</span>
+    <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+        <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">random_permittivity</span></a> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">11</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><a href="https://docs.python.org/dev/library/random.html#random.random" title="random.random" class="sphx-glr-backref-module-random sphx-glr-backref-type-py-function"><span class="n">random</span><span class="o">.</span><span class="n">random</span></a><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span> <span class="o">/</span> <span class="mi">100</span>
+        <a href="https://docs.python.org/dev/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">temp_tuple</span></a> <span class="o">=</span> <span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">in_list</span></a><span class="p">,</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">random_permittivity</span></a><span class="p">)</span>
+        <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tuple_random_frequency_permittivity</span></a><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">temp_tuple</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<p>Thickness is generated from 0.0025 to 0.055 of the wavelength in the void.
+Width is generated from 0.5 to 1.5 of the optimal theoretical width:</p>
+<p><code class="docutils literal notranslate"><span class="pre">c</span> <span class="pre">/</span> <span class="pre">(2</span> <span class="pre">*</span> <span class="pre">frequency</span> <span class="pre">*</span> <span class="pre">sqrt((permittivity</span> <span class="pre">+</span> <span class="pre">1)</span> <span class="pre">/</span> <span class="pre">2))</span></code></p>
+<p>For each couple of frequency-permittivity, three random thicknesses and three
+random widths are generated. Patch length is calculated using the analytic
+formula. Using this formula is important because it reduces the sweep
+frequency needed for the data recovery. Every case is stored in a list of a
+dictionary.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">dictionary_list</span></a> <span class="o">=</span> <span class="p">[]</span>
+<a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">c</span></a> <span class="o">=</span> <span class="mf">2.99792458e8</span>
+<span class="k">for</span> <a href="https://docs.python.org/dev/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">couple</span></a> <span class="ow">in</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tuple_random_frequency_permittivity</span></a><span class="p">:</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">list_thickness</span></a> <span class="o">=</span> <span class="p">[]</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">list_width</span></a> <span class="o">=</span> <span class="p">[]</span>
+    <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">frequency</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">couple</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">permittivity</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">couple</span></a><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">er</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">permittivity</span></a>
+    <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">wave_length_0</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">c</span></a> <span class="o">/</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">frequency</span></a>
+
+    <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">min_thickness</span></a> <span class="o">=</span> <span class="mf">0.0025</span> <span class="o">*</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">wave_length_0</span></a>
+    <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">inter_thickness</span></a> <span class="o">=</span> <span class="mf">0.01</span> <span class="o">*</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">wave_length_0</span></a>
+    <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">max_thickness</span></a> <span class="o">=</span> <span class="mf">0.055</span> <span class="o">*</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">wave_length_0</span></a>
+    <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+        <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">random_int</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/random.html#random.randint" title="random.randint" class="sphx-glr-backref-module-random sphx-glr-backref-type-py-function"><span class="n">random</span><span class="o">.</span><span class="n">randint</span></a><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">random_int</span></a> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">thickness</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">min_thickness</span></a> <span class="o">+</span> <span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">inter_thickness</span></a> <span class="o">-</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">min_thickness</span></a><span class="p">)</span> <span class="o">*</span> <a href="https://docs.python.org/dev/library/random.html#random.random" title="random.random" class="sphx-glr-backref-module-random sphx-glr-backref-type-py-function"><span class="n">random</span><span class="o">.</span><span class="n">random</span></a><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">thickness</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">inter_thickness</span></a> <span class="o">+</span> <span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">max_thickness</span></a> <span class="o">-</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">inter_thickness</span></a><span class="p">)</span> <span class="o">*</span> <a href="https://docs.python.org/dev/library/random.html#random.random" title="random.random" class="sphx-glr-backref-module-random sphx-glr-backref-type-py-function"><span class="n">random</span><span class="o">.</span><span class="n">random</span></a><span class="p">()</span>
+        <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">list_thickness</span></a><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">thickness</span></a><span class="p">)</span>
+
+    <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">min_width</span></a> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">c</span></a> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">frequency</span></a> <span class="o">*</span> <a href="https://docs.python.org/dev/library/math.html#math.sqrt" title="math.sqrt" class="sphx-glr-backref-module-math sphx-glr-backref-type-py-function"><span class="n">sqrt</span></a><span class="p">((</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">er</span></a> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+    <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">max_width</span></a> <span class="o">=</span> <span class="mf">1.5</span> <span class="o">*</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">c</span></a> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">frequency</span></a> <span class="o">*</span> <a href="https://docs.python.org/dev/library/math.html#math.sqrt" title="math.sqrt" class="sphx-glr-backref-module-math sphx-glr-backref-type-py-function"><span class="n">sqrt</span></a><span class="p">((</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">er</span></a> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+        <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">width</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">min_width</span></a> <span class="o">+</span> <span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">max_width</span></a> <span class="o">-</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">min_width</span></a><span class="p">)</span> <span class="o">*</span> <a href="https://docs.python.org/dev/library/random.html#random.random" title="random.random" class="sphx-glr-backref-module-random sphx-glr-backref-type-py-function"><span class="n">random</span><span class="o">.</span><span class="n">random</span></a><span class="p">()</span>
+        <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">list_width</span></a><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">width</span></a><span class="p">)</span>
+
+    <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">width</span></a> <span class="ow">in</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">list_width</span></a><span class="p">:</span>
+        <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">thickness</span></a> <span class="ow">in</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">list_thickness</span></a><span class="p">:</span>
+            <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">effective_permittivity</span></a> <span class="o">=</span> <span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">er</span></a> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">er</span></a> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <a href="https://docs.python.org/dev/library/math.html#math.sqrt" title="math.sqrt" class="sphx-glr-backref-module-math sphx-glr-backref-type-py-function"><span class="n">sqrt</span></a><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">10</span> <span class="o">*</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">thickness</span></a> <span class="o">/</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">width</span></a><span class="p">))</span>
+            <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">er_e</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">effective_permittivity</span></a>
+            <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">w_h</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">width</span></a> <span class="o">/</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">thickness</span></a>
+            <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">added_length</span></a> <span class="o">=</span> <span class="mf">0.412</span> <span class="o">*</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">thickness</span></a> <span class="o">*</span> <span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">er_e</span></a> <span class="o">+</span> <span class="mf">0.3</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">w_h</span></a> <span class="o">+</span> <span class="mf">0.264</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">er_e</span></a> <span class="o">-</span> <span class="mf">0.258</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">w_h</span></a> <span class="o">+</span> <span class="mf">0.813</span><span class="p">))</span>
+            <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">wave_length</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">c</span></a> <span class="o">/</span> <span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">frequency</span></a> <span class="o">*</span> <a href="https://docs.python.org/dev/library/math.html#math.sqrt" title="math.sqrt" class="sphx-glr-backref-module-math sphx-glr-backref-type-py-function"><span class="n">sqrt</span></a><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">er_e</span></a><span class="p">))</span>
+            <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">length</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">wave_length</span></a> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">added_length</span></a>
+            <a href="https://docs.python.org/dev/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">dictionary</span></a> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;frequency&quot;</span><span class="p">:</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">frequency</span></a><span class="p">,</span>
+                <span class="s2">&quot;permittivity&quot;</span><span class="p">:</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">permittivity</span></a><span class="p">,</span>
+                <span class="s2">&quot;thickness&quot;</span><span class="p">:</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">thickness</span></a><span class="p">,</span>
+                <span class="s2">&quot;width&quot;</span><span class="p">:</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">width</span></a><span class="p">,</span>
+                <span class="s2">&quot;length&quot;</span><span class="p">:</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">length</span></a><span class="p">,</span>
+                <span class="s2">&quot;previous_impedance&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="p">}</span>
+            <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">dictionary_list</span></a><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">dictionary</span></a><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;List of data: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">dictionary_list</span></a><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Its length is: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">dictionary_list</span></a><span class="p">)))</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>List of data: [{&#39;frequency&#39;: 150000000.0, &#39;permittivity&#39;: 7.05, &#39;thickness&#39;: 0.017167340876279334, &#39;width&#39;: 0.7292653267370429, &#39;length&#39;: 0.36956389788678345, &#39;previous_impedance&#39;: 0}, {&#39;frequency&#39;: 150000000.0, &#39;permittivity&#39;: 7.05, &#39;thickness&#39;: 0.07174297986464825, &#39;width&#39;: 0.7292653267370429, &#39;length&#39;: 0.34075934072048353, &#39;previous_impedance&#39;: 0}, {&#39;frequency&#39;: 150000000.0, &#39;permittivity&#39;: 7.05, &#39;thickness&#39;: 0.017167340876279334, &#39;width&#39;: 0.45561564594087284, &#39;length&#39;: 0.3738094049832851, &#39;previous_impedance&#39;: 0}, {&#39;frequency&#39;: 150000000.0, &#39;permittivity&#39;: 7.05, &#39;thickness&#39;: 0.07174297986464825, &#39;width&#39;: 0.45561564594087284, &#39;length&#39;: 0.3510774748820171, &#39;previous_impedance&#39;: 0}, {&#39;frequency&#39;: 150000000.0, &#39;permittivity&#39;: 11.34, &#39;thickness&#39;: 0.018745061158339307, &#39;width&#39;: 0.521796708660778, &#39;length&#39;: 0.290903277603965, &#39;previous_impedance&#39;: 0}, {&#39;frequency&#39;: 150000000.0, &#39;permittivity&#39;: 11.34, &#39;thickness&#39;: 0.007077149668080471, &#39;width&#39;: 0.521796708660778, &#39;length&#39;: 0.29492062614595255, &#39;previous_impedance&#39;: 0}, {&#39;frequency&#39;: 150000000.0, &#39;permittivity&#39;: 11.34, &#39;thickness&#39;: 0.018745061158339307, &#39;width&#39;: 0.20630840221418928, &#39;length&#39;: 0.3018248097859602, &#39;previous_impedance&#39;: 0}, {&#39;frequency&#39;: 150000000.0, &#39;permittivity&#39;: 11.34, &#39;thickness&#39;: 0.007077149668080471, &#39;width&#39;: 0.20630840221418928, &#39;length&#39;: 0.3004524457349059, &#39;previous_impedance&#39;: 0}]
+Its length is: 8
+</pre></div>
+</div>
+</section>
+<section id="generate-hfss-design">
+<h2>Generate HFSS design<a class="headerlink" href="#generate-hfss-design" title="Permalink to this heading">#</a></h2>
+<p>Generate the HFSS design using the <code class="docutils literal notranslate"><span class="pre">Stackup3D</span></code> method.
+Open an HFSS design and create the stackup, add the different layers, and add
+the patch. In the stackup library, most things, like the layers and patch,
+are already parametrized.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">desktopVersion</span></a> <span class="o">=</span> <span class="s2">&quot;2023.1&quot;</span>
+
+<span class="n">hfss</span> <span class="o">=</span> <span class="n">Hfss</span><span class="p">(</span>
+    <span class="n">new_desktop_session</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">solution_type</span><span class="o">=</span><span class="s2">&quot;Terminal&quot;</span><span class="p">,</span> <a href="https://docs.python.org/dev/library/functions.html#bool" title="builtins.bool" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">non_graphical</span></a><span class="o">=</span><a href="https://docs.python.org/dev/library/functions.html#bool" title="builtins.bool" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">non_graphical</span></a><span class="p">,</span> <span class="n">specified_version</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">desktopVersion</span></a>
+<span class="p">)</span>
+
+<span class="n">stackup</span> <span class="o">=</span> <span class="n">Stackup3D</span><span class="p">(</span><span class="n">hfss</span><span class="p">)</span>
+<span class="n">ground</span> <span class="o">=</span> <span class="n">stackup</span><span class="o">.</span><span class="n">add_ground_layer</span><span class="p">(</span><span class="s2">&quot;ground&quot;</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="s2">&quot;copper&quot;</span><span class="p">,</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">thickness</span></a><span class="o">=</span><span class="mf">0.035</span><span class="p">,</span> <span class="n">fill_material</span><span class="o">=</span><span class="s2">&quot;air&quot;</span><span class="p">)</span>
+<span class="n">dielectric</span> <span class="o">=</span> <span class="n">stackup</span><span class="o">.</span><span class="n">add_dielectric_layer</span><span class="p">(</span><span class="s2">&quot;dielectric&quot;</span><span class="p">,</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">thickness</span></a><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="s2">&quot;Duroid (tm)&quot;</span><span class="p">)</span>
+<span class="n">signal</span> <span class="o">=</span> <span class="n">stackup</span><span class="o">.</span><span class="n">add_signal_layer</span><span class="p">(</span><span class="s2">&quot;signal&quot;</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="s2">&quot;copper&quot;</span><span class="p">,</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">thickness</span></a><span class="o">=</span><span class="mf">0.035</span><span class="p">,</span> <span class="n">fill_material</span><span class="o">=</span><span class="s2">&quot;air&quot;</span><span class="p">)</span>
+<span class="n">patch</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">patch_length</span><span class="o">=</span><span class="mf">1009.86</span><span class="p">,</span> <span class="n">patch_width</span><span class="o">=</span><span class="mf">1185.9</span><span class="p">,</span> <span class="n">patch_name</span><span class="o">=</span><span class="s2">&quot;Patch&quot;</span><span class="p">,</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">frequency</span></a><span class="o">=</span><span class="mf">100e6</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="resize-layers-around-patch">
+<h2>Resize layers around patch<a class="headerlink" href="#resize-layers-around-patch" title="Permalink to this heading">#</a></h2>
+<p>Resize the layers around the patch so that they change when the patch changes.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">stackup</span><span class="o">.</span><span class="n">resize_around_element</span><span class="p">(</span><span class="n">patch</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</section>
+<section id="create-lumped-port">
+<h2>Create lumped port<a class="headerlink" href="#create-lumped-port" title="Permalink to this heading">#</a></h2>
+<p>Create a lumped port that is parametrized with the function of the patch.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">patch</span><span class="o">.</span><span class="n">create_lumped_port</span><span class="p">(</span><span class="n">reference_layer</span><span class="o">=</span><span class="n">ground</span><span class="p">,</span> <span class="n">opposite_side</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">port_name</span><span class="o">=</span><span class="s2">&quot;one&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;pyaedt.modules.Boundary.BoundaryObject object at 0x00000228925909A0&gt;
+</pre></div>
+</div>
+</section>
+<section id="create-line">
+<h2>Create line<a class="headerlink" href="#create-line" title="Permalink to this heading">#</a></h2>
+<p>Create a line that is parametrized with the function of the patch length. This
+ensures that the air box is large enough in the normal direction of the patch.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">points_list</span></a> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span><span class="n">patch</span><span class="o">.</span><span class="n">position_x</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">patch</span><span class="o">.</span><span class="n">position_y</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">elevation</span><span class="o">.</span><span class="n">name</span><span class="p">],</span>
+    <span class="p">[</span><span class="n">patch</span><span class="o">.</span><span class="n">position_x</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">patch</span><span class="o">.</span><span class="n">position_y</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">elevation</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot; + &quot;</span> <span class="o">+</span> <span class="n">patch</span><span class="o">.</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">length</span></a><span class="o">.</span><span class="n">name</span><span class="p">],</span>
+<span class="p">]</span>
+<span class="n">hfss</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_polyline</span><span class="p">(</span><span class="n">position_list</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">points_list</span></a><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;adjust_airbox&quot;</span><span class="p">)</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pad_percent</span></a> <span class="o">=</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span>
+<span class="n">region</span> <span class="o">=</span> <span class="n">hfss</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_region</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pad_percent</span></a><span class="p">)</span>
+<span class="n">hfss</span><span class="o">.</span><span class="n">assign_radiation_boundary_to_objects</span><span class="p">(</span><span class="n">region</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;pyaedt.modules.Boundary.BoundaryObject object at 0x00000228A8970640&gt;
+</pre></div>
+</div>
+</section>
+<section id="plot">
+<h2>Plot<a class="headerlink" href="#plot" title="Permalink to this heading">#</a></h2>
+<p>Plot patch</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hfss</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">export_path</span><span class="o">=</span><a href="https://docs.python.org/dev/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">hfss</span><span class="o">.</span><span class="n">working_directory</span><span class="p">,</span> <span class="s2">&quot;Image.jpg&quot;</span><span class="p">),</span> <span class="n">plot_air_objects</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_Machine_learning_applied_to_Patch_001.png" srcset="../../_images/sphx_glr_Machine_learning_applied_to_Patch_001.png" alt="Machine learning applied to Patch" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;pyaedt.generic.plot.ModelPlotter object at 0x00000228A631C8B0&gt;
+</pre></div>
+</div>
+</section>
+<section id="create-setup-and-sweep">
+<h2>Create setup and sweep<a class="headerlink" href="#create-setup-and-sweep" title="Permalink to this heading">#</a></h2>
+<p>Create a setup and a sweep by frequency.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">dictionary_list</span></a><span class="p">))</span>
+<span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">freq</span></a> <span class="ow">in</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">frequency_list</span></a><span class="p">:</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">frequency_name</span></a> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">freq</span></a> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">))</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">setup_name</span></a> <span class="o">=</span> <span class="s2">&quot;Setup_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">frequency_name</span></a><span class="p">)</span>
+    <span class="n">current_setup</span> <span class="o">=</span> <span class="n">hfss</span><span class="o">.</span><span class="n">create_setup</span><span class="p">(</span><span class="n">setupname</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">setup_name</span></a><span class="p">)</span>
+    <span class="n">current_setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Frequency&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">freq</span></a><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;Hz&quot;</span>
+    <span class="n">current_setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;MaximumPasses&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">30</span>
+    <span class="n">current_setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;MinimumConvergedPasses&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">current_setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;MaxDeltaS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.05</span>
+    <span class="n">current_setup</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+    <span class="n">current_setup</span><span class="p">[</span><span class="s2">&quot;SaveAnyFields&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">freq_start</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">freq</span></a> <span class="o">*</span> <span class="mf">0.75</span>
+    <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">freq_stop</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">freq</span></a> <span class="o">*</span> <span class="mf">1.25</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sweep_name</span></a> <span class="o">=</span> <span class="s2">&quot;Sweep_of_&quot;</span> <span class="o">+</span> <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">setup_name</span></a>
+    <span class="n">hfss</span><span class="o">.</span><span class="n">create_linear_count_sweep</span><span class="p">(</span>
+        <span class="n">setupname</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">setup_name</span></a><span class="p">,</span>
+        <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;Hz&quot;</span><span class="p">,</span>
+        <span class="n">freqstart</span><span class="o">=</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">freq_start</span></a><span class="p">,</span>
+        <span class="n">freqstop</span><span class="o">=</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">freq_stop</span></a><span class="p">,</span>
+        <span class="n">num_of_freq_points</span><span class="o">=</span><span class="mi">25000</span><span class="p">,</span>
+        <span class="n">sweepname</span><span class="o">=</span><span class="s2">&quot;Sweep_of_&quot;</span> <span class="o">+</span> <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">setup_name</span></a><span class="p">,</span>
+        <span class="n">save_fields</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">sweep_type</span><span class="o">=</span><span class="s2">&quot;Interpolating&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>8
+</pre></div>
+</div>
+</section>
+<section id="define-function">
+<h2>Define function<a class="headerlink" href="#define-function" title="Permalink to this heading">#</a></h2>
+<p>Define a function to recover the index of the resonance frequency.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">index_of_resonance</span><span class="p">(</span><span class="n">imaginary_list</span><span class="p">,</span> <span class="n">real_list</span><span class="p">):</span>
+    <span class="n">list_of_index</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">imaginary_list</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">imaginary_list</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span> <span class="o">*</span> <span class="n">imaginary_list</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">imaginary_list</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">])</span> <span class="o">&lt;</span> <span class="nb">abs</span><span class="p">(</span><span class="n">imaginary_list</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="o">-</span> <span class="mi">1</span><span class="p">]):</span>
+                <span class="n">list_of_index</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">abs</span><span class="p">(</span><span class="n">imaginary_list</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">])</span> <span class="o">&gt;</span> <span class="nb">abs</span><span class="p">(</span><span class="n">imaginary_list</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="o">-</span> <span class="mi">1</span><span class="p">]):</span>
+                <span class="n">list_of_index</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">list_of_index</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">list_of_index</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">list_of_index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">storage</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">resonance_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">index</span></a> <span class="ow">in</span> <span class="n">list_of_index</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">storage</span> <span class="o">&lt;</span> <span class="n">real_list</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">index</span></a><span class="p">]:</span>
+                <span class="n">storage</span> <span class="o">=</span> <span class="n">real_list</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">index</span></a><span class="p">]</span>
+                <span class="n">resonance_index</span> <span class="o">=</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">index</span></a>
+        <span class="k">return</span> <span class="n">resonance_index</span>
+</pre></div>
+</div>
+</section>
+<section id="create-parametric-variation-by-case">
+<h2>Create parametric variation by case<a class="headerlink" href="#create-parametric-variation-by-case" title="Permalink to this heading">#</a></h2>
+<p>Use a loop to create a parametric variation by case and associate it with a setup.
+The parametric variation is composed of the patch length and width and substrate
+permittivity and thickness. For each, measure the real resonance frequency to
+obtain the data length, width, permittivity, and thickness that corresponds
+to a resonance frequency. Use an error counter to verify that the resonance
+frequency is contained in the sweep. To make it easy, calculate the length
+of each case using the analytic formula.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">error_counter</span></a> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">dictionary_list</span></a><span class="p">)):</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">dictio</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">dictionary_list</span></a><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">frequency_name</span></a> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">dictio</span></a><span class="p">[</span><span class="s2">&quot;frequency&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">))</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">setup_name</span></a> <span class="o">=</span> <span class="s2">&quot;Setup_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">frequency_name</span></a><span class="p">)</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sweep_name</span></a> <span class="o">=</span> <span class="s2">&quot;Sweep_of_&quot;</span> <span class="o">+</span> <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">setup_name</span></a>
+    <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">length_variation</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">dictio</span></a><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e3</span>
+    <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">width_variation</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">dictio</span></a><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e3</span>
+    <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">thickness_variation</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">dictio</span></a><span class="p">[</span><span class="s2">&quot;thickness&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e3</span>
+    <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">permittivity_variation</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">dictio</span></a><span class="p">[</span><span class="s2">&quot;permittivity&quot;</span><span class="p">]</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">param_name</span></a> <span class="o">=</span> <span class="s2">&quot;para_&quot;</span> <span class="o">+</span> <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">setup_name</span></a> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">)</span>
+    <span class="n">this_param</span> <span class="o">=</span> <span class="n">hfss</span><span class="o">.</span><span class="n">parametrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+        <span class="n">patch</span><span class="o">.</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">length</span></a><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">length_variation</span></a><span class="p">,</span>
+        <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">length_variation</span></a><span class="p">,</span>
+        <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">variation_type</span><span class="o">=</span><span class="s2">&quot;LinearCount&quot;</span><span class="p">,</span>
+        <span class="n">solution</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">setup_name</span></a><span class="p">,</span>
+        <span class="n">parametricname</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">param_name</span></a><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">this_param</span><span class="o">.</span><span class="n">add_variation</span><span class="p">(</span>
+        <span class="n">patch</span><span class="o">.</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">width</span></a><span class="o">.</span><span class="n">name</span><span class="p">,</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">width_variation</span></a><span class="p">,</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">width_variation</span></a><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variation_type</span><span class="o">=</span><span class="s2">&quot;LinearCount&quot;</span>
+    <span class="p">)</span>
+    <span class="n">this_param</span><span class="o">.</span><span class="n">add_variation</span><span class="p">(</span>
+        <span class="n">dielectric</span><span class="o">.</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">thickness</span></a><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">thickness_variation</span></a><span class="p">,</span>
+        <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">thickness_variation</span></a><span class="p">,</span>
+        <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">unit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">variation_type</span><span class="o">=</span><span class="s2">&quot;LinearCount&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">this_param</span><span class="o">.</span><span class="n">add_variation</span><span class="p">(</span>
+        <span class="s2">&quot;$cloned_Duroid__tm__permittivity&quot;</span><span class="p">,</span>
+        <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">permittivity_variation</span></a><span class="p">,</span>
+        <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">permittivity_variation</span></a><span class="p">,</span>
+        <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">unit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">variation_type</span><span class="o">=</span><span class="s2">&quot;LinearCount&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">hfss</span><span class="o">.</span><span class="n">analyze_setup</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">param_name</span></a><span class="p">,</span> <span class="n">num_cores</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">num_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">hfss</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">get_solution_data</span><span class="p">(</span>
+        <span class="s2">&quot;Zt(one_T1, one_T1)&quot;</span><span class="p">,</span>
+        <span class="n">setup_sweep_name</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">setup_name</span></a> <span class="o">+</span> <span class="s2">&quot; : &quot;</span> <span class="o">+</span> <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sweep_name</span></a><span class="p">,</span>
+        <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;Sweep&quot;</span><span class="p">,</span>
+        <span class="n">variations</span><span class="o">=</span><span class="p">{</span>
+            <span class="n">patch</span><span class="o">.</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">length</span></a><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">length_variation</span></a><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;mm&quot;</span><span class="p">],</span>
+            <span class="n">patch</span><span class="o">.</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">width</span></a><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">width_variation</span></a><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;mm&quot;</span><span class="p">],</span>
+            <span class="n">dielectric</span><span class="o">.</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">thickness</span></a><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">thickness_variation</span></a><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;mm&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;$cloned_Duroid__tm__permittivity&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">permittivity_variation</span></a><span class="p">)],</span>
+        <span class="p">},</span>
+        <span class="n">polyline_points</span><span class="o">=</span><span class="mi">25000</span><span class="p">,</span>
+    <span class="p">)</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">imaginary_part</span></a> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">data_imag</span><span class="p">()</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">real_part</span></a> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">data_real</span><span class="p">()</span>
+    <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">corresponding_index</span></a> <span class="o">=</span> <span class="n">index_of_resonance</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">imaginary_part</span></a><span class="p">,</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">real_part</span></a><span class="p">)</span>
+    <span class="k">if</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">corresponding_index</span></a> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">hfss</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;The resonance is out of the range&quot;</span><span class="p">)</span>
+        <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">error_counter</span></a><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">)</span>
+    <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">minimum_imaginary</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">imaginary_part</span></a><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">corresponding_index</span></a><span class="p">]</span>
+    <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">previous_impedance</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">real_part</span></a><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">corresponding_index</span></a><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;minimum_imaginary: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">minimum_imaginary</span></a><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;previous_impedance: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">previous_impedance</span></a><span class="p">))</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">frequency_list</span></a> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">primary_sweep_values</span>
+    <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">resonance_frequency</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">frequency_list</span></a><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">corresponding_index</span></a><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">resonance_frequency</span></a><span class="p">)</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">dictio</span></a><span class="p">[</span><span class="s2">&quot;frequency&quot;</span><span class="p">]</span> <span class="o">=</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">resonance_frequency</span></a>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">dictio</span></a><span class="p">[</span><span class="s2">&quot;previous_impedance&quot;</span><span class="p">]</span> <span class="o">=</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">previous_impedance</span></a>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>minimum_imaginary: -0.03195903402984894
+previous_impedance: 223.55206022785217
+0.140959138365535
+minimum_imaginary: 0.04394332336423931
+previous_impedance: 203.5890720477238
+0.13447587903516098
+minimum_imaginary: -0.4060509360694228
+previous_impedance: 307.84985106032974
+0.144886295451818
+minimum_imaginary: -0.08697421953893643
+previous_impedance: 246.78762300551483
+0.135144905796232
+minimum_imaginary: 0.6732525417100504
+previous_impedance: 258.8678186579897
+0.13698697947917898
+minimum_imaginary: 0.6321019187363516
+previous_impedance: 216.99823927205358
+0.139249069962799
+minimum_imaginary: -0.1297805591153108
+previous_impedance: 421.92937564736405
+0.141055142205688
+minimum_imaginary: 1.0312220399860994
+previous_impedance: 444.1476191071969
+0.143092223688948
+</pre></div>
+</div>
+</section>
+<section id="print-error">
+<h2>Print error<a class="headerlink" href="#print-error" title="Permalink to this heading">#</a></h2>
+<p>Print the number of range error.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;number of range error: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">error_counter</span></a><span class="p">))</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>number of range error: []
+</pre></div>
+</div>
+</section>
+<section id="end-data-recovery-step">
+<h2>End data recovery step<a class="headerlink" href="#end-data-recovery-step" title="Permalink to this heading">#</a></h2>
+<p>End the data recovery step by dumping the dictionary list into a JSON file.
+Saving the data allows you to use it in another Python script.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">json_file_path</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">hfss</span><span class="o">.</span><span class="n">working_directory</span><span class="p">,</span> <span class="s2">&quot;ml_data_for_test.json&quot;</span><span class="p">)</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">json_file_path</span></a><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <a href="https://docs.python.org/dev/library/io.html#io.TextIOWrapper" title="io.TextIOWrapper" class="sphx-glr-backref-module-io sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">readfile</span></a><span class="p">:</span>
+    <a href="https://docs.python.org/dev/library/json.html#json.dump" title="json.dump" class="sphx-glr-backref-module-json sphx-glr-backref-type-py-function"><span class="n">json</span><span class="o">.</span><span class="n">dump</span></a><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">dictionary_list</span></a><span class="p">,</span> <a href="https://docs.python.org/dev/library/io.html#io.TextIOWrapper" title="io.TextIOWrapper" class="sphx-glr-backref-module-io sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">readfile</span></a><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="create-machine-learning-algorithm">
+<h1>Create machine learning algorithm<a class="headerlink" href="#create-machine-learning-algorithm" title="Permalink to this heading">#</a></h1>
+<p>This section describes the second step, which is for creating the machine
+learning algorithm.</p>
+<section id="import-training-cases">
+<h2>Import training cases<a class="headerlink" href="#import-training-cases" title="Permalink to this heading">#</a></h2>
+<p>Import the 3,300 cases in the supplied JSON file to train the model. As mentioned
+earlier, you cannot use the small database that you generated earlier for training
+the model. Its 8 cases are used later to test the model.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">path_folder</span></a> <span class="o">=</span> <span class="n">hfss</span><span class="o">.</span><span class="n">pyaedt_dir</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">training_file</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">path_folder</span></a><span class="p">,</span> <span class="s2">&quot;misc&quot;</span><span class="p">,</span> <span class="s2">&quot;ml_data_file_train_100MHz_1GHz.json&quot;</span><span class="p">)</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">training_file</span></a><span class="p">)</span> <span class="k">as</span> <a href="https://docs.python.org/dev/library/io.html#io.TextIOWrapper" title="io.TextIOWrapper" class="sphx-glr-backref-module-io sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">readfile</span></a><span class="p">:</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">my_dictio_list_train</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/json.html#json.load" title="json.load" class="sphx-glr-backref-module-json sphx-glr-backref-type-py-function"><span class="n">json</span><span class="o">.</span><span class="n">load</span></a><span class="p">(</span><a href="https://docs.python.org/dev/library/io.html#io.TextIOWrapper" title="io.TextIOWrapper" class="sphx-glr-backref-module-io sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">readfile</span></a><span class="p">)</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">json_file_path</span></a><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <a href="https://docs.python.org/dev/library/io.html#io.TextIOWrapper" title="io.TextIOWrapper" class="sphx-glr-backref-module-io sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">readfile</span></a><span class="p">:</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">my_dictio_list_test</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/json.html#json.load" title="json.load" class="sphx-glr-backref-module-json sphx-glr-backref-type-py-function"><span class="n">json</span><span class="o">.</span><span class="n">load</span></a><span class="p">(</span><a href="https://docs.python.org/dev/library/io.html#io.TextIOWrapper" title="io.TextIOWrapper" class="sphx-glr-backref-module-io sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">readfile</span></a><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">my_dictio_list_train</span></a><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">my_dictio_list_test</span></a><span class="p">))</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>3330
+8
+</pre></div>
+</div>
+</section>
+<section id="create-lists">
+<h2>Create lists<a class="headerlink" href="#create-lists" title="Permalink to this heading">#</a></h2>
+<p>Create four lists:</p>
+<ul class="simple">
+<li><p>One for the input of the training</p></li>
+<li><p>One for the output of training</p></li>
+<li><p>Oone for the input of the test</p></li>
+<li><p>One for the output of the test</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">input_for_training_list</span></a> <span class="o">=</span> <span class="p">[]</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">output_for_training_list</span></a> <span class="o">=</span> <span class="p">[]</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">input_for_test_list</span></a> <span class="o">=</span> <span class="p">[]</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">output_for_test_list</span></a> <span class="o">=</span> <span class="p">[]</span>
+</pre></div>
+</div>
+</section>
+<section id="fill-list-for-input-of-training">
+<h2>Fill list for input of training<a class="headerlink" href="#fill-list-for-input-of-training" title="Permalink to this heading">#</a></h2>
+<p>Fill the list for the input of the training with frequency, width, permittivity,
+and thickness so that the output is the length. The objective of this
+algorithm is to predict the length according to the rest.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">my_dictio_list_train</span></a><span class="p">)):</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">freq_width_perm_thick</span></a> <span class="o">=</span> <span class="p">[</span>
+        <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">my_dictio_list_train</span></a><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">][</span><span class="s2">&quot;frequency&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e9</span><span class="p">,</span>
+        <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">my_dictio_list_train</span></a><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">][</span><span class="s2">&quot;width&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span>
+        <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">my_dictio_list_train</span></a><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">][</span><span class="s2">&quot;permittivity&quot;</span><span class="p">],</span>
+        <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">my_dictio_list_train</span></a><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">][</span><span class="s2">&quot;thickness&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="p">]</span>
+    <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">length</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">my_dictio_list_train</span></a><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">][</span><span class="s2">&quot;length&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">input_for_training_list</span></a><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">freq_width_perm_thick</span></a><span class="p">)</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">output_for_training_list</span></a><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">length</span></a><span class="p">)</span>
+
+<span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">my_dictio_list_test</span></a><span class="p">)):</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">freq_width_perm_thick</span></a> <span class="o">=</span> <span class="p">[</span>
+        <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">my_dictio_list_test</span></a><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">][</span><span class="s2">&quot;frequency&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e9</span><span class="p">,</span>
+        <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">my_dictio_list_test</span></a><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">][</span><span class="s2">&quot;width&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span>
+        <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">my_dictio_list_test</span></a><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">][</span><span class="s2">&quot;permittivity&quot;</span><span class="p">],</span>
+        <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">my_dictio_list_test</span></a><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">][</span><span class="s2">&quot;thickness&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="p">]</span>
+    <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">length</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">my_dictio_list_test</span></a><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">][</span><span class="s2">&quot;length&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">input_for_test_list</span></a><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">freq_width_perm_thick</span></a><span class="p">)</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">output_for_test_list</span></a><span class="o">.</span><span class="n">append</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">length</span></a><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;number of test cases: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">output_for_test_list</span></a><span class="p">)))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;number of training cases: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">output_for_training_list</span></a><span class="p">)))</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>number of test cases: 8
+number of training cases: 3330
+</pre></div>
+</div>
+</section>
+<section id="convert-lists-in-array">
+<h2>Convert lists in array<a class="headerlink" href="#convert-lists-in-array" title="Permalink to this heading">#</a></h2>
+<p>Convert the lists in an array.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://numpy.org/devdocs/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">input_for_training_array</span></a> <span class="o">=</span> <a href="https://numpy.org/devdocs/reference/generated/numpy.array.html#numpy.array" title="numpy.array" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">array</span></a><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">input_for_training_list</span></a><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><a href="https://numpy.org/devdocs/reference/arrays.scalars.html#numpy.float32" title="numpy.float32" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">np</span><span class="o">.</span><span class="n">float32</span></a><span class="p">)</span>
+<a href="https://numpy.org/devdocs/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">output_for_training_array</span></a> <span class="o">=</span> <a href="https://numpy.org/devdocs/reference/generated/numpy.array.html#numpy.array" title="numpy.array" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">array</span></a><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">output_for_training_list</span></a><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><a href="https://numpy.org/devdocs/reference/arrays.scalars.html#numpy.float32" title="numpy.float32" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">np</span><span class="o">.</span><span class="n">float32</span></a><span class="p">)</span>
+<a href="https://numpy.org/devdocs/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">input_for_test_array</span></a> <span class="o">=</span> <a href="https://numpy.org/devdocs/reference/generated/numpy.array.html#numpy.array" title="numpy.array" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">array</span></a><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">input_for_test_list</span></a><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><a href="https://numpy.org/devdocs/reference/arrays.scalars.html#numpy.float32" title="numpy.float32" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">np</span><span class="o">.</span><span class="n">float32</span></a><span class="p">)</span>
+<a href="https://numpy.org/devdocs/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">output_for_test_array</span></a> <span class="o">=</span> <a href="https://numpy.org/devdocs/reference/generated/numpy.array.html#numpy.array" title="numpy.array" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">array</span></a><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">output_for_test_list</span></a><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><a href="https://numpy.org/devdocs/reference/arrays.scalars.html#numpy.float32" title="numpy.float32" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">np</span><span class="o">.</span><span class="n">float32</span></a><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;input array for training: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://numpy.org/devdocs/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">input_for_training_array</span></a><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;output array for training: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://numpy.org/devdocs/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">output_for_training_array</span></a><span class="p">))</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>input array for training: [[8.5343952e+07 1.8699978e+03 1.0000000e+00 1.3607236e+02]
+ [8.7562560e+07 1.8699978e+03 1.0000000e+00 3.1649155e+01]
+ [8.5523544e+07 1.8699978e+03 1.0000000e+00 1.6327014e+02]
+ ...
+ [9.5384678e+08 3.3421940e+01 1.1450000e+01 1.0995456e+01]
+ [1.1057147e+09 3.3421940e+01 1.1450000e+01 2.1035936e+00]
+ [9.7680755e+08 3.3421940e+01 1.1450000e+01 1.3259815e+01]]
+output array for training: [1463.626    1607.3876   1427.5016   ...   36.353287   39.326664
+   35.355724]
+</pre></div>
+</div>
+</section>
+<section id="create-model">
+<h2>Create model<a class="headerlink" href="#create-model" title="Permalink to this heading">#</a></h2>
+<p>Create the model. Depending on the app, you can use different models.
+The easiest way to find the correct model for an app is to search
+for this app or one that is close to it.</p>
+<p>To predict characteristics of a patch antenna (resonance frequency, bandwidth,
+and input impedance), you can use SVR (Support Vector Regression) or ANN
+(Analyze Neuronal Network). The following code uses SVR because it is easier
+to implement. ANN is a more general method that also works with other
+high frequency components. While it is more likely to work for other app,
+implementing ANN is much more complex.</p>
+<p>For SVR, there are three different kernels. For the patch antenna, RBF (Radial Basic
+Function) is preferred. There are three other arguments that have a big impact
+on the accuracy of the model: C, gamma, and epsilon. Sometimes they are given
+with the necessary model for the app. Otherwise, you can try different
+values and see which one is the best by measuring the accuracy of the model.
+To make this example shorter, <code class="docutils literal notranslate"><span class="pre">C=1e4</span></code>. However, the optimal value
+in this app is <code class="docutils literal notranslate"><span class="pre">C=5e4</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">svr_rbf</span> <span class="o">=</span> <span class="n">SVR</span><span class="p">(</span><span class="n">kernel</span><span class="o">=</span><span class="s2">&quot;rbf&quot;</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mf">1e4</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+<span class="n">regression</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span><span class="n">StandardScaler</span><span class="p">(),</span> <span class="n">svr_rbf</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="train-model">
+<h2>Train model<a class="headerlink" href="#train-model" title="Permalink to this heading">#</a></h2>
+<p>Train the model.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">regression</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><a href="https://numpy.org/devdocs/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">input_for_training_array</span></a><span class="p">,</span> <a href="https://numpy.org/devdocs/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">output_for_training_array</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<style>#sk-container-id-1 {color: black;background-color: white;}#sk-container-id-1 pre{padding: 0;}#sk-container-id-1 div.sk-toggleable {background-color: white;}#sk-container-id-1 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-container-id-1 label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-container-id-1 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-container-id-1 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-container-id-1 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-container-id-1 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-container-id-1 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-container-id-1 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-container-id-1 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-1 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-1 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-container-id-1 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-container-id-1 div.sk-estimator:hover {background-color: #d4ebff;}#sk-container-id-1 div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-container-id-1 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-1 div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: 0;}#sk-container-id-1 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;position: relative;}#sk-container-id-1 div.sk-item {position: relative;z-index: 1;}#sk-container-id-1 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;position: relative;}#sk-container-id-1 div.sk-item::before, #sk-container-id-1 div.sk-parallel-item::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: -1;}#sk-container-id-1 div.sk-parallel-item {display: flex;flex-direction: column;z-index: 1;position: relative;background-color: white;}#sk-container-id-1 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-container-id-1 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-container-id-1 div.sk-parallel-item:only-child::after {width: 0;}#sk-container-id-1 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;}#sk-container-id-1 div.sk-label label {font-family: monospace;font-weight: bold;display: inline-block;line-height: 1.2em;}#sk-container-id-1 div.sk-label-container {text-align: center;}#sk-container-id-1 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-container-id-1 div.sk-text-repr-fallback {display: none;}</style><div id="sk-container-id-1" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>Pipeline(steps=[(&#x27;standardscaler&#x27;, StandardScaler()),
+                (&#x27;svr&#x27;, SVR(C=10000.0, epsilon=0.05, gamma=&#x27;auto&#x27;))])</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-1" type="checkbox" ><label for="sk-estimator-id-1" class="sk-toggleable__label sk-toggleable__label-arrow">Pipeline</label><div class="sk-toggleable__content"><pre>Pipeline(steps=[(&#x27;standardscaler&#x27;, StandardScaler()),
+                (&#x27;svr&#x27;, SVR(C=10000.0, epsilon=0.05, gamma=&#x27;auto&#x27;))])</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-2" type="checkbox" ><label for="sk-estimator-id-2" class="sk-toggleable__label sk-toggleable__label-arrow">StandardScaler</label><div class="sk-toggleable__content"><pre>StandardScaler()</pre></div></div></div><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-3" type="checkbox" ><label for="sk-estimator-id-3" class="sk-toggleable__label sk-toggleable__label-arrow">SVR</label><div class="sk-toggleable__content"><pre>SVR(C=10000.0, epsilon=0.05, gamma=&#x27;auto&#x27;)</pre></div></div></div></div></div></div></div>
+</div>
+<br />
+<br /></section>
+<section id="dump-model-into-joblib-file">
+<h2>Dump model into JOBLIB file<a class="headerlink" href="#dump-model-into-joblib-file" title="Permalink to this heading">#</a></h2>
+<p>Dump the model into a JOBLIB file using the same method as you used earlier
+for the JSON file.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model_file</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">hfss</span><span class="o">.</span><span class="n">working_directory</span><span class="p">,</span> <span class="s2">&quot;svr_model.joblib&quot;</span><span class="p">)</span>
+<span class="n">joblib</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">regression</span><span class="p">,</span> <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model_file</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[&#39;D:/Project680.pyaedt\\HFSS_9SQ\\svr_model.joblib&#39;]
+</pre></div>
+</div>
+</section>
+</section>
+<section id="implement-model-in-pyaedt-method">
+<h1>Implement model in PyAEDT method<a class="headerlink" href="#implement-model-in-pyaedt-method" title="Permalink to this heading">#</a></h1>
+<p>This section describes the third step, which is for implementing the model
+in the PyAEDT method.</p>
+<section id="load-model">
+<h2>Load model<a class="headerlink" href="#load-model" title="Permalink to this heading">#</a></h2>
+<p>Load the model in another Python file to predict different cases.
+Here the correct model with <code class="docutils literal notranslate"><span class="pre">C=5e4</span></code> is loaded rather than the one you made
+earlier with <code class="docutils literal notranslate"><span class="pre">C=1e4</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model_path</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">path_folder</span></a><span class="p">,</span> <span class="s2">&quot;misc&quot;</span><span class="p">,</span> <span class="s2">&quot;patch_svr_model_100MHz_1GHz.joblib&quot;</span><span class="p">)</span>
+<span class="n">regression</span> <span class="o">=</span> <span class="n">joblib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model_path</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>c:\actions-runner\_work\pyaedt\pyaedt\testenv\lib\site-packages\sklearn\base.py:288: UserWarning: Trying to unpickle estimator StandardScaler from version 1.0.2 when using version 1.2.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+c:\actions-runner\_work\pyaedt\pyaedt\testenv\lib\site-packages\sklearn\base.py:288: UserWarning: Trying to unpickle estimator SVR from version 1.0.2 when using version 1.2.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+c:\actions-runner\_work\pyaedt\pyaedt\testenv\lib\site-packages\sklearn\base.py:288: UserWarning: Trying to unpickle estimator Pipeline from version 1.0.2 when using version 1.2.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+</pre></div>
+</div>
+</section>
+<section id="predict-length-of-patch">
+<h2>Predict length of patch<a class="headerlink" href="#predict-length-of-patch" title="Permalink to this heading">#</a></h2>
+<p>Predict the length of the patch as a function of its resonant frequency and width
+and substrate thickness and permittivity.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://numpy.org/devdocs/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">prediction_of_length</span></a> <span class="o">=</span> <span class="n">regression</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">input_for_test_list</span></a><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="measure-model-efficiency">
+<h2>Measure model efficiency<a class="headerlink" href="#measure-model-efficiency" title="Permalink to this heading">#</a></h2>
+<p>Measure the model efficiency.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://numpy.org/devdocs/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">average_relative_gap</span></a> <span class="o">=</span> <span class="mi">0</span>
+<a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">counter_under_zero_five</span></a> <span class="o">=</span> <span class="mi">0</span>
+<a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">counter_under_one</span></a> <span class="o">=</span> <span class="mi">0</span>
+<a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">counter_under_two</span></a> <span class="o">=</span> <span class="mi">0</span>
+<a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">counter_under_five</span></a> <span class="o">=</span> <span class="mi">0</span>
+<a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">counter_under_ten</span></a> <span class="o">=</span> <span class="mi">0</span>
+<a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">counter_upper_ten</span></a> <span class="o">=</span> <span class="mi">0</span>
+<a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rel_counter_under_one</span></a> <span class="o">=</span> <span class="mi">0</span>
+<a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rel_counter_under_two</span></a> <span class="o">=</span> <span class="mi">0</span>
+<a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rel_counter_under_five</span></a> <span class="o">=</span> <span class="mi">0</span>
+<a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rel_counter_under_ten</span></a> <span class="o">=</span> <span class="mi">0</span>
+<a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rel_counter_under_twenty</span></a> <span class="o">=</span> <span class="mi">0</span>
+<a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rel_counter_upper_twenty</span></a> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">index</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><a href="https://numpy.org/devdocs/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">prediction_of_length</span></a><span class="p">)):</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="s2">&quot;value: &quot;</span>
+        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">input_for_test_list</span></a><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">index</span></a><span class="p">])</span>
+        <span class="o">+</span> <span class="s2">&quot;, prediction: &quot;</span>
+        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://numpy.org/devdocs/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">prediction_of_length</span></a><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">index</span></a><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+        <span class="o">+</span> <span class="s2">&quot;, reality: &quot;</span>
+        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">output_for_test_list</span></a><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">index</span></a><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+    <span class="p">)</span>
+    <a href="https://numpy.org/devdocs/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">gap</span></a> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><a href="https://numpy.org/devdocs/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">prediction_of_length</span></a><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">index</span></a><span class="p">]</span> <span class="o">-</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">output_for_test_list</span></a><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">index</span></a><span class="p">])</span>
+    <a href="https://numpy.org/devdocs/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">relative_gap</span></a> <span class="o">=</span> <a href="https://numpy.org/devdocs/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">gap</span></a> <span class="o">/</span> <a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">output_for_test_list</span></a><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">index</span></a><span class="p">]</span>
+    <a href="https://numpy.org/devdocs/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">average_relative_gap</span></a> <span class="o">=</span> <a href="https://numpy.org/devdocs/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">average_relative_gap</span></a> <span class="o">+</span> <a href="https://numpy.org/devdocs/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">relative_gap</span></a>
+    <span class="k">if</span> <a href="https://numpy.org/devdocs/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">gap</span></a> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">:</span>
+        <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">counter_under_zero_five</span></a> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">elif</span> <span class="mf">0.5</span> <span class="o">&lt;=</span> <a href="https://numpy.org/devdocs/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">gap</span></a> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">counter_under_one</span></a> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">elif</span> <span class="mi">1</span> <span class="o">&lt;=</span> <a href="https://numpy.org/devdocs/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">gap</span></a> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">counter_under_two</span></a> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">elif</span> <span class="mi">2</span> <span class="o">&lt;=</span> <a href="https://numpy.org/devdocs/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">gap</span></a> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>
+        <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">counter_under_five</span></a> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">elif</span> <span class="mi">5</span> <span class="o">&lt;=</span> <a href="https://numpy.org/devdocs/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">gap</span></a> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+        <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">counter_under_ten</span></a> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">counter_upper_ten</span></a> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">if</span> <a href="https://numpy.org/devdocs/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">relative_gap</span></a> <span class="o">&lt;</span> <span class="mf">0.01</span><span class="p">:</span>
+        <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rel_counter_under_one</span></a> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">elif</span> <a href="https://numpy.org/devdocs/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">relative_gap</span></a> <span class="o">&lt;</span> <span class="mf">0.02</span><span class="p">:</span>
+        <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rel_counter_under_two</span></a> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">elif</span> <a href="https://numpy.org/devdocs/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">relative_gap</span></a> <span class="o">&lt;</span> <span class="mf">0.05</span><span class="p">:</span>
+        <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rel_counter_under_five</span></a> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">elif</span> <a href="https://numpy.org/devdocs/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">relative_gap</span></a> <span class="o">&lt;</span> <span class="mf">0.1</span><span class="p">:</span>
+        <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rel_counter_under_ten</span></a> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">elif</span> <a href="https://numpy.org/devdocs/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">relative_gap</span></a> <span class="o">&lt;</span> <span class="mf">0.2</span><span class="p">:</span>
+        <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rel_counter_under_twenty</span></a> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rel_counter_upper_twenty</span></a> <span class="o">+=</span> <span class="mi">1</span>
+<a href="https://numpy.org/devdocs/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">average_relative_gap</span></a> <span class="o">=</span> <a href="https://numpy.org/devdocs/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">average_relative_gap</span></a> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><a href="https://numpy.org/devdocs/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">prediction_of_length</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>value: [140959138.365535, 729.2653267370429, 7.05, 17.167340876279333], prediction: 381883.17395798914, reality: 369563.89788678347
+value: [134475879.035161, 729.2653267370429, 7.05, 71.74297986464825], prediction: 351051.1889030876, reality: 340759.3407204835
+value: [144886295.451818, 455.6156459408728, 7.05, 17.167340876279333], prediction: 360304.9130691634, reality: 373809.40498328506
+value: [135144905.796232, 455.6156459408728, 7.05, 71.74297986464825], prediction: 359743.2357790879, reality: 351077.4748820171
+value: [136986979.479179, 521.796708660778, 11.34, 18.745061158339308], prediction: 323883.205322395, reality: 290903.277603965
+value: [139249069.962799, 521.796708660778, 11.34, 7.07714966808047], prediction: 303066.6806002789, reality: 294920.62614595256
+value: [141055142.205688, 206.30840221418927, 11.34, 18.745061158339308], prediction: 281339.6737263697, reality: 301824.8097859602
+value: [143092223.688948, 206.30840221418927, 11.34, 7.07714966808047], prediction: 255638.04450956787, reality: 300452.44573490595
+</pre></div>
+</div>
+<p>The first displays are the gap <code class="docutils literal notranslate"><span class="pre">(prediction</span> <span class="pre">-</span> <span class="pre">real)</span></code>. The second displays are
+the relative gap <code class="docutils literal notranslate"><span class="pre">((prediction</span> <span class="pre">-</span> <span class="pre">real)/real)</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;sample size: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><a href="https://numpy.org/devdocs/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">prediction_of_length</span></a><span class="p">)))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&lt;0.5 : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">counter_under_zero_five</span></a><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&lt;1 : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">counter_under_one</span></a><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&lt;2 : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">counter_under_two</span></a><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&lt;5 : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">counter_under_five</span></a><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&lt;10 : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">counter_under_ten</span></a><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt;10 : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">counter_upper_ten</span></a><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="s2">&quot;sum : &quot;</span>
+    <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+        <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">counter_under_zero_five</span></a>
+        <span class="o">+</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">counter_under_one</span></a>
+        <span class="o">+</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">counter_under_two</span></a>
+        <span class="o">+</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">counter_under_five</span></a>
+        <span class="o">+</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">counter_under_ten</span></a>
+        <span class="o">+</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">counter_upper_ten</span></a>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-------------------------------------------</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&lt;0.01 : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rel_counter_under_one</span></a><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&lt;0.02 : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rel_counter_under_two</span></a><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&lt;0.05 : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rel_counter_under_five</span></a><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&lt;0.1 : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rel_counter_under_ten</span></a><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&lt;0.2 : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rel_counter_under_twenty</span></a><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt;0.2 : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rel_counter_upper_twenty</span></a><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="s2">&quot;sum : &quot;</span>
+    <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+        <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rel_counter_under_one</span></a>
+        <span class="o">+</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rel_counter_under_two</span></a>
+        <span class="o">+</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rel_counter_under_five</span></a>
+        <span class="o">+</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rel_counter_under_ten</span></a>
+        <span class="o">+</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rel_counter_under_twenty</span></a>
+        <span class="o">+</span> <a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rel_counter_upper_twenty</span></a>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;average is : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><a href="https://numpy.org/devdocs/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">average_relative_gap</span></a><span class="p">))</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>sample size: 8
+&lt;0.5 : 0
+&lt;1 : 0
+&lt;2 : 0
+&lt;5 : 0
+&lt;10 : 2
+&gt;10 : 6
+
+sum : 8
+-------------------------------------------
+
+&lt;0.01 : 0
+&lt;0.02 : 0
+&lt;0.05 : 5
+&lt;0.1 : 1
+&lt;0.2 : 2
+&gt;0.2 : 0
+sum : 8
+average is : 0.06029582550901666
+</pre></div>
+</div>
+</section>
+</section>
+<section id="release-aedt">
+<h1>Release AEDT<a class="headerlink" href="#release-aedt" title="Permalink to this heading">#</a></h1>
+<p>Release AEDT.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hfss</span><span class="o">.</span><span class="n">release_desktop</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 10 minutes  9.421 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-02-hfss-machine-learning-applied-to-patch-py">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/d28bc1786d826d6ee59c4f277e69c9aa/Machine_learning_applied_to_Patch.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">Machine_learning_applied_to_Patch.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/3af829e9b06c5672f7f746e927c68e0b/Machine_learning_applied_to_Patch.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">Machine_learning_applied_to_Patch.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+
+
+              </article>
+              
+
+              
+          </div>
+          
+      </div>
+    </div>
+
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695"></script>
+
+<footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    <p class="copyright">
+    &copy; Copyright (c) 2023 ANSYS, Inc. All rights reserved.<br>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+  </div>
+  
+</div>
+</footer>
+  </body>
+</html>

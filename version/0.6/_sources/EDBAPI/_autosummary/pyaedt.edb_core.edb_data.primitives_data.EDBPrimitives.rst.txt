@@ -1,0 +1,129 @@
+﻿pyaedt.edb\_core.edb\_data.primitives\_data.EDBPrimitives
+=========================================================
+
+.. currentmodule:: pyaedt.edb_core.edb_data.primitives_data
+
+.. autoclass:: EDBPrimitives
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      EDBPrimitives.add_void
+      
+      
+      EDBPrimitives.area
+      
+      
+      EDBPrimitives.clone
+      
+      
+      EDBPrimitives.convert_to_polygon
+      
+      
+      EDBPrimitives.delete
+      
+      
+      EDBPrimitives.get_center_line
+      
+      
+      EDBPrimitives.get_closest_arc_midpoint
+      
+      
+      EDBPrimitives.get_closest_point
+      
+      
+      EDBPrimitives.get_connected_object_id_set
+      
+      
+      EDBPrimitives.in_polygon
+      
+      
+      EDBPrimitives.intersect
+      
+      
+      EDBPrimitives.intersection_type
+      
+      
+      EDBPrimitives.is_arc
+      
+      
+      EDBPrimitives.is_intersecting
+      
+      
+      EDBPrimitives.points
+      
+      
+      EDBPrimitives.points_raw
+      
+      
+      EDBPrimitives.subtract
+      
+      
+      EDBPrimitives.unite
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      
+      EDBPrimitives.arcs
+      
+      
+      EDBPrimitives.bbox
+      
+      
+      EDBPrimitives.center
+      
+      
+      EDBPrimitives.id
+      
+      
+      EDBPrimitives.is_negative
+      
+      
+      EDBPrimitives.is_void
+      
+      
+      EDBPrimitives.layer
+      
+      
+      EDBPrimitives.layer_name
+      
+      
+      EDBPrimitives.longest_arc
+      
+      
+      EDBPrimitives.net
+      
+      
+      EDBPrimitives.net_name
+      
+      
+      EDBPrimitives.polygon_data
+      
+      
+      EDBPrimitives.shortest_arc
+      
+      
+      EDBPrimitives.type
+      
+      
+      EDBPrimitives.voids
+      
+      
+      EDBPrimitives.width
+      
+   
+   

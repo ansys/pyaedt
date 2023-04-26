@@ -1,0 +1,6 @@
+aedt\_version\_id
+=================
+
+.. currentmodule:: pyaedt.desktop
+
+.. autoproperty:: Desktop.aedt_version_id

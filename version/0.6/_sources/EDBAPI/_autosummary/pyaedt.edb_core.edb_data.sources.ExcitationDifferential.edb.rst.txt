@@ -1,0 +1,6 @@
+edb
+===
+
+.. currentmodule:: pyaedt.edb_core.edb_data.sources
+
+.. autoproperty:: ExcitationDifferential.edb

@@ -1,0 +1,63 @@
+﻿ExcitationPorts
+===============
+
+.. currentmodule:: pyaedt.edb_core.edb_data.sources
+
+.. autoclass:: ExcitationPorts
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      ExcitationPorts.get_edge_terminal_reference_primitive
+      
+      
+      ExcitationPorts.get_pad_edge_terminal_reference_pin
+      
+      
+      ExcitationPorts.get_padstack_terminal_reference_pin
+      
+      
+      ExcitationPorts.get_pin_group_terminal_reference_pin
+      
+      
+      ExcitationPorts.get_point_terminal_reference_primitive
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      ExcitationPorts.boundary_type
+      ExcitationPorts.deembed
+      ExcitationPorts.deembed_gapport_inductance
+      ExcitationPorts.deembed_length
+      ExcitationPorts.hfss_type
+      ExcitationPorts.horizontal_extent_factor
+      ExcitationPorts.impedance
+      ExcitationPorts.is_circuit
+      ExcitationPorts.magnitude
+      ExcitationPorts.name
+      ExcitationPorts.net
+      ExcitationPorts.net_name
+      ExcitationPorts.pec_launch_width
+      ExcitationPorts.phase
+      ExcitationPorts.radial_extent_factor
+      ExcitationPorts.reference_net_name
+      ExcitationPorts.reference_object
+      ExcitationPorts.renormalize
+      ExcitationPorts.renormalize_z0
+      ExcitationPorts.terminal_type
+      ExcitationPorts.vertical_extent_factor
+   
+   

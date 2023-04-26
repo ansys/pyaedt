@@ -1,0 +1,6 @@
+create\_polygon\_from\_points
+=============================
+
+.. currentmodule:: pyaedt.edb_core.layout
+
+.. automethod:: EdbLayout.create_polygon_from_points

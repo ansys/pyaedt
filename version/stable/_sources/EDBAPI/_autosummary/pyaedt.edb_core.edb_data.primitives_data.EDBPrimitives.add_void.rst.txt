@@ -1,0 +1,6 @@
+add\_void
+=========
+
+.. currentmodule:: pyaedt.edb_core.edb_data.primitives_data
+
+.. automethod:: EDBPrimitives.add_void

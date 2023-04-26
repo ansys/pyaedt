@@ -1,0 +1,55 @@
+﻿LayerEdbClass
+=============
+
+.. currentmodule:: pyaedt.edb_core.edb_data.layer_data
+
+.. autoclass:: LayerEdbClass
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      LayerEdbClass.assign_roughness_model
+      
+      
+      LayerEdbClass.get_roughness_model
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      LayerEdbClass.bottom_hallhuray_nodule_radius
+      LayerEdbClass.bottom_hallhuray_surface_ratio
+      LayerEdbClass.color
+      LayerEdbClass.conductivity
+      LayerEdbClass.dielectric_fill
+      LayerEdbClass.etch_factor
+      LayerEdbClass.is_negative
+      LayerEdbClass.is_stackup_layer
+      LayerEdbClass.loss_tangent
+      LayerEdbClass.lower_elevation
+      LayerEdbClass.material
+      LayerEdbClass.name
+      LayerEdbClass.permittivity
+      LayerEdbClass.roughness_enabled
+      LayerEdbClass.side_hallhuray_nodule_radius
+      LayerEdbClass.side_hallhuray_surface_ratio
+      LayerEdbClass.thickness
+      LayerEdbClass.top_hallhuray_nodule_radius
+      LayerEdbClass.top_hallhuray_surface_ratio
+      LayerEdbClass.transparency
+      LayerEdbClass.type
+      LayerEdbClass.upper_elevation
+   
+   

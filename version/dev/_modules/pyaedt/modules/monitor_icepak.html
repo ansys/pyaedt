@@ -1,0 +1,1352 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyaedt.modules.monitor_icepak &#8212; PyAEDT</title>
+    
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/ansys_sphinx_theme.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    
+        <link href="../../../_static/css/breadcrumbs.css" rel="stylesheet">
+    
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/table.js"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pyaedt/modules/monitor_icepak';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://aedt.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        </script>
+    <link rel="icon" href="../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container"><!-- Debugging: html_theme_options =  -->
+
+  <!-- Include the MeiliSearch CSS stylesheet only if theme present -->
+  <link href="../../../_static/css/meilisearch.css" rel="stylesheet">
+
+  <!-- Create a search bar form with a text input and a dropdown selector for the search index -->
+  <form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+    <input type="search" placeholder="Search" class="form-control" id="search-bar-input" autofocus />
+
+    
+      <select id="indexUidSelector" class="index-select">
+      
+        <option value="pyansys-pyaedt-sphinx-docs">PyAEDT</option>
+      
+        <option value="pyansys-pyedb-sphinx-docs">EDB API</option>
+      
+      </select>
+    
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <!-- Include the MeiliSearch JavaScript library for the search bar -->
+    <script src="https://cdn.jsdelivr.net/npm/docs-searchbar.js@latest/dist/cdn/docs-searchbar.min.js"></script>
+    
+      <!-- If no credentials provided, use the default ones  -->
+      
+        
+        
+      
+      <script>
+      // Initialize the MeiliSearch bar with the given API key and host
+      // inspect the first value of index UID as default
+      let theSearchBar = docsSearchBar({
+        hostUrl: "https://backend.search.pyansys.com/",
+        apiKey: "A1Qxly2sls6g1rb1sIKEVEtE7R1UsHad0VgqnvKhD5nhBNf5de",
+        indexUid: "pyansys-pyaedt-sphinx-docs",
+        inputSelector: '#search-bar-input, #indexUidSelector',
+        enableDarkMode: 'auto',
+        debug: true // Set debug to true if you want to inspect the dropdown
+      });
+
+      document.getElementById('indexUidSelector').addEventListener('change', function() {
+        theSearchBar.indexUid = this.value;
+        theSearchBar.inputSelector = '#docs-searchbar-suggestion';
+      });
+
+      // Set the focus on the search bar input
+      document.getElementById('docs-searchbar-suggestion').focus();
+    </script>
+  </form>
+
+</div>
+  </div>
+  
+    
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../../../_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../Getting_started/index.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../User_guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../API/index.html">
+                        AEDT API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../EDBAPI/index.html">
+                        EDB API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../Contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      dev  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt/discussions" title="Support" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+</div>
+
+    </nav>
+  
+
+    
+    <div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(text => document.getElementById("announcement_msg").innerHTML = text)
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+    
+
+    
+    <div class="container-xl">
+    <div class="row">
+        <div class="col-12 col-md-3" id="breadcrumbs-spacer"></div>
+        <div class="col-12 col-md-11 col-xl-9" id="breadcrumbs">
+          
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-additional-breadcrumb"><a href="https://docs.pyansys.com/">PyAnsys</a> » </li>
+    
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PyAEDT</a> » </li>
+    
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> » </li>
+        <li class="nav-item nav-item-this"><a href="">pyaedt.modules.monitor_icepak</a></li> 
+      </ul>
+    </div>
+        </div>
+  </div>
+</div>
+    
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../Getting_started/index.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../User_guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../API/index.html">
+                        AEDT API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../EDBAPI/index.html">
+                        EDB API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../Contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      dev  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt/discussions" title="Support" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article"></div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for pyaedt.modules.monitor_icepak</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">from</span> <span class="nn">pyaedt.generic.DataHandlers</span> <span class="kn">import</span> <span class="n">_dict2arg</span>
+<span class="kn">from</span> <span class="nn">pyaedt.generic.constants</span> <span class="kn">import</span> <span class="n">SI_UNITS</span>
+<span class="kn">from</span> <span class="nn">pyaedt.generic.constants</span> <span class="kn">import</span> <span class="n">unit_system</span>
+<span class="kn">from</span> <span class="nn">pyaedt.generic.general_methods</span> <span class="kn">import</span> <span class="n">generate_unique_name</span>
+<span class="kn">from</span> <span class="nn">pyaedt.generic.general_methods</span> <span class="kn">import</span> <span class="n">pyaedt_function_handler</span>
+
+
+<div class="viewcode-block" id="Monitor"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.monitor_icepak.Monitor.html#pyaedt.modules.monitor_icepak.Monitor">[docs]</a><span class="k">class</span> <span class="nc">Monitor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Provides Icepak monitor methods.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p_app</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_face_monitors</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_point_monitors</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_app</span> <span class="o">=</span> <span class="n">p_app</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_omonitor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetModule</span><span class="p">(</span><span class="s2">&quot;Monitor&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">design_properties</span><span class="p">:</span>  <span class="c1"># if is not a 3d comp/blank file</span>
+            <span class="n">aedtfile_monitor_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">design_properties</span><span class="p">[</span><span class="s2">&quot;Monitor&quot;</span><span class="p">][</span><span class="s2">&quot;IcepakMonitors&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="k">del</span> <span class="n">aedtfile_monitor_dict</span><span class="p">[</span><span class="s2">&quot;NextUniqueID&quot;</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">aedtfile_monitor_dict</span><span class="p">[</span><span class="s2">&quot;MoveBackwards&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">aedtfile_monitor_dict</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_load_monitor_objects</span><span class="p">(</span><span class="n">aedtfile_monitor_dict</span><span class="p">)</span>
+
+    <span class="nd">@pyaedt_function_handler</span>
+    <span class="k">def</span> <span class="nf">_find_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetPoints</span><span class="p">():</span>
+            <span class="n">point_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="n">point</span><span class="p">)</span><span class="o">.</span><span class="n">GetPropValue</span><span class="p">(</span><span class="s2">&quot;Position&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">point_pos</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">position</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)):</span>
+                <span class="k">return</span> <span class="n">point</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@pyaedt_function_handler</span>
+    <span class="k">def</span> <span class="nf">_generate_monitor_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create list of names for monitor objects following Icepak naming rules.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            Name for the first monitor object</span>
+<span class="sd">        n : int</span>
+<span class="sd">            Number of names to be generated</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of names</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_monitors</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_monitors</span><span class="p">:</span>
+                <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\d+$&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">j</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\d+$&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">n_names_left</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="k">while</span> <span class="n">n_names_left</span><span class="p">:</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">n_names_left</span>
+                <span class="n">candidate_name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\d+$&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">candidate_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_monitors</span><span class="p">:</span>
+                    <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">candidate_name</span><span class="p">)</span>
+                    <span class="n">n_names_left</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">return</span> <span class="n">names</span>
+
+    <span class="nd">@pyaedt_function_handler</span>
+    <span class="k">def</span> <span class="nf">_load_monitor_objects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">aedtfile_monitor_dict</span><span class="p">):</span>
+        <span class="n">quantities_dict</span> <span class="o">=</span> <span class="p">{</span>  <span class="c1"># pragma: no cover</span>
+            <span class="mi">8</span><span class="p">:</span> <span class="s2">&quot;Speed&quot;</span><span class="p">,</span>
+            <span class="mi">9</span><span class="p">:</span> <span class="s2">&quot;Pressure&quot;</span><span class="p">,</span>
+            <span class="mi">10</span><span class="p">:</span> <span class="s2">&quot;TKE&quot;</span><span class="p">,</span>
+            <span class="mi">11</span><span class="p">:</span> <span class="s2">&quot;Epsilon&quot;</span><span class="p">,</span>
+            <span class="mi">12</span><span class="p">:</span> <span class="s2">&quot;ViscosityRatio&quot;</span><span class="p">,</span>
+            <span class="mi">16</span><span class="p">:</span> <span class="s2">&quot;MassFlow&quot;</span><span class="p">,</span>
+            <span class="mi">17</span><span class="p">:</span> <span class="s2">&quot;VolumeFlow&quot;</span><span class="p">,</span>
+            <span class="mi">18</span><span class="p">:</span> <span class="s2">&quot;WallYPlus&quot;</span><span class="p">,</span>
+            <span class="mi">19</span><span class="p">:</span> <span class="s2">&quot;Temperature&quot;</span><span class="p">,</span>
+            <span class="mi">20</span><span class="p">:</span> <span class="s2">&quot;K_X&quot;</span><span class="p">,</span>
+            <span class="mi">21</span><span class="p">:</span> <span class="s2">&quot;K_Y&quot;</span><span class="p">,</span>
+            <span class="mi">22</span><span class="p">:</span> <span class="s2">&quot;K_Z&quot;</span><span class="p">,</span>
+            <span class="mi">29</span><span class="p">:</span> <span class="s2">&quot;HeatFlux&quot;</span><span class="p">,</span>
+            <span class="mi">31</span><span class="p">:</span> <span class="s2">&quot;HeatFlowRate&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">monitor_name</span><span class="p">,</span> <span class="n">monitor_prop</span> <span class="ow">in</span> <span class="n">aedtfile_monitor_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s2">&quot;Faces&quot;</span> <span class="ow">in</span> <span class="n">monitor_prop</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_face_monitors</span><span class="p">[</span><span class="n">monitor_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">FaceMonitor</span><span class="p">(</span>
+                    <span class="n">monitor_name</span><span class="p">,</span>
+                    <span class="s2">&quot;Face&quot;</span><span class="p">,</span>
+                    <span class="n">monitor_prop</span><span class="p">[</span><span class="s2">&quot;Faces&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="p">[</span><span class="n">quantities_dict</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">monitor_prop</span><span class="p">[</span><span class="s2">&quot;Quantities&quot;</span><span class="p">]],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="s2">&quot;Objects&quot;</span> <span class="ow">in</span> <span class="n">monitor_prop</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="n">monitor_prop</span><span class="p">[</span><span class="s2">&quot;Type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_point_monitors</span><span class="p">[</span><span class="n">monitor_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">PointMonitor</span><span class="p">(</span>
+                    <span class="n">monitor_name</span><span class="p">,</span>
+                    <span class="s2">&quot;Object&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetObjectNameByID</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">monitor_prop</span><span class="p">[</span><span class="s2">&quot;Objects&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])),</span>
+                    <span class="p">[</span><span class="n">quantities_dict</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">monitor_prop</span><span class="p">[</span><span class="s2">&quot;Quantities&quot;</span><span class="p">]],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="s2">&quot;Objects&quot;</span> <span class="ow">in</span> <span class="n">monitor_prop</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_face_monitors</span><span class="p">[</span><span class="n">monitor_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">FaceMonitor</span><span class="p">(</span>
+                    <span class="n">monitor_name</span><span class="p">,</span>
+                    <span class="s2">&quot;Surface&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetObjectNameByID</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">monitor_prop</span><span class="p">[</span><span class="s2">&quot;Objects&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])),</span>
+                    <span class="p">[</span><span class="n">quantities_dict</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">monitor_prop</span><span class="p">[</span><span class="s2">&quot;Quantities&quot;</span><span class="p">]],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="s2">&quot;Points&quot;</span> <span class="ow">in</span> <span class="n">monitor_prop</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">point_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_point</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="s2">&quot;Monitor&quot;</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="n">monitor_name</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">GetPropValue</span><span class="p">(</span><span class="s2">&quot;Location&quot;</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_point_monitors</span><span class="p">[</span><span class="n">monitor_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">PointMonitor</span><span class="p">(</span>
+                    <span class="n">monitor_name</span><span class="p">,</span>
+                    <span class="s2">&quot;Point&quot;</span><span class="p">,</span>
+                    <span class="n">point_name</span><span class="p">,</span>
+                    <span class="p">[</span><span class="n">quantities_dict</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">monitor_prop</span><span class="p">[</span><span class="s2">&quot;Quantities&quot;</span><span class="p">]],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_point_monitors</span><span class="p">[</span><span class="n">monitor_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">PointMonitor</span><span class="p">(</span>
+                    <span class="n">monitor_name</span><span class="p">,</span>
+                    <span class="s2">&quot;Vertex&quot;</span><span class="p">,</span>
+                    <span class="n">monitor_prop</span><span class="p">[</span><span class="s2">&quot;Vertices&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="p">[</span><span class="n">quantities_dict</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">monitor_prop</span><span class="p">[</span><span class="s2">&quot;Quantities&quot;</span><span class="p">]],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="p">,</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="Monitor.get_icepak_monitor_object"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.monitor_icepak.Monitor.get_icepak_monitor_object.html#pyaedt.modules.monitor_icepak.Monitor.get_icepak_monitor_object">[docs]</a>    <span class="nd">@pyaedt_function_handler</span>
+    <span class="k">def</span> <span class="nf">get_icepak_monitor_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">monitor_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get Icepak monitor object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        oEditor COM Object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="s2">&quot;Monitor&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="n">monitor_name</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">face_monitors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get face monitor objects.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Face monitor objects dictionary.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_face_monitors</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">point_monitors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get face monitor objects.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Point monitor objects dictionary.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_point_monitors</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">all_monitors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get all monitor objects.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Monitor objects dictionary.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">out_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">out_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">face_monitors</span><span class="p">)</span>
+        <span class="n">out_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">point_monitors</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out_dict</span>
+
+<div class="viewcode-block" id="Monitor.assign_point_monitor"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.monitor_icepak.Monitor.assign_point_monitor.html#pyaedt.modules.monitor_icepak.Monitor.assign_point_monitor">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">assign_point_monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point_position</span><span class="p">,</span> <span class="n">monitor_quantity</span><span class="o">=</span><span class="s2">&quot;Temperature&quot;</span><span class="p">,</span> <span class="n">monitor_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create and assign a point monitor.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        point_position : list</span>
+<span class="sd">            List of the ``[x, y, z]`` coordinates for the point or list of list of coordinates.</span>
+<span class="sd">        monitor_quantity : str or list, optional</span>
+<span class="sd">            Quantity being monitored.  The default is ``&quot;Temperature&quot;``.</span>
+<span class="sd">        monitor_name : str, optional</span>
+<span class="sd">            Name of the monitor. The default is ``None``, in which case</span>
+<span class="sd">            the name is randomly generated.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str or list</span>
+<span class="sd">            Monitor name or list of monitor names when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+<span class="sd">        &gt;&gt;&gt; oModule.AssignPointMonitor</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Create two temperature monitor at the points ``[0, 0, 0]`` and ``[1, 1, 1]``.</span>
+
+<span class="sd">        &gt;&gt;&gt; icepak.monitor.assign_point_monitor([[0,0,0], [1, 1, 1]], monitor_name=&quot;monitor1&quot;)</span>
+<span class="sd">        [&#39;monitor1&#39;, &#39;monitor2&#39;]</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">point_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">point_position</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">point_position</span> <span class="o">=</span> <span class="p">[</span><span class="n">point_position</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">monitor_quantity</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">monitor_quantity</span> <span class="o">=</span> <span class="p">[</span><span class="n">monitor_quantity</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">p_p</span> <span class="ow">in</span> <span class="n">point_position</span><span class="p">:</span>
+            <span class="n">point_name</span> <span class="o">=</span> <span class="n">generate_unique_name</span><span class="p">(</span><span class="s2">&quot;Point&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">CreatePoint</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;NAME:PointParameters&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;PointX:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">_arg_with_dim</span><span class="p">(</span><span class="n">p_p</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                    <span class="s2">&quot;PointY:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">_arg_with_dim</span><span class="p">(</span><span class="n">p_p</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                    <span class="s2">&quot;PointZ:=&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">_arg_with_dim</span><span class="p">(</span><span class="n">p_p</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span>
+                <span class="p">],</span>
+                <span class="p">[</span><span class="s2">&quot;NAME:Attributes&quot;</span><span class="p">,</span> <span class="s2">&quot;Name:=&quot;</span><span class="p">,</span> <span class="n">point_name</span><span class="p">,</span> <span class="s2">&quot;Color:=&quot;</span><span class="p">,</span> <span class="s2">&quot;(143 175 143)&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="n">point_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">point_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">monitor_name</span><span class="p">:</span>
+            <span class="n">monitor_name</span> <span class="o">=</span> <span class="n">generate_unique_name</span><span class="p">(</span><span class="s2">&quot;Monitor&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_omonitor</span><span class="o">.</span><span class="n">AssignPointMonitor</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="n">monitor_name</span><span class="p">,</span> <span class="s2">&quot;Quantities:=&quot;</span><span class="p">,</span> <span class="n">monitor_quantity</span><span class="p">,</span> <span class="s2">&quot;Points:=&quot;</span><span class="p">,</span> <span class="n">point_names</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">monitor_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_monitor_names</span><span class="p">(</span><span class="n">monitor_name</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">point_position</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">mn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">monitor_names</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_point_monitors</span><span class="p">[</span><span class="n">mn</span><span class="p">]</span> <span class="o">=</span> <span class="n">PointMonitor</span><span class="p">(</span><span class="n">mn</span><span class="p">,</span> <span class="s2">&quot;Point&quot;</span><span class="p">,</span> <span class="n">point_names</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">monitor_quantity</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">monitor_names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">monitor_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">monitor_names</span></div>
+
+<div class="viewcode-block" id="Monitor.assign_point_monitor_to_vertex"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.monitor_icepak.Monitor.assign_point_monitor_to_vertex.html#pyaedt.modules.monitor_icepak.Monitor.assign_point_monitor_to_vertex">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">assign_point_monitor_to_vertex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertex_id</span><span class="p">,</span> <span class="n">monitor_quantity</span><span class="o">=</span><span class="s2">&quot;Temperature&quot;</span><span class="p">,</span> <span class="n">monitor_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create and assign a point monitor to a vertex.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        vertex_id : int or list</span>
+<span class="sd">            ID of the vertex or list of IDs.</span>
+<span class="sd">        monitor_quantity : str or list, optional</span>
+<span class="sd">            Quantity being monitored.  The default is ``&quot;Temperature&quot;``.</span>
+<span class="sd">        monitor_name : str, optional</span>
+<span class="sd">            Name of the monitor. The default is ``None``, in which case</span>
+<span class="sd">            the name is randomly generated.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str or list</span>
+<span class="sd">            Monitor name or list of monitor names when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oModule.AssignPointMonitor</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vertex_id</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">vertex_id</span> <span class="o">=</span> <span class="p">[</span><span class="n">vertex_id</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">monitor_quantity</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">monitor_quantity</span> <span class="o">=</span> <span class="p">[</span><span class="n">monitor_quantity</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">monitor_name</span><span class="p">:</span>
+            <span class="n">monitor_name</span> <span class="o">=</span> <span class="n">generate_unique_name</span><span class="p">(</span><span class="s2">&quot;Monitor&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_omonitor</span><span class="o">.</span><span class="n">AssignPointMonitor</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="n">monitor_name</span><span class="p">,</span> <span class="s2">&quot;Quantities:=&quot;</span><span class="p">,</span> <span class="n">monitor_quantity</span><span class="p">,</span> <span class="s2">&quot;Vertices:=&quot;</span><span class="p">,</span> <span class="n">vertex_id</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">monitor_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_monitor_names</span><span class="p">(</span><span class="n">monitor_name</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">vertex_id</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">mn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">monitor_names</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_point_monitors</span><span class="p">[</span><span class="n">mn</span><span class="p">]</span> <span class="o">=</span> <span class="n">PointMonitor</span><span class="p">(</span><span class="n">mn</span><span class="p">,</span> <span class="s2">&quot;Vertex&quot;</span><span class="p">,</span> <span class="n">vertex_id</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">monitor_quantity</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">monitor_names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">monitor_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">monitor_names</span></div>
+
+<div class="viewcode-block" id="Monitor.assign_surface_monitor"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.monitor_icepak.Monitor.assign_surface_monitor.html#pyaedt.modules.monitor_icepak.Monitor.assign_surface_monitor">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">assign_surface_monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">surface_name</span><span class="p">,</span> <span class="n">monitor_quantity</span><span class="o">=</span><span class="s2">&quot;Temperature&quot;</span><span class="p">,</span> <span class="n">monitor_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assign a surface monitor.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        surface_name : str or list</span>
+<span class="sd">            Name of the surface or list of names.</span>
+<span class="sd">        monitor_quantity : str or list, optional</span>
+<span class="sd">            Quantity being monitored.  The default is ``&quot;Temperature&quot;``.</span>
+<span class="sd">        monitor_name : str, optional</span>
+<span class="sd">            Name of the monitor. The default is ``None``, in which case</span>
+<span class="sd">            the name is randomly generated.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str or list</span>
+<span class="sd">            Monitor name or list of monitor names when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oModule.AssignFaceMonitor</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+
+<span class="sd">        Create a rectangle named ``&quot;Surface1&quot;`` and assign a temperature monitor to that surface.</span>
+
+<span class="sd">        &gt;&gt;&gt; surface = icepak.modeler.create_rectangle(icepak.PLANE.XY,</span>
+<span class="sd">        ...                                           [0, 0, 0], [10, 20], name=&quot;Surface1&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; icepak.assign_surface_monitor(&quot;Surface1&quot;, monitor_name=&quot;monitor&quot;)</span>
+<span class="sd">        &#39;monitor&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">surface_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">surface_name</span> <span class="o">=</span> <span class="p">[</span><span class="n">surface_name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">monitor_quantity</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">monitor_quantity</span> <span class="o">=</span> <span class="p">[</span><span class="n">monitor_quantity</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">monitor_name</span><span class="p">:</span>
+            <span class="n">monitor_name</span> <span class="o">=</span> <span class="n">generate_unique_name</span><span class="p">(</span><span class="s2">&quot;Monitor&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_omonitor</span><span class="o">.</span><span class="n">AssignFaceMonitor</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="n">monitor_name</span><span class="p">,</span> <span class="s2">&quot;Quantities:=&quot;</span><span class="p">,</span> <span class="n">monitor_quantity</span><span class="p">,</span> <span class="s2">&quot;Objects:=&quot;</span><span class="p">,</span> <span class="n">surface_name</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">monitor_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_monitor_names</span><span class="p">(</span><span class="n">monitor_name</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">surface_name</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">mn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">monitor_names</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_face_monitors</span><span class="p">[</span><span class="n">mn</span><span class="p">]</span> <span class="o">=</span> <span class="n">FaceMonitor</span><span class="p">(</span><span class="n">mn</span><span class="p">,</span> <span class="s2">&quot;Surface&quot;</span><span class="p">,</span> <span class="n">surface_name</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">monitor_quantity</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">monitor_names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">monitor_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">monitor_names</span></div>
+
+<div class="viewcode-block" id="Monitor.assign_face_monitor"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.monitor_icepak.Monitor.assign_face_monitor.html#pyaedt.modules.monitor_icepak.Monitor.assign_face_monitor">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">assign_face_monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">face_id</span><span class="p">,</span> <span class="n">monitor_quantity</span><span class="o">=</span><span class="s2">&quot;Temperature&quot;</span><span class="p">,</span> <span class="n">monitor_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assign a face monitor.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        face_id : int or list</span>
+<span class="sd">            Face id or list of ids</span>
+<span class="sd">        monitor_quantity : str or list, optional</span>
+<span class="sd">            Quantity being monitored.  The default is ``&quot;Temperature&quot;``.</span>
+<span class="sd">        monitor_name : str, optional</span>
+<span class="sd">            Name of the monitor. The default is ``None``, in which case</span>
+<span class="sd">            the name is randomly generated.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str or list</span>
+<span class="sd">            Monitor name or list of monitor names when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oModule.AssignFaceMonitor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">face_id</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">face_id</span> <span class="o">=</span> <span class="p">[</span><span class="n">face_id</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">monitor_quantity</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">monitor_quantity</span> <span class="o">=</span> <span class="p">[</span><span class="n">monitor_quantity</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">monitor_name</span><span class="p">:</span>
+            <span class="n">monitor_name</span> <span class="o">=</span> <span class="n">generate_unique_name</span><span class="p">(</span><span class="s2">&quot;Monitor&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_omonitor</span><span class="o">.</span><span class="n">AssignFaceMonitor</span><span class="p">([</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="n">monitor_name</span><span class="p">,</span> <span class="s2">&quot;Quantities:=&quot;</span><span class="p">,</span> <span class="n">monitor_quantity</span><span class="p">,</span> <span class="s2">&quot;Faces:=&quot;</span><span class="p">,</span> <span class="n">face_id</span><span class="p">])</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">monitor_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_monitor_names</span><span class="p">(</span><span class="n">monitor_name</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">face_id</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">mn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">monitor_names</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_face_monitors</span><span class="p">[</span><span class="n">mn</span><span class="p">]</span> <span class="o">=</span> <span class="n">FaceMonitor</span><span class="p">(</span><span class="n">mn</span><span class="p">,</span> <span class="s2">&quot;Face&quot;</span><span class="p">,</span> <span class="n">face_id</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">monitor_quantity</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">monitor_names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">monitor_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">monitor_names</span></div>
+
+<div class="viewcode-block" id="Monitor.assign_point_monitor_in_object"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.monitor_icepak.Monitor.assign_point_monitor_in_object.html#pyaedt.modules.monitor_icepak.Monitor.assign_point_monitor_in_object">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">assign_point_monitor_in_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">monitor_quantity</span><span class="o">=</span><span class="s2">&quot;Temperature&quot;</span><span class="p">,</span> <span class="n">monitor_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assign a point monitor in the centroid of a specific object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str or list</span>
+<span class="sd">            Name of the object to assign monitor point to.</span>
+<span class="sd">        monitor_quantity : str or list, optional</span>
+<span class="sd">            Quantity being monitored.  The default is ``&quot;Temperature&quot;``.</span>
+<span class="sd">        monitor_name : str, optional</span>
+<span class="sd">            Name of the monitor. The default is ``None``, in which case</span>
+<span class="sd">            the name is randomly generated.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str or list</span>
+<span class="sd">            Monitor name or list of names when successful, ``False`` when failed.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oModule.AssignPointMonitor</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+
+<span class="sd">        Create a box named ``&quot;BlockBox1&quot;`` and assign a temperature monitor point to that object.</span>
+
+<span class="sd">        &gt;&gt;&gt; box = icepak.modeler.create_box([1, 1, 1], [3, 3, 3], &quot;BlockBox1&quot;, &quot;copper&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; icepak.assign_point_monitor(box.name, monitor_name=&quot;monitor2&quot;)</span>
+<span class="sd">        &quot;&#39;monitor2&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">monitor_quantity</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">monitor_quantity</span> <span class="o">=</span> <span class="p">[</span><span class="n">monitor_quantity</span><span class="p">]</span>
+        <span class="n">name_sel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">convert_to_selections</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">original_monitors</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="s2">&quot;Monitor&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">GetChildNames</span><span class="p">())</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">monitor_name</span><span class="p">:</span>
+            <span class="n">monitor_name</span> <span class="o">=</span> <span class="n">generate_unique_name</span><span class="p">(</span><span class="s2">&quot;Monitor&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">monitor_name</span> <span class="ow">in</span> <span class="n">original_monitors</span><span class="p">:</span>
+            <span class="n">monitor_name</span> <span class="o">=</span> <span class="n">generate_unique_name</span><span class="p">(</span><span class="n">monitor_name</span><span class="p">)</span>
+        <span class="n">existing_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">name_sel</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">object_names</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">existing_names</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_omonitor</span><span class="o">.</span><span class="n">AssignPointMonitor</span><span class="p">(</span>
+                <span class="p">[</span><span class="s2">&quot;NAME:&quot;</span> <span class="o">+</span> <span class="n">monitor_name</span><span class="p">,</span> <span class="s2">&quot;Quantities:=&quot;</span><span class="p">,</span> <span class="n">monitor_quantity</span><span class="p">,</span> <span class="s2">&quot;Objects:=&quot;</span><span class="p">,</span> <span class="n">existing_names</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Object is not present in the design&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">monitor_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_monitor_names</span><span class="p">(</span><span class="n">monitor_name</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">existing_names</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">mn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">monitor_names</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_point_monitors</span><span class="p">[</span><span class="n">mn</span><span class="p">]</span> <span class="o">=</span> <span class="n">PointMonitor</span><span class="p">(</span><span class="n">mn</span><span class="p">,</span> <span class="s2">&quot;Object&quot;</span><span class="p">,</span> <span class="n">existing_names</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">monitor_quantity</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">monitor_names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">monitor_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">monitor_names</span></div>
+
+<div class="viewcode-block" id="Monitor.delete_monitor"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.monitor_icepak.Monitor.delete_monitor.html#pyaedt.modules.monitor_icepak.Monitor.delete_monitor">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">delete_monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">monitor_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete monitor object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        monitor_name : str</span>
+<span class="sd">            Name of the monitor object to delete</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``False`` if succesflul, else ``False``.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        &gt;&gt;&gt; oModule.DeleteMonitors</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_omonitor</span><span class="o">.</span><span class="n">DeleteMonitors</span><span class="p">([</span><span class="n">monitor_name</span><span class="p">])</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_face_monitors</span><span class="p">[</span><span class="n">monitor_name</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_point_monitors</span><span class="p">[</span><span class="n">monitor_name</span><span class="p">]</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Monitor.get_monitor_object_assignment"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.monitor_icepak.Monitor.get_monitor_object_assignment.html#pyaedt.modules.monitor_icepak.Monitor.get_monitor_object_assignment">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">get_monitor_object_assignment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">monitor</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the object that the monitor is applied to.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        monitor : str or FaceMonitor or PointMonitor object</span>
+<span class="sd">           Monitor object or monitor object name.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Name of the object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">monitor</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">monitor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_monitors</span><span class="p">[</span><span class="n">monitor</span><span class="p">]</span>
+        <span class="n">m_type</span> <span class="o">=</span> <span class="n">monitor</span><span class="o">.</span><span class="n">type</span>
+        <span class="k">if</span> <span class="n">m_type</span> <span class="o">==</span> <span class="s2">&quot;Face&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetObjectNameByFaceID</span><span class="p">(</span><span class="n">monitor</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">m_type</span> <span class="o">==</span> <span class="s2">&quot;Vertex&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">oeditor</span><span class="o">.</span><span class="n">GetObjectNameByVertexID</span><span class="p">(</span><span class="n">monitor</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">monitor</span><span class="o">.</span><span class="n">id</span></div>
+
+    <span class="k">def</span> <span class="nf">_delete_removed_monitors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">existing_monitors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="s2">&quot;Monitor&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">GetChildNames</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_face_monitors</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_point_monitors</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">j</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">existing_monitors</span><span class="p">:</span>
+                    <span class="k">del</span> <span class="n">j</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                        <span class="n">i</span> <span class="o">+</span> <span class="s2">&quot; monitor object lost its assignment due to geometry modifications and has been deleted.&quot;</span>
+                    <span class="p">)</span>
+
+<div class="viewcode-block" id="Monitor.insert_monitor_object_from_dict"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.monitor_icepak.Monitor.insert_monitor_object_from_dict.html#pyaedt.modules.monitor_icepak.Monitor.insert_monitor_object_from_dict">[docs]</a>    <span class="nd">@pyaedt_function_handler</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">insert_monitor_object_from_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">monitor_dict</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Insert a monitor.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        monitor_dict : dict</span>
+<span class="sd">           Dictionary containing monitor object information.</span>
+<span class="sd">        mode : int</span>
+<span class="sd">            Integer to select the information to handle. To identify the faces, vertices,</span>
+<span class="sd">            surfaces, and object to which to assign the monitor to, you can use:</span>
+<span class="sd">            - ids and names, mode=0, required dict keys: &quot;Name&quot;, &quot;Type&quot;, &quot;ID&quot;, &quot;Quantity&quot;.</span>
+<span class="sd">            - positions, mode=1, required dict keys: &quot;Name&quot;, &quot;Type&quot;, &quot;Geometry Assignment&quot;, &quot;Location&quot;, &quot;Quantity&quot;.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Name of the monitor object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">m_case</span> <span class="o">=</span> <span class="n">monitor_dict</span><span class="p">[</span><span class="s2">&quot;Type&quot;</span><span class="p">]</span>
+        <span class="n">m_quantity</span> <span class="o">=</span> <span class="n">monitor_dict</span><span class="p">[</span><span class="s2">&quot;Quantity&quot;</span><span class="p">]</span>
+        <span class="n">m_name</span> <span class="o">=</span> <span class="n">monitor_dict</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">]</span>
+        <span class="n">m_object</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">monitor_dict</span><span class="p">[</span><span class="s2">&quot;Geometry Assignment&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">object_names</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">m_case</span> <span class="o">==</span> <span class="s2">&quot;Face&quot;</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">get_object_from_name</span><span class="p">(</span><span class="n">monitor_dict</span><span class="p">[</span><span class="s2">&quot;Geometry Assignment&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">faces</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">center</span> <span class="o">==</span> <span class="n">monitor_dict</span><span class="p">[</span><span class="s2">&quot;Location&quot;</span><span class="p">]:</span>
+                        <span class="n">m_object</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">id</span>
+                        <span class="k">break</span>
+            <span class="k">elif</span> <span class="n">m_case</span> <span class="o">==</span> <span class="s2">&quot;Vertex&quot;</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">get_object_from_name</span><span class="p">(</span><span class="n">monitor_dict</span><span class="p">[</span><span class="s2">&quot;Geometry Assignment&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">vertices</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">position</span> <span class="o">==</span> <span class="n">monitor_dict</span><span class="p">[</span><span class="s2">&quot;Location&quot;</span><span class="p">]:</span>
+                        <span class="n">m_object</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">id</span>
+                        <span class="k">break</span>
+            <span class="k">elif</span> <span class="n">m_case</span> <span class="o">==</span> <span class="s2">&quot;Object&quot;</span><span class="p">:</span>
+                <span class="n">m_object</span> <span class="o">=</span> <span class="n">monitor_dict</span><span class="p">[</span><span class="s2">&quot;Geometry Assignment&quot;</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">m_case</span> <span class="o">==</span> <span class="s2">&quot;Surface&quot;</span><span class="p">:</span>
+                <span class="n">m_object</span> <span class="o">=</span> <span class="n">monitor_dict</span><span class="p">[</span><span class="s2">&quot;Geometry Assignment&quot;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">m_object</span> <span class="o">=</span> <span class="n">monitor_dict</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Only modes supported are 0 and 1&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m_object</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> monitor object could not be restored&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">m_name</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">configurations</span><span class="o">.</span><span class="n">update_monitor</span><span class="p">(</span><span class="n">m_case</span><span class="p">,</span> <span class="n">m_object</span><span class="p">,</span> <span class="n">m_quantity</span><span class="p">,</span> <span class="n">m_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> monitor object restored&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">m_name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">m_name</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">ObjectMonitor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Provides Icepak Monitor methods and properties.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">monitor_name</span><span class="p">,</span> <span class="n">monitor_type</span><span class="p">,</span> <span class="n">monitor_id</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">app</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">monitor_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_type</span> <span class="o">=</span> <span class="n">monitor_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="n">monitor_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_quantities</span> <span class="o">=</span> <span class="n">quantity</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_app</span> <span class="o">=</span> <span class="n">app</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">geometry_assignment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the geometry assignment for the monitor object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">get_monitor_object_assignment</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the name of the monitor object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the name, or id of geometry assignment.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str or int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">properties</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a dictionary of properties.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;Name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;Object&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="s2">&quot;Monitor&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+            <span class="s2">&quot;Type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
+            <span class="s2">&quot;ID&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="s2">&quot;Location&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,</span>
+            <span class="s2">&quot;Quantity&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantities</span><span class="p">,</span>
+            <span class="s2">&quot;Geometry Assignment&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry_assignment</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="nd">@pyaedt_function_handler</span>
+    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete a monitor object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` if successful.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">delete_monitor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">quantities</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the quantities being monitored.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_quantities</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the monitor type.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span>
+
+    <span class="nd">@pyaedt_function_handler</span>
+    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">setup_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">design_variation_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">si_out</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a list of values obtained from the monitor object. If the simulation is steady state,</span>
+<span class="sd">        the list will contain just one element.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        quantity : str or list, optional</span>
+<span class="sd">            String that specifies the quantity that is retrieved. If this parameter is not provided,</span>
+<span class="sd">            all monitored quantity will be considered.</span>
+<span class="sd">        design_variation_dict : dict, optional</span>
+<span class="sd">            Dictionary containing the project and design variables and values. If this parameter</span>
+<span class="sd">            is not provided, all variations will be considered.</span>
+<span class="sd">        setup_name : str, optional</span>
+<span class="sd">            String that specifies the name of the setup from which to extract the monitor value.</span>
+<span class="sd">            If this parameter is not provided, the first one of the design will be selected.</span>
+<span class="sd">        si_out : bool, optional</span>
+<span class="sd">            Whether to return the values of th monitor object in SI units. Default is ``True``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary containing the variables names and values and the monitor values for each</span>
+<span class="sd">            variation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">setup_name</span><span class="p">:</span>
+            <span class="n">setup_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">existing_analysis_sweeps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">design_variation</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">design_variation_dict</span><span class="p">:</span>
+            <span class="n">design_variation_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;All&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">variable_manager</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
+        <span class="n">_dict2arg</span><span class="p">(</span><span class="n">design_variation_dict</span><span class="p">,</span> <span class="n">design_variation</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">quantity</span><span class="p">:</span>
+            <span class="n">quantity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantities</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">quantity</span> <span class="o">=</span> <span class="p">[</span><span class="n">quantity</span><span class="p">]</span>
+        <span class="n">return_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">quantity</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">monitor_result_obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">oreportsetup</span><span class="o">.</span><span class="n">GetSolutionDataPerVariation</span><span class="p">(</span>
+                    <span class="s2">&quot;Monitor&quot;</span><span class="p">,</span> <span class="n">setup_name</span><span class="p">,</span> <span class="p">[],</span> <span class="n">design_variation</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">):</span>
+                <span class="n">variation_a</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="n">i</span><span class="p">:</span> <span class="p">[</span><span class="n">monitor_result_obj</span><span class="o">.</span><span class="n">GetDesignVariableValue</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">monitor_result_obj</span><span class="o">.</span><span class="n">GetDesignVariableUnits</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">monitor_result_obj</span><span class="o">.</span><span class="n">GetDesignVariableNames</span><span class="p">()</span>
+                <span class="p">}</span>
+                <span class="n">variation_b</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="n">i</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">monitor_result_obj</span><span class="o">.</span><span class="n">GetSweepValues</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="o">+</span> <span class="p">[</span><span class="n">monitor_result_obj</span><span class="o">.</span><span class="n">GetSweepUnits</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">monitor_result_obj</span><span class="o">.</span><span class="n">GetSweepNames</span><span class="p">()</span>
+                <span class="p">}</span>
+                <span class="n">variation_a</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">variation_b</span><span class="p">)</span>
+                <span class="n">unit</span> <span class="o">=</span> <span class="n">monitor_result_obj</span><span class="o">.</span><span class="n">GetDataUnits</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">q</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">si_out</span> <span class="ow">and</span> <span class="n">unit</span> <span class="o">!=</span> <span class="s2">&quot;cel&quot;</span><span class="p">:</span>
+                    <span class="n">unit</span> <span class="o">=</span> <span class="n">SI_UNITS</span><span class="p">[</span><span class="n">unit_system</span><span class="p">(</span><span class="n">unit</span><span class="p">)]</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">return_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">return_dict</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">q</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s2">&quot;Unit&quot;</span><span class="p">:</span> <span class="n">unit</span><span class="p">,</span>
+                        <span class="s2">&quot;Value&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">monitor_result_obj</span><span class="o">.</span><span class="n">GetRealDataValues</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">q</span><span class="p">),</span> <span class="n">si_out</span><span class="p">)),</span>
+                    <span class="p">}</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">return_dict</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s2">&quot;Variation&quot;</span><span class="p">:</span> <span class="n">variation_a</span><span class="p">,</span>
+                        <span class="n">q</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s2">&quot;Unit&quot;</span><span class="p">:</span> <span class="n">unit</span><span class="p">,</span>
+                            <span class="s2">&quot;Value&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">monitor_result_obj</span><span class="o">.</span><span class="n">GetRealDataValues</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">q</span><span class="p">),</span> <span class="n">si_out</span><span class="p">)),</span>
+                        <span class="p">},</span>
+                    <span class="p">}</span>
+        <span class="k">return</span> <span class="n">return_dict</span>
+
+
+<div class="viewcode-block" id="PointMonitor"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.monitor_icepak.PointMonitor.html#pyaedt.modules.monitor_icepak.PointMonitor">[docs]</a><span class="k">class</span> <span class="nc">PointMonitor</span><span class="p">(</span><span class="n">ObjectMonitor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Provides Icepak point monitor methods and properties.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">monitor_name</span><span class="p">,</span> <span class="n">monitor_type</span><span class="p">,</span> <span class="n">point_id</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">app</span><span class="p">):</span>
+        <span class="n">ObjectMonitor</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">monitor_name</span><span class="p">,</span> <span class="n">monitor_type</span><span class="p">,</span> <span class="n">point_id</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">location</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the monitor point location.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of floats containing [x, y, z] position.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">model_units</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">odesign</span><span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="s2">&quot;Monitor&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">GetChildObject</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">GetPropValue</span><span class="p">(</span><span class="s2">&quot;Location&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">)</span>
+        <span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="FaceMonitor"><a class="viewcode-back" href="../../../API/_autosummary/pyaedt.modules.monitor_icepak.FaceMonitor.html#pyaedt.modules.monitor_icepak.FaceMonitor">[docs]</a><span class="k">class</span> <span class="nc">FaceMonitor</span><span class="p">(</span><span class="n">ObjectMonitor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Provides Icepak face monitor properties and methods.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">monitor_name</span><span class="p">,</span> <span class="n">monitor_type</span><span class="p">,</span> <span class="n">face_id</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">app</span><span class="p">):</span>
+        <span class="n">ObjectMonitor</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">monitor_name</span><span class="p">,</span> <span class="n">monitor_type</span><span class="p">,</span> <span class="n">face_id</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">location</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the monitor location in terms of face or surface center.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of floats containing [x, y, z] position.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Face&quot;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">get_object_from_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry_assignment</span><span class="p">)</span><span class="o">.</span><span class="n">faces</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">center</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Surface&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">get_object_from_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry_assignment</span><span class="p">)</span><span class="o">.</span><span class="n">faces</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">center</span></div>
+</pre></div>
+
+                </article>
+              
+              
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright (c) 2023 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+    Built with the <a href="https://sphinxdocs.ansys.com/version/stable/index.html">Ansys Sphinx Theme</a> 0.9.8.
+    <br>Last updated on <span id="date"></span></br>
+</p>
+<script>
+  var options = { day: 'numeric', month: 'long', year: 'numeric' };
+  var lastModifiedDate = new Date(document.lastModified);
+  var date = lastModifiedDate.toLocaleDateString('en-US', options);
+  document.getElementById("date").innerHTML = date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

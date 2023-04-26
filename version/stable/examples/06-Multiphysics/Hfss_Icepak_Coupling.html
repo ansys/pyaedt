@@ -1,0 +1,992 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Multiphysics: HFSS-Icepak multiphysics analysis &#8212; PyAEDT</title>
+    
+<script>
+  document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+  document.documentElement.dataset.theme = localStorage.getItem("theme") || "light"
+</script>
+
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+
+
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css\ansys_sphinx_theme.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695">
+
+    
+        <link href="../../_static/css/breadcrumbs.css" rel="stylesheet">
+    
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <link rel="shortcut icon" href="../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Multiphysics: HFSS-Mechanical multiphysics analysis" href="Hfss_Mechanical.html" />
+    <link rel="prev" title="Multiphysics examples" href="index.html" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+    <div class="bd-header-announcement container-fluid" id="banner">
+      
+
+    </div>
+
+    
+    
+    <nav class="bd-header navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="bd-header__inner container-xl">
+
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+    <img src="../../_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="Logo image">
+    <img src="../../_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="fas fa-bars"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../Getting_started/index.html">
+  Getting started
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../User_guide/index.html">
+  User guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../API/index.html">
+  AEDT API
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../EDBAPI/index.html">
+  EDB API
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="../index.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../Contributing.html">
+  Contribute
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <div class="dropdown" id="version_switcher">
+    <button type="button" class="btn btn-sm navbar-btn dropdown-toggle" id="version_switcher_button" data-toggle="dropdown">
+        0.6  <!-- this text may get changed later by javascript -->
+        <span class="caret"></span>
+    </button>
+    <div id="version_switcher_menu" class="dropdown-menu list-group-flush py-0" aria-labelledby="version_switcher_button">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+</div>
+
+<!-- NOTE: this JS must live here (not in our global JS file) because it relies
+     on being processed by Jinja before it is run (specifically for replacing
+     variables examples/06-Multiphysics/Hfss_Icepak_Coupling and {'json_url': 'https://aedt.docs.pyansys.com/release/versions.json', 'version_match': '0.6'}.
+-->
+
+<script type="text/javascript">
+// Check if corresponding page path exists in other version of docs
+// and, if so, go there instead of the homepage of the other docs version
+function checkPageExistsAndRedirect(event) {
+    const currentFilePath = "examples/06-Multiphysics/Hfss_Icepak_Coupling.html",
+          tryUrl = event.target.getAttribute("href");
+    let otherDocsHomepage = tryUrl.replace(currentFilePath, "");
+    $.ajax({
+        type: 'HEAD',
+        url: tryUrl,
+        // if the page exists, go there
+        success: function() {
+            location.href = tryUrl;
+        }
+    }).fail(function() {
+        location.href = otherDocsHomepage;
+    });
+    // this prevents the browser from following the href of the clicked node
+    // (which is fine because this function takes care of redirecting)
+    return false;
+}
+
+// Populate the version switcher from the JSON config file
+(function () {
+    $.getJSON("https://aedt.docs.pyansys.com/release/versions.json", function(data, textStatus, jqXHR) {
+        const currentFilePath = "examples/06-Multiphysics/Hfss_Icepak_Coupling.html";
+        let btn = document.getElementById("version_switcher_button");
+        // Set empty strings by default so that these attributes exist and can be used in CSS selectors
+        btn.dataset["activeVersionName"] = "";
+        btn.dataset["activeVersion"] = "";
+        // create links to the corresponding page in the other docs versions
+        $.each(data, function(index, entry) {
+            // if no custom name specified (e.g., "latest"), use version string
+            if (!("name" in entry)) {
+                entry.name = entry.version;
+            }
+            // create the node
+            const node = document.createElement("a");
+            node.setAttribute("class", "list-group-item list-group-item-action py-1");
+            node.textContent = `${entry.name}`;
+            node.setAttribute("href", `${entry.url}${currentFilePath}`);
+            // on click, AJAX calls will check if the linked page exists before
+            // trying to redirect, and if not, will redirect to the homepage
+            // for that version of the docs.
+            node.onclick = checkPageExistsAndRedirect;
+            // Add dataset values for the version and name in case people want
+            // to apply CSS styling based on this information.
+            node.dataset["versionName"] = entry.name;
+            node.dataset["version"] = entry.version;
+
+            $("#version_switcher_menu").append(node);
+            // replace dropdown button text with the preferred display name of
+            // this version, rather than using sphinx's 0.6.70 variable.
+            // also highlight the dropdown entry for the currently-viewed
+            // version's entry
+            if (entry.version == "0.6") {
+                node.classList.add("active");
+                btn.innerText = btn.dataset["activeVersionName"] = entry.name;
+                btn.dataset["activeVersion"] = entry.version;
+            }
+        });
+    });
+})();
+</script>
+      </div>
+      
+      <div class="navbar-end-item">
+        <span id="theme-switch" class="btn btn-sm btn-outline-primary navbar-btn rounded-circle">
+    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/pyansys/pyaedt" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/pyansys/pyaedt/discussions" rel="noopener" target="_blank" title="Support"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+     
+<div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(text => document.getElementById("announcement_msg").innerHTML = text)
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+
+    
+        <div class="container-xl">
+    <div class="row">
+        <div class="col-12 col-md-3" id="breadcrumbs-spacer"></div>
+        <div class="col-12 col-md-11 col-xl-9" id="breadcrumbs">
+          
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-additional-breadcrumb"><a href="https://docs.pyansys.com/">PyAnsys</a> » </li>
+    
+    
+        <li class="nav-item nav-item-0"><a href="../../index.html">PyAEDT</a> » </li>
+    
+
+          <li class="nav-item nav-item-1"><a href="../index.html" >Examples</a> » </li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">Multiphysics examples</a> » </li>
+        <li class="nav-item nav-item-this"><a href="">Multiphysics: HFSS-Icepak multiphysics analysis</a></li> 
+      </ul>
+    </div>
+        </div>
+  </div>
+</div>
+    
+
+
+    <div class="bd-container container-xl">
+      <div class="bd-container__inner row">
+          
+
+<!-- Only show if we have sidebars configured, else just a small margin  -->
+<div class="bd-sidebar-primary col-12 col-md-3 bd-sidebar">
+  <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../00-EDB/index.html">
+   EDB examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../01-HFSS3DLayout/index.html">
+   HFSS 3D Layout examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../01-Modeling-Setup/index.html">
+   General model and setup examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../02-HFSS/index.html">
+   HFSS examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../02-SBR%2B/index.html">
+   SBR+ examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../03-Maxwell/index.html">
+   Maxwell examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../04-Icepak/index.html">
+   Icepak examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../05-Q3D/index.html">
+   2D Extractor and Q3D Extractor examples
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="index.html">
+   Multiphysics examples
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2 current active">
+    <a class="current reference internal" href="#">
+     Multiphysics: HFSS-Icepak multiphysics analysis
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Hfss_Mechanical.html">
+     Multiphysics: HFSS-Mechanical multiphysics analysis
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../07-Circuit/index.html">
+   Circuit examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../07-EMIT/index.html">
+   EMIT examples
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../07-TwinBuilder/index.html">
+   Twin Builder examples
+  </a>
+ </li>
+</ul>
+
+  </div>
+</nav>
+  </div>
+  <div class="sidebar-end-items">
+  </div>
+</div>
+
+
+          
+
+
+<div class="bd-sidebar-secondary d-none d-xl-block col-xl-2 bd-toc">
+  
+    
+    <div class="toc-item">
+      
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#perform-required-imports">
+   Perform required imports
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#set-non-graphical-mode">
+   Set non-graphical mode
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#open-project">
+   Open project
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#launch-aedt-and-initialize-hfss">
+   Launch AEDT and initialize HFSS
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#initialize-variable-settings">
+   Initialize variable settings
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#create-coaxial-and-cylinders">
+   Create coaxial and cylinders
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#assign-colors">
+   Assign colors
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#assign-materials">
+   Assign materials
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#perform-modeler-operations">
+   Perform modeler operations
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#perform-mesh-operations">
+   Perform mesh operations
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#create-excitations">
+   Create excitations
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#create-setup">
+   Create setup
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#create-sweep">
+   Create sweep
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#create-icepak-model">
+   Create Icepak model
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#link-sources-to-em-losses">
+   Link sources to EM losses
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#edit-gravity-setting">
+   Edit gravity setting
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#set-up-icepak-project">
+   Set up Icepak project
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#edit-or-review-mesh-parameters">
+   Edit or review mesh parameters
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#close-and-open-projects">
+   Close and open projects
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#solve-icepak-project">
+   Solve Icepak project
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#generate-field-plots-and-export">
+   Generate field plots and export
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#generate-animation-from-field-plots">
+   Generate animation from field plots
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#create-icepak-plots-and-export">
+   Create Icepak plots and export
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#generate-plots-outside-of-aedt">
+   Generate plots outside of AEDT
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#close-project-and-release-aedt">
+   Close project and release AEDT
+  </a>
+ </li>
+</ul>
+
+</nav>
+    </div>
+    
+    <div class="toc-item">
+      
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/pyansys/pyaedt/edit/main/doc/source/examples/06-Multiphysics/Hfss_Icepak_Coupling.rst">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
+    </div>
+    
+  
+</div>
+
+
+          
+          
+          <div class="bd-content col-12 col-md-9 col-xl-7">
+              
+              <article class="bd-article" role="main">
+                
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-examples-06-multiphysics-hfss-icepak-coupling-py"><span class="std std-ref">here</span></a>
+to download the full example code</p>
+</div>
+<section class="sphx-glr-example-title" id="multiphysics-hfss-icepak-multiphysics-analysis">
+<span id="sphx-glr-examples-06-multiphysics-hfss-icepak-coupling-py"></span><h1>Multiphysics: HFSS-Icepak multiphysics analysis<a class="headerlink" href="#multiphysics-hfss-icepak-multiphysics-analysis" title="Permalink to this heading">#</a></h1>
+<p>This example shows how you can create a project from scratch in HFSS and Icepak (linked to HFSS).
+This includes creating a setup, solving it, and creating postprocessing outputs.</p>
+<p>To provide the advanced postprocessing features needed for this example, the <code class="docutils literal notranslate"><span class="pre">numpy</span></code>,
+<code class="docutils literal notranslate"><span class="pre">matplotlib</span></code>, and <code class="docutils literal notranslate"><span class="pre">pyvista</span></code> packages must be installed on the machine.</p>
+<p>This examples runs only on Windows using CPython.</p>
+<section id="perform-required-imports">
+<h2>Perform required imports<a class="headerlink" href="#perform-required-imports" title="Permalink to this heading">#</a></h2>
+<p>Perform required imports.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pyaedt</span>
+</pre></div>
+</div>
+</section>
+<section id="set-non-graphical-mode">
+<h2>Set non-graphical mode<a class="headerlink" href="#set-non-graphical-mode" title="Permalink to this heading">#</a></h2>
+<p>Set non-graphical mode. <code class="docutils literal notranslate"><span class="pre">&quot;PYAEDT_NON_GRAPHICAL&quot;</span></code> is needed to generate
+documentation only.
+You can set <code class="docutils literal notranslate"><span class="pre">non_graphical</span></code> either to <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/functions.html#bool" title="builtins.bool" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">non_graphical</span></a> <span class="o">=</span> <span class="kc">False</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">desktopVersion</span></a> <span class="o">=</span> <span class="s2">&quot;2023.1&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="open-project">
+<h2>Open project<a class="headerlink" href="#open-project" title="Permalink to this heading">#</a></h2>
+<p>Open the project.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/functions.html#bool" title="builtins.bool" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">NewThread</span></a> <span class="o">=</span> <span class="kc">True</span>
+
+<a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">project_file</span></a> <span class="o">=</span> <span class="n">pyaedt</span><span class="o">.</span><span class="n">generate_unique_project_name</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="launch-aedt-and-initialize-hfss">
+<h2>Launch AEDT and initialize HFSS<a class="headerlink" href="#launch-aedt-and-initialize-hfss" title="Permalink to this heading">#</a></h2>
+<p>Launch AEDT and initialize HFSS. If there is an active HFSS design, the <code class="docutils literal notranslate"><span class="pre">aedtapp</span></code>
+object is linked to it. Otherwise, a new design is created.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">aedtapp</span> <span class="o">=</span> <span class="n">pyaedt</span><span class="o">.</span><span class="n">Hfss</span><span class="p">(</span><span class="n">projectname</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">project_file</span></a><span class="p">,</span>
+                      <span class="n">specified_version</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">desktopVersion</span></a><span class="p">,</span>
+                      <a href="https://docs.python.org/dev/library/functions.html#bool" title="builtins.bool" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">non_graphical</span></a><span class="o">=</span><a href="https://docs.python.org/dev/library/functions.html#bool" title="builtins.bool" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">non_graphical</span></a><span class="p">,</span>
+                      <span class="n">new_desktop_session</span><span class="o">=</span><a href="https://docs.python.org/dev/library/functions.html#bool" title="builtins.bool" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">NewThread</span></a>
+                      <span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>C:\actions-runner\_work\_tool\Python\3.8.10\x64\lib\subprocess.py:946: ResourceWarning: subprocess 14140 is still running
+  _warn(&quot;subprocess %s is still running&quot; % self.pid,
+c:\actions-runner\_work\pyaedt\pyaedt\testenv\lib\site-packages\pyaedt\desktop.py:79: ResourceWarning: unclosed file &lt;_io.BufferedReader name=11&gt;
+  subprocess.Popen(&quot; &quot;.join(command), env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+c:\actions-runner\_work\pyaedt\pyaedt\testenv\lib\site-packages\pyaedt\desktop.py:86: ResourceWarning: unclosed &lt;socket.socket fd=9440, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=(&#39;0.0.0.0&#39;, 54809)&gt;
+  while not _check_grpc_port(port):
+c:\actions-runner\_work\pyaedt\pyaedt\testenv\lib\site-packages\pyaedt\desktop.py:86: ResourceWarning: unclosed &lt;socket.socket fd=9440, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=(&#39;0.0.0.0&#39;, 54815)&gt;
+  while not _check_grpc_port(port):
+c:\actions-runner\_work\pyaedt\pyaedt\testenv\lib\site-packages\pyaedt\desktop.py:86: ResourceWarning: unclosed &lt;socket.socket fd=5576, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=(&#39;0.0.0.0&#39;, 54819)&gt;
+  while not _check_grpc_port(port):
+c:\actions-runner\_work\pyaedt\pyaedt\testenv\lib\site-packages\pyaedt\desktop.py:86: ResourceWarning: unclosed &lt;socket.socket fd=5576, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=(&#39;0.0.0.0&#39;, 54822)&gt;
+  while not _check_grpc_port(port):
+</pre></div>
+</div>
+</section>
+<section id="initialize-variable-settings">
+<h2>Initialize variable settings<a class="headerlink" href="#initialize-variable-settings" title="Permalink to this heading">#</a></h2>
+<p>Initialize variable settings. You can initialize a variable simply by creating
+it as a list object. If you enter the prefix <code class="docutils literal notranslate"><span class="pre">$</span></code>, the variable is created for
+the project. Otherwise, the variable is created for the design.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">aedtapp</span><span class="p">[</span><span class="s2">&quot;$coax_dimension&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;100mm&quot;</span>
+<span class="n">udp</span> <span class="o">=</span> <span class="n">aedtapp</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">Position</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">aedtapp</span><span class="p">[</span><span class="s2">&quot;inner&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;3mm&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="create-coaxial-and-cylinders">
+<h2>Create coaxial and cylinders<a class="headerlink" href="#create-coaxial-and-cylinders" title="Permalink to this heading">#</a></h2>
+<p>Create a coaxial and three cylinders. You can apply parameters
+directly using the <code class="xref py py-func docutils literal notranslate"><span class="pre">pyaedt.modeler.Primitives3D.Primitives3D.create_cylinder()</span></code>
+method. You can assign a material directly to the object creation action.
+Optionally, you can assign a material using the <code class="xref py py-func docutils literal notranslate"><span class="pre">assign_material()</span></code> method.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># TODO: How does this work when two truesurfaces are defined?</span>
+<span class="n">o1</span> <span class="o">=</span> <span class="n">aedtapp</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_cylinder</span><span class="p">(</span><span class="n">cs_axis</span><span class="o">=</span><span class="n">aedtapp</span><span class="o">.</span><span class="n">PLANE</span><span class="o">.</span><span class="n">ZX</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="n">udp</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="s2">&quot;$coax_dimension&quot;</span><span class="p">,</span>
+                                     <span class="n">numSides</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">)</span>
+<span class="n">o2</span> <span class="o">=</span> <span class="n">aedtapp</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_cylinder</span><span class="p">(</span><span class="n">cs_axis</span><span class="o">=</span><span class="n">aedtapp</span><span class="o">.</span><span class="n">PLANE</span><span class="o">.</span><span class="n">ZX</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="n">udp</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="s2">&quot;$coax_dimension&quot;</span><span class="p">,</span>
+                                     <span class="n">numSides</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">matname</span><span class="o">=</span><span class="s2">&quot;teflon_based&quot;</span><span class="p">)</span>
+<span class="n">o3</span> <span class="o">=</span> <span class="n">aedtapp</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_cylinder</span><span class="p">(</span><span class="n">cs_axis</span><span class="o">=</span><span class="n">aedtapp</span><span class="o">.</span><span class="n">PLANE</span><span class="o">.</span><span class="n">ZX</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="n">udp</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="s2">&quot;$coax_dimension&quot;</span><span class="p">,</span>
+                                     <span class="n">numSides</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="assign-colors">
+<h2>Assign colors<a class="headerlink" href="#assign-colors" title="Permalink to this heading">#</a></h2>
+<p>Assign colors to each primitive.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">o1</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">o2</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">o3</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">o3</span><span class="o">.</span><span class="n">transparency</span> <span class="o">=</span> <span class="mf">0.8</span>
+<span class="n">aedtapp</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">fit_all</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="assign-materials">
+<h2>Assign materials<a class="headerlink" href="#assign-materials" title="Permalink to this heading">#</a></h2>
+<p>Assign materials. You can assign materials either directly when creating the primitive,
+which was done for <code class="docutils literal notranslate"><span class="pre">id2</span></code>, or after the object is created.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">o1</span><span class="o">.</span><span class="n">material_name</span> <span class="o">=</span> <span class="s2">&quot;Copper&quot;</span>
+<span class="n">o3</span><span class="o">.</span><span class="n">material_name</span> <span class="o">=</span> <span class="s2">&quot;Copper&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="perform-modeler-operations">
+<h2>Perform modeler operations<a class="headerlink" href="#perform-modeler-operations" title="Permalink to this heading">#</a></h2>
+<p>Perform modeler operations. You can subtract, add, and perform other operations
+using either the object ID or object name.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">aedtapp</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">o3</span><span class="p">,</span> <span class="n">o2</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">aedtapp</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">o2</span><span class="p">,</span> <span class="n">o1</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</section>
+<section id="perform-mesh-operations">
+<h2>Perform mesh operations<a class="headerlink" href="#perform-mesh-operations" title="Permalink to this heading">#</a></h2>
+<p>Perform mesh operations. Most mesh operations are available.
+After a mesh is created, you can access a mesh operation to
+edit or review parameter values.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">aedtapp</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">assign_initial_mesh_from_slider</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">aedtapp</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">assign_model_resolution</span><span class="p">(</span><span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="n">o1</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">o3</span><span class="o">.</span><span class="n">name</span><span class="p">],</span> <span class="n">defeature_length</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="n">aedtapp</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">assign_length_mesh</span><span class="p">(</span><span class="n">names</span><span class="o">=</span><span class="n">o2</span><span class="o">.</span><span class="n">faces</span><span class="p">,</span> <span class="n">isinside</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">maxlength</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">maxel</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;pyaedt.modules.Mesh.MeshOperation object at 0x00000228AF284D30&gt;
+</pre></div>
+</div>
+</section>
+<section id="create-excitations">
+<h2>Create excitations<a class="headerlink" href="#create-excitations" title="Permalink to this heading">#</a></h2>
+<p>Create excitations. The <code class="docutils literal notranslate"><span class="pre">create_wave_port_between_objects</span></code> method automatically
+identifies the closest faces on a predefined direction and creates a sheet to cover
+the faces. It also assigns a port to this face. If <code class="docutils literal notranslate"><span class="pre">add_pec_cap=True</span></code>, the method
+creates a PEC cap.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">aedtapp</span><span class="o">.</span><span class="n">wave_port</span><span class="p">(</span><span class="n">signal</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span>
+                  <span class="n">reference</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span>
+                  <span class="n">integration_line</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                  <span class="n">create_port_sheet</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                  <span class="n">create_pec_cap</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                  <span class="n">name</span><span class="o">=</span><span class="s2">&quot;P1&quot;</span><span class="p">)</span>
+<span class="n">aedtapp</span><span class="o">.</span><span class="n">wave_port</span><span class="p">(</span><span class="n">signal</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span>
+                  <span class="n">reference</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span>
+                  <span class="n">integration_line</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                  <span class="n">create_pec_cap</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                  <span class="n">create_port_sheet</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                  <span class="n">name</span><span class="o">=</span><span class="s2">&quot;P2&quot;</span><span class="p">)</span>
+
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">port_names</span></a> <span class="o">=</span> <span class="n">aedtapp</span><span class="o">.</span><span class="n">get_all_sources</span><span class="p">()</span>
+<span class="n">aedtapp</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">fit_all</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="create-setup">
+<h2>Create setup<a class="headerlink" href="#create-setup" title="Permalink to this heading">#</a></h2>
+<p>Create a setup. A setup is created with default values. After its creation,
+you can change values and update the setup. The <code class="docutils literal notranslate"><span class="pre">update</span></code> method returns a Boolean
+value.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">aedtapp</span><span class="o">.</span><span class="n">set_active_design</span><span class="p">(</span><span class="n">aedtapp</span><span class="o">.</span><span class="n">design_name</span><span class="p">)</span>
+<span class="n">setup</span> <span class="o">=</span> <span class="n">aedtapp</span><span class="o">.</span><span class="n">create_setup</span><span class="p">(</span><span class="s2">&quot;MySetup&quot;</span><span class="p">)</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Frequency&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1GHz&quot;</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;BasisOrder&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;MaximumPasses&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</section>
+<section id="create-sweep">
+<h2>Create sweep<a class="headerlink" href="#create-sweep" title="Permalink to this heading">#</a></h2>
+<p>Create a sweep. A sweep is created with default values.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sweepname</span> <span class="o">=</span> <span class="n">aedtapp</span><span class="o">.</span><span class="n">create_linear_count_sweep</span><span class="p">(</span><span class="n">setupname</span><span class="o">=</span><span class="s2">&quot;MySetup&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;GHz&quot;</span><span class="p">,</span> <span class="n">freqstart</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">freqstop</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span>
+                                              <span class="n">num_of_freq_points</span><span class="o">=</span><span class="mi">401</span><span class="p">,</span> <span class="n">sweep_type</span><span class="o">=</span><span class="s2">&quot;Interpolating&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="create-icepak-model">
+<h2>Create Icepak model<a class="headerlink" href="#create-icepak-model" title="Permalink to this heading">#</a></h2>
+<p>Create an Icepak model. After an HFSS setup is ready, link this model to an Icepak
+project and run a coupled physics analysis. The <code class="xref py py-func docutils literal notranslate"><span class="pre">FieldAnalysis3D.copy_solid_bodies_from()</span></code>
+method imports a model from HFSS with all material settings.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ipkapp</span> <span class="o">=</span> <span class="n">pyaedt</span><span class="o">.</span><span class="n">Icepak</span><span class="p">()</span>
+<span class="n">ipkapp</span><span class="o">.</span><span class="n">copy_solid_bodies_from</span><span class="p">(</span><span class="n">aedtapp</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</section>
+<section id="link-sources-to-em-losses">
+<h2>Link sources to EM losses<a class="headerlink" href="#link-sources-to-em-losses" title="Permalink to this heading">#</a></h2>
+<p>Link sources to the EM losses.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">surfaceobj</span></a> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span> <span class="s2">&quot;outer&quot;</span><span class="p">]</span>
+<span class="n">ipkapp</span><span class="o">.</span><span class="n">assign_em_losses</span><span class="p">(</span><span class="n">designname</span><span class="o">=</span><span class="n">aedtapp</span><span class="o">.</span><span class="n">design_name</span><span class="p">,</span> <span class="n">setupname</span><span class="o">=</span><span class="s2">&quot;MySetup&quot;</span><span class="p">,</span> <span class="n">sweepname</span><span class="o">=</span><span class="s2">&quot;LastAdaptive&quot;</span><span class="p">,</span>
+                        <span class="n">map_frequency</span><span class="o">=</span><span class="s2">&quot;1GHz&quot;</span><span class="p">,</span> <span class="n">surface_objects</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">surfaceobj</span></a><span class="p">,</span> <span class="n">paramlist</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;$coax_dimension&quot;</span><span class="p">,</span> <span class="s2">&quot;inner&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;pyaedt.modules.Boundary.BoundaryObject object at 0x00000228AD0682E0&gt;
+</pre></div>
+</div>
+</section>
+<section id="edit-gravity-setting">
+<h2>Edit gravity setting<a class="headerlink" href="#edit-gravity-setting" title="Permalink to this heading">#</a></h2>
+<p>Edit the gravity setting if necessary because it is important for a fluid analysis.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ipkapp</span><span class="o">.</span><span class="n">edit_design_settings</span><span class="p">(</span><span class="n">aedtapp</span><span class="o">.</span><span class="n">GRAVITY</span><span class="o">.</span><span class="n">ZNeg</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</section>
+<section id="set-up-icepak-project">
+<h2>Set up Icepak project<a class="headerlink" href="#set-up-icepak-project" title="Permalink to this heading">#</a></h2>
+<p>Set up the Icepak project. When you create a setup, default settings are applied.
+When you need to change a property of the setup, you can use the <code class="docutils literal notranslate"><span class="pre">props</span></code>
+command to pass the correct value to the property. The <code class="docutils literal notranslate"><span class="pre">update</span></code> function
+applies the settings to the setup. The setup creation process is identical
+for all tools.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">setup_ipk</span> <span class="o">=</span> <span class="n">ipkapp</span><span class="o">.</span><span class="n">create_setup</span><span class="p">(</span><span class="s2">&quot;SetupIPK&quot;</span><span class="p">)</span>
+<span class="n">setup_ipk</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Convergence Criteria - Max Iterations&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+</pre></div>
+</div>
+</section>
+<section id="edit-or-review-mesh-parameters">
+<h2>Edit or review mesh parameters<a class="headerlink" href="#edit-or-review-mesh-parameters" title="Permalink to this heading">#</a></h2>
+<p>Edit or review the mesh parameters. After a mesh is created, you can access
+a mesh operation to edit or review parameter values.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">airbox</span></a> <span class="o">=</span> <span class="n">ipkapp</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">get_obj_id</span><span class="p">(</span><span class="s2">&quot;Region&quot;</span><span class="p">)</span>
+<span class="n">ipkapp</span><span class="o">.</span><span class="n">modeler</span><span class="p">[</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">airbox</span></a><span class="p">]</span><span class="o">.</span><span class="n">display_wireframe</span> <span class="o">=</span> <span class="kc">True</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">airfaces</span></a> <span class="o">=</span> <span class="n">ipkapp</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">get_object_faces</span><span class="p">(</span><a href="https://docs.python.org/dev/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">airbox</span></a><span class="p">)</span>
+<span class="n">ipkapp</span><span class="o">.</span><span class="n">assign_openings</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">airfaces</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;pyaedt.modules.Boundary.BoundaryObject object at 0x00000228AF284DF0&gt;
+</pre></div>
+</div>
+</section>
+<section id="close-and-open-projects">
+<h2>Close and open projects<a class="headerlink" href="#close-and-open-projects" title="Permalink to this heading">#</a></h2>
+<p>Close and open the projects to ensure that the HFSS - Icepak coupling works
+correctly in AEDT versions 2019 R3 through 2021 R1. Closing and opening projects
+can be helpful when performing operations on multiple projects.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">aedtapp</span><span class="o">.</span><span class="n">save_project</span><span class="p">()</span>
+<span class="n">aedtapp</span><span class="o">.</span><span class="n">close_project</span><span class="p">(</span><span class="n">aedtapp</span><span class="o">.</span><span class="n">project_name</span><span class="p">)</span>
+<span class="n">aedtapp</span> <span class="o">=</span> <span class="n">pyaedt</span><span class="o">.</span><span class="n">Hfss</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">project_file</span></a><span class="p">)</span>
+<span class="n">ipkapp</span> <span class="o">=</span> <span class="n">pyaedt</span><span class="o">.</span><span class="n">Icepak</span><span class="p">()</span>
+<span class="n">ipkapp</span><span class="o">.</span><span class="n">solution_type</span> <span class="o">=</span> <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ipkapp</span><span class="o">.</span><span class="n">SOLUTIONS</span><span class="o">.</span><span class="n">Icepak</span><span class="o">.</span><span class="n">SteadyTemperatureAndFlow</span></a>
+<span class="n">ipkapp</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">fit_all</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="solve-icepak-project">
+<h2>Solve Icepak project<a class="headerlink" href="#solve-icepak-project" title="Permalink to this heading">#</a></h2>
+<p>Solve the Icepak project and the HFSS sweep.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/functions.html#bool" title="builtins.bool" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">setup1</span></a> <span class="o">=</span> <span class="n">ipkapp</span><span class="o">.</span><span class="n">analyze_setup</span><span class="p">(</span><span class="s2">&quot;SetupIPK&quot;</span><span class="p">)</span>
+<span class="n">aedtapp</span><span class="o">.</span><span class="n">save_project</span><span class="p">()</span>
+<span class="n">aedtapp</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">fit_all</span><span class="p">()</span>
+<span class="n">aedtapp</span><span class="o">.</span><span class="n">analyze_setup</span><span class="p">(</span><span class="s2">&quot;MySetup&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</section>
+<section id="generate-field-plots-and-export">
+<h2>Generate field plots and export<a class="headerlink" href="#generate-field-plots-and-export" title="Permalink to this heading">#</a></h2>
+<p>Generate field plots on the HFSS project and export them as images.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cutlist</span></a> <span class="o">=</span> <span class="p">[</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pyaedt</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">GLOBALCS</span><span class="o">.</span><span class="n">XY</span></a><span class="p">,</span> <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pyaedt</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">GLOBALCS</span><span class="o">.</span><span class="n">ZX</span></a><span class="p">,</span> <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pyaedt</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">GLOBALCS</span><span class="o">.</span><span class="n">YZ</span></a><span class="p">]</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">vollist</span></a> <span class="o">=</span> <span class="p">[</span><span class="n">o2</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">setup_name</span></a> <span class="o">=</span> <span class="s2">&quot;MySetup : LastAdaptive&quot;</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">quantity_name</span></a> <span class="o">=</span> <span class="s2">&quot;ComplexMag_E&quot;</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">quantity_name2</span></a> <span class="o">=</span> <span class="s2">&quot;ComplexMag_H&quot;</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">intrinsic</span></a> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Freq&quot;</span><span class="p">:</span> <span class="s2">&quot;1GHz&quot;</span><span class="p">,</span> <span class="s2">&quot;Phase&quot;</span><span class="p">:</span> <span class="s2">&quot;0deg&quot;</span><span class="p">}</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">surflist</span></a> <span class="o">=</span> <span class="n">aedtapp</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">get_object_faces</span><span class="p">(</span><span class="s2">&quot;outer&quot;</span><span class="p">)</span>
+<span class="n">plot1</span> <span class="o">=</span> <span class="n">aedtapp</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">create_fieldplot_surface</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">surflist</span></a><span class="p">,</span> <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">quantity_name2</span></a><span class="p">,</span> <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">setup_name</span></a><span class="p">,</span> <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">intrinsic</span></a><span class="p">)</span>
+
+<a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">results_folder</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">aedtapp</span><span class="o">.</span><span class="n">working_directory</span><span class="p">,</span> <span class="s2">&quot;Coaxial_Results_NG&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <a href="https://docs.python.org/dev/library/os.path.html#os.path.exists" title="os.path.exists" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span></a><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">results_folder</span></a><span class="p">):</span>
+    <a href="https://docs.python.org/dev/library/os.html#os.mkdir" title="os.mkdir" class="sphx-glr-backref-module-os sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">mkdir</span></a><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">results_folder</span></a><span class="p">)</span>
+
+<span class="n">aedtapp</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">plot_field_from_fieldplot</span><span class="p">(</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">plot1</span><span class="o">.</span><span class="n">name</span></a><span class="p">,</span>
+    <span class="n">project_path</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">results_folder</span></a><span class="p">,</span>
+    <span class="n">meshplot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">imageformat</span><span class="o">=</span><span class="s2">&quot;jpg&quot;</span><span class="p">,</span>
+    <span class="n">view</span><span class="o">=</span><span class="s2">&quot;isometric&quot;</span><span class="p">,</span>
+    <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">plot_cad_objs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">log_scale</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_Hfss_Icepak_Coupling_001.png" srcset="../../_images/sphx_glr_Hfss_Icepak_Coupling_001.png" alt="Hfss Icepak Coupling" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;pyaedt.generic.plot.ModelPlotter object at 0x00000228AA470D30&gt;
+</pre></div>
+</div>
+</section>
+<section id="generate-animation-from-field-plots">
+<h2>Generate animation from field plots<a class="headerlink" href="#generate-animation-from-field-plots" title="Permalink to this heading">#</a></h2>
+<p>Generate an animation from field plots using PyVista.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
+
+<a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">start</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/time.html#time.time" title="time.time" class="sphx-glr-backref-module-time sphx-glr-backref-type-py-function"><span class="n">time</span><span class="o">.</span><span class="n">time</span></a><span class="p">()</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cutlist</span></a> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Global:XY&quot;</span><span class="p">]</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">phases</span></a> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;deg&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">18</span><span class="p">)]</span>
+<span class="n">animated</span> <span class="o">=</span> <span class="n">aedtapp</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">animate_fields_from_aedtplt_2</span><span class="p">(</span>
+    <span class="n">quantityname</span><span class="o">=</span><span class="s2">&quot;Mag_E&quot;</span><span class="p">,</span>
+    <span class="n">object_list</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cutlist</span></a><span class="p">,</span>
+    <span class="n">plottype</span><span class="o">=</span><span class="s2">&quot;CutPlane&quot;</span><span class="p">,</span>
+    <span class="n">meshplot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">setup_name</span></a><span class="o">=</span><span class="n">aedtapp</span><span class="o">.</span><span class="n">nominal_adaptive</span><span class="p">,</span>
+    <span class="n">intrinsic_dict</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Freq&quot;</span><span class="p">:</span> <span class="s2">&quot;1GHz&quot;</span><span class="p">,</span> <span class="s2">&quot;Phase&quot;</span><span class="p">:</span> <span class="s2">&quot;0deg&quot;</span><span class="p">},</span>
+    <span class="n">project_path</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">results_folder</span></a><span class="p">,</span>
+    <span class="n">variation_variable</span><span class="o">=</span><span class="s2">&quot;Phase&quot;</span><span class="p">,</span>
+    <span class="n">variation_list</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">phases</span></a><span class="p">,</span>
+    <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">export_gif</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">log_scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">animated</span><span class="o">.</span><span class="n">gif_file</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="n">aedtapp</span><span class="o">.</span><span class="n">working_directory</span><span class="p">,</span> <span class="s2">&quot;animate.gif&quot;</span><span class="p">)</span>
+<span class="n">animated</span><span class="o">.</span><span class="n">camera_position</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">300</span><span class="p">]</span>
+<span class="n">animated</span><span class="o">.</span><span class="n">focal_point</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="c1"># Set off_screen to False to visualize the animation.</span>
+<span class="c1"># animated.off_screen = False</span>
+<span class="n">animated</span><span class="o">.</span><span class="n">animate</span><span class="p">()</span>
+
+<a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">endtime</span></a> <span class="o">=</span> <a href="https://docs.python.org/dev/library/time.html#time.time" title="time.time" class="sphx-glr-backref-module-time sphx-glr-backref-type-py-function"><span class="n">time</span><span class="o">.</span><span class="n">time</span></a><span class="p">()</span> <span class="o">-</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">start</span></a>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Total Time&quot;</span><span class="p">,</span> <a href="https://docs.python.org/dev/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">endtime</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_Hfss_Icepak_Coupling_002.png" srcset="../../_images/sphx_glr_Hfss_Icepak_Coupling_002.png" alt="Hfss Icepak Coupling" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Total Time 12.08428168296814
+</pre></div>
+</div>
+</section>
+<section id="create-icepak-plots-and-export">
+<h2>Create Icepak plots and export<a class="headerlink" href="#create-icepak-plots-and-export" title="Permalink to this heading">#</a></h2>
+<p>Create Icepak plots and export them as images using the same functions that
+were used early. Only the quantity is different.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">quantity_name</span></a> <span class="o">=</span> <span class="s2">&quot;Temperature&quot;</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">setup_name</span></a> <span class="o">=</span> <span class="n">ipkapp</span><span class="o">.</span><span class="n">existing_analysis_sweeps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">intrinsic</span></a> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">surflist</span></a> <span class="o">=</span> <span class="n">ipkapp</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">get_object_faces</span><span class="p">(</span><span class="s2">&quot;inner&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">ipkapp</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">get_object_faces</span><span class="p">(</span><span class="s2">&quot;outer&quot;</span><span class="p">)</span>
+<span class="n">plot5</span> <span class="o">=</span> <span class="n">ipkapp</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">create_fieldplot_surface</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">surflist</span></a><span class="p">,</span> <span class="s2">&quot;SurfTemperature&quot;</span><span class="p">)</span>
+
+<span class="n">ipkapp</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">plot_field_from_fieldplot</span><span class="p">(</span>
+    <a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">plot5</span><span class="o">.</span><span class="n">name</span></a><span class="p">,</span>
+    <span class="n">project_path</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">results_folder</span></a><span class="p">,</span>
+    <span class="n">meshplot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">imageformat</span><span class="o">=</span><span class="s2">&quot;jpg&quot;</span><span class="p">,</span>
+    <span class="n">view</span><span class="o">=</span><span class="s2">&quot;isometric&quot;</span><span class="p">,</span>
+    <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">aedtapp</span><span class="o">.</span><span class="n">save_project</span><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_Hfss_Icepak_Coupling_003.png" srcset="../../_images/sphx_glr_Hfss_Icepak_Coupling_003.png" alt="Hfss Icepak Coupling" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</section>
+<section id="generate-plots-outside-of-aedt">
+<h2>Generate plots outside of AEDT<a class="headerlink" href="#generate-plots-outside-of-aedt" title="Permalink to this heading">#</a></h2>
+<p>Generate plots outside of AEDT using Matplotlib and NumPy.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">trace_names</span></a> <span class="o">=</span> <span class="n">aedtapp</span><span class="o">.</span><span class="n">get_traces_for_plot</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="s2">&quot;S&quot;</span><span class="p">)</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cxt</span></a> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Domain:=&quot;</span><span class="p">,</span> <span class="s2">&quot;Sweep&quot;</span><span class="p">]</span>
+<a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">families</span></a> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Freq:=&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;All&quot;</span><span class="p">]]</span>
+<span class="n">my_data</span> <span class="o">=</span> <span class="n">aedtapp</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">get_solution_data</span><span class="p">(</span><span class="n">expressions</span><span class="o">=</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">trace_names</span></a><span class="p">)</span>
+<span class="n">my_data</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><a href="https://docs.python.org/dev/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">trace_names</span></a><span class="p">,</span> <span class="s2">&quot;db20&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Frequency (Ghz)&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;SParameters(dB)&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Scattering Chart&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_Hfss_Icepak_Coupling_004.png" srcset="../../_images/sphx_glr_Hfss_Icepak_Coupling_004.png" alt="Scattering Chart" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;Figure size 2000x1000 with 1 Axes&gt;
+</pre></div>
+</div>
+</section>
+<section id="close-project-and-release-aedt">
+<h2>Close project and release AEDT<a class="headerlink" href="#close-project-and-release-aedt" title="Permalink to this heading">#</a></h2>
+<p>Close the project and release AEDT.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">aedtapp</span><span class="o">.</span><span class="n">release_desktop</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 3 minutes  22.385 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-06-multiphysics-hfss-icepak-coupling-py">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/fa55c6e8c43f01f1040d789e3a1de422/Hfss_Icepak_Coupling.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">Hfss_Icepak_Coupling.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/38315d56f62dd567d1e7b526707ea603/Hfss_Icepak_Coupling.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">Hfss_Icepak_Coupling.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+              </article>
+              
+
+              
+          </div>
+          
+      </div>
+    </div>
+
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695"></script>
+
+<footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    <p class="copyright">
+    &copy; Copyright (c) 2023 ANSYS, Inc. All rights reserved.<br>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+  </div>
+  
+</div>
+</footer>
+  </body>
+</html>

@@ -1,0 +1,1284 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyaedt.aedt_logger &#8212; PyAEDT</title>
+    
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/ansys_sphinx_theme.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    
+        <link href="../../_static/css/breadcrumbs.css" rel="stylesheet">
+    
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/table.js"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pyaedt/aedt_logger';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://aedt.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        </script>
+    <link rel="icon" href="../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container"><!-- Debugging: html_theme_options =  -->
+
+  <!-- Include the MeiliSearch CSS stylesheet only if theme present -->
+  <link href="../../_static/css/meilisearch.css" rel="stylesheet">
+
+  <!-- Create a search bar form with a text input and a dropdown selector for the search index -->
+  <form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+    <input type="search" placeholder="Search" class="form-control" id="search-bar-input" autofocus />
+
+    
+      <select id="indexUidSelector" class="index-select">
+      
+        <option value="pyansys-pyaedt-sphinx-docs">PyAEDT</option>
+      
+        <option value="pyansys-pyedb-sphinx-docs">EDB API</option>
+      
+      </select>
+    
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <!-- Include the MeiliSearch JavaScript library for the search bar -->
+    <script src="https://cdn.jsdelivr.net/npm/docs-searchbar.js@latest/dist/cdn/docs-searchbar.min.js"></script>
+    
+      <!-- If no credentials provided, use the default ones  -->
+      
+        
+        
+      
+      <script>
+      // Initialize the MeiliSearch bar with the given API key and host
+      // inspect the first value of index UID as default
+      let theSearchBar = docsSearchBar({
+        hostUrl: "https://backend.search.pyansys.com/",
+        apiKey: "A1Qxly2sls6g1rb1sIKEVEtE7R1UsHad0VgqnvKhD5nhBNf5de",
+        indexUid: "pyansys-pyaedt-sphinx-docs",
+        inputSelector: '#search-bar-input, #indexUidSelector',
+        enableDarkMode: 'auto',
+        debug: true // Set debug to true if you want to inspect the dropdown
+      });
+
+      document.getElementById('indexUidSelector').addEventListener('change', function() {
+        theSearchBar.indexUid = this.value;
+        theSearchBar.inputSelector = '#docs-searchbar-suggestion';
+      });
+
+      // Set the focus on the search bar input
+      document.getElementById('docs-searchbar-suggestion').focus();
+    </script>
+  </form>
+
+</div>
+  </div>
+  
+    
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/pyansys-logo-black-cropped.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../../_static/pyansys-logo-black-cropped.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../Getting_started/index.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../User_guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../API/index.html">
+                        AEDT API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../EDBAPI/index.html">
+                        EDB API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../Contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      dev  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt/discussions" title="Support" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+</div>
+
+    </nav>
+  
+
+    
+    <div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(text => document.getElementById("announcement_msg").innerHTML = text)
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+    
+
+    
+    <div class="container-xl">
+    <div class="row">
+        <div class="col-12 col-md-3" id="breadcrumbs-spacer"></div>
+        <div class="col-12 col-md-11 col-xl-9" id="breadcrumbs">
+          
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-additional-breadcrumb"><a href="https://docs.pyansys.com/">PyAnsys</a> » </li>
+    
+    
+        <li class="nav-item nav-item-0"><a href="../../index.html">PyAEDT</a> » </li>
+    
+
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> » </li>
+        <li class="nav-item nav-item-this"><a href="">pyaedt.aedt_logger</a></li> 
+      </ul>
+    </div>
+        </div>
+  </div>
+</div>
+    
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../Getting_started/index.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../User_guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../API/index.html">
+                        AEDT API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../EDBAPI/index.html">
+                        EDB API
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../Contributing.html">
+                        Contribute
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      dev  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/pyansys/pyaedt/discussions" title="Support" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa fa-comment fa-fw"></i></span>
+            <label class="sr-only">Support</label></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article"></div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for pyaedt.aedt_logger</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">logging.handlers</span> <span class="kn">import</span> <span class="n">RotatingFileHandler</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">from</span> <span class="nn">pyaedt</span> <span class="kn">import</span> <span class="n">settings</span>
+
+<span class="n">message_levels</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Global&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Project&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Design&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+
+
+<span class="k">class</span> <span class="nc">Msg</span><span class="p">:</span>
+    <span class="p">(</span><span class="n">INFO</span><span class="p">,</span> <span class="n">WARNING</span><span class="p">,</span> <span class="n">ERROR</span><span class="p">,</span> <span class="n">FATAL</span><span class="p">)</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">MessageList</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Collects and returns messages from the AEDT message manager for a specified project name and design name.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    msg_list : list</span>
+<span class="sd">        List of messages extracted from AEDT.</span>
+<span class="sd">    project_name : str</span>
+<span class="sd">        Name of the project. The default is the active project.</span>
+<span class="sd">    design_name : str</span>
+<span class="sd">        Name of the design within the specified project. The default is the active design.</span>
+
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    global_level : list of str</span>
+<span class="sd">        List of strings representing the message content at the global level of the message manager.</span>
+
+<span class="sd">    project_level : list of str</span>
+<span class="sd">        List of strings representing the message content within the specified project.</span>
+
+<span class="sd">    design_level : list of str</span>
+<span class="sd">        List of strings representing the message content for the specified design within the specified project.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_list</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">design_name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_level</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">project_level</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">design_level</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">global_label</span> <span class="o">=</span> <span class="s2">&quot;Project: *Global - Messages, &quot;</span>
+        <span class="n">project_label</span> <span class="o">=</span> <span class="s2">&quot;Project: </span><span class="si">{}</span><span class="s2">, &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">project_name</span><span class="p">)</span>
+        <span class="n">design_label</span> <span class="o">=</span> <span class="s2">&quot;Project: </span><span class="si">{}</span><span class="s2">, Design: </span><span class="si">{}</span><span class="s2"> (&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">project_name</span><span class="p">,</span> <span class="n">design_name</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">msg_list</span><span class="p">:</span>
+            <span class="c1"># Find the first instance of &#39;[&#39; to get the message context</span>
+            <span class="n">loc</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;[&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">loc</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># Format is not clear - append to global</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">global_level</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">line_label</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">loc</span><span class="p">]</span>
+                <span class="n">msg_txt</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">loc</span><span class="p">:]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">design_label</span> <span class="ow">in</span> <span class="n">line_label</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">design_level</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">msg_txt</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">project_label</span> <span class="ow">in</span> <span class="n">line_label</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">project_level</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">msg_txt</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">global_label</span> <span class="ow">in</span> <span class="n">line_label</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">global_level</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">msg_txt</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="AppFilter"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.aedt_logger.AppFilter.html#pyaedt.aedt_logger.AppFilter">[docs]</a><span class="k">class</span> <span class="nc">AppFilter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Filter</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Specifies the destination of the logger.</span>
+
+<span class="sd">    AEDT exposes three different loggers, which are the global, project, and design loggers.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    destination : str, optional</span>
+<span class="sd">        Logger to write to. Options are ``&quot;Global&quot;`, ``&quot;Project&quot;``, and ``&quot;Design&quot;``.</span>
+<span class="sd">        The default is ``&quot;Global&quot;``.</span>
+<span class="sd">    extra : str, optional</span>
+<span class="sd">        Name of the design or project. The default is ``&quot;&quot;``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">destination</span><span class="o">=</span><span class="s2">&quot;Global&quot;</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_destination</span> <span class="o">=</span> <span class="n">destination</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_extra</span> <span class="o">=</span> <span class="n">extra</span>
+
+<div class="viewcode-block" id="AppFilter.filter"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.aedt_logger.AppFilter.filter.html#pyaedt.aedt_logger.AppFilter.filter">[docs]</a>    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Modify the record sent to the logger.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        record : class:`logging.LogRecord`</span>
+<span class="sd">            Contains information related to the event being logged.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">record</span><span class="o">.</span><span class="n">destination</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_destination</span>
+
+        <span class="c1"># This will avoid the extra &#39;::&#39; for Global that does not have any extra info.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra</span><span class="p">:</span>
+            <span class="n">record</span><span class="o">.</span><span class="n">extra</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">record</span><span class="o">.</span><span class="n">extra</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span>
+        <span class="k">return</span> <span class="kc">True</span></div></div>
+
+
+<div class="viewcode-block" id="AedtLogger"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.aedt_logger.AedtLogger.html#pyaedt.aedt_logger.AedtLogger">[docs]</a><span class="k">class</span> <span class="nc">AedtLogger</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Specifies the logger to use for each AEDT logger.</span>
+
+<span class="sd">    This class allows you to add a handler to write messages to a file and to indicate</span>
+<span class="sd">    whether to write mnessages to the standard output (stdout).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    level : int, optional</span>
+<span class="sd">        Logging level to filter the message severity allowed in the logger.</span>
+<span class="sd">        The default is ``logging.DEBUG``.</span>
+<span class="sd">    filename : str, optional</span>
+<span class="sd">        Name of the file to write messages to. The default is ``None``.</span>
+<span class="sd">    to_stdout : bool, optional</span>
+<span class="sd">        Whether to write log messages to stdout. The default is ``False``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">to_stdout</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">level</span> <span class="o">=</span> <span class="n">level</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span> <span class="ow">or</span> <span class="n">settings</span><span class="o">.</span><span class="n">logger_file_path</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">logger_file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_global</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;Global&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">settings</span><span class="o">.</span><span class="n">enable_logger</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_global</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_files_handlers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_projects</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_global</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_global</span><span class="o">.</span><span class="n">addFilter</span><span class="p">(</span><span class="n">AppFilter</span><span class="p">())</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_std_out_handler</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">formatter</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">formatter</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">formatter</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">logger_formatter</span><span class="p">,</span> <span class="n">datefmt</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">logger_datefmt</span><span class="p">)</span>
+        <span class="n">global_handler</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_global</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">global_log_file_name</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">handler</span><span class="p">):</span>
+                <span class="n">global_handler</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">break</span>
+        <span class="n">log_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">(),</span> <span class="n">settings</span><span class="o">.</span><span class="n">global_log_file_name</span><span class="p">)</span>
+        <span class="n">my_handler</span> <span class="o">=</span> <span class="n">RotatingFileHandler</span><span class="p">(</span>
+            <span class="n">log_file</span><span class="p">,</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">,</span>
+            <span class="n">maxBytes</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">global_log_file_size</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>
+            <span class="n">backupCount</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">my_handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formatter</span><span class="p">)</span>
+        <span class="n">my_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">level</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">global_handler</span> <span class="ow">and</span> <span class="n">settings</span><span class="o">.</span><span class="n">global_log_file_name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_global</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">my_handler</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_files_handlers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">my_handler</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="ow">and</span> <span class="n">settings</span><span class="o">.</span><span class="n">enable_local_log_file</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_file_logger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;Global&quot;</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">to_stdout</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_std_out_handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_std_out_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
+            <span class="n">_logger_stdout_formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="s2">&quot;pyaedt </span><span class="si">%(levelname)s</span><span class="s2">: </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_std_out_handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">_logger_stdout_formatter</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_global</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_std_out_handler</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_timer</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+<div class="viewcode-block" id="AedtLogger.add_file_logger"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.aedt_logger.AedtLogger.add_file_logger.html#pyaedt.aedt_logger.AedtLogger.add_file_logger">[docs]</a>    <span class="k">def</span> <span class="nf">add_file_logger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a new file to the logger handlers list.&quot;&quot;&quot;</span>
+        <span class="n">_project</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">project_name</span><span class="p">)</span>
+        <span class="n">_project</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span> <span class="k">if</span> <span class="n">level</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">level</span><span class="p">)</span>
+        <span class="n">_project</span><span class="o">.</span><span class="n">addFilter</span><span class="p">(</span><span class="n">AppFilter</span><span class="p">(</span><span class="s2">&quot;Project&quot;</span><span class="p">,</span> <span class="n">project_name</span><span class="p">))</span>
+        <span class="n">_file_handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">_file_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span> <span class="k">if</span> <span class="n">level</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">level</span><span class="p">)</span>
+        <span class="n">_file_handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formatter</span><span class="p">)</span>
+        <span class="n">_project</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">_file_handler</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_std_out_handler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_project</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_std_out_handler</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_global</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">global_log_file_name</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">handler</span><span class="p">):</span>
+                <span class="n">_project</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+                <span class="k">break</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;New logger file </span><span class="si">{}</span><span class="s2"> added to handlers.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_files_handlers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_file_handler</span><span class="p">)</span>
+        <span class="n">_project</span><span class="o">.</span><span class="n">info_timer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">info_timer</span>
+        <span class="n">_project</span><span class="o">.</span><span class="n">reset_timer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reset_timer</span>
+        <span class="n">_project</span><span class="o">.</span><span class="n">_timer</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">_project</span></div>
+
+<div class="viewcode-block" id="AedtLogger.remove_file_logger"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.aedt_logger.AedtLogger.remove_file_logger.html#pyaedt.aedt_logger.AedtLogger.remove_file_logger">[docs]</a>    <span class="k">def</span> <span class="nf">remove_file_logger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove a file from the logger handlers list.&quot;&quot;&quot;</span>
+        <span class="n">handlers</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_global</span><span class="o">.</span><span class="n">handlers</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handlers</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;pyaedt_</span><span class="si">{}</span><span class="s2">.log&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">project_name</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">handler</span><span class="p">):</span>
+                <span class="n">handler</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">handler</span> <span class="ow">in</span> <span class="n">handlers</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_global</span><span class="o">.</span><span class="n">removeHandler</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;logger file pyaedt_</span><span class="si">{}</span><span class="s2">.log removed from handlers.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">project_name</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="AedtLogger.remove_all_project_file_logger"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.aedt_logger.AedtLogger.remove_all_project_file_logger.html#pyaedt.aedt_logger.AedtLogger.remove_all_project_file_logger">[docs]</a>    <span class="k">def</span> <span class="nf">remove_all_project_file_logger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove all the local files from the logger handlers list.&quot;&quot;&quot;</span>
+        <span class="n">handlers</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_global</span><span class="o">.</span><span class="n">handlers</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="n">handlers</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;pyaedt_&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">handler</span><span class="p">):</span>
+                <span class="n">handler</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_global</span><span class="o">.</span><span class="n">removeHandler</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Project files removed from handlers.&quot;</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_desktop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;oDesktop&quot;</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s2">&quot;__main__&quot;</span><span class="p">]):</span>
+            <span class="n">MainModule</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s2">&quot;__main__&quot;</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">MainModule</span><span class="o">.</span><span class="n">oDesktop</span>
+        <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># pragma: no cover</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_log_on_desktop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_desktop</span> <span class="ow">and</span> <span class="n">settings</span><span class="o">.</span><span class="n">enable_desktop_logs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="nd">@_log_on_desktop</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">_log_on_desktop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">enable_desktop_logs</span> <span class="o">=</span> <span class="n">val</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_log_on_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">enable_file_logs</span>
+
+    <span class="nd">@_log_on_file</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">_log_on_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">enable_file_logs</span> <span class="o">=</span> <span class="n">val</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_log_on_screen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">settings</span><span class="o">.</span><span class="n">enable_screen_logs</span>
+
+    <span class="nd">@_log_on_screen</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">_log_on_screen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">enable_screen_logs</span> <span class="o">=</span> <span class="n">val</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">logger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;AEDT logger object.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_on_file</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;Global&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># pragma: no cover</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">messages</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Message manager content for the active project and design.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of str</span>
+<span class="sd">           List of messages for the active project and design.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_messages</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_project_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design_name</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AedtLogger.reset_timer"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.aedt_logger.AedtLogger.reset_timer.html#pyaedt.aedt_logger.AedtLogger.reset_timer">[docs]</a>    <span class="k">def</span> <span class="nf">reset_timer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_val</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; &quot;Reset actual timer to  actual time or specified time.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        time_val : float, optional</span>
+<span class="sd">            Value time to apply.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reset actual timer from now.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">time_val</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_timer</span> <span class="o">=</span> <span class="n">time_val</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_timer</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_timer</span></div>
+
+<div class="viewcode-block" id="AedtLogger.get_messages"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.aedt_logger.AedtLogger.get_messages.html#pyaedt.aedt_logger.AedtLogger.get_messages">[docs]</a>    <span class="k">def</span> <span class="nf">get_messages</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">design_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">aedt_messages</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the message manager content for a specified project and design.</span>
+
+<span class="sd">        If the specified project and design names are invalid, they are ignored.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        project_name : str</span>
+<span class="sd">            Name of the project to read messages from. Leave empty string to get Desktop level messages.</span>
+<span class="sd">        design_name : str</span>
+<span class="sd">            Name of the design to read messages from. Leave empty string to get Desktop level messages.</span>
+<span class="sd">        level : int</span>
+<span class="sd">            Level of messages to read. 0 – info and above, 1 – warning and above, 2 – error and fatal</span>
+<span class="sd">        aedt_messages : bool</span>
+<span class="sd">            Read content of message manager even if logger is disabled.</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of str</span>
+<span class="sd">            List of messages for the specified project and design.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">project_name</span> <span class="o">=</span> <span class="n">project_name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_project_name</span>
+        <span class="n">design_name</span> <span class="o">=</span> <span class="n">design_name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design_name</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_on_desktop</span> <span class="ow">or</span> <span class="n">aedt_messages</span><span class="p">:</span>
+            <span class="n">global_message_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_desktop</span><span class="o">.</span><span class="n">GetMessages</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">MessageList</span><span class="p">(</span><span class="n">global_message_data</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">design_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">MessageList</span><span class="p">([],</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">design_name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AedtLogger.add_error_message"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.aedt_logger.AedtLogger.add_error_message.html#pyaedt.aedt_logger.AedtLogger.add_error_message">[docs]</a>    <span class="k">def</span> <span class="nf">add_error_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message_text</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a type 2 &quot;Error&quot; message to the message manager tree.</span>
+
+<span class="sd">        Also add an error message to the logger if the handler is present.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message_text : str</span>
+<span class="sd">            Text to display as the error message.</span>
+<span class="sd">        level : str, optional</span>
+<span class="sd">            Level to add the error message to. Options are ``&quot;Global&quot;``,</span>
+<span class="sd">            ``&quot;Project&quot;``, and ``&quot;Design&quot;``. The default is ``None``,</span>
+<span class="sd">            in which case the error message gets added to the ``&quot;Design&quot;``</span>
+<span class="sd">            level.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Add an error message to the AEDT message manager.</span>
+
+<span class="sd">        &gt;&gt;&gt; hfss.logger.project.error(&quot;Project Error Message&quot;, &quot;Project&quot;)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_message</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">message_text</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AedtLogger.add_warning_message"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.aedt_logger.AedtLogger.add_warning_message.html#pyaedt.aedt_logger.AedtLogger.add_warning_message">[docs]</a>    <span class="k">def</span> <span class="nf">add_warning_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message_text</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a type 1 &quot;Warning&quot; message to the message manager tree.</span>
+
+<span class="sd">        Also add a warning message to the logger if the handler is present.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message_text : str</span>
+<span class="sd">            Text to display as the warning message.</span>
+<span class="sd">        level : str, optional</span>
+<span class="sd">            Level to add the warning message to. Options are ``&quot;Global&quot;``,</span>
+<span class="sd">            ``&quot;Project&quot;``, and ``&quot;Design&quot;``. The default is ``None``,</span>
+<span class="sd">            in which case the warning message gets added to the ``&quot;Design&quot;``</span>
+<span class="sd">            level.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Add a warning message to the AEDT message manager.</span>
+
+<span class="sd">        &gt;&gt;&gt; hfss.logger.warning(&quot;Global warning message&quot;)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_message</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">message_text</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AedtLogger.add_info_message"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.aedt_logger.AedtLogger.add_info_message.html#pyaedt.aedt_logger.AedtLogger.add_info_message">[docs]</a>    <span class="k">def</span> <span class="nf">add_info_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message_text</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a type 0 &quot;Info&quot; message to the active design level of the message manager tree.</span>
+
+<span class="sd">        Also add an info message to the logger if the handler is present.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message_text : str</span>
+<span class="sd">            Text to display as the info message.</span>
+<span class="sd">        level : str, optional</span>
+<span class="sd">            Level to add the info message to. Options are ``&quot;Global&quot;``,</span>
+<span class="sd">            ``&quot;Project&quot;``, and ``&quot;Design&quot;``. The default is ``None``,</span>
+<span class="sd">            in which case the info message gets added to the ``&quot;Design&quot;``</span>
+<span class="sd">            level.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Add an info message at the global level.</span>
+
+<span class="sd">        &gt;&gt;&gt; hfss.logger.info(&quot;Global warning message&quot;, &quot;Global&quot;)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_message</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">message_text</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AedtLogger.add_debug_message"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.aedt_logger.AedtLogger.add_debug_message.html#pyaedt.aedt_logger.AedtLogger.add_debug_message">[docs]</a>    <span class="k">def</span> <span class="nf">add_debug_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message_text</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameterized message to the message manager to specify the type and project or design level.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message_text : str</span>
+<span class="sd">            Text to display as the message.</span>
+<span class="sd">        level : str, optional</span>
+<span class="sd">            Level to add the info message to. Options are ``&quot;Global&quot;``,</span>
+<span class="sd">            ``&quot;Project&quot;``, and ``&quot;Design&quot;``. The default value is ``None``,</span>
+<span class="sd">            in which case the info message gets added to the ``&quot;Design&quot;``</span>
+<span class="sd">            level.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_message</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">message_text</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AedtLogger.add_message"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.aedt_logger.AedtLogger.add_message.html#pyaedt.aedt_logger.AedtLogger.add_message">[docs]</a>    <span class="k">def</span> <span class="nf">add_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message_type</span><span class="p">,</span> <span class="n">message_text</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">proj_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">des_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a message to the message manager to specify the type and project or design level.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message_type : int</span>
+<span class="sd">            Type of the message. Options are:</span>
+<span class="sd">            * ``0`` : Info</span>
+<span class="sd">            * ``1`` : Warning</span>
+<span class="sd">            * ``2`` : Error</span>
+<span class="sd">            * ``3`` : Debug</span>
+<span class="sd">        message_text : str</span>
+<span class="sd">            Text to display as the message.</span>
+<span class="sd">        level : str, optional</span>
+<span class="sd">            Level to add the message to. Options are ``&quot;Global&quot;``,</span>
+<span class="sd">            ``&quot;Project&quot;``, and ``&quot;Design&quot;``. The default is ``None``,</span>
+<span class="sd">            in which case the message gets added to the</span>
+<span class="sd">            ``&quot;Design&quot;`` level.</span>
+<span class="sd">        proj_name : str, optional</span>
+<span class="sd">            Name of the project.</span>
+<span class="sd">        des_name : str, optional</span>
+<span class="sd">            Name of the design.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_on_dekstop</span><span class="p">(</span>
+            <span class="n">message_type</span><span class="o">=</span><span class="n">message_type</span><span class="p">,</span> <span class="n">message_text</span><span class="o">=</span><span class="n">message_text</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">,</span> <span class="n">proj_name</span><span class="o">=</span><span class="n">proj_name</span><span class="p">,</span> <span class="n">des_name</span><span class="o">=</span><span class="n">des_name</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_on_handler</span><span class="p">(</span><span class="n">message_type</span><span class="p">,</span> <span class="n">message_text</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_log_on_dekstop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message_type</span><span class="p">,</span> <span class="n">message_text</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">proj_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">des_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">proj_name</span><span class="p">:</span>
+            <span class="n">proj_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">des_name</span><span class="p">:</span>
+            <span class="n">des_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">level</span><span class="p">:</span>
+            <span class="n">level</span> <span class="o">=</span> <span class="s2">&quot;Design&quot;</span>
+
+        <span class="k">assert</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">message_levels</span><span class="p">,</span> <span class="s2">&quot;Message level must be `Design&#39;, &#39;Project&#39;, or &#39;Global&#39;.&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_on_desktop</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_desktop</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">proj_name</span> <span class="ow">and</span> <span class="n">message_levels</span><span class="p">[</span><span class="n">level</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">proj_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_project_name</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">des_name</span> <span class="ow">and</span> <span class="n">message_levels</span><span class="p">[</span><span class="n">level</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">des_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design_name</span>
+            <span class="k">if</span> <span class="n">des_name</span> <span class="ow">and</span> <span class="s2">&quot;;&quot;</span> <span class="ow">in</span> <span class="n">des_name</span><span class="p">:</span>
+                <span class="n">des_name</span> <span class="o">=</span> <span class="n">des_name</span><span class="p">[</span><span class="n">des_name</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_desktop</span><span class="o">.</span><span class="n">AddMessage</span><span class="p">(</span><span class="n">proj_name</span><span class="p">,</span> <span class="n">des_name</span><span class="p">,</span> <span class="n">message_type</span><span class="p">,</span> <span class="n">message_text</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;pyaedt INFO: Failed in Adding Desktop Message&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_log_on_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message_type</span><span class="p">,</span> <span class="n">message_text</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_log_on_file</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_on_screen</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_global</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">message_text</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">250</span><span class="p">:</span>
+            <span class="n">message_text</span> <span class="o">=</span> <span class="n">message_text</span><span class="p">[:</span><span class="mi">250</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;...&quot;</span>
+        <span class="k">if</span> <span class="n">message_type</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_global</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">message_text</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">message_type</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_global</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">message_text</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">message_type</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_global</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">message_text</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">message_type</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_global</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">message_text</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AedtLogger.clear_messages"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.aedt_logger.AedtLogger.clear_messages.html#pyaedt.aedt_logger.AedtLogger.clear_messages">[docs]</a>    <span class="k">def</span> <span class="nf">clear_messages</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">proj_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">des_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clear all messages.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        proj_name : str, optional</span>
+<span class="sd">            Name of project. The default is ``None``, in which case messages</span>
+<span class="sd">            are cleared for the current project. If blank, messages are cleared</span>
+<span class="sd">            for all projects.</span>
+<span class="sd">        des_name : str, optional</span>
+<span class="sd">            Name of the design within the specified project. The default</span>
+<span class="sd">            is ``None,`` in which case the current design is used.</span>
+<span class="sd">            If blank, all designs are used.</span>
+<span class="sd">        level : int, optional</span>
+<span class="sd">            Level of the messages to clear. Options are:</span>
+
+<span class="sd">            * ``0`` : Clear all info messages.</span>
+<span class="sd">            * ``1`` : Clear all info and warning messages.</span>
+<span class="sd">            * ``2`` : Clear all info, warning, and error messages.</span>
+<span class="sd">            * ``3`` : Clear all messages, which include info, warning,</span>
+<span class="sd">              error, and fatal-error messages.</span>
+
+<span class="sd">            The default is ``2.``</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Clear all messages in the current design and project.</span>
+
+<span class="sd">        &gt;&gt;&gt; hfss.clear_messages(level=3)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_on_desktop</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">proj_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">proj_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_project_name</span>
+            <span class="k">if</span> <span class="n">des_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">des_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design_name</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_desktop</span><span class="o">.</span><span class="n">ClearMessages</span><span class="p">(</span><span class="n">proj_name</span><span class="p">,</span> <span class="n">des_name</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_oproject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_desktop</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_desktop</span><span class="o">.</span><span class="n">GetActiveProject</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_odesign</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oproject</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oproject</span><span class="o">.</span><span class="n">GetActiveDesign</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_design_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_odesign</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_project_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oproject</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+<div class="viewcode-block" id="AedtLogger.add_logger"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.aedt_logger.AedtLogger.add_logger.html#pyaedt.aedt_logger.AedtLogger.add_logger">[docs]</a>    <span class="k">def</span> <span class="nf">add_logger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a logger for either the active project or active design.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        destination : str</span>
+<span class="sd">            Logger to write to. Options are ``&quot;Project&quot;`` and ``&quot;Design&quot;``.</span>
+<span class="sd">        level : int, optional</span>
+<span class="sd">            Logging level enum. The default is ``logging.DEBUG``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">destination</span> <span class="o">==</span> <span class="s2">&quot;Project&quot;</span><span class="p">:</span>
+            <span class="n">project_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_project_name</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_project</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">project_name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_project</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_project</span><span class="o">.</span><span class="n">addFilter</span><span class="p">(</span><span class="n">AppFilter</span><span class="p">(</span><span class="s2">&quot;Project&quot;</span><span class="p">,</span> <span class="n">project_name</span><span class="p">))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handlers</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handlers</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_project</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_std_out_handler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_project</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_std_out_handler</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_project</span>
+        <span class="k">elif</span> <span class="n">destination</span> <span class="o">==</span> <span class="s2">&quot;Design&quot;</span><span class="p">:</span>
+            <span class="n">project_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_project_name</span>
+            <span class="n">design_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design_name</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_design</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">project_name</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">design_name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">addFilter</span><span class="p">(</span><span class="n">AppFilter</span><span class="p">(</span><span class="s2">&quot;Design&quot;</span><span class="p">,</span> <span class="n">design_name</span><span class="p">))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handlers</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handlers</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_std_out_handler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_std_out_handler</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The destination must be either &#39;Project&#39; or &#39;Design&#39;.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AedtLogger.disable_desktop_log"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.aedt_logger.AedtLogger.disable_desktop_log.html#pyaedt.aedt_logger.AedtLogger.disable_desktop_log">[docs]</a>    <span class="k">def</span> <span class="nf">disable_desktop_log</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Disable the log in AEDT.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_on_desktop</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="AedtLogger.enable_desktop_log"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.aedt_logger.AedtLogger.enable_desktop_log.html#pyaedt.aedt_logger.AedtLogger.enable_desktop_log">[docs]</a>    <span class="k">def</span> <span class="nf">enable_desktop_log</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Enable the log in AEDT.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_on_desktop</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="AedtLogger.disable_stdout_log"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.aedt_logger.AedtLogger.disable_stdout_log.html#pyaedt.aedt_logger.AedtLogger.disable_stdout_log">[docs]</a>    <span class="k">def</span> <span class="nf">disable_stdout_log</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Disable printing log messages to stdout.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_on_screen</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_global</span><span class="o">.</span><span class="n">removeHandler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_std_out_handler</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;StdOut has been disabled&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AedtLogger.enable_stdout_log"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.aedt_logger.AedtLogger.enable_stdout_log.html#pyaedt.aedt_logger.AedtLogger.enable_stdout_log">[docs]</a>    <span class="k">def</span> <span class="nf">enable_stdout_log</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Enable printing log messages to stdout.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_on_screen</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_std_out_handler</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_std_out_handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_std_out_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">level</span><span class="p">)</span>
+            <span class="n">_logger_stdout_formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="s2">&quot;pyaedt </span><span class="si">%(levelname)s</span><span class="s2">: </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_std_out_handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">_logger_stdout_formatter</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_global</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_std_out_handler</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_global</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_std_out_handler</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;StdOut has been enabled&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AedtLogger.disable_log_on_file"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.aedt_logger.AedtLogger.disable_log_on_file.html#pyaedt.aedt_logger.AedtLogger.disable_log_on_file">[docs]</a>    <span class="k">def</span> <span class="nf">disable_log_on_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Disable writing log messages to an output file.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_on_file</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">_file_handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handlers</span><span class="p">:</span>
+            <span class="n">_file_handler</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_global</span><span class="o">.</span><span class="n">removeHandler</span><span class="p">(</span><span class="n">_file_handler</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Log on file has been disabled&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AedtLogger.enable_log_on_file"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.aedt_logger.AedtLogger.enable_log_on_file.html#pyaedt.aedt_logger.AedtLogger.enable_log_on_file">[docs]</a>    <span class="k">def</span> <span class="nf">enable_log_on_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Enable writing log messages to an output file.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_on_file</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">for</span> <span class="n">_file_handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handlers</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_global</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">_file_handler</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Log on file has been enabled&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AedtLogger.info"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.aedt_logger.AedtLogger.info.html#pyaedt.aedt_logger.AedtLogger.info">[docs]</a>    <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write an info message to the global logger.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">msg1</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">args</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="n">msg1</span> <span class="o">=</span> <span class="n">msg</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">msg1</span> <span class="o">=</span> <span class="n">msg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_on_dekstop</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">msg1</span><span class="p">,</span> <span class="s2">&quot;Global&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_on_handler</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AedtLogger.info_timer"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.aedt_logger.AedtLogger.info_timer.html#pyaedt.aedt_logger.AedtLogger.info_timer">[docs]</a>    <span class="k">def</span> <span class="nf">info_timer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">start_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write an info message to the global logger with elapsed time.</span>
+<span class="sd">        Message will have an appendix of type Elapsed time: time.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">start_time</span><span class="p">:</span>
+            <span class="n">start_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_timer</span>
+        <span class="n">td</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
+        <span class="n">m</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">td</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
+        <span class="n">h</span><span class="p">,</span> <span class="n">m</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="mi">24</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">d</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot; Elapsed time: </span><span class="si">{}</span><span class="s2">days </span><span class="si">{}</span><span class="s2">h </span><span class="si">{}</span><span class="s2">m </span><span class="si">{}</span><span class="s2">sec&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">h</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">m</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">h</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot; Elapsed time: </span><span class="si">{}</span><span class="s2">h </span><span class="si">{}</span><span class="s2">m </span><span class="si">{}</span><span class="s2">sec&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">h</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">m</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot; Elapsed time: </span><span class="si">{}</span><span class="s2">m </span><span class="si">{}</span><span class="s2">sec&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">m</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">msg1</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">args</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="n">msg1</span> <span class="o">=</span> <span class="n">msg</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">msg1</span> <span class="o">=</span> <span class="n">msg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_on_dekstop</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">msg1</span><span class="p">,</span> <span class="s2">&quot;Global&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_on_handler</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AedtLogger.warning"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.aedt_logger.AedtLogger.warning.html#pyaedt.aedt_logger.AedtLogger.warning">[docs]</a>    <span class="k">def</span> <span class="nf">warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write a warning message to the global logger.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">msg1</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">args</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="n">msg1</span> <span class="o">=</span> <span class="n">msg</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">msg1</span> <span class="o">=</span> <span class="n">msg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_on_dekstop</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">msg1</span><span class="p">,</span> <span class="s2">&quot;Global&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_on_handler</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AedtLogger.error"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.aedt_logger.AedtLogger.error.html#pyaedt.aedt_logger.AedtLogger.error">[docs]</a>    <span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write an error message to the global logger.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">msg1</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">args</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="n">msg1</span> <span class="o">=</span> <span class="n">msg</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">msg1</span> <span class="o">=</span> <span class="n">msg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_on_dekstop</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">msg1</span><span class="p">,</span> <span class="s2">&quot;Global&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_on_handler</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AedtLogger.debug"><a class="viewcode-back" href="../../API/_autosummary/pyaedt.aedt_logger.AedtLogger.debug.html#pyaedt.aedt_logger.AedtLogger.debug">[docs]</a>    <span class="k">def</span> <span class="nf">debug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write a debug message to the global logger.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">msg1</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">args</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="n">msg1</span> <span class="o">=</span> <span class="n">msg</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">msg1</span> <span class="o">=</span> <span class="n">msg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_on_dekstop</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">msg1</span><span class="p">,</span> <span class="s2">&quot;Global&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_on_handler</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">glb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Global logger.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_global</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;Global&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_global</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">project</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Project logger.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_project</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_project_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_project</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_logger</span><span class="p">(</span><span class="s2">&quot;Project&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_project</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">design</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Design logger.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_design</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_project_name</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_logger</span><span class="p">(</span><span class="s2">&quot;Design&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design</span></div>
+
+
+<span class="n">pyaedt_logger</span> <span class="o">=</span> <span class="n">AedtLogger</span><span class="p">(</span><span class="n">to_stdout</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">enable_screen_logs</span><span class="p">)</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright (c) 2023 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+    Built with the <a href="https://sphinxdocs.ansys.com/version/stable/index.html">Ansys Sphinx Theme</a> 0.9.8.
+    <br>Last updated on <span id="date"></span></br>
+</p>
+<script>
+  var options = { day: 'numeric', month: 'long', year: 'numeric' };
+  var lastModifiedDate = new Date(document.lastModified);
+  var date = lastModifiedDate.toLocaleDateString('en-US', options);
+  document.getElementById("date").innerHTML = date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

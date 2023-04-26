@@ -1,0 +1,54 @@
+﻿pyaedt.modeler.advanced\_cad.stackup\_3d.NamedVariable
+======================================================
+
+.. currentmodule:: pyaedt.modeler.advanced_cad.stackup_3d
+
+.. autoclass:: NamedVariable
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      NamedVariable.hide_variable
+      
+      
+      NamedVariable.read_only_variable
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      
+      NamedVariable.evaluated_value
+      
+      
+      NamedVariable.expression
+      
+      
+      NamedVariable.name
+      
+      
+      NamedVariable.numeric_value
+      
+      
+      NamedVariable.unit_system
+      
+      
+      NamedVariable.units
+      
+      
+      NamedVariable.value
+      
+   
+   

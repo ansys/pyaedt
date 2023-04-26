@@ -1,0 +1,49 @@
+﻿ExcitationProbes
+================
+
+.. currentmodule:: pyaedt.edb_core.edb_data.sources
+
+.. autoclass:: ExcitationProbes
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      ExcitationProbes.get_edge_terminal_reference_primitive
+      
+      
+      ExcitationProbes.get_pad_edge_terminal_reference_pin
+      
+      
+      ExcitationProbes.get_padstack_terminal_reference_pin
+      
+      
+      ExcitationProbes.get_pin_group_terminal_reference_pin
+      
+      
+      ExcitationProbes.get_point_terminal_reference_primitive
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      ExcitationProbes.boundary_type
+      ExcitationProbes.name
+      ExcitationProbes.net
+      ExcitationProbes.net_name
+      ExcitationProbes.reference_net_name
+      ExcitationProbes.reference_object
+      ExcitationProbes.terminal_type
+   
+   

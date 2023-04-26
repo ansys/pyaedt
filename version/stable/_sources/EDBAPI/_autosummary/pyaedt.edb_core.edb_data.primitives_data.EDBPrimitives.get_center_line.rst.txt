@@ -1,0 +1,6 @@
+get\_center\_line
+=================
+
+.. currentmodule:: pyaedt.edb_core.edb_data.primitives_data
+
+.. automethod:: EDBPrimitives.get_center_line

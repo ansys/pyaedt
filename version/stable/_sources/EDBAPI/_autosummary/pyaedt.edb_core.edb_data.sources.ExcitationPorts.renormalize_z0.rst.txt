@@ -1,0 +1,6 @@
+renormalize\_z0
+===============
+
+.. currentmodule:: pyaedt.edb_core.edb_data.sources
+
+.. autoproperty:: ExcitationPorts.renormalize_z0

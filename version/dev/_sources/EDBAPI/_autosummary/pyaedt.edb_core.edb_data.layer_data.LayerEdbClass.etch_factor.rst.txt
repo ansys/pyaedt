@@ -1,0 +1,6 @@
+etch\_factor
+============
+
+.. currentmodule:: pyaedt.edb_core.edb_data.layer_data
+
+.. autoproperty:: LayerEdbClass.etch_factor
