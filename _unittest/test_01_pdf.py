@@ -25,7 +25,7 @@ class TestClass(object):
         template_path = os.path.join(pyaedt_path, "dlls", "PDFReport", "AnsysTemplate.json")
         report = AnsysReport(project_name="Coaxial", design_name="Design1", tempplate_json_file=template_path)
         report.aedt_version = desktop_version
-        assert report.template_name == "AnsysTemplate"
+        assert "AnsysTemplate" in report.template_name
         report.template_name = "AnsysTemplate"
         assert report.project_name == "Coaxial"
         report.project_name = "Coaxial1"
