@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 import warnings
@@ -21,14 +22,94 @@ except ImportError:
 class AnsysReport:
     """Generate a pdf report."""
 
-    def __init__(self, version="2023R1", design_name="design1", project_name="AnsysProject", template_json_file=None):
+    def __init__(self, version="2023R1", design_name="design1", project_name="AnsysProject", tempplate_json_file=None):
         self.report_specs = ReportSpec()
         self.report_specs.AnsysVersion = version
         self.report_specs.DesignName = design_name
         self.report_specs.ProjectName = project_name
         self.report_specs.PyAEDTVersion = __version__
-        if template_json_file:
-            self.report_specs.TemplateName = template_json_file
+        if tempplate_json_file:
+            with open(tempplate_json_file) as f:
+                json_dict = json.read(f)
+                if "Units" in json_dict:
+                    self.report_specs.PdfData = json_dict["Units"]
+                elif "TopMarginCover" in json_dict:
+                    self.report_specs.PdfData = json_dict["TopMarginCover"]
+                elif "BottomMarginCover" in json_dict:
+                    self.report_specs.PdfData = json_dict["BottomMarginCover"]
+                elif "LeftMarginCover" in json_dict:
+                    self.report_specs.PdfData = json_dict["LeftMarginCover"]
+                elif "RightMarginCover" in json_dict:
+                    self.report_specs.PdfData = json_dict["RightMarginCover"]
+                elif "TopMargin" in json_dict:
+                    self.report_specs.PdfData = json_dict["TopMargin"]
+                elif "BottomMargin" in json_dict:
+                    self.report_specs.PdfData = json_dict["BottomMargin"]
+                elif "LeftMargin" in json_dict:
+                    self.report_specs.PdfData = json_dict["LeftMargin"]
+                elif "RightMargin" in json_dict:
+                    self.report_specs.PdfData = json_dict["RightMargin"]
+                elif "HeaderDistance" in json_dict:
+                    self.report_specs.PdfData = json_dict["HeaderDistance"]
+                elif "FooterDistance" in json_dict:
+                    self.report_specs.PdfData = json_dict["FooterDistance"]
+                elif "FooterText" in json_dict:
+                    self.report_specs.PdfData = json_dict["FooterText"]
+                elif "HeaderFontSizeCover" in json_dict:
+                    self.report_specs.PdfData = json_dict["HeaderFontSizeCover"]
+                elif "HeaderTableBorderWidth" in json_dict:
+                    self.report_specs.PdfData = json_dict["HeaderTableBorderWidth"]
+                elif "HeaderImageWidth" in json_dict:
+                    self.report_specs.PdfData = json_dict["HeaderImageWidth"]
+                elif "HeaderFontSize" in json_dict:
+                    self.report_specs.PdfData = json_dict["HeaderFontSize"]
+                elif "FooterFontSizeCover" in json_dict:
+                    self.report_specs.PdfData = json_dict["FooterFontSizeCover"]
+                elif "FooterFontSize" in json_dict:
+                    self.report_specs.PdfData = json_dict["FooterFontSize"]
+                elif "TitleFontSize" in json_dict:
+                    self.report_specs.PdfData = json_dict["TitleFontSize"]
+                elif "SubTitleFontSize" in json_dict:
+                    self.report_specs.PdfData = json_dict["SubTitleFontSize"]
+                elif "TextFontSize" in json_dict:
+                    self.report_specs.PdfData = json_dict["TextFontSize"]
+
+                elif "TableFontSize" in json_dict:
+                    self.report_specs.PdfData = json_dict["TableFontSize"]
+                elif "CaptionFontSize" in json_dict:
+                    self.report_specs.PdfData = json_dict["CaptionFontSize"]
+                elif "CoverTitleFontSize" in json_dict:
+                    self.report_specs.PdfData = json_dict["CoverTitleFontSize"]
+                elif "CoverSubTitleFontSize" in json_dict:
+                    self.report_specs.PdfData = json_dict["CoverSubTitleFontSize"]
+                elif "TitleSpaceAfter" in json_dict:
+                    self.report_specs.PdfData = json_dict["TitleSpaceAfter"]
+
+                elif "SubTitleSpaceAfter" in json_dict:
+                    self.report_specs.PdfData = json_dict["SubTitleSpaceAfter"]
+                elif "TextSpaceAfter" in json_dict:
+                    self.report_specs.PdfData = json_dict["TextSpaceAfter"]
+                elif "CoverSpaceAfter" in json_dict:
+                    self.report_specs.PdfData = json_dict["CoverSpaceAfter"]
+                elif "CoverSubTitleSpaceAfter" in json_dict:
+                    self.report_specs.PdfData = json_dict["CoverSubTitleSpaceAfter"]
+
+                elif "FontName" in json_dict:
+                    self.report_specs.PdfData = json_dict["FontName"]
+                elif "TableBorders" in json_dict:
+                    self.report_specs.PdfData = json_dict["TableBorders"]
+                elif "TableRowHeight" in json_dict:
+                    self.report_specs.PdfData = json_dict["TableRowHeight"]
+                elif "TableColumnWidth" in json_dict:
+                    self.report_specs.PdfData = json_dict["TableColumnWidth"]
+                elif "ChartWidth" in json_dict:
+                    self.report_specs.PdfData = json_dict["ChartWidth"]
+                elif "ChartHeight" in json_dict:
+                    self.report_specs.PdfData = json_dict["ChartHeight"]
+                elif "FontColor" in json_dict:
+                    self.report_specs.PdfData = json_dict["FontColor"]
+                elif "FontHeaderColor" in json_dict:
+                    self.report_specs.PdfData = json_dict["FontHeaderColor"]
 
     def create(self, add_header=True, add_first_page=True):
         """Create a new report using ``report_specs`` properties.
