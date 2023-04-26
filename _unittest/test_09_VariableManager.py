@@ -42,7 +42,15 @@ class TestClass(BasisTest, object):
         assert "$Test_Global2" in independent
         assert "$Test_Global3" in independent
         assert "$Test_Global4" in dependent
-        pass
+
+        self.aedtapp["$test"] = "1mm"
+        self.aedtapp["$test2"] = "$test"
+        assert "$test2" in self.aedtapp.variable_manager.dependent_project_variable_names
+        assert "$test" in self.aedtapp.variable_manager.independent_project_variable_names
+        del self.aedtapp["$test2"]
+        assert "$test2" not in self.aedtapp.variable_manager.variables
+        del self.aedtapp["$test"]
+        assert "$test" not in self.aedtapp.variable_manager.variables
 
     def test_01_set_var_simple(self):
         var = self.aedtapp.variable_manager
@@ -51,7 +59,14 @@ class TestClass(BasisTest, object):
         var_2 = var["Var1"].expression
         assert var_1 == var_2
         assert isclose(var["Var1"].numeric_value, 1.0)
-        pass
+
+        self.aedtapp["test"] = "1mm"
+        self.aedtapp["test2"] = "test"
+        assert "test2" in self.aedtapp.variable_manager.dependent_design_variable_names
+        del self.aedtapp["test2"]
+        assert "test2" not in self.aedtapp.variable_manager.variables
+        del self.aedtapp["test"]
+        assert "test" not in self.aedtapp.variable_manager.variables
 
     def test_02_test_formula(self):
         self.aedtapp["Var1"] = 3
@@ -110,6 +125,7 @@ class TestClass(BasisTest, object):
             description="This is a description of this variable",
         )
         assert self.aedtapp.variable_manager.set_variable("$p1", expression="10mm")
+        assert self.aedtapp.variable_manager.set_variable("$p1", expression="12mm")
 
     def test_05_variable_class(self):
         v = Variable("4mm")

@@ -744,16 +744,8 @@ class VariableManager(object):
         self.delete_variable(key)
         if key in self._independent_variables:
             del self._independent_variables[key]
-            if key in self._independent_design_variables:
-                del self._independent_design_variables[key]
-            elif key in self._independent_project_variables:
-                del self._independent_project_variables[key]
         elif key in self._dependent_variables:
             del self._dependent_variables[key]
-            if key in self._dependent_design_variables:
-                del self._dependent_design_variables[key]
-            elif key in self._dependent_project_variables:
-                del self._dependent_project_variables[key]
 
     @pyaedt_function_handler()
     def __getitem__(self, variable_name):
@@ -1198,16 +1190,8 @@ class VariableManager(object):
     def _clean_variable_from_dicts(self, variable_name):
         if variable_name in self._independent_variables:
             del self._independent_variables[variable_name]
-            if variable_name in self._independent_design_variables:
-                del self._independent_design_variables[variable_name]
-            elif variable_name in self._independent_project_variables:
-                del self._independent_project_variables[variable_name]
         elif variable_name in self._dependent_variables:
             del self._dependent_variables[variable_name]
-            if variable_name in self._dependent_design_variables:
-                del self._dependent_design_variables[variable_name]
-            elif variable_name in self._dependent_project_variables:
-                del self._dependent_project_variables[variable_name]
 
     @pyaedt_function_handler()
     def _get_var_list_from_aedt(self, desktop_object):
