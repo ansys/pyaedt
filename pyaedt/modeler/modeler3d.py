@@ -15,6 +15,7 @@ from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
 class Modeler3D(GeometryModeler, Primitives3D, object):
+
     """Provides the Modeler 3D application interface.
 
     This class is inherited in the caller application and is accessible through the modeler variable
@@ -799,21 +800,20 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
 
         Parameters
         ----------
-        bounding_box : list.
+        bounding_box : list
             List of coordinates of bounding box vertices.
             Bounding box is provided as [xmin, ymin, zmin, xmax, ymax, zmax].
-        check_solids : bool, optional.
+        check_solids : bool, optional
             Check solid objects.
-        check_lines : bool, optional.
+        check_lines : bool, optional
             Check line objects.
-        check_sheets : bool, optional.
+        check_sheets : bool, optional
             Check sheet objects.
 
         Returns
         -------
         list of :class:`pyaedt.modeler.object3d`
         """
-
         if len(bounding_box) != 6:
             raise ValueError("Bounding box list must have dimension 6.")
 
