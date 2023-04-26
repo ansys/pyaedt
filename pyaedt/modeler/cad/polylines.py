@@ -534,8 +534,8 @@ class Polyline(Object3d):
                         break
                 else:
                     current_segment = segment_types[vertex_count]
-            except IndexError:
-                raise ("Number of segments inconsistent with the number of points!")
+            except Exception as e:
+                raise IndexError("Number of segments inconsistent with the number of points!")
 
             if current_segment:
                 seg_str = self._segment_array(
@@ -579,7 +579,7 @@ class Polyline(Object3d):
         segment.extra_points[1] contains the arc end point.
         Both are function of the arc center, arc angle and arc plane.
         """
-        # from start-point and angle, calculate the mid- and end-points
+        # from start-point and angle, calculate the mid-point and end-points
         # Also identify the plane of the arc ("YZ", "ZX", "XY")
         plane_axes = {"YZ": [1, 2], "ZX": [2, 0], "XY": [0, 1]}
         c_xyz = self._primitives.value_in_object_units(segment.arc_center)
@@ -597,7 +597,7 @@ class Polyline(Object3d):
             elif c_xyz[2] == p0_xyz[2]:
                 plane_def = ("XY", plane_axes["XY"])
             else:
-                raise ("Start point and arc-center do not lie on a common base plane.")
+                raise Exception("Start point and arc-center do not lie on a common base plane.")
             segment.arc_plane = plane_def[0]
 
         # Calculate the extra two points of the angular arc in the alpha-beta plane
