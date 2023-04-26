@@ -579,6 +579,41 @@ class VariableManager(object):
         return self._variable_dict([self._odesign, self._oproject], independent=False)
 
     @property
+    def dependent_project_variables(self):
+        """Dependent project variables.
+
+        Returns
+        -------
+        dict
+            Dictionary of the dependent project variables available to the design.
+
+        References
+        ----------
+
+        >>> oProject.GetVariables
+        >>> oProject.GetChildObject("Variables").GetChildNames
+        """
+        return self._variable_dict([self._oproject], independent=False)
+
+    @property
+    def dependent_design_variables(self):
+        """Dependent design variables.
+
+        Returns
+        -------
+        dict
+            Dictionary of the dependent design properties (local
+            variables) available to the design.
+
+        References
+        ----------
+
+        >>> oDesign.GetVariables
+        >>> oDesign.GetChildObject("Variables").GetChildNames
+        """
+        return self._variable_dict([self._odesign], independent=False)
+
+    @property
     def variable_names(self):
         """List of variables."""
         return [var_name for var_name in self.variables]
@@ -596,6 +631,17 @@ class VariableManager(object):
         return [var_name for var_name in self.project_variables]
 
     @property
+    def design_variable_names(self):
+        """List of design variables.
+
+        References
+        ----------
+
+        >>> oDesign.GetVariables
+        >>> oDesign.GetChildObject("Variables").GetChildNames"""
+        return [var_name for var_name in self.design_variables]
+
+    @property
     def independent_project_variable_names(self):
         """List of independent project variables.
 
@@ -606,17 +652,6 @@ class VariableManager(object):
         >>> oProject.GetChildObject("Variables").GetChildNames
         """
         return [var_name for var_name in self.independent_project_variables]
-
-    @property
-    def design_variable_names(self):
-        """List of design variables.
-
-        References
-        ----------
-
-        >>> oDesign.GetVariables
-        >>> oDesign.GetChildObject("Variables").GetChildNames"""
-        return [var_name for var_name in self.design_variables]
 
     @property
     def independent_design_variable_names(self):
@@ -641,6 +676,29 @@ class VariableManager(object):
         >>> oProject.GetChildObject("Variables").GetChildNames
         >>> oDesign.GetChildObject("Variables").GetChildNames"""
         return [var_name for var_name in self.independent_variables]
+
+    @property
+    def dependent_project_variable_names(self):
+        """List of dependent project variables.
+
+        References
+        ----------
+
+        >>> oProject.GetVariables
+        >>> oProject.GetChildObject("Variables").GetChildNames
+        """
+        return [var_name for var_name in self.dependent_project_variables]
+
+    @property
+    def dependent_design_variable_names(self):
+        """List of dependent design variables.
+
+        References
+        ----------
+
+        >>> oDesign.GetVariables
+        >>> oDesign.GetChildObject("Variables").GetChildNames"""
+        return [var_name for var_name in self.dependent_design_variables]
 
     @property
     def dependent_variable_names(self):
@@ -674,7 +732,11 @@ class VariableManager(object):
         # Global Desktop Environment
         self._app = app
         self._independent_variables = {}
+        self._independent_design_variables = {}
+        self._independent_project_variables = {}
         self._dependent_variables = {}
+        self._dependent_design_variables = {}
+        self._dependent_project_variables = {}
 
     @pyaedt_function_handler()
     def __delitem__(self, key):
@@ -682,8 +744,16 @@ class VariableManager(object):
         self.delete_variable(key)
         if key in self._independent_variables:
             del self._independent_variables[key]
-        if key in self._dependent_variables:
+            if key in self._independent_design_variables:
+                del self._independent_design_variables[key]
+            elif key in self._independent_project_variables:
+                del self._independent_project_variables[key]
+        elif key in self._dependent_variables:
             del self._dependent_variables[key]
+            if key in self._dependent_design_variables:
+                del self._dependent_design_variables[key]
+            elif key in self._dependent_project_variables:
+                del self._dependent_project_variables[key]
 
     @pyaedt_function_handler()
     def __getitem__(self, variable_name):
@@ -728,9 +798,16 @@ class VariableManager(object):
                         is_number_flag = is_number(value._calculated_value)
                         if is_number_flag:
                             self._independent_variables[variable_name] = value
-
+                            if "Design" in str(obj):
+                                self._independent_design_variables[variable_name] = value
+                            elif "$" in variable_name:
+                                self._independent_project_variables[variable_name] = value
                         elif dependent and not is_number_flag:
                             self._dependent_variables[variable_name] = value
+                            if "Design" in str(obj):
+                                self._dependent_design_variables[variable_name] = value
+                            elif "$" in variable_name:
+                                self._dependent_project_variables[variable_name] = value
                 elif dependent and variable_name not in self._dependent_variables:
                     if self.get_expression(variable_name):
                         variable_expression = self.get_expression(variable_name)
@@ -742,13 +819,32 @@ class VariableManager(object):
                         is_number_flag = is_number(value._calculated_value)
                         if not is_number_flag:
                             self._dependent_variables[variable_name] = value
+                            if "Design" in str(obj):
+                                self._dependent_design_variables[variable_name] = value
+                            elif "$" in variable_name:
+                                self._dependent_project_variables[variable_name] = value
         if independent:
-            vars = self._independent_variables.copy()
+            if len(object_list) != 1:
+                vars = self._independent_variables.copy()
+            else:
+                if "Design" in str(object_list[0]):
+                    vars = self._independent_design_variables.copy()
+                else:
+                    vars = self._independent_project_variables.copy()
         else:
             vars = {}
         if dependent:
-            for k, v in self._dependent_variables.items():
-                vars[k] = v
+            if len(object_list) != 1:
+                for k, v in self._dependent_variables.items():
+                    vars[k] = v
+            else:
+                if "Design" in str(object_list[0]):
+                    for k, v in self._dependent_design_variables.items():
+                        vars[k] = v
+                else:
+                    for k, v in self._dependent_project_variables.items():
+                        vars[k] = v
+
         return vars
 
     @pyaedt_function_handler()
@@ -865,8 +961,16 @@ class VariableManager(object):
         """
         if variable_name in self._independent_variables:
             del self._independent_variables[variable_name]
+            if variable_name in self._independent_design_variables:
+                del self._independent_design_variables[variable_name]
+            elif variable_name in self._independent_project_variables:
+                del self._independent_project_variables[variable_name]
         elif variable_name in self._dependent_variables:
             del self._dependent_variables[variable_name]
+            if variable_name in self._dependent_design_variables:
+                del self._dependent_design_variables[variable_name]
+            elif variable_name in self._dependent_project_variables:
+                del self._dependent_project_variables[variable_name]
         if not description:
             description = ""
 
@@ -1092,10 +1196,18 @@ class VariableManager(object):
 
     @pyaedt_function_handler()
     def _clean_variable_from_dicts(self, variable_name):
-        if variable_name in self._dependent_variables:
-            del self._dependent_variables[variable_name]
         if variable_name in self._independent_variables:
             del self._independent_variables[variable_name]
+            if variable_name in self._independent_design_variables:
+                del self._independent_design_variables[variable_name]
+            elif variable_name in self._independent_project_variables:
+                del self._independent_project_variables[variable_name]
+        elif variable_name in self._dependent_variables:
+            del self._dependent_variables[variable_name]
+            if variable_name in self._dependent_design_variables:
+                del self._dependent_design_variables[variable_name]
+            elif variable_name in self._dependent_project_variables:
+                del self._dependent_project_variables[variable_name]
 
     @pyaedt_function_handler()
     def _get_var_list_from_aedt(self, desktop_object):
