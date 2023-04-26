@@ -1031,6 +1031,7 @@ class Geometries3DLayout(Objec3DLayout, object):
         ----------
         negative : bool, optional
             The default is ``False``.
+
         Returns
         -------
         type
@@ -1619,6 +1620,8 @@ class Points3dLayout(object):
 
         Returns
         -------
+        bool
+            ``True`` if the point was moved to the new location.
 
         """
         if self.point.Move(self._primitives.oeditor.Point().Set(new_position[0], new_position[1])):

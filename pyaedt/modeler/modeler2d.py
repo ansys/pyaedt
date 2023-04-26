@@ -147,19 +147,18 @@ class Modeler2D(GeometryModeler, Primitives2D):
 
         Parameters
         ----------
-        bounding_box : list.
+        bounding_box : list
             List of either the 4 or 6 coordinates of the bounding box vertices.
             Bounding box is provided as [xmin, ymin, zmin, xmax, ymax, zmax].
-        check_lines : bool, optional.
+        check_lines : bool, optional
             Whether to check line objects. The default is ``True``.
-        check_sheets : bool, optional.
+        check_sheets : bool, optional
             Whether to check sheet objects. The default is ``True``.
 
         Returns
         -------
         list of :class:`pyaedt.modeler.object3d`
         """
-
         if len(bounding_box) != 4 and len(bounding_box) != 6:
             raise ValueError("Bounding box must be a list of 4 or 6 elements.")
 
