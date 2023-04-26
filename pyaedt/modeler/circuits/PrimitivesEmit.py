@@ -719,7 +719,7 @@ class EmitRadioComponent(EmitComponent):
         ----------
         band_node : Instance of the band node.
         units : str, optional
-            If None specified, global units are used.
+            If ``None`` specified, global units are used.
 
         Returns
         -------
