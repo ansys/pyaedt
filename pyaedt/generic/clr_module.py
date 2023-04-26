@@ -36,6 +36,13 @@ if is_linux and cpython:  # pragma: no cover
     except ImportError:
         msg = "pythonnet or dotnetcore not installed. Pyaedt will work only in client mode."
         warnings.warn(msg)
+else:
+    try:
+        from pythonnet import load
+
+        load("coreclr")
+    except:
+        pass
 
 
 try:  # work around a number formatting bug in the EDB API for non-English locales

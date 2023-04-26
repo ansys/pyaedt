@@ -125,7 +125,7 @@ class AnsysReport:
         -------
         :class:`AnsysReport`
         """
-        self.report = CreatePdfReport()
+        self.report = CreatePdfReport(os.path.join(pyaedt_path, "dlls", "PDFReport"))
         self.report.Specs = self.report_specs
         if add_header:
             self.report.AddAnsysHeader(-1)
