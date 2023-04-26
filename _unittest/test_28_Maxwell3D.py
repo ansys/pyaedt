@@ -836,6 +836,7 @@ class TestClass(BasisTest, object):
         )
 
     def test_50_control_program(self):
+        user_ctl_path = "user.ctl"
         ctrl_prg_path = os.path.join(local_path, "example_models", test_subfolder, ctrl_prg_file)
         assert self.m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path)
         assert self.m2d_ctrl_prg.setups[0].enable_control_program(
@@ -851,3 +852,46 @@ class TestClass(BasisTest, object):
         assert not self.m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=invalid_ctrl_prg_path)
         self.m2d_ctrl_prg.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
         assert not self.m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path)
+        if os.path.exists(user_ctl_path):
+            os.unlink(user_ctl_path)
+
+    def test_51_objects_segmentation(self):
+        segments_number = 5
+        object_name = "PM_I1"
+        sheets = self.cyl_gap.modeler.objects_segmentation(
+            object_name, segments_number=segments_number, apply_mesh_sheets=True
+        )
+        assert isinstance(sheets, tuple)
+        assert isinstance(sheets[0], dict)
+        assert isinstance(sheets[1], dict)
+        assert isinstance(sheets[0][object_name], list)
+        assert len(sheets[0][object_name]) == segments_number - 1
+        segments_number = 4
+        object_name = "PM_I1_1"
+        magnet_id = [obj.id for obj in self.cyl_gap.modeler.object_list if obj.name == object_name][0]
+        sheets = self.cyl_gap.modeler.objects_segmentation(
+            magnet_id, segments_number=segments_number, apply_mesh_sheets=True
+        )
+        assert isinstance(sheets, tuple)
+        assert isinstance(sheets[0][object_name], list)
+        assert len(sheets[0][object_name]) == segments_number - 1
+        segmentation_thickness = 1
+        object_name = "PM_O1"
+        magnet = [obj for obj in self.cyl_gap.modeler.object_list if obj.name == object_name][0]
+        sheets = self.cyl_gap.modeler.objects_segmentation(
+            magnet, segmentation_thickness=segmentation_thickness, apply_mesh_sheets=True
+        )
+        assert isinstance(sheets, tuple)
+        assert isinstance(sheets[0][object_name], list)
+        segments_number = round(magnet.top_edge_y.length / segmentation_thickness)
+        assert len(sheets[0][object_name]) == segments_number - 1
+        assert not self.cyl_gap.modeler.objects_segmentation(object_name)
+        assert not self.cyl_gap.modeler.objects_segmentation(
+            object_name, segments_number=segments_number, segmentation_thickness=segmentation_thickness
+        )
+        object_name = "PM_O1_1"
+        segments_number = 10
+        sheets = self.cyl_gap.modeler.objects_segmentation(object_name, segments_number=segments_number)
+        assert isinstance(sheets, dict)
+        assert isinstance(sheets[object_name], list)
+        assert len(sheets[object_name]) == segments_number - 1

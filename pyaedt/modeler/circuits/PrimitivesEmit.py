@@ -246,6 +246,7 @@ class EmitComponents(object):
         -------
         EmitComponent
             The component when successful, None when failed.
+
         """
         for el in self.components:
             if self.components[el].name == object_name:
@@ -265,7 +266,6 @@ class EmitComponents(object):
         -------
         type
             Object with properties.
-
         """
         o.update_property_tree()
         comp_type = o.root_prop_node.props["Type"]
@@ -349,10 +349,6 @@ class EmitComponent(object):
         component : EmitComponent or str
             The component or name of component to move this component to
             and connect. For example, "Radio1"
-
-        Returns
-        -------
-        None
 
         """
         if isinstance(component, EmitComponent):
@@ -712,7 +708,7 @@ class EmitRadioComponent(EmitComponent):
         Returns
         -------
         List
-            List of the bands in the radio."""
+            List of the band nodes in the radio."""
         band_nodes = self.get_prop_nodes({"Type": "Band"})
         return band_nodes
 

@@ -76,7 +76,6 @@ class CircuitComponents(object):
 
         >>> oDefinitionManager = oProject.GetDefinitionManager()
         """
-
         return self._app.oproject.GetDefinitionManager()
 
     @property
@@ -106,8 +105,11 @@ class CircuitComponents(object):
 
     @property
     def schematic_units(self):
-        """Schematic units. Options are ``"mm"``, ``"mil"``, ``"cm"`` and all other metric and imperial units.
-        The default is ``"meter"``."""
+        """Schematic units.
+
+        Options are ``"mm"``, ``"mil"``, ``"cm"`` and all other metric and imperial units.
+        The default is ``"meter"``.
+        """
         return self._modeler.schematic_units
 
     @schematic_units.setter
@@ -132,8 +134,9 @@ class CircuitComponents(object):
 
     @pyaedt_function_handler()
     def _convert_point_to_meter(self, point):
-        """Convert numbers automatically to mils, rounding to the nearest 100 mil
-        which is minimum schematic snap unit."""
+        """Convert numbers automatically to mils.
+        It is rounded to the nearest 100 mil which is minimum schematic snap unit.
+        """
         xpos = point[0]
         ypos = point[1]
 
@@ -325,7 +328,6 @@ class CircuitComponents(object):
 
         References
         ----------
-
         >>> oEditor.CreateGround
         """
         xpos, ypos = self._get_location(location)
@@ -366,15 +368,18 @@ class CircuitComponents(object):
         """
 
         def _parse_ports_name(file):
-            """Parse and interpret the option line in the touchstone file
+            """Parse and interpret the option line in the touchstone file.
+
             Parameters
             ----------
             file : str
                 Path of the Touchstone file.
+
             Returns
             -------
             List of str
                 Names of the ports in the touchstone file.
+
             """
             portnames = []
             line = file.readline()
@@ -739,7 +744,7 @@ class CircuitComponents(object):
         return True
 
     @pyaedt_function_handler()
-    def enable_global_netlist(self, component_name, global_netlist_list=[]):
+    def enable_global_netlist(self, component_name, global_netlist_list=None):
         """Enable Nexxim global net list.
 
         Parameters
@@ -747,7 +752,7 @@ class CircuitComponents(object):
         component_name : str
             Name of the component.
         global_netlist_list : list
-            A list of lines to include. The default is ``[]``.
+            A list of lines to include. The default is ``None``.
 
         Returns
         -------
@@ -760,6 +765,9 @@ class CircuitComponents(object):
         >>> oComponentManager.GetData
         >>> oComponentManager.Edit
         """
+        if global_netlist_list is None:
+            global_netlist_list = []
+
         name = component_name
 
         properties = self.o_component_manager.GetData(name)
@@ -799,7 +807,6 @@ class CircuitComponents(object):
 
         >>> oSymbolManager.Add
         """
-
         numpins = len(pin_lists)
         h = int(numpins / 2)
         x1 = 0
@@ -915,7 +922,8 @@ class CircuitComponents(object):
         References
         ----------
 
-        >>> oEditor.GetAllElements()"""
+        >>> oEditor.GetAllElements()
+        """
         obj = self.oeditor.GetAllElements()
         if not obj:
             obj = []
@@ -943,7 +951,7 @@ class CircuitComponents(object):
         Parameters
         ----------
         id : int
-            ID to assign the component.
+            ID to assign to the component.
 
         Returns
         -------
@@ -981,6 +989,7 @@ class CircuitComponents(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
         """
         for el in self.components:
             if self.components[el].name == objname:
@@ -1036,6 +1045,7 @@ class CircuitComponents(object):
         ----------
 
         >>> oEditor.GetComponentPinLocation
+
         """
         if isinstance(partid, str):
             x = _retry_ntimes(30, self.oeditor.GetComponentPinLocation, partid, pinname, True)
@@ -1059,14 +1069,13 @@ class CircuitComponents(object):
         Parameters
         ----------
         Value : str
-
+            Value of the quantity.
         sUnits :
             The default is ``None``.
 
         Returns
         -------
         type
-
 
         """
         warnings.warn("Use :func:`number_with_units` instead.", DeprecationWarning)
@@ -1087,6 +1096,7 @@ class CircuitComponents(object):
         -------
         str
            String concatenating the value and unit.
+
         """
         return self._app.number_with_units(value, units)
 
@@ -1100,19 +1110,21 @@ class CircuitComponents(object):
             A nested list of point coordinates. For example,
             ``[[x1, y1], [x2, y2], ...]``.
         color : string or 3 item list, optional
-            Color or the line. The default is ``0``.
+            Color or the line. The default is ``"0"``.
         line_width : float, optional
             Width of the line. The default is ``0``.
+
         Returns
         -------
+        :class:`pyaedt.modeler.object3dcircuit.Line`
+            Line Object.
 
         >>> oEditor.CreateLine
         """
-
-        pointlist = [str(tuple(self._convert_point_to_meter(i))) for i in points_array]
+        points = [str(tuple(self._convert_point_to_meter(i))) for i in points_array]
         id = self.create_unique_id()
         return self.oeditor.CreateLine(
-            ["NAME:LineData", "Points:=", pointlist, "LineWidth:=", line_width, "Color:=", color, "Id:=", id],
+            ["NAME:LineData", "Points:=", points, "LineWidth:=", line_width, "Color:=", color, "Id:=", id],
             ["NAME:Attributes", "Page:=", 1],
         )
 
@@ -1138,9 +1150,9 @@ class CircuitComponents(object):
 
         >>> oEditor.CreateWire
         """
-        pointlist = [str(tuple(self._convert_point_to_meter(i))) for i in points_array]
+        points = [str(tuple(self._convert_point_to_meter(i))) for i in points_array]
         wire_id = self.create_unique_id()
-        arg1 = ["NAME:WireData", "Name:=", wire_name, "Id:=", wire_id, "Points:=", pointlist]
+        arg1 = ["NAME:WireData", "Name:=", wire_name, "Id:=", wire_id, "Points:=", points]
         arg2 = ["NAME:Attributes", "Page:=", 1]
         try:
             wire_id = _retry_ntimes(10, self.oeditor.CreateWire, arg1, arg2)
@@ -1285,8 +1297,10 @@ class ComponentCatalog(object):
             Filter String to search.
 
         Returns
+        -------
         list
             List of matching component names.
+
         """
         c = []
         for el in list(self.components.keys()):

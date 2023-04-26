@@ -2656,6 +2656,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         if "ModelDepth" in self.design_properties:
             value_str = self.design_properties["ModelDepth"]
+            a = None
             try:
                 a = float_units(value_str)
             except:
