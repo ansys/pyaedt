@@ -798,13 +798,13 @@ class VariableManager(object):
                         is_number_flag = is_number(value._calculated_value)
                         if is_number_flag:
                             self._independent_variables[variable_name] = value
-                            if "Design" in str(obj):
+                            if obj == self._app.odesign:
                                 self._independent_design_variables[variable_name] = value
                             elif "$" in variable_name:
                                 self._independent_project_variables[variable_name] = value
                         elif dependent and not is_number_flag:
                             self._dependent_variables[variable_name] = value
-                            if "Design" in str(obj):
+                            if obj == self._app.odesign:
                                 self._dependent_design_variables[variable_name] = value
                             elif "$" in variable_name:
                                 self._dependent_project_variables[variable_name] = value
@@ -819,7 +819,7 @@ class VariableManager(object):
                         is_number_flag = is_number(value._calculated_value)
                         if not is_number_flag:
                             self._dependent_variables[variable_name] = value
-                            if "Design" in str(obj):
+                            if obj == self._app.odesign:
                                 self._dependent_design_variables[variable_name] = value
                             elif "$" in variable_name:
                                 self._dependent_project_variables[variable_name] = value
@@ -827,7 +827,7 @@ class VariableManager(object):
             if len(object_list) != 1:
                 vars = self._independent_variables.copy()
             else:
-                if "Design" in str(object_list[0]):
+                if obj == self._app.odesign:
                     vars = self._independent_design_variables.copy()
                 else:
                     vars = self._independent_project_variables.copy()
@@ -838,7 +838,7 @@ class VariableManager(object):
                 for k, v in self._dependent_variables.items():
                     vars[k] = v
             else:
-                if "Design" in str(object_list[0]):
+                if obj == self._app.odesign:
                     for k, v in self._dependent_design_variables.items():
                         vars[k] = v
                 else:
