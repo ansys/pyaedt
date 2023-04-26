@@ -271,7 +271,7 @@ class AnsysReport:
         """
         if open:
             if not file_name:
-                filename = self.report_specs.ProjectName + "_" + self.report_specs.Revision + ".pdf"
+                file_name = self.report_specs.ProjectName + "_" + self.report_specs.Revision + ".pdf"
             self.report.SaveAndOpenPDF(os.path.join(file_path, file_name))
             return os.path.join(file_path, file_name)
         else:
