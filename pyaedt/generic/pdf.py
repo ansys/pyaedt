@@ -30,7 +30,7 @@ class AnsysReport:
         self.report_specs.PyAEDTVersion = __version__
         if tempplate_json_file:
             with open(tempplate_json_file) as f:
-                json_dict = json.read(f)
+                json_dict = json.load(f)
                 if "Units" in json_dict:
                     self.report_specs.PdfData = json_dict["Units"]
                 elif "TopMarginCover" in json_dict:

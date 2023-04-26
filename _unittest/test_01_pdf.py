@@ -3,6 +3,7 @@ import os
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 
+from pyaedt import pyaedt_path
 from pyaedt.generic.pdf import AnsysReport
 
 try:
@@ -21,7 +22,8 @@ class TestClass(object):
         pass
 
     def test_create_pdf(self):
-        report = AnsysReport(project_name="Coaxial", design_name="Design1")
+        template_path = os.path.join(pyaedt_path, "dlls", "PDFReport", "AnsysTemplate.json")
+        report = AnsysReport(project_name="Coaxial", design_name="Design1", tempplate_json_file=template_path)
         report.aedt_version = desktop_version
         assert report.template_name == "AnsysTemplate"
         report.template_name = "AnsysTemplate"
