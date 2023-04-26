@@ -3,6 +3,7 @@ This module contains the ``EdbHfss`` class.
 """
 import math
 
+from pyaedt.edb_core.edb_data.hfss_extent_info import HfssExtentInfo
 from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.sources import ExcitationBundle
@@ -31,11 +32,22 @@ class EdbHfss(object):
         self._pedb = p_edb
 
     @property
+    def hfss_extent_info(self):
+        """HFSS extent information."""
+        return HfssExtentInfo(self._pedb)
+
+    @property
     def _logger(self):
         return self._pedb.logger
 
     @property
     def _edb(self):
+        """EDB object.
+
+        Returns
+        -------
+        Ansys.Ansoft.Edb
+        """
         return self._pedb.edb
 
     @property
@@ -1071,15 +1083,23 @@ class EdbHfss(object):
             hfss_extent.ExtentType = self._edb.Utility.HFSSExtentInfoType.Conforming
         else:
             hfss_extent.ExtentType = self._edb.Utility.HFSSExtentInfoType.ConvexHull
-        hfss_extent.DielectricExtentSize = convert_pytuple_to_nettuple((simulation_setup.dielectric_extent, True))
+        hfss_extent.DielectricExtentSize = convert_pytuple_to_nettuple(
+            (simulation_setup.dielectric_extent, simulation_setup.use_dielectric_extent_multiple)
+        )
         hfss_extent.AirBoxHorizontalExtent = convert_pytuple_to_nettuple(
-            (simulation_setup.airbox_horizontal_extent, True)
+            (simulation_setup.airbox_horizontal_extent, simulation_setup.use_airbox_horizontal_extent_multiple)
         )
         hfss_extent.AirBoxNegativeVerticalExtent = convert_pytuple_to_nettuple(
-            (simulation_setup.airbox_negative_vertical_extent, True)
+            (
+                simulation_setup.airbox_negative_vertical_extent,
+                simulation_setup.use_airbox_negative_vertical_extent_multiple,
+            )
         )
         hfss_extent.AirBoxPositiveVerticalExtent = convert_pytuple_to_nettuple(
-            (simulation_setup.airbox_positive_vertical_extent, True)
+            (
+                simulation_setup.airbox_positive_vertical_extent,
+                simulation_setup.use_airbox_positive_vertical_extent_multiple,
+            )
         )
         hfss_extent.HonorUserDielectric = simulation_setup.honor_user_dielectric
         hfss_extent.TruncateAirBoxAtGround = simulation_setup.truncate_airbox_at_ground
