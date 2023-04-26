@@ -41,7 +41,7 @@ class TestClass(object):
         report.add_text("ciao2", True, True)
         report.add_empty_line(2)
         report.add_page_break()
-        report.add_image(os.path.join(local_path, "example_models", "Coax_Hfss.jpg"), "Coaxial Cable")
+        report.add_image(os.path.join(local_path, "example_models", "Coax_HFSS.jpg"), "Coaxial Cable")
         report.add_section("L")
         report.add_table("MyTable", [["x", "y"], ["0", "1"], ["2", "3"], ["10", "20"]])
         report.add_section()
