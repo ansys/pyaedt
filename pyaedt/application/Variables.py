@@ -829,22 +829,21 @@ class VariableManager(object):
                     else:
                         self._dependent_design_variables[variable_name] = value
         self._cleanup_variables()
-
         vars_to_output = {}
+        dicts_to_add = []
         if independent:
             if self._app.odesign in object_list:
-                for k, v in self._independent_design_variables.items():
-                    vars_to_output[k] = v
+                dicts_to_add.append(self._independent_design_variables)
             if self._app.oproject in object_list:
-                for k, v in self._independent_project_variables.items():
-                    vars_to_output[k] = v
+                dicts_to_add.append(self._independent_project_variables)
         if dependent:
             if self._app.odesign in object_list:
-                for k, v in self._dependent_design_variables.items():
-                    vars_to_output[k] = v
+                dicts_to_add.append(self._dependent_design_variables)
             if self._app.oproject in object_list:
-                for k, v in self._dependent_project_variables.items():
-                    vars_to_output[k] = v
+                dicts_to_add.append(self._dependent_project_variables)
+        for dict_var in dicts_to_add:
+            for k, v in dict_var.items():
+                vars_to_output[k] = v
         return vars_to_output
 
     @pyaedt_function_handler()
