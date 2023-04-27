@@ -16,6 +16,7 @@ This examples runs only on Windows using CPython.
 
 import os
 import pyaedt
+from pyaedt.generic.pdf import AnsysReport
 
 ###############################################################################
 # Set non-graphical mode
@@ -328,7 +329,39 @@ trace_names = aedtapp.get_traces_for_plot(category="S")
 cxt = ["Domain:=", "Sweep"]
 families = ["Freq:=", ["All"]]
 my_data = aedtapp.post.get_solution_data(expressions=trace_names)
-my_data.plot(trace_names, "db20", xlabel="Frequency (Ghz)", ylabel="SParameters(dB)", title="Scattering Chart")
+my_data.plot(trace_names, "db20",
+             xlabel="Frequency (Ghz)",
+             ylabel="SParameters(dB)",
+             title="Scattering Chart",
+             snapshot_path=os.path.join(results_folder, "Touchstone_from_matplotlib.jpg"))
+
+################################################################################
+# Generate pdf report
+# ~~~~~~~~~~~~~~~~~~~
+# Generate a pdf report with output of simultion.
+report = AnsysReport(project_name=aedtapp.project_name, design_name=aedtapp.design_name,version=desktopVersion)
+report.create()
+
+
+report.add_section()
+report.add_chapter("Hfss Results")
+report.add_sub_chapter("Field Plot")
+report.add_text("This section contains Field plots of Hfss Coaxial.")
+report.add_image(os.path.join(results_folder, plot1.name+".jpg"), "Coaxial Cable")
+report.add_page_break()
+report.add_sub_chapter("S Parameters")
+report.add_chart(my_data.intrinsics["Freq"], my_data.data_db20(), "Freq", trace_names[0], "S-Parameters")
+report.add_image(os.path.join(results_folder, "Touchstone_from_matplotlib.jpg"), "Touchstone from Matplotlib")
+report.add_section()
+report.add_chapter("Icepak Results")
+report.add_sub_chapter("Temperature Plot")
+report.add_text("This section contains Multiphysics temperature plot.")
+
+report.add_image(os.path.join(results_folder, plot5.name+".jpg"), "Coaxial Cable Temperatures")
+report.add_toc()
+report.save_pdf(results_folder, "AEDT_Results.pdf")
+
+
 
 ################################################################################
 # Close project and release AEDT

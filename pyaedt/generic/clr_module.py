@@ -8,6 +8,7 @@ pyaedt_path = os.path.dirname(os.path.dirname(__file__))
 cpython = "IronPython" not in sys.version and ".NETFramework" not in sys.version
 is_linux = os.name == "posix"
 is_windows = not is_linux
+is_clr = False
 if is_linux and cpython:  # pragma: no cover
     try:
         if os.environ.get("DOTNET_ROOT") is None:
@@ -33,9 +34,18 @@ if is_linux and cpython:  # pragma: no cover
             msg = "export LD_LIBRARY_PATH="
             msg += "$ANSYSEM_ROOT222/common/mono/Linux64/lib64:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH"
             warnings.warn(msg)
+        is_clr = True
     except ImportError:
         msg = "pythonnet or dotnetcore not installed. Pyaedt will work only in client mode."
         warnings.warn(msg)
+else:
+    try:
+        from pythonnet import load
+
+        load("coreclr")
+        is_clr = True
+    except:
+        pass
 
 
 try:  # work around a number formatting bug in the EDB API for non-English locales
