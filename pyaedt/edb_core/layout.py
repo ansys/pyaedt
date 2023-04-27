@@ -866,8 +866,8 @@ class EdbLayout(object):
                     or endPoint[1].IsParametric()
                 )
                 arc = self._edb.Geometry.ArcData(
-                    self._pedb.point_data(*startPoint),
-                    self._pedb.point_data(*endPoint),
+                    self._pedb.point_data(startPoint[0], startPoint[1]),
+                    self._pedb.point_data(endPoint[0], endPoint[1]),
                 )
                 arcs.append(arc)
             elif len(endPoint) == 5:
