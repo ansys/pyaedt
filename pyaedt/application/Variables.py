@@ -812,45 +812,39 @@ class VariableManager(object):
         """
         all_names = {}
         for obj in object_list:
-            variables = self._get_var_list_from_aedt(obj)
+            variables = [i for i in self._get_var_list_from_aedt(obj) if i not in list(self._all_variables.keys())]
             for variable_name in variables:
-                if variable_name not in list(self._all_variables.keys()):
-                    variable_expression = self.get_expression(variable_name)
-                    if variable_expression:
-                        all_names[variable_name] = variable_expression
-                        si_value = self._app.get_evaluated_value(variable_name)
-                        value = Variable(
-                            variable_expression, None, si_value, all_names, name=variable_name, app=self._app
-                        )
-                        is_number_flag = is_number(value._calculated_value)
-                        if variable_name.startswith("$"):
-                            if is_number_flag:
-                                self._independent_project_variables[variable_name] = value
-                            else:
-                                self._dependent_project_variables[variable_name] = value
-                        elif is_number_flag:
-                            self._independent_design_variables[variable_name] = value
-                        else:
-                            self._dependent_design_variables[variable_name] = value
+                variable_expression = self.get_expression(variable_name)
+                if variable_expression:
+                    all_names[variable_name] = variable_expression
+                    si_value = self._app.get_evaluated_value(variable_name)
+                    value = Variable(variable_expression, None, si_value, all_names, name=variable_name, app=self._app)
+                    is_number_flag = is_number(value._calculated_value)
+                    if variable_name.startswith("$") and is_number_flag:
+                        self._independent_project_variables[variable_name] = value
+                    elif variable_name.startswith("$"):
+                        self._dependent_project_variables[variable_name] = value
+                    elif is_number_flag:
+                        self._independent_design_variables[variable_name] = value
+                    else:
+                        self._dependent_design_variables[variable_name] = value
         self._cleanup_variables()
 
         vars_to_output = {}
-        for obj in object_list:
-            if obj == self._app.odesign:
-                if independent:
-                    for k, v in self._independent_design_variables.items():
-                        vars_to_output[k] = v
-                if dependent:
-                    for k, v in self._dependent_design_variables.items():
-                        vars_to_output[k] = v
-            else:
-                if independent:
-                    for k, v in self._independent_project_variables.items():
-                        vars_to_output[k] = v
-                if dependent:
-                    for k, v in self._dependent_project_variables.items():
-                        vars_to_output[k] = v
-
+        if independent:
+            if self._app.odesign in object_list:
+                for k, v in self._independent_design_variables.items():
+                    vars_to_output[k] = v
+            if self._app.oproject in object_list:
+                for k, v in self._independent_project_variables.items():
+                    vars_to_output[k] = v
+        if dependent:
+            if self._app.odesign in object_list:
+                for k, v in self._dependent_design_variables.items():
+                    vars_to_output[k] = v
+            if self._app.oproject in object_list:
+                for k, v in self._dependent_project_variables.items():
+                    vars_to_output[k] = v
         return vars_to_output
 
     @pyaedt_function_handler()
