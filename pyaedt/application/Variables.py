@@ -739,10 +739,8 @@ class VariableManager(object):
     @property
     def _independent_variables(self):
         all = {}
-        for k, v in self._independent_project_variables.items():
-            all[k] = v
-        for k, v in self._independent_design_variables.items():
-            all[k] = v
+        all.update(self._independent_project_variables)
+        all.update(self._independent_design_variables)
         return all
 
     @property
