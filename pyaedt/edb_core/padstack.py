@@ -582,17 +582,19 @@ class EdbPadstacks(object):
             padparams = self._edb.Definition.PadstackDefData(pin.GetPadstackDef().GetData()).GetPolygonalPadParameters(
                 layername, self.int_to_pad_type(pad_type)
             )
-            parameters = [
-                padparams[1].GetBBox().Item1.X.ToDouble(),
-                padparams[1].GetBBox().Item1.Y.ToDouble(),
-                padparams[1].GetBBox().Item2.X.ToDouble(),
-                padparams[1].GetBBox().Item2.Y.ToDouble(),
-            ]
-            offset_x = padparams[2]
-            offset_y = padparams[3]
-            rotation = padparams[4]
-            geometry_type = 7
-            return geometry_type, parameters, offset_x, offset_y, rotation
+            if padparams[0]:
+                parameters = [
+                    padparams[1].GetBBox().Item1.X.ToDouble(),
+                    padparams[1].GetBBox().Item1.Y.ToDouble(),
+                    padparams[1].GetBBox().Item2.X.ToDouble(),
+                    padparams[1].GetBBox().Item2.Y.ToDouble(),
+                ]
+                offset_x = padparams[2]
+                offset_y = padparams[3]
+                rotation = padparams[4]
+                geometry_type = 7
+                return geometry_type, parameters, offset_x, offset_y, rotation
+            return 0, [0], 0, 0, 0
 
     @pyaedt_function_handler
     def set_all_antipad_value(self, value):
