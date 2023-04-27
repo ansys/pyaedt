@@ -731,21 +731,42 @@ class VariableManager(object):
     def __init__(self, app):
         # Global Desktop Environment
         self._app = app
-        self._independent_variables = {}
         self._independent_design_variables = {}
         self._independent_project_variables = {}
-        self._dependent_variables = {}
         self._dependent_design_variables = {}
         self._dependent_project_variables = {}
+
+    @property
+    def _independent_variables(self):
+        all = {}
+        for k, v in self._independent_project_variables.items():
+            all[k] = v
+        for k, v in self._independent_design_variables.items():
+            all[k] = v
+        return all
+
+    @property
+    def _dependent_variables(self):
+        all = {}
+        for k, v in self._dependent_project_variables.items():
+            all[k] = v
+        for k, v in self._dependent_design_variables.items():
+            all[k] = v
+        return all
+
+    @property
+    def _all_variables(self):
+        all = {}
+        for k, v in self._independent_variables.items():
+            all[k] = v
+        for k, v in self._dependent_variables.items():
+            all[k] = v
+        return all
 
     @pyaedt_function_handler()
     def __delitem__(self, key):
         """Implement del with array name or index."""
         self.delete_variable(key)
-        if key in self._independent_variables:
-            del self._independent_variables[key]
-        elif key in self._dependent_variables:
-            del self._dependent_variables[key]
 
     @pyaedt_function_handler()
     def __getitem__(self, variable_name):
@@ -755,6 +776,20 @@ class VariableManager(object):
     def __setitem__(self, variable, value):
         self.set_variable(variable, value)
         return True
+
+    @pyaedt_function_handler()
+    def _cleanup_variables(self):
+        variables = self._get_var_list_from_aedt(self._app.odesign) + self._get_var_list_from_aedt(self._app.oproject)
+        all_dicts = [
+            self._independent_project_variables,
+            self._independent_design_variables,
+            self._dependent_project_variables,
+            self._dependent_design_variables,
+        ]
+        for dict_var in all_dicts:
+            for var_name in list(dict_var.keys()):
+                if var_name not in variables:
+                    del dict_var[var_name]
 
     @pyaedt_function_handler()
     def _variable_dict(self, object_list, dependent=True, independent=True):
@@ -779,65 +814,44 @@ class VariableManager(object):
         for obj in object_list:
             variables = self._get_var_list_from_aedt(obj)
             for variable_name in variables:
-                if independent and variable_name not in self._independent_variables:
-                    if self.get_expression(variable_name):
-                        variable_expression = self.get_expression(variable_name)
+                if variable_name not in list(self._all_variables.keys()):
+                    variable_expression = self.get_expression(variable_name)
+                    if variable_expression:
                         all_names[variable_name] = variable_expression
                         si_value = self._app.get_evaluated_value(variable_name)
                         value = Variable(
                             variable_expression, None, si_value, all_names, name=variable_name, app=self._app
                         )
                         is_number_flag = is_number(value._calculated_value)
-                        if is_number_flag:
-                            self._independent_variables[variable_name] = value
-                            if obj == self._app.odesign:
-                                self._independent_design_variables[variable_name] = value
-                            elif "$" in variable_name:
+                        if variable_name.startswith("$"):
+                            if is_number_flag:
                                 self._independent_project_variables[variable_name] = value
-                        elif dependent and not is_number_flag:
-                            self._dependent_variables[variable_name] = value
-                            if obj == self._app.odesign:
-                                self._dependent_design_variables[variable_name] = value
-                            elif "$" in variable_name:
+                            else:
                                 self._dependent_project_variables[variable_name] = value
-                elif dependent and variable_name not in self._dependent_variables:
-                    if self.get_expression(variable_name):
-                        variable_expression = self.get_expression(variable_name)
-                        all_names[variable_name] = variable_expression
-                        si_value = self._app.get_evaluated_value(variable_name)
-                        value = Variable(
-                            variable_expression, None, si_value, all_names, name=variable_name, app=self._app
-                        )
-                        is_number_flag = is_number(value._calculated_value)
-                        if not is_number_flag:
-                            self._dependent_variables[variable_name] = value
-                            if obj == self._app.odesign:
-                                self._dependent_design_variables[variable_name] = value
-                            elif "$" in variable_name:
-                                self._dependent_project_variables[variable_name] = value
-        if independent:
-            if len(object_list) != 1:
-                vars = self._independent_variables.copy()
-            else:
-                if obj == self._app.odesign:
-                    vars = self._independent_design_variables.copy()
-                else:
-                    vars = self._independent_project_variables.copy()
-        else:
-            vars = {}
-        if dependent:
-            if len(object_list) != 1:
-                for k, v in self._dependent_variables.items():
-                    vars[k] = v
-            else:
-                if obj == self._app.odesign:
-                    for k, v in self._dependent_design_variables.items():
-                        vars[k] = v
-                else:
-                    for k, v in self._dependent_project_variables.items():
-                        vars[k] = v
+                        elif is_number_flag:
+                            self._independent_design_variables[variable_name] = value
+                        else:
+                            self._dependent_design_variables[variable_name] = value
+        self._cleanup_variables()
 
-        return vars
+        vars_to_output = {}
+        for obj in object_list:
+            if obj == self._app.odesign:
+                if independent:
+                    for k, v in self._independent_design_variables.items():
+                        vars_to_output[k] = v
+                if dependent:
+                    for k, v in self._dependent_design_variables.items():
+                        vars_to_output[k] = v
+            else:
+                if independent:
+                    for k, v in self._independent_project_variables.items():
+                        vars_to_output[k] = v
+                if dependent:
+                    for k, v in self._dependent_project_variables.items():
+                        vars_to_output[k] = v
+
+        return vars_to_output
 
     @pyaedt_function_handler()
     def get_expression(self, variable_name):  # TODO: Should be renamed to "evaluate"
@@ -1094,7 +1108,7 @@ class VariableManager(object):
                     ],
                 ]
             )
-            self._clean_variable_from_dicts(variable_name)
+            self._cleanup_variables()
         var_list = self._get_var_list_from_aedt(desktop_object)
         lower_case_vars = [var_name.lower() for var_name in var_list]
         if variable_name.lower() not in lower_case_vars:
@@ -1182,16 +1196,9 @@ class VariableManager(object):
             except:  # pragma: no cover
                 pass
             else:
-                self._clean_variable_from_dicts(var_name)
+                self._cleanup_variables()
                 return True
         return False
-
-    @pyaedt_function_handler()
-    def _clean_variable_from_dicts(self, variable_name):
-        if variable_name in self._independent_variables:
-            del self._independent_variables[variable_name]
-        elif variable_name in self._dependent_variables:
-            del self._dependent_variables[variable_name]
 
     @pyaedt_function_handler()
     def _get_var_list_from_aedt(self, desktop_object):
