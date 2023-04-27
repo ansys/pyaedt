@@ -147,7 +147,6 @@ class SiwaveAdvancedSettings(object):
         of trace-like cavities. Further, the coupling between narrow planes is
         also modeled by enabling this feature.
 
-
         Returns
         -------
         bool
@@ -160,7 +159,6 @@ class SiwaveAdvancedSettings(object):
         """Whether to Include a ground plane to serve as a voltage reference for traces and planes
         if they are not defined in the layout.
 
-
         Returns
         -------
         bool
@@ -172,7 +170,6 @@ class SiwaveAdvancedSettings(object):
     def include_trace_coupling(self):
         """Whether to model coupling between adjacent traces.
         Coupling is considered for parallel and almost parallel trace segments.
-
 
         Returns
         -------
@@ -197,7 +194,6 @@ class SiwaveAdvancedSettings(object):
     def infinite_ground_location(self):
         """Elevation of the infinite unconnected ground plane placed under the design.
 
-
         Returns
         -------
         str
@@ -207,7 +203,6 @@ class SiwaveAdvancedSettings(object):
     @property
     def max_coupled_lines(self):
         """Maximum number of coupled lines to build the new coupled transmission line model.
-
 
         Returns
         -------
@@ -996,7 +991,7 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
 
         Returns
         -------
-            Dictionary
+        Dictionary
             {str, int}, keys is source name, value int 0 unspecified, 1 negative node, 2 positive one.
 
         """

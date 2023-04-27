@@ -11,7 +11,6 @@ the simulation of an antenna.
 #
 # sphinx_gallery_thumbnail_path = "Resources/emit_simple_cosite.png"
 
-import os
 import pyaedt
 import pyaedt.emit_core.EmitConstants as econsts
 
