@@ -7,6 +7,7 @@ from pyaedt import pyaedt_path
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.clr_module import List
 from pyaedt.generic.clr_module import _clr
+from pyaedt.generic.clr_module import is_clr
 
 sys.path.append(os.path.join(pyaedt_path, "dlls", "PDFReport"))
 try:
@@ -22,6 +23,7 @@ class AnsysReport:
     """Generate a pdf report."""
 
     def __init__(self, version="2023R1", design_name="design1", project_name="AnsysProject", tempplate_json_file=None):
+        assert is_clr, ".Net Core 3.1 is needed to run AnsysReport."
         self.report_specs = ReportSpec()
         self.report_specs.AnsysVersion = version
         self.report_specs.DesignName = design_name
