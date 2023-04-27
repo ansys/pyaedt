@@ -1093,6 +1093,8 @@ class Edb(object):
         Instance of `Edb.Utility.Value`
 
         """
+        if isinstance(val, self.edb.Utility.Value):
+            return val
         if isinstance(val, (int, float)):
             return self.edb.Utility.Value(val)
         m1 = re.findall(r"(?<=[/+-/*//^/(/[])([a-z_A-Z/$]\w*)", str(val).replace(" ", ""))
@@ -1109,6 +1111,46 @@ class Edb(object):
         if set(val_decomposed).intersection(var_names):
             return self.edb.Utility.Value(val, var_server_db)
         return self.edb.Utility.Value(val)
+
+    @pyaedt_function_handler()
+    def point_3d_data(self, x, y, z=0.0):
+        """Compute the Edb 3d Point Data.
+
+        Parameters
+        ----------
+        x : float, int or str
+            X value.
+        y : float, int or str
+            Y value.
+        z : float, int or str, optional
+            Z value.
+
+        Returns
+        -------
+        ``Geometry.Point3DData``.
+        """
+        return self.edb.Geometry.Point3DData(self.edb_value(x), self.edb_value(y), self.edb_value(z))
+
+    @pyaedt_function_handler()
+    def point_data(self, x, y=None):
+        """Compute the Edb Point Data.
+
+        Parameters
+        ----------
+        x : float, int or str
+            X value.
+        y : float, int or str, optional
+            Y value.
+
+
+        Returns
+        -------
+        ``Geometry.PointData``.
+        """
+        if y is None:
+            return self.edb.Geometry.PointData(self.edb_value(x))
+        else:
+            return self.edb.Geometry.PointData(self.edb_value(x), self.edb_value(y))
 
     @pyaedt_function_handler()
     def _is_file_existing_and_released(self, filename):

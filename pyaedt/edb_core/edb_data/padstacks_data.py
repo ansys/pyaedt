@@ -1016,13 +1016,7 @@ class EDBPadstackInstance(object):
         """
         if simple_check:
             pos = [i for i in self.position]
-            int_val = (
-                1
-                if polygon_data.PointInPolygon(
-                    self._pedb.edb.Geometry.PointData(self._pedb.edb_value(pos[0]), self._pedb.edb_value(pos[1]))
-                )
-                else 0
-            )
+            int_val = 1 if polygon_data.PointInPolygon(self._pedb.point_data(*pos)) else 0
         else:
             plane = self._pedb.modeler.Shape("rectangle", pointA=self.bounding_box[0], pointB=self.bounding_box[1])
             rectangle_data = self._pedb.modeler.shape_to_polygon_data(plane)

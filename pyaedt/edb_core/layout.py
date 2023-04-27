@@ -356,9 +356,9 @@ class EdbLayout(object):
                     if check_inside:
                         xcoeff, ycoeff = calc_slope([point.X.ToDouble(), point.X.ToDouble()], origin)
 
-                        new_points = self._edb.Geometry.PointData(
-                            self._get_edb_value(point.X.ToString() + "{}*{}".format(xcoeff, offset_name)),
-                            self._get_edb_value(point.Y.ToString() + "{}*{}".format(ycoeff, offset_name)),
+                        new_points = self._pedb.point_data(
+                            point.X.ToString() + "{}*{}".format(xcoeff, offset_name),
+                            point.Y.ToString() + "{}*{}".format(ycoeff, offset_name),
                         )
                         poligon_data.SetPoint(i, new_points)
                     prev_point = point
@@ -431,9 +431,7 @@ class EdbLayout(object):
         else:
             corner_style = self._edb.Cell.Primitive.PathCornerStyle.MiterCorner  # pragma: no cover
 
-        pointlists = [
-            self._edb.Geometry.PointData(self._get_edb_value(i[0]), self._get_edb_value(i[1])) for i in path_list.points
-        ]
+        pointlists = [self._pedb.point_data(i[0], i[1]) for i in path_list.points]
         polygonData = self._edb.Geometry.PolygonData(convert_py_list_to_net_list(pointlists), False)
         polygon = self._edb.Cell.Primitive.Path.Create(
             self._active_layout,
@@ -868,14 +866,8 @@ class EdbLayout(object):
                     or endPoint[1].IsParametric()
                 )
                 arc = self._edb.Geometry.ArcData(
-                    self._edb.Geometry.PointData(
-                        self._get_edb_value(startPoint[0].ToDouble()),
-                        self._get_edb_value(startPoint[1].ToDouble()),
-                    ),
-                    self._edb.Geometry.PointData(
-                        self._get_edb_value(endPoint[0].ToDouble()),
-                        self._get_edb_value(endPoint[1].ToDouble()),
-                    ),
+                    self._pedb.point_data(*startPoint),
+                    self._pedb.point_data(*endPoint),
                 )
                 arcs.append(arc)
             elif len(endPoint) == 5:
