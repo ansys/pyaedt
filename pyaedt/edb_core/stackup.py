@@ -1318,10 +1318,10 @@ class Stackup(object):
 
         zero_data = self._edb_value(0.0)
         one_data = self._edb_value(1.0)
-        point3d_t = self._pedb.point_3d_data(_offset_x, _offset_y, h_stackup)
-        point_loc = self._pedb.point_3d_data(zero_data, zero_data, zero_data)
-        point_from = self._pedb.point_3d_data(one_data, zero_data, zero_data)
-        point_to = self._pedb.point_3d_data(math.cos(_angle), -1 * math.sin(_angle), zero_data)
+        point3d_t = self._pedb.point_3d(_offset_x, _offset_y, h_stackup)
+        point_loc = self._pedb.point_3d(zero_data, zero_data, zero_data)
+        point_from = self._pedb.point_3d(one_data, zero_data, zero_data)
+        point_to = self._pedb.point_3d(math.cos(_angle), -1 * math.sin(_angle), zero_data)
         cell_inst2.Set3DTransformation(point_loc, point_from, point_to, rotation, point3d_t)
         self.refresh_layer_collection()
         return True
@@ -1462,10 +1462,10 @@ class Stackup(object):
 
         zero_data = self._edb_value(0.0)
         one_data = self._edb_value(1.0)
-        point3d_t = self._pedb.point_3d_data(_offset_x, _offset_y, h_stackup)
-        point_loc = self._pedb.point_3d_data(zero_data, zero_data, zero_data)
-        point_from = self._pedb.point_3d_data(one_data, zero_data, zero_data)
-        point_to = self._pedb.point_3d_data(math.cos(_angle), -1 * math.sin(_angle), zero_data)
+        point3d_t = self._pedb.point_3d(_offset_x, _offset_y, h_stackup)
+        point_loc = self._pedb.point_3d(zero_data, zero_data, zero_data)
+        point_from = self._pedb.point_3d(one_data, zero_data, zero_data)
+        point_to = self._pedb.point_3d(math.cos(_angle), -1 * math.sin(_angle), zero_data)
         cell_inst2.Set3DTransformation(point_loc, point_from, point_to, rotation, point3d_t)
         self.refresh_layer_collection()
         return True
@@ -1507,10 +1507,10 @@ class Stackup(object):
         """
         zero_data = self._edb_value(0.0)
         one_data = self._edb_value(1.0)
-        local_origin = self._pedb.point_3d_data(0.0, 0.0, 0.0)
-        rotation_axis_from = self._pedb.point_3d_data(1.0, 0.0, 0.0)
+        local_origin = self._pedb.point_3d(0.0, 0.0, 0.0)
+        rotation_axis_from = self._pedb.point_3d(1.0, 0.0, 0.0)
         _angle = angle * math.pi / 180.0
-        rotation_axis_to = self._pedb.point_3d_data(math.cos(_angle), -1 * math.sin(_angle), 0.0)
+        rotation_axis_to = self._pedb.point_3d(math.cos(_angle), -1 * math.sin(_angle), 0.0)
 
         stackup_target = self._pedb.edb.Cell.LayerCollection(self._pedb.active_layout.GetLayerCollection())
         sig_set = self._pedb.edb.Cell.LayerTypeSet.SignalLayerSet
@@ -1524,7 +1524,7 @@ class Stackup(object):
             flip_angle = self._edb_value("180deg")
             elevation = target_bottom_elevation
         h_stackup = self._edb_value(elevation)
-        location = self._pedb.point_3d_data(offset_x, offset_y, h_stackup)
+        location = self._pedb.point_3d(offset_x, offset_y, h_stackup)
 
         mcad_model = self._pedb.edb.McadModel.Create3DComp(self._pedb.active_layout, a3dcomp_path)
         if mcad_model.IsNull():  # pragma: no cover

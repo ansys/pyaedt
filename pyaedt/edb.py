@@ -1113,7 +1113,7 @@ class Edb(object):
         return self.edb.Utility.Value(val)
 
     @pyaedt_function_handler()
-    def point_3d_data(self, x, y, z=0.0):
+    def point_3d(self, x, y, z=0.0):
         """Compute the Edb 3d Point Data.
 
         Parameters
