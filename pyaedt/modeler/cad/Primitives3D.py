@@ -993,6 +993,10 @@ class Primitives3D(Primitives, object):
                 vArgParamVector.append(
                     ["NAME:UDMParam", "Name:=", name_param, "Value:=", str(val), "PropType2:=", 3, "PropFlag2:=", 4]
                 )
+            elif val in self._app.variable_manager.variables:
+                vArgParamVector.append(
+                    ["NAME:UDMParam", "Name:=", name_param, "Value:=", str(val), "PropType2:=", 3, "PropFlag2:=", 2]
+                )
             else:
                 vArgParamVector.append(
                     [
