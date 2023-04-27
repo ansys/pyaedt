@@ -755,10 +755,8 @@ class VariableManager(object):
     @property
     def _all_variables(self):
         all = {}
-        for k, v in self._independent_variables.items():
-            all[k] = v
-        for k, v in self._dependent_variables.items():
-            all[k] = v
+        all.update(self._independent_variables)
+        all.update(self._dependent_variables)
         return all
 
     @pyaedt_function_handler()
