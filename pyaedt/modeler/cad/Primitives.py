@@ -533,7 +533,7 @@ class Primitives(object):
 
         Parameters
         ----------
-        value : string or list of strings
+        value : str or list of str
             One or more strings for numerical lengths. For example, ``"10mm"``
             or ``["10mm", "12mm", "14mm"]``. When a list is given, the entire
             list is converted.
@@ -562,7 +562,7 @@ class Primitives(object):
                 v.rescale_to(self.model_units)
                 num_val = v.numeric_value
             else:
-                raise ("Inputs to value_in_object_units must be strings or numbers.")
+                raise TypeError("Inputs to value_in_object_units must be strings or numbers.")
 
             numeric_list.append(num_val)
 

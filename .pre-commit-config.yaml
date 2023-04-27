@@ -69,4 +69,4 @@ repos:
 #     additional_dependencies: [toml]
 #     files: ^pyaedt/
 #     args:
-#     - --ignore=D412,D413,D213
+#     - --ignore=D412,D413,D213,D101,D107,D203,D102

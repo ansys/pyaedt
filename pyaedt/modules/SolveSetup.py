@@ -1648,12 +1648,12 @@ class Setup3DLayout(CommonSetup):
         ----------
         file_path : str
             File path of the json file.
-        overwrite : bool
+        overwrite : bool, optional
             Whether to overwrite the file if it already exists.
         """
         if os.path.isdir(file_path):  # pragma no cover
             if not overwrite:  # pragma no cover
-                raise logging.error("File {} already exists. Configure file is not exported".format(file_path))
+                logging.error("File {} already exists. Configure file is not exported".format(file_path))
         return self.props._export_properties_to_json(file_path)
 
 
