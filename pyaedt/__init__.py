@@ -23,6 +23,7 @@ from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_folder_name
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import generate_unique_project_name
+from pyaedt.generic.general_methods import help
 from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import is_linux

@@ -1574,6 +1574,83 @@ def _check_installed_version(install_path, long_version):
     return False
 
 
+class Help:  # pragma: no cover
+    def __init__(self):
+        self._base_path = "https://aedt.docs.pyansys.com/version/stable"
+        self.browser = "default"
+
+    def _launch_ur(self, url):
+        import webbrowser
+
+        if self.browser != "default":
+            webbrowser.get(self.browser).open_new_tab(url)
+        else:
+            webbrowser.open_new_tab(url)
+
+    def search(self, keywords, app_name=None, search_in_examples_only=False):
+        """Search one or multiple keywords.
+
+        Parameters
+        ----------
+        keywords : str or list
+        app_name : str, optional
+            One of PyAEDT app like ``"Hfss"``, ``"Circui"``, ``"Icepak"`` or any other available app.
+        search_in_examples_only : bool, optional
+            Whether to search in Examples only or not.
+        """
+        if isinstance(keywords, str):
+            keywords = [keywords]
+        if search_in_examples_only:
+            keywords.append("This example")
+        if app_name:
+            keywords.append(app_name)
+        url = self._base_path + "/search.html?q={}".format("+".join(keywords))
+        self._launch_ur(url)
+
+    def getting_started(self):
+        """Open Pyaedt User guide page."""
+        url = self._base_path + "/User_guide/index.html"
+        self._launch_ur(url)
+
+    def examples(self):
+        """Open Pyaedt examples page."""
+        url = self._base_path + "/examples/index.html"
+        self._launch_ur(url)
+
+    def github(self):
+        """Open Pyaedt github page."""
+        url = "https://github.com/pyansys/pyaedt"
+        self._launch_ur(url)
+
+    def changelog(self, release=None):
+        """Open Pyaedt github changelog of actual or specific release.
+
+        Parameters
+        ----------
+        release : str, optional
+            Release to get changelog. Eg. ``"0.6.70"``
+        """
+        if release is None:
+            from pyaedt import __version__ as release
+        url = "https://github.com/pyansys/pyaedt/releases/tag/v" + release
+        self._launch_ur(url)
+
+    def issues(self):
+        """Open Pyaedt github issues page."""
+        url = "https://github.com/pyansys/pyaedt/issues"
+        self._launch_ur(url)
+
+    def ansys_forum(self):
+        """Open Ansys discuss forum related to pyaedt."""
+        url = "https://discuss.ansys.com/discussions/tagged/pyaedt"
+        self._launch_ur(url)
+
+    def developer_forum(self):
+        """Open Ansys developer portal."""
+        url = "https://developer.ansys.com/"
+        self._launch_ur(url)
+
+
 class Settings(object):
     """Manages all PyAEDT environment variables and global settings."""
 
@@ -2021,3 +2098,4 @@ class Settings(object):
 
 
 settings = Settings()
+help = Help()
