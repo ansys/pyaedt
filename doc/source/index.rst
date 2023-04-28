@@ -1,13 +1,13 @@
 PyAEDT documentation  |version|
 ===============================
 
-|pyansys| |pypi| |PyPIact| |PythonVersion| |GH-CI| |codecov| |MIT| |black| |Anaconda| |pre-commit|
+|pyansys| |PyPI| |PyPIact| |PythonVersion| |GH-CI| |coverage| |MIT| |black| |Anaconda| |pre-commit|
 
 .. |pyansys| image:: https://img.shields.io/badge/Py-Ansys-ffc107.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAABDklEQVQ4jWNgoDfg5mD8vE7q/3bpVyskbW0sMRUwofHD7Dh5OBkZGBgW7/3W2tZpa2tLQEOyOzeEsfumlK2tbVpaGj4N6jIs1lpsDAwMJ278sveMY2BgCA0NFRISwqkhyQ1q/Nyd3zg4OBgYGNjZ2ePi4rB5loGBhZnhxTLJ/9ulv26Q4uVk1NXV/f///////69du4Zdg78lx//t0v+3S88rFISInD59GqIH2esIJ8G9O2/XVwhjzpw5EAam1xkkBJn/bJX+v1365hxxuCAfH9+3b9/+////48cPuNehNsS7cDEzMTAwMMzb+Q2u4dOnT2vWrMHu9ZtzxP9vl/69RVpCkBlZ3N7enoDXBwEAAA+YYitOilMVAAAAAElFTkSuQmCC
    :target: https://docs.pyansys.com/
    :alt: PyAnsys
 
-.. |pypi| image:: https://img.shields.io/pypi/v/pyaedt.svg?logo=python&logoColor=white
+.. |PyPI| image:: https://img.shields.io/pypi/v/pyaedt.svg?logo=python&logoColor=white
    :target: https://pypi.org/project/pyaedt/
 
 .. |PyPIact|  image:: https://pepy.tech/badge/pyaedt/month
@@ -19,7 +19,7 @@ PyAEDT documentation  |version|
 .. |GH-CI| image:: https://github.com/pyansys/pyaedt/actions/workflows/unit_tests.yml/badge.svg
    :target: https://github.com/pyansys/pyaedt/actions/workflows/unit_tests.yml
 
-.. |codecov| image:: https://codecov.io/gh/pyansys/pyaedt/branch/main/graph/badge.svg
+.. |coverage| image:: https://codecov.io/gh/pyansys/pyaedt/branch/main/graph/badge.svg
    :target: https://codecov.io/gh/pyansys/pyaedt
 
 .. |MIT| image:: https://img.shields.io/badge/License-MIT-yellow.svg
@@ -43,7 +43,7 @@ PyAEDT is a Python library that interacts directly with the API for
 Ansys Electronics Desktop (AEDT) to make scripting simpler. The architecture
 for PyAEDT can be reused for all AEDT 3D products (HFSS, Icepak, Maxwell 3D,
 and Q3D Extractor), 2D tools, and Ansys Mechanical. PyAEDT also provides
-support for circuit tools like Nexxim and system simulation tools like
+support for Circuit tools like Nexxim and system simulation tools like
 Twin Builder. Finally, PyAEDT provides scripting capabilities in Ansys layout
 tools like HFSS 3D Layout and EDB. The PyAEDT class and method structures
 simplify operation while reusing information as much as possible across
@@ -57,7 +57,7 @@ You can install PyAEDT on CPython 3.7 through 3.10 from PyPI with this command:
 
     pip install pyaedt
 
-To install PyAEDT with all extra packages (Matplotlib, NumPy, Pandas, and PyVista),
+To install PyAEDT with all extra packages (matplotlib, numpy, pandas, and pyvista),
 use this command:
 
 .. code:: python
@@ -72,7 +72,8 @@ You can also install PyAEDT from Conda-Forge with this command:
 
 PyAEDT remains compatible with IronPython and can be still used in the AEDT Framework.
 
-PyAnsys
+
+PyANSYS
 -------
 
 PyAEDT is part of the larger `PyAnsys <https://docs.pyansys.com>`_
@@ -93,7 +94,7 @@ Ansys Q3D Extractor, Ansys Siwave, and Ansys Icepak using electrical CAD (ECAD) 
 Mechanical CAD (MCAD) workflows.
 
 In addition, AEDT includes direct links to the complete Ansys portfolio of thermal, fluid,
-and mechanical solvers for comprehensive multiphysics analysis.
+and Mechanical solvers for comprehensive multiphysics analysis.
 Tight integration among these solutions provides unprecedented ease of use for setup and
 faster resolution of complex simulations for design and optimization.
 
@@ -166,7 +167,7 @@ Here are the main advantages that PyAEDT provides:
 - Compatibility with IronPython and CPython
 - Simplification of complex API syntax using data objects while
   maintaining PEP8 compliance.
-- Code reusability across different solvers
+- Code reusable across different solvers
 - Clear documentation on functions and API
 - Unit tests of code to increase quality across different AEDT versions
 
