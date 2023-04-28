@@ -57,12 +57,28 @@ For example, on Windows with Python 3.7, install PyAEDT and all its dependencies
 
     pip install --no-cache-dir --no-index --find-links=file:///<path_to_wheelhouse>/PyAEDT-v<release_version>-wheelhouse-Windows-3.7 pyaedt
 
+Install from a python file
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+AEDT already includes CPython 3.7, which can be used to run PyAEDT.
+It is also possible to use CPython 3.7 (3.10 from AEDT 2023R2) as a virtual environment to run PyAEDT.
+In order to do that you can download the following file
+:download:`PyAEDT Installer python file <../Resources/PyAEDTInstallerFromDesktop.py>`
+Open an Electronics Desktop Session and click on Tools->Run Script and execute the file.
+
+After installation the menu will appear in AEDT UI and, starting from 2023R2,
+a Ribbon button will be available in Automation Tab.
+
+.. image:: ../Resources/toolkits.png
+  :width: 800
+  :alt: PyAEDT toolkit installed after batch run
+
+.. image:: ../Resources/toolkits_ribbon.png
+  :width: 800
+  :alt: PyAEDT toolkit buttons available in AEDT 2023.2 after batch run
+
 
 Install from a batch file
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-AEDT already includes CPython 3.7, which can be used to run PyAEDT.
-It is also possible to use CPython 3.7 as a virtual environment to run PyAEDT.
-
 If you are running on Windows, you can download
 :download:`PyAEDT Environment with IDE bat file <../Resources/pyaedt_with_IDE.bat>`
 and run this batch file on your local machine. Using this approach
