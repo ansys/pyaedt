@@ -316,7 +316,7 @@ class Edb(object):
         list of str, cell names.
         """
         names = []
-        for cell in list(self._db.TopCircuitCells):
+        for cell in list(self._db.CircuitCells):
             names.append(cell.GetName())
         return names
 
