@@ -29,3 +29,10 @@ nam
 ue
 ro
 aline
+pypi
+codecov
+circuit
+Matplotlib
+PyVista
+mechanical
+reusability

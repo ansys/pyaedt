@@ -72,8 +72,8 @@ You can also install PyAEDT from Conda-Forge with this command:
 
 PyAEDT remains compatible with IronPython and can be still used in the AEDT Framework.
 
-About PyAnsys
--------------
+PyAnsys
+-------
 
 PyAEDT is part of the larger `PyAnsys <https://docs.pyansys.com>`_
 effort to facilitate the use of Ansys technologies directly from Python.
