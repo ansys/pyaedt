@@ -1597,6 +1597,7 @@ class Help:  # pragma: no cover
             One of PyAEDT app like ``"Hfss"``, ``"Circui"``, ``"Icepak"`` or any other available app.
         search_in_examples_only : bool, optional
             Whether to search in Examples only or not.
+            The default is ``False``.
         """
         if isinstance(keywords, str):
             keywords = [keywords]
