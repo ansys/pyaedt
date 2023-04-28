@@ -9,6 +9,7 @@ cpython = "IronPython" not in sys.version and ".NETFramework" not in sys.version
 is_linux = os.name == "posix"
 is_windows = not is_linux
 is_clr = False
+sys.path.append(os.path.join(pyaedt_path, "dlls", "PDFReport"))
 if is_linux and cpython:  # pragma: no cover
     try:
         if os.environ.get("DOTNET_ROOT") is None:
@@ -44,6 +45,7 @@ else:
 
         load("coreclr")
         is_clr = True
+
     except:
         pass
 
