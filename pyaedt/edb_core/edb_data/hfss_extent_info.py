@@ -84,6 +84,7 @@ class HfssExtentInfo:
 
     @air_box_positive_vertical_extent.setter
     def air_box_positive_vertical_extent(self, value):
+        value = float(value)
         info = self._edb_hfss_extent_info
         info.AirBoxPositiveVerticalExtent = convert_pytuple_to_nettuple(
             (value, self.air_box_positive_vertical_extent_enabled)
@@ -108,6 +109,7 @@ class HfssExtentInfo:
 
     @air_box_negative_vertical_extent.setter
     def air_box_negative_vertical_extent(self, value):
+        value = float(value)
         info = self._edb_hfss_extent_info
         info.AirBoxNegativeVerticalExtent = convert_pytuple_to_nettuple(
             (value, self.air_box_negative_vertical_extent_enabled)
