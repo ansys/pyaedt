@@ -65,12 +65,14 @@ In order to do that you can download the following file
 :download:`PyAEDT Installer python file <../Resources/PyAEDTInstallerFromDesktop.py>`
 Open an Electronics Desktop Session and click on Tools->Run Script and execute the file.
 
-After installation a new menu appears in AEDT Toolkits Menu and, starting from 2023R2,
-a Ribbon button is available in Automation Tab.
+After installation a new menu appears in AEDT Menu as in the image below.
 
 .. image:: ../Resources/toolkits.png
   :width: 800
   :alt: PyAEDT toolkit installed after batch run
+
+
+Starting from 2023R2, a Ribbon button is available in Automation Tab as in the example below.
 
 .. image:: ../Resources/toolkits_ribbon.png
   :width: 800
