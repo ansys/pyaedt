@@ -2099,4 +2099,4 @@ class Settings(object):
 
 
 settings = Settings()
-help = Help()
+online_help = Help()
