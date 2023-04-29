@@ -45,7 +45,7 @@ This interface works only on Windows and uses .NET COM objects.
 Compatibility between AEDT and interfaces
 =========================================
 
-The following table shows the supported versions of Ansys and the recommended interface for each one of them in PyAEDT.
+The following table shows the supported versions of Ansys EDT and the recommended interface for each one of them in PyAEDT.
 
 
 **Table of supported versions**
