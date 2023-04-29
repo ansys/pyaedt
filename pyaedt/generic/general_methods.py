@@ -1624,7 +1624,7 @@ class Help:  # pragma: no cover
         self._launch_ur(url)
 
     def changelog(self, release=None):
-        """Open Pyaedt github changelog of actual or specific release.
+        """Open the PyAEDT GitHub Changelog for a given release.
 
         Parameters
         ----------
