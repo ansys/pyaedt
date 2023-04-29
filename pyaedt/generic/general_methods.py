@@ -1609,7 +1609,7 @@ class Help:  # pragma: no cover
         self._launch_ur(url)
 
     def getting_started(self):
-        """Open Pyaedt User guide page."""
+        """Open the PyAEDT User guide page."""
         url = self._base_path + "/User_guide/index.html"
         self._launch_ur(url)
 
