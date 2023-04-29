@@ -1642,7 +1642,7 @@ class Help:  # pragma: no cover
         self._launch_ur(url)
 
     def ansys_forum(self):
-        """Open Ansys discuss forum related to pyaedt."""
+        """Open the PyAEDT GitHub Issues page."""
         url = "https://discuss.ansys.com/discussions/tagged/pyaedt"
         self._launch_ur(url)
 
