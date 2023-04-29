@@ -73,7 +73,7 @@ You can also install PyAEDT from Conda-Forge with this command:
 PyAEDT remains compatible with IronPython and can be still used in the AEDT Framework.
 
 
-PyANSYS
+PyAnsys
 -------
 
 PyAEDT is part of the larger `PyAnsys <https://docs.pyansys.com>`_
@@ -94,7 +94,7 @@ Ansys Q3D Extractor, Ansys Siwave, and Ansys Icepak using electrical CAD (ECAD) 
 Mechanical CAD (MCAD) workflows.
 
 In addition, AEDT includes direct links to the complete Ansys portfolio of thermal, fluid,
-and Mechanical solvers for comprehensive multiphysics analysis.
+and mechanical solvers for comprehensive multiphysics analysis.
 Tight integration among these solutions provides unprecedented ease of use for setup and
 faster resolution of complex simulations for design and optimization.
 
@@ -167,7 +167,7 @@ Here are the main advantages that PyAEDT provides:
 - Compatibility with IronPython and CPython
 - Simplification of complex API syntax using data objects while
   maintaining PEP8 compliance.
-- Code reusable across different solvers
+- Code reusability across different solvers
 - Clear documentation on functions and API
 - Unit tests of code to increase quality across different AEDT versions
 
