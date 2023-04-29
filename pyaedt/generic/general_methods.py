@@ -1647,7 +1647,7 @@ class Help:  # pragma: no cover
         self._launch_ur(url)
 
     def developer_forum(self):
-        """Open Ansys developer portal."""
+        """Open the Discussions page on the Ansys Developer site."""
         url = "https://developer.ansys.com/"
         self._launch_ur(url)
 
