@@ -1588,7 +1588,7 @@ class Help:  # pragma: no cover
             webbrowser.open_new_tab(url)
 
     def search(self, keywords, app_name=None, search_in_examples_only=False):
-        """Search one or multiple keywords.
+        """Search for one or more keywords.
 
         Parameters
         ----------
