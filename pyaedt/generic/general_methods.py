@@ -1629,7 +1629,7 @@ class Help:  # pragma: no cover
         Parameters
         ----------
         release : str, optional
-            Release to get changelog. Eg. ``"0.6.70"``
+            Release to get the changelog for. For example, ``"0.6.70"``.
         """
         if release is None:
             from pyaedt import __version__ as release
