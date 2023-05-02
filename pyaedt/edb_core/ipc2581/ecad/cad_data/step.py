@@ -128,24 +128,26 @@ class Step(object):
                     geometry_type, pad_parameters, pos_x, pos_y, rot = self._pedb.padstacks.get_pad_parameters(
                         pin._edb_padstackinstance, component.placement_layer, 0
                     )
-                    position = pin._position if pin._position else pin.position
-
-                    pin_pos_x = self._ipc.from_meter_to_units(position[0], self.units)
-                    pin_pos_y = self._ipc.from_meter_to_units(position[1], self.units)
-                    primitive_ref = ""
-                    if geometry_type == 1:
-                        primitive_ref = "CIRC_{}".format(pad_parameters[0])
-                    elif geometry_type == 2:
-                        primitive_ref = "RECT_{}_{}".format(pad_parameters[0], pad_parameters[0])
-                    elif geometry_type == 3:
-                        primitive_ref = "RECT_{}_{}".format(pad_parameters[0], pad_parameters[1])
-                    elif geometry_type == 4:
-                        primitive_ref = "OVAL_{}_{}_{}".format(pad_parameters[0], pad_parameters[1], pad_parameters[2])
-                    if primitive_ref:
-                        package.add_pin(
-                            number=pin_number, x=pin_pos_x, y=pin_pos_y, rotation=rot, primitive_ref=primitive_ref
-                        )
-                    pin_number += 1
+                    if pad_parameters:
+                        position = pin._position if pin._position else pin.position
+                        pin_pos_x = self._ipc.from_meter_to_units(position[0], self.units)
+                        pin_pos_y = self._ipc.from_meter_to_units(position[1], self.units)
+                        primitive_ref = ""
+                        if geometry_type == 1:
+                            primitive_ref = "CIRC_{}".format(pad_parameters[0])
+                        elif geometry_type == 2:
+                            primitive_ref = "RECT_{}_{}".format(pad_parameters[0], pad_parameters[0])
+                        elif geometry_type == 3:
+                            primitive_ref = "RECT_{}_{}".format(pad_parameters[0], pad_parameters[1])
+                        elif geometry_type == 4:
+                            primitive_ref = "OVAL_{}_{}_{}".format(
+                                pad_parameters[0], pad_parameters[1], pad_parameters[2]
+                            )
+                        if primitive_ref:
+                            package.add_pin(
+                                number=pin_number, x=pin_pos_x, y=pin_pos_y, rotation=rot, primitive_ref=primitive_ref
+                            )
+                        pin_number += 1
                 self.packages[package.name] = package
             ipc_component = Component()
             ipc_component.type = component.type
