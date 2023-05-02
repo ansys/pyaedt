@@ -1619,7 +1619,7 @@ class Help:  # pragma: no cover
         self._launch_ur(url)
 
     def github(self):
-        """Open Pyaedt github page."""
+        """Open the PyAEDT GitHub page."""
         url = "https://github.com/pyansys/pyaedt"
         self._launch_ur(url)
 
