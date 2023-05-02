@@ -1,4 +1,3 @@
-import os
 import warnings
 
 import pyaedt.emit_core.EmitConstants as emitConsts
