@@ -511,9 +511,9 @@ class EdbLayout(object):
         main_shape : list of points or PolygonData or ``modeler.Shape``
             Shape or point lists of the main object. Point list can be in the format of `[[x1,y1], [x2,y2],..,[xn,yn]]`.
             Each point can be:
-            - [x,y] coordinate
-            - [x,y, height] for an arc with specific height (between previous point and actual point)
-            - [x,y, rotation, xc,yc] for an arc given a point, rotation and center.
+            - [x, y] coordinate
+            - [x, y, height] for an arc with specific height (between previous point and actual point)
+            - [x, y, rotation, xc, yc] for an arc given a point, rotation and center.
         layer_name : str
             Name of the layer on which to create the polygon.
         voids : list, optional
