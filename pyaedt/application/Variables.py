@@ -407,6 +407,39 @@ class VariableManager(object):
         """
         return self._variable_dict([self._odesign, self._oproject])
 
+    @pyaedt_function_handler()
+    def decompose(self, variable_value):
+        """Decompose a variable string to a floating with its unit.
+
+        Parameters
+        ----------
+        variable_value : str
+
+        Returns
+        -------
+        tuple
+            The float value of the variable and the units exposed as a string.
+
+        Examples
+        --------
+        >>> hfss = Hfss()
+        >>> print(hfss.variable_manager.decompose("5mm"))
+        >>> (5.0, 'mm')
+        >>> hfss["v1"] = "3N"
+        >>> print(hfss.variable_manager.decompose("v1"))
+        >>> (3.0, 'N')
+        >>> hfss["v2"] = "2*v1"
+        >>> print(hfss.variable_manager.decompose("v2"))
+        >>> (6.0, 'N')
+        """
+        if variable_value in self.independent_variable_names:
+            val, unit = decompose_variable_value(self[variable_value].expression)
+        elif variable_value in self.dependent_variable_names:
+            val, unit = decompose_variable_value(self[variable_value].evaluated_value)
+        else:
+            val, unit = decompose_variable_value(variable_value)
+        return val, unit
+
     @property
     def design_variables(self):
         """Design variables.
@@ -546,6 +579,41 @@ class VariableManager(object):
         return self._variable_dict([self._odesign, self._oproject], independent=False)
 
     @property
+    def dependent_project_variables(self):
+        """Dependent project variables.
+
+        Returns
+        -------
+        dict
+            Dictionary of the dependent project variables available to the design.
+
+        References
+        ----------
+
+        >>> oProject.GetVariables
+        >>> oProject.GetChildObject("Variables").GetChildNames
+        """
+        return self._variable_dict([self._oproject], independent=False)
+
+    @property
+    def dependent_design_variables(self):
+        """Dependent design variables.
+
+        Returns
+        -------
+        dict
+            Dictionary of the dependent design properties (local
+            variables) available to the design.
+
+        References
+        ----------
+
+        >>> oDesign.GetVariables
+        >>> oDesign.GetChildObject("Variables").GetChildNames
+        """
+        return self._variable_dict([self._odesign], independent=False)
+
+    @property
     def variable_names(self):
         """List of variables."""
         return [var_name for var_name in self.variables]
@@ -563,6 +631,17 @@ class VariableManager(object):
         return [var_name for var_name in self.project_variables]
 
     @property
+    def design_variable_names(self):
+        """List of design variables.
+
+        References
+        ----------
+
+        >>> oDesign.GetVariables
+        >>> oDesign.GetChildObject("Variables").GetChildNames"""
+        return [var_name for var_name in self.design_variables]
+
+    @property
     def independent_project_variable_names(self):
         """List of independent project variables.
 
@@ -573,17 +652,6 @@ class VariableManager(object):
         >>> oProject.GetChildObject("Variables").GetChildNames
         """
         return [var_name for var_name in self.independent_project_variables]
-
-    @property
-    def design_variable_names(self):
-        """List of design variables.
-
-        References
-        ----------
-
-        >>> oDesign.GetVariables
-        >>> oDesign.GetChildObject("Variables").GetChildNames"""
-        return [var_name for var_name in self.design_variables]
 
     @property
     def independent_design_variable_names(self):
@@ -608,6 +676,29 @@ class VariableManager(object):
         >>> oProject.GetChildObject("Variables").GetChildNames
         >>> oDesign.GetChildObject("Variables").GetChildNames"""
         return [var_name for var_name in self.independent_variables]
+
+    @property
+    def dependent_project_variable_names(self):
+        """List of dependent project variables.
+
+        References
+        ----------
+
+        >>> oProject.GetVariables
+        >>> oProject.GetChildObject("Variables").GetChildNames
+        """
+        return [var_name for var_name in self.dependent_project_variables]
+
+    @property
+    def dependent_design_variable_names(self):
+        """List of dependent design variables.
+
+        References
+        ----------
+
+        >>> oDesign.GetVariables
+        >>> oDesign.GetChildObject("Variables").GetChildNames"""
+        return [var_name for var_name in self.dependent_design_variables]
 
     @property
     def dependent_variable_names(self):
@@ -640,17 +731,38 @@ class VariableManager(object):
     def __init__(self, app):
         # Global Desktop Environment
         self._app = app
-        self._independent_variables = {}
-        self._dependent_variables = {}
+        self._independent_design_variables = {}
+        self._independent_project_variables = {}
+        self._dependent_design_variables = {}
+        self._dependent_project_variables = {}
+
+    @property
+    def _independent_variables(self):
+        all = {}
+        all.update(self._independent_project_variables)
+        all.update(self._independent_design_variables)
+        return all
+
+    @property
+    def _dependent_variables(self):
+        all = {}
+        for k, v in self._dependent_project_variables.items():
+            all[k] = v
+        for k, v in self._dependent_design_variables.items():
+            all[k] = v
+        return all
+
+    @property
+    def _all_variables(self):
+        all = {}
+        all.update(self._independent_variables)
+        all.update(self._dependent_variables)
+        return all
 
     @pyaedt_function_handler()
     def __delitem__(self, key):
         """Implement del with array name or index."""
         self.delete_variable(key)
-        if key in self._independent_variables:
-            del self._independent_variables[key]
-        if key in self._dependent_variables:
-            del self._dependent_variables[key]
 
     @pyaedt_function_handler()
     def __getitem__(self, variable_name):
@@ -660,6 +772,20 @@ class VariableManager(object):
     def __setitem__(self, variable, value):
         self.set_variable(variable, value)
         return True
+
+    @pyaedt_function_handler()
+    def _cleanup_variables(self):
+        variables = self._get_var_list_from_aedt(self._app.odesign) + self._get_var_list_from_aedt(self._app.oproject)
+        all_dicts = [
+            self._independent_project_variables,
+            self._independent_design_variables,
+            self._dependent_project_variables,
+            self._dependent_design_variables,
+        ]
+        for dict_var in all_dicts:
+            for var_name in list(dict_var.keys()):
+                if var_name not in variables:
+                    del dict_var[var_name]
 
     @pyaedt_function_handler()
     def _variable_dict(self, object_list, dependent=True, independent=True):
@@ -682,41 +808,39 @@ class VariableManager(object):
         """
         all_names = {}
         for obj in object_list:
-            variables = self._get_var_list_from_aedt(obj)
+            variables = [i for i in self._get_var_list_from_aedt(obj) if i not in list(self._all_variables.keys())]
             for variable_name in variables:
-                if independent and variable_name not in self._independent_variables:
-                    if self.get_expression(variable_name):
-                        variable_expression = self.get_expression(variable_name)
-                        all_names[variable_name] = variable_expression
-                        si_value = self._app.get_evaluated_value(variable_name)
-                        value = Variable(
-                            variable_expression, None, si_value, all_names, name=variable_name, app=self._app
-                        )
-                        is_number_flag = is_number(value._calculated_value)
-                        if is_number_flag:
-                            self._independent_variables[variable_name] = value
-
-                        elif dependent and not is_number_flag:
-                            self._independent_variables[variable_name] = value
-                elif dependent and variable_name not in self._dependent_variables:
-                    if self.get_expression(variable_name):
-                        variable_expression = self.get_expression(variable_name)
-                        all_names[variable_name] = variable_expression
-                        si_value = self._app.get_evaluated_value(variable_name)
-                        value = Variable(
-                            variable_expression, None, si_value, all_names, name=variable_name, app=self._app
-                        )
-                        is_number_flag = is_number(value._calculated_value)
-                        if not is_number_flag:
-                            self._dependent_variables[variable_name] = value
+                variable_expression = self.get_expression(variable_name)
+                if variable_expression:
+                    all_names[variable_name] = variable_expression
+                    si_value = self._app.get_evaluated_value(variable_name)
+                    value = Variable(variable_expression, None, si_value, all_names, name=variable_name, app=self._app)
+                    is_number_flag = is_number(value._calculated_value)
+                    if variable_name.startswith("$") and is_number_flag:
+                        self._independent_project_variables[variable_name] = value
+                    elif variable_name.startswith("$"):
+                        self._dependent_project_variables[variable_name] = value
+                    elif is_number_flag:
+                        self._independent_design_variables[variable_name] = value
+                    else:
+                        self._dependent_design_variables[variable_name] = value
+        self._cleanup_variables()
+        vars_to_output = {}
+        dicts_to_add = []
         if independent:
-            vars = self._independent_variables.copy()
-        else:
-            vars = {}
+            if self._app.odesign in object_list:
+                dicts_to_add.append(self._independent_design_variables)
+            if self._app.oproject in object_list:
+                dicts_to_add.append(self._independent_project_variables)
         if dependent:
-            for k, v in self._dependent_variables.items():
-                vars[k] = v
-        return vars
+            if self._app.odesign in object_list:
+                dicts_to_add.append(self._dependent_design_variables)
+            if self._app.oproject in object_list:
+                dicts_to_add.append(self._dependent_project_variables)
+        for dict_var in dicts_to_add:
+            for k, v in dict_var.items():
+                vars_to_output[k] = v
+        return vars_to_output
 
     @pyaedt_function_handler()
     def get_expression(self, variable_name):  # TODO: Should be renamed to "evaluate"
@@ -832,8 +956,16 @@ class VariableManager(object):
         """
         if variable_name in self._independent_variables:
             del self._independent_variables[variable_name]
+            if variable_name in self._independent_design_variables:
+                del self._independent_design_variables[variable_name]
+            elif variable_name in self._independent_project_variables:
+                del self._independent_project_variables[variable_name]
         elif variable_name in self._dependent_variables:
             del self._dependent_variables[variable_name]
+            if variable_name in self._dependent_design_variables:
+                del self._dependent_design_variables[variable_name]
+            elif variable_name in self._dependent_project_variables:
+                del self._dependent_project_variables[variable_name]
         if not description:
             description = ""
 
@@ -965,6 +1097,7 @@ class VariableManager(object):
                     ],
                 ]
             )
+            self._cleanup_variables()
         var_list = self._get_var_list_from_aedt(desktop_object)
         lower_case_vars = [var_name.lower() for var_name in var_list]
         if variable_name.lower() not in lower_case_vars:
@@ -1049,9 +1182,11 @@ class VariableManager(object):
                         ],
                     ]
                 )
-                return True
-            except:
+            except:  # pragma: no cover
                 pass
+            else:
+                self._cleanup_variables()
+                return True
         return False
 
     @pyaedt_function_handler()
@@ -1494,6 +1629,25 @@ class Variable(object):
         return ("{}{}").format(self.numeric_value, self._units)
 
     @pyaedt_function_handler()
+    def decompose(self):
+        """Decompose a variable value to a floating with its unit.
+
+        Returns
+        -------
+        tuple
+            The float value of the variable and the units exposed as a string.
+
+        Examples
+        --------
+        >>> hfss = Hfss()
+        >>> hfss["v1"] = "3N"
+        >>> print(hfss.variable_manager["v1"].decompose("v1"))
+        >>> (3.0, 'N')
+
+        """
+        return decompose_variable_value(self.evaluated_value)
+
+    @pyaedt_function_handler()
     def rescale_to(self, units):
         """Rescale the expression to a new unit within the current unit system.
 
@@ -1611,26 +1765,26 @@ class Variable(object):
     def __add__(self, other):
         """Add the variable to another variable to return a new object.
 
-                Parameters
-                ---------
-                other : Variable
-                    Object to be multiplied.
+        Parameters
+        ---------
+        other : class:`pyaedt.application.Variables.Variable`
+            Object to be multiplied.
 
-                Returns
-                -------
-                type
-                    Variable.
+        Returns
+        -------
+        type
+            Variable.
 
-                Examples
-                --------
-                >>> from pyaedt.application.Variables import Variable
-
-        import pyaedt.generic.constants        >>> v1 = Variable("3mA")
-                >>> v2 = Variable("10A")
-                >>> result = v1 + v2
-                >>> assert result.numeric_value == 10.003
-                >>> assert result.units == "A"
-                >>> assert result.unit_system == "Current"
+        Examples
+        --------
+        >>> from pyaedt.application.Variables import Variable
+        >>> import pyaedt.generic.constants
+        >>> v1 = Variable("3mA")
+        >>> v2 = Variable("10A")
+        >>> result = v1 + v2
+        >>> assert result.numeric_value == 10.003
+        >>> assert result.units == "A"
+        >>> assert result.unit_system == "Current"
 
         """
         assert isinstance(other, Variable), "You can only add a variable with another variable."
@@ -1652,26 +1806,27 @@ class Variable(object):
     def __sub__(self, other):
         """Subtract another variable from the variable to return a new object.
 
-                Parameters
-                ---------
-                other : Variable
-                    Object to be subtracted.
+        Parameters
+        ---------
+        other : class:`pyaedt.application.Variables.Variable`
+            Object to be subtracted.
 
-                Returns
-                -------
-                type
-                    Variable.
+        Returns
+        -------
+        type
+            Variable.
 
-                Examples
-                --------
+        Examples
+        --------
 
-        import pyaedt.generic.constants        >>> from pyaedt.application.Variables import Variable
-                >>> v3 = Variable("3mA")
-                >>> v4 = Variable("10A")
-                >>> result_2 = v3 - v4
-                >>> assert result_2.numeric_value == -9.997
-                >>> assert result_2.units == "A"
-                >>> assert result_2.unit_system == "Current"
+        >>> import pyaedt.generic.constants
+        >>> from pyaedt.application.Variables import Variable
+        >>> v3 = Variable("3mA")
+        >>> v4 = Variable("10A")
+        >>> result_2 = v3 - v4
+        >>> assert result_2.numeric_value == -9.997
+        >>> assert result_2.units == "A"
+        >>> assert result_2.unit_system == "Current"
 
         """
         assert isinstance(other, Variable), "You can only subtract a variable from another variable."
@@ -1694,29 +1849,29 @@ class Variable(object):
     def __truediv__(self, other):
         """Divide the variable by a number or another variable to return a new object.
 
-                Parameters
-                ---------
-                other : numbers.Number or variable
-                    Object by which to divide.
+        Parameters
+        ---------
+        other : numbers.Number or variable
+            Object by which to divide.
 
-                Returns
-                -------
-                type
-                    Variable.
+        Returns
+        -------
+        type
+            Variable.
 
-                Examples
-                --------
-                Divide a variable with units ``"W"`` by a variable with units ``"V"`` and automatically
-                resolve the new units to ``"A"``.
+        Examples
+        --------
+        Divide a variable with units ``"W"`` by a variable with units ``"V"`` and automatically
+        resolve the new units to ``"A"``.
 
-                >>> from pyaedt.application.Variables import Variable
-
-        import pyaedt.generic.constants        >>> v1 = Variable("10W")
-                >>> v2 = Variable("40V")
-                >>> result = v1 / v2
-                >>> assert result_1.numeric_value == 0.25
-                >>> assert result_1.units == "A"
-                >>> assert result_1.unit_system == "Current"
+        >>> from pyaedt.application.Variables import Variable
+        >>> import pyaedt.generic.constants
+        >>> v1 = Variable("10W")
+        >>> v2 = Variable("40V")
+        >>> result = v1 / v2
+        >>> assert result_1.numeric_value == 0.25
+        >>> assert result_1.units == "A"
+        >>> assert result_1.unit_system == "Current"
 
         """
         assert is_number(other) or isinstance(other, Variable), "Divisor must be a scalar quantity or a variable."
@@ -1738,27 +1893,28 @@ class Variable(object):
     def __rtruediv__(self, other):
         """Divide another object by this object.
 
-                Parameters
-                ---------
-                other : numbers.Number or variable
-                    Object to divide by.
+        Parameters
+        ---------
+        other : numbers.Number or variable
+            Object to divide by.
 
-                Returns
-                -------
-                type
-                    Variable.
+        Returns
+        -------
+        type
+            Variable.
 
-                Examples
-                --------
-                Divide a number by a variable with units ``"s"`` and automatically determine that
-                the result is in ``"Hz"``.
+        Examples
+        --------
+        Divide a number by a variable with units ``"s"`` and automatically determine that
+        the result is in ``"Hz"``.
 
-        import pyaedt.generic.constants        >>> from pyaedt.application.Variables import Variable
-                >>> v = Variable("1s")
-                >>> result = 3.0 / v
-                >>> assert result.numeric_value == 3.0
-                >>> assert result.units == "Hz"
-                >>> assert result.unit_system == "Freq"
+        >>> import pyaedt.generic.constants
+        >>> from pyaedt.application.Variables import Variable
+        >>> v = Variable("1s")
+        >>> result = 3.0 / v
+        >>> assert result.numeric_value == 3.0
+        >>> assert result.units == "Hz"
+        >>> assert result.unit_system == "Freq"
 
         """
         if is_number(other):
@@ -1783,7 +1939,8 @@ class DataSet(object):
     Parameters
     ----------
     app :
-    name :
+    name : str
+        Name of the app.
     x : list
         List of X-axis values for the dataset.
     y : list
@@ -1883,7 +2040,9 @@ class DataSet(object):
         Parameters
         ----------
         x : float
+            X coordinate of the point.
         y : float
+            Y coordinate of the point.
         z : float, optional
             The default is ``None``.
         v : float, optional

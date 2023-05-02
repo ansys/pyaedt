@@ -24,14 +24,14 @@ if config["desktopVersion"] > "2022.2":
     src_project_name = "USB_Connector_IPK_231"
     radio_board_name = "RadioBoardIcepak_231"
     coldplate = "ColdPlateExample_231"
-    power_budget = "PB_Test_231"
+    power_budget = "PB_test_231"
 
 else:
     coldplate = "ColdPlateExample"
     test_project_name = "Filter_Board_Icepak"
     src_project_name = "USB_Connector_IPK"
     radio_board_name = "RadioBoardIcepak"
-    power_budget = "PB_Test"
+    power_budget = "PB_test"
 proj_name = None
 design_name = "cutout3"
 solution_name = "HFSS Setup 1 : Last Adaptive"
@@ -154,7 +154,7 @@ class TestClass(BasisTest, object):
     def test_07_ExportStepForWB(self):
         file_path = self.local_scratch.path
         file_name = "WBStepModel"
-        assert self.aedtapp.export_3d_model(file_name, file_path, ".step", [], ["Region", "Component_Region"])
+        assert self.aedtapp.export_3d_model(file_name, file_path, ".x_t", [], ["Region", "Component_Region"])
 
     def test_08_Setup(self):
         setup_name = "DomSetup"
@@ -275,6 +275,14 @@ class TestClass(BasisTest, object):
         self.aedtapp["Variable1"] = "0.5"
         assert self.aedtapp.create_output_variable("OutputVariable1", "abs(Variable1)")  # test creation
         assert self.aedtapp.create_output_variable("OutputVariable1", "asin(Variable1)")  # test update
+        self.aedtapp.monitor.assign_point_monitor_in_object(
+            "box", monitor_quantity="Temperature", monitor_name="test_monitor"
+        )
+        self.aedtapp.monitor.assign_face_monitor(
+            self.aedtapp.modeler.get_object_from_name("box").faces[0].id,
+            monitor_quantity=["Temperature", "HeatFlowRate"],
+            monitor_name="test_monitor2",
+        )
         self.aedtapp.analyze_setup("SetupIPK")
         self.aedtapp.save_project()
         self.aedtapp.export_summary(self.aedtapp.working_directory)
@@ -287,6 +295,14 @@ class TestClass(BasisTest, object):
         value = self.aedtapp.get_output_variable("OutputVariable1")
         tol = 1e-9
         assert abs(value - 0.5235987755982988) < tol
+
+    def test_19C_get_monitor_output(self):
+        assert self.aedtapp.monitor.all_monitors["test_monitor"].value()
+        assert self.aedtapp.monitor.all_monitors["test_monitor"].value(quantity="Temperature")
+        assert self.aedtapp.monitor.all_monitors["test_monitor"].value(
+            setup_name=self.aedtapp.existing_analysis_sweeps[0]
+        )
+        assert self.aedtapp.monitor.all_monitors["test_monitor2"].value(quantity="HeatFlowRate")
 
     def test_20_eval_tempc(self):
         assert os.path.exists(
@@ -314,7 +330,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.modeler.create_box([1, 2, 3], [10, 10, 10], "network_box", "copper")
         self.aedtapp.modeler.create_box([4, 5, 6], [5, 5, 5], "network_box2", "copper")
         result = self.aedtapp.create_network_blocks(
-            [["network_box", 20, 10, 3], ["network_box2", 4, 10, 3]], self.aedtapp.GravityDirection.ZNeg, 1.05918, False
+            [["network_box", 20, 10, 3], ["network_box2", 4, 10, 3]], self.aedtapp.GRAVITY.ZNeg, 1.05918, False
         )
         assert (
             len(result[0].props["Nodes"]) == 3 and len(result[1].props["Nodes"]) == 3
@@ -439,6 +455,46 @@ class TestClass(BasisTest, object):
             temperature="28cel",
         )
         assert self.aedtapp.create_source_power(self.aedtapp.modeler["boxSource"].name, input_power="20W")
+        self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="boxSource2")
+        x = [1, 2, 3]
+        y = [3, 4, 5]
+        self.aedtapp.create_dataset1d_design("Test_DataSet", x, y)
+        assert self.aedtapp.assign_source(
+            self.aedtapp.modeler["boxSource"].top_face_z.id,
+            "Total Power",
+            "10W",
+            voltage_current_choice="Current",
+            voltage_current_value="1A",
+        )
+        assert not self.aedtapp.assign_source(
+            self.aedtapp.modeler["boxSource"].top_face_x.id,
+            "Total Power",
+            assignment_value={"Type": "Temp Dep", "Function": "Piecewise Linear", "Values": ["1W", "Test_DataSet"]},
+            voltage_current_choice="Current",
+            voltage_current_value={"Type": "Transient", "Function": "Sinusoidal", "Values": ["0A", 1, 1, "1s"]},
+        )
+        assert not self.aedtapp.assign_source(
+            self.aedtapp.modeler["boxSource"].top_face_x.id,
+            "Total Power",
+            assignment_value={"Type": "Temp Dep", "Function": "Sinusoidal", "Values": ["0W", 1, 1, "1K"]},
+            voltage_current_choice="Current",
+            voltage_current_value={"Type": "Transient", "Function": "Sinusoidal", "Values": ["0A", 1, 1, "1s"]},
+        )
+        self.aedtapp.solution_type = "Transient"
+        assert self.aedtapp.assign_source(
+            self.aedtapp.modeler["boxSource"].top_face_x.id,
+            "Total Power",
+            assignment_value={"Type": "Temp Dep", "Function": "Piecewise Linear", "Values": ["1mW", "Test_DataSet"]},
+            voltage_current_choice="Current",
+            voltage_current_value={"Type": "Transient", "Function": "Sinusoidal", "Values": ["0A", 1, 1, "1s"]},
+        )
+        assert self.aedtapp.assign_source(
+            self.aedtapp.modeler["boxSource"].top_face_y.id,
+            "Total Power",
+            assignment_value={"Type": "Temp Dep", "Function": "Piecewise Linear", "Values": "Test_DataSet"},
+            voltage_current_choice="Current",
+            voltage_current_value={"Type": "Transient", "Function": "Sinusoidal", "Values": ["0A", 1, 1, "1s"]},
+        )
 
     def test_34_import_idf(self):
         self.aedtapp.insert_design("IDF")
@@ -855,4 +911,15 @@ class TestClass(BasisTest, object):
         assert all(
             fan_1_history.children["DuplicateAlongLine:1"].props["Vector/" + i] == j + "mm"
             for i, j in [("X", "4"), ("Y", "5"), ("Z", "6")]
+        )
+
+    def test_56_mesh_priority(self):
+        self.aedtapp.insert_design("mesh_priority")
+        b = self.aedtapp.modeler.create_box([0, 0, 0], [20, 50, 80])
+        self.aedtapp.create_ipk_3dcomponent_pcb(
+            "Board", link_data, solution_freq, resolution, custom_x_resolution=400, custom_y_resolution=500
+        )
+        assert self.aedtapp.mesh.add_priority(entity_type=1, obj_list=self.aedtapp.modeler.object_names, priority=2)
+        assert self.aedtapp.mesh.add_priority(
+            entity_type=2, comp_name=self.aedtapp.modeler.user_defined_component_names[0], priority=1
         )

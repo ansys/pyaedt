@@ -46,6 +46,7 @@ from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import is_project_locked
+from pyaedt.generic.general_methods import is_windows
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_csv
@@ -210,10 +211,7 @@ class Design(AedtObjects):
         self._mttime = None
         self._design_type = design_type
         self._desktop = main_module.oDesktop
-        try:
-            settings.enable_desktop_logs = not main_module.oDesktop.GetIsNonGraphical()
-        except AttributeError:
-            settings.enable_desktop_logs = not non_graphical
+
         self._desktop_install_dir = main_module.sDesktopinstallDirectory
         self._odesign = None
         self._oproject = None
@@ -400,7 +398,10 @@ class Design(AedtObjects):
 
     @property
     def _aedt_version(self):
-        return _retry_ntimes(10, self.odesktop.GetVersion)[0:6]
+        v = self.odesktop.GetVersion()
+        if v:
+            return v[0:6]
+        return ""
 
     @property
     def design_name(self):
@@ -738,21 +739,22 @@ class Design(AedtObjects):
             Full absolute path for the ``pyaedt`` directory for this project.
             If this directory does not exist, it is created.
         """
-
-        toolkit_directory = os.path.join(self.project_path, self.project_name + ".pyaedt")
+        if self.project_name:
+            name = self.project_name.replace(" ", "_")
+        else:
+            name = generate_unique_name("prj")
+        toolkit_directory = os.path.join(self.project_path, name + ".pyaedt")
         if settings.remote_rpc_session:
-            toolkit_directory = self.project_path + "/" + self.project_name + ".pyaedt"
+            toolkit_directory = self.project_path + "/" + name + ".pyaedt"
             try:
                 settings.remote_rpc_session.filemanager.makedirs(toolkit_directory)
             except:
-                toolkit_directory = (
-                    settings.remote_rpc_session.filemanager.temp_dir() + "/" + self.project_name + ".pyaedt"
-                )
+                toolkit_directory = settings.remote_rpc_session.filemanager.temp_dir() + "/" + name + ".pyaedt"
         elif settings.remote_api:
             toolkit_directory = self.results_directory
         elif not os.path.isdir(toolkit_directory):
             try:
-                os.mkdir(toolkit_directory)
+                os.makedirs(toolkit_directory)
             except FileNotFoundError:
                 toolkit_directory = self.results_directory
 
@@ -769,15 +771,19 @@ class Design(AedtObjects):
              If this directory does not exist, it is created.
 
         """
-        working_directory = os.path.join(self.toolkit_directory, self.design_name)
+        if self.design_name:
+            name = self.design_name.replace(" ", "_")
+        else:
+            name = generate_unique_name("prj")
+        working_directory = os.path.join(self.toolkit_directory, name)
         if settings.remote_rpc_session:
-            working_directory = self.toolkit_directory + "/" + self.design_name
+            working_directory = self.toolkit_directory + "/" + name
             settings.remote_rpc_session.filemanager.makedirs(working_directory)
         elif not os.path.isdir(working_directory):
             try:
-                os.mkdir(working_directory)
+                os.makedirs(working_directory)
             except FileNotFoundError:
-                working_directory = os.path.join(self.toolkit_directory, self.design_name + ".results")
+                working_directory = os.path.join(self.toolkit_directory, name + ".results")
         return working_directory
 
     @property
@@ -907,7 +913,8 @@ class Design(AedtObjects):
                     "No project is defined. Project {} exists and has been read.".format(self._oproject.GetName())
                 )
         else:
-            if proj_name in self.odesktop.GetProjectList():
+            prj_list = self.odesktop.GetProjectList()
+            if prj_list and proj_name in list(prj_list):
                 self._oproject = self.odesktop.SetActiveProject(proj_name)
                 self._add_handler()
                 self.logger.info("Project %s set to active.", proj_name)
@@ -1905,14 +1912,33 @@ class Design(AedtObjects):
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss["my_hidden_leaf"] = "15mm"
-        >>> hfss.make_hidden_variable("my_hidden_leaf")
+        >>> hfss.hidden_variable("my_hidden_leaf", True)
 
         """
-        if not isinstance(variable_name, list):
-            variable_name = [variable_name]
 
-        for var in variable_name:
-            self.variable_manager[var].hidden = value
+        if not isinstance(variable_name, list):
+            self.variable_manager[variable_name].hidden = value
+        else:
+            design_variables = ["NAME:ChangedProps"]
+            project_variables = ["NAME:ChangedProps"]
+            for name in variable_name:
+                if name in self.variable_manager.design_variable_names:
+                    design_variables.append(["NAME:" + name, "Hidden:=", value])
+                elif name in self.variable_manager.project_variable_names:
+                    project_variables.append(["NAME:" + name, "Hidden:=", value])
+
+            if len(design_variables) > 1:
+                command = [
+                    "NAME:AllTabs",
+                    ["NAME:LocalVariableTab", ["NAME:PropServers", "LocalVariables"], design_variables],
+                ]
+                self.odesign.ChangeProperty(command)
+            if len(project_variables) > 1:
+                command = [
+                    "NAME:AllTabs",
+                    ["NAME:ProjectVariableTab", ["NAME:PropServers", "ProjectVariables"], project_variables],
+                ]
+                self.oproject.ChangeProperty(command)
         return True
 
     @pyaedt_function_handler
@@ -2741,7 +2767,7 @@ class Design(AedtObjects):
         if os.path.exists(directory):
             shutil.rmtree(directory, True)
             if not os.path.exists(directory):
-                os.mkdir(directory)
+                os.makedirs(directory)
         self.logger.info("Project Directory cleaned")
         return True
 
@@ -2829,6 +2855,8 @@ class Design(AedtObjects):
             return False
         if not name:
             name = self.project_name
+            if self.design_type == "HFSS 3D Layout Design":
+                self._close_edb()
         self.logger.info("Closing the AEDT Project {}".format(name))
         oproj = self.odesktop.SetActiveProject(name)
         proj_path = oproj.GetPath()
@@ -2899,12 +2927,12 @@ class Design(AedtObjects):
             try:
                 self.set_active_design(fallback_design)
             except:
-                if os.name != "posix":
+                if is_windows:
                     self._init_variables()
                 self._odesign = None
                 return False
         else:
-            if os.name != "posix":
+            if is_windows:
                 self._init_variables()
             self._odesign = None
         return True
@@ -3175,8 +3203,8 @@ class Design(AedtObjects):
 
         active_design = self.design_name
         design_list = self.design_list
-        self._oproject.CopyDesign(active_design)
-        self._oproject.Paste()
+        _retry_ntimes(10, self._oproject.CopyDesign, active_design)
+        _retry_ntimes(10, self._oproject.Paste)
         newname = label
         ind = 1
         while newname in self.design_list:
@@ -3539,7 +3567,9 @@ class Design(AedtObjects):
                 raise ("Invalid string expression {}".expression_string)
 
             # Extract the numeric value of the expression (in SI units!)
-            return self._variable_manager.variables["pyaedt_evaluator"].value
+            eval_value = self._variable_manager.variables["pyaedt_evaluator"].value
+            self._variable_manager.delete_variable("pyaedt_evaluator")
+            return eval_value
 
     @pyaedt_function_handler()
     def design_variation(self, variation_string=None):

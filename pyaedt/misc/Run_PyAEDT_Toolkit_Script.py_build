@@ -1,0 +1,73 @@
+# -*- coding: utf-8 -*-
+"""
+* * * This script is meant to run in IronPython within the Ansys Electronics Desktop. * * *
+The script provides for choosing the Python script to execute.
+
+It looks for a reference to a Python interpreter in the ``python_interpreter.bat`` file.
+
+It then uses this Python interpreter to execute the script.
+See the declaration of the command variable to see the order in which arguments are passed to the script.
+
+The commands allow the launched script to still reference the project and design that was active when the script
+was launched as well as the AEDT instance that has them open.
+
+"""
+import os
+import sys
+
+from System.Windows.Forms import MessageBox
+from System.Windows.Forms import MessageBoxButtons
+from System.Windows.Forms import MessageBoxIcon
+
+is_linux = os.name == "posix"
+script_name = os.path.splitext(os.path.basename(__file__))[0]
+
+if is_linux:
+    import subprocessdotnet as subprocess
+else:
+    import subprocess
+
+
+def main():
+    try:
+        # launch file
+        version = oDesktop.GetVersion()[2:6].replace(".", "")
+        python_exe = r"##PYTHON_EXE##" % version
+        pyaedt_script = r"##PYTHON_SCRIPT##"
+        check_file(python_exe)
+        check_file(pyaedt_script)
+        if is_linux:
+            command = [
+                python_exe,
+                pyaedt_script,
+                str(oDesktop.GetProcessID()),
+                str(oDesktop.GetVersion()[:6]),
+            ]
+            subprocess.Popen(command)
+        else:
+            CREATE_NO_WINDOW = 0x08000000
+            command = [
+                '"{}"'.format(python_exe),
+                '"{}"'.format(pyaedt_script),
+                str(oDesktop.GetProcessID()),
+                str(oDesktop.GetVersion()[:6]),
+            ]
+            subprocess.Popen(" ".join(command), creationflags=CREATE_NO_WINDOW)
+    except Exception as e:
+        show_error(str(e))
+
+
+def check_file(file_path):
+    if not os.path.isfile(file_path):
+        show_error('"{}" does not exist. Please click on the "Install PyAEDT" button in the Automation ribbon.'.format(
+            file_path))
+
+
+def show_error(msg):
+    oDesktop.AddMessage("", "", 2, str(msg))
+    MessageBox.Show(str(msg), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+    sys.exit()
+
+
+if __name__ == "__main__":
+    main()

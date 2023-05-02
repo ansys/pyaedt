@@ -40,8 +40,11 @@ class ModelerCircuit(Modeler):
 
     @property
     def schematic_units(self):
-        """Schematic units. Options are ``"mm"``, ``"mil"``, ``"cm"`` and all other metric and imperial units.
-        The default is ``"meter"``."""
+        """Schematic units.
+
+        Options are ``"mm"``, ``"mil"``, ``"cm"`` and all other metric and imperial units.
+        The default is ``"meter"``.
+        """
         return self._schematic_units
 
     @schematic_units.setter
@@ -402,12 +405,17 @@ class ModelerCircuit(Modeler):
         return sels
 
     @pyaedt_function_handler()
-    def _arg_with_dim(self, value):  # pragma: no cover
-        if isinstance(value, str):
-            val = value
+    def _arg_with_dim(self, value, units=None):
+        if units is None:
+            units = self.schematic_units
+        if type(value) is str:
+            try:
+                float(value)
+                val = "{0}{1}".format(value, units)
+            except:
+                val = value
         else:
-            val = "{0}{1}".format(value, "mil")
-
+            val = "{0}{1}".format(value, units)
         return val
 
 
@@ -531,8 +539,7 @@ class ModelerNexxim(ModelerCircuit):
         pos : list
             Offset for the ``[x, y]`` axis.
         units : str
-            Units of the movement. The default is ``"meter"``. If ``None``,
-            ``schematic_units` are used.
+            Units of the movement. The default is ``meter``. If ``None``, ``schematic_units`` are used.
 
         Returns
         -------

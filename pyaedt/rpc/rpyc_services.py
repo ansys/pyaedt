@@ -12,8 +12,10 @@ from pyaedt import generate_unique_name
 from pyaedt.generic.general_methods import env_path
 
 from pyaedt import is_ironpython
+from pyaedt import is_linux
+from pyaedt import is_windows
 
-if os.name == "posix" and is_ironpython:
+if is_linux and is_ironpython:
     import subprocessdotnet as subprocess
 else:
     import subprocess
@@ -221,7 +223,7 @@ class PyaedtServiceWindows(rpyc.Service):
         # code that runs after the connection has already closed
         # (to finalize the service, if needed)
         if self.app:
-            if not os.name == "posix":
+            if not is_linux:
                 if self.app and "release_desktop" in dir(self.app[0]):
                     self.app[0].release_desktop()
 
@@ -266,7 +268,7 @@ class PyaedtServiceWindows(rpyc.Service):
         else:
             return "File wrong or wrong commands."
         executable = "ansysedt.exe"
-        if os.name == "posix" and not ansysem_path and not env_path(aedt_version):
+        if is_linux and not ansysem_path and not env_path(aedt_version):
             ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
         if env_path(aedt_version) or ansysem_path:
             if not ansysem_path:
@@ -836,7 +838,7 @@ class GlobalService(rpyc.Service):
     def on_disconnect(self, connection):
         # code that runs after the connection has already closed
         # (to finalize the service, if needed)
-        if os.name != "posix":
+        if is_windows:
             sys.stdout = sys.__stdout__
 
     @staticmethod
@@ -871,7 +873,7 @@ class GlobalService(rpyc.Service):
             print("AEDT Session already opened on port {}.".format(port))
             return True
         ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
-        if os.name == "posix":
+        if is_linux:
             executable = "ansysedt"
         else:
             executable = "ansysedt.exe"
@@ -1026,7 +1028,7 @@ class ServiceManager(rpyc.Service):
     def on_disconnect(self, connection):
         # code that runs after the connection has already closed
         # (to finalize the service, if needed)
-        if os.name != "posix":
+        if is_windows:
             sys.stdout = sys.__stdout__
         for edb in self._edb:
             try:

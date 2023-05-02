@@ -2,6 +2,7 @@ from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import EdbFrequencySwee
 from pyaedt.edb_core.general import convert_netdict_to_pydict
 from pyaedt.edb_core.general import convert_pydict_to_netdict
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -146,7 +147,6 @@ class SiwaveAdvancedSettings(object):
         of trace-like cavities. Further, the coupling between narrow planes is
         also modeled by enabling this feature.
 
-
         Returns
         -------
         bool
@@ -159,7 +159,6 @@ class SiwaveAdvancedSettings(object):
         """Whether to Include a ground plane to serve as a voltage reference for traces and planes
         if they are not defined in the layout.
 
-
         Returns
         -------
         bool
@@ -171,7 +170,6 @@ class SiwaveAdvancedSettings(object):
     def include_trace_coupling(self):
         """Whether to model coupling between adjacent traces.
         Coupling is considered for parallel and almost parallel trace segments.
-
 
         Returns
         -------
@@ -196,7 +194,6 @@ class SiwaveAdvancedSettings(object):
     def infinite_ground_location(self):
         """Elevation of the infinite unconnected ground plane placed under the design.
 
-
         Returns
         -------
         str
@@ -206,7 +203,6 @@ class SiwaveAdvancedSettings(object):
     @property
     def max_coupled_lines(self):
         """Maximum number of coupled lines to build the new coupled transmission line model.
-
 
         Returns
         -------
@@ -698,13 +694,14 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
             self._edb.simsetupdata.SIwave.SIWSimulationSettings
         ]()
         if edb_siwave_sim_setup:
-            self._edb_sim_setup_info = _get_edb_setup_info(edb_siwave_sim_setup, self._edb_sim_setup_info)
+            _get_edb_setup_info(edb_siwave_sim_setup, self._edb_sim_setup_info)
         else:
             if not name:
                 self._edb_sim_setup_info.Name = generate_unique_name("siwave")
             else:
                 self._edb_sim_setup_info.Name = name
             self._update_setup()
+        self.setup_type = "kSIWave"
         SiwaveAdvancedSettings.__init__(self, self)
 
     @property
@@ -863,7 +860,7 @@ def _parse_value(v):
 
     """
     #  duck typing parse of the value 'v'
-    if v is None:
+    if v is None or v == "":
         pv = v
     elif v == "true":
         pv = True
@@ -876,14 +873,18 @@ def _parse_value(v):
             try:
                 pv = float(v)
             except ValueError:
-                pv = v
+                if isinstance(v, str) and v[0] == v[-1] == "'":
+                    pv = v[1:-1]
+                else:
+                    pv = v
     return pv
 
 
 @pyaedt_function_handler()
 def _get_edb_setup_info(edb_siwave_sim_setup, edb_sim_setup_info):
     string = edb_siwave_sim_setup.ToString().replace("\t", "").split("\r\n")
-
+    if is_linux:
+        string = string[0].split("\n")
     keys = [i.split("=")[0] for i in string if len(i.split("=")) == 2 and "SourceTermsToGround" not in i]
     values = [i.split("=")[1] for i in string if len(i.split("=")) == 2 and "SourceTermsToGround" not in i]
     for val in string:
@@ -935,7 +936,7 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
             self._edb.simsetupdata.SIwave.SIWDCIRSimulationSettings
         ]()
         if edb_siwave_sim_setup:
-            self._edb_sim_setup_info = _get_edb_setup_info(edb_siwave_sim_setup, self._edb_sim_setup_info)
+            _get_edb_setup_info(edb_siwave_sim_setup, self._edb_sim_setup_info)
 
         else:
             if not name:
@@ -943,6 +944,8 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
             else:
                 self._edb_sim_setup_info.Name = name
             self._update_setup()
+        self.setup_type = "kSIWaveDCIR"
+
         SiwaveDCAdvancedSettings.__init__(self, self)
 
     @property
@@ -988,7 +991,7 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
 
         Returns
         -------
-            Dictionary
+        Dictionary
             {str, int}, keys is source name, value int 0 unspecified, 1 negative node, 2 positive one.
 
         """

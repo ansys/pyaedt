@@ -4,6 +4,7 @@ from __future__ import division  # noreorder
 import math
 
 from _unittest.conftest import BasisTest
+from _unittest.conftest import desktop_version
 
 from pyaedt import MaxwellCircuit
 from pyaedt.application.Variables import Variable
@@ -41,7 +42,15 @@ class TestClass(BasisTest, object):
         assert "$Test_Global2" in independent
         assert "$Test_Global3" in independent
         assert "$Test_Global4" in dependent
-        pass
+
+        self.aedtapp["$test"] = "1mm"
+        self.aedtapp["$test2"] = "$test"
+        assert "$test2" in self.aedtapp.variable_manager.dependent_project_variable_names
+        assert "$test" in self.aedtapp.variable_manager.independent_project_variable_names
+        del self.aedtapp["$test2"]
+        assert "$test2" not in self.aedtapp.variable_manager.variables
+        del self.aedtapp["$test"]
+        assert "$test" not in self.aedtapp.variable_manager.variables
 
     def test_01_set_var_simple(self):
         var = self.aedtapp.variable_manager
@@ -50,7 +59,14 @@ class TestClass(BasisTest, object):
         var_2 = var["Var1"].expression
         assert var_1 == var_2
         assert isclose(var["Var1"].numeric_value, 1.0)
-        pass
+
+        self.aedtapp["test"] = "1mm"
+        self.aedtapp["test2"] = "test"
+        assert "test2" in self.aedtapp.variable_manager.dependent_design_variable_names
+        del self.aedtapp["test2"]
+        assert "test2" not in self.aedtapp.variable_manager.variables
+        del self.aedtapp["test"]
+        assert "test" not in self.aedtapp.variable_manager.variables
 
     def test_02_test_formula(self):
         self.aedtapp["Var1"] = 3
@@ -109,6 +125,7 @@ class TestClass(BasisTest, object):
             description="This is a description of this variable",
         )
         assert self.aedtapp.variable_manager.set_variable("$p1", expression="10mm")
+        assert self.aedtapp.variable_manager.set_variable("$p1", expression="12mm")
 
     def test_05_variable_class(self):
         v = Variable("4mm")
@@ -392,7 +409,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.variable_manager["getvalue2"].numeric_value == 1.0
 
     def test_16_maxwell_circuit_variables(self):
-        mc = MaxwellCircuit()
+        mc = MaxwellCircuit(specified_version=desktop_version)
         mc["var2"] = "10mm"
         assert mc["var2"] == "10mm"
         v_circuit = mc.variable_manager
@@ -488,3 +505,12 @@ class TestClass(BasisTest, object):
         assert v[var].sensitivity_initial_disp == "1mm"
         v[var].sensitivity_initial_disp = "0.5mm"
         assert v[var].sensitivity_initial_disp == "0.5mm"
+
+    def test_20_variable_with_units(self):
+        self.aedtapp["v1"] = "3mm"
+        self.aedtapp["v2"] = "2*v1"
+        assert self.aedtapp.variable_manager.decompose("v1") == (3.0, "mm")
+        assert self.aedtapp.variable_manager.decompose("v2") == (6.0, "mm")
+        assert self.aedtapp.variable_manager["v2"].decompose() == (6.0, "mm")
+        assert self.aedtapp.variable_manager.decompose("5mm") == (5.0, "mm")
+        assert self.aedtapp.number_with_units(3.0, "mil") == "3.0mil"

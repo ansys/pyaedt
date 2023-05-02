@@ -607,6 +607,8 @@ class Materials(object):
     def _load_from_project(self):
         if self.odefinition_manager:
             mats = self.odefinition_manager.GetProjectMaterialNames()
+            if not mats:
+                mats = []
             for el in mats:
                 if el not in list(self.material_keys.keys()):
                     try:

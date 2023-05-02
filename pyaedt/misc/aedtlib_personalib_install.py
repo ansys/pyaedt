@@ -1,3 +1,4 @@
+import argparse
 import os
 import shutil
 import sys
@@ -7,47 +8,113 @@ import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import ParseError
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
-pyaedt_path = os.path.join(
-    current_dir,
-    "..",
+pyaedt_path = os.path.normpath(
+    os.path.join(
+        current_dir,
+        "..",
+    )
 )
-sys.path.append(os.path.join(pyaedt_path, ".."))
+sys.path.append(os.path.normpath(os.path.join(pyaedt_path, "..")))
 
-
+is_linux = os.name == "posix"
+is_windows = not is_linux
 pid = 0
 
 
-def add_pyaedt_to_aedt(aedt_version, is_student_version=False, use_sys_lib=False):
-    from pyaedt import Desktop
+def main():
+    args = parse_arguments()
+    add_pyaedt_to_aedt(
+        args.version, is_student_version=args.student, use_sys_lib=args.sys_lib, new_desktop_session=args.new_session
+    )
 
-    with Desktop(aedt_version, True, new_desktop_session=True, student_version=is_student_version) as d:
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Install PyAEDT and setup PyAEDT toolkits in AEDT.")
+    parser.add_argument(
+        "--version", "-v", default="231", metavar="XY.Z", help="AEDT three-digit version (e.g. 231). Default=231"
+    )
+    parser.add_argument(
+        "--student", "--student_version", action="store_true", help="Install toolkits for AEDT Student Version."
+    )
+    parser.add_argument("--sys_lib", "--syslib", action="store_true", help="Install toolkits in SysLib.")
+    parser.add_argument(
+        "--new_session", action="store_true", help="Start a new session of AEDT after installing PyAEDT."
+    )
+
+    args = parser.parse_args()
+    args = process_arguments(args, parser)
+    return args
+
+
+def process_arguments(args, parser):
+    if len(args.version) != 3:
+        parser.print_help()
+        parser.error("Version should be a three digit number (e.g. 231)")
+
+    args.version = "20" + args.version[-3:-1] + "." + args.version[-1:]
+    return args
+
+
+def add_pyaedt_to_aedt(aedt_version, is_student_version=False, use_sys_lib=False, new_desktop_session=False):
+    from pyaedt import Desktop
+    from pyaedt.generic.general_methods import grpc_active_sessions
+
+    sessions = grpc_active_sessions(aedt_version, is_student_version)
+    if not sessions:
+        if not new_desktop_session:
+            print("Launching a new AEDT desktop session.")
+        new_desktop_session = True
+    with Desktop(
+        specified_version=aedt_version,
+        non_graphical=new_desktop_session,
+        new_desktop_session=new_desktop_session,
+        student_version=is_student_version,
+    ) as d:
         desktop = sys.modules["__main__"].oDesktop
         pers1 = os.path.join(desktop.GetPersonalLibDirectory(), "pyaedt")
         pid = desktop.GetProcessID()
         # Linking pyaedt in PersonalLib for IronPython compatibility.
         if os.path.exists(pers1):
-            d.logger.info("PersonalLib already mapped")
+            d.logger.info("PersonalLib already mapped.")
         else:
-            os.system('mklink /D "{}" "{}"'.format(pers1, pyaedt_path))
+            if is_windows:
+                os.system('mklink /D "{}" "{}"'.format(pers1, pyaedt_path))
+            else:
+                os.system('ln -s "{}" "{}"'.format(pyaedt_path, pers1))
 
         toolkits = ["Project"]
+        # Bug on Linux 23.1 and before where Project level toolkits don't show up. Thus copying to individual design
+        # toolkits.
+        if is_linux and aedt_version <= "2023.1":
+            toolkits = [
+                "2DExtractor",
+                "CircuitDesign",
+                "HFSS",
+                "HFSS-IE",
+                "HFSS3DLayoutDesign",
+                "Icepak",
+                "Maxwell2D",
+                "Maxwell3D",
+                "Q3DExtractor",
+                "Mechanical",
+            ]
 
         for product in toolkits:
             if use_sys_lib:
                 try:
                     sys_dir = os.path.join(d.syslib, "Toolkits")
                     install_toolkit(sys_dir, product, aedt_version)
-                    d.logger.info("Installed toolkit for {} in sys lib".format(product))
+                    d.logger.info("Installed toolkit for {} in sys lib.".format(product))
 
                 except IOError:
                     pers_dir = os.path.join(d.personallib, "Toolkits")
                     install_toolkit(pers_dir, product, aedt_version)
-                    d.logger.info("Installed toolkit for {} in personal lib".format(product))
+                    d.logger.info("Installed toolkit for {} in personal lib.".format(product))
             else:
                 pers_dir = os.path.join(d.personallib, "Toolkits")
                 install_toolkit(pers_dir, product, aedt_version)
-                d.logger.info("Installed toolkit for {} in personal lib".format(product))
-    if pid:
+                d.logger.info("Installed toolkit for {} in personal lib.".format(product))
+    if pid and new_desktop_session:
         try:
             os.kill(pid, 9)
         except:
@@ -57,6 +124,14 @@ def add_pyaedt_to_aedt(aedt_version, is_student_version=False, use_sys_lib=False
 def install_toolkit(toolkit_dir, product, aedt_version):
     tool_dir = os.path.join(toolkit_dir, product, "PyAEDT")
     lib_dir = os.path.join(tool_dir, "Lib")
+    toolkit_rel_lib_dir = os.path.relpath(lib_dir, tool_dir)
+    # Bug on Linux 23.1 and before where Project level toolkits don't show up. Thus copying to individual design
+    # toolkits.
+    if is_linux and aedt_version <= "2023.1":
+        toolkit_rel_lib_dir = os.path.join("Lib", "PyAEDT")
+        lib_dir = os.path.join(toolkit_dir, toolkit_rel_lib_dir)
+        toolkit_rel_lib_dir = "../../" + toolkit_rel_lib_dir
+        tool_dir = os.path.join(toolkit_dir, product, "PyAEDT")
     os.makedirs(lib_dir, exist_ok=True)
     os.makedirs(tool_dir, exist_ok=True)
     files_to_copy = ["Console", "Run_PyAEDT_Script", "Jupyter"]
@@ -68,8 +143,8 @@ def install_toolkit(toolkit_dir, product, aedt_version):
         version_agnostic = True
     else:
         executable_version_agnostic = sys.executable
-    jupyter_executable = executable_version_agnostic.replace("python.exe", "jupyter.exe")
-    ipython_executable = executable_version_agnostic.replace("python.exe", "ipython.exe")
+    jupyter_executable = executable_version_agnostic.replace("python" + exe(), "jupyter" + exe())
+    ipython_executable = executable_version_agnostic.replace("python" + exe(), "ipython" + exe())
     for file_name in files_to_copy:
         with open(os.path.join(current_dir, file_name + ".py_build"), "r") as build_file:
             file_name_dest = file_name.replace("_", " ") + ".py"
@@ -77,7 +152,7 @@ def install_toolkit(toolkit_dir, product, aedt_version):
                 print("Building to " + os.path.join(tool_dir, file_name_dest))
                 build_file_data = build_file.read()
                 build_file_data = (
-                    build_file_data.replace("##TOOLKIT_REL_LIB_DIR##", os.path.relpath(lib_dir, tool_dir))
+                    build_file_data.replace("##TOOLKIT_REL_LIB_DIR##", toolkit_rel_lib_dir)
                     .replace("##PYTHON_EXE##", executable_version_agnostic)
                     .replace("##IPYTHON_EXE##", ipython_executable)
                     .replace("##JUPYTER_EXE##", jupyter_executable)
@@ -151,18 +226,11 @@ def write_pretty_xml(root, file_path):
         f.write(xml_str)
 
 
+def exe():
+    if is_windows:
+        return ".exe"
+    return ""
+
+
 if __name__ == "__main__":
-    student_version = False
-    if len(sys.argv) < 2:
-        version = "2022.2"
-    elif sys.argv[1].endswith("sv"):
-        v = sys.argv[1][:-2]
-        version = "20" + v[-3:-1] + "." + v[-1:]
-        student_version = True
-    else:
-        v = sys.argv[1]
-        version = "20" + v[-3:-1] + "." + v[-1:]
-    sys_lib = True
-    if len(sys.argv) == 3:
-        sys_lib = True if sys.argv[2] == "1" else False
-    add_pyaedt_to_aedt(version, student_version, sys_lib)
+    main()

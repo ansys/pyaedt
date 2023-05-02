@@ -19,6 +19,7 @@ from pyaedt import Hfss3dLayout
 from pyaedt.application.aedt_objects import AedtObjects
 from pyaedt.application.design_solutions import model_names
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import settings
 
 test_subfolder = "T01"
@@ -244,7 +245,7 @@ class TestClass(BasisTest, object):
         props = self.aedtapp.get_components3d_vars("Dipole_Antenna_DM")
         assert len(props) == 3
 
-    @pytest.mark.skipif(os.name == "posix", reason="Not needed in Linux.")
+    @pytest.mark.skipif(is_linux, reason="Not needed in Linux.")
     def test_21_generate_temp_project_directory(self):
         proj_dir1 = self.aedtapp.generate_temp_project_directory("Example")
         assert os.path.exists(proj_dir1)
@@ -328,7 +329,7 @@ class TestClass(BasisTest, object):
         assert settings.force_error_on_missing_project == True
         e = None
         try:
-            h = Hfss("c:/dummy/test.aedt")
+            h = Hfss("c:/dummy/test.aedt", specified_version=desktop_version)
         except Exception as e:
             exception_raised = True
             assert e.args[0] == "Project doesn't exists. Check it and retry."
@@ -350,12 +351,12 @@ class TestClass(BasisTest, object):
 
     def test_36_test_load(self):
         file_name = os.path.join(self.local_scratch.path, "test_36.aedt")
-        hfss = Hfss(projectname=file_name)
+        hfss = Hfss(projectname=file_name, specified_version=desktop_version)
         hfss.save_project()
         assert hfss
-        h3d = Hfss3dLayout(file_name)
+        h3d = Hfss3dLayout(file_name, specified_version=desktop_version)
         assert h3d
-        h3d = Hfss3dLayout(file_name)
+        h3d = Hfss3dLayout(file_name, specified_version=desktop_version)
         assert h3d
         file_name2 = os.path.join(self.local_scratch.path, "test_36_2.aedt")
         file_name2_lock = os.path.join(self.local_scratch.path, "test_36_2.aedt.lock")
@@ -364,7 +365,7 @@ class TestClass(BasisTest, object):
         with open(file_name2_lock, "w") as f:
             f.write(" ")
         try:
-            hfss = Hfss(projectname=file_name2)
+            hfss = Hfss(projectname=file_name2, specified_version=desktop_version)
         except:
             assert True
         try:
@@ -372,6 +373,10 @@ class TestClass(BasisTest, object):
             file_name3 = os.path.join(self.local_scratch.path, "test_36_2.aedb", "edb.def")
             with open(file_name3, "w") as f:
                 f.write(" ")
-            hfss = Hfss3dLayout(projectname=file_name3)
+            hfss = Hfss3dLayout(projectname=file_name3, specified_version=desktop_version)
         except:
             assert True
+
+    def test_37_add_custom_toolkit(self):
+        desktop = Desktop(desktop_version, new_desktop_session=False)
+        assert desktop.get_available_toolkits()

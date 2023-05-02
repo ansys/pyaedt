@@ -28,7 +28,7 @@ appedb = pyaedt.Edb(local_path, edbversion=edbversion)
 # Create pin group on VRM positive pins
 
 gnd_name = "GND"
-appedb.core_siwave.create_pin_group_on_net(
+appedb.siwave.create_pin_group_on_net(
     reference_designator="U3A1",
     net_name="BST_V3P3_S5",
     group_name="U3A1-BST_V3P3_S5")
@@ -36,14 +36,14 @@ appedb.core_siwave.create_pin_group_on_net(
 #####################################################################################
 # Create pin group on VRM negative pins
 
-appedb.core_siwave.create_pin_group_on_net(
+appedb.siwave.create_pin_group_on_net(
     reference_designator="U3A1",
     net_name="GND",
     group_name="U3A1-GND")
 
 #####################################################################################
 # Create voltage source between VRM positive and negative pin groups
-appedb.core_siwave.create_voltage_source_on_pin_group(
+appedb.siwave.create_voltage_source_on_pin_group(
     pos_pin_group_name="U3A1-BST_V3P3_S5",
     neg_pin_group_name="U3A1-GND",
     magnitude=3.3,
@@ -53,7 +53,7 @@ appedb.core_siwave.create_voltage_source_on_pin_group(
 #####################################################################################
 # Create pin group on sink component positive pins
 
-appedb.core_siwave.create_pin_group_on_net(
+appedb.siwave.create_pin_group_on_net(
     reference_designator="U2A5",
     net_name="V3P3_S5",
     group_name="U2A5-V3P3_S5")
@@ -61,14 +61,14 @@ appedb.core_siwave.create_pin_group_on_net(
 #####################################################################################
 # Create pin group on sink component negative pins
 
-appedb.core_siwave.create_pin_group_on_net(
+appedb.siwave.create_pin_group_on_net(
     reference_designator="U2A5",
     net_name="GND",
     group_name="U2A5-GND")
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create place current source between sink component positive and negative pin groups
-appedb.core_siwave.create_current_source_on_pin_group(
+appedb.siwave.create_current_source_on_pin_group(
     pos_pin_group_name="U2A5-V3P3_S5",
     neg_pin_group_name="U2A5-GND",
     magnitude=1,
@@ -78,7 +78,7 @@ appedb.core_siwave.create_current_source_on_pin_group(
 ###############################################################################
 # Add SIwave DCIR analysis
 
-appedb.core_siwave.add_siwave_dc_analysis(name="my_setup")
+appedb.siwave.add_siwave_dc_analysis(name="my_setup")
 
 ###############################################################################
 # Save and close EDB

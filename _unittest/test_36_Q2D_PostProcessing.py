@@ -27,7 +27,7 @@ class TestClass(BasisTest, object):
         test_project = self.local_scratch.copyfile(
             os.path.join(local_path, "example_models", test_subfolder, q2d_solved_sweep + ".aedtz")
         )
-        with Q2d(test_project) as q2d:
+        with Q2d(test_project, specified_version=config["desktopVersion"]) as q2d:
             try:
                 export_folder = os.path.join(self.local_scratch.path, "export_folder")
                 files = q2d.export_w_elements(False, export_folder)
@@ -43,7 +43,7 @@ class TestClass(BasisTest, object):
         test_project = self.local_scratch.copyfile(
             os.path.join(local_path, "example_models", test_subfolder, q2d_solved_nominal + ".aedtz")
         )
-        with Q2d(test_project) as q2d:
+        with Q2d(test_project, specified_version=config["desktopVersion"]) as q2d:
             try:
                 export_folder = os.path.join(self.local_scratch.path, "export_folder")
                 files = q2d.export_w_elements(False, export_folder)
@@ -59,7 +59,7 @@ class TestClass(BasisTest, object):
         test_project = self.local_scratch.copyfile(
             os.path.join(local_path, "example_models", test_subfolder, q2d_solved_nominal + ".aedtz")
         )
-        with Q2d(test_project) as q2d:
+        with Q2d(test_project, specified_version=config["desktopVersion"]) as q2d:
             try:
                 files = q2d.export_w_elements(False)
                 assert len(files) == 1

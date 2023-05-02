@@ -14,28 +14,25 @@ import gc
 import logging
 import os
 import pkgutil
-import random
 import re
 import socket
 import sys
 import tempfile
+import threading
 import time
 import traceback
 import warnings
 
 from pyaedt import is_ironpython
+from pyaedt import is_linux
+from pyaedt import is_windows
 from pyaedt import pyaedt_logger
 
-if os.name == "nt":
-    IsWindows = True
-else:
-    IsWindows = False
+if is_linux:
     os.environ["ANS_NODEPCHECK"] = str(1)
 
-if not IsWindows and is_ironpython:
+if is_linux and is_ironpython:
     import subprocessdotnet as subprocess
-
-
 else:
     import subprocess
 
@@ -58,26 +55,72 @@ modules = [tup[1] for tup in pkgutil.iter_modules()]
 
 if is_ironpython:
     _com = "ironpython"
-elif IsWindows and "pythonnet" in modules:  # pragma: no cover
+elif is_windows and "pythonnet" in modules:  # pragma: no cover
     _com = "pythonnet_v3"
 else:
     _com = "gprc_v3"
     settings.use_grpc_api = True
 
 
+@pyaedt_function_handler()
+def launch_aedt(full_path, non_graphical, port, first_run=True):
+    """Launch AEDT in gRPC mode."""
+
+    def launch_desktop_on_port():
+        command = [full_path, "-grpcsrv", str(port)]
+        if non_graphical:
+            command.append("-ng")
+        my_env = os.environ.copy()
+        for env, val in settings.aedt_environment_variables.items():
+            my_env[env] = val
+        if is_linux:  # pragma: no cover
+            subprocess.Popen(command, env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        else:
+            subprocess.Popen(" ".join(command), env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+
+    _aedt_process_thread = threading.Thread(target=launch_desktop_on_port)
+    _aedt_process_thread.daemon = True
+    _aedt_process_thread.start()
+    timeout = settings.desktop_launch_timeout
+    k = 0
+    while not _check_grpc_port(port):
+        if k > timeout:  # pragma: no cover
+            if first_run:
+                port = _find_free_port()
+                return launch_aedt(full_path, non_graphical, port, first_run=False)
+            return False, port
+        time.sleep(1)
+        k += 1
+    return True, port
+
+
 def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
     """Launch AEDT in LSF in GRPC mode."""
-    command = [
-        "bsub",
-        "-n",
-        str(settings.lsf_num_cores),
-        "-R",
-        '"rusage[mem={}]"'.format(settings.lsf_ram),
-        "-Is",
-        settings.lsf_aedt_command,
-        "-grpcsrv",
-        str(port),
-    ]
+    if settings.lsf_queue:
+        command = [
+            "bsub",
+            "-n",
+            str(settings.lsf_num_cores),
+            "-R",
+            '"rusage[mem={}]"'.format(settings.lsf_ram),
+            "-queue {}".format(settings.lsf_queue),
+            "-Is",
+            settings.lsf_aedt_command,
+            "-grpcsrv",
+            str(port),
+        ]
+    else:
+        command = [
+            "bsub",
+            "-n",
+            str(settings.lsf_num_cores),
+            "-R",
+            '"rusage[mem={}]"'.format(settings.lsf_ram),
+            "-Is",
+            settings.lsf_aedt_command,
+            "-grpcsrv",
+            str(port),
+        ]
     if non_graphical:
         command.append("-ng")
     print(command)
@@ -114,17 +157,10 @@ def _check_grpc_port(port, machine_name=""):
         return True
 
 
-def _find_free_port(port_start=40001, port_end=55000):
-    list_ports = random.sample(range(port_start, port_end), port_end - port_start)
-    s = socket.socket()
-    for port in list_ports:
-        try:
-            s.connect(("127.0.0.1", port))
-        except socket.error:
-            return port
-        else:
-            s.close()
-    return 0
+def _find_free_port():
+    with socket.socket() as s:
+        s.bind(("", 0))  # Bind to a free port provided by the host.
+        return s.getsockname()[1]  # Return the port number assigned.
 
 
 def exception_to_desktop(ex_value, tb_data):  # pragma: no cover
@@ -477,7 +513,7 @@ class Desktop(object):
             if "oDesktop" in dir(self._main):
                 del self._main.oDesktop
             self._main.student_version, version_key, version = self._set_version(specified_version, student_version)
-            if not new_desktop_session:  # pragma: no cover
+            if not new_desktop_session and not is_ironpython:  # pragma: no cover
                 sessions = active_sessions(
                     version=version_key, student_version=student_version, non_graphical=non_graphical
                 )
@@ -537,6 +573,7 @@ class Desktop(object):
         settings.machine = self.machine
         settings.port = self.port
         self.aedt_process_id = self.odesktop.GetProcessID()  # bit of cleanup for consistency if used in future
+        self._logger.info("AEDT %s Build Date %s", self.odesktop.GetVersion(), self.odesktop.GetBuildDateTimeString())
 
         if _com == "ironpython":
             sys.path.append(
@@ -654,10 +691,11 @@ class Desktop(object):
         self._main.oDesktop.RestoreWindow()
         self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
         self._main.pyaedt_initialized = True
-        try:
-            settings.enable_desktop_logs = not self._main.oDesktop.GetIsNonGraphical()
-        except AttributeError:
-            settings.enable_desktop_logs = not non_graphical
+        if non_graphical or self._main.oDesktop.GetIsNonGraphical():
+            try:
+                settings.enable_desktop_logs = not self._main.oDesktop.GetIsNonGraphical()
+            except AttributeError:
+                settings.enable_desktop_logs = not non_graphical
 
     def _set_version(self, specified_version, student_version):
         student_version_flag = False
@@ -738,7 +776,7 @@ class Desktop(object):
 
         from pyaedt.generic.clr_module import _clr
 
-        if os.name == "posix":
+        if is_linux:
             raise Exception(
                 "PyAEDT supports COM initialization in Windows only. To use in Linux, upgrade to AEDT 2022 R2 or later."
             )
@@ -754,7 +792,7 @@ class Desktop(object):
         StandalonePyScriptWrapper = AnsoftCOMUtil.Ansoft.CoreCOMScripting.COM.StandalonePyScriptWrapper
         self.logger.info("Launching AEDT with module PythonNET.")
         processID = []
-        if IsWindows:
+        if is_windows:
             processID = com_active_sessions(version, student_version, non_graphical)
         if student_version and not processID:  # Opens an instance if processID is an empty list
             self._run_student()
@@ -764,7 +802,7 @@ class Desktop(object):
         else:
             StandalonePyScriptWrapper.CreateObject(version)
         processID2 = []
-        if IsWindows:
+        if is_windows:
             processID2 = com_active_sessions(version, student_version, non_graphical)
         proc = [i for i in processID2 if i not in processID]  # Looking for the "new" process
         if (
@@ -802,7 +840,7 @@ class Desktop(object):
         base_path = self._main.sDesktopinstallDirectory
         sys.path.insert(0, base_path)
         sys.path.insert(0, os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
-        if os.name == "posix":
+        if is_linux:
             if os.environ.get("LD_LIBRARY_PATH"):
                 os.environ["LD_LIBRARY_PATH"] = (
                     os.path.join(base_path, "defer") + os.pathsep + os.environ["LD_LIBRARY_PATH"]
@@ -849,7 +887,7 @@ class Desktop(object):
                             "Multiple AEDT gRPC sessions are found. Setting the active session on port %s", self.port
                         )
                 else:
-                    if os.name != "posix":  # pragma: no cover
+                    if is_windows:  # pragma: no cover
                         if com_active_sessions(
                             version=version, student_version=student_version, non_graphical=non_graphical
                         ):
@@ -860,6 +898,7 @@ class Desktop(object):
                             )
                     self.port = _find_free_port()
                     self.logger.info("New AEDT session is starting on gRPC port %s", self.port)
+                    new_aedt_session = True
         elif new_aedt_session and not _check_grpc_port(self.port, self.machine):
             self.logger.info("New AEDT session is starting on gRPC port %s", self.port)
         elif new_aedt_session:
@@ -872,12 +911,22 @@ class Desktop(object):
             self.logger.info("AEDT session is starting on gRPC port %s", self.port)
             new_aedt_session = True
 
-        if new_aedt_session and settings.use_lsf_scheduler and os.name == "posix":  # pragma: no cover
+        if new_aedt_session and settings.use_lsf_scheduler and is_linux:  # pragma: no cover
             out, self.machine = launch_aedt_in_lsf(non_graphical, self.port)
             if out:
                 ScriptEnv._doInitialize(version, None, False, non_graphical, self.machine, self.port)
             else:
                 self.logger.error("Failed to start LSF job on machine: %s.", self.machine)
+                return
+        elif new_aedt_session:
+            installer = os.path.join(base_path, "ansysedt")
+            if not is_linux:
+                installer = os.path.join(base_path, "ansysedt.exe")
+            out, self.port = launch_aedt(installer, non_graphical, self.port)
+            if out:
+                ScriptEnv._doInitialize(version, None, False, non_graphical, self.machine, self.port)
+            else:
+                self.logger.error("Failed to start AEDT on port %s.", self.port)
                 return
         else:
             ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, self.machine, self.port)
@@ -906,6 +955,8 @@ class Desktop(object):
         if settings.logger_file_path:
             self.logfile = settings.logger_file_path
         else:
+            if not project_dir:
+                project_dir = tempfile.gettempdir()
             self.logfile = os.path.join(
                 project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
             )
@@ -1262,21 +1313,6 @@ class Desktop(object):
         self.odesktop = None
         return result
 
-    def force_close_desktop(self):
-        """Forcibly close all projects and shut down AEDT.
-
-        .. deprecated:: 0.4.0
-           Use :func:`desktop.close_desktop` instead.
-
-        """
-
-        warnings.warn(
-            "`force_close_desktop` is deprecated. Use `close_desktop` instead.",
-            DeprecationWarning,
-        )
-
-        force_close_desktop()
-
     def close_desktop(self):
         """Close all projects and shut down AEDT.
 
@@ -1441,3 +1477,99 @@ class Desktop(object):
             return True
         except:
             return False
+
+    @pyaedt_function_handler()
+    def get_available_toolkits(self):
+        """Get toolkit ready for installation.
+
+        Returns
+        -------
+        list
+            List of toolkit names.
+        """
+        from pyaedt.misc.install_extra_toolkits import available_toolkits
+
+        return list(available_toolkits.keys())
+
+    @pyaedt_function_handler()
+    def add_custom_toolkit(self, toolkit_name):  # pragma: no cover
+        """Add toolkit to AEDT Automation Tab.
+
+        Parameters
+        ----------
+        toolkit_name : str
+            Name of toolkit to add.
+
+        Returns
+        -------
+        bool
+        """
+        from pyaedt.misc.install_extra_toolkits import available_toolkits
+        from pyaedt.misc.install_extra_toolkits import write_toolkit_config
+
+        toolkit = available_toolkits[toolkit_name]
+        toolkit_name = toolkit_name.replace("_", "")
+
+        def install(package_path, package_name=None):
+            executable = '"{}"'.format(sys.executable) if is_windows else sys.executable
+
+            commands = []
+            if package_path.startswith("git") and package_name:
+                commands.append([executable, "-m", "pip", "uninstall", "--yes", package_name])
+
+            commands.append([executable, "-m", "pip", "install", "--upgrade", package_path])
+
+            if self.aedt_version_id == "2023.1" and is_windows and "AnsysEM" in sys.base_prefix:
+                commands.append([executable, "-m", "pip", "uninstall", "--yes", "pywin32"])
+
+            for command in commands:
+                if is_linux:
+                    p = subprocess.Popen(command)
+                else:
+                    p = subprocess.Popen(" ".join(command))
+                p.wait()
+
+        install(toolkit["pip"], toolkit.get("package_name", None))
+        import site
+
+        packages = site.getsitepackages()
+        full_path = None
+        for pkg in packages:
+            if os.path.exists(os.path.join(pkg, toolkit["toolkit_script"])):
+                full_path = os.path.join(pkg, toolkit["toolkit_script"])
+                break
+        if not full_path:
+            raise FileNotFoundError("Error finding the package.")
+        product = toolkit["installation_path"]
+        toolkit_dir = os.path.join(self.personallib, "Toolkits")
+        aedt_version = self.aedt_version_id
+        tool_dir = os.path.join(toolkit_dir, product, toolkit_name)
+        lib_dir = os.path.join(tool_dir, "Lib")
+        toolkit_rel_lib_dir = os.path.relpath(lib_dir, tool_dir)
+        if is_linux and aedt_version <= "2023.1":
+            toolkit_rel_lib_dir = os.path.join("Lib", toolkit_name)
+            lib_dir = os.path.join(toolkit_dir, toolkit_rel_lib_dir)
+            toolkit_rel_lib_dir = "../../" + toolkit_rel_lib_dir
+        os.makedirs(lib_dir, exist_ok=True)
+        os.makedirs(tool_dir, exist_ok=True)
+        files_to_copy = ["Run_PyAEDT_Toolkit_Script"]
+        executable_version_agnostic = sys.executable
+        for file_name in files_to_copy:
+            src = os.path.join(pathname, "misc", file_name + ".py_build")
+            dst = os.path.join(tool_dir, file_name.replace("_", " ") + ".py")
+            if not os.path.isfile(src):
+                raise FileNotFoundError("File not found: {}".format(src))
+            with open(src, "r") as build_file:
+                with open(dst, "w") as out_file:
+                    self.logger.info("Building to " + dst)
+                    build_file_data = build_file.read()
+                    build_file_data = (
+                        build_file_data.replace("##TOOLKIT_REL_LIB_DIR##", toolkit_rel_lib_dir)
+                        .replace("##PYTHON_EXE##", executable_version_agnostic)
+                        .replace("##PYTHON_SCRIPT##", full_path)
+                    )
+                    build_file_data = build_file_data.replace(" % version", "")
+                    out_file.write(build_file_data)
+        if aedt_version >= "2023.2":
+            write_toolkit_config(os.path.join(toolkit_dir, product), lib_dir, toolkit_name, toolkit=toolkit)
+        self.logger.info("{} toolkit installed.".format(toolkit_name))

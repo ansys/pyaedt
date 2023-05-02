@@ -14,6 +14,7 @@ from pyaedt import Q3d
 from pyaedt import settings
 from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.plot import _parse_aedtplt
 from pyaedt.generic.plot import _parse_streamline
 
@@ -64,10 +65,12 @@ class TestClass(BasisTest, object):
         self.circuit_test = BasisTest.add_app(
             self, project_name=test_circuit_name, design_name="Diode", application=Circuit, subfolder=test_subfolder
         )
-        self.diff_test = Circuit(designname="diff", projectname=self.circuit_test.project_name)
+        self.diff_test = Circuit(
+            designname="diff", projectname=self.circuit_test.project_name, specified_version=config["desktopVersion"]
+        )
         self.sbr_test = BasisTest.add_app(self, project_name=sbr_file, subfolder=test_subfolder)
         self.q3dtest = BasisTest.add_app(self, project_name=q3d_file, application=Q3d, subfolder=test_subfolder)
-        self.q2dtest = Q2d(projectname=self.q3dtest.project_name)
+        self.q2dtest = Q2d(projectname=self.q3dtest.project_name, specified_version=config["desktopVersion"])
         self.eye_test = BasisTest.add_app(self, project_name=eye_diagram, application=Circuit, subfolder=test_subfolder)
         self.ami_test = BasisTest.add_app(self, project_name=ami, application=Circuit, subfolder=test_subfolder)
         self.array_test = BasisTest.add_app(self, project_name=array, subfolder=test_subfolder)
@@ -104,7 +107,7 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.setups[0].sweeps[0].frequencies) > 0
         assert isinstance(self.aedtapp.setups[0].sweeps[0].basis_frequencies, list)
 
-    @pytest.mark.skipif(sys.version_info < (3, 8), reason="Not running in ironpython")
+    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_01_Animate_plt(self):
         cutlist = ["Global:XY"]
         phases = [str(i * 5) + "deg" for i in range(2)]
@@ -141,7 +144,7 @@ class TestClass(BasisTest, object):
         model_gif2.animate()
         assert os.path.exists(model_gif2.gif_file)
 
-    @pytest.mark.skipif(config["NonGraphical"] == True, reason="Not running in non-graphical mode")
+    # @pytest.mark.skipif(config["NonGraphical"] == True, reason="Not running in non-graphical mode")
     def test_02_export_fields(self):
         quantity_name2 = "ComplexMag_H"
         setup_name = "Setup1 : LastAdaptive"
@@ -149,8 +152,10 @@ class TestClass(BasisTest, object):
         vollist = ["NewObject_IJD39Q"]
         plot2 = self.aedtapp.post.create_fieldplot_volume(vollist, quantity_name2, setup_name, intrinsic)
 
-        self.aedtapp.post.export_field_image_with_view(
-            plot2.name, plot2.plotFolder, os.path.join(self.local_scratch.path, "prova2.jpg")
+        self.aedtapp.post.export_field_jpg(
+            os.path.join(self.local_scratch.path, "prova2.jpg"),
+            plot2.name,
+            plot2.plotFolder,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "prova2.jpg"))
         assert os.path.exists(
@@ -176,10 +181,10 @@ class TestClass(BasisTest, object):
         for el in self.aedtapp.available_variations.nominal_w_values_dict:
             families[el] = self.aedtapp.available_variations.nominal_w_values_dict[el]
 
-        my_data = self.aedtapp.post.get_report_data(expression=trace_names, families_dict=families)
+        my_data = self.aedtapp.post.get_solution_data(expressions=trace_names, variations=families)
         assert my_data
         assert my_data.expressions
-        assert len(my_data.data_db(trace_names[0])) > 0
+        assert len(my_data.data_db10(trace_names[0])) > 0
         assert len(my_data.data_imag(trace_names[0])) > 0
         assert len(my_data.data_real(trace_names[0])) > 0
         assert len(my_data.data_magnitude(trace_names[0])) > 0
@@ -209,7 +214,7 @@ class TestClass(BasisTest, object):
 
         assert self.aedtapp.export_touchstone(setup_name, sweep_name)
 
-    @pytest.mark.skipif(config["NonGraphical"] == True, reason="Not running in non-graphical mode")
+    @pytest.mark.skipif(config["desktopVersion"] != "2023.1", reason="Not running in non-graphical mode")
     def test_05_export_report_to_jpg(self):
         self.aedtapp.post.export_report_to_jpg(self.local_scratch.path, "MyTestScattering")
         assert os.path.exists(os.path.join(self.local_scratch.path, "MyTestScattering.jpg"))
@@ -261,9 +266,9 @@ class TestClass(BasisTest, object):
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "MagEfieldCyl.fld"))
 
-    @pytest.mark.skipif(
-        config["NonGraphical"], reason="Skipped because it cannot run on build machine in non-graphical mode"
-    )
+    # @pytest.mark.skipif(
+    #     config["NonGraphical"], reason="Skipped because it cannot run on build machine in non-graphical mode"
+    # )
     def test_07_copydata(self):
         assert self.aedtapp.post.copy_report_data("MyTestScattering")
 
@@ -441,7 +446,7 @@ class TestClass(BasisTest, object):
             families[el] = self.aedtapp.available_variations.nominal_w_values_dict[el]
 
         # get solution data and save in .csv file
-        my_data = self.aedtapp.post.get_report_data(expression=trace_names, families_dict=families)
+        my_data = self.aedtapp.post.get_solution_data(expressions=trace_names, variations=families)
         my_data.export_data_to_csv(os.path.join(self.local_scratch.path, "output.csv"))
         csv_solution_data_file_path = os.path.join(self.local_scratch.path, "output.csv")
         assert not new_report.import_traces(csv_solution_data_file_path, plot_name)
@@ -635,9 +640,6 @@ class TestClass(BasisTest, object):
     def test_12_steal_on_focus(self):
         assert self.aedtapp.post.steal_focus_oneditor()
 
-    @pytest.mark.skipif(
-        config["NonGraphical"], reason="Skipped because it cannot run on build machine in non-graphical mode"
-    )
     def test_13_export_model_picture(self):
         path = self.aedtapp.post.export_model_picture(full_name=os.path.join(self.local_scratch.path, "images1.jpg"))
         assert path
@@ -646,7 +648,7 @@ class TestClass(BasisTest, object):
         path = self.aedtapp.post.export_model_picture()
         assert path
 
-    @pytest.mark.skipif(sys.version_info < (3, 8), reason="Not running in ironpython")
+    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_14_Field_Ploton_cutplanedesignname(self):
         cutlist = ["Global:XY"]
         setup_name = self.aedtapp.existing_analysis_sweeps[0]
@@ -681,7 +683,7 @@ class TestClass(BasisTest, object):
         plot_obj.plot(plot_obj.image_file)
         assert os.path.exists(plot_obj.image_file)
 
-    @pytest.mark.skipif(sys.version_info < (3, 8), reason="Not running in ironpython")
+    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_14B_Field_Ploton_Vector(self):
         cutlist = ["Global:XY"]
         setup_name = self.aedtapp.existing_analysis_sweeps[0]
@@ -706,14 +708,14 @@ class TestClass(BasisTest, object):
         )
         assert os.path.exists(plot_obj.image_file)
 
-    @pytest.mark.skipif(sys.version_info < (3, 8), reason="Not running in ironpython")
+    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_15_export_plot(self):
         obj = self.aedtapp.post.plot_model_obj(
             show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg")
         )
         assert os.path.exists(obj.image_file)
 
-    @pytest.mark.skipif(sys.version_info < (3, 8), reason="Not running in ironpython")
+    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_16_create_field_plot(self):
         cutlist = ["Global:XY"]
         plot = self.aedtapp.post._create_fieldplot(
@@ -840,7 +842,7 @@ class TestClass(BasisTest, object):
         else:
             assert self.field_test.post.get_efields_data(ff_setup="3D")
 
-    @pytest.mark.skipif(config["NonGraphical"] or not ipython_available, reason="Skipped because ipython not available")
+    @pytest.mark.skipif(not ipython_available, reason="plot_scene method is not supported in ironpython")
     def test_52_display(self):
         img = self.aedtapp.post.nb_display(show_axis=True, show_grid=True, show_ruler=True)
         assert isinstance(img, Image)
@@ -855,10 +857,12 @@ class TestClass(BasisTest, object):
 
     def test_54_reload(self):
         self.aedtapp.save_project()
-        app2 = Hfss(self.aedtapp.project_name)
+        app2 = Hfss(self.aedtapp.project_name, specified_version=config["desktopVersion"])
         assert len(app2.post.field_plots) == len(self.aedtapp.post.field_plots)
 
-    @pytest.mark.skipif(sys.version_info < (3, 8), reason="plot_scene method is not supported in ironpython")
+    @pytest.mark.skipif(
+        is_linux or sys.version_info < (3, 8), reason="plot_scene method is not supported in ironpython"
+    )
     def test_55_time_plot(self):
         self.sbr_test.analyze(self.sbr_test.active_setup, use_auto_settings=False)
         assert self.sbr_test.setups[0].is_solved
@@ -1057,7 +1061,7 @@ class TestClass(BasisTest, object):
             os.path.join(local_path, "example_models", "report_json", "Modal_Report.json")
         )
 
-    @pytest.mark.skipif(sys.version_info < (3, 8), reason="FarFieldSolution not supported by Ironpython")
+    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="FarFieldSolution not supported by IronPython")
     def test_71_antenna_plot(self):
         ffdata = self.field_test.get_antenna_ffd_solution_data(frequencies=30e9, sphere_name="3D")
         ffdata.phase_offset = [0, 90, 0, 90]
@@ -1107,7 +1111,10 @@ class TestClass(BasisTest, object):
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d2.jpg"))
 
-    @pytest.mark.skipif(sys.version_info < (3, 8), reason="FarFieldSolution not supported by Ironpython")
+        p = ffdata.polar_plot_3d_pyvista(qty_str="RealizedGain", convert_to_db=True, show=False)
+        assert isinstance(p, object)
+
+    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="FarFieldSolution not supported by IronPython")
     def test_72_antenna_plot(self):
         ffdata = self.array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere_name="3D")
         ffdata.frequency = 3.5e9

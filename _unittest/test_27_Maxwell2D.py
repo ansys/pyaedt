@@ -436,3 +436,20 @@ class TestClass(BasisTest, object):
 
     def test_30_simplify_objects(self):
         assert not self.aedtapp.simplify_objects(input_objects_list="Rotor_Section1")
+
+    def test_31_cylindrical_gap(self):
+        assert not self.aedtapp.mesh.assign_cylindrical_gap("Band")
+        [
+            x.delete()
+            for x in self.aedtapp.mesh.meshoperations[:]
+            if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
+        ]
+        assert self.aedtapp.mesh.assign_cylindrical_gap("Band", meshop_name="cyl_gap_test")
+        assert not self.aedtapp.mesh.assign_cylindrical_gap(["Band", "Region"])
+        assert not self.aedtapp.mesh.assign_cylindrical_gap("Band")
+        [
+            x.delete()
+            for x in self.aedtapp.mesh.meshoperations[:]
+            if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
+        ]
+        assert self.aedtapp.mesh.assign_cylindrical_gap("Band", meshop_name="cyl_gap_test", band_mapping_angle=2)

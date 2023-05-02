@@ -158,7 +158,7 @@ def unit_converter(values, unit_system="Length", input_units="meter", output_uni
 
     Returns
     -------
-    float
+    float, list
         Converted value.
     """
     if unit_system in AEDT_UNITS:
@@ -695,7 +695,7 @@ class BasisOrder(object):
     ``single``.
     """
 
-    (Mixed, Zero, Single, Double, Invalid) = range(0, 5)
+    (Mixed, Zero, Single, Double, Invalid) = (-1, 0, 1, 2, 3)
 
 
 class NodeType(object):
@@ -896,42 +896,6 @@ class SETUPS(object):
         CPSM,
         NSSM,
     ) = range(0, 52)
-
-
-class CoordinateSystemAxis(object):
-    """CoordinateSystemAxis class.
-
-    .. deprecated:: 0.4.8
-        Use :func:`AXIS` instead."""
-
-    (XAxis, YAxis, ZAxis) = range(0, 3)
-
-
-class CoordinateSystemPlane(object):
-    """CoordinateSystemPlane class.
-
-    .. deprecated:: 0.4.8
-        Use :func:`PLANE` instead."""
-
-    (YZPlane, ZXPlane, XYPlane) = range(0, 3)
-
-
-class Plane(object):
-    """Plane class.
-
-    .. deprecated:: 0.4.8
-        Use :func:`VIEW` instead."""
-
-    (XYPlane, YZPlane, ZXPlane, ISO) = ("XY", "YZ", "ZX", "iso")
-
-
-class GravityDirection(object):
-    """GravityDirection class.
-
-    .. deprecated:: 0.4.8
-        Use :func:`GRAVITY` instead."""
-
-    (XNeg, YNeg, ZNeg, XPos, YPos, ZPos) = range(0, 6)
 
 
 CSS4_COLORS = {

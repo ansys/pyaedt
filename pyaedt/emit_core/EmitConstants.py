@@ -1,7 +1,4 @@
-import os
-import sys
-
-from pyaedt.emit_core import EMIT_MODULE
+from pyaedt import emit_core
 
 
 def result_type():
@@ -20,7 +17,7 @@ def result_type():
 
     """
     try:
-        result = EMIT_MODULE.result_type()
+        result = emit_core.emit_api_python().result_type()
     except NameError:
         raise ValueError("An Emit object must be initialized before any static member of EmitConstants is accessed.")
     return result
@@ -41,7 +38,7 @@ def tx_rx_mode():
 
     """
     try:
-        tx_rx = EMIT_MODULE.tx_rx_mode()
+        tx_rx = emit_core.emit_api_python().tx_rx_mode()
     except NameError:
         raise ValueError("An Emit object must be initialized before any static member of EmitConstants is accessed.")
     return tx_rx
@@ -60,7 +57,7 @@ def interferer_type():
     >>> tx_only = int_type.transmitters
     """
     try:
-        inter_type = EMIT_MODULE.interferer_type()
+        inter_type = emit_core.emit_api_python().interferer_type()
     except NameError:
         raise ValueError("An Emit object must be initialized before any static member of EmitConstants is accessed.")
     return inter_type
@@ -68,18 +65,16 @@ def interferer_type():
 
 def unit_type():
     """Get a ``unit_type`` object.
-
     Returns
     -------
     :class:`EmitConstants.unit_type`
         Type of unit. Options are ``"Power"``, ``"Frequency"``, ``"Length"``,
         ``"Time"``, ``"Voltage"``, ``"DataRate"``, and ``"Resistance"``.
-
     Examples
     >>> unit_type = EmitConstants.unit_type()
     """
     try:
-        unit_type = EMIT_MODULE.unit_type()
+        unit_type = emit_core.emit_api_python().unit_type()
     except NameError:
         raise ValueError("An Emit object must be initialized before any static member of EmitConstants is accessed.")
     return unit_type
@@ -99,8 +94,8 @@ EMIT_VALID_UNITS = {
 }
 """Valid units for each unit type."""
 
-desktop_path = os.environ.get("ANSYSEM_ROOT232")
-if desktop_path and sys.version_info < (3, 8):
+
+def emit_unit_type_string_to_enum(unit_string):
     EMIT_UNIT_TYPE_STRING_TO_ENUM = {
         "Power": unit_type().power,
         "Frequency": unit_type().frequency,
@@ -110,3 +105,4 @@ if desktop_path and sys.version_info < (3, 8):
         "Data Rate": unit_type().dataRate,
         "Resistance": unit_type().resistance,
     }
+    return EMIT_UNIT_TYPE_STRING_TO_ENUM[unit_string]

@@ -1,11 +1,13 @@
 version: 2
 updates:
   - package-ecosystem: "pip" # See documentation for possible values
-    directory: "/requirements" # Location of package manifests
+    directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
     reviewers: 
       - "MaxJPRey"
+    commit-message:
+      prefix: "MAINT"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -13,3 +15,5 @@ updates:
       interval: "daily"
     reviewers: 
       - "MaxJPRey"
+    commit-message:
+      prefix: "MAINT"

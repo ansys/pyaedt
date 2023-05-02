@@ -16,8 +16,9 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class SimulationConfigurationBatch(object):
-    """Contains all Cuotut and Batch analysis settings.
+    """Contains all Cutout and Batch analysis settings.
     The class is part of `SimulationConfiguration` class as a property.
+
 
     """
 
@@ -38,9 +39,13 @@ class SimulationConfigurationBatch(object):
         self._coplanar_instances = []
         self._signal_layer_etching_instances = []
         self._etching_factor_instances = []
-        self._dielectric_extent = 0.01
-        self._airbox_horizontal_extent = 0.04
+        self._use_dielectric_extent_multiple = True
+        self._dielectric_extent = 0.001
+        self._use_airbox_horizontal_multiple = True
+        self._airbox_horizontal_extent = 0.1
+        self._use_airbox_negative_vertical_extent_multiple = True
         self._airbox_negative_vertical_extent = 0.1
+        self._use_airbox_positive_vertical_extent_multiple = True
         self._airbox_positive_vertical_extent = 0.1
         self._honor_user_dielectric = False
         self._truncate_airbox_at_ground = False
@@ -103,8 +108,9 @@ class SimulationConfigurationBatch(object):
 
         Returns
         -------
-            float
-            Value of the dielectric extent.
+        float
+            Value of the dielectric extent. When absolute dimensions are used,
+            the values are in meters.
         """
         return self._dielectric_extent
 
@@ -114,8 +120,26 @@ class SimulationConfigurationBatch(object):
             self._dielectric_extent = value
 
     @property
+    def use_dielectric_extent_multiple(self):
+        """Whether the multiple value of the dielectric extent is used.
+
+        Returns
+        -------
+        bool
+           ``True`` when the multiple value (extent factor) is used. ``False`` when
+           absolute dimensions are used.
+        """
+        return self._use_dielectric_extent_multiple
+
+    @use_dielectric_extent_multiple.setter
+    def use_dielectric_extent_multiple(self, value):
+        if isinstance(value, bool):
+            self._use_dielectric_extent_multiple = value
+
+    @property
     def airbox_horizontal_extent(self):  # pragma: no cover
-        """Retrieve the air box horizontal extent size for HFSS.
+        """Horizontal extent of the airbox for HFSS. When absolute dimensions are used,
+        the values are in meters.
 
         Returns
         -------
@@ -130,8 +154,27 @@ class SimulationConfigurationBatch(object):
             self._airbox_horizontal_extent = value
 
     @property
+    def use_airbox_horizontal_extent_multiple(self):
+        """Whether the multiple value is used for the horizontal extent of the air box.
+
+        Returns
+        -------
+        bool
+            ``True`` when the multiple value (extent factor) is used. ``False`` when
+            absolute dimensions are used.
+
+        """
+        return self._use_airbox_horizontal_multiple
+
+    @use_airbox_horizontal_extent_multiple.setter
+    def use_airbox_horizontal_extent_multiple(self, value):
+        if isinstance(value, bool):
+            self._use_airbox_horizontal_multiple = value
+
+    @property
     def airbox_negative_vertical_extent(self):  # pragma: no cover
-        """Retrieve the air box negative vertical extent size for HFSS.
+        """Negative vertical extent of the airbox for HFSS. When absolute dimensions
+        are used, the values are in meters.
 
         Returns
         -------
@@ -146,8 +189,27 @@ class SimulationConfigurationBatch(object):
             self._airbox_negative_vertical_extent = value
 
     @property
+    def use_airbox_negative_vertical_extent_multiple(self):
+        """Multiple value for the negative extent of the airbox.
+
+        Returns
+        -------
+        bool
+            ``True`` when the multiple value (extent factor) is used. ``False`` when
+            absolute dimensions are used.
+
+        """
+        return self._use_airbox_negative_vertical_extent_multiple
+
+    @use_airbox_negative_vertical_extent_multiple.setter
+    def use_airbox_negative_vertical_extent_multiple(self, value):
+        if isinstance(value, bool):
+            self._use_airbox_negative_vertical_extent_multiple = value
+
+    @property
     def airbox_positive_vertical_extent(self):  # pragma: no cover
-        """Retrieve the air box positive vertical extent size for HFSS.
+        """Positive vertical extent of the airbox for HFSS. When absolute dimensions are
+        used, the values are in meters.
 
         Returns
         -------
@@ -162,8 +224,25 @@ class SimulationConfigurationBatch(object):
             self._airbox_positive_vertical_extent = value
 
     @property
+    def use_airbox_positive_vertical_extent_multiple(self):
+        """Whether the multiple value for the positive extent of the airbox is used.
+
+        Returns
+        -------
+        bool
+            ``True`` when the multiple value (extent factor) is used. ``False`` when
+            absolute dimensions are used.
+        """
+        return self._use_airbox_positive_vertical_extent_multiple
+
+    @use_airbox_positive_vertical_extent_multiple.setter
+    def use_airbox_positive_vertical_extent_multiple(self, value):
+        if isinstance(value, bool):
+            self._use_airbox_positive_vertical_extent_multiple = value
+
+    @property
     def use_default_cutout(self):  # pragma: no cover
-        """Either if use the default EDB Cutout or new pyaedt cutout.
+        """Whether the default EDB cutout or a new PyAEDT cutout is used.
 
         Returns
         -------
@@ -197,7 +276,7 @@ class SimulationConfigurationBatch(object):
         Returns
         -------
         bool
-            'True' when applied 'False' if not.
+            ``True`` when applied ``False`` if not.
         """
         return self._generate_solder_balls
 
@@ -278,7 +357,7 @@ class SimulationConfigurationBatch(object):
         Returns
         -------
         bool
-            'True' when the default value is used 'False' if not.
+            ``True`` when the default value is used ``False`` if not.
         """
         return self._use_default_coax_port_radial_extension
 
@@ -310,7 +389,7 @@ class SimulationConfigurationBatch(object):
         Returns
         -------
             bool
-            'True' when clipping the design is applied 'False' is not.
+            ``True`` when clipping the design is applied ``False`` is not.
         """
         return self._do_cutout_subdesign
 
@@ -340,7 +419,7 @@ class SimulationConfigurationBatch(object):
 
         Returns
         -------
-            float
+        float
             The value used as a ratio.
         """
 
@@ -356,8 +435,8 @@ class SimulationConfigurationBatch(object):
 
         Returns
         -------
-            bool
-            'True' when using round corner, 'False' if not.
+        bool
+            ``True`` when using round corner, ``False`` if not.
         """
 
         return self._cutout_subdesign_round_corner
@@ -376,7 +455,7 @@ class SimulationConfigurationBatch(object):
 
         Returns
         -------
-            str
+        str
             Absolute path for the created aedb folder.
         """
         return self._output_aedb
@@ -410,10 +489,7 @@ class SimulationConfigurationBatch(object):
 
         Parameters
         ----------
-        source :  :class:`pyaedt.edb_core.edb_data.sources.Source`
-
-        Returns
-        -------
+        source : :class:`pyaedt.edb_core.edb_data.sources.Source`
 
         """
         if isinstance(source, Source):
@@ -425,8 +501,8 @@ class SimulationConfigurationBatch(object):
 
         Returns
         -------
-            bool
-            "'True'" activated, "'False'" deactivated.
+        bool
+            ``True`` activated, ``False`` deactivated.
         """
         return self._honor_user_dielectric
 
@@ -441,8 +517,8 @@ class SimulationConfigurationBatch(object):
 
         Returns
         -------
-            bool
-            "'True'" activated, "'False'" deactivated.
+        bool
+            ``True`` activated, ``False`` deactivated.
         """
         return self._truncate_airbox_at_ground
 
@@ -457,8 +533,8 @@ class SimulationConfigurationBatch(object):
 
         Returns
         -------
-            bool
-            "'True'" activated, "'False'" deactivated.
+        bool
+            ``True`` activated, ``False`` deactivated.
         """
         return self._use_radiation_boundary
 
@@ -473,7 +549,7 @@ class SimulationConfigurationBatch(object):
 
         Returns
         -------
-            list[str]
+        list[str]
             List of layer name.
         """
         return self._signal_layers_properties
@@ -528,7 +604,7 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            float
+        float
             The value of the minimum plane area.
         """
         return self._dc_min_plane_area_to_mesh
@@ -544,8 +620,8 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            bool
-            'True' activate 'False' deactivated.
+        bool
+            ``True`` activate ``False`` deactivated.
         """
         return self._dc_compute_inductance
 
@@ -560,7 +636,7 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            str
+        str
             The contact radius value.
 
         """
@@ -582,7 +658,7 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            int
+        int
             The position value, 0 Optimum speed, 1 balanced, 2 optimum accuracy.
         """
         return self._dc_slide_position
@@ -598,8 +674,8 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            bool
-            'True' when activated, 'False' deactivated.
+        bool
+            ``True`` when activated, ``False`` deactivated.
 
         """
         return self._dc_use_dc_custom_settings
@@ -615,8 +691,8 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            bool
-            'True' when activated, 'False' deactivated. Default value True
+        bool
+            ``True`` when activated, ``False`` deactivated. Default value True
 
         """
         return self._dc_plot_jv
@@ -632,7 +708,7 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            str
+        str
             The area value.
 
         """
@@ -649,7 +725,7 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            float
+        float
             The error energy value, 0.2 as default.
 
         """
@@ -666,7 +742,7 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            str
+        str
             maximum mesh length.
 
         """
@@ -683,7 +759,7 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            int
+        int
             number of passes.
         """
         return self._dc_max_num_pass
@@ -699,7 +775,7 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            nt
+        int
             number of passes.
         """
         return self._dc_min_num_pass
@@ -715,8 +791,8 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            bool
-            'True' when activated, 'False' deactivated.
+        bool
+            ``True`` when activated, ``False`` deactivated.
 
         """
         return self._dc_mesh_bondwires
@@ -732,7 +808,7 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            int
+        int
             Number of sides.
 
         """
@@ -749,8 +825,8 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            bool
-            'True' when activated, 'False' deactivated.
+        bool
+            ``True`` when activated, ``False`` deactivated.
 
         """
         return self._dc_mesh_vias
@@ -766,7 +842,7 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            int
+        int
             Number of sides.
 
         """
@@ -783,7 +859,7 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            float
+        float
             The refinement value, 0.2 (20%) as default.
 
         """
@@ -800,8 +876,8 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            bool
-            'True' when activated, 'False' deactivated.
+        bool
+            ``True`` when activated, ``False`` deactivated.
 
         """
         return self._dc_perform_adaptive_refinement
@@ -817,8 +893,8 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            bool
-            'True' when activated, 'False' deactivated.
+        bool
+            ``True`` when activated, ``False`` deactivated.
 
         """
         return self._dc_refine_bondwires
@@ -834,8 +910,8 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            bool
-            'True' when activated, 'False' deactivated.
+        bool
+            ``True`` when activated, ``False`` deactivated.
 
         """
         return self._dc_refine_vias
@@ -851,7 +927,7 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            str
+        str
             The file path.
 
         """
@@ -868,8 +944,8 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            bool
-            'True' when activated, 'False' deactivated.
+        bool
+            ``True`` when activated, ``False`` deactivated.
 
         """
         return self._dc_report_show_Active_devices
@@ -886,7 +962,7 @@ class SimulationConfigurationDc(object):
         Returns
         -------
             bool
-            'True' when activated, 'False' deactivated.
+            ``True`` when activated, ``False`` deactivated.
 
         """
         return self._dc_export_thermal_data
@@ -936,7 +1012,7 @@ class SimulationConfigurationDc(object):
         Returns
         -------
             bool
-            'True' when activated,'False' deactivated.
+            ``True`` when activated,``False`` deactivated.
 
         """
         return self._dc_import_thermal_data
@@ -1089,7 +1165,7 @@ class SimulationConfigurationAc(object):
         Returns
         -------
             bool
-            'True' when a sweep interpolating is defined, 'False' when a discrete one is defined instead.
+            ``True`` when a sweep interpolating is defined, ``False`` when a discrete one is defined instead.
         """
 
         return self._sweep_interpolating
@@ -1106,7 +1182,7 @@ class SimulationConfigurationAc(object):
         Returns
         -------
             bool
-            'True' when Q3D solver is used 'False' when interpolating value is used instead.
+            ``True`` when Q3D solver is used ``False`` when interpolating value is used instead.
         """
 
         return self._use_q3d_for_dc
@@ -1157,7 +1233,7 @@ class SimulationConfigurationAc(object):
         Returns
         -------
             bool
-            'True' when clipping the design is applied 'False' if not.
+            ``True`` when clipping the design is applied ``False`` if not.
         """
 
         return self._percentage_error_z0
@@ -1174,7 +1250,7 @@ class SimulationConfigurationAc(object):
         Returns
         -------
             bool
-            'True' when causality is enforced 'False' if not.
+            ``True`` when causality is enforced ``False`` if not.
         """
 
         return self._enforce_causality
@@ -1191,7 +1267,7 @@ class SimulationConfigurationAc(object):
         Returns
         -------
             bool
-            'True' when passivity is enforced 'False' if not.
+            ``True`` when passivity is enforced ``False`` if not.
         """
         return self._enforce_passivity
 
@@ -1415,7 +1491,7 @@ class SimulationConfigurationAc(object):
         Returns
         -------
             bool
-            'True' Enable the lambda meshing refinement with HFSS, 'False' deactivate.
+            ``True`` Enable the lambda meshing refinement with HFSS, ``False`` deactivate.
         """
         return self._do_lambda_refinement
 
@@ -1479,7 +1555,7 @@ class SimulationConfigurationAc(object):
         Returns
         -------
             bool
-            Activate when 'True', deactivated when 'False'.
+            Activate when ``True``, deactivated when ``False``.
         """
         return self._use_arc_to_chord_error
 
@@ -1529,7 +1605,7 @@ class SimulationConfigurationAc(object):
         Returns
         -------
             bool
-            'True' when activated 'False when deactivated.
+            ``True`` when activated 'False when deactivated.
         """
         return self._defeature_layout
 
@@ -1626,7 +1702,7 @@ class SimulationConfigurationAc(object):
         Returns
         -------
             bool
-            'True' activated 'False' deactivated.
+            ``True`` activated ``False`` deactivated.
         """
         return self._include_inter_plane_coupling
 
@@ -1692,7 +1768,7 @@ class SimulationConfigurationAc(object):
         Returns
         -------
             bool
-            'True' activate 'False' deactivated.
+            ``True`` activate ``False`` deactivated.
         """
         return self._snap_length_threshold
 
@@ -1745,21 +1821,315 @@ class SimulationConfiguration(object):
 
     Examples
     --------
+    This class is very convenient to build HFSS and SIwave simulation projects from layout.
+    It is leveraging EDB commands from Pyaedt but with keeping high level parameters making more easy PCB automation
+    flow. SYZ and DC simulation can be addressed with this class.
+
+    The class is instantiated from an open edb:
+
     >>> from pyaedt import Edb
     >>> edb = Edb()
     >>> sim_setup = edb.new_simulation_configuration()
-    >>> sim_setup.solver_type = SolverType.SiwaveSYZ
-    >>> sim_setup.batch_solve_settings.cutout_subdesign_expansion = 0.01
-    >>> sim_setup.batch_solve_settings.do_cutout_subdesign = True
-    >>> sim_setup.batch_solve_settings.signal_nets = ["PCIE0_RX0_P", "PCIE0_RX0_N", "PCIE0_TX0_P_C", "PCIE0_TX0_N_C"]
-    >>> sim_setup.batch_solve_settings.components = ["U2A5", "J2L1"]
-    >>> sim_setup.batch_solve_settings.power_nets = ["GND"]
-    >>> sim_setup.ac_settings.start_freq = "100Hz"
-    >>> sim_setup.ac_settings.stop_freq = "6GHz"
-    >>> sim_setup.ac_settings.step_freq = "10MHz"
-    >>> sim_setup.export_json(os.path.join(project_path, "configuration.json"))
-    >>> sim_setup.build_simulation_project(sim_setup)
+    >>> edb = Edb()
+    >>> sim_setup = edb.new_simulation_configuration()
 
+    The returned object sim_setup is a SimulationConfiguration object.
+    From this class you can assign a lot of parameters related the project configuration but also solver options.
+    Here is the list of parameters available:
+
+    >>> from pyaedt.generic.constants import SolverType
+    >>> sim_setup.solver_type = SolverType.Hfss3dLayout
+
+    Solver type can be selected, HFSS 3D Layout and Siwave are supported.
+
+
+    >>> sim_setup.signal_nets = ["net1", "net2"]
+
+    Set the list of net names you want to include for the simulation. These nets will
+    have excitations ports created if corresponding pins are found on selected component. We usually refer to signal
+    nets but power / reference nets can also be passed into this list if user wants to have ports created on these ones.
+
+    >>> sim_setup.power_nets = ["gnd", "vcc"]
+
+    Set the list on power and reference nets. These nets won't have excitation ports created
+    on them and will be clipped during the project build if the cutout option is enabled.
+
+    >>> sim_setup.components = ["comp1", "comp2"]
+
+    Set the list of components which will be included in the simulation. These components will have ports created on
+    pins belonging to the net list.
+
+    >>> sim_setup.do_cutout_subdesign = True
+
+    When true activates the layout cutout based on net signal net selection and cutout expansion.
+
+    >>> from pyaedt.generic.constants import CutoutSubdesignType
+    >>> sim_setup.cutout_subdesign_type = CutoutSubdesignType.Conformal
+
+    Define the type of cutout used for computing the clippingextent polygon. CutoutSubdesignType.Conformal
+    CutoutSubdesignType.BBox are surpported.
+
+    >>> sim_setup.cutout_subdesign_expansion = "4mm"
+
+    Define the distance used for computing the extent polygon. Integer or string can be passed.
+    For example 0.001 is in meter so here 1mm. You can also pass the string "1mm" for the same result.
+
+    >>> sim_setup.cutout_subdesign_round_corner = True
+
+    Boolean to allow using rounded corner for the cutout extent or not.
+
+    >>> sim_setup.use_default_cutout = False
+
+    When True use the native edb API command to process the cutout. Using False uses
+    the Pyaedt one which improves the cutout speed.
+
+    >>> sim_setup.generate_solder_balls = True
+
+    Boolean to activate the solder ball generation on components. When HFSS solver is selected in combination with this
+    parameter, coaxial ports will be created on solder balls for pins belonging to selected signal nets. If Siwave
+    solver is selected this parameter will be ignored.
+
+    >>> sim_setup.use_default_coax_port_radial_extension = True
+
+    When ``True`` the default coaxial extent is used for the ports (only for HFSS).
+    When the design is having dense solder balls close to each other (like typically package design), the default value
+    might be too large and cause port overlapping, then solver failure. To prevent this issue set this parameter to
+    ``False`` will use a smaller value.
+
+    >>> sim_setup.output_aedb = r"C:\temp\my_edb.aedb"
+
+    Specify the output edb file after building the project. The parameter must be the complete file path.
+    leaving this parameter blank will oervwritte the current open edb.
+
+    >>>  sim_setup.dielectric_extent = 0.01
+
+    Gives the dielectric extent after cutout, keeping default value is advised unless for
+    very specific application.
+
+    >>> sim_setup.airbox_horizontal_extent = "5mm"
+
+    Provide the air box horizonzal extent values. Unitless float value will be
+    treated as ratio but string value like "5mm" is also supported.
+
+    >>> sim_setup.airbox_negative_vertical_extent = "5mm"
+
+    Provide the air box negative vertical extent values. Unitless float value will be
+    treated as ratio but string value like "5mm" is also supported.
+
+    >>> sim_setup.airbox_positive_vertical_extent = "5mm"
+
+    Provide the air box positive vertical extent values. Unitless float value will be
+    treated as ratio but string value like "5mm" is also supported.
+
+    >>> sim_setup.use_radiation_boundary = True
+
+    When ``True`` use radiation airbox boundary condition and perfect metal box when
+    set to ``False``. Default value is ``True``, using enclosed metal box will greatly change simulation results.
+    Setting this parameter as ``False`` must be used cautiously.
+
+    >>> sim_setup.do_cutout_subdesign = True
+
+    ``True`` activates the cutout with associated parameters. Setting ``False`` will
+    keep the entire layout.
+    Setting to ``False`` can impact the simulation run time or even memory failure if HFSS solver is used.
+
+    >>> sim_setup.do_pin_group = False
+
+    When circuit ports are used, setting to ``True`` will force to create pin groups on
+    components having pins belonging to same net. Setting to ``False`` will generate port on each signal pin with
+    taking the closest reference pin. The last configuration is more often used when users are creating ports on PDN
+    (Power delivery Network) and want to connect all pins individually.
+
+    >>> from pyaedt.generic.constants import SweepType
+    >>> sim_setup.sweep_type = SweepType.Linear
+
+    Specify the frequency sweep type, Linear or Log sweep can be defined.
+
+    SimulationCOnfiguration also inherit from SimulationConfigurationAc class for High frequency settings.
+
+    >>> sim_setup.start_freq = "OHz"
+
+    Define the start frequency from the sweep.
+
+    >>> sim_setup.stop_freq = "40GHz"
+
+    Define the stop frequency from the sweep.
+
+    >>> sim_setup.step_freq = "10MHz"
+
+    Define the step frequency from the sweep.
+
+    >>> sim_setup.decade_count = 100
+
+    Used when log sweep is defined and specify the number of points per decade.
+
+    >>> sim_setup.enforce_causality = True
+
+    Activate the option ``Enforce Causality`` for the solver, recommended for signal integrity application
+
+    >>> sim_setup.enforce_passivity = True
+
+    Activate the option ``Enforce Passivity`` for the solver, recommended for signal integrity application
+
+    >>> sim_setup.do_lambda_refinement = True
+
+    Activate the lambda refinement for the initial mesh (only for HFSS), default value is ``True``. Keeping this
+    activated is highly recommended.
+
+    >>> sim_setup.use_q3d_for_dc = False
+
+    Enable when ``True`` the Q3D DC point computation. Only needed when very high accuracy is required for DC point.
+    Can eventually cause extra computation time.
+
+    >>> sim_setup.sweep_name = "Test_sweep"
+
+    Define the frequency sweep name.
+
+    >>> sim_setup.mesh_freq = "10GHz"
+
+    Define the frequency used for adaptive meshing (available for both HFSS and SIwave).
+
+    >>> from pyaedt.generic.constants import RadiationBoxType
+    >>> sim_setup.radiation_box = RadiationBoxType.ConvexHull
+
+    Defined the radiation box type, Conformal, Bounding box and ConvexHull are supported (HFSS only).
+
+    >>> sim_setup.max_num_passes= 30
+
+    Default value is 30, specify the maximum number of adaptive passes (only HFSS). Reasonable high value is recommended
+    to force the solver reaching the convergence criteria.
+
+    >>> sim_setup.max_mag_delta_s = 0.02
+
+    Define the convergence criteria
+
+    >>> sim_setup.min_num_passes = 2
+
+    specify the minimum number of consecutive coberged passes. Setting to 2 is a good practice to avoid converging on
+    local minima.
+
+    >>> from pyaedt.generic.constants import BasisOrder
+    >>> sim_setup.basis_order =  BasisOrder.Single
+
+    Select the order basis (HFSS only), Zero, Single, Double and Mixed are supported. For Signal integrity Single or
+    Mixed should be used.
+
+    >>> sim_setup.minimum_void_surface = 0
+
+    Only for Siwave, specify the minimum void surface to be meshed. Void with lower surface value will be ignored by
+    meshing.
+
+    SimulationConfiguration also inherits from SimulationDc class to handle DC simulation projects.
+
+    >>> sim_setup.dc_compute_inductance = True
+
+    ``True`` activate the DC loop inductance computation (Siwave only), ``False`` is deactivated.
+
+    >>> sim_setup.dc_slide_position = 1
+
+    The provided value must be between 0 and 2 and correspond ti the SIwave DC slide position in GUI.
+    0 : coarse
+    1 : medium accuracy
+    2 : high accuracy
+
+    >>> sim_setup.dc_plot_jv = True
+
+    ``True`` activate the current / voltage plot with Siwave DC solver, ``False`` deactivate.
+
+    >>> sim_setup.dc_error_energy = 0.02
+
+    Fix the DC error convergence criteria. In this example 2% is defined.
+
+    >>> sim_setup.dc_max_num_pass = 6
+
+    Provide the maximum number of passes during Siwave DC adaptive meshing.
+
+    >>> sim_setup.dc_min_num_pass = 1
+
+    Provide the minimum number of passes during Siwave DC adaptive meshing.
+
+    >>> sim_setup.dc_mesh_bondwires = True
+
+    ``True`` bondwires are meshed, ``False`` bond wires are ignored during meshing.
+
+    >>> sim_setup.dc_num_bondwire_sides = 8
+
+    Gives the number of facets wirebonds are discretized.
+
+    >>> sim_setup.dc_refine_vias = True
+
+    ``True`` meshing refinement on nondwires activated during meshing process. Deactivated when set to ``False``.
+
+    >>> sim_setup.dc_report_show_Active_devices = True
+
+    Activate when ``True`` the components showing in the DC report.
+
+    >>> sim_setup.dc_export_thermal_data = True
+
+    ``True`` thermal data are exported for Icepak simulation.
+
+    >>> sim_setup.dc_full_report_path = r"C:\temp\my_report.html"
+
+    Provides the file path for the DC report.
+
+    >>> sim_setup.dc_icepak_temp_file = r"C:\temp\my_file"
+
+    Provides icepak temporary files location.
+
+    >>> sim_setup.dc_import_thermal_data = False
+
+    Import DC thermal data when `True``
+
+    >>> sim_setup.dc_per_pin_res_path = r"C:\temp\dc_pin_res_file"
+    Provides the resistance per pin file path.
+
+    >>> sim_setup.dc_per_pin_use_pin_format = True
+
+    When ``True`` activate the pin format.
+
+    >>> sim_setup.dc_use_loop_res_for_per_pin = True
+
+    Activate the loop resistance usage per pin when ``True``
+
+    >>> sim_setup.dc_via_report_path = 'C:\\temp\\via_report_file'
+
+    Define the via report path file.
+
+    >>> sim_setup.add_current_source(name="test_isrc",
+    >>>                                 current_value=1.2,
+    >>>                                 phase_value=0.0,
+    >>>                                 impedance=5e7,
+    >>>                                 positive_node_component="comp1",
+    >>>                                 positive_node_net="net1",
+    >>>                                 negative_node_component="comp2",
+    >>>                                 negative_node_net="net2"
+    >>>                             )
+
+    Define a current source.
+
+    >>> sim_setup.add_dc_ground_source_term(source_name="test_isrc", node_to_ground=1)
+
+    Define the pin from a source which has to be set to reference for DC simulation.
+
+    >>> sim_setup.add_voltage_source(name="test_vsrc",
+    >>>                                 current_value=1.33,
+    >>>                                 phase_value=0.0,
+    >>>                                 impedance=1e-6,
+    >>>                                 positive_node_component="comp1",
+    >>>                                 positive_node_net="net1",
+    >>>                                 negative_node_component="comp2",
+    >>>                                 negative_node_net="net2"
+    >>>                             )
+
+    Define a voltage source.
+
+    >>> sim_setup.add_dc_ground_source_term(source_name="test_vsrc", node_to_ground=1)
+
+    Define the pin from a source which has to be set to reference for DC simulation.
+
+    >>> edb.build_simulation_project(sim_setup)
+
+    Will build and save your project.
     """
 
     def __getattr__(self, item):

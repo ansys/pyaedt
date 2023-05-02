@@ -15,18 +15,16 @@ import time
 import warnings
 
 from pyaedt import is_ironpython
+from pyaedt import is_linux
+from pyaedt import is_windows
 from pyaedt import settings
 from pyaedt.application.Design import Design
 from pyaedt.application.JobManager import update_hpc_option
 from pyaedt.application.Variables import Variable
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import AXIS
-from pyaedt.generic.constants import CoordinateSystemAxis
-from pyaedt.generic.constants import CoordinateSystemPlane
 from pyaedt.generic.constants import GRAVITY
-from pyaedt.generic.constants import GravityDirection
 from pyaedt.generic.constants import PLANE
-from pyaedt.generic.constants import Plane
 from pyaedt.generic.constants import SETUPS
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.constants import VIEW
@@ -42,10 +40,11 @@ from pyaedt.modules.SolveSetup import Setup
 from pyaedt.modules.SolveSetup import SetupHFSS
 from pyaedt.modules.SolveSetup import SetupHFSSAuto
 from pyaedt.modules.SolveSetup import SetupMaxwell
+from pyaedt.modules.SolveSetup import SetupQ3D
 from pyaedt.modules.SolveSetup import SetupSBR
 from pyaedt.modules.SolveSweeps import SetupProps
 
-if os.name == "posix" and is_ironpython:
+if is_linux and is_ironpython:
     import subprocessdotnet as subprocess
 else:
     import subprocess
@@ -212,66 +211,6 @@ class Analysis(Design, object):
         return self._available_variations
 
     @property
-    def CoordinateSystemAxis(self):
-        """Coordinate system axis constant.
-
-        .. deprecated:: 0.4.8
-           Use :attr:`AXIS` instead.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.constants.AXIS`
-            Coordinate system axis constants tuple (.X, .Y, .Z).
-
-        """
-        return CoordinateSystemAxis()
-
-    @property
-    def CoordinateSystemPlane(self):
-        """Coordinate system plane constants.
-
-        .. deprecated:: 0.4.8
-           Use :attr:`PLANE` instead.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.constants.PLANE`
-            Coordinate system plane constants tuple (.XY, .YZ, .XZ).
-
-        """
-        return CoordinateSystemPlane()
-
-    @property
-    def View(self):
-        """Planes.
-
-        .. deprecated:: 0.4.8
-           Use :attr:`VIEW` instead.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.constants.PLANE`
-            Coordinate system plane string tuple ("XY", "YZ", "XZ").
-
-        """
-        return Plane()
-
-    @property
-    def GravityDirection(self):
-        """Gravity direction.
-
-        .. deprecated:: 0.4.8
-           Use :attr:`GRAVITY` instead.
-
-        Returns
-        -------
-        tuple
-            Gravity direction tuple (XNeg, YNeg, ZNeg, XPos, YPos, ZPos).
-
-        """
-        return GravityDirection()
-
-    @property
     def active_setup(self):
         """Get or Set the name of the active setup. If not set it will be the first analysis setup.
 
@@ -300,7 +239,7 @@ class Analysis(Design, object):
             assert setup_name in setup_list, "Invalid setup name {}".format(setup_name)
             self._setup = setup_name
         else:
-            self._setup = setup_list[0]
+            raise AttributeError("No setup defined")
 
     @property
     def analysis_setup(self):
@@ -423,8 +362,10 @@ class Analysis(Design, object):
 
         >>> oModule.GetSetups
         """
-        setups = list(self.oanalysis.GetSetups())
-        return setups
+        setups = self.oanalysis.GetSetups()
+        if setups:
+            return list(setups)
+        return []
 
     @property
     def setup_names(self):
@@ -485,27 +426,6 @@ class Analysis(Design, object):
             return list_names
         except:
             return []
-
-    @pyaedt_function_handler()
-    def get_excitations_name(self):
-        """Get all excitation names.
-
-        .. deprecated:: 0.4.27
-           Use :func:`excitations` property instead.
-
-        Returns
-        -------
-        list
-            List of excitation names. Excitations with multiple modes will return one
-            excitation for each mode.
-
-        References
-        ----------
-
-        >>> oModule.GetExcitations
-        """
-        warnings.warn("`get_excitations_name` is deprecated. Use `excitations` property instead.", DeprecationWarning)
-        return self.excitations
 
     @pyaedt_function_handler()
     def get_traces_for_plot(
@@ -639,8 +559,8 @@ class Analysis(Design, object):
             Full path to the project folder. The default is ``None``, in which case the
             working directory is used.
         matrix_name : str, optional
-            Matrix to specify to export touchstone file. The default is ``Original``, in which case
-             default matrix is taken.
+            Matrix to specify to export touchstone file.
+            The default is ``Original``, in which case default matrix is taken.
             This argument applies only to 2DExtractor and Q3D setups where Matrix reduction is computed
             and needed to export touchstone file.
         matrix_type : str, optional
@@ -795,9 +715,13 @@ class Analysis(Design, object):
                                         export_folder, "{0}_{1}.s{2}p".format(self.project_name, varCount, excitations)
                                     )
                                 self.logger.info("Export SnP: {}".format(export_path))
+                                if self.design_type == "HFSS 3D Layout Design":
+                                    module = self.odesign
+                                else:
+                                    module = self.osolution
                                 try:
                                     self.logger.info("Export SnP: {}".format(export_path))
-                                    self.osolution.ExportNetworkData(
+                                    module.ExportNetworkData(
                                         variation,
                                         ["{0}:{1}".format(setup_name, sweep_name)],
                                         3 if matrix_type == "S" else 2,
@@ -1234,6 +1158,8 @@ class Analysis(Design, object):
             setup = SetupSBR(self, setuptype, name)
         elif setuptype in [5, 6, 7, 8, 9, 10]:
             setup = SetupMaxwell(self, setuptype, name)
+        elif setuptype in [14]:
+            setup = SetupQ3D(self, setuptype, name)
         else:
             setup = SetupHFSS(self, setuptype, name)
 
@@ -1549,16 +1475,6 @@ class Analysis(Design, object):
         return True
 
     @pyaedt_function_handler()
-    def analyse_nominal(self):
-        """Solve the nominal design.
-
-        .. deprecated:: 0.4.0
-           Use :func:`Analysis.analyze` instead.
-        """
-        warnings.warn("`analyse_nominal` is deprecated. Use `analyze` instead.", DeprecationWarning)
-        self.analyze(self.active_setup)
-
-    @pyaedt_function_handler()
     def analyze_nominal(self, num_cores=1, num_tasks=1, num_gpu=0, acf_file=None, use_auto_settings=True):
         """Solve the nominal design.
 
@@ -1616,6 +1532,7 @@ class Analysis(Design, object):
             Number of simulation cores. Default is ``1``.
         num_tasks : int, optional
             Number of simulation tasks. Default is ``1``.
+            In bach solve, set num_tasks to ``-1`` to apply auto settings and distributed mode.
         num_gpu : int, optional
             Number of simulation graphic processing units to use. Default is ``0``.
         acf_file : str, optional
@@ -1825,7 +1742,7 @@ class Analysis(Design, object):
         num_tasks=1,
         setup_name=None,
         revert_to_initial_mesh=False,
-    ):
+    ):  # pragma: no cover
         """Analyze a design setup in batch mode.
 
         .. note::
@@ -1844,7 +1761,7 @@ class Analysis(Design, object):
         num_cores : int, optional
             Number of cores to use in simulation.
         num_tasks : int, optional
-            Number of tasks to use in simulation.
+            Number of tasks to use in simulation. Set num_tasks to ``-1`` to apply auto settings and distributed mode.
         setup_name : str
             Name of the setup, which can be an optimetric setup or a simple setup. If ``None`` all setup will be solved.
         revert_to_initial_mesh : bool, optional
@@ -1876,8 +1793,17 @@ class Analysis(Design, object):
         if os.path.exists(queue_file_completed):
             os.unlink(queue_file_completed)
 
-        if os.name == "posix" and settings.use_lsf_scheduler:
-            options = ["-ng", "-BatchSolve", "-machinelist", '"numcores={}"'.format(num_cores), "-auto"]
+        if is_linux and settings.use_lsf_scheduler:
+            options = [
+                "-ng",
+                "-BatchSolve",
+                "-machinelist",
+                "list={}:{}:{}:90%:1".format(machine, num_tasks, num_cores),
+                "-Monitor",
+            ]
+            if num_tasks == -1:
+                options.append("-distributed")
+                options.append("-auto")
         else:
             options = [
                 "-ng",
@@ -1892,17 +1818,32 @@ class Analysis(Design, object):
                     design_name, "Nominal" if setup_name in self.setup_names else "Optimetrics", setup_name
                 )
             )
-        if os.name == "posix" and not settings.use_lsf_scheduler:
+        if is_linux and not settings.use_lsf_scheduler:
             batch_run = [inst_dir + "/ansysedt"]
-        elif os.name == "posix" and settings.use_lsf_scheduler:  # pragma: no cover
-            batch_run = [
-                "bsub",
-                "-n",
-                num_tasks * num_cores,
-                "-R",
-                "rusage[mem={}]".format(settings.lsf_ram),
-                settings.lsf_aedt_command,
-            ]
+        elif is_linux and settings.use_lsf_scheduler:  # pragma: no cover
+            if settings.lsf_queue:
+                batch_run = [
+                    "bsub",
+                    "-n",
+                    str(num_cores),
+                    "-R",
+                    "span[ptile={}]".format(num_cores),
+                    "-R",
+                    "rusage[mem={}]".format(settings.lsf_ram),
+                    "-queue {}".format(settings.lsf_queue),
+                    settings.lsf_aedt_command,
+                ]
+            else:
+                batch_run = [
+                    "bsub",
+                    "-n",
+                    str(num_cores),
+                    "-R",
+                    "span[ptile={}]".format(num_cores),
+                    "-R",
+                    "rusage[mem={}]".format(settings.lsf_ram),
+                    settings.lsf_aedt_command,
+                ]
         else:
             batch_run = [inst_dir + "/ansysedt.exe"]
         batch_run.extend(options)
@@ -1913,7 +1854,7 @@ class Analysis(Design, object):
         dont have old .asol files etc
         """
         self.logger.info("Solving model in batch mode on " + machine)
-        if run_in_thread or settings.use_lsf_scheduler:
+        if run_in_thread and is_windows:
             DETACHED_PROCESS = 0x00000008
             subprocess.Popen(batch_run, creationflags=DETACHED_PROCESS)
             self.logger.info("Batch job launched.")
@@ -1923,7 +1864,7 @@ class Analysis(Design, object):
             self.logger.info("Batch job finished.")
 
         if machine == "localhost":
-            while not os.path.exists(queue_file) and not os.path.exists(queue_file_completed):
+            while not os.path.exists(queue_file):
                 time.sleep(0.5)
             with open(queue_file, "r") as f:
                 lines = f.readlines()
@@ -1932,6 +1873,8 @@ class Analysis(Design, object):
                         ls = line.split("=")[1].strip().strip("'")
                         self.last_run_job = ls
                         self.last_run_log = os.path.join(filename + ".batchinfo", project_name + "-" + ls + ".log")
+            while not os.path.exists(queue_file_completed):
+                time.sleep(0.5)
         return True
 
     @pyaedt_function_handler()
@@ -2358,3 +2301,22 @@ class Analysis(Design, object):
             return False
         self.logger.info("Property {} Changed correctly.".format(property_name))
         return True
+
+    @pyaedt_function_handler()
+    def number_with_units(self, value, units=None):
+        """Convert a number to a string with units. If value is a string, it's returned as is.
+
+        Parameters
+        ----------
+        value : float, int, str
+            Input  number or string.
+        units : optional
+            Units for formatting. The default is ``None`` which uses modeler units.
+
+        Returns
+        -------
+        str
+           String concatenating the value and unit.
+
+        """
+        return self.modeler._arg_with_dim(value, units)

@@ -5,6 +5,7 @@ import codecs
 import json
 import math
 import re
+import warnings
 
 from pyaedt import _retry_ntimes
 from pyaedt.edb_core.edb_data.components_data import EDBComponent
@@ -49,7 +50,7 @@ def resistor_value_parser(RValue):
 
 
 class Components(object):
-    """Manages EDB components and related method accessible from `Edb.core_components` property.
+    """Manages EDB components and related method accessible from `Edb.components` property.
 
     Parameters
     ----------
@@ -59,8 +60,28 @@ class Components(object):
     --------
     >>> from pyaedt import Edb
     >>> edbapp = Edb("myaedbfolder")
-    >>> edbapp.core_components
+    >>> edbapp.components
     """
+
+    @pyaedt_function_handler()
+    def __getitem__(self, name):
+        """Get  a component or component definition from the Edb project.
+
+        Parameters
+        ----------
+        name : str
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`
+
+        """
+        if name in self.instances:
+            return self.instances[name]
+        elif name in self.definitions:
+            return self.definitions[name]
+        self._pedb.logger.error("Component or definition not found.")
+        return
 
     def __init__(self, p_edb):
         self._pedb = p_edb
@@ -123,6 +144,9 @@ class Components(object):
     def components(self):
         """Component setup information.
 
+        .. deprecated:: 0.6.62
+           Use new property :func:`instances` instead.
+
         Returns
         -------
         dict[str, :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`]
@@ -133,7 +157,27 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
-        >>> edbapp.core_components.components
+        >>> edbapp.components.components
+
+        """
+        warnings.warn("Use new property :func:`instances` instead.", DeprecationWarning)
+        return self.instances
+
+    @property
+    def instances(self):
+        """All Cell components objects.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`]
+            Default dictionary for the EDB component.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder")
+        >>> edbapp.components.components
 
         """
         if not self._cmp:
@@ -263,10 +307,10 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
-        >>> edbapp.core_components.resistors
+        >>> edbapp.components.resistors
         """
         self._res = {}
-        for el, val in self.components.items():
+        for el, val in self.instances.items():
             if val.type == "Resistor":
                 self._res[el] = val
         return self._res
@@ -285,10 +329,10 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
-        >>> edbapp.core_components.capacitors
+        >>> edbapp.components.capacitors
         """
         self._cap = {}
-        for el, val in self.components.items():
+        for el, val in self.instances.items():
             if val.type == "Capacitor":
                 self._cap[el] = val
         return self._cap
@@ -307,11 +351,11 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
-        >>> edbapp.core_components.inductors
+        >>> edbapp.components.inductors
 
         """
         self._ind = {}
-        for el, val in self.components.items():
+        for el, val in self.instances.items():
             if val.type == "Inductor":
                 self._ind[el] = val
         return self._ind
@@ -330,11 +374,11 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
-        >>> edbapp.core_components.ICs
+        >>> edbapp.components.ICs
 
         """
         self._ics = {}
-        for el, val in self.components.items():
+        for el, val in self.instances.items():
             if val.type == "IC":
                 self._ics[el] = val
         return self._ics
@@ -353,11 +397,11 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
-        >>> edbapp.core_components.IOs
+        >>> edbapp.components.IOs
 
         """
         self._ios = {}
-        for el, val in self.components.items():
+        for el, val in self.instances.items():
             if val.type == "IO":
                 self._ios[el] = val
         return self._ios
@@ -376,11 +420,11 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
-        >>> edbapp.core_components.others
+        >>> edbapp.components.others
 
         """
         self._others = {}
-        for el, val in self.components.items():
+        for el, val in self.instances.items():
             if val.type == "Other":
                 self._others[el] = val
         return self._others
@@ -399,11 +443,11 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
-        >>> edbapp.core_components.components_by_partname
+        >>> edbapp.components.components_by_partname
 
         """
         self._comps_by_part = {}
-        for el, val in self.components.items():
+        for el, val in self.instances.items():
             if val.partname in self._comps_by_part.keys():
                 self._comps_by_part[val.partname].append(val)
             else:
@@ -465,7 +509,7 @@ class Components(object):
         cmp_list = []
         if isinstance(netlist, str):
             netlist = [netlist]
-        components = list(self.components.keys())
+        components = list(self.instances.keys())
         for refdes in components:
             cmpnets = self._cmp[refdes].nets
             if set(cmpnets).intersection(set(netlist)):
@@ -521,9 +565,9 @@ class Components(object):
         Examples
         --------
         >>> edb1 = Edb(edbpath=targetfile1,  edbversion="2021.2")
-        >>> hosting_cmp = edb1.core_components.get_component_by_name("U100")
-        >>> mounted_cmp = edb2.core_components.get_component_by_name("BGA")
-        >>> vector, rotation, solder_ball_height = edb1.core_components.get_component_placement_vector(
+        >>> hosting_cmp = edb1.components.get_component_by_name("U100")
+        >>> mounted_cmp = edb2.components.get_component_by_name("BGA")
+        >>> vector, rotation, solder_ball_height = edb1.components.get_component_placement_vector(
         ...                                             mounted_component=mounted_cmp,
         ...                                             hosting_component=hosting_cmp,
         ...                                             mounted_component_pin1="A12",
@@ -614,7 +658,7 @@ class Components(object):
 
         Returns
         -------
-        double, bool
+        bool
             ``True`` when successful, ``False`` when failed.
 
         """
@@ -676,9 +720,10 @@ class Components(object):
                 negative_pin_group_term.SetImpedance(self._get_edb_value(source.impedance))
                 positive_pin_group_term.SetReferenceTerminal(negative_pin_group_term)
             elif source.source_type == SourceType.Rlc:  # pragma: no cover
-                self.create_rlc_component(
+                self.create(
                     pins=[positive_pins[0], negative_pins[0]],
                     component_name=source.name,
+                    is_rlc=True,
                     r_value=source.r_value,
                     l_value=source.l_value,
                     c_value=source.c_value,
@@ -700,19 +745,15 @@ class Components(object):
         ----------
         component : str or self._edb.Cell.Hierarchy.Component
             EDB component or str component name.
-
         net_list : str or list of string.
             List of nets where ports must be created on the component.
             If the net is not part of the component, this parameter is skipped.
-
         port_type : SourceType enumerator, CoaxPort or CircuitPort
             Type of port to create. ``CoaxPort`` generates solder balls.
             ``CircuitPort`` generates circuit ports on pins belonging to the net list.
-
         do_pingroup : bool
             True activate pingroup during port creation (only used with combination of CoaxPort),
             False will take the closest reference pin and generate one port per signal pin.
-
         refnet : string or list of string.
             list of the reference net.
 
@@ -727,12 +768,12 @@ class Components(object):
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
         >>> net_list = ["M_DQ<1>", "M_DQ<2>", "M_DQ<3>", "M_DQ<4>", "M_DQ<5>"]
-        >>> edbapp.core_components.create_port_on_component(cmp="U2A5", net_list=net_list,
+        >>> edbapp.components.create_port_on_component(cmp="U2A5", net_list=net_list,
         >>> port_type=SourceType.CoaxPort, do_pingroup=False, refnet="GND")
 
         """
         if isinstance(component, str):
-            component = self.components[component].edbcomponent
+            component = self.instances[component].edbcomponent
         if not isinstance(net_list, list):
             net_list = [net_list]
         for net in net_list:
@@ -759,8 +800,13 @@ class Components(object):
         pin_layers = cmp_pins[0].GetPadstackDef().GetData().GetLayerNames()
         if port_type == SourceType.CoaxPort:
             pad_params = self._padstack.get_pad_parameters(pin=cmp_pins[0], layername=pin_layers[0], pad_type=0)
-            sball_diam = min([self._pedb.edb_value(val).ToDouble() for val in pad_params[1]])
-            solder_ball_height = sball_diam
+            if not pad_params[0] == 7:
+                sball_diam = min([self._pedb.edb_value(val).ToDouble() for val in pad_params[1]])
+                solder_ball_height = sball_diam / 2
+            else:
+                bbox = pad_params[1]
+                sball_diam = min([abs(bbox[2] - bbox[0]), abs(bbox[3] - bbox[1])]) * 0.8
+                solder_ball_height = sball_diam / 2
             self.set_solder_ball(component, solder_ball_height, sball_diam)
             for pin in cmp_pins:
                 self._padstack.create_coax_port(pin)
@@ -832,9 +878,7 @@ class Components(object):
         """
 
         pin_position = self.get_pin_position(pin)  # pragma no cover
-        pin_pos = self._edb.Geometry.PointData(
-            self._get_edb_value(pin_position[0]), self._get_edb_value(pin_position[1])  # pragma no cover
-        )
+        pin_pos = self._pedb.point_data(*pin_position)
         res, from_layer, _ = pin.GetLayerRange()
         cmp_name = pin.GetComponent().GetName()
         net_name = pin.GetNet().GetName()
@@ -861,14 +905,14 @@ class Components(object):
 
         """
         res, pin_position, pin_rot = pin.GetPositionAndRotation(
-            self._edb.Geometry.PointData(self._get_edb_value(0.0), self._get_edb_value(0.0)),
+            self._pedb.point_data(0.0, 0.0),
             0.0,
         )
         distance = 1e3
         closest_pin = ref_pinlist[0]
         for ref_pin in ref_pinlist:
             res, ref_pin_position, ref_pin_rot = ref_pin.GetPositionAndRotation(
-                self._edb.Geometry.PointData(self._get_edb_value(0.0), self._get_edb_value(0.0)),
+                self._pedb.point_data(0.0, 0.0),
                 0.0,
             )
             temp_distance = pin_position.Distance(ref_pin_position)
@@ -900,15 +944,15 @@ class Components(object):
         >>> from pyaedt import Edb
         >>> edb_file = r'C:\my_edb_file.aedb'
         >>> edb = Edb(edb_file)
-        >>> for cmp in list(edb.core_components.components.keys()):
-        >>>     edb.core_components.deactivate_rlc_component(component=cmp, create_circuit_port=False)
+        >>> for cmp in list(edb.components.components.keys()):
+        >>>     edb.components.deactivate_rlc_component(component=cmp, create_circuit_port=False)
         >>> edb.save_edb()
         >>> edb.close_edb()
         """
         if not component:
             return False
         if isinstance(component, str):
-            component = self.components[component]
+            component = self.instances[component]
             if not component:
                 self._logger.error("component %s not found.", component)
                 return False
@@ -920,11 +964,10 @@ class Components(object):
         ):
             self._logger.info("Component %s passed to deactivate is not an RLC.", component.refdes)
             return False
+        component.is_enabled = False
         if create_circuit_port:
-            self.add_port_on_rlc_component(component.refdes)
-            return True
-        else:
-            return self.set_component_rlc(component.refdes)
+            return self.add_port_on_rlc_component(component.refdes)
+        return True
 
     @pyaedt_function_handler()
     def add_port_on_rlc_component(self, component=None):
@@ -942,28 +985,34 @@ class Components(object):
             ``True`` when successful, ``False`` when failed.
         """
         if isinstance(component, str):  # pragma: no cover
-            component = self.components[component]
+            component = self.instances[component]
         if not isinstance(component, EDBComponent):  # pragma: no cover
             return False
         self.set_component_rlc(component.refdes)
         pins = self.get_pin_from_component(component.refdes)
         if len(pins) == 2:  # pragma: no cover
             pos_pin_loc = self.get_pin_position(pins[0])
-            pt = self._pedb.edb.Geometry.PointData(
-                self._get_edb_value(pos_pin_loc[0]), self._get_edb_value(pos_pin_loc[1])
-            )
+            pt = self._pedb.point_data(*pos_pin_loc)
+
             pin_layers = self._padstack._get_pin_layer_range(pins[0])
             pos_pin_term = self._pedb.edb.Cell.Terminal.PointTerminal.Create(
-                self._active_layout, pins[0].GetNet(), pins[0].GetName(), pt, pin_layers[0]
+                self._active_layout,
+                pins[0].GetNet(),
+                "{}_{}".format(component.refdes, pins[0].GetName()),
+                pt,
+                pin_layers[0],
             )
             if not pos_pin_term:  # pragma: no cover
                 return False
             neg_pin_loc = self.get_pin_position(pins[1])
-            pt = self._pedb.edb.Geometry.PointData(
-                self._get_edb_value(neg_pin_loc[0]), self._get_edb_value(neg_pin_loc[1])
-            )
+            pt = self._pedb.point_data(*neg_pin_loc)
+
             neg_pin_term = self._pedb.edb.Cell.Terminal.PointTerminal.Create(
-                self._active_layout, pins[1].GetNet(), pins[1].GetName() + "_ref", pt, pin_layers[0]
+                self._active_layout,
+                pins[1].GetNet(),
+                "{}_{}_ref".format(component.refdes, pins[1].GetName()),
+                pt,
+                pin_layers[0],
             )
             if not neg_pin_term:  # pragma: no cover
                 return False
@@ -1040,7 +1089,11 @@ class Components(object):
             if componentDefinition.IsNull():
                 self._logger.error("Failed to create component definition {}".format(name))
                 return None
+            ind = 1
             for pin in pins:
+                if not pin.GetName():
+                    pin.SetName(str(ind))
+                ind += 1
                 componentDefinitionPin = self._edb.Definition.ComponentDefPin.Create(componentDefinition, pin.GetName())
                 if componentDefinitionPin.IsNull():
                     self._logger.error("Failed to create component definition pin {}-{}".format(name, pin.GetName()))
@@ -1050,26 +1103,25 @@ class Components(object):
         return componentDefinition
 
     @pyaedt_function_handler()
-    def create_rlc_component(self, pins, component_name="", r_value=1.0, c_value=1e-9, l_value=1e-9, is_parallel=False):
+    def create_rlc_component(
+        self, pins, component_name="", r_value=1.0, c_value=1e-9, l_value=1e-9, is_parallel=False
+    ):  # pragma: no cover
         """Create physical Rlc component.
 
         Parameters
         ----------
-        pins : list[Edb.Primitive.PadstackInstance]
+        pins : list
              List of EDB pins, length must be 2, since only 2 pins component are currently supported.
-
+             It can be an `pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance` object or
+             an Edb Padstack Instance object.
         component_name : str
-            Component name.
-
+            Component definition name.
         r_value : float
             Resistor value.
-
         c_value : float
             Capacitance value.
-
         l_value : float
             Inductor value.
-
         is_parallel : bool
             Using parallel model when ``True``, series when ``False``.
 
@@ -1079,61 +1131,30 @@ class Components(object):
             Created EDB component.
 
         """
-        if not len(pins) == 2:  # pragma no cover
-            self._logger.error("2 Pins must be provided to create an rlc component.")
-            return False
-        comp_def = self._getComponentDefinition(component_name, pins)
-        if not comp_def:  # pragma no cover
-            self._logger.error("Failed to create component definition")
-            return False
-        new_cmp = self._edb.Cell.Hierarchy.Component.Create(self._active_layout, component_name, comp_def.GetName())
-        hosting_component_location = pins[0].GetComponent().GetTransform()
-        for pin in pins:
-            new_cmp.AddMember(pin)
-        new_cmp_layer_name = pins[0].GetPadstackDef().GetData().GetLayerNames()[0]
-        new_cmp_placement_layer = self._edb.Cell.Layer.FindByName(
-            self._active_layout.GetLayerCollection(), new_cmp_layer_name
+        warnings.warn("`create_rlc_component` is deprecated. Use `create` method instead.", DeprecationWarning)
+        return self.create(
+            pins=pins,
+            component_name=component_name,
+            is_rlc=True,
+            r_value=r_value,
+            l_value=l_value,
+            c_value=c_value,
+            is_parallel=is_parallel,
         )
-        new_cmp.SetPlacementLayer(new_cmp_placement_layer)
-        rlc = self._edb.Utility.Rlc()
-        rlc.IsParallel = is_parallel
-        if r_value:  # pragma no cover
-            rlc.REnabled = True
-            rlc.R = self._get_edb_value(r_value)
-        else:  # pragma no cover
-            rlc.REnabled = False
-        if l_value:  # pragma no cover
-            rlc.LEnabled = True
-            rlc.L = self._get_edb_value(l_value)
-        else:  # pragma no cover
-            rlc.LEnabled = False
-        if c_value:  # pragma no cover
-            rlc.CEnabled = True
-            rlc.C = self._get_edb_value(c_value)
-        else:  # pragma no cover
-            rlc.CEnabled = False
-        if rlc.REnabled and not rlc.CEnabled and not rlc.CEnabled:  # pragma no cover
-            new_cmp.SetComponentType(self._edb.Definition.ComponentType.Resistor)
-        elif rlc.CEnabled and not rlc.REnabled and not rlc.LEnabled:  # pragma no cover
-            new_cmp.SetComponentType(self._edb.Definition.ComponentType.Capacitor)
-        elif rlc.LEnabled and not rlc.REnabled and not rlc.CEnabled:  # pragma no cover
-            new_cmp.SetComponentType(self._edb.Definition.ComponentType.Inductor)
-        else:  # pragma no cover
-            new_cmp.SetComponentType(self._edb.Definition.ComponentType.Resistor)
-
-        pin_pair = self._edb.Utility.PinPair(pins[0].GetName(), pins[1].GetName())  # pragma no cover
-        rlc_model = self._edb.Cell.Hierarchy.PinPairModel()
-        rlc_model.SetPinPairRlc(pin_pair, rlc)
-        edb_rlc_component_property = self._edb.Cell.Hierarchy.RLCComponentProperty()
-        if not edb_rlc_component_property.SetModel(rlc_model) or not new_cmp.SetComponentProperty(
-            edb_rlc_component_property
-        ):
-            return False  # pragma no cover
-        new_cmp.SetTransform(hosting_component_location)
-        return new_cmp
 
     @pyaedt_function_handler()
-    def create_component_from_pins(self, pins, component_name, placement_layer=None, component_part_name=None):
+    def create(
+        self,
+        pins,
+        component_name,
+        placement_layer=None,
+        component_part_name=None,
+        is_rlc=False,
+        r_value=1.0,
+        c_value=1e-9,
+        l_value=1e-9,
+        is_parallel=False,
+    ):
         """Create a component from pins.
 
         Parameters
@@ -1146,6 +1167,16 @@ class Components(object):
             Name of the layer used for placing the component.
         component_part_name : str, optional
             Part name of the component.
+        is_rlc : bool, optional
+            Whether if the new component will be an RLC or not.
+        r_value : float
+            Resistor value.
+        c_value : float
+            Capacitance value.
+        l_value : float
+            Inductor value.
+        is_parallel : bool
+            Using parallel model when ``True``, series when ``False``.
 
         Returns
         -------
@@ -1157,8 +1188,8 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
-        >>> pins = edbapp.core_components.get_pin_from_component("A1")
-        >>> edbapp.core_components.create_component_from_pins(pins, "A1New")
+        >>> pins = edbapp.components.get_pin_from_component("A1")
+        >>> edbapp.components.create(pins, "A1New")
 
         """
         if component_part_name:
@@ -1183,12 +1214,90 @@ class Components(object):
             self._active_layout.GetLayerCollection(), new_cmp_layer_name
         )
         new_cmp.SetPlacementLayer(new_cmp_placement_layer)
-        # cmp_transform = System.Activator.CreateInstance(self._edb.Utility.)
-        # new_cmp.SetTransform(cmp_transform)
-        self._cmp[new_cmp.GetName()] = EDBComponent(self, new_cmp)
-        return new_cmp
-        # except:
-        #    return (False, None)
+        hosting_component_location = pins[0].GetComponent().GetTransform()
+
+        if is_rlc:
+            rlc = self._edb.Utility.Rlc()
+            rlc.IsParallel = is_parallel
+            if r_value:
+                rlc.REnabled = True
+                rlc.R = self._get_edb_value(r_value)
+            else:
+                rlc.REnabled = False
+            if l_value:
+                rlc.LEnabled = True
+                rlc.L = self._get_edb_value(l_value)
+            else:
+                rlc.LEnabled = False
+            if c_value:
+                rlc.CEnabled = True
+                rlc.C = self._get_edb_value(c_value)
+            else:
+                rlc.CEnabled = False
+            if rlc.REnabled and not rlc.CEnabled and not rlc.CEnabled:
+                new_cmp.SetComponentType(self._edb.Definition.ComponentType.Resistor)
+            elif rlc.CEnabled and not rlc.REnabled and not rlc.LEnabled:
+                new_cmp.SetComponentType(self._edb.Definition.ComponentType.Capacitor)
+            elif rlc.LEnabled and not rlc.REnabled and not rlc.CEnabled:
+                new_cmp.SetComponentType(self._edb.Definition.ComponentType.Inductor)
+            else:
+                new_cmp.SetComponentType(self._edb.Definition.ComponentType.Resistor)
+
+            pin_pair = self._edb.Utility.PinPair(pins[0].GetName(), pins[1].GetName())
+            rlc_model = self._edb.Cell.Hierarchy.PinPairModel()
+            rlc_model.SetPinPairRlc(pin_pair, rlc)
+            edb_rlc_component_property = self._edb.Cell.Hierarchy.RLCComponentProperty()
+            if not edb_rlc_component_property.SetModel(rlc_model) or not new_cmp.SetComponentProperty(
+                edb_rlc_component_property
+            ):
+                return False  # pragma no cover
+        new_cmp.SetTransform(hosting_component_location)
+        new_edb_comp = EDBComponent(self, new_cmp)
+        self._cmp[new_cmp.GetName()] = new_edb_comp
+        return new_edb_comp
+
+    @pyaedt_function_handler()
+    def create_component_from_pins(
+        self, pins, component_name, placement_layer=None, component_part_name=None
+    ):  # pragma: no cover
+        """Create a component from pins.
+
+        .. deprecated:: 0.6.62
+           Use :func:`create` method instead.
+
+        Parameters
+        ----------
+        pins : list
+            List of EDB core pins.
+        component_name : str
+            Name of the reference designator for the component.
+        placement_layer : str, optional
+            Name of the layer used for placing the component.
+        component_part_name : str, optional
+            Part name of the component. It's created a new definition if doesn't exists.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder")
+        >>> pins = edbapp.components.get_pin_from_component("A1")
+        >>> edbapp.components.create(pins, "A1New")
+
+        """
+        warnings.warn("`create_component_from_pins` is deprecated. Use `create` method instead.", DeprecationWarning)
+        return self.create(
+            pins=pins,
+            component_name=component_name,
+            placement_layer=placement_layer,
+            component_part_name=component_part_name,
+            is_rlc=False,
+        )
 
     @pyaedt_function_handler()
     def set_component_model(self, componentname, model_type="Spice", modelpath=None, modelname=None):
@@ -1216,7 +1325,7 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
-        >>> edbapp.core_components.set_component_model("A1", model_type="Spice",
+        >>> edbapp.components.set_component_model("A1", model_type="Spice",
         ...                                            modelpath="pathtospfile",
         ...                                            modelname="spicemodelname")
 
@@ -1300,7 +1409,7 @@ class Components(object):
         --------
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
-        >>> edbapp.core_components.create_pingroup_from_pins(gndpinlist, "MyGNDPingroup")
+        >>> edbapp.components.create_pingroup_from_pins(gndpinlist, "MyGNDPingroup")
 
         """
         if len(pins) < 1:
@@ -1336,12 +1445,12 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
-        >>> list_of_deleted_rlcs = edbapp.core_components.delete_single_pin_rlc()
+        >>> list_of_deleted_rlcs = edbapp.components.delete_single_pin_rlc()
         >>> print(list_of_deleted_rlcs)
 
         """
         deleted_comps = []
-        for comp, val in self.components.items():
+        for comp, val in self.instances.items():
             if val.numpins < 2 and val.type in ["Resistor", "Capacitor", "Inductor"]:
                 val.edbcomponent.Delete()
                 deleted_comps.append(comp)
@@ -1351,7 +1460,35 @@ class Components(object):
         return deleted_comps
 
     @pyaedt_function_handler()
-    def delete_component(self, component_name):
+    def delete_component(self, component_name):  # pragma: no cover
+        """Delete a component.
+
+        .. deprecated:: 0.6.62
+           Use :func:`delete` method instead.
+
+        Parameters
+        ----------
+        component_name : str
+            Name of the component.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder")
+        >>> edbapp.components.delete("A1")
+
+        """
+        warnings.warn("`delete_component` is deprecated. Use `delete` property instead.", DeprecationWarning)
+        return self.delete(component_name=component_name)
+
+    @pyaedt_function_handler()
+    def delete(self, component_name):
         """Delete a component.
 
         Parameters
@@ -1369,13 +1506,13 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
-        >>> edbapp.core_components.delete_component("A1")
+        >>> edbapp.components.delete("A1")
 
         """
         edb_cmp = self.get_component_by_name(component_name)
         if edb_cmp is not None:
             edb_cmp.Delete()
-            if edb_cmp in list(self.components.keys()):
+            if edb_cmp in list(self.instances.keys()):
                 del self.components[edb_cmp]
             return True
         return False
@@ -1399,7 +1536,7 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
-        >>> edbapp.core_components.disable_rlc_component("A1")
+        >>> edbapp.components.disable_rlc_component("A1")
 
         """
         edb_cmp = self.get_component_by_name(component_name)
@@ -1430,7 +1567,7 @@ class Components(object):
 
         Parameters
         ----------
-        component_name : str or EDB component
+        component : str or EDB component, optional
             Name of the discrete component.
         sball_diam  : str, float, optional
             Diameter of the solder ball.
@@ -1441,9 +1578,10 @@ class Components(object):
             ``"Spheroid"``. The default is ``"Cylinder"``.
         sball_mid_diam : str, float, optional
             Mid diameter of the solder ball.
-        chip_orientation : str
+        chip_orientation : str, optional
             Give the chip orientation, ``"chip_down"`` or ``"chip_up"``. Default is ``"chip_down"``. Only applicable on
             IC model.
+
         Returns
         -------
         bool
@@ -1454,7 +1592,7 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
-        >>> edbapp.core_components.set_solder_ball("A1")
+        >>> edbapp.components.set_solder_ball("A1")
 
         """
         if not isinstance(component, self._edb.Cell.Hierarchy.Component):
@@ -1542,11 +1680,15 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
-        >>> edbapp.core_components.set_component_rlc(
+        >>> edbapp.components.set_component_rlc(
         ...     "R1", res_value=50, ind_value=1e-9, cap_value=1e-12, isparallel=False
         ... )
 
         """
+        if res_value is None and ind_value is None and cap_value is None:
+            self.instances[componentname].is_enabled = False
+            self._logger.info("No parameters passed, component %s  is disabled.", componentname)
+            return True
         edb_component = self.get_component_by_name(componentname)
         edb_rlc_component_property = self._edb.Cell.Hierarchy.RLCComponentProperty()
         component_pins = self.get_pin_from_component(componentname)
@@ -1586,7 +1728,7 @@ class Components(object):
                 componentname,
             )
             return False
-        self._logger.warning("RLC properties for Component %s has been assigned.", componentname)
+        self._logger.info("RLC properties for Component %s has been assigned.", componentname)
         return True
 
     @pyaedt_function_handler()
@@ -1632,7 +1774,7 @@ class Components(object):
             refdescolumn = None
             comptypecolumn = None
             valuecolumn = None
-            unmount_comp_list = list(self.components.keys())
+            unmount_comp_list = list(self.instances.keys())
             for line in Lines:
                 content_line = [i.strip() for i in line.split(delimiter)]
                 if valuefield in content_line:
@@ -1687,13 +1829,14 @@ class Components(object):
         value_col : int, optional
             Column index of value. The default is ``"3"``. Set to ``None``
             if the column does not exist.
+
         Returns
         -------
         bool
         """
         with open(bom_file, "r") as f:
             lines = f.readlines()
-            unmount_comp_list = list(self.components.keys())
+            unmount_comp_list = list(self.instances.keys())
             for l in lines[1:]:
                 l = l.replace(" ", "").replace("\n", "")
                 if not l:
@@ -1721,7 +1864,7 @@ class Components(object):
                         unmount_comp_list.remove(refdes)
                         comp.edbcomponent.Ungroup(True)
 
-                        self.create_component_from_pins(pinlist, refdes, p_layer, part_name)
+                        self.create(pinlist, refdes, p_layer, part_name)
                         self.refresh_components()
                         comp = self.components[refdes]
 
@@ -1762,7 +1905,7 @@ class Components(object):
         """
         with open(bom_file, "w") as f:
             f.writelines([delimiter.join(["RefDes", "Part name", "Type", "Value\n"])])
-            for refdes, comp in self.components.items():
+            for refdes, comp in self.instances.items():
                 if not comp.is_enabled and comp.type in ["Resistor", "Capacitor", "Inductor"]:
                     continue
                 part_name = comp.partname
@@ -1805,7 +1948,7 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edbapp.core_components.get_pin_from_component("R1", refdes)
+        >>> edbapp.components.get_pin_from_component("R1", refdes)
 
         """
         if not isinstance(component, self._edb.Cell.Hierarchy.Component):
@@ -1862,7 +2005,7 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edbapp.core_components.get_aedt_pin_name(pin)
+        >>> edbapp.components.get_aedt_pin_name(pin)
 
         """
         if isinstance(pin, EDBPadstackInstance):
@@ -1895,7 +2038,7 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edbapp.core_components.get_pin_position(pin)
+        >>> edbapp.components.get_pin_position(pin)
 
         """
         res, pt_pos, rot_pos = pin.GetPositionAndRotation()
@@ -1931,7 +2074,7 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edbapp.core_components.get_pins_name_from_net(pin_list, net_name)
+        >>> edbapp.components.get_pins_name_from_net(pin_list, net_name)
 
         """
         pinlist = []
@@ -1959,7 +2102,7 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edbapp.core_components.get_nets_from_pin_list(pinlist)
+        >>> edbapp.components.get_nets_from_pin_list(pinlist)
 
         """
         netlist = []
@@ -1986,7 +2129,7 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edbapp.core_components.get_component_net_connection_info(refdes)
+        >>> edbapp.components.get_component_net_connection_info(refdes)
 
         """
         component_pins = self.get_pin_from_component(refdes)
@@ -2014,11 +2157,11 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edbapp.core_components.get_rats()
+        >>> edbapp.components.get_rats()
 
         """
         df_list = []
-        for refdes in self.components.keys():
+        for refdes in self.instances.keys():
             df = self.get_component_net_connection_info(refdes)
             df_list.append(df)
         return df_list
@@ -2041,7 +2184,7 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edbapp.core_components.get_through_resistor_list()
+        >>> edbapp.components.get_through_resistor_list()
 
         """
         through_comp_list = []
@@ -2080,7 +2223,7 @@ class Components(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
-        >>> edbapp.core_components.short_component_pins("J4A2", ["G4", "9", "3"])
+        >>> edbapp.components.short_component_pins("J4A2", ["G4", "9", "3"])
 
         """
         component = self.components[component_name]
@@ -2102,15 +2245,13 @@ class Components(object):
         for pin in pins_list:
             placement_layer = pin.placement_layer
             positions_to_short.append(pin.position)
-            if placement_layer in self._pedb.core_padstack.padstacks[pin.pin.GetPadstackDef().GetName()].pad_by_layer:
-                pad = self._pedb.core_padstack.padstacks[pin.pin.GetPadstackDef().GetName()].pad_by_layer[
-                    placement_layer
-                ]
+            if placement_layer in self._pedb.padstacks.definitions[pin.pin.GetPadstackDef().GetName()].pad_by_layer:
+                pad = self._pedb.padstacks.definitions[pin.pin.GetPadstackDef().GetName()].pad_by_layer[placement_layer]
             else:
-                layer = list(
-                    self._pedb.core_padstack.padstacks[pin.pin.GetPadstackDef().GetName()].pad_by_layer.keys()
-                )[0]
-                pad = self._pedb.core_padstack.padstacks[pin.pin.GetPadstackDef().GetName()].pad_by_layer[layer]
+                layer = list(self._pedb.padstacks.definitions[pin.pin.GetPadstackDef().GetName()].pad_by_layer.keys())[
+                    0
+                ]
+                pad = self._pedb.padstacks.definitions[pin.pin.GetPadstackDef().GetName()].pad_by_layer[layer]
             pars = pad.parameters_values
             geom = pad.geometry_type
             if geom < 6 and pars:
@@ -2193,7 +2334,7 @@ class Components(object):
 
             trace_points.append(positions_to_short[i + 1])
 
-            self._pedb.core_primitives.create_trace(
+            self._pedb.modeler.create_trace(
                 trace_points,
                 layer_name=placement_layer,
                 net_name="short",

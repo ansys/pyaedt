@@ -10,6 +10,8 @@ separation for overlapping bands.
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
+#
+# sphinx_gallery_thumbnail_path = "Resources/emit_channel_separation.png"
 import os
 import sys
 import subprocess

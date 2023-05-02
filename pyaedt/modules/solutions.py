@@ -76,7 +76,8 @@ class SolutionData(object):
 
     @property
     def enable_pandas_output(self):
-        """Set/Get a flag to use Pandas to export dict and lists. This applies to Solution data output.
+        """
+        Set/Get a flag to use Pandas to export dict and lists. This applies to Solution data output.
         If ``True`` the property or method will return a pandas object in CPython environment.
         Default is ``False``.
 
@@ -213,15 +214,17 @@ class SolutionData(object):
     @staticmethod
     @pyaedt_function_handler()
     def _quantity(unit):
-        """
+        """Get the corresponding AEDT units.
 
         Parameters
         ----------
-        unit :
-
+        unit : str
+            The unit to be looked among the available AEDT units.
 
         Returns
         -------
+            str
+            The AEDT units.
 
         """
         for el in AEDT_UNITS:
@@ -232,7 +235,7 @@ class SolutionData(object):
 
     @pyaedt_function_handler()
     def init_solutions_data(self):
-        "Initialize the database and store info in variables."
+        """Initialize the database and store info in variables."""
         self._solutions_real = self._init_solution_data_real()
         self._solutions_imag = self._init_solution_data_imag()
         self._solutions_mag = self._init_solution_data_mag()
@@ -467,34 +470,6 @@ class SolutionData(object):
         if dataunits in AEDT_UNITS and units in AEDT_UNITS[dataunits]:
             sol = [i * AEDT_UNITS[dataunits][units] for i in datalist]
         return sol
-
-    @pyaedt_function_handler()
-    def data_db(self, expression=None, convert_to_SI=False):
-        """Retrieve the data in the database for an expression and convert in db10.
-
-        .. deprecated:: 0.4.8
-           Use :func:`data_db10` instead.
-
-        Parameters
-        ----------
-        expression : str, optional
-            Name of the expression. The default is ``None``,
-            in which case the active expression is used.
-        convert_to_SI : bool, optional
-            Whether to convert the data to the SI unit system.
-            The default is ``False``.
-
-        Returns
-        -------
-        list
-            List of the data in the database for the expression.
-
-        """
-        if not expression:
-            expression = self.active_expression
-        if self.enable_pandas_output:
-            return 10 * np.log10(self.data_magnitude(expression, convert_to_SI))
-        return [db10(i) for i in self.data_magnitude(expression, convert_to_SI)]
 
     @pyaedt_function_handler()
     def data_db10(self, expression=None, convert_to_SI=False):
@@ -1296,7 +1271,8 @@ class FfdSolutionData(object):
 
     @pyaedt_function_handler()
     def array_center_and_edge(self):
-        """Find the center and edge of our array, assumes all ports in far field
+        """
+        Find the center and edge of our array, assuming all ports in far field
         mapping file are active ports.
 
         Returns
@@ -2027,10 +2003,6 @@ class FfdSolutionData(object):
         export_image_path : str, optional
             Full path to image file. Default is None to not export.
 
-
-        Returns
-        -------
-
         """
         data = self.beamform(phi_scan, theta_scan)
 
@@ -2139,11 +2111,15 @@ class FfdSolutionData(object):
             Default is [[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]].
         show : bool, optional
             Either if the plot has to be shown or not. Default is `True`.
-        show_outside_notebook : bool, optional
+        show_as_standalone : bool, optional
             Either if the plot has to be shown as standalone or not. Default is `True`.
+
         Returns
         -------
-        PyVista object
+        bool or :class:`Pyvista.Plotter`
+            Return :class:`Pyvista.Plotter` in case show and export_image_path is `False`.
+            In other cases return ``True`` when successful.
+
         """
         if not position:
             position = np.zeros(3)
@@ -2159,10 +2135,16 @@ class FfdSolutionData(object):
 
         # plot everything together
         rotation_euler = self._rotation_to_euler_angles(rotation) * 180 / np.pi
-        if show_as_standalone:
-            p = pv.Plotter(notebook=False, off_screen=not show)
+
+        if not export_image_path and not show:
+            off_screen = False
         else:
-            p = pv.Plotter(notebook=is_notebook(), off_screen=not show)
+            off_screen = not show
+
+        if show_as_standalone:
+            p = pv.Plotter(notebook=False, off_screen=off_screen)
+        else:
+            p = pv.Plotter(notebook=is_notebook(), off_screen=off_screen)
 
         uf = UpdateBeamForm(self)
 
@@ -2253,10 +2235,13 @@ class FfdSolutionData(object):
                 cad.append(p.add_mesh(cm[0], color=cm[1], show_scalar_bar=False, opacity=cm[2]))
             p.add_checkbox_button_widget(toggle_vis_cad, value=True, position=(10, 70), size=30)
             p.add_text("Show Geometry", position=(70, 75), color="white", font_size=10)
+
         if export_image_path:
             p.show(screenshot=export_image_path)
-        else:
+            return True
+        elif show:  # pragma: no cover
             p.show()
+            return True
         return p
 
     @pyaedt_function_handler()
@@ -2268,7 +2253,7 @@ class FfdSolutionData(object):
         rotation=None,
         export_image_path=None,
         show=True,
-    ):
+    ):  # pragma: no cover
         """Create a 3d Polar Plot with 2 beams of Geometry with Radiation Pattern in Pyvista.
 
         Parameters
@@ -2281,7 +2266,7 @@ class FfdSolutionData(object):
             Full path to image file. Default is None to not export.
         position : list, optional
             It can be a list of numpy list of origin of plot. Default is [0,0,0].
-        rotationn : list, optional
+        rotation : list, optional
             It can be a list of numpy list of origin of plot.
             Default is [[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]].
         show : bool, optional
@@ -2289,7 +2274,9 @@ class FfdSolutionData(object):
 
         Returns
         -------
-        PyVista object
+        bool or :class:`Pyvista.Plotter`
+            Return :class:`Pyvista.Plotter` in case show and export_image_path is `False`.
+            In other cases return ``True`` when successful.
         """
         if not position:
             position = np.zeros(3)
@@ -2305,7 +2292,12 @@ class FfdSolutionData(object):
         uf = Update2BeamForms(self, max_value=self.max_gain)
         rotation_euler = self._rotation_to_euler_angles(rotation) * 180 / np.pi
 
-        p = pv.Plotter(notebook=is_notebook(), off_screen=not show, window_size=[1024, 768])
+        if not export_image_path and not show:
+            off_screen = False
+        else:
+            off_screen = not show
+
+        p = pv.Plotter(notebook=is_notebook(), off_screen=off_screen, window_size=[1024, 768])
 
         p.add_slider_widget(
             uf.update_phi1,
@@ -2392,10 +2384,13 @@ class FfdSolutionData(object):
             size = int(p.window_size[1] / 40)
             p.add_checkbox_button_widget(toggle_vis_cad, size=size, value=True, position=(10, 70))
             p.add_text("Show Geometry", position=(70, 75), color="black", font_size=12)
+
         if export_image_path:
             p.show(screenshot=export_image_path)
-        else:
+            return True
+        elif show:
             p.show()
+            return True
         return p
 
     @staticmethod
@@ -2443,12 +2438,12 @@ class UpdateBeamForm:
         return
 
     def update_phi(self, phi):
-        """Updates the Pyvista Plot with new phi value."""
+        """Update the Pyvista Plot with new phi value."""
         self._phi = phi
         self._update_both()
 
     def update_theta(self, theta):
-        """Updates the Pyvista Plot with new theta value."""
+        """Update the Pyvista Plot with new theta value."""
         self._theta = theta
         self._update_both()
 
@@ -2478,17 +2473,17 @@ class Update2BeamForms:
         return
 
     def update_phi1(self, phi1):
-        """Updates the Pyvista Plot with new phi1 value."""
+        """Update the Pyvista Plot with new phi1 value."""
         self._phi1 = phi1
         self._update_both()
 
     def update_theta1(self, theta1):
-        """Updates the Pyvista Plot with new theta1 value."""
+        """Update the Pyvista Plot with new theta1 value."""
         self._theta1 = theta1
         self._update_both()
 
     def update_phi2(self, phi2):
-        """Updates the Pyvista Plot with new phi2 value."""
+        """Update the Pyvista Plot with new phi2 value."""
         self._phi2 = phi2
         self._update_both()
 
@@ -2504,7 +2499,6 @@ class FieldPlot:
     Parameters
     ----------
     postprocessor : :class:`pyaedt.modules.PostProcessor.PostProcessor`
-
     objlist : list
         List of objects.
     solutionName : str
@@ -2778,7 +2772,7 @@ class FieldPlot:
         """Surface plot settings for field line traces.
 
         ..note::
-            ``Specify seeding points on selections`` is by default set to ''by sampling''.
+            ``Specify seeding points on selections`` is by default set to ``by sampling``.
 
         Returns
         -------
@@ -3153,3 +3147,266 @@ class FieldPlot:
         else:
             self._postprocessor.logger.info("This method works only on CPython with PyVista")
             return False
+
+
+class VRTFieldPlot:
+    """Creates and edits VRT field plots for SBR+ and Creeping Waves.
+
+    Parameters
+    ----------
+    postprocessor : :class:`pyaedt.modules.PostProcessor.PostProcessor`
+    is_creeping_wave : bool
+        Whether it is a creeping wave model or not.
+    quantity_name : str, optional
+        Name of the plot or the name of the object.
+    max_frequency : str, optional
+        Maximum Frequency. The default is ``"1GHz"``.
+    ray_density : int, optional
+        Ray Density. The default is ``2``.
+    bounces : int, optional
+        Maximum number of bounces. The default is ``5``.
+    intrinsinc_list : dict, optional
+        Name of the intrinsic dictionary. The default is ``{}``.
+
+    """
+
+    def __init__(
+        self,
+        postprocessor,
+        is_creeping_wave=False,
+        quantity_name="QuantityName_SBR",
+        max_frequency="1GHz",
+        ray_density=2,
+        bounces=5,
+        intrinsinc_list={},
+    ):
+        self.is_creeping_wave = is_creeping_wave
+        self._postprocessor = postprocessor
+        self._ofield = postprocessor.ofieldsreporter
+        self.quantity_name = quantity_name
+        self.intrinsics = intrinsinc_list
+        self.name = "Field_Plot"
+        self.plot_folder = "Field_Plot"
+        self.max_frequency = max_frequency
+        self.ray_density = ray_density
+        self.number_of_bounces = bounces
+        self.multi_bounce_ray_density_control = False
+        self.mbrd_max_subdivision = 2
+        self.shoot_utd_rays = False
+        self.shoot_type = "All Rays"
+        self.start_index = 0
+        self.stop_index = 1
+        self.step_index = 1
+        self.is_plane_wave = True
+        self.incident_theta = "0deg"
+        self.incident_phi = "0deg"
+        self.vertical_polarization = False
+        self.custom_location = [0, 0, 0]
+        self.ray_box = None
+        self.ray_elevation = "0deg"
+        self.ray_azimuth = "0deg"
+        self.custom_coordinatesystem = 1
+        self.ray_cutoff = 40
+        self.sample_density = 10
+        self.irregular_surface_tolerance = 50
+
+    @property
+    def intrinsicVar(self):
+        """Intrinsic variable.
+
+        Returns
+        -------
+        list or dict
+            List or dictionary of the variables for the field plot.
+        """
+        var = ""
+        if isinstance(self.intrinsics, list):
+            l = 0
+            while l < len(self.intrinsics):
+                val = self.intrinsics[l + 1]
+                if ":=" in self.intrinsics[l] and isinstance(self.intrinsics[l + 1], list):
+                    val = self.intrinsics[l + 1][0]
+                ll = self.intrinsics[l].split(":=")
+                var += ll[0] + "='" + str(val) + "' "
+                l += 2
+        else:
+            for a in self.intrinsics:
+                var += a + "='" + str(self.intrinsics[a]) + "' "
+        return var
+
+    @pyaedt_function_handler()
+    def _create_args(self):
+        args = [
+            "NAME:" + self.name,
+            "UserSpecifyName:=",
+            0,
+            "UserSpecifyFolder:=",
+            0,
+            "QuantityName:=",
+            self.quantity_name,
+            "PlotFolder:=",
+            "Visual Ray Trace SBR",
+            "IntrinsicVar:=",
+            self.intrinsicVar,
+            "MaxFrequency:=",
+            self.max_frequency,
+            "RayDensity:=",
+            self.ray_density,
+            "NumberBounces:=",
+            self.number_of_bounces,
+            "Multi-Bounce Ray Density Control:=",
+            self.multi_bounce_ray_density_control,
+            "MBRD Max sub divisions:=",
+            self.mbrd_max_subdivision,
+            "Shoot UTD Rays:=",
+            self.shoot_utd_rays,
+            "ShootFilterType:=",
+            self.shoot_type,
+        ]
+        if self.shoot_type == "Rays by index":
+            args.extend(
+                [
+                    "start index:=",
+                    self.start_index,
+                    "stop index:=",
+                    self.stop_index,
+                    "index step:=",
+                    self.step_index,
+                ]
+            )
+        elif self.shoot_type == "Rays in box":
+            box_id = None
+            if isinstance(self.ray_box, int):
+                box_id = self.ray_box
+            elif isinstance(self.ray_box, str):
+                box_id = self._postprocessor._primitives._object_names_to_ids[self.ray_box]
+            else:
+                box_id = self.ray_box.id
+            args.extend("FilterBoxID:=", box_id)
+        elif self.shoot_type == "Single ray":
+            args.extend("Ray elevation:=", self.ray_elevation, "Ray azimuth:=", self.ray_azimuth)
+        args.append("LaunchFrom:=")
+        if self.is_plane_wave:
+            args.append("Launch from Plane-Wave")
+            args.append("Incident direction theta:=")
+            args.append(self.incident_theta)
+            args.append("Incident direction phi:=")
+            args.append(self.incident_phi)
+            args.append("Vertical Incident Polarization:=")
+            args.append(self.vertical_polarization)
+        else:
+            args.append("Launch from Custom")
+            args.append("LaunchFromPointID:=")
+            args.append(-1)
+            args.append("CustomLocationCoordSystem:=")
+            args.append(self.custom_coordinatesystem)
+            args.append("CustomLocation:=")
+            args.append(self.custom_location)
+        return args
+
+    @pyaedt_function_handler()
+    def _create_args_creeping(self):
+        args = [
+            "NAME:" + self.name,
+            "UserSpecifyName:=",
+            0,
+            "UserSpecifyFolder:=",
+            0,
+            "QuantityName:=",
+            self.quantity_name,
+            "PlotFolder:=",
+            "Visual Ray Trace CW",
+            "IntrinsicVar:=",
+            "",
+            "MaxFrequency:=",
+            self.max_frequency,
+            "SampleDensity:=",
+            self.sample_density,
+            "RayCutOff:=",
+            self.ray_cutoff,
+            "Irregular Surface Tolerance:=",
+            self.irregular_surface_tolerance,
+            "LaunchFrom:=",
+        ]
+        if self.is_plane_wave:
+            args.append("Launch from Plane-Wave")
+            args.append("Incident direction theta:=")
+            args.append(self.incident_theta)
+            args.append("Incident direction phi:=")
+            args.append(self.incident_phi)
+            args.append("Vertical Incident Polarization:=")
+            args.append(self.vertical_polarization)
+        else:
+            args.append("Launch from Custom")
+            args.append("LaunchFromPointID:=")
+            args.append(-1)
+            args.append("CustomLocationCoordSystem:=")
+            args.append(self.custom_coordinatesystem)
+            args.append("CustomLocation:=")
+            args.append(self.custom_location)
+        args.append("SBRRayDensity:=")
+        args.append(self.ray_density)
+        return args
+
+    @pyaedt_function_handler()
+    def create(self):
+        """Create a field plot.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        try:
+            if self.is_creeping_wave:
+                self._ofield.CreateFieldPlot(self._create_args_creeping(), "CreepingWave_VRT")
+            else:
+                self._ofield.CreateFieldPlot(self._create_args(), "VRT")
+            return True
+        except:
+            return False
+
+    @pyaedt_function_handler()
+    def update(self):
+        """Update the field plot.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        try:
+            if self.is_creeping_wave:
+                self._ofield.ModifyFieldPlot(self.name, self._create_args_creeping())
+
+            else:
+                self._ofield.ModifyFieldPlot(self.name, self._create_args())
+            return True
+        except:
+            return False
+
+    @pyaedt_function_handler()
+    def delete(self):
+        """Delete the field plot."""
+        self._ofield.DeleteFieldPlot([self.name])
+        return True
+
+    @pyaedt_function_handler()
+    def export(self, path_to_hdm_file=None):
+        """Export the Visual Ray Tracing to ``hdm`` file.
+
+        Parameters
+        ----------
+        path_to_hdm_file : str, optional
+            Full path to output file. If ``None``, the file will be exported in working directory.
+
+        Returns
+        -------
+        str
+            Path to the file.
+        """
+        if not path_to_hdm_file:
+            path_to_hdm_file = os.path.join(self._postprocessor._app.working_directory, self.name + ".hdm")
+        self._ofield.ExportFieldPlot(self.name, False, path_to_hdm_file)
+        return path_to_hdm_file

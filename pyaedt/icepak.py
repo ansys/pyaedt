@@ -9,9 +9,10 @@ import os
 import warnings
 
 from pyaedt import is_ironpython
+from pyaedt import is_linux
 from pyaedt.modules.SetupTemplates import SetupKeys
 
-if os.name == "posix" and is_ironpython:
+if is_linux and is_ironpython:
     import subprocessdotnet as subprocess
 else:
     import subprocess
@@ -628,6 +629,9 @@ class Icepak(FieldAnalysis3D):
         source_name=None,
     ):
         """Create a source power for a face.
+
+        .. deprecated:: 0.6.71
+            This method is replaced by `assign_source`.
 
         Parameters
         ----------
@@ -1844,7 +1848,6 @@ class Icepak(FieldAnalysis3D):
             List containing the requested link data.
 
         """
-
         if "linkData" in kwargs:
             warnings.warn(
                 "The ``linkData`` parameter was deprecated in 0.6.43. Use the ``links_data`` parameter instead.",
@@ -2073,7 +2076,6 @@ class Icepak(FieldAnalysis3D):
 
         >>> oModule.InsertNativeComponent
         """
-
         if "extenttype" in kwargs:
             warnings.warn(
                 "The ``extenttype`` parameter was deprecated in 0.6.43. Use the ``extent_type`` parameter instead.",
@@ -2180,16 +2182,16 @@ class Icepak(FieldAnalysis3D):
             Name of the design.
         resolution : int, optional
             Resolution of the mapping. The default is ``2``.
-        extent_type :
+        extent_type : str, optional
             Type of the extent. Options are ``"Polygon"`` and ``"Bounding Box"``. The default
             is ``"Bounding Box"``.
         outline_polygon : str, optional
             Name of the outline polygon if ``extent_type="Polygon"``. The default is ``""``.
         close_linked_project_after_import : bool, optional
             Whether to close the linked AEDT project after the import. The default is ``True``.
-        custom_x_resolution :
+        custom_x_resolution : int, optional
             The default is ``None``.
-        custom_y_resolution :
+        custom_y_resolution : int, optional
             The default is ``None``.
         power_in : float, optional
             Power in in Watt.
@@ -2204,7 +2206,6 @@ class Icepak(FieldAnalysis3D):
 
         >>> oModule.InsertNativeComponent
         """
-
         if "extenttype" in kwargs:
             warnings.warn(
                 "``extenttype`` was deprecated in 0.6.43. Use ``extent_type`` instead.",
@@ -2266,7 +2267,6 @@ class Icepak(FieldAnalysis3D):
         >>> oEditor.Copy
         >>> oeditor.Paste
         """
-
         if "groupName" in kwargs:
             warnings.warn(
                 "The ``groupName`` parameter was deprecated in 0.6.43. Use the ``group_name`` parameter instead.",
@@ -2356,7 +2356,6 @@ class Icepak(FieldAnalysis3D):
 
         >>> oModule.EditGlobalMeshRegion
         """
-
         bounding_box = self.modeler.oeditor.GetModelBoundingBox()
         xsize = abs(float(bounding_box[0]) - float(bounding_box[3])) / (15 * meshtype * meshtype)
         ysize = abs(float(bounding_box[1]) - float(bounding_box[4])) / (15 * meshtype * meshtype)
@@ -2684,9 +2683,9 @@ class Icepak(FieldAnalysis3D):
             If ``False``, full validation is performed.
         default_fluid : str, optional
             Type of fluid. The default is ``"Air"``.
-        default_solid :
+        default_solid : str, optional
             Type of solid. The default is ``"Al-Extruded"``.
-        default_surface :
+        default_surface : str, optional
             Type of surface. The default is ``"Steel-oxidised-surface"``.
 
         Returns
@@ -2699,7 +2698,6 @@ class Icepak(FieldAnalysis3D):
 
         >>> oDesign.SetDesignSettings
         """
-
         ambient_temperature = self.modeler._arg_with_dim(ambienttemp, "cel")
 
         axes = ["X", "Y", "Z"]
@@ -2792,94 +2790,6 @@ class Icepak(FieldAnalysis3D):
                     sm.surface_incident_absorptance = oo.GetPropEvaluatedValue("Solar Normal Absorptance")
                 self.materials.surface_material_keys[mat.lower()] = sm
         return True
-
-    @pyaedt_function_handler()
-    def create_two_resistor_network_block_depr(self, object_name, power, rjb, rjc, placement):
-        """Create a two-resistor network block.
-
-        .. deprecated:: 0.6.30
-            This method is replaced by the ``create_two_resistor_network_block`` method.
-
-        Parameters
-        ----------
-        object_name : str
-            Name of the object (3D block primitive) on which to create the two-resistor
-            network.
-        power : float
-            Junction power in [W].
-        rjb : float
-            Junction-to-board thermal resistance in [K/W].
-        rjc : float
-            Junction-to-case thermal resistance in [K/W].
-        placement : str
-            Placement of the network block. Options are:
-            - ``top``: Network block is placed on top of the board.
-            - "bottom" : Network block is placed on bottom of the board.
-
-        Returns
-        -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object.
-
-        References
-        ----------
-
-        >>> oModule.AssignNetworkBoundary
-
-        Examples
-        --------
-
-        >>> box = icepak.modeler.create_box([4, 5, 6], [5, 5, 5], "NetworkBox1", "copper")
-        >>> block = icepak.create_two_resistor_network_block("NetworkBox1", "2W", 20, 10, "top")
-        >>> block.props["Nodes"]["Internal"][0]
-        '2W'
-        """
-        warnings.warn(
-            "This method is deprecated in 0.6.29. Use the ``create_two_resistor_network_block`` method instead.",
-            DeprecationWarning,
-        )
-        object_handle = self.modeler.get_object_from_name(object_name)
-        placement = placement.lower()
-        if placement == "top":
-            board_face_id = object_handle.top_face_z.id
-            case_face_id = object_handle.bottom_face_z.id
-            board_side = "bottom"
-            case_side = "top"
-        else:
-            board_face_id = object_handle.bottom_face_z.id
-            case_face_id = object_handle.top_face_z.id
-            board_side = "top"
-            case_side = "bottom"
-
-        # Define network properties in props directory
-        props = {
-            "Faces": [board_face_id, case_face_id],
-            "Nodes": OrderedDict(
-                {
-                    "Case_side(" + case_side + ")": [case_face_id, "NoResistance"],
-                    "Board_side(" + board_side + ")": [board_face_id, "NoResistance"],
-                    "Internal": [power],
-                }
-            ),
-            "Links": OrderedDict(
-                {
-                    "Rjc": ["Case_side(" + case_side + ")", "Internal", "R", str(rjc) + "cel_per_w"],
-                    "Rjb": ["Board_side(" + board_side + ")", "Internal", "R", str(rjb) + "cel_per_w"],
-                }
-            ),
-            "SchematicData": ({}),
-        }
-
-        # Default material is Ceramic_material
-        self.modeler[object_name].material_name = "Ceramic_material"
-
-        # Create boundary condition and set solve_inside = False
-        bound = BoundaryObject(self, object_name, props, "Network")
-        if bound.create():
-            self.boundaries.append(bound)
-            self.modeler.primitives[object_name].solve_inside = False
-            return bound
-        return None
 
     @pyaedt_function_handler()
     def import_idf(
@@ -3722,3 +3632,143 @@ class Icepak(FieldAnalysis3D):
         setup.auto_update = True
         setup.update()
         return setup
+
+    @pyaedt_function_handler()
+    def _parse_variation_data(self, quantity, variation_type, variation_value, function):
+        if variation_type == "Transient" and self.solution_type == "SteadyState":
+            self.logger.error("A transient boundary condition cannot be assigned for a non-transient simulation.")
+            return None
+        if variation_type == "Temp Dep" and function != "Piecewise Linear":
+            self.logger.error("Temperature dependent assignment support only piecewise linear function.")
+            return None
+        out_dict = {"Variation Type": variation_type, "Variation Function": function}
+        if function == "Piecewise Linear":
+            if not isinstance(variation_value, list):
+                variation_value = ["1", "pwl({},Temp)".format(variation_value)]
+            else:
+                variation_value = [variation_value[0], "pwl({},Temp)".format(variation_value[1])]
+            out_dict["Variation Value"] = "[{}]".format(", ".join(['"' + str(i) + '"' for i in variation_value]))
+        else:
+            out_dict["Variation Value"] = "[{}]".format(", ".join([str(i) for i in variation_value]))
+        return {"{} Variation Data".format(quantity): out_dict}
+
+    @pyaedt_function_handler()
+    def assign_source(
+        self,
+        assignment,
+        thermal_condition,
+        assignment_value,
+        boundary_name=None,
+        radiate=False,
+        voltage_current_choice=False,
+        voltage_current_value=None,
+    ):
+        """Create a source power for a face.
+
+        Parameters
+        ----------
+        assignment : int or str
+            If int, Face ID. If str, object name.
+        thermal_condition : str
+            Thermal condition. Accepted values are ``"Total Power"``, ``"Surface Heat"``,
+            ``"Temperature"``.
+        assignment_value : str or dict
+            Value and units of the input power, surface heat or temperature (depending on
+            ``thermal_condition``). A dictionary can be used for temperature dependent or transient
+             assignment. The dictionary should contain three keys: ``"Type"``, ``"Function"`` and
+             ``"Values"``. Accepted ``"Type"`` values are: ``"Temp Dep"`` and ``"Transient"``.
+             Accepted ``"Function"`` are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
+             ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``. ``"Temp Dep"`` only
+             support the latter. ``"Values"`` contains a list of strings containing the parameters
+            required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
+            the value of the variable at t=0 and the slope of the line). The parameters required by
+            each ``Function`` option is in Icepak documentation. The parameters must contain the
+            units where needed.
+        boundary_name : str, optional
+            Name of the source boundary. The default is ``None`` and the boundary name will be
+            generated automatically.
+        radiate : bool, optional
+            Whether to enable radiation. The default is ``False``.
+        voltage_current_choice : str or bool, optional
+            Whether to assign ``"Voltage"`` or ``"Current"`` or none of them. The default is
+            ``False`` (none of them is assigned).
+        voltage_current_value : str or dict, optional
+            Value and units of current or voltage assignment. A dictionary can be used for
+            transient assignment. The dictionary must be structured as described for the
+            ``assignment_value`` argument. The default is ``None``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignSourceBoundary
+
+        Examples
+        --------
+
+        >>> from pyaedt import Icepak
+        >>> app = Icepak()
+        >>> box = app.modeler.create_box([0, 0, 0], [20, 20, 20], name="box")
+        >>> ds = app.create_dataset1d_design("Test_DataSet", [1, 2, 3], [3, 4, 5])
+        >>> app.solution_type = "Transient"
+        >>> b = app.assign_source("box", "Total Power", assignment_value={"Type": "Temp Dep",
+        ... "Function": "Piecewise Linear", "Values": "Test_DataSet"})
+
+        """
+        default_values = {"Total Power": "0W", "Surface Heat": "0irrad_W_per_m2", "Temperature": "AmbientTemp"}
+        if not boundary_name:
+            boundary_name = generate_unique_name("Source")
+        props = {}
+        if isinstance(assignment, int):
+            props["Faces"] = [assignment]
+        elif isinstance(assignment, str):
+            props["Objects"] = [assignment]
+        props["Thermal Condition"] = thermal_condition
+        for quantity, value in default_values.items():
+            if quantity == thermal_condition:
+                if isinstance(assignment_value, dict):
+                    assignment_value = self._parse_variation_data(
+                        quantity,
+                        assignment_value["Type"],
+                        variation_value=assignment_value["Values"],
+                        function=assignment_value["Function"],
+                    )
+                    if assignment_value is None:
+                        return None
+                    props.update(assignment_value)
+                else:
+                    props[quantity] = assignment_value
+            else:
+                props[quantity] = value
+        props["Radiation"] = OrderedDict({"Radiate": radiate})
+        props["Voltage/Current - Enabled"] = bool(voltage_current_choice)
+        default_values = {"Current": "0A", "Voltage": "0V"}
+        props["Voltage/Current Option"] = voltage_current_choice
+        for quantity, value in default_values.items():
+            if voltage_current_choice == quantity:
+                if isinstance(voltage_current_value, dict):
+                    if voltage_current_value["Type"] == "Temp Dep":
+                        self.logger.error("Voltage or Current assignment does not support temperature dependence.")
+                        return None
+                    voltage_current_value = self._parse_variation_data(
+                        quantity,
+                        voltage_current_value["Type"],
+                        variation_value=voltage_current_value["Values"],
+                        function=voltage_current_value["Function"],
+                    )
+                    if voltage_current_value == None:
+                        return None
+                    props.update(voltage_current_value)
+                else:
+                    props[quantity] = voltage_current_value
+            else:
+                props[quantity] = value
+
+        bound = BoundaryObject(self, boundary_name, props, "SourceIcepak")
+        if bound.create():
+            self.boundaries.append(bound)
+            return bound

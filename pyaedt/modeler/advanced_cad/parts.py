@@ -92,17 +92,17 @@ class Part(object):
                 rotations = self._compdef["rotation"].split(",")
             else:
                 rotations = []
-            y = "0"
-            p = "0"
             r = "0"
-            for a in rotations:
-                if rotations_axis[rotations.index(a)].lower() == "x":  # roll
+            p = "0"
+            y = "0"
+            for i, a in enumerate(rotations):
+                if rotations_axis[i].lower() == "x":  # roll
                     r = a
                     self.rot_axis[2] = True
-                elif rotations_axis[rotations.index(a)].lower() == "y":  # pitch
+                elif rotations_axis[i].lower() == "y":  # pitch
                     p = a
                     self.rot_axis[1] = True
-                elif rotations_axis[rotations.index(a)].lower() == "z":  # yaw
+                elif rotations_axis[i].lower() == "z":  # yaw
                     y = a
                     self.rot_axis[0] = True
 

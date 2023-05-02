@@ -40,7 +40,8 @@ M3D = Maxwell3d(
     designname=Design_Name,
     solution_type=Solver,
     specified_version=DesktopVersion,
-    non_graphical=non_graphical
+    non_graphical=non_graphical,
+    new_desktop_session=True
 )
 M3D.modeler.model_units = "mm"
 modeler = M3D.modeler

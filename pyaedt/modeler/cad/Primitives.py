@@ -311,10 +311,10 @@ class Primitives(object):
         obj_names = self.object_names
         missing = []
         for name in obj_names:
-            if name not in self.object_id_dict:
+            if name not in self._object_names_to_ids:
                 missing.append(name)
         non_existent = []
-        for name in self.object_id_dict:
+        for name in self._object_names_to_ids:
             if name not in obj_names and name not in self.unclassified_names:
                 non_existent.append(name)
         report = {"Missing Objects": missing, "Non-Existent Objects": non_existent}
@@ -520,7 +520,11 @@ class Primitives(object):
 
         """
         o = self._resolve_object(obj)
-        o._update()
+        name = o.name
+
+        del self.objects[self._object_names_to_ids[name]]
+        del self._object_names_to_ids[name]
+        o = self._create_object(name)
         return o
 
     @pyaedt_function_handler()
@@ -529,15 +533,15 @@ class Primitives(object):
 
         Parameters
         ----------
-        value : string or list of strings
+        value : str or list of str
             One or more strings for numerical lengths. For example, ``"10mm"``
-            or ``["10mm", "12mm", "14mm"]``. When a a list is given, the entire
+            or ``["10mm", "12mm", "14mm"]``. When a list is given, the entire
             list is converted.
 
         Returns
         -------
-        float or list of floats
-            Defined in object units :attr:`pyaedt.modeler.Primitives.Polyline.object_units`.
+        List of floats
+            Defined in model units :attr:`pyaedt.modeler.model_units`.
 
         """
         # Convert to a list if a scalar is presented
@@ -558,7 +562,7 @@ class Primitives(object):
                 v.rescale_to(self.model_units)
                 num_val = v.numeric_value
             else:
-                raise ("Inputs to value_in_object_units must be strings or numbers.")
+                raise TypeError("Inputs to value_in_object_units must be strings or numbers.")
 
             numeric_list.append(num_val)
 
@@ -568,12 +572,12 @@ class Primitives(object):
             return numeric_list
 
     @pyaedt_function_handler()
-    def does_object_exists(self, object):
-        """ "Check to see if an object exists.
+    def does_object_exists(self, obj_to_check):
+        """Check to see if an object exists.
 
         Parameters
         ----------
-        object : str, int
+        obj_to_check : str, int
             Object name or object ID.
 
         Returns
@@ -582,17 +586,12 @@ class Primitives(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if isinstance(object, int):
-            if object in self.objects:
-                return True
-            else:
-                return False
+        if isinstance(obj_to_check, int) and obj_to_check in self.objects:
+            return True
+        elif obj_to_check in self.objects_by_name:
+            return True
         else:
-            for el in self.objects:
-                if self.objects[el].name == object:
-                    return True
-
-        return False
+            return False
 
     @pyaedt_function_handler()
     def create_region(self, pad_percent=300, is_percentage=True):
@@ -815,7 +814,7 @@ class Primitives(object):
         :class:`pyaedt.modeler.polylines.PolylineSegment`
         """
         return PolylineSegment(
-            type=type,
+            segment_type=type,
             num_seg=num_seg,
             num_points=num_points,
             arc_angle=arc_angle,
@@ -862,12 +861,10 @@ class Primitives(object):
             "1mm"]``, or ``["x1", "y1", "z1"]``.
         segment_type : str or PolylineSegment or list, optional
             The default behavior is to connect all points as
-            ``"Line"`` segments. The default is ``None``. For a
-            string, ``"Line"`` or ``"Arc"`` is valid. For a
-            ``"PolylineSegment"``, for ``"Line",`` ``"Arc"``,
-            ``"Spline"``, or ``"AngularArc"``, a list of segment types
-            (str or
-            :class:`pyaedt.modeler.Primitives.PolylineSegment`) is
+            ``"Line"`` segments. The default is ``None``.
+            Use a ``"PolylineSegment"``, for ``"Line"``, ``"Arc"``, ``"Spline"``,
+            or ``"AngularArc"``.
+            A list of segment types (str or :class:`pyaedt.modeler.Primitives.PolylineSegment`) is
             valid for a compound polyline.
         cover_surface : bool, optional
             The default is ``False``.
@@ -921,7 +918,7 @@ class Primitives(object):
         --------
         Set up the desktop environment.
 
-        >>> from pyaedt.modeler.polylines import PolylineSegment        >>> from pyaedt.desktop import Desktop
+        >>> from pyaedt.modeler.cad.polylines import PolylineSegment        >>> from pyaedt.desktop import Desktop
         >>> from pyaedt.maxwell import Maxwell3d
         >>> desktop=Desktop(specified_version="2021.2", new_desktop_session=False)
         >>> aedtapp = Maxwell3D()
@@ -947,7 +944,7 @@ class Primitives(object):
         additionally specify five segments using ``PolylineSegment``.
 
         >>> P3 = modeler.create_polyline(test_points[1:],
-        ...                               segment_type=PolylineSegment(type="Arc", num_seg=7),
+        ...                               segment_type=PolylineSegment(segment_type="Arc", num_seg=7),
         ...                               name="PL_segmented_arc")
 
         Specify that the four points form a spline and add a circular
@@ -963,7 +960,8 @@ class Primitives(object):
 
         >>> start_point = test_points[1]
         >>> center_point = test_points[0]
-        >>> segment_def = PolylineSegment(type="AngularArc", arc_center=center_point, arc_angle="90deg", arc_plane="XY")
+        >>> segment_def = PolylineSegment(segment_type="AngularArc", arc_center=center_point,
+        ...                                arc_angle="90deg", arc_plane="XY")
         >>> modeler.create_polyline(start_point, segment_type=segment_def, name="PL_center_point_arc")
 
         Create a spline using a list of variables for the coordinates of the points.
@@ -1261,7 +1259,7 @@ class Primitives(object):
         >>> oEditor.Delete
 
         """
-        objnames = self.object_id_dict
+        objnames = self._object_names_to_ids
         num_del = 0
         for el in objnames:
             if case_sensitive:
@@ -1307,8 +1305,8 @@ class Primitives(object):
             Object ID.
 
         """
-        if objname in self.object_id_dict:
-            return self.object_id_dict[objname]
+        if objname in self._object_names_to_ids:
+            return self._object_names_to_ids[objname]
         return None
 
     @pyaedt_function_handler()
@@ -1326,7 +1324,7 @@ class Primitives(object):
             3D object returned.
 
         """
-        if objname in self.object_id_dict:
+        if objname in self._object_names_to_ids:
             object_id = self.get_obj_id(objname)
             return self.objects[object_id]
 
@@ -1348,14 +1346,13 @@ class Primitives(object):
 
         """
         list_objs = []
-        for el in self.objects:
+        for name in list(self.objects_by_name.keys()):
             if case_sensitive:
-                if stringname in self.objects[el].name:
-                    list_objs.append(self.objects[el].name)
+                if stringname in name:
+                    list_objs.append(name)
             else:
-                if stringname.lower() in self.objects[el].name.lower():
-                    list_objs.append(self.objects[el].name)
-
+                if stringname.lower() in name.lower():
+                    list_objs.append(name)
         return list_objs
 
     @pyaedt_function_handler()
@@ -1369,11 +1366,24 @@ class Primitives(object):
         self._all_object_names = []
         self.objects = {}
         self.user_defined_components = {}
-        self.object_id_dict = {}
+        self._object_names_to_ids = {}
         self._currentId = 0
         self._refresh_object_types()
         self._refresh_all_ids_from_aedt_file()
         self.refresh_all_ids()
+
+    @property
+    def objects_by_name(self):
+        """Object dictionary organized by name.
+
+        Returns
+        -------
+        dict
+        """
+        obj_dict = {}
+        for _, v in self.objects.items():
+            obj_dict[v._m_name] = v
+        return obj_dict
 
     @pyaedt_function_handler()
     def cleanup_objects(self):
@@ -1407,7 +1417,7 @@ class Primitives(object):
             if obj.name in self._points:
                 new_points_dict[obj.name] = obj
         self.objects = new_object_dict
-        self.object_id_dict = new_object_id_dict
+        self._object_names_to_ids = new_object_id_dict
         self.points = new_points_dict
 
     @pyaedt_function_handler()
@@ -1423,7 +1433,7 @@ class Primitives(object):
         """
         new_objects = []
         for obj_name in self.object_names:
-            if obj_name not in self.object_id_dict:
+            if obj_name not in self._object_names_to_ids:
                 new_objects.append(obj_name)
         return new_objects
 
@@ -1439,12 +1449,17 @@ class Primitives(object):
 
         """
         added_objects = []
+
         for obj_name in self.object_names:
-            if obj_name not in self.object_id_dict:
+            if obj_name not in self._object_names_to_ids:
                 self._create_object(obj_name)
                 added_objects.append(obj_name)
         for obj_name in self.unclassified_names:
-            if obj_name not in self.object_id_dict:
+            if obj_name not in self._object_names_to_ids:
+                self._create_object(obj_name)
+                added_objects.append(obj_name)
+        for obj_name in self.point_names:
+            if obj_name not in self.points.keys():
                 self._create_object(obj_name)
                 added_objects.append(obj_name)
         return added_objects
@@ -1503,7 +1518,7 @@ class Primitives(object):
         >>> oEditor.GetObjectsByMaterial
 
         """
-        if materialname:
+        if materialname is not None:
             obj_lst = [x for x in self.object_list if x.material_name == materialname]
         else:
             obj_lst = [
@@ -1785,7 +1800,7 @@ class Primitives(object):
 
         """
         oFaceIDs = []
-        if isinstance(partId, str) and partId in self.object_id_dict:
+        if isinstance(partId, str) and partId in self._object_names_to_ids:
             oFaceIDs = self.oeditor.GetFaceIDs(partId)
             oFaceIDs = [int(i) for i in oFaceIDs]
         elif partId in self.objects:
@@ -1816,7 +1831,7 @@ class Primitives(object):
 
         """
         oEdgeIDs = []
-        if isinstance(partId, str) and partId in self.object_id_dict:
+        if isinstance(partId, str) and partId in self._object_names_to_ids:
             oEdgeIDs = self.oeditor.GetEdgeIDsFromObject(partId)
             oEdgeIDs = [int(i) for i in oEdgeIDs]
         elif partId in self.objects:
@@ -1870,7 +1885,7 @@ class Primitives(object):
 
         """
         oVertexIDs = []
-        if isinstance(partID, str) and partID in self.object_id_dict:
+        if isinstance(partID, str) and partID in self._object_names_to_ids:
             oVertexIDs = self.oeditor.GetVertexIDsFromObject(partID)
             oVertexIDs = [int(i) for i in oVertexIDs]
         elif partID in self.objects:
@@ -2092,8 +2107,8 @@ class Primitives(object):
             two vertices, an empty list is returned.
         """
 
-        if isinstance(partID, str) and partID in self.object_id_dict:
-            partID = self.object_id_dict[partID]
+        if isinstance(partID, str) and partID in self._object_names_to_ids:
+            partID = self._object_names_to_ids[partID]
 
         if partID in self.objects and self.objects[partID].object_type == "Line":
             vertices = self.get_object_vertices(partID)
@@ -2818,15 +2833,34 @@ class Primitives(object):
         elif name in self.planes.keys():
             o = Plane(self, name)
             self.planes[name] = o
-        else:
+        elif name in self.line_names:
             o = Object3d(self, name)
             if pid:
                 new_id = pid
             else:
                 new_id = o.id
+            o = self.get_existing_polyline(o)
             self.objects[new_id] = o
-            self.object_id_dict[o.name] = new_id
+            self._object_names_to_ids[o.name] = new_id
+        else:
+            o = Object3d(self, name)
+            commands = self._get_commands(name)
+            if commands and commands[0].startswith("CreatePolyline"):
+                o = self.get_existing_polyline(o)
+            if pid:
+                new_id = pid
+            else:
+                new_id = o.id
+            self.objects[new_id] = o
+            self._object_names_to_ids[o.name] = new_id
         return o
+
+    @pyaedt_function_handler()
+    def _get_commands(self, name):
+        try:
+            return self.oeditor.GetChildObject(name).GetChildNames()
+        except:
+            return []
 
     @pyaedt_function_handler()
     def _create_user_defined_component(self, name):
@@ -2878,7 +2912,7 @@ class Primitives(object):
                 ]["GeometryPart"]["Attributes"]
                 operations = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
                     "ToplevelParts"
-                ]["GeometryPart"]["Attributes"]
+                ]["GeometryPart"]["Operations"]
             if attribs["Name"] in self._all_object_names:
                 pid = 0
 
@@ -3023,13 +3057,16 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _arg_with_dim(self, value, units=None):
-        if isinstance(value, str):
-            val = value
+        if units is None:
+            units = self.model_units
+        if type(value) is str:
+            try:
+                float(value)
+                val = "{0}{1}".format(value, units)
+            except:
+                val = value
         else:
-            if units is None:
-                units = self.model_units
             val = "{0}{1}".format(value, units)
-
         return val
 
     @pyaedt_function_handler()
@@ -3149,8 +3186,8 @@ class Primitives(object):
         if isinstance(partId, int):
             if partId in self.objects:
                 return self.objects[partId]
-        elif partId in self.object_id_dict:
-            return self.objects[self.object_id_dict[partId]]
+        elif partId in self._object_names_to_ids:
+            return self.objects[self._object_names_to_ids[partId]]
         elif partId in self.user_defined_components:
             return self.user_defined_components[partId]
         elif isinstance(partId, Object3d) or isinstance(partId, UserDefinedComponent):

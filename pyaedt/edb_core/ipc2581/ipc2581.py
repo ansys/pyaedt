@@ -49,7 +49,7 @@ class Ipc2581(object):
 
     @pyaedt_function_handler()
     def add_pdstack_definition(self):
-        for padstack_name, padstackdef in self._pedb.core_padstack.padstacks.items():
+        for padstack_name, padstackdef in self._pedb.padstacks.definitions.items():
             padstack_def = PadstackDef()
             padstack_def.name = padstack_name
             padstack_def.padstack_hole_def.name = padstack_name
@@ -199,7 +199,7 @@ class Ipc2581(object):
     @pyaedt_function_handler()
     def add_bom(self):
         # Bom
-        for part_name, components in self._pedb.core_components.components_by_partname.items():
+        for part_name, components in self._pedb.components.components_by_partname.items():
             bom_item = BomItem()
             bom_item.part_name = part_name
             bom_item.quantity = len(components)
@@ -252,17 +252,20 @@ class Ipc2581(object):
             if self._pedb.stackup.layers[layer_name].type == "dielectric":
                 layer_type = "DIELPREG"
                 material_type = "DIELECTRIC"
-                permitivity = edb_material.GetProperty(self._pedb.edb.Definition.MaterialPropertyId.Permittivity)[
-                    1
-                ].ToDouble()
+
+                permitivity = edb_material.GetProperty(self._pedb.edb.Definition.MaterialPropertyId.Permittivity)[1]
+                if not isinstance(permitivity, float):
+                    permitivity = permitivity.ToDouble()
                 loss_tg = edb_material.GetProperty(self._pedb.edb.Definition.MaterialPropertyId.DielectricLossTangent)[
                     1
-                ].ToDouble()
+                ]
+                if not isinstance(loss_tg, float):
+                    loss_tg = loss_tg.ToDouble()
                 conductivity = 0
             if layer_type == "CONDUCTOR":
-                conductivity = edb_material.GetProperty(self._pedb.edb.Definition.MaterialPropertyId.Conductivity)[
-                    1
-                ].ToDouble()
+                conductivity = edb_material.GetProperty(self._pedb.edb.Definition.MaterialPropertyId.Conductivity)[1]
+                if not isinstance(conductivity, float):
+                    conductivity = conductivity.ToDouble()
             self.ecad.cad_header.add_spec(
                 name=layer_name,
                 material=self._pedb.stackup.layers[layer_name]._edb_layer.GetMaterial(),
@@ -294,21 +297,21 @@ class Ipc2581(object):
 
     @pyaedt_function_handler()
     def add_components(self):
-        for item in self._pedb.core_components.components.values():
+        for item in self._pedb.components.components.values():
             self.ecad.cad_data.cad_data_step.add_component(item)
 
     @pyaedt_function_handler()
     def add_logical_nets(self):
-        nets = [i for i in self._pedb.core_nets.nets.values()]
+        nets = [i for i in self._pedb.nets.nets.values()]
         for net in nets:
             self.ecad.cad_data.cad_data_step.add_logical_net(net)
 
     @pyaedt_function_handler()
     def add_layer_features(self):
         layers = {i: j for i, j in self._pedb.stackup.signal_layers.items()}
-        padstack_instances = list(self._pedb.core_padstack.padstack_instances.values())
-        padstack_defs = {i: k for i, k in self._pedb.core_padstack.padstacks.items()}
-        polys = {i: j for i, j in self._pedb.core_primitives.primitives_by_layer.items()}
+        padstack_instances = list(self._pedb.padstacks.instances.values())
+        padstack_defs = {i: k for i, k in self._pedb.padstacks.definitions.items()}
+        polys = {i: j for i, j in self._pedb.modeler.primitives_by_layer.items()}
         for layer_name, layer in layers.items():
             self.ecad.cad_data.cad_data_step.add_layer_feature(layer, polys[layer_name])
         self.ecad.cad_data.cad_data_step.add_padstack_instances(padstack_instances, padstack_defs)
@@ -316,9 +319,7 @@ class Ipc2581(object):
     @pyaedt_function_handler()
     def add_drills(self):
         via_list = [
-            obj
-            for obj in list(self._pedb.core_padstack.padstack_instances.values())
-            if not obj.start_layer == obj.stop_layer
+            obj for obj in list(self._pedb.padstacks.instances.values()) if not obj.start_layer == obj.stop_layer
         ]
         l1 = len(list(self._pedb.stackup.signal_layers.keys()))
 

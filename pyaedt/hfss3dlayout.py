@@ -7,7 +7,6 @@ import fnmatch
 import io
 import os
 import re
-import warnings
 
 from pyaedt import is_ironpython
 from pyaedt import settings
@@ -98,7 +97,18 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     Create an AEDT 2021 R1 object and then create a
     ``Hfss3dLayout`` object and open the specified project.
 
-    >>> aedtapp = Hfss3dLayout(specified_version="2021.2", projectname="myfile.aedt")
+    >>> aedtapp = Hfss3dLayout(specified_version="2023.1", projectname="myfile.aedt")
+
+    Create an instance of ``Hfss3dLayout`` from an ``Edb``
+
+    >>> import pyaedt
+    >>> edb_path = "/path/to/edbfile.aedb"
+    >>> specified_version = "2023.1"
+    >>> edb = pyaedt.Edb(edb_path)
+    >>> edb.import_stackup("stackup.xml")  # Import stackup. Manipulate edb, ...
+    >>> edb.save_edb()
+    >>> edb.close_edb()
+    >>> aedtapp = pyaedt.Hfss3dLayout(specified_version="2021.2", projectname=edb_path)
 
     """
 
@@ -870,55 +880,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         settings.append(use_alternative_fallback)
         self.odesign.DesignOptions(settings, 0)
         return True
-
-    @pyaedt_function_handler()
-    def create_frequency_sweep(
-        self,
-        setupname,
-        unit,
-        freqstart,
-        freqstop,
-        num_of_freq_points,
-        sweepname=None,
-        sweeptype="Interpolating",
-        interpolation_tol_percent=0.5,
-        interpolation_max_solutions=250,
-        save_fields=True,
-        save_rad_fields_only=False,
-        use_q3d_for_dc=False,
-    ):
-        """Create a frequency sweep.
-
-        .. deprecated:: 0.4.0
-           Use :func:`Hfss3dLayout.create_linear_count_sweep` instead.
-
-        """
-
-        warnings.warn(
-            "`create_frequency_sweep` is deprecated. Use `create_linear_count_sweep` instead.",
-            DeprecationWarning,
-        )
-        if sweeptype == "interpolating":
-            sweeptype = "Interpolating"
-        elif sweeptype == "discrete":
-            sweeptype = "Discrete"
-        elif sweeptype == "fast":
-            sweeptype = "Fast"
-
-        return self.create_linear_count_sweep(
-            setupname=setupname,
-            unit=unit,
-            freqstart=freqstart,
-            freqstop=freqstop,
-            num_of_freq_points=num_of_freq_points,
-            sweepname=sweepname,
-            save_fields=save_fields,
-            save_rad_fields_only=save_rad_fields_only,
-            sweep_type=sweeptype,
-            interpolation_tol_percent=interpolation_tol_percent,
-            interpolation_max_solutions=interpolation_max_solutions,
-            use_q3d_for_dc=use_q3d_for_dc,
-        )
 
     @pyaedt_function_handler()
     def create_linear_count_sweep(
@@ -2191,3 +2152,65 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             else:
                 df.merge(df_tmp, left_index=True, right_index=True, how="outer")
         return df
+
+    @pyaedt_function_handler
+    def show_extent(self, show=True):
+        """Show or hide extent in a HFSS3dLayout design.
+
+        Parameters
+        ----------
+        show : bool, optional
+            Whether to show or not the extent.
+            The default value is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` is successful, ``False`` if it fails.
+
+        >>> oEditor.SetHfssExtentsVisible
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss3dLayout
+        >>> h3d = Hfss3dLayout()
+        >>> h3d.show_extent(show=True)
+        """
+        try:
+            self.oeditor.SetHfssExtentsVisible(show)
+            return True
+        except:
+            return False
+
+    @pyaedt_function_handler
+    def change_options(self, color_by_net=True):
+        """Change options for an existing layout.
+
+        It changes design visualization by color.
+
+        Parameters
+        ----------
+        color_by_net : bool, optional
+            Whether visualize color by net or by layer.
+            The default value is ``True``, which means color by net.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful, ``False`` if it fails.
+
+        >>> oEditor.ChangeOptions
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss3dLayout
+        >>> h3d = Hfss3dLayout()
+        >>> h3d.change_options(color_by_net=True)
+        """
+        try:
+            options = ["NAME:options", "ColorByNet:=", color_by_net, "CN:=", self.design_name]
+            oeditor = self.odesign.SetActiveEditor("Layout")
+            oeditor.ChangeOptions(options)
+            return True
+        except:
+            return False

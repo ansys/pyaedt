@@ -43,3 +43,11 @@ class EdbValue:
         str
         """
         return self._edb_obj.ToString()
+
+    def __str__(self):
+        """Another way to return the string for the value."""
+        return self.tostring
+
+    def __repr__(self):
+        """Another way to return the string for the value."""
+        return "<Instance of pyaedt.edb_core.edb_data.EdbValue = " + self.tostring + ">"

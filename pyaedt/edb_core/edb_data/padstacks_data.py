@@ -1,7 +1,10 @@
+from collections import OrderedDict
 import math
 import warnings
 
 from pyaedt import is_ironpython
+from pyaedt.edb_core.edb_data.edbvalue import EdbValue
+from pyaedt.edb_core.general import PadGeometryTpe
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.clr_module import String
 from pyaedt.generic.clr_module import _clr
@@ -28,7 +31,7 @@ class EDBPadProperties(object):
     --------
     >>> from pyaedt import Edb
     >>> edb = Edb(myedb, edbversion="2021.2")
-    >>> edb_pad_properties = edb.core_padstack.padstacks["MyPad"].pad_by_layer["TOP"]
+    >>> edb_pad_properties = edb.padstacks.definitions["MyPad"].pad_by_layer["TOP"]
     """
 
     def __init__(self, edb_padstack, layer_name, pad_type, p_edb_padstack):
@@ -36,8 +39,6 @@ class EDBPadProperties(object):
         self._pedbpadstack = p_edb_padstack
         self.layer_name = layer_name
         self.pad_type = pad_type
-        self._parameters_values = None
-        pass
 
     @property
     def _padstack_methods(self):
@@ -57,6 +58,13 @@ class EDBPadProperties(object):
 
     def _get_edb_value(self, value):
         return self._pedbpadstack._get_edb_value(value)
+
+    @property
+    def _pad_parameter_value(self):
+        pad_params = self._edb_padstack.GetData().GetPadParametersValue(
+            self.layer_name, self.int_to_pad_type(self.pad_type)
+        )
+        return pad_params
 
     @property
     def geometry_type(self):
@@ -96,6 +104,15 @@ class EDBPadProperties(object):
         self._update_pad_parameters_parameters(geom_type=geom_type, params=params)
 
     @property
+    def shape(self):
+        """Get the shape of the pad."""
+        return self._pad_parameter_value[1].ToString()
+
+    @shape.setter
+    def shape(self, value):
+        self._update_pad_parameters_parameters(geom_type=PadGeometryTpe[value].value)
+
+    @property
     def parameters_values(self):
         """Parameters.
 
@@ -104,12 +121,7 @@ class EDBPadProperties(object):
         list
             List of parameters.
         """
-        self._parameters_values = []
-        pad_values = self._edb_padstack.GetData().GetPadParametersValue(
-            self.layer_name, self.int_to_pad_type(self.pad_type)
-        )
-        self._parameters_values = [i.ToDouble() for i in pad_values[2]]
-        return self._parameters_values
+        return [i.tofloat for i in self.parameters.values()]
 
     @property
     def polygon_data(self):
@@ -130,27 +142,75 @@ class EDBPadProperties(object):
 
     @property
     def parameters(self):
-        """Parameters.
+        """Get parameters.
 
         Returns
         -------
-        list
-            List of parameters.
+        dict
         """
-        pad_values = self._edb_padstack.GetData().GetPadParametersValue(
-            self.layer_name, self.int_to_pad_type(self.pad_type)
-        )
-
-        # pad_values = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self)
-        return [i.ToString() for i in pad_values[2]]
+        value = list(self._pad_parameter_value[2])
+        if self.shape == PadGeometryTpe.Circle.name:
+            return OrderedDict({"Diameter": EdbValue(value[0])})
+        elif self.shape == PadGeometryTpe.Square.name:
+            return OrderedDict({"Size": EdbValue(value[0])})
+        elif self.shape == PadGeometryTpe.Rectangle.name:
+            return OrderedDict({"XSize": EdbValue(value[0]), "YSize": EdbValue(value[1])})
+        elif self.shape in [PadGeometryTpe.Oval.name, PadGeometryTpe.Bullet.name]:
+            return OrderedDict(
+                {"XSize": EdbValue(value[0]), "YSize": EdbValue(value[1]), "CornerRadius": EdbValue(value[2])}
+            )
+        elif self.shape == PadGeometryTpe.NSidedPolygon.name:
+            return OrderedDict({"Size": EdbValue(value[0]), "NumSides": EdbValue(value[1])})
+        elif self.shape in [PadGeometryTpe.Round45.name, PadGeometryTpe.Round90.name]:  # pragma: no cover
+            return OrderedDict(
+                {"Inner": EdbValue(value[0]), "ChannelWidth": EdbValue(value[1]), "IsolationGap": EdbValue(value[2])}
+            )
+        else:
+            return OrderedDict()  # pragma: no cover
 
     @parameters.setter
-    def parameters(self, propertylist):
-        if not isinstance(propertylist, list):
-            propertylist = [self._get_edb_value(propertylist)]
+    def parameters(self, value):
+        """Set parameters.
+        "Circle", {"Diameter": "0.5mm"}
+
+        Parameters
+        ----------
+        value : dict
+            Pad parameters in dictionary.
+        >>> pad = Edb.padstacks["PlanarEMVia"]["TOP"]
+        >>> pad.shape = "Circle"
+        >>> pad.pad_parameters{"Diameter": "0.5mm"}
+        >>> pad.shape = "Bullet"
+        >>> pad.pad_parameters{"XSize": "0.5mm", "YSize": "0.5mm"}
+        """
+
+        if isinstance(value, dict):
+            value = {k: v.tostring if isinstance(v, EdbValue) else v for k, v in value.items()}
+            if self.shape == PadGeometryTpe.Circle.name:
+                params = [self._get_edb_value(value["Diameter"])]
+            elif self.shape == PadGeometryTpe.Square.name:
+                params = [self._get_edb_value(value["Size"])]
+            elif self.shape == PadGeometryTpe.Rectangle.name:
+                params = [self._get_edb_value(value["XSize"]), self._get_edb_value(value["YSize"])]
+            elif self.shape == [PadGeometryTpe.Oval.name, PadGeometryTpe.Bullet.name]:
+                params = [
+                    self._get_edb_value(value["XSize"]),
+                    self._get_edb_value(value["YSize"]),
+                    self._get_edb_value(value["CornerRadius"]),
+                ]
+            elif self.shape in [PadGeometryTpe.Round45.name, PadGeometryTpe.Round90.name]:  # pragma: no cover
+                params = [
+                    self._get_edb_value(value["Inner"]),
+                    self._get_edb_value(value["ChannelWidth"]),
+                    self._get_edb_value(value["IsolationGap"]),
+                ]
+            else:  # pragma: no cover
+                params = None
+        elif isinstance(value, list):
+            params = [self._get_edb_value(i) for i in value]
         else:
-            propertylist = [self._get_edb_value(i) for i in propertylist]
-        self._update_pad_parameters_parameters(params=propertylist)
+            params = [self._get_edb_value(value)]
+        self._update_pad_parameters_parameters(params=params)
 
     @property
     def offset_x(self):
@@ -280,8 +340,10 @@ class EDBPadProperties(object):
             pad_type = self.pad_type
         if not geom_type:
             geom_type = self.geometry_type
-        if not params:
-            params = [self._get_edb_value(i) for i in self.parameters]
+        if params:
+            params = convert_py_list_to_net_list(params)
+        else:
+            params = self._pad_parameter_value[2]
         if not offsetx:
             offsetx = self.offset_x
         if not offsety:
@@ -295,7 +357,7 @@ class EDBPadProperties(object):
             layer_name,
             self.int_to_pad_type(pad_type),
             self.int_to_geometry_type(geom_type),
-            convert_py_list_to_net_list(params),
+            params,
             self._get_edb_value(offsetx),
             self._get_edb_value(offsety),
             self._get_edb_value(rotation),
@@ -317,7 +379,7 @@ class EDBPadstack(object):
     --------
     >>> from pyaedt import Edb
     >>> edb = Edb(myedb, edbversion="2021.2")
-    >>> edb_padstack = edb.core_padstack.padstacks["MyPad"]
+    >>> edb_padstack = edb.padstacks.definitions["MyPad"]
     """
 
     def __init__(self, edb_padstack, ppadstack):
@@ -651,7 +713,7 @@ class EDBPadstack(object):
         layers = self._ppadstack._pedb.stackup.signal_layers
         layer_names = [i for i in list(layers.keys())]
         if convert_only_signal_vias:
-            signal_nets = [i for i in list(self._ppadstack._pedb.core_nets.signal_nets.keys())]
+            signal_nets = [i for i in list(self._ppadstack._pedb.nets.signal_nets.keys())]
         topl, topz, bottoml, bottomz = self._ppadstack._pedb.stackup.stackup_limits(True)
         start_elevation = layers[self.via_start_layer].lower_elevation
         diel_thick = abs(start_elevation - layers[self.via_stop_layer].upper_elevation)
@@ -888,7 +950,7 @@ class EDBPadstackInstance(object):
     --------
     >>> from pyaedt import Edb
     >>> edb = Edb(myedb, edbversion="2021.2")
-    >>> edb_padstack_instance = edb.core_padstack.padstack_instances[0]
+    >>> edb_padstack_instance = edb.padstacks.instances[0]
     """
 
     def __getattr__(self, key):
@@ -954,18 +1016,10 @@ class EDBPadstackInstance(object):
         """
         if simple_check:
             pos = [i for i in self.position]
-            int_val = (
-                1
-                if polygon_data.PointInPolygon(
-                    self._pedb.edb.Geometry.PointData(self._pedb.edb_value(pos[0]), self._pedb.edb_value(pos[1]))
-                )
-                else 0
-            )
+            int_val = 1 if polygon_data.PointInPolygon(self._pedb.point_data(*pos)) else 0
         else:
-            plane = self._pedb.core_primitives.Shape(
-                "rectangle", pointA=self.bounding_box[0], pointB=self.bounding_box[1]
-            )
-            rectangle_data = self._pedb.core_primitives.shape_to_polygon_data(plane)
+            plane = self._pedb.modeler.Shape("rectangle", pointA=self.bounding_box[0], pointB=self.bounding_box[1])
+            rectangle_data = self._pedb.modeler.shape_to_polygon_data(plane)
             int_val = polygon_data.GetIntersectionType(rectangle_data)
         # Intersection type:
         # 0 = objects do not intersect
@@ -985,8 +1039,8 @@ class EDBPadstackInstance(object):
     def component(self):
         """Get component this padstack belong to."""
         comp_name = self._edb_padstackinstance.GetComponent().GetName()
-        if comp_name in self._pedb.core_components.components:
-            return self._pedb.core_components.components[comp_name]
+        if comp_name in self._pedb.components.components:
+            return self._pedb.components.components[comp_name]
         else:  # pragma: no cover
             return ""
 
@@ -1184,8 +1238,8 @@ class EDBPadstackInstance(object):
                 self._edb_padstackinstance.SetNet(val)
             except:
                 raise AttributeError("Value inserted not found. Input has to be net name or net object.")
-        elif val in self._pedb.core_nets.nets:
-            net = self._pedb.core_nets.nets[val].net_object
+        elif val in self._pedb.nets.netlist:
+            net = self._pedb.nets.nets[val].net_object
             self._edb_padstackinstance.SetNet(net)
         else:
             raise AttributeError("Value inserted not found. Input has to be net name or net object.")
@@ -1304,7 +1358,7 @@ class EDBPadstackInstance(object):
 
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edbapp.core_padstack.padstack_instances[111].get_aedt_pin_name()
+        >>> edbapp.padstacks.instances[111].get_aedt_pin_name()
 
         """
         if is_ironpython:
@@ -1336,8 +1390,8 @@ class EDBPadstackInstance(object):
             var_name = "${}_pos".format(self.name)
         else:
             var_name = "${}".format(prefix)
-        self._pedb.add_design_variable(var_name + "X", p[0])
-        self._pedb.add_design_variable(var_name + "Y", p[1])
+        self._pedb.add_project_variable(var_name + "X", p[0])
+        self._pedb.add_project_variable(var_name + "Y", p[1])
         self.position = [var_name + "X", var_name + "Y"]
         return [var_name + "X", var_name + "Y"]
 
@@ -1376,10 +1430,10 @@ class EDBPadstackInstance(object):
         """
         x_pos = self._pedb.edb_value(self.position[0])
         y_pos = self._pedb.edb_value(self.position[1])
-        point_data = self._pedb.core_primitives._edb.Geometry.PointData(x_pos, y_pos)
+        point_data = self._pedb.modeler._edb.Geometry.PointData(x_pos, y_pos)
 
         voids = []
-        for prim in self._pedb.core_primitives.get_primitives(net_name, layer_name, is_void=True):
+        for prim in self._pedb.modeler.get_primitives(net_name, layer_name, is_void=True):
             if prim.primitive_object.GetPolygonData().PointInPolygon(point_data):
                 voids.append(prim)
         return voids
@@ -1447,14 +1501,15 @@ class EDBPadstackInstance(object):
 
     @pyaedt_function_handler()
     def create_rectangle_in_pad(self, layer_name, return_points=False, partition_max_order=16):
-        """Create a rectangle inscribed inside a padstack instance pad. The rectangle is fully inscribed in the
-        pad and has the maximum area. It is necessary to specify the layer on which the rectangle will be created.
+        """Create a rectangle inscribed inside a padstack instance pad.
+
+        The rectangle is fully inscribed in the pad and has the maximum area.
+        It is necessary to specify the layer on which the rectangle will be created.
 
         Parameters
         ----------
         layer_name : str
             Name of the layer on which to create the polygon.
-
         return_points : bool, optional
             If `True` does not create the rectangle and just returns a list containing the rectangle vertices.
             Default is `False`.
@@ -1471,8 +1526,8 @@ class EDBPadstackInstance(object):
         --------
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
-        >>> edb_layout = edbapp.core_primitives
-        >>> list_of_padstack_instances = list(edbapp.core_padstack.padstack_instances.values())
+        >>> edb_layout = edbapp.modeler
+        >>> list_of_padstack_instances = list(edbapp.padstacks.instances.values())
         >>> padstack_inst = list_of_padstack_instances[0]
         >>> padstack_inst.create_rectangle_in_pad("TOP")
         """
@@ -1481,7 +1536,7 @@ class EDBPadstackInstance(object):
         rotation = self.rotation  # in radians
         padstack_name = self.padstack_definition
         try:
-            padstack = self._pedb.core_padstack.padstacks[padstack_name]
+            padstack = self._pedb.padstacks.definitions[padstack_name]
         except KeyError:  # pragma: no cover
             return False
         try:
@@ -1629,8 +1684,8 @@ class EDBPadstackInstance(object):
 
         if rect is None or len(rect) != 4:
             return False
-        path = self._pedb.core_primitives.Shape("polygon", points=rect)
-        pdata = self._pedb.core_primitives.shape_to_polygon_data(path)
+        path = self._pedb.modeler.Shape("polygon", points=rect)
+        pdata = self._pedb.modeler.shape_to_polygon_data(path)
         new_rect = []
         for point in pdata.Points:
             p_transf = self._edb_padstackinstance.GetComponent().GetTransform().TransformPoint(point)
@@ -1638,8 +1693,8 @@ class EDBPadstackInstance(object):
         if return_points:
             return new_rect
         else:
-            path = self._pedb.core_primitives.Shape("polygon", points=new_rect)
-            created_polygon = self._pedb.core_primitives.create_polygon(path, layer_name)
+            path = self._pedb.modeler.Shape("polygon", points=new_rect)
+            created_polygon = self._pedb.modeler.create_polygon(path, layer_name)
             return created_polygon
 
     @pyaedt_function_handler()

@@ -42,7 +42,7 @@ jobs:
 
       - name: Install pyaedt
         run: |
-          pip install .
+          pip install .[all]
 
       - name: Verify pyaedt can be imported
         run: python -c "import pyaedt"

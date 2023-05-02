@@ -39,9 +39,9 @@ edb = pyaedt.Edb(edbpath=targetfile, edbversion=edb_version)
 # Computes nets and components.
 # There are queries for nets, stackups, layers, components, and geometries.
 
-print("Nets {}".format(len(edb.core_nets.nets.keys())))
+print("Nets {}".format(len(edb.nets.netlist)))
 start = time.time()
-print("Components {}".format(len(edb.core_components.components.keys())))
+print("Components {}".format(len(edb.components.components.keys())))
 print("elapsed time = ", time.time() - start)
 
 ###############################################################################
@@ -52,23 +52,23 @@ print("elapsed time = ", time.time() - start)
 # the positions of each of them.
 # Each pin is a list of ``[X, Y]`` coordinate positions.
 
-pins = edb.core_components.get_pin_from_component("U2")
-for pin in pins:
-    print(edb.core_components.get_pin_position(pin))
+pins = edb.components["U2"].pins
+for pin in edb.components["U2"].pins.values():
+    print(pin.position)
 
 ###############################################################################
 # Get all nets connected to a component
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Get all nets connected to a specific component.
 
-edb.core_components.get_component_net_connection_info("U2")
+edb.components.get_component_net_connection_info("U2")
 
 ###############################################################################
 # Compute rats
 # ~~~~~~~~~~~~
 # Computes rats.
 
-rats = edb.core_components.get_rats()
+rats = edb.components.get_rats()
 
 ###############################################################################
 # Get all DC-connected net lists through inductance
@@ -78,7 +78,7 @@ rats = edb.core_components.get_rats()
 # connected to a ground through an inductor.
 
 GROUND_NETS = ["GND", "PGND"]
-dc_connected_net_list = edb.core_nets.get_dcconnected_net_list(GROUND_NETS)
+dc_connected_net_list = edb.nets.get_dcconnected_net_list(GROUND_NETS)
 print(dc_connected_net_list)
 
 ###############################################################################
@@ -88,7 +88,7 @@ print(dc_connected_net_list)
 
 VRM = "U3A1"
 OUTPUT_NET = "BST_V1P0_S0"
-powertree_df, component_list_columns, net_group = edb.core_nets.get_powertree(OUTPUT_NET, GROUND_NETS)
+powertree_df, component_list_columns, net_group = edb.nets.get_powertree(OUTPUT_NET, GROUND_NETS)
 for el in powertree_df:
     print(el)
 
@@ -98,35 +98,35 @@ for el in powertree_df:
 # Delete all RLCs with only one pin. This method provides a useful way of
 # removing components not needed in the simulation.
 
-edb.core_components.delete_single_pin_rlc()
+edb.components.delete_single_pin_rlc()
 
 ###############################################################################
 # Delete components
 # ~~~~~~~~~~~~~~~~~
 # Delete manually one or more components.
 
-edb.core_components.delete_component("C3B17")
+edb.components.delete("C3B17")
 
 ###############################################################################
 # Delete nets
 # ~~~~~~~~~~~
 # Delete manually one or more nets.
 
-edb.core_nets.delete_nets("A0_N")
+edb.nets.delete("A0_N")
 
 ###############################################################################
 # Get stackup limits
 # ~~~~~~~~~~~~~~~~~~
 # Get the stackup limits (top and bottom layers and elevations).
 
-print(edb.core_stackup.stackup_limits())
+print(edb.stackup.limits())
 
 ###############################################################################
 # Create coaxial port
 # ~~~~~~~~~~~~~~~~~~~
 # Create a coaxial port for the HFSS simulation.
 
-edb.core_hfss.create_coax_port_on_component("U2A5", "V1P0_S0")
+edb.hfss.create_coax_port_on_component("U2A5", "V1P0_S0")
 
 ###############################################################################
 # Edit stackup layers and material
@@ -134,12 +134,9 @@ edb.core_hfss.create_coax_port_on_component("U2A5", "V1P0_S0")
 # Edit the stackup layers and material. You can change stackup layer
 # properties with assignment and create materials and assign them to layers.
 
-edb.core_stackup.stackup_layers.layers["TOP"].thickness = "75um"
-# edb.core_stackup.stackup_layers.layers["Diel1"].material_name = "Fr4_epoxy"
-edb.core_stackup.create_debye_material("My_Debye", 5, 3, 0.02, 0.05, 1e5, 1e9)
-# edb.core_stackup.stackup_layers.layers['BOTTOM'].material_name = "My_Debye"
-# edb.core_stackup.stackup_layers.remove_layer("Signal3")
-# edb.core_stackup.stackup_layers.remove_layer("Signal1")
+edb.stackup["TOP"].thickness = "75um"
+edb.materials.add_debye_material("My_Debye", 5, 3, 0.02, 0.05, 1e5, 1e9)
+
 
 
 ###############################################################################
@@ -147,9 +144,9 @@ edb.core_stackup.create_debye_material("My_Debye", 5, 3, 0.02, 0.05, 1e5, 1e9)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a voltage source and then set up a DCIR analysis.
 
-edb.core_siwave.create_voltage_source_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 3.3, 0, "V1")
-edb.core_siwave.create_current_source_on_net("U1B5", "V1P5_S3", "U1B5", "GND", 1.0, 0, "I1")
-setup = edb.core_siwave.add_siwave_dc_analysis("myDCIR_4")
+edb.siwave.create_voltage_source_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 3.3, 0, "V1")
+edb.siwave.create_current_source_on_net("U1B5", "V1P5_S3", "U1B5", "GND", 1.0, 0, "I1")
+setup = edb.siwave.add_siwave_dc_analysis("myDCIR_4")
 setup.use_dc_custom_settings = True
 setup.dc_slider_position = 0
 setup.add_source_terminal_to_ground("V1", 1)
@@ -162,7 +159,7 @@ setup.add_source_terminal_to_ground("V1", 1)
 # Save modifications.
 
 edb.save_edb()
-edb.core_nets.plot(None, "TOP",plot_components_on_top=True)
+edb.nets.plot(None, "TOP",plot_components_on_top=True)
 
 siw_file = edb.solve_siwave()
 

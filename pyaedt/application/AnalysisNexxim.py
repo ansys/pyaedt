@@ -1,5 +1,3 @@
-import warnings
-
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.circuits.object3dcircuit import CircuitComponent
@@ -315,26 +313,6 @@ class FieldAnalysisCircuit(Analysis):
                             if new_port not in props.keys():
                                 props[new_port] = Excitations(self, new_port)
         return props
-
-    @property
-    def get_excitations_name(self):
-        """Excitation names.
-
-        .. deprecated:: 0.4.27
-           Use :func:`excitations` property instead.
-
-        Returns
-        -------
-        type
-            BoundarySetup Module object
-
-        References
-        ----------
-
-        >>> oEditor.GetAllPorts
-        """
-        warnings.warn("`get_excitations_name` is deprecated. Use `excitations` property instead.", DeprecationWarning)
-        return self.excitations
 
     @property
     def get_all_sparameter_list(self, excitation_names=[]):

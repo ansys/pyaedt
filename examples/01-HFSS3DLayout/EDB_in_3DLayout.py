@@ -75,7 +75,7 @@ h3d.modeler.change_net_visibility(visible=False)
 
 h3d.modeler.change_net_visibility(["A0_GPIO", "A0_MUX"], visible=True)
 edb = h3d.modeler.edb
-edb.core_nets.plot(["A0_GPIO", "A0_MUX"])
+edb.nets.plot(["A0_GPIO", "A0_MUX"])
 
 ###############################################################################
 # Show all layers
