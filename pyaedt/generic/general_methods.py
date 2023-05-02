@@ -1574,6 +1574,49 @@ def _check_installed_version(install_path, long_version):
     return False
 
 
+def install_with_pip(package_name, package_path=None, upgrade=False, uninstall=False):  # pragma: no cover
+    """Install a new package using pip.
+    Useful to install a package from AEDT Console without launching the python environment.
+
+    Parameters
+    ----------
+    package_name : str
+        Name of the package to install.
+    package_path : str, optional
+        Package path for github download. Example ``git+https://......``.
+    upgrade : bool, optional
+        Whether to upgrade the package or not.
+    uninstall : bool, optional
+        Whether to install the package or uninstall the package.
+    """
+    if is_linux and is_ironpython:
+        import subprocessdotnet as subprocess
+    else:
+        import subprocess
+    executable = '"{}"'.format(sys.executable) if is_windows else sys.executable
+
+    commands = []
+    if uninstall:
+        commands.append([executable, "-m", "pip", "uninstall", "--yes", package_name])
+    else:
+        if package_path and upgrade:
+            commands.append([executable, "-m", "pip", "uninstall", "--yes", package_name])
+            command = [executable, "-m", "pip", "install", package_path]
+        else:
+            command = [executable, "-m", "pip", "install", package_name]
+        if upgrade:
+            command.append("-U")
+
+        commands.append(command)
+    for command in commands:
+        print(command)
+        if is_linux:
+            p = subprocess.Popen(command)
+        else:
+            p = subprocess.Popen(" ".join(command))
+        p.wait()
+
+
 class Help:  # pragma: no cover
     def __init__(self):
         self._base_path = "https://aedt.docs.pyansys.com/version/stable"
