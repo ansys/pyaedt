@@ -1614,7 +1614,7 @@ class Help:  # pragma: no cover
         self._launch_ur(url)
 
     def examples(self):
-        """Open Pyaedt examples page."""
+        """Open the PyAEDT Examples page."""
         url = self._base_path + "/examples/index.html"
         self._launch_ur(url)
 
