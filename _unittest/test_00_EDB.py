@@ -765,7 +765,8 @@ class TestClass(BasisTest, object):
             [-0.001, -0.001],
             [0.001, -0.001, "ccw", 0.0, -0.0012],
             [0.001, 0.001],
-            [-0.001, 0.001],
+            [0.0015, 0.0015, 0.0001],
+            [-0.001, 0.0015],
             [-0.001, -0.001],
         ]
         void1 = self.edbapp.modeler.Shape("polygon", points=points)
