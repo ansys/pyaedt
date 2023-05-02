@@ -1,5 +1,4 @@
 import os
-import sys
 import warnings
 
 from pyaedt import __version__
@@ -9,7 +8,6 @@ from pyaedt.generic.clr_module import List
 from pyaedt.generic.clr_module import _clr
 from pyaedt.generic.clr_module import is_clr
 
-sys.path.append(os.path.join(pyaedt_path, "dlls", "PDFReport"))
 try:
     _clr.AddReference("AnsysReport")
     from AnsysReport import CreatePdfReport
