@@ -1855,7 +1855,7 @@ class ConfigurationsIcepak(Configurations):
                     ],
                 )
             else:  # pragma: no cover
-                raise "Operation not supported"
+                raise ValueError("Operation not supported")
             if new_objs:
                 new_objs = list(set(new_objs) - set(old_objs))
                 for new_obj in new_objs:

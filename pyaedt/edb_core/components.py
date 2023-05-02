@@ -658,7 +658,7 @@ class Components(object):
 
         Returns
         -------
-        double, bool
+        bool
             ``True`` when successful, ``False`` when failed.
 
         """
@@ -745,19 +745,15 @@ class Components(object):
         ----------
         component : str or self._edb.Cell.Hierarchy.Component
             EDB component or str component name.
-
         net_list : str or list of string.
             List of nets where ports must be created on the component.
             If the net is not part of the component, this parameter is skipped.
-
         port_type : SourceType enumerator, CoaxPort or CircuitPort
             Type of port to create. ``CoaxPort`` generates solder balls.
             ``CircuitPort`` generates circuit ports on pins belonging to the net list.
-
         do_pingroup : bool
             True activate pingroup during port creation (only used with combination of CoaxPort),
             False will take the closest reference pin and generate one port per signal pin.
-
         refnet : string or list of string.
             list of the reference net.
 
@@ -882,9 +878,7 @@ class Components(object):
         """
 
         pin_position = self.get_pin_position(pin)  # pragma no cover
-        pin_pos = self._edb.Geometry.PointData(
-            self._get_edb_value(pin_position[0]), self._get_edb_value(pin_position[1])  # pragma no cover
-        )
+        pin_pos = self._pedb.point_data(*pin_position)
         res, from_layer, _ = pin.GetLayerRange()
         cmp_name = pin.GetComponent().GetName()
         net_name = pin.GetNet().GetName()
@@ -911,14 +905,14 @@ class Components(object):
 
         """
         res, pin_position, pin_rot = pin.GetPositionAndRotation(
-            self._edb.Geometry.PointData(self._get_edb_value(0.0), self._get_edb_value(0.0)),
+            self._pedb.point_data(0.0, 0.0),
             0.0,
         )
         distance = 1e3
         closest_pin = ref_pinlist[0]
         for ref_pin in ref_pinlist:
             res, ref_pin_position, ref_pin_rot = ref_pin.GetPositionAndRotation(
-                self._edb.Geometry.PointData(self._get_edb_value(0.0), self._get_edb_value(0.0)),
+                self._pedb.point_data(0.0, 0.0),
                 0.0,
             )
             temp_distance = pin_position.Distance(ref_pin_position)
@@ -998,21 +992,27 @@ class Components(object):
         pins = self.get_pin_from_component(component.refdes)
         if len(pins) == 2:  # pragma: no cover
             pos_pin_loc = self.get_pin_position(pins[0])
-            pt = self._pedb.edb.Geometry.PointData(
-                self._get_edb_value(pos_pin_loc[0]), self._get_edb_value(pos_pin_loc[1])
-            )
+            pt = self._pedb.point_data(*pos_pin_loc)
+
             pin_layers = self._padstack._get_pin_layer_range(pins[0])
             pos_pin_term = self._pedb.edb.Cell.Terminal.PointTerminal.Create(
-                self._active_layout, pins[0].GetNet(), pins[0].GetName(), pt, pin_layers[0]
+                self._active_layout,
+                pins[0].GetNet(),
+                "{}_{}".format(component.refdes, pins[0].GetName()),
+                pt,
+                pin_layers[0],
             )
             if not pos_pin_term:  # pragma: no cover
                 return False
             neg_pin_loc = self.get_pin_position(pins[1])
-            pt = self._pedb.edb.Geometry.PointData(
-                self._get_edb_value(neg_pin_loc[0]), self._get_edb_value(neg_pin_loc[1])
-            )
+            pt = self._pedb.point_data(*neg_pin_loc)
+
             neg_pin_term = self._pedb.edb.Cell.Terminal.PointTerminal.Create(
-                self._active_layout, pins[1].GetNet(), pins[1].GetName() + "_ref", pt, pin_layers[0]
+                self._active_layout,
+                pins[1].GetNet(),
+                "{}_{}_ref".format(component.refdes, pins[1].GetName()),
+                pt,
+                pin_layers[0],
             )
             if not neg_pin_term:  # pragma: no cover
                 return False
@@ -1114,19 +1114,14 @@ class Components(object):
              List of EDB pins, length must be 2, since only 2 pins component are currently supported.
              It can be an `pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance` object or
              an Edb Padstack Instance object.
-
         component_name : str
             Component definition name.
-
         r_value : float
             Resistor value.
-
         c_value : float
             Capacitance value.
-
         l_value : float
             Inductor value.
-
         is_parallel : bool
             Using parallel model when ``True``, series when ``False``.
 
@@ -1182,6 +1177,7 @@ class Components(object):
             Inductor value.
         is_parallel : bool
             Using parallel model when ``True``, series when ``False``.
+
         Returns
         -------
         bool
@@ -1571,7 +1567,7 @@ class Components(object):
 
         Parameters
         ----------
-        component_name : str or EDB component
+        component : str or EDB component, optional
             Name of the discrete component.
         sball_diam  : str, float, optional
             Diameter of the solder ball.
@@ -1582,9 +1578,10 @@ class Components(object):
             ``"Spheroid"``. The default is ``"Cylinder"``.
         sball_mid_diam : str, float, optional
             Mid diameter of the solder ball.
-        chip_orientation : str
+        chip_orientation : str, optional
             Give the chip orientation, ``"chip_down"`` or ``"chip_up"``. Default is ``"chip_down"``. Only applicable on
             IC model.
+
         Returns
         -------
         bool
@@ -1832,6 +1829,7 @@ class Components(object):
         value_col : int, optional
             Column index of value. The default is ``"3"``. Set to ``None``
             if the column does not exist.
+
         Returns
         -------
         bool

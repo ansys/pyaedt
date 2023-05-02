@@ -9,6 +9,7 @@ autosave
 busbar
 busbars
 Bz
+circuit
 Circuit
 CPython
 DesignXploration
@@ -71,3 +72,11 @@ vias
 _static
 pwl
 Conda
+PyAnsys
+codecov
+mechanical
+reusability
+pypi
+EDT
+pyansys
+

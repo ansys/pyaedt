@@ -1145,10 +1145,11 @@ class TestClass(BasisTest, object):
         )
 
     def test_66d_component_bounding_box(self):
+        self.aedtapp["tau_variable"] = "0.65"
         my_udmPairs = []
         mypair = ["OuterRadius", "20.2mm"]
         my_udmPairs.append(mypair)
-        mypair = ["Tau", "0.65"]
+        mypair = ["Tau", "tau_variable"]
         my_udmPairs.append(mypair)
         mypair = ["Sigma", "0.81"]
         my_udmPairs.append(mypair)

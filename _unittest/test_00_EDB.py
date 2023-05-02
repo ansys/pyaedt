@@ -6,6 +6,7 @@ import sys
 
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
+from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.sources import Source
 from pyaedt.generic.constants import RadiationBoxType
@@ -25,7 +26,7 @@ from pyaedt.generic.constants import SourceType
 
 try:
     import pytest
-except ImportError:  # 'pragma: no cover
+except ImportError:  # pragma: no cover
     import _unittest_ironpython.conf_unittest as pytest
 
 test_subfolder = "TEDB"
@@ -451,25 +452,27 @@ class TestClass(BasisTest, object):
 
     def test_055_get_padstack(self):
         for el in self.edbapp.padstacks.definitions:
-            pad = self.edbapp.padstacks.definitions[el]
-            assert pad.hole_plating_thickness is not None or False
-            assert pad.hole_properties is not None or False
-            assert pad.hole_plating_thickness is not None or False
-            assert pad.hole_plating_ratio is not None or False
-            assert pad.via_start_layer is not None or False
-            assert pad.via_stop_layer is not None or False
-            assert pad.material is not None or False
-            assert pad.hole_finished_size is not None or False
-            assert pad.hole_rotation is not None or False
-            assert pad.hole_offset_x is not None or False
-            assert pad.hole_offset_y is not None or False
-            assert pad.hole_type is not None or False
-            assert pad.pad_by_layer[pad.via_stop_layer].parameters is not None or False
-            assert pad.pad_by_layer[pad.via_stop_layer].parameters_values is not None or False
-            assert pad.pad_by_layer[pad.via_stop_layer].offset_x is not None or False
-            assert pad.pad_by_layer[pad.via_stop_layer].offset_y is not None or False
-            assert isinstance(pad.pad_by_layer[pad.via_stop_layer].geometry_type, int)
-            polygon = pad.pad_by_layer[pad.via_stop_layer].polygon_data
+            padstack = self.edbapp.padstacks.definitions[el]
+            assert padstack.hole_plating_thickness is not None or False
+            assert padstack.hole_properties is not None or False
+            assert padstack.hole_plating_thickness is not None or False
+            assert padstack.hole_plating_ratio is not None or False
+            assert padstack.via_start_layer is not None or False
+            assert padstack.via_stop_layer is not None or False
+            assert padstack.material is not None or False
+            assert padstack.hole_finished_size is not None or False
+            assert padstack.hole_rotation is not None or False
+            assert padstack.hole_offset_x is not None or False
+            assert padstack.hole_offset_y is not None or False
+            assert padstack.hole_type is not None or False
+            pad = padstack.pad_by_layer[padstack.via_stop_layer]
+            if not pad.shape == "NoGeometry":
+                assert pad.parameters is not None or False
+                assert pad.parameters_values is not None or False
+                assert pad.offset_x is not None or False
+                assert pad.offset_y is not None or False
+                assert isinstance(pad.geometry_type, int)
+            polygon = pad.polygon_data
             if polygon:
                 assert polygon.GetBBox()
 
@@ -489,13 +492,24 @@ class TestClass(BasisTest, object):
         assert abs(pad.hole_properties[0] - hole_pad) < tol
         offset_x = 7
         offset_y = 1
-        param = 7
-        pad.pad_by_layer[pad.via_stop_layer].parameters = param
+        pad.pad_by_layer[pad.via_stop_layer].shape = "Circle"
+        pad.pad_by_layer[pad.via_stop_layer].parameters = 7
         pad.pad_by_layer[pad.via_stop_layer].offset_x = offset_x
         pad.pad_by_layer[pad.via_stop_layer].offset_y = offset_y
+        assert pad.pad_by_layer[pad.via_stop_layer].parameters["Diameter"].tofloat == 7
         assert pad.pad_by_layer[pad.via_stop_layer].offset_x == str(offset_x)
         assert pad.pad_by_layer[pad.via_stop_layer].offset_y == str(offset_y)
-        assert pad.pad_by_layer[pad.via_stop_layer].parameters[0] == str(param)
+        pad.pad_by_layer[pad.via_stop_layer].parameters = {"Diameter": 8}
+        assert pad.pad_by_layer[pad.via_stop_layer].parameters["Diameter"].tofloat == 8
+        pad.pad_by_layer[pad.via_stop_layer].parameters = {"Diameter": 1}
+        pad.pad_by_layer[pad.via_stop_layer].shape = "Square"
+        pad.pad_by_layer[pad.via_stop_layer].parameters = {"Size": 1}
+        pad.pad_by_layer[pad.via_stop_layer].shape = "Rectangle"
+        pad.pad_by_layer[pad.via_stop_layer].parameters = {"XSize": 1, "YSize": 1}
+        pad.pad_by_layer[pad.via_stop_layer].shape = "Oval"
+        pad.pad_by_layer[pad.via_stop_layer].parameters = {"XSize": 1, "YSize": 1, "CornerRadius": 1}
+        pad.pad_by_layer[pad.via_stop_layer].parameters = {"XSize": 1, "YSize": 1, "CornerRadius": 1}
+        pad.pad_by_layer[pad.via_stop_layer].parameters = [1, 1, 1]
 
     def test_057_save_edb_as(self):
         assert self.edbapp.save_edb_as(os.path.join(self.local_scratch.path, "Gelileo_new.aedb"))
@@ -2344,3 +2358,42 @@ class TestClass(BasisTest, object):
         edb.stackup.add_layer(layer_name="sig3", fillMaterial="AIR", thickness="10um", base_layer="diel2")
         assert edb.stackup.thickness == 0.00043
         assert edb.stackup.num_layers == 5
+
+    def test_134_hfss_extent_info(self):
+        from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives as EDBPrimitives
+
+        config = {
+            "air_box_horizontal_extent_enabled": False,
+            "air_box_horizontal_extent": 0.01,
+            "air_box_positive_vertical_extent": 0.3,
+            "air_box_positive_vertical_extent_enabled": False,
+            "air_box_negative_vertical_extent": 0.1,
+            "air_box_negative_vertical_extent_enabled": False,
+            "base_polygon": self.edbapp.modeler.polygons[0],
+            "dielectric_base_polygon": self.edbapp.modeler.polygons[1],
+            "dielectric_extent_size": 0.1,
+            "dielectric_extent_size_enabled": False,
+            "dielectric_extent_type": "Conforming",
+            "extent_type": "Conforming",
+            "honor_user_dielectric": False,
+            "is_pml_visible": False,
+            "open_region_type": "PML",
+            "operating_freq": "2GHz",
+            "radiation_level": 1,
+            "sync_air_box_vertical_extent": False,
+            "use_open_region": False,
+            "use_xy_data_extent_for_vertical_expansion": False,
+            "truncate_air_box_at_ground": True,
+        }
+        hfss_extent_info = self.edbapp.hfss.hfss_extent_info
+        hfss_extent_info.load_config(config)
+        exported_config = hfss_extent_info.export_config()
+        for i, j in exported_config.items():
+            if not i in config:
+                continue
+            if isinstance(j, EDBPrimitives):
+                assert j.id == config[i].id
+            elif isinstance(j, EdbValue):
+                assert j.tofloat == hfss_extent_info._get_edb_value(config[i]).ToDouble()
+            else:
+                assert j == config[i]

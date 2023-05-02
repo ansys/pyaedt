@@ -12,6 +12,7 @@ import math
 import os.path
 import warnings
 
+from pyaedt import generate_unique_name
 from pyaedt.edb_core.edb_data.layer_data import LayerEdbClass
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import ET
@@ -1318,12 +1319,10 @@ class Stackup(object):
 
         zero_data = self._edb_value(0.0)
         one_data = self._edb_value(1.0)
-        point3d_t = self._pedb.edb.Geometry.Point3DData(_offset_x, _offset_y, h_stackup)
-        point_loc = self._pedb.edb.Geometry.Point3DData(zero_data, zero_data, zero_data)
-        point_from = self._pedb.edb.Geometry.Point3DData(one_data, zero_data, zero_data)
-        point_to = self._pedb.edb.Geometry.Point3DData(
-            self._edb_value(math.cos(_angle)), self._edb_value(-1 * math.sin(_angle)), zero_data
-        )
+        point3d_t = self._pedb.point_3d(_offset_x, _offset_y, h_stackup)
+        point_loc = self._pedb.point_3d(zero_data, zero_data, zero_data)
+        point_from = self._pedb.point_3d(one_data, zero_data, zero_data)
+        point_to = self._pedb.point_3d(math.cos(_angle), -1 * math.sin(_angle), zero_data)
         cell_inst2.Set3DTransformation(point_loc, point_from, point_to, rotation, point3d_t)
         self.refresh_layer_collection()
         return True
@@ -1335,6 +1334,7 @@ class Stackup(object):
         angle=0.0,
         offset_x=0.0,
         offset_y=0.0,
+        offset_z=0.0,
         flipped_stackup=True,
         place_on_top=True,
         solder_height=0,
@@ -1350,8 +1350,14 @@ class Stackup(object):
             The rotation angle applied on the design.
         offset_x : double, optional
             The x offset value.
+            The default value is ``0.0``.
         offset_y : double, optional
             The y offset value.
+            The default value is ``0.0``.
+        offset_z : double, optional
+            The z offset value. (i.e. elevation offset for placement relative to the top layer conductor).
+            The default value is ``0.0``, which places the cell layout on top of the top conductor
+            layer of the target EDB.
         flipped_stackup : bool, optional
             Either if the current layout is inverted.
             If `True` and place_on_top is `True` the stackup will be flipped before the merge.
@@ -1413,7 +1419,7 @@ class Stackup(object):
             _dbCell = convert_py_list_to_net_list([edb_cell])
             list_cells = self._pedb.db.CopyCells(_dbCell)
             edb_cell = list_cells[0]
-        for cell in list(self._pedb.db.TopCircuitCells):
+        for cell in list(self._pedb.db.CircuitCells):
             if cell.GetName() == edb_cell.GetName():
                 edb_cell = cell
         # Keep Cell Independent
@@ -1425,8 +1431,10 @@ class Stackup(object):
         _offset_x = self._edb_value(offset_x)
         _offset_y = self._edb_value(offset_y)
 
+        instance_name = generate_unique_name(edb_cell.GetName(), n=2)
+
         cell_inst2 = self._pedb.edb.Cell.Hierarchy.CellInstance.Create(
-            self._pedb.active_layout, edb_cell.GetName(), edb_cell.GetLayout()
+            self._pedb.active_layout, instance_name, edb_cell.GetLayout()
         )
 
         stackup_source = self._pedb.edb.Cell.LayerCollection(edb_cell.GetLayout().GetLayerCollection())
@@ -1450,32 +1458,38 @@ class Stackup(object):
         source_stack_bot_elevation = res_s[4]
 
         if place_on_top and flipped_stackup:
-            elevation = target_top_elevation + source_stack_top_elevation
+            elevation = target_top_elevation + source_stack_top_elevation + offset_z
         elif place_on_top:
-            elevation = target_top_elevation - source_stack_bot_elevation
+            elevation = target_top_elevation - source_stack_bot_elevation + offset_z
         elif flipped_stackup:
-            elevation = target_bottom_elevation + source_stack_bot_elevation
+            elevation = target_bottom_elevation + source_stack_bot_elevation - offset_z
             solder_height = -solder_height
         else:
-            elevation = target_bottom_elevation - source_stack_top_elevation
+            elevation = target_bottom_elevation - source_stack_top_elevation - offset_z
             solder_height = -solder_height
 
         h_stackup = self._edb_value(elevation + solder_height)
 
         zero_data = self._edb_value(0.0)
         one_data = self._edb_value(1.0)
-        point3d_t = self._pedb.edb.Geometry.Point3DData(_offset_x, _offset_y, h_stackup)
-        point_loc = self._pedb.edb.Geometry.Point3DData(zero_data, zero_data, zero_data)
-        point_from = self._pedb.edb.Geometry.Point3DData(one_data, zero_data, zero_data)
-        point_to = self._pedb.edb.Geometry.Point3DData(
-            self._edb_value(math.cos(_angle)), self._edb_value(-1 * math.sin(_angle)), zero_data
-        )
+        point3d_t = self._pedb.point_3d(_offset_x, _offset_y, h_stackup)
+        point_loc = self._pedb.point_3d(zero_data, zero_data, zero_data)
+        point_from = self._pedb.point_3d(one_data, zero_data, zero_data)
+        point_to = self._pedb.point_3d(math.cos(_angle), -1 * math.sin(_angle), zero_data)
         cell_inst2.Set3DTransformation(point_loc, point_from, point_to, rotation, point3d_t)
         self.refresh_layer_collection()
-        return True
+        return cell_inst2
 
     @pyaedt_function_handler()
-    def place_a3dcomp_3d_placement(self, a3dcomp_path, angle=0.0, offset_x=0.0, offset_y=0.0, place_on_top=True):
+    def place_a3dcomp_3d_placement(
+        self,
+        a3dcomp_path,
+        angle=0.0,
+        offset_x=0.0,
+        offset_y=0.0,
+        offset_z=0.0,
+        place_on_top=True,
+    ):
         """Place a 3D Component into current layout.
          3D Component ports are not visible via EDB. They will be visible after the EDB has been opened in Ansys
          Electronics Desktop as a project.
@@ -1491,6 +1505,9 @@ class Stackup(object):
             The default value is ``0.0``.
         offset_y : double, optional
             The y offset value.
+            The default value is ``0.0``.
+        offset_z : double, optional
+            The z offset value. (i.e. elevation)
             The default value is ``0.0``.
         place_on_top : bool, optional
             Whether to place the 3D Component on the top or the bottom of this layout.
@@ -1511,12 +1528,10 @@ class Stackup(object):
         """
         zero_data = self._edb_value(0.0)
         one_data = self._edb_value(1.0)
-        local_origin = self._pedb.edb.Geometry.Point3DData(zero_data, zero_data, zero_data)
-        rotation_axis_from = self._pedb.edb.Geometry.Point3DData(one_data, zero_data, zero_data)
+        local_origin = self._pedb.point_3d(0.0, 0.0, 0.0)
+        rotation_axis_from = self._pedb.point_3d(1.0, 0.0, 0.0)
         _angle = angle * math.pi / 180.0
-        rotation_axis_to = self._pedb.edb.Geometry.Point3DData(
-            self._edb_value(math.cos(_angle)), self._edb_value(-1 * math.sin(_angle)), zero_data
-        )
+        rotation_axis_to = self._pedb.point_3d(math.cos(_angle), -1 * math.sin(_angle), 0.0)
 
         stackup_target = self._pedb.edb.Cell.LayerCollection(self._pedb.active_layout.GetLayerCollection())
         sig_set = self._pedb.edb.Cell.LayerTypeSet.SignalLayerSet
@@ -1525,12 +1540,12 @@ class Stackup(object):
         target_bottom_elevation = res[4]
         flip_angle = self._edb_value("0deg")
         if place_on_top:
-            elevation = target_top_elevation
+            elevation = target_top_elevation + offset_z
         else:
             flip_angle = self._edb_value("180deg")
-            elevation = target_bottom_elevation
+            elevation = target_bottom_elevation - offset_z
         h_stackup = self._edb_value(elevation)
-        location = self._pedb.edb.Geometry.Point3DData(self._edb_value(offset_x), self._edb_value(offset_y), h_stackup)
+        location = self._pedb.point_3d(offset_x, offset_y, h_stackup)
 
         mcad_model = self._pedb.edb.McadModel.Create3DComp(self._pedb.active_layout, a3dcomp_path)
         if mcad_model.IsNull():  # pragma: no cover
