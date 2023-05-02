@@ -138,8 +138,8 @@ for band in bands:
 rev = emitapp.results.analyze()
 modeRx = econsts.tx_rx_mode().rx
 modeTx = econsts.tx_rx_mode().tx
-modePower = econsts.result_type().powerAtRx
-modeEmi = econsts.result_type().emi
+mode_power = econsts.result_type().powerAtRx
+mode_emi = econsts.result_type().emi
 tx_interferer = econsts.interferer_type().transmitters
 
 ###############################################################################
