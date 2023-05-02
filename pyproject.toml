@@ -36,6 +36,7 @@ dependencies = [
 [project.optional-dependencies]
 tests = [
     "ipython==8.13.1",
+    "imageio==2.28.0",
     "joblib==1.2.0",
     "matplotlib==3.5.3; python_version <= '3.7'",
     "matplotlib==3.7.1; python_version > '3.7'",
@@ -86,6 +87,7 @@ doc = [
     "openpyxl==3.1.2",
 ]
 full = [
+    "imageio==2.28.0",
     "matplotlib==3.5.3; python_version <= '3.7'",
     "matplotlib==3.7.1; python_version > '3.7'",
     "numpy==1.21.6; python_version <= '3.7'",
@@ -100,6 +102,7 @@ full = [
     "openpyxl==3.1.2",
 ]
 all = [
+    "imageio==2.28.0",
     "matplotlib==3.5.3; python_version <= '3.7'",
     "matplotlib==3.7.1; python_version > '3.7'",
     "numpy==1.21.6; python_version <= '3.7'",
