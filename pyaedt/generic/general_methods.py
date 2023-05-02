@@ -1609,7 +1609,6 @@ def install_with_pip(package_name, package_path=None, upgrade=False, uninstall=F
 
         commands.append(command)
     for command in commands:
-        print(command)
         if is_linux:
             p = subprocess.Popen(command)
         else:
