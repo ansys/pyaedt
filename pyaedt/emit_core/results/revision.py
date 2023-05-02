@@ -322,5 +322,5 @@ class Revision:
 
     @notes.setter
     def notes(self, notes):
-        design = self.emit_project.odesign.SetResultNotes(self.name, notes)
+        self.emit_project.odesign.SetResultNotes(self.name, notes)
         self.emit_project._emit_api.save_project()
