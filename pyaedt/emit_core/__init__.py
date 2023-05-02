@@ -1,7 +1,8 @@
-from importlib import import_module
 import imp
+from importlib import import_module
 import os
 import sys
+
 from pyaedt import pyaedt_logger as logger
 
 EMIT_API_PYTHON = None
@@ -26,7 +27,7 @@ def _set_api(aedt_version):
     desktop_path = os.environ.get(aedt_version)
     if desktop_path and numeric_version > 231:
         path = os.path.join(desktop_path, "Delcross")
-        sys.path.insert(0,path)
+        sys.path.insert(0, path)
         module_path = imp.find_module("EmitApiPython")[1]
         logger.info("Importing EmitApiPython from: {}".format(module_path))
         global EMIT_API_PYTHON

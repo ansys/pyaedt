@@ -21,7 +21,7 @@ class Revision:
 
     Raises
     ------
-    RuntimeError if a name is given that is not an existing result set name and there is already a current result set.        
+    RuntimeError if a name is given that is not an existing result set name and there is already a current result set.
 
     Examples
     --------
@@ -53,9 +53,9 @@ class Revision:
         """Emit project."""
 
         raw_props = emit_obj.odesign.GetResultProperties(name)
-        key = lambda s: s.split('=',1)[0]
-        val = lambda s: s.split('=',1)[1]
-        props = {key(s):val(s) for s in raw_props}
+        key = lambda s: s.split("=", 1)[0]
+        val = lambda s: s.split("=", 1)[1]
+        props = {key(s): val(s) for s in raw_props}
 
         self.revision_number = int(props["Revision"])
         """Unique revision number from the Emit design"""
