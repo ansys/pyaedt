@@ -2,6 +2,7 @@
 This module contains these classes: `EdbLayout` and `Shape`.
 """
 import math
+import warnings
 
 from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
 from pyaedt.edb_core.edb_data.utilities import EDBStatistics
@@ -508,7 +509,11 @@ class EdbLayout(object):
         Parameters
         ----------
         main_shape : list of points or PolygonData or ``modeler.Shape``
-            Shape or point lists of the main object.
+            Shape or point lists of the main object. Point list can be in the format of `[[x1,y1], [x2,y2],..,[xn,yn]]`.
+            Each point can be:
+            - [x,y] coordinate
+            - [x,y, height] for an arc with specific height (between previous point and actual point)
+            - [x,y, rotation, xc,yc] for an arc given a point, rotation and center.
         layer_name : str
             Name of the layer on which to create the polygon.
         voids : list, optional
@@ -555,10 +560,17 @@ class EdbLayout(object):
     def create_polygon_from_points(self, point_list, layer_name, net_name=""):
         """Create a new polygon from a point list.
 
+        .. deprecated:: 0.6.73
+        Use :func:`create_polygon` method instead. It now supports point lists as arguments.
+
         Parameters
         ----------
         point_list : list
             Point list in the format of `[[x1,y1], [x2,y2],..,[xn,yn]]`.
+            Each point can be:
+            - [x,y] coordinate
+            - [x,y, height] for an arc with specific height (between previous point and actual point)
+            - [x,y, rotation, xc,yc] for an arc given a point, rotation and center.
         layer_name : str
             Name of layer on which create the polygon.
         net_name : str, optional
@@ -568,18 +580,10 @@ class EdbLayout(object):
         -------
         :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`
         """
-        net = self._pedb.nets.find_or_create_net(net_name)
-        plane = self.Shape("polygon", points=point_list)
-        _poly = self.shape_to_polygon_data(plane)
-        if _poly is None or _poly.IsNull() or _poly is False:
-            self._logger.error("Failed to create main shape polygon data")
-            return False
-        polygon = self._edb.Cell.Primitive.Polygon.Create(self._active_layout, layer_name, net, _poly)
-        if polygon.IsNull():
-            self._logger.error("Null polygon created")
-            return False
-        else:
-            return EDBPrimitives(polygon, self._pedb)
+        warnings.warn(
+            "Use :func:`create_polygon` method instead. It now supports point lists as arguments.", DeprecationWarning
+        )
+        return self.create_polygon(point_list, layer_name, net_name=net_name)
 
     @pyaedt_function_handler()
     def create_rectangle(
@@ -870,6 +874,21 @@ class EdbLayout(object):
                     self._pedb.point_data(endPoint[0], endPoint[1]),
                 )
                 arcs.append(arc)
+            elif len(endPoint) == 3:
+                is_parametric = (
+                    is_parametric
+                    or startPoint[0].IsParametric()
+                    or startPoint[1].IsParametric()
+                    or endPoint[0].IsParametric()
+                    or endPoint[1].IsParametric()
+                    or endPoint[2].IsParametric()
+                )
+                arc = self._edb.Geometry.ArcData(
+                    self._pedb.point_data(startPoint[0], startPoint[1]),
+                    self._pedb.point_data(endPoint[0], endPoint[1]),
+                    endPoint[2].ToDouble(),
+                )
+                arcs.append(arc)
             elif len(endPoint) == 5:
                 is_parametric = (
                     is_parametric
@@ -889,19 +908,10 @@ class EdbLayout(object):
                     self._logger.error("Invalid rotation direction %s is specified.", endPoint[2])
                     return None
                 arc = self._edb.Geometry.ArcData(
-                    self._edb.Geometry.PointData(
-                        self._get_edb_value(startPoint[0].ToDouble()),
-                        self._get_edb_value(startPoint[1].ToDouble()),
-                    ),
-                    self._edb.Geometry.PointData(
-                        self._get_edb_value(endPoint[0].ToDouble()),
-                        self._get_edb_value(endPoint[1].ToDouble()),
-                    ),
+                    self._pedb.point_data(startPoint[0], startPoint[1]),
+                    self._pedb.point_data(endPoint[0], endPoint[1]),
                     rotationDirection,
-                    self._edb.Geometry.PointData(
-                        self._get_edb_value(endPoint[3].ToDouble()),
-                        self._get_edb_value(endPoint[4].ToDouble()),
-                    ),
+                    self._pedb.point_data(endPoint[3], endPoint[4]),
                 )
                 arcs.append(arc)
         polygon = self._edb.Geometry.PolygonData.CreateFromArcs(convert_py_list_to_net_list(arcs), True)
@@ -926,6 +936,20 @@ class EdbLayout(object):
                 return False
             if not isinstance(point[1], (int, float, str)):
                 self._logger.error("Point Y value must be a number.")
+                return False
+            return True
+        elif len(point) == 3:
+            if not allowArcs:
+                self._logger.error("Arc found but arcs are not allowed in _validatePoint.")
+                return False
+            if not isinstance(point[0], (int, float, str)):
+                self._logger.error("Point X value must be a number.")
+                return False
+            if not isinstance(point[1], (int, float, str)):
+                self._logger.error("Point Y value must be a number.")
+                return False
+            if not isinstance(point[1], (int, float)):
+                self._logger.error("Invalid point height.")
                 return False
             return True
         elif len(point) == 5:
