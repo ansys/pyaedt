@@ -19,6 +19,10 @@ class Revision:
         Name of the revision to create. The default is ``None``, in which case a
         default name is given.
 
+    Raises
+    ------
+    RuntimeError if a name is given that is not an existing result set name and there is already a current result set.        
+
     Examples
     --------
     Create a ``Revision`` instance.
@@ -29,28 +33,16 @@ class Revision:
     >>> rev.run(domain)
     """
 
-    def __init__(self, parent_results, emit_obj, name=""):
-        design = emit_obj.odesktop.GetActiveProject().GetActiveDesign()
-        subfolder = ""
-        proj_name = emit_obj.oproject.GetName()
-        for f in os.scandir(emit_obj.oproject.GetPath()):
-            if os.path.splitext(f.name)[0] == proj_name and os.path.splitext(f.name)[1].lower() == ".aedtresults":
-                subfolder = os.path.join(f.path, "EmitDesign1")
-        default_behaviour = not os.path.exists(os.path.join(subfolder, "{}.emit".format(name)))
-        if default_behaviour:
-            print("The most recently generated revision will be used because the revision specified does not exist.")
-        if name == "" or default_behaviour:
-            # if there are no results yet, add a new Result
-            result_files = os.listdir(subfolder)
-            if len(result_files) == 0:
-                name = design.AddResult()
-                full = subfolder + "/{}.emit".format(name)
-            else:
-                file = max([f for f in os.scandir(subfolder)], key=lambda x: x.stat().st_mtime)
-                full = file.path
-                name = file.name
+    def __init__(self, parent_results, emit_obj, name=None):
+        if not name:
+            name = emit_obj.odesign.GetCurrentResult()
+            if not name:
+                name = emit_obj.odesign.AddResult("")
         else:
-            full = subfolder + "/{}.emit".format(name)
+            if name not in emit_obj.odesign.GetResultList():
+                name = emit_obj.odesign.AddResult(name)
+        full = emit_obj.odesign.GetResultDirectory(name)
+
         self.name = name
         """Name of the revision."""
 
@@ -60,14 +52,15 @@ class Revision:
         self.emit_project = emit_obj
         """Emit project."""
 
-        result_props = design.GetResultProperties(name)
-        # Strip off the Revision #
-        self.revision_number = result_props[0][9:]
+        raw_props = emit_obj.odesign.GetResultProperties(name)
+        key = lambda s: s.split('=',1)[0]
+        val = lambda s: s.split('=',1)[1]
+        props = {key(s):val(s) for s in raw_props}
+
+        self.revision_number = int(props["Revision"])
         """Unique revision number from the Emit design"""
 
-        result_props = design.GetResultProperties(name)
-        # Strip off the 'Timestamp='
-        self.timestamp = result_props[1][10:]
+        self.timestamp = props["Timestamp"]
         """Unique timestamp for the revision"""
 
         self.parent_results = parent_results
@@ -325,11 +318,10 @@ class Revision:
         >>> aedtapp.results.current_revision.notes
         'Added a filter to the WiFi Radio.'
         """
-        design = self.emit_project.odesktop.GetActiveProject().GetActiveDesign()
+        design = self.emit_project.odesign
         return design.GetResultNotes(self.name)
 
     @notes.setter
     def notes(self, notes):
-        design = self.emit_project.odesktop.GetActiveProject().GetActiveDesign()
-        design.SetResultNotes(self.name, notes)
+        design = self.emit_project.odesign.SetResultNotes(self.name, notes)
         self.emit_project._emit_api.save_project()

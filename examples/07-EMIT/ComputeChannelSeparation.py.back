@@ -53,7 +53,7 @@ import numpy as np
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 NewThread = False
-desktop_version = "2022.2"
+desktop_version = "2023.2"
 
 ###############################################################################
 # Launch AEDT with EMIT
@@ -218,11 +218,11 @@ def minimum_tx_channel_separation(rx_band, tx_band, emi_threshold):
     # keeping the EMI below the threshold.
     # Freqs are used to set the domain, so they need to be in Hz
     rx_frequencies = rev.get_active_frequencies(
-        rx_band[0], rx_band[1], modeRx, "Hz"
+        rx_band[0], rx_band[1], modeRx
     )
     rx_channel_count = len(rx_frequencies)
     tx_frequencies = rev.get_active_frequencies(
-        tx_band[0], tx_band[1], modeTx, "Hz"
+        tx_band[0], tx_band[1], modeTx
     )
     tx_channel_count = len(tx_frequencies)
     chpair = domain
