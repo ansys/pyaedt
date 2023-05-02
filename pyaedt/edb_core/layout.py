@@ -948,7 +948,7 @@ class EdbLayout(object):
             if not isinstance(point[1], (int, float, str)):
                 self._logger.error("Point Y value must be a number.")
                 return False
-            if not isinstance(point[1], (int, float,str)):
+            if not isinstance(point[1], (int, float, str)):
                 self._logger.error("Invalid point height.")
                 return False
             return True
