@@ -579,9 +579,15 @@ class EdbPadstacks(object):
             rotation = padparams[5].ToDouble()
             return geometry_type, parameters, offset_x, offset_y, rotation
         else:
-            padparams = self._edb.Definition.PadstackDefData(pin.GetPadstackDef().GetData()).GetPolygonalPadParameters(
-                layername, self.int_to_pad_type(pad_type)
-            )
+            if isinstance(pin, self._edb.Definition.PadstackDef):
+                padparams = self._edb.Definition.PadstackDefData(pin.GetData()).GetPolygonalPadParameters(
+                    layername, self.int_to_pad_type(pad_type)
+                )
+            else:
+                padparams = self._edb.Definition.PadstackDefData(
+                    pin.GetPadstackDef().GetData()
+                ).GetPolygonalPadParameters(layername, self.int_to_pad_type(pad_type))
+
             if padparams[0]:
                 parameters = [
                     padparams[1].GetBBox().Item1.X.ToDouble(),
