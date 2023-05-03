@@ -1571,7 +1571,7 @@ class GeometryOperators(object):
             - ``1`` When the point is inside the polygon.
         """
         # fmt: off
-        tol = 1e-8
+        tol = 1e-6
         if len(point) != 2:  # pragma: no cover
             raise ValueError("point must be a list in the form [x, y]")
         pl = len(polygon[0])

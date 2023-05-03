@@ -1025,7 +1025,7 @@ class EdbHfss(object):
         return True
 
     @pyaedt_function_handler()
-    def create_vertical_circuit_port_on_clipped_trace(self, nets=None, reference_net=None, user_defined_extent=None):
+    def create_vertical_circuit_port_on_clipped_traces(self, nets=None, reference_net=None, user_defined_extent=None):
         """Create an edge port on nets. Only ports on traces (e.g. Path) are currently supported.
         The command will look for traces on the nets and will try to assign vertical lumped port on first and last
         point from the trace. To be used with cautious.
@@ -1069,12 +1069,15 @@ class EdbHfss(object):
             if user_defined_extent:
                 if isinstance(user_defined_extent, self._edb.Geometry.PolygonData):
                     _points = [pt for pt in list(user_defined_extent.Points)]
-                    user_defined_extent = [[pt.X.ToDouble(), pt.Y.ToDouble()] for pt in _points]
+                    _x = []
+                    _y = []
+                    for pt in _points:
+                        _x.append(pt.X.ToDouble())
+                        _y.append(pt.Y.ToDouble())
+                    user_defined_extent = [_x, _y]
             for net in nets:
                 net_paths = [
-                    pp
-                    for pp in nets[0].primitives
-                    if pp.GetPrimitiveType() == self._edb.Cell.Primitive.PrimitiveType.Path
+                    pp for pp in net.primitives if pp.GetPrimitiveType() == self._edb.Cell.Primitive.PrimitiveType.Path
                 ]
                 for trace in net_paths:
                     port_name = "{}_{}".format(net.GetName(), trace.GetId())
@@ -1107,6 +1110,31 @@ class EdbHfss(object):
                             return
                         reference_layer = ref_prim[0].layer
                         stop_term.SetReferenceLayer(reference_layer)  # pragma no cover
+                net_polygons = [
+                    pp
+                    for pp in net.primitives
+                    if pp.GetPrimitiveType() == self._edb.Cell.Primitive.PrimitiveType.Polygon
+                ]
+                for poly in net_polygons:
+                    port_name = generate_unique_name(f"{net.GetName()}_{poly.GetId()}")
+                    mid_points = [[arc.mid_point.X.ToDouble(), arc.mid_point.Y.ToDouble()] for arc in poly.arcs]
+                    for mid_point in mid_points:
+                        if GeometryOperators.point_in_polygon(mid_point, user_defined_extent) == 0:
+                            term = self._create_edge_terminal(poly.GetId(), mid_point, port_name)  # pragma no cover
+                            term.SetIsCircuitPort(True)
+                            mid_pt_data = self._edb.Geometry.PointData(
+                                self._edb.Utility.Value(mid_point[0]), self._edb.Utility.Value(mid_point[1])
+                            )
+                            ref_prim = [
+                                prim
+                                for prim in reference_net.primitives
+                                if prim.polygon_data.PointInPolygon(mid_pt_data)
+                            ]
+                            if not ref_prim:
+                                self._logger.warning("No reference primitive found in port vicinity")
+                            else:
+                                reference_layer = ref_prim[0].layer
+                                term.SetReferenceLayer(reference_layer)  # pragma no cover
         return True
 
     @pyaedt_function_handler()
