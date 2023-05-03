@@ -895,14 +895,14 @@ class Object3d(object):
         mat_value = None
         if matobj:
             mat_value = chr(34) + matobj.name + chr(34)
-        elif "[" in mat:
-            mat_value = chr(34) + mat + chr(34)
+        elif "[" in mat or "(" in mat:
+            mat_value = mat
         if mat_value is not None:
             if not self.model:
                 self.model = True
             vMaterial = ["NAME:Material", "Value:=", mat_value]
             self._change_property(vMaterial)
-            self._material_name = matobj.name.lower()
+            self._material_name = mat_value
             self._solve_inside = None
         else:
             self.logger.warning("Material %s does not exist.", mat)
