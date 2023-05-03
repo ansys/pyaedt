@@ -731,6 +731,29 @@ class Components(object):
         return True
 
     @pyaedt_function_handler()
+    def create_port_on_pins(pins=None, reference_pins=None, refdes=None):
+        if pins and reference_pins:
+            if isinstance(pins, str):
+                pins = [pins]
+            if isinstance(reference_pins, str):
+                reference_pins = [reference_pins]
+            if len([pin for pin in pins if isinstance(pin, str)]) == len(pins):
+                if not refdes:
+                    self._logger.error(f"Pin name {pins[0]} provided refdes must be also added as argument - Skipping")
+                    return
+                # finfing pins
+                pass
+            if not len([pin for pin in pins is isinstance(pin, pins)]) == len(pins):
+                self._logger.error("Pin list must contain only pins instances")
+                return
+            if pins:
+                if len([pin for pin in pins if isinstance(pin, str)]) == len(pins):
+                    if isinstance(refeference_pins, str):
+                        refeference_pins = [refeference_pins]
+                        if len([pin for pin in refeference_pins]) == len(refeference_pins):
+                            pass
+
+    @pyaedt_function_handler()
     def create_port_on_component(
         self,
         component,
