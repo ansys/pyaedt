@@ -1098,7 +1098,7 @@ class EdbHfss(object):
                             return
                         reference_layer = ref_prim[0].layer
                         if start_term.SetReferenceLayer(reference_layer):  # pragma no cover
-                            terminal_info.append([net.GetName(), mid_point[0], mid_point[1]])
+                            terminal_info.append([net.GetName(), start_point[0], start_point[1], start_term])
                     if GeometryOperators.point_in_polygon(stop_point, user_defined_extent) == 0:
                         stop_term = self._create_edge_terminal(trace, start_point, port_name)  # pragma no cover
                         stop_term.SetIsCircuitPort(True)
@@ -1112,7 +1112,7 @@ class EdbHfss(object):
                             return
                         reference_layer = ref_prim[0].layer
                         if stop_term.SetReferenceLayer(reference_layer):  # pragma no cover
-                            terminal_info.append([net.GetName(), mid_point[0], mid_point[1]])
+                            terminal_info.append([net.GetName(), stop_point[0], stop_point[1], stop_term])
                 net_polygons = [
                     pp
                     for pp in net.primitives
