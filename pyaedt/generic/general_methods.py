@@ -1576,7 +1576,7 @@ def _check_installed_version(install_path, long_version):
 
 def install_with_pip(package_name, package_path=None, upgrade=False, uninstall=False):  # pragma: no cover
     """Install a new package using pip.
-    Useful to install a package from AEDT Console without launching the python environment.
+    This method is useful for installing a package from the AEDT Console without launching the Python environment.
 
     Parameters
     ----------
