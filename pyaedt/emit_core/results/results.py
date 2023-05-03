@@ -48,7 +48,7 @@ class Results:
 
         Raises
         ------
-        RuntimeError if the name given is not the name of an existing result set and a current result set already 
+        RuntimeError if the name given is not the name of an existing result set and a current result set already
         exists.
 
         Returns
