@@ -1075,6 +1075,7 @@ class EdbHfss(object):
                         _x.append(pt.X.ToDouble())
                         _y.append(pt.Y.ToDouble())
                     user_defined_extent = [_x, _y]
+            terminal_info = []
             for net in nets:
                 net_paths = [
                     pp for pp in net.primitives if pp.GetPrimitiveType() == self._edb.Cell.Primitive.PrimitiveType.Path
@@ -1096,7 +1097,8 @@ class EdbHfss(object):
                             self._logger.warning("No reference primitive found in port vicinity")
                             return
                         reference_layer = ref_prim[0].layer
-                        start_term.SetReferenceLayer(reference_layer)  # pragma no cover
+                        if start_term.SetReferenceLayer(reference_layer):  # pragma no cover
+                            terminal_info.append([net.GetName(), mid_point[0], mid_point[1]])
                     if GeometryOperators.point_in_polygon(stop_point, user_defined_extent) == 0:
                         stop_term = self._create_edge_terminal(trace, start_point, port_name)  # pragma no cover
                         stop_term.SetIsCircuitPort(True)
@@ -1109,7 +1111,8 @@ class EdbHfss(object):
                             self._logger.warning("No reference primitive found in port vicinity")
                             return
                         reference_layer = ref_prim[0].layer
-                        stop_term.SetReferenceLayer(reference_layer)  # pragma no cover
+                        if stop_term.SetReferenceLayer(reference_layer):  # pragma no cover
+                            terminal_info.append([net.GetName(), mid_point[0], mid_point[1]])
                 net_polygons = [
                     pp
                     for pp in net.primitives
@@ -1140,8 +1143,9 @@ class EdbHfss(object):
                                 reference_layer = ref_prim[0].layer
                                 if term.SetReferenceLayer(reference_layer):  # pragma no cover
                                     self._logger.info(f"Port {port_name} created")
-
-        return True
+                                    terminal_info.append([net.GetName(), mid_point[0], mid_point[1], term])
+            return terminal_info
+        return False
 
     @pyaedt_function_handler()
     def get_layout_bounding_box(self, layout=None, digit_resolution=6):
