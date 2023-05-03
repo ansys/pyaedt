@@ -1116,11 +1116,15 @@ class EdbHfss(object):
                     if pp.GetPrimitiveType() == self._edb.Cell.Primitive.PrimitiveType.Polygon
                 ]
                 for poly in net_polygons:
-                    port_name = generate_unique_name(f"{net.GetName()}_{poly.GetId()}")
                     mid_points = [[arc.mid_point.X.ToDouble(), arc.mid_point.Y.ToDouble()] for arc in poly.arcs]
+                    ind = 0
                     for mid_point in mid_points:
                         if GeometryOperators.point_in_polygon(mid_point, user_defined_extent) == 0:
+                            port_name = f"{net.GetName()}_{poly.GetId()}_{ind}"
                             term = self._create_edge_terminal(poly.GetId(), mid_point, port_name)  # pragma no cover
+                            if not term.IsNull():
+                                self._logger.info(f"Terminal {term.GetName()} created")
+                                ind = +1
                             term.SetIsCircuitPort(True)
                             mid_pt_data = self._edb.Geometry.PointData(
                                 self._edb.Utility.Value(mid_point[0]), self._edb.Utility.Value(mid_point[1])
@@ -1134,7 +1138,9 @@ class EdbHfss(object):
                                 self._logger.warning("No reference primitive found in port vicinity")
                             else:
                                 reference_layer = ref_prim[0].layer
-                                term.SetReferenceLayer(reference_layer)  # pragma no cover
+                                if term.SetReferenceLayer(reference_layer):  # pragma no cover
+                                    self._logger.info(f"Port {port_name} created")
+
         return True
 
     @pyaedt_function_handler()

@@ -1553,7 +1553,7 @@ class GeometryOperators(object):
 
     @staticmethod
     @pyaedt_function_handler()
-    def point_in_polygon(point, polygon):
+    def point_in_polygon(point, polygon, tolerance=1e-8):
         """Determine if a point is inside or outside a polygon, both located on the same plane.
 
         The method implements the radial algorithm (https://es.wikipedia.org/wiki/Algoritmo_radial)
@@ -1562,6 +1562,8 @@ class GeometryOperators(object):
             List of ``[x, y]`` coordinates.
         polygon : List
             [[x1, x2, ..., xn],[y1, y2, ..., yn]]
+        tolerance : float
+            tolerance used for the algorithm. Default value is 1e-8.
 
         Returns
         -------
@@ -1571,7 +1573,7 @@ class GeometryOperators(object):
             - ``1`` When the point is inside the polygon.
         """
         # fmt: off
-        tol = 1e-6
+        tol = tolerance
         if len(point) != 2:  # pragma: no cover
             raise ValueError("point must be a list in the form [x, y]")
         pl = len(polygon[0])
