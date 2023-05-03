@@ -892,10 +892,15 @@ class Object3d(object):
     @material_name.setter
     def material_name(self, mat):
         matobj = self._primitives._materials.checkifmaterialexists(mat)
+        mat_value = None
         if matobj:
+            mat_value = chr(34) + matobj.name + chr(34)
+        elif "[" in mat:
+            mat_value = chr(34) + mat + chr(34)
+        if mat_value is not None:
             if not self.model:
                 self.model = True
-            vMaterial = ["NAME:Material", "Value:=", chr(34) + matobj.name + chr(34)]
+            vMaterial = ["NAME:Material", "Value:=", mat_value]
             self._change_property(vMaterial)
             self._material_name = matobj.name.lower()
             self._solve_inside = None
