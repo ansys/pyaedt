@@ -15,8 +15,8 @@ class Revision:
     emit_obj :
          ``Emit`` object that this revision is associated with.
     name : str, optional
-        Name of the revision to create. The default is ``None``, in which case a
-        default name is given.
+        Name of the revision to create. The default is ``None``, in which
+        case the name of the current design revision is used.
 
     Raises
     ------
