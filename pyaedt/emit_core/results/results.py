@@ -43,8 +43,8 @@ class Results:
         Parameters
         ----------
         name : str, optional
-            Name for the new revision, if created. If name is ``None``, it will
-            be named after the current design revision.
+            Name for the new revision, if created. The default is ``None``, in which
+            case the name of the current design revision is used.
 
         Raises
         ------
