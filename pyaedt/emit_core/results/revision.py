@@ -20,7 +20,7 @@ class Revision:
 
     Raises
     ------
-    RuntimeError if a name is given that is not an existing result set name and there is already a current result set.
+    RuntimeError if the name given is not the name of an existing result set and a current result set already exists.
 
     Examples
     --------
