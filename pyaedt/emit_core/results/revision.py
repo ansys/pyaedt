@@ -127,7 +127,7 @@ class Revision:
         self._load_revision()
         engine = self.emit_project._emit_api.get_engine()
         if domain.interferer_names and engine.max_simultaneous_interferers != len(domain.interferer_names):
-            raise ValueError("The max_simultanous_interferers must equal the number of interferers in the domain.")
+            raise ValueError("The max_simultaneous_interferers must equal the number of interferers in the domain.")
         interaction = engine.run(domain)
         # save the revision
         self.emit_project._emit_api.save_project()
