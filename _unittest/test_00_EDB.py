@@ -2397,3 +2397,13 @@ class TestClass(BasisTest, object):
                 assert j.tofloat == hfss_extent_info._get_edb_value(config[i]).ToDouble()
             else:
                 assert j == config[i]
+
+    def test_134_create_port_on_pin(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_0134.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, edbversion=desktop_version)
+        pin = "AJ6"
+        ref_pins = [pin for pin in list(edbapp.components["U2A5"].pins.values()) if pin.net_name == "GND"]
+        term = edbapp.components.create_port_on_pins(refdes="U2A5", pins=pin, reference_pins=ref_pins)
+        assert term
