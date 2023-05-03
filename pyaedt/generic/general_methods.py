@@ -1585,7 +1585,7 @@ def install_with_pip(package_name, package_path=None, upgrade=False, uninstall=F
     package_path : str, optional
         Package path for GitHub download. Example ``git+https://......``.
     upgrade : bool, optional
-        Whether to upgrade the package or not.
+        Whether to upgrade the package. The default is ``False``.
     uninstall : bool, optional
         Whether to install the package or uninstall the package.
     """
