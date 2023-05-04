@@ -902,7 +902,7 @@ class Object3d(object):
                 self.model = True
             vMaterial = ["NAME:Material", "Value:=", mat_value]
             self._change_property(vMaterial)
-            self._material_name = mat_value
+            self._material_name = mat_value.strip('"')
             self._solve_inside = None
         else:
             self.logger.warning("Material %s does not exist.", mat)
