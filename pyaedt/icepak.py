@@ -3807,7 +3807,7 @@ class Icepak(FieldAnalysis3D):
 
         Parameters
         ----------
-        nodes_dict: dict
+        nodes_dict : dict
             A dictionary containing all the nodes of the network. It must have at least one of the
             following keys and values pairs:
             - ``"Faces"``: a list of dictionaries prescribing face nodes. Each dictionary must contain
@@ -3857,7 +3857,7 @@ class Icepak(FieldAnalysis3D):
             selection (e.g. ``"Linear"`` requires two parameters: the value of the variable at t=0
             and the slope of the line). The parameters required by each ``Function`` option is in
             Icepak documentation. The parameters must contain the units where needed.
-        connections: dict or list of dict
+        connections : dict or list of dict
             Dictionary or list of dictionaries containing the links between nodes. Each dictionary
             must have the following keys:
             - ``"Connection"``: a 2-item list with the node name (str) or face id (int) that the link
@@ -3866,7 +3866,7 @@ class Icepak(FieldAnalysis3D):
               heat transfer coefficient, or mass flow) will be determined automatically.
             Optional key:
             - ``"Name"``: a string that prescribes the name of the link.
-        network_name: str, optional
+        network_name : str, optional
             Name of the network boundary. The default is ``None`` and the boundary name will
             be generated automatically.
 
