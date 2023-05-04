@@ -3077,6 +3077,24 @@ class SetupQ3D(Setup, object):
             self._dc_enabled = value
             self.update()
 
+    @property
+    def dc_resistance_only(self):
+        """Get/Set the DC Resistance Only or Resistance/Inductance calculatio in active Q3D setup.
+
+        Returns
+        -------
+        bool
+        """
+        try:
+            return self.props["DC"]["SolveResOnly"]
+        except KeyError:
+            return False
+
+    @dc_resistance_only.setter
+    def dc_resistance_only(self, value):
+        if self.dc_enabled:
+            self.props["DC"]["SolveResOnly"] = value
+
     @pyaedt_function_handler()
     def update(self, update_dictionary=None):
         """Update the setup based on either the class argument or a dictionary.
