@@ -943,7 +943,7 @@ class TestClass(BasisTest, object):
         )
         assert boundary
         boundary.delete()
-        boundary = self.aedtapp.assign_resistor_network_from_matrix(matrix, sources_power, faces_ids)
+        boundary = self.aedtapp.assign_resistor_network_from_matrix(sources_power, faces_ids, matrix)
         assert boundary
         boundary.delete()
 
