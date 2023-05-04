@@ -923,3 +923,52 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.mesh.add_priority(
             entity_type=2, comp_name=self.aedtapp.modeler.user_defined_component_names[0], priority=1
         )
+
+    def test_57_assign_network_from_matrix(self):
+        box = self.aedtapp.modeler.create_box([0, 0, 0], [20, 50, 80])
+        faces_ids = [face.id for face in box.faces]
+        sources_power = [3, "4mW"]
+        matrix = [
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0],
+            [0, 3, 0, 0, 0, 0, 0, 0],
+            [1, 2, 4, 0, 0, 0, 0, 0],
+            [0, 8, 0, 7, 0, 0, 0, 0],
+            [4, 3, 2, 0, 0, 0, 0, 0],
+            [2, 6, 0, 1, 0, 3, 0, 0],
+            [0, 3, 0, 2, 0, 0, 1, 0],
+        ]
+        boundary = self.aedtapp.assign_resistor_network_from_matrix(
+            sources_power, faces_ids, matrix, network_name="Test_network"
+        )
+        assert boundary
+        boundary.delete()
+        boundary = self.aedtapp.assign_resistor_network_from_matrix(matrix, sources_power, faces_ids)
+        assert boundary
+        boundary.delete()
+
+    def test_58_assign_network(self):
+        box = self.aedtapp.modeler.create_box([5, 5, 5], [20, 50, 80])
+        faces_ids = [face.id for face in box.faces]
+        x = [1, 2, 3]
+        y = [3, 4, 5]
+        self.aedtapp.create_dataset1d_design("Test_DataSet", x, y)
+        nodes_dict = {
+            "Faces": [
+                {"FaceID": faces_ids[0]},
+                {"FaceID": faces_ids[1], "ThermalResistance": "Compute", "Thickness": "2mm"},
+                {"FaceID": faces_ids[2], "ThermalResistance": "Specified", "Resistance": "2cel_per_w"},
+            ],
+            "InternalNodes": [
+                {
+                    "Name": "Junction",
+                    "Power": {"Type": "Temp Dep", "Function": "Piecewise Linear", "Values": ["1W", "Test_DataSet"]},
+                }
+            ],
+        }
+        connections = [
+            {"Name": "LinkTest", "Connection": ["Junction", faces_ids[0]], "Value": "1cel_per_w"},
+            {"Connection": ["Junction", faces_ids[1]], "Value": "2cel_per_w"},
+            {"Connection": ["Junction", faces_ids[2]], "Value": "3cel_per_w"},
+        ]
+        self.aedtapp.assign_network(nodes_dict, connections)
