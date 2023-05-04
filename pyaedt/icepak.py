@@ -1850,7 +1850,6 @@ class Icepak(FieldAnalysis3D):
             List containing the requested link data.
 
         """
-
         if "linkData" in kwargs:
             warnings.warn(
                 "The ``linkData`` parameter was deprecated in 0.6.43. Use the ``links_data`` parameter instead.",
@@ -2079,7 +2078,6 @@ class Icepak(FieldAnalysis3D):
 
         >>> oModule.InsertNativeComponent
         """
-
         if "extenttype" in kwargs:
             warnings.warn(
                 "The ``extenttype`` parameter was deprecated in 0.6.43. Use the ``extent_type`` parameter instead.",
@@ -2186,16 +2184,16 @@ class Icepak(FieldAnalysis3D):
             Name of the design.
         resolution : int, optional
             Resolution of the mapping. The default is ``2``.
-        extent_type :
+        extent_type : str, optional
             Type of the extent. Options are ``"Polygon"`` and ``"Bounding Box"``. The default
             is ``"Bounding Box"``.
         outline_polygon : str, optional
             Name of the outline polygon if ``extent_type="Polygon"``. The default is ``""``.
         close_linked_project_after_import : bool, optional
             Whether to close the linked AEDT project after the import. The default is ``True``.
-        custom_x_resolution :
+        custom_x_resolution : int, optional
             The default is ``None``.
-        custom_y_resolution :
+        custom_y_resolution : int, optional
             The default is ``None``.
         power_in : float, optional
             Power in in Watt.
@@ -2210,7 +2208,6 @@ class Icepak(FieldAnalysis3D):
 
         >>> oModule.InsertNativeComponent
         """
-
         if "extenttype" in kwargs:
             warnings.warn(
                 "``extenttype`` was deprecated in 0.6.43. Use ``extent_type`` instead.",
@@ -2272,7 +2269,6 @@ class Icepak(FieldAnalysis3D):
         >>> oEditor.Copy
         >>> oeditor.Paste
         """
-
         if "groupName" in kwargs:
             warnings.warn(
                 "The ``groupName`` parameter was deprecated in 0.6.43. Use the ``group_name`` parameter instead.",
@@ -2362,7 +2358,6 @@ class Icepak(FieldAnalysis3D):
 
         >>> oModule.EditGlobalMeshRegion
         """
-
         bounding_box = self.modeler.oeditor.GetModelBoundingBox()
         xsize = abs(float(bounding_box[0]) - float(bounding_box[3])) / (15 * meshtype * meshtype)
         ysize = abs(float(bounding_box[1]) - float(bounding_box[4])) / (15 * meshtype * meshtype)
@@ -2690,9 +2685,9 @@ class Icepak(FieldAnalysis3D):
             If ``False``, full validation is performed.
         default_fluid : str, optional
             Type of fluid. The default is ``"Air"``.
-        default_solid :
+        default_solid : str, optional
             Type of solid. The default is ``"Al-Extruded"``.
-        default_surface :
+        default_surface : str, optional
             Type of surface. The default is ``"Steel-oxidised-surface"``.
 
         Returns
@@ -2705,7 +2700,6 @@ class Icepak(FieldAnalysis3D):
 
         >>> oDesign.SetDesignSettings
         """
-
         ambient_temperature = self.modeler._arg_with_dim(ambienttemp, "cel")
 
         axes = ["X", "Y", "Z"]
@@ -2798,94 +2792,6 @@ class Icepak(FieldAnalysis3D):
                     sm.surface_incident_absorptance = oo.GetPropEvaluatedValue("Solar Normal Absorptance")
                 self.materials.surface_material_keys[mat.lower()] = sm
         return True
-
-    @pyaedt_function_handler()
-    def create_two_resistor_network_block_depr(self, object_name, power, rjb, rjc, placement):
-        """Create a two-resistor network block.
-
-        .. deprecated:: 0.6.30
-            This method is replaced by the ``create_two_resistor_network_block`` method.
-
-        Parameters
-        ----------
-        object_name : str
-            Name of the object (3D block primitive) on which to create the two-resistor
-            network.
-        power : float
-            Junction power in [W].
-        rjb : float
-            Junction-to-board thermal resistance in [K/W].
-        rjc : float
-            Junction-to-case thermal resistance in [K/W].
-        placement : str
-            Placement of the network block. Options are:
-            - ``top``: Network block is placed on top of the board.
-            - "bottom" : Network block is placed on bottom of the board.
-
-        Returns
-        -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object.
-
-        References
-        ----------
-
-        >>> oModule.AssignNetworkBoundary
-
-        Examples
-        --------
-
-        >>> box = icepak.modeler.create_box([4, 5, 6], [5, 5, 5], "NetworkBox1", "copper")
-        >>> block = icepak.create_two_resistor_network_block("NetworkBox1", "2W", 20, 10, "top")
-        >>> block.props["Nodes"]["Internal"][0]
-        '2W'
-        """
-        warnings.warn(
-            "This method is deprecated in 0.6.29. Use the ``create_two_resistor_network_block`` method instead.",
-            DeprecationWarning,
-        )
-        object_handle = self.modeler.get_object_from_name(object_name)
-        placement = placement.lower()
-        if placement == "top":
-            board_face_id = object_handle.top_face_z.id
-            case_face_id = object_handle.bottom_face_z.id
-            board_side = "bottom"
-            case_side = "top"
-        else:
-            board_face_id = object_handle.bottom_face_z.id
-            case_face_id = object_handle.top_face_z.id
-            board_side = "top"
-            case_side = "bottom"
-
-        # Define network properties in props directory
-        props = {
-            "Faces": [board_face_id, case_face_id],
-            "Nodes": OrderedDict(
-                {
-                    "Case_side(" + case_side + ")": [case_face_id, "NoResistance"],
-                    "Board_side(" + board_side + ")": [board_face_id, "NoResistance"],
-                    "Internal": [power],
-                }
-            ),
-            "Links": OrderedDict(
-                {
-                    "Rjc": ["Case_side(" + case_side + ")", "Internal", "R", str(rjc) + "cel_per_w"],
-                    "Rjb": ["Board_side(" + board_side + ")", "Internal", "R", str(rjb) + "cel_per_w"],
-                }
-            ),
-            "SchematicData": ({}),
-        }
-
-        # Default material is Ceramic_material
-        self.modeler[object_name].material_name = "Ceramic_material"
-
-        # Create boundary condition and set solve_inside = False
-        bound = BoundaryObject(self, object_name, props, "Network")
-        if bound.create():
-            self.boundaries.append(bound)
-            self.modeler.primitives[object_name].solve_inside = False
-            return bound
-        return None
 
     @pyaedt_function_handler()
     def import_idf(

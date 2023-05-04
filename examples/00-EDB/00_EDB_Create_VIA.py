@@ -39,10 +39,10 @@ points = [
 ]
 edb.modeler.create_trace(points, "TOP", width=1e-3)
 points = [[0.0, 1e-3], [0.0, 10e-3], [100e-3, 10e-3], [100e-3, 1e-3], [0.0, 1e-3]]
-edb.modeler.create_polygon_from_points(points, "TOP")
+edb.modeler.create_polygon(points, "TOP")
 
 points = [[0.0, -1e-3], [0.0, -10e-3], [100e-3, -10e-3], [100e-3, -1e-3], [0.0, -1e-3]]
-edb.modeler.create_polygon_from_points(points, "TOP")
+edb.modeler.create_polygon(points, "TOP")
 
 #######################################
 # Create vias with parametric positions

@@ -1658,7 +1658,18 @@ class Analysis(Design, object):
                     if self.working_directory[0] != "\\"
                     else os.path.join(self.working_directory, config_name + ".acf")
                 )
-            shutil.copy2(source_name, target_name)
+            try:
+                shutil.copy2(source_name, target_name)
+
+            # If source and destination are same
+            except shutil.SameFileError:
+                self.logger.warning("Source and destination represents the same file.")
+            # If there is any permission issue
+            except PermissionError:
+                self.logger.error("Permission denied.")
+            # For other errors
+            except:
+                self.logger.error("Error occurred while copying file.")
 
             if num_cores:
                 update_hpc_option(target_name, "NumCores", num_cores, False)

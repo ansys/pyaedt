@@ -22,6 +22,13 @@ available_toolkits = {
         "installation_path": "Project",
         "package_name": "ansys.aedt.toolkits.choke",
     },
+    "TemplateToolkit": {
+        "pip": "git+https://github.com/pyansys/pyaedt-toolkit-template.git",
+        "image": "pyansys.png",
+        "toolkit_script": "ansys/aedt/toolkits/template/template_toolkit.py",
+        "installation_path": "Project",
+        "package_name": "ansys.aedt.toolkits.template",
+    },
 }
 
 

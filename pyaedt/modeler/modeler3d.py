@@ -15,6 +15,7 @@ from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
 class Modeler3D(GeometryModeler, Primitives3D, object):
+
     """Provides the Modeler 3D application interface.
 
     This class is inherited in the caller application and is accessible through the modeler variable
@@ -585,10 +586,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         >>> oEditor.CreateCylinder
         >>> oEditor.AssignMaterial
 
-
         Examples
         --------
-
         This example shows how to create a Coaxial Along X Axis waveguide.
 
         >>> from pyaedt import Hfss
@@ -673,7 +672,6 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
 
         Examples
         --------
-
         This example shows how to create a WG9 waveguide.
 
         >>> from pyaedt import Hfss
@@ -802,21 +800,20 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
 
         Parameters
         ----------
-        bounding_box : list.
+        bounding_box : list
             List of coordinates of bounding box vertices.
             Bounding box is provided as [xmin, ymin, zmin, xmax, ymax, zmax].
-        check_solids : bool, optional.
+        check_solids : bool, optional
             Check solid objects.
-        check_lines : bool, optional.
+        check_lines : bool, optional
             Check line objects.
-        check_sheets : bool, optional.
+        check_sheets : bool, optional
             Check sheet objects.
 
         Returns
         -------
         list of :class:`pyaedt.modeler.object3d`
         """
-
         if len(bounding_box) != 6:
             raise ValueError("Bounding box list must have dimension 6.")
 
@@ -1153,3 +1150,80 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                     self[obj].transparency = transparency
                     self[obj].color = color
         return scene
+
+    @pyaedt_function_handler
+    def objects_segmentation(
+        self, objects_list, segmentation_thickness=None, segments_number=None, apply_mesh_sheets=False
+    ):
+        """Get segmentation of an object given the segmentation thickness or number of segments.
+
+        Parameters
+        ----------
+        objects_list : list
+            List of objects to apply the segmentation to.
+            It can either be a list of strings (object names), integers (object IDs), or
+            a list of :class:`pyaedt.modeler.cad.object3d.Object3d` classes.
+        segmentation_thickness : float, optional
+            Segmentation thickness.
+            Model units are automatically assigned. The default is ``None``.
+        segments_number : int, optional
+            Number of segments to segment the object to. The default is ``None``.
+        apply_mesh_sheets : bool, optional
+            Whether to apply mesh sheets to selected objects.
+            Mesh sheets are needed in case the user would like to have additional layers
+            inside the objects for a finer mesh and more accurate results. The default is ``False``.
+
+        Returns
+        -------
+        dict or tuple
+            Depending on value ``apply_mesh_sheets`` it returns either a dictionary or a tuple.
+            If mesh sheets are applied the method returns a tuple where:
+            - First dictionary is the segments that the object has been divided into.
+            - Second dictionary is the mesh sheets eventually needed to apply the mesh.
+            to inside the object. Keys are the object names, and values are respectively
+            segments sheets and mesh sheets of the
+            :class:`pyaedt.modeler.cad.object3d.Object3d` class.
+            If mesh sheets are not applied the method returns only the dictionary of
+            segments that the object has been divided into.
+            ``False`` is returned if the method fails.
+        """
+        if not segmentation_thickness and not segments_number:
+            self.logger.error("Provide at least one option to segment the objects in the list.")
+            return False
+        elif segmentation_thickness and segments_number:
+            self.logger.error("Only one segmentation option can be selected.")
+            return False
+
+        objects_list = self.convert_to_selections(objects_list, True)
+
+        segment_sheets = {}
+        segment_objects = {}
+        for obj_name in objects_list:
+            obj = self[obj_name]
+            if segments_number:
+                segmentation_thickness = obj.top_edge_y.length / segments_number
+            elif segmentation_thickness:
+                segments_number = round(obj.top_edge_y.length / segmentation_thickness)
+            face_object = self.modeler.create_object_from_face(obj.bottom_face_z)
+            # segment sheets
+            segment_sheets[obj.name] = face_object.duplicate_along_line(
+                ["0", "0", segmentation_thickness], segments_number
+            )
+            segment_objects[obj.name] = []
+            for value in segment_sheets[obj.name]:
+                segment_objects[obj.name].append([x for x in self.sheet_objects if x.name == value][0])
+            if apply_mesh_sheets:
+                mesh_sheets = {}
+                mesh_objects = {}
+                # mesh sheets
+                self.move(face_object, [0, 0, segmentation_thickness / 4])
+                mesh_sheets[obj.name] = face_object.duplicate_along_line(
+                    [0, 0, (segmentation_thickness * 2.0) / 4.0], segments_number * 2
+                )
+                mesh_objects[obj.name] = []
+                for value in mesh_sheets[obj.name]:
+                    mesh_objects[obj.name].append([x for x in self.sheet_objects if x.name == value][0])
+        if apply_mesh_sheets:
+            return segment_objects, mesh_objects
+        else:
+            return segment_objects

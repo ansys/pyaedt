@@ -571,12 +571,36 @@ class EdbPadstacks(object):
             padparams = self._edb.Definition.PadstackDefData(pin.GetPadstackDef().GetData()).GetPadParametersValue(
                 layername, self.int_to_pad_type(pad_type)
             )
-        geom_type = int(padparams[1])
-        parameters = [i.ToString() for i in padparams[2]]
-        offset_x = padparams[3].ToDouble()
-        offset_y = padparams[4].ToDouble()
-        rot = padparams[5].ToDouble()
-        return geom_type, parameters, offset_x, offset_y, rot
+        if padparams[2]:
+            geometry_type = int(padparams[1])
+            parameters = [i.ToString() for i in padparams[2]]
+            offset_x = padparams[3].ToDouble()
+            offset_y = padparams[4].ToDouble()
+            rotation = padparams[5].ToDouble()
+            return geometry_type, parameters, offset_x, offset_y, rotation
+        else:
+            if isinstance(pin, self._edb.Definition.PadstackDef):
+                padparams = self._edb.Definition.PadstackDefData(pin.GetData()).GetPolygonalPadParameters(
+                    layername, self.int_to_pad_type(pad_type)
+                )
+            else:
+                padparams = self._edb.Definition.PadstackDefData(
+                    pin.GetPadstackDef().GetData()
+                ).GetPolygonalPadParameters(layername, self.int_to_pad_type(pad_type))
+
+            if padparams[0]:
+                parameters = [
+                    padparams[1].GetBBox().Item1.X.ToDouble(),
+                    padparams[1].GetBBox().Item1.Y.ToDouble(),
+                    padparams[1].GetBBox().Item2.X.ToDouble(),
+                    padparams[1].GetBBox().Item2.Y.ToDouble(),
+                ]
+                offset_x = padparams[2]
+                offset_y = padparams[3]
+                rotation = padparams[4]
+                geometry_type = 7
+                return geometry_type, parameters, offset_x, offset_y, rotation
+            return 0, [0], 0, 0, 0
 
     @pyaedt_function_handler
     def set_all_antipad_value(self, value):
@@ -753,8 +777,6 @@ class EdbPadstacks(object):
             holediam=holediam,
             paddiam=paddiam,
             antipaddiam=antipaddiam,
-            startlayer=startlayer,
-            endlayer=endlayer,
             antipad_shape=antipad_shape,
             x_size=x_size,
             y_size=y_size,
@@ -775,8 +797,6 @@ class EdbPadstacks(object):
         holediam="300um",
         paddiam="400um",
         antipaddiam="600um",
-        startlayer=None,
-        endlayer=None,
         pad_shape="Circle",
         antipad_shape="Circle",
         x_size="600um",
@@ -802,12 +822,6 @@ class EdbPadstacks(object):
             Diameter of the pad with units. The default is ``"400um"``.
         antipaddiam : str, optional
             Diameter of the antipad with units. The default is ``"600um"``.
-        startlayer : str, optional
-            Starting layer. The default is ``None``, in which case the top
-            is the starting layer.
-        endlayer : str, optional
-            Ending layer. The default is ``None``, in which case the bottom
-            is the ending layer.
         pad_shape : str, optional
             Shape of the pad. The default is ``"Circle``. Options are ``"Circle"`` and ``"Rectangle"``.
         antipad_shape : str, optional
@@ -869,10 +883,7 @@ class EdbPadstacks(object):
         padstackData.SetHoleRange(self._edb.Definition.PadstackHoleRange.UpperPadToLowerPad)
         padstackData.SetMaterial("copper")
         layers = list(self._pedb.stackup.signal_layers.keys())
-        if not startlayer:
-            startlayer = layers[0]
-        if not endlayer:
-            endlayer = layers[len(layers) - 1]
+
         if pad_shape == "Circle":
             pad_array = Array[type(paddiam)]([paddiam])
             pad_shape = self._edb.Definition.PadGeometryType.Circle
@@ -908,13 +919,6 @@ class EdbPadstacks(object):
                 rotation,
             )
 
-        padstackLayerIdMap = {k: v for k, v in zip(padstackData.GetLayerNames(), padstackData.GetLayerIds())}
-        padstackLayerMap = self._edb.Utility.LayerMap(self._edb.Utility.UniqueDirection.ForwardUnique)
-        for layer, padstackLayerName in zip(
-            self._active_layout.GetLayerCollection().Layers(self._edb.Cell.LayerTypeSet.SignalLayerSet),
-            [startlayer, "Default", endlayer],
-        ):
-            padstackLayerMap.SetMapping(layer.GetLayerId(), padstackLayerIdMap[padstackLayerName])
         padstackDefinition = self._edb.Definition.PadstackDef.Create(self.db, padstackname)
         padstackDefinition.SetData(padstackData)
         self._logger.info("Padstack %s create correctly", padstackname)
