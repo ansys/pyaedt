@@ -731,7 +731,7 @@ class Components(object):
         return True
 
     @pyaedt_function_handler()
-    def create_port_on_pins(self, refdes=None, pins=None, reference_pins=None, impedance=50.0):
+    def create_port_on_pins(self, refdes, pins, reference_pins, impedance=50.0):
         """Create circuit port between pins and reference ones.
 
         Parameters
@@ -766,48 +766,48 @@ class Components(object):
         >>> edb.save_edb()
         >>> edb.close_edb()
         """
-        if pins and reference_pins:
-            if isinstance(pins, str):
-                pins = [pins]
-            if isinstance(reference_pins, str):
-                reference_pins = [reference_pins]
-            if isinstance(refdes, str):
-                refdes = self.instances[refdes]
-            if len([pin for pin in pins if isinstance(pin, str)]) == len(pins):
-                cmp_pins = []
-                for pin_name in pins:
-                    cmp_pin = [pin for pin in list(refdes.pins.values()) if pin_name in pin.name]
-                    if cmp_pin:
-                        cmp_pins.append(cmp_pin[0])
-                if not cmp_pins:
-                    return
-                pins = cmp_pins
-            if not len([pin for pin in pins if isinstance(pin, EDBPadstackInstance)]) == len(pins):
-                self._logger.error("Pin list must contain only pins instances")
+
+        if isinstance(pins, str):
+            pins = [pins]
+        if isinstance(reference_pins, str):
+            reference_pins = [reference_pins]
+        if isinstance(refdes, str) or isinstance(refdes, EDBComponent):
+            refdes = self.instances[refdes]
+        if len([pin for pin in pins if isinstance(pin, str)]) == len(pins):
+            cmp_pins = []
+            for pin_name in pins:
+                cmp_pin = [pin for pin in list(refdes.pins.values()) if pin_name in pin.name]
+                if cmp_pin:
+                    cmp_pins.append(cmp_pin[0])
+            if not cmp_pins:
                 return
-            if len([pin for pin in reference_pins if isinstance(pin, str)]) == len(reference_pins):
-                ref_cmp_pins = []
-                for ref_pin_name in reference_pins:
-                    cmp_ref_pin = [pin for pin in list(refdes.pins.values()) if ref_pin_name in pin.name]
-                    if cmp_ref_pin:
-                        ref_cmp_pins.append(cmp_ref_pin[0])
-                if not ref_cmp_pins:
-                    return
-                reference_pins = ref_cmp_pins
-            if not len([pin for pin in reference_pins if isinstance(pin, EDBPadstackInstance)]) == len(reference_pins):
+            pins = cmp_pins
+        if not len([pin for pin in pins if isinstance(pin, EDBPadstackInstance)]) == len(pins):
+            self._logger.error("Pin list must contain only pins instances")
+            return
+        if len([pin for pin in reference_pins if isinstance(pin, str)]) == len(reference_pins):
+            ref_cmp_pins = []
+            for ref_pin_name in reference_pins:
+                cmp_ref_pin = [pin for pin in list(refdes.pins.values()) if ref_pin_name in pin.name]
+                if cmp_ref_pin:
+                    ref_cmp_pins.append(cmp_ref_pin[0])
+            if not ref_cmp_pins:
                 return
-            group_name = f"group_{pins[0].net_name}_{pins[0].name}"
-            ref_group_name = f"group_{pins[0].net_name}_{pins[0].name}_ref"
-            pin_group = self.create_pingroup_from_pins(pins, group_name)
-            ref_pin_group = self.create_pingroup_from_pins(reference_pins, ref_group_name)
-            term = self._create_pin_group_terminal(pingroup=pin_group, component=refdes.refdes)
-            term.SetIsCircuitPort(True)
-            ref_term = self._create_pin_group_terminal(pingroup=ref_pin_group, component=refdes.refdes)
-            ref_term.SetIsCircuitPort(True)
-            term.SetImpedance(self._edb.Utility.Value(impedance))
-            term.SetReferenceTerminal(ref_term)
-            if term:
-                return term
+            reference_pins = ref_cmp_pins
+        if not len([pin for pin in reference_pins if isinstance(pin, EDBPadstackInstance)]) == len(reference_pins):
+            return
+        group_name = "group_{}_{}".format(pins[0].net_name, pins[0].name)
+        ref_group_name = "group_{}_{}_ref".format(pins[0].net_name, pins[0].name)
+        pin_group = self.create_pingroup_from_pins(pins, group_name)
+        ref_pin_group = self.create_pingroup_from_pins(reference_pins, ref_group_name)
+        term = self._create_pin_group_terminal(pingroup=pin_group, component=refdes.refdes)
+        term.SetIsCircuitPort(True)
+        ref_term = self._create_pin_group_terminal(pingroup=ref_pin_group, component=refdes.refdes)
+        ref_term.SetIsCircuitPort(True)
+        term.SetImpedance(self._edb.Utility.Value(impedance))
+        term.SetReferenceTerminal(ref_term)
+        if term:
+            return term
         return False
 
     @pyaedt_function_handler()
