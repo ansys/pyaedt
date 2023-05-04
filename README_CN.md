@@ -1,16 +1,12 @@
-<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
+<!-- -->
 <a name="readme-top"></a>
 <!--
-*** Thanks for checking out the Best-README-Template. If you have a suggestion
-*** that would make this better, please fork the repo and create a pull request
-*** or simply open an issue with the tag "enhancement".
-*** Don't forget to give the project a star!
-*** Thanks again! Now go create something AMAZING! :D
+*** PyAEDT README
 -->
 
 # PyAEDT
 
-<p align="center">
+<p style="text-align: center;">
     <br> <a href="README.md">English</a> | 中文
 </p>
 
@@ -87,7 +83,7 @@ pip install pyaedt[full]
 
 ## 文档与反馈
 
-除了安装和使用信息外，`PyAEDT` 文档还提供了 [参考API](https://aedt.docs.pyansys.com/release/0.6/API/index.html "API reference")，[示例](https://aedt.docs.pyansys.com/release/0.6/examples/index.html "Examples")，和 [贡献](https://aedt.docs.pyansys.com/release/0.6/Contributing.html "Contribute") 。
+除了安装和使用信息外，`PyAEDT` 文档还提供了 [参考API](https://aedt.docs.pyansys.com/version/stable/API/index.html "API reference")，[示例](https://aedt.docs.pyansys.com/version/stable/examples/index.html "Examples")，和 [贡献](https://aedt.docs.pyansys.com/version/stable/Contributing.html "Contribute") 。
 
 
 在 [PyAEDT Issues](https://github.com/pyansys/PyAEDT/issues) 页面，您可以提交所遇到的问题、反馈 bug、为新功能贡献您的想法与思路。如联系项目支持团队，请点击后面的链接发送电子邮件 [pyansys.support@ansys.com](pyansys.support@ansys.com).
@@ -210,10 +206,10 @@ CPython 服务器：
 要运行`PyAEDT`，您必须拥有`AEDT`的本地许可证。
 `PyAEDT`在`MIT`许可下获得许可。这个模块对`Ansys`没有任何商业要求。`PyAEDT`通过向`AEDT`添加额外的Python接口扩展了`AEDT`的功能，而不改变原始软件的核心行为或许可。使用`PyAEDT`的交互式控件需要合法授权的`AEDT`本地license。有关`AEDT`的更多信息，请访问`Ansys`网站上的[AEDT页面](https://www.ansys.com/products/electronics)。
 
-<p align="right"> <a href="#readme-top">回到顶部</a> </p>
+<p style="text-align: right;"> <a href="#readme-top">回到顶部</a> </p>
 
 ## 索引与目录
 
--  [Index](https://aedt.docs.pyansys.com/release/0.6/genindex.html)
--  [Module Index](https://aedt.docs.pyansys.com/release/0.6/py-modindex.html)
--  [Search Page](https://aedt.docs.pyansys.com/release/0.6/search.html)
+-  [Index](https://aedt.docs.pyansys.com/version/stable/genindex.html)
+-  [Module Index](https://aedt.docs.pyansys.com/version/stable/py-modindex.html)
+-  [Search Page](https://aedt.docs.pyansys.com/version/stable/search.html)

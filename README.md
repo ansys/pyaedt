@@ -1,16 +1,13 @@
-<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
+<!-- -->
 <a name="readme-top"></a>
 <!--
-*** Thanks for checking out the Best-README-Template. If you have a suggestion
-*** that would make this better, please fork the repo and create a pull request
-*** or simply open an issue with the tag "enhancement".
-*** Don't forget to give the project a star!
-*** Thanks again! Now go create something AMAZING! :D
+*** PyAEDT README
 -->
+
 
 # PyAEDT
 
-<p align="center">
+<p style="text-align: center;">
     <br> English | <a href="README_CN.md">中文</a>
 </p>
 
@@ -18,11 +15,19 @@
 
 ## What is PyAEDT?
 
-`PyAEDT` is a Python library that interacts directly with the AEDT API to make scripting simpler for the end user. Its architecture can be reused for all AEDT 3D products (HFSS, Icepak, Maxwell 3D, and Q3D Extractor), 2D tools, and Ansys Mechanical. It also provides support for circuit tools like Nexxim and system simulation tools like Twin Builder. Finally it provides scripting capabilities in Ansys layout tools like HFSS 3D Layout and EDB. Its class and method structures simplify operation for the end user while reusing information as much as possible across the API.
+`PyAEDT` is a Python library that interacts directly with the API for
+Ansys Electronics Desktop (AEDT) to make scripting simpler. The architecture
+for PyAEDT can be reused for all AEDT 3D products (HFSS, Icepak, Maxwell 3D,
+and Q3D Extractor), 2D tools, and Ansys Mechanical. PyAEDT also provides
+support for circuit tools like Nexxim and system simulation tools like
+Twin Builder. Finally, PyAEDT provides scripting capabilities in Ansys layout
+tools like HFSS 3D Layout and EDB. The PyAEDT class and method structures
+simplify operation while reusing information as much as possible across
+the API.
 
 ## Install on CPython from PyPI
 
-You can install `PyAEDT` on CPython 3.7 through 3.10 from PyPI:
+You can install PyAEDT on CPython 3.7 through 3.10 from PyPI with this command:
 
 ```sh
   pip install pyaedt
@@ -31,26 +36,36 @@ You can install `PyAEDT` on CPython 3.7 through 3.10 from PyPI:
 Install `PyAEDT` with all extra packages (matplotlib, numpy, pandas, pyvista):
 
 ```sh
-  pip install pyaedt[all]
+  pip install pyaedt[full]
 ```
 
-You can also install PyAEDT from Conda-Forge:
+You can also install PyAEDT from Conda-Forge with this command:
 
 ```sh
   conda install -c conda-forge pyaedt
 ```
-`PyAEDT` is still compatible with Ironpython and can be still used in AEDT Framework.
+PyAEDT remains compatible with IronPython and can be still used in the AEDT Framework.
 
 ## About PyAnsys
 
 `PyAEDT` is part of the larger [PyAnsys](https://docs.pyansys.com "PyAnsys") effort to facilitate the use of Ansys technologies directly from Python.
 
-`PyAEDT` is intended to consolidate and extend all existing functionalities around scripting for `Ansys Electronics Desktop (AEDT)` to allow reuse of existing code, sharing of best practices, and increased collaboration.
+PyAEDT is intended to consolidate and extend all existing
+functionalities around scripting for AEDT to allow reuse of existing code,
+sharing of best practices, and increased collaboration.
 
 ## About AEDT
 
-The `Ansys Electronics Desktop (AEDT)` is a platform that enables true electronics system design. [AEDT](https://www.ansys.com/products/electronics) provides access to the Ansys gold-standard electro-magnetics simulation solutions such as `Ansys HFSS`, `Ansys Maxwell`, `Ansys Q3D Extractor`, `Ansys Siwave`, and `Ansys Icepak` using `electrical CAD (ECAD)` and `Mechanical CAD (MCAD)` workflows.
-In addition, it includes direct links to the complete Ansys portfolio of thermal, fluid, and Mechanical solvers for comprehensive multiphysics analysis. Tight integration among these solutions provides unprecedented ease of use for setup and faster resolution of complex simulations for design and optimization.
+[AEDT](https://www.ansys.com/products/electronics) is a platform that enables true
+electronics system design. AEDT provides access to the Ansys gold-standard
+electro-magnetics simulation solutions, such as Ansys HFSS, Ansys Maxwell,
+Ansys Q3D Extractor, Ansys Siwave, and Ansys Icepak using electrical CAD (ECAD) and
+Mechanical CAD (MCAD) workflows.
+
+In addition, AEDT includes direct links to the complete Ansys portfolio of thermal, fluid,
+and mechanical solvers for comprehensive multiphysics analysis.
+Tight integration among these solutions provides unprecedented ease of use for setup and
+faster resolution of complex simulations for design and optimization.
 
 <p align="center">
   <img width="100%" src="https://images.ansys.com/is/image/ansys/ansys-electronics-technology-collage?wid=941&op_usm=0.9,1.0,20,0&fit=constrain,0" title="AEDT Applications" herf="https://www.ansys.com/products/electronics"
@@ -72,9 +87,17 @@ In addition, it includes direct links to the complete Ansys portfolio of thermal
 
 ## Documentation and issues
 
-In addition to installation and usage information, the `PyAEDT` documentation provides [API reference](https://aedt.docs.pyansys.com/release/0.6/API/index.html), [Examples](https://aedt.docs.pyansys.com/release/0.6/examples/index.html), and [Contribute](https://aedt.docs.pyansys.com/release/0.6/Contributing.html) sections.
+In addition to installation and usage information, the `PyAEDT` documentation provides [API reference](https://aedt.docs.pyansys.com/version/stable), [Examples](https://aedt.docs.pyansys.com/version/stable/examples/index.html), and [Contribute](https://aedt.docs.pyansys.com/version/stable/Contributing.html) sections.
 
-On the [PyAEDT Issues](https://github.com/pyansys/PyAEDT/issues) page, you can create issues to submit questions, report bugs, and request new features. To reach the project support team, email [pyansys.support@ansys.com](pyansys.support@ansys.com).
+In the upper right corner of the documentation's title bar, there is an option
+for switching from viewing the documentation for the latest stable release
+to viewing the documentation for the development version or previously
+released versions.
+
+On the [PyAEDT Issues](https://github.com/pyansys/PyAEDT/issues) page, you can
+create issues to submit questions, report bugs, and request new features.
+
+To reach the project support team, email `pyansys.core@ansys.com <pyansys.core@ansys.com>`_.
 
 ## Dependencies
 
@@ -197,10 +220,10 @@ On any Windows client machine:
 
 This module makes no commercial claim over Ansys whatsoever. `PyAEDT` extends the functionality of `AEDT` by adding an additional Python interface to `AEDT` without changing the core behavior or license of the original software. The use of the interactive control of `PyAEDT` requires a legally licensed local copy of `AEDT`. For more information about `AEDT`, visit the [AEDT page](https://www.ansys.com/products/electronics) on the `Ansys` website.
 
-<p align="right"> <a href="#readme-top">back to top</a> </p>
+<p style="text-align: right;"> <a href="#readme-top">back to top</a> </p>
 
 ## Indices and tables
 
--  [Index](https://aedt.docs.pyansys.com/release/0.6/genindex.html)
--  [Module Index](https://aedt.docs.pyansys.com/release/0.6/py-modindex.html)
--  [Search Page](https://aedt.docs.pyansys.com/release/0.6/search.html)
+-  [Index](https://aedt.docs.pyansys.com/version/stable/genindex.html)
+-  [Module Index](https://aedt.docs.pyansys.com/version/stable/py-modindex.html)
+-  [Search Page](https://aedt.docs.pyansys.com/version/stable/search.html)
