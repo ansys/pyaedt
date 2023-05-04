@@ -312,12 +312,18 @@ class TestClass(BasisTest, object):
             if "GND" not in self.aedtapp.modeler.pins[i].net_name
         ]
         ports_before = len(self.aedtapp.port_list)
-        assert self.aedtapp.create_ports_on_component_by_nets(
+        ports = self.aedtapp.create_ports_on_component_by_nets(
             "J1",
             nets,
         )
+        assert ports
         ports_after = len(self.aedtapp.port_list)
         assert ports_after - ports_before == len(nets)
+        ports[0].name = "port_test"
+        assert ports[0].name == "port_test"
+        assert ports[0].props["Port"] == "port_test"
+        ports[0].props["Port"] = "port_test2"
+        assert ports[0].name == "port_test2"
 
     def test_18_set_variable(self):
         self.aedtapp.variable_manager.set_variable("var_test", expression="123")

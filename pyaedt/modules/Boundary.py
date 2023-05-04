@@ -1603,8 +1603,12 @@ class BoundaryObject3dLayout(BoundaryCommon, object):
 
     @name.setter
     def name(self, value):
-        self._name = value
+        if "Port" in self.props:
+            self.auto_update = False
+            self.props["Port"] = value
+            self.auto_update = True
         self.update()
+        self._name = value
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):
@@ -1648,7 +1652,10 @@ class BoundaryObject3dLayout(BoundaryCommon, object):
         """
         updated = False
         for el in list(self.props.keys()):
-            if el in self._app.oeditor.GetProperties("EM Design", "Excitations:{}".format(self.name)) and self.props[
+            if el == "Port" and self._name != self.props[el]:
+                self._app.oeditor.SetPropertyValue("EM Design", "Excitations:" + self.name, el, self.props[el])
+                self._name = self.props[el]
+            elif el in self._app.oeditor.GetProperties("EM Design", "Excitations:{}".format(self.name)) and self.props[
                 el
             ] != self._app.oeditor.GetPropertyValue("EM Design", "Excitations:" + self.name, el):
                 self._app.oeditor.SetPropertyValue("EM Design", "Excitations:" + self.name, el, self.props[el])

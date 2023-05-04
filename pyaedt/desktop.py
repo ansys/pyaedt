@@ -530,7 +530,7 @@ class Desktop(object):
             if version_key < "2022.2":
                 settings.use_grpc_api = False
             elif (
-                version_key == "2022.2"
+                version_key.startswith("2022.2")
                 and not self.port
                 and not self.machine
                 and settings.use_grpc_api is None

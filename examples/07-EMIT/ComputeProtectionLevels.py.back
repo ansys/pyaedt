@@ -270,8 +270,8 @@ for tx_radio in tx_radios:
                 domain.set_interferer(tx_radio, tx_band, tx_freq)
                 #interaction = rev.run(domain)
                 instance = interaction.get_instance(domain)
-                if instance.get_value(modePower) > max_power:
-                    max_power = instance.get_value(modePower)
+                if instance.get_value(mode_power) > max_power:
+                    max_power = instance.get_value(mode_power)
                     
         # If the worst case for the band-pair is below the power thresholds, then
         # there are no interference issues and no offset is required.
