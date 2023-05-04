@@ -276,7 +276,7 @@ class SimulationConfigurationBatch(object):
         Returns
         -------
         bool
-            'True' when applied 'False' if not.
+            ``True`` when applied ``False`` if not.
         """
         return self._generate_solder_balls
 
@@ -357,7 +357,7 @@ class SimulationConfigurationBatch(object):
         Returns
         -------
         bool
-            'True' when the default value is used 'False' if not.
+            ``True`` when the default value is used ``False`` if not.
         """
         return self._use_default_coax_port_radial_extension
 
@@ -389,7 +389,7 @@ class SimulationConfigurationBatch(object):
         Returns
         -------
             bool
-            'True' when clipping the design is applied 'False' is not.
+            ``True`` when clipping the design is applied ``False`` is not.
         """
         return self._do_cutout_subdesign
 
@@ -419,7 +419,7 @@ class SimulationConfigurationBatch(object):
 
         Returns
         -------
-            float
+        float
             The value used as a ratio.
         """
 
@@ -435,8 +435,8 @@ class SimulationConfigurationBatch(object):
 
         Returns
         -------
-            bool
-            'True' when using round corner, 'False' if not.
+        bool
+            ``True`` when using round corner, ``False`` if not.
         """
 
         return self._cutout_subdesign_round_corner
@@ -455,7 +455,7 @@ class SimulationConfigurationBatch(object):
 
         Returns
         -------
-            str
+        str
             Absolute path for the created aedb folder.
         """
         return self._output_aedb
@@ -489,10 +489,7 @@ class SimulationConfigurationBatch(object):
 
         Parameters
         ----------
-        source :  :class:`pyaedt.edb_core.edb_data.sources.Source`
-
-        Returns
-        -------
+        source : :class:`pyaedt.edb_core.edb_data.sources.Source`
 
         """
         if isinstance(source, Source):
@@ -504,8 +501,8 @@ class SimulationConfigurationBatch(object):
 
         Returns
         -------
-            bool
-            "'True'" activated, "'False'" deactivated.
+        bool
+            ``True`` activated, ``False`` deactivated.
         """
         return self._honor_user_dielectric
 
@@ -520,8 +517,8 @@ class SimulationConfigurationBatch(object):
 
         Returns
         -------
-            bool
-            "'True'" activated, "'False'" deactivated.
+        bool
+            ``True`` activated, ``False`` deactivated.
         """
         return self._truncate_airbox_at_ground
 
@@ -536,8 +533,8 @@ class SimulationConfigurationBatch(object):
 
         Returns
         -------
-            bool
-            "'True'" activated, "'False'" deactivated.
+        bool
+            ``True`` activated, ``False`` deactivated.
         """
         return self._use_radiation_boundary
 
@@ -552,7 +549,7 @@ class SimulationConfigurationBatch(object):
 
         Returns
         -------
-            list[str]
+        list[str]
             List of layer name.
         """
         return self._signal_layers_properties
@@ -607,7 +604,7 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            float
+        float
             The value of the minimum plane area.
         """
         return self._dc_min_plane_area_to_mesh
@@ -623,8 +620,8 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            bool
-            'True' activate 'False' deactivated.
+        bool
+            ``True`` activate ``False`` deactivated.
         """
         return self._dc_compute_inductance
 
@@ -639,7 +636,7 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            str
+        str
             The contact radius value.
 
         """
@@ -661,7 +658,7 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            int
+        int
             The position value, 0 Optimum speed, 1 balanced, 2 optimum accuracy.
         """
         return self._dc_slide_position
@@ -677,8 +674,8 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            bool
-            'True' when activated, 'False' deactivated.
+        bool
+            ``True`` when activated, ``False`` deactivated.
 
         """
         return self._dc_use_dc_custom_settings
@@ -694,8 +691,8 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            bool
-            'True' when activated, 'False' deactivated. Default value True
+        bool
+            ``True`` when activated, ``False`` deactivated. Default value True
 
         """
         return self._dc_plot_jv
@@ -711,7 +708,7 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            str
+        str
             The area value.
 
         """
@@ -728,7 +725,7 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            float
+        float
             The error energy value, 0.2 as default.
 
         """
@@ -745,7 +742,7 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            str
+        str
             maximum mesh length.
 
         """
@@ -762,7 +759,7 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            int
+        int
             number of passes.
         """
         return self._dc_max_num_pass
@@ -778,7 +775,7 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            nt
+        int
             number of passes.
         """
         return self._dc_min_num_pass
@@ -794,8 +791,8 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            bool
-            'True' when activated, 'False' deactivated.
+        bool
+            ``True`` when activated, ``False`` deactivated.
 
         """
         return self._dc_mesh_bondwires
@@ -811,7 +808,7 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            int
+        int
             Number of sides.
 
         """
@@ -828,8 +825,8 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            bool
-            'True' when activated, 'False' deactivated.
+        bool
+            ``True`` when activated, ``False`` deactivated.
 
         """
         return self._dc_mesh_vias
@@ -845,7 +842,7 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            int
+        int
             Number of sides.
 
         """
@@ -862,7 +859,7 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            float
+        float
             The refinement value, 0.2 (20%) as default.
 
         """
@@ -879,8 +876,8 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            bool
-            'True' when activated, 'False' deactivated.
+        bool
+            ``True`` when activated, ``False`` deactivated.
 
         """
         return self._dc_perform_adaptive_refinement
@@ -896,8 +893,8 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            bool
-            'True' when activated, 'False' deactivated.
+        bool
+            ``True`` when activated, ``False`` deactivated.
 
         """
         return self._dc_refine_bondwires
@@ -913,8 +910,8 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            bool
-            'True' when activated, 'False' deactivated.
+        bool
+            ``True`` when activated, ``False`` deactivated.
 
         """
         return self._dc_refine_vias
@@ -930,7 +927,7 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            str
+        str
             The file path.
 
         """
@@ -947,8 +944,8 @@ class SimulationConfigurationDc(object):
 
         Returns
         -------
-            bool
-            'True' when activated, 'False' deactivated.
+        bool
+            ``True`` when activated, ``False`` deactivated.
 
         """
         return self._dc_report_show_Active_devices
@@ -965,7 +962,7 @@ class SimulationConfigurationDc(object):
         Returns
         -------
             bool
-            'True' when activated, 'False' deactivated.
+            ``True`` when activated, ``False`` deactivated.
 
         """
         return self._dc_export_thermal_data
@@ -1015,7 +1012,7 @@ class SimulationConfigurationDc(object):
         Returns
         -------
             bool
-            'True' when activated,'False' deactivated.
+            ``True`` when activated,``False`` deactivated.
 
         """
         return self._dc_import_thermal_data
@@ -1168,7 +1165,7 @@ class SimulationConfigurationAc(object):
         Returns
         -------
             bool
-            'True' when a sweep interpolating is defined, 'False' when a discrete one is defined instead.
+            ``True`` when a sweep interpolating is defined, ``False`` when a discrete one is defined instead.
         """
 
         return self._sweep_interpolating
@@ -1185,7 +1182,7 @@ class SimulationConfigurationAc(object):
         Returns
         -------
             bool
-            'True' when Q3D solver is used 'False' when interpolating value is used instead.
+            ``True`` when Q3D solver is used ``False`` when interpolating value is used instead.
         """
 
         return self._use_q3d_for_dc
@@ -1236,7 +1233,7 @@ class SimulationConfigurationAc(object):
         Returns
         -------
             bool
-            'True' when clipping the design is applied 'False' if not.
+            ``True`` when clipping the design is applied ``False`` if not.
         """
 
         return self._percentage_error_z0
@@ -1253,7 +1250,7 @@ class SimulationConfigurationAc(object):
         Returns
         -------
             bool
-            'True' when causality is enforced 'False' if not.
+            ``True`` when causality is enforced ``False`` if not.
         """
 
         return self._enforce_causality
@@ -1270,7 +1267,7 @@ class SimulationConfigurationAc(object):
         Returns
         -------
             bool
-            'True' when passivity is enforced 'False' if not.
+            ``True`` when passivity is enforced ``False`` if not.
         """
         return self._enforce_passivity
 
@@ -1494,7 +1491,7 @@ class SimulationConfigurationAc(object):
         Returns
         -------
             bool
-            'True' Enable the lambda meshing refinement with HFSS, 'False' deactivate.
+            ``True`` Enable the lambda meshing refinement with HFSS, ``False`` deactivate.
         """
         return self._do_lambda_refinement
 
@@ -1558,7 +1555,7 @@ class SimulationConfigurationAc(object):
         Returns
         -------
             bool
-            Activate when 'True', deactivated when 'False'.
+            Activate when ``True``, deactivated when ``False``.
         """
         return self._use_arc_to_chord_error
 
@@ -1608,7 +1605,7 @@ class SimulationConfigurationAc(object):
         Returns
         -------
             bool
-            'True' when activated 'False when deactivated.
+            ``True`` when activated 'False when deactivated.
         """
         return self._defeature_layout
 
@@ -1705,7 +1702,7 @@ class SimulationConfigurationAc(object):
         Returns
         -------
             bool
-            'True' activated 'False' deactivated.
+            ``True`` activated ``False`` deactivated.
         """
         return self._include_inter_plane_coupling
 
@@ -1771,7 +1768,7 @@ class SimulationConfigurationAc(object):
         Returns
         -------
             bool
-            'True' activate 'False' deactivated.
+            ``True`` activate ``False`` deactivated.
         """
         return self._snap_length_threshold
 

@@ -368,7 +368,8 @@ class Polyline(Object3d):
         It will be called only once after opening a new project, then the internal
         variables are maintained updated.
         It is a single update call for both properties because they are very similar,
-        and we can access to the history only once."""
+        and we can access to the history only once.
+        """
 
         def _convert_points(p_in, dest_unit):
             p_out = []
@@ -441,7 +442,6 @@ class Polyline(Object3d):
     @property
     def points(self):
         """Polyline Points."""
-
         if self._positions:
             return self._positions
         else:
@@ -534,8 +534,8 @@ class Polyline(Object3d):
                         break
                 else:
                     current_segment = segment_types[vertex_count]
-            except IndexError:
-                raise ("Number of segments inconsistent with the number of points!")
+            except Exception as e:
+                raise IndexError("Number of segments inconsistent with the number of points!")
 
             if current_segment:
                 seg_str = self._segment_array(
@@ -573,13 +573,13 @@ class Polyline(Object3d):
 
     @pyaedt_function_handler()
     def _evaluate_arc_angle_extra_points(self, segment, start_point):
-        """Evaluates the extra points for the ArcAngle segment type.
+        """Evaluate the extra points for the ArcAngle segment type.
         It also auto evaluates the arc_plane if it was not specified by the user.
         segment.extra_points[0] contains the arc mid point (on the arc).
         segment.extra_points[1] contains the arc end point.
         Both are function of the arc center, arc angle and arc plane.
         """
-        # from start-point and angle, calculate the mid- and end-points
+        # from start-point and angle, calculate the mid-point and end-points
         # Also identify the plane of the arc ("YZ", "ZX", "XY")
         plane_axes = {"YZ": [1, 2], "ZX": [2, 0], "XY": [0, 1]}
         c_xyz = self._primitives.value_in_object_units(segment.arc_center)
@@ -597,7 +597,7 @@ class Polyline(Object3d):
             elif c_xyz[2] == p0_xyz[2]:
                 plane_def = ("XY", plane_axes["XY"])
             else:
-                raise ("Start point and arc-center do not lie on a common base plane.")
+                raise Exception("Start point and arc-center do not lie on a common base plane.")
             segment.arc_plane = plane_def[0]
 
         # Calculate the extra two points of the angular arc in the alpha-beta plane
@@ -632,22 +632,22 @@ class Polyline(Object3d):
         """Retrieve a property array for a polyline segment for use in the
         :class:`pyaedt.modeler.Primitives.Polyline` constructor.
 
-         Parameters
-         ----------
-         segment_data : :class:`pyaedt.modeler.Primitives.PolylineSegment` or str
-             Pointer to the calling object that provides additional functionality
-             or a string with the segment type ``Line`` or ``Arc``.
-         start_index : int, string
-             Starting vertex index of the segment within a compound polyline. The
-             default is ``0``.
-         start_point : list, optional
-             Position of the first point for type ``AngularArc``. The default is
-             ``None``. Float values are considered in model units.
+        Parameters
+        ----------
+        segment_data : :class:`pyaedt.modeler.Primitives.PolylineSegment` or str
+            Pointer to the calling object that provides additional functionality
+            or a string with the segment type ``Line`` or ``Arc``.
+        start_index : int, string
+            Starting vertex index of the segment within a compound polyline. The
+            default is ``0``.
+        start_point : list, optional
+            Position of the first point for type ``AngularArc``. The default is
+            ``None``. Float values are considered in model units.
 
-         Returns
-         ------
-         list
-             List of properties defining a polyline segment.
+        Returns
+        -------
+        list
+            List of properties defining a polyline segment.
 
         """
         if isinstance(segment_data, str):
@@ -1033,7 +1033,7 @@ class Polyline(Object3d):
         Returns
         -------
         int, bool
-            segment id when successful. ``False`` when failed.
+            Segment id when successful. ``False`` when failed.
         """
         n_points = 0
         for i, s in enumerate(self.segment_types):
@@ -1068,7 +1068,7 @@ class Polyline(Object3d):
             Definition of the segment to insert. For the types ``"Line"`` and ``"Arc"``,
             use their string values ``"Line"`` and ``"Arc"``. For the types ``"AngularArc"``
             and ``"Spline"``, use the :class:`pyaedt.modeler.Primitives.PolylineSegment`
-            object to define the segment precisely.
+            object to define the segment precisely. The default is ``None``.
 
         Returns
         -------
@@ -1081,7 +1081,6 @@ class Polyline(Object3d):
         >>> oEditor.InsertPolylineSegment
 
         """
-
         # Check for a valid number of points
         num_points = len(position_list)
 

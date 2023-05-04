@@ -1016,13 +1016,7 @@ class EDBPadstackInstance(object):
         """
         if simple_check:
             pos = [i for i in self.position]
-            int_val = (
-                1
-                if polygon_data.PointInPolygon(
-                    self._pedb.edb.Geometry.PointData(self._pedb.edb_value(pos[0]), self._pedb.edb_value(pos[1]))
-                )
-                else 0
-            )
+            int_val = 1 if polygon_data.PointInPolygon(self._pedb.point_data(*pos)) else 0
         else:
             plane = self._pedb.modeler.Shape("rectangle", pointA=self.bounding_box[0], pointB=self.bounding_box[1])
             rectangle_data = self._pedb.modeler.shape_to_polygon_data(plane)
@@ -1507,14 +1501,15 @@ class EDBPadstackInstance(object):
 
     @pyaedt_function_handler()
     def create_rectangle_in_pad(self, layer_name, return_points=False, partition_max_order=16):
-        """Create a rectangle inscribed inside a padstack instance pad. The rectangle is fully inscribed in the
-        pad and has the maximum area. It is necessary to specify the layer on which the rectangle will be created.
+        """Create a rectangle inscribed inside a padstack instance pad.
+
+        The rectangle is fully inscribed in the pad and has the maximum area.
+        It is necessary to specify the layer on which the rectangle will be created.
 
         Parameters
         ----------
         layer_name : str
             Name of the layer on which to create the polygon.
-
         return_points : bool, optional
             If `True` does not create the rectangle and just returns a list containing the rectangle vertices.
             Default is `False`.

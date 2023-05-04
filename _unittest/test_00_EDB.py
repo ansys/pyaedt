@@ -6,6 +6,7 @@ import sys
 
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
+from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.sources import Source
 from pyaedt.generic.constants import RadiationBoxType
@@ -764,7 +765,8 @@ class TestClass(BasisTest, object):
             [-0.001, -0.001],
             [0.001, -0.001, "ccw", 0.0, -0.0012],
             [0.001, 0.001],
-            [-0.001, 0.001],
+            [0.0015, 0.0015, 0.0001],
+            [-0.001, 0.0015],
             [-0.001, -0.001],
         ]
         void1 = self.edbapp.modeler.Shape("polygon", points=points)
@@ -2357,3 +2359,52 @@ class TestClass(BasisTest, object):
         edb.stackup.add_layer(layer_name="sig3", fillMaterial="AIR", thickness="10um", base_layer="diel2")
         assert edb.stackup.thickness == 0.00043
         assert edb.stackup.num_layers == 5
+
+    def test_134_hfss_extent_info(self):
+        from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives as EDBPrimitives
+
+        config = {
+            "air_box_horizontal_extent_enabled": False,
+            "air_box_horizontal_extent": 0.01,
+            "air_box_positive_vertical_extent": 0.3,
+            "air_box_positive_vertical_extent_enabled": False,
+            "air_box_negative_vertical_extent": 0.1,
+            "air_box_negative_vertical_extent_enabled": False,
+            "base_polygon": self.edbapp.modeler.polygons[0],
+            "dielectric_base_polygon": self.edbapp.modeler.polygons[1],
+            "dielectric_extent_size": 0.1,
+            "dielectric_extent_size_enabled": False,
+            "dielectric_extent_type": "Conforming",
+            "extent_type": "Conforming",
+            "honor_user_dielectric": False,
+            "is_pml_visible": False,
+            "open_region_type": "PML",
+            "operating_freq": "2GHz",
+            "radiation_level": 1,
+            "sync_air_box_vertical_extent": False,
+            "use_open_region": False,
+            "use_xy_data_extent_for_vertical_expansion": False,
+            "truncate_air_box_at_ground": True,
+        }
+        hfss_extent_info = self.edbapp.hfss.hfss_extent_info
+        hfss_extent_info.load_config(config)
+        exported_config = hfss_extent_info.export_config()
+        for i, j in exported_config.items():
+            if not i in config:
+                continue
+            if isinstance(j, EDBPrimitives):
+                assert j.id == config[i].id
+            elif isinstance(j, EdbValue):
+                assert j.tofloat == hfss_extent_info._get_edb_value(config[i]).ToDouble()
+            else:
+                assert j == config[i]
+
+    def test_134_create_port_on_pin(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_0134.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, edbversion=desktop_version)
+        pin = "AJ6"
+        ref_pins = [pin for pin in list(edbapp.components["U2A5"].pins.values()) if pin.net_name == "GND"]
+        term = edbapp.components.create_port_on_pins(refdes="U2A5", pins=pin, reference_pins=ref_pins)
+        assert term

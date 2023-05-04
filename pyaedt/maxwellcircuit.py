@@ -10,13 +10,13 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class MaxwellCircuit(AnalysisMaxwellCircuit, object):
-    """Provides the Maxwell Circuit application interface.
+    """Provide the Maxwell Circuit application interface.
 
     Parameters
     ----------
     projectname : str, optional
         Name of the project to select or the full path to the project
-        or AEDTZ archive to open.  The default is ``None``, in which
+        or AEDTZ archive to open. The default is ``None``, in which
         case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
     designname : str, optional
@@ -34,7 +34,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine.  The default is ``True``.
+        machine. The default is ``True``.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
@@ -179,8 +179,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
 
     @pyaedt_function_handler
     def export_netlist_from_schematic(self, file_to_export):
-        """
-        Create netlist from schematic circuit.
+        """Create netlist from schematic circuit.
 
         Parameters
         ----------

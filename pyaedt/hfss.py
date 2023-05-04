@@ -5962,7 +5962,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        signal : str, int, list or :class:`pyaedt.modeler.object3d.Object3d` or
+        signal : str, int, list, :class:`pyaedt.modeler.object3d.Object3d` or
          :class:`pyaedt.modeler.elements3d.FacePrimitive`
             Main object for port creation or starting object for the integration line.
         reference : int, list or :class:`pyaedt.modeler.object3d.Object3d`

@@ -1648,12 +1648,12 @@ class Setup3DLayout(CommonSetup):
         ----------
         file_path : str
             File path of the json file.
-        overwrite : bool
+        overwrite : bool, optional
             Whether to overwrite the file if it already exists.
         """
         if os.path.isdir(file_path):  # pragma no cover
             if not overwrite:  # pragma no cover
-                raise logging.error("File {} already exists. Configure file is not exported".format(file_path))
+                logging.error("File {} already exists. Configure file is not exported".format(file_path))
         return self.props._export_properties_to_json(file_path)
 
 
@@ -3076,6 +3076,24 @@ class SetupQ3D(Setup, object):
         if value or (self._ac_rl_enbled or self._capacitance_enabled):
             self._dc_enabled = value
             self.update()
+
+    @property
+    def dc_resistance_only(self):
+        """Get/Set the DC Resistance Only or Resistance/Inductance calculatio in active Q3D setup.
+
+        Returns
+        -------
+        bool
+        """
+        try:
+            return self.props["DC"]["SolveResOnly"]
+        except KeyError:
+            return False
+
+    @dc_resistance_only.setter
+    def dc_resistance_only(self, value):
+        if self.dc_enabled:
+            self.props["DC"]["SolveResOnly"] = value
 
     @pyaedt_function_handler()
     def update(self, update_dictionary=None):

@@ -889,9 +889,9 @@ class TestClass(BasisTest, object):
         assert not self.cyl_gap.modeler.objects_segmentation(
             object_name, segments_number=segments_number, segmentation_thickness=segmentation_thickness
         )
-        object_name = "PM_O1"
+        object_name = "PM_O1_1"
         segments_number = 10
-        sheets = self.cyl_gap.modeler.objects_segmentation(magnet, segments_number=segments_number)
+        sheets = self.cyl_gap.modeler.objects_segmentation(object_name, segments_number=segments_number)
         assert isinstance(sheets, dict)
         assert isinstance(sheets[object_name], list)
         assert len(sheets[object_name]) == segments_number - 1

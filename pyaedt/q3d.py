@@ -2104,8 +2104,7 @@ class Q2d(QExtractor, object):
 
     @pyaedt_function_handler()
     def create_rectangle(self, position, dimension_list, name="", matname=""):
-        """
-        Create a rectangle.
+        """Create a rectangle.
 
         Parameters
         ----------
