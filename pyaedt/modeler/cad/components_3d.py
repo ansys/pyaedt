@@ -102,6 +102,8 @@ class UserDefinedComponent(object):
         self._group_name = None
         self._is3dcomponent = None
         self._mesh_assembly = None
+        self._show_layout = None
+        self._fast_transformation = None
         if name:
             self._m_name = name
         else:
@@ -123,7 +125,7 @@ class UserDefinedComponent(object):
                 OrderedDict(
                     {
                         "TargetCS": self._target_coordinate_system,
-                        "SubmodelDefinitionName": component,
+                        "SubmodelDefinitionName": self.definition_name,
                         "ComponentPriorityLists": OrderedDict({}),
                         "NextUniqueID": 0,
                         "MoveBackwards": False,
@@ -131,7 +133,7 @@ class UserDefinedComponent(object):
                         "DatasetDefinitions": OrderedDict({}),
                         "BasicComponentInfo": OrderedDict(
                             {
-                                "ComponentName": component,
+                                "ComponentName": self.definition_name,
                                 "Company": "",
                                 "Company URL": "",
                                 "Model Number": "",
@@ -301,6 +303,66 @@ class UserDefinedComponent(object):
             self._mesh_assembly = ma
 
     @property
+    def show_layout(self):
+        """Show layout flag.
+
+        Returns
+        -------
+        bool
+           ``True`` if show layout is checked and if the component is a Layout Component,
+           ``None`` if other cases.
+
+        """
+        key = "Show Layout"
+        if self.is3dcomponent and key in self._primitives.oeditor.GetChildObject(self.name).GetPropNames():
+            show_layout = self._primitives.oeditor.GetChildObject(self.name).GetPropValue(key)
+            self._show_layout = show_layout
+            return show_layout
+        else:
+            return None
+
+    @show_layout.setter
+    def show_layout(self, show_layout):
+        key = "Show Layout"
+        if (
+            self.is3dcomponent
+            and isinstance(show_layout, bool)
+            and key in self._primitives.oeditor.GetChildObject(self.name).GetPropNames()
+        ):
+            self._primitives.oeditor.GetChildObject(self.name).SetPropValue(key, show_layout)
+            self._show_layout = show_layout
+
+    @property
+    def fast_transformation(self):
+        """Show layout flag.
+
+        Returns
+        -------
+        bool
+           ``True`` if fast transformation is checked and if the component is a Layout Component,
+           ``None`` if other cases.
+
+        """
+        key = "Fast Transformation"
+        if self.is3dcomponent and key in self._primitives.oeditor.GetChildObject(self.name).GetPropNames():
+            fast_transformation = self._primitives.oeditor.GetChildObject(self.name).GetPropValue(key)
+            self._fast_transformation = fast_transformation
+            return fast_transformation
+        else:
+            return None
+
+    @fast_transformation.setter
+    def fast_transformation(self, fast_transformation):
+        key = "Fast Transformation"
+        if (
+            self.is3dcomponent
+            and isinstance(fast_transformation, bool)
+            and key in self._primitives.oeditor.GetChildObject(self.name).GetPropNames()
+        ):
+            self._primitives.oeditor.GetChildObject(self.name).SetPropValue(key, fast_transformation)
+            self._fast_transformation = fast_transformation
+
+    @property
     def name(self):
         """Name of the object.
 
@@ -378,7 +440,8 @@ class UserDefinedComponent(object):
            :class:`pyaedt.modeler.Object3d`
 
         """
-        component_parts = list(self._primitives.oeditor.GetChildObject(self.name).GetChildNames())
+        component_parts = list(self._primitives.oeditor.Get3DComponentPartNames(self.name))
+
         parts_id = [
             self._primitives._object_names_to_ids[part]
             for part in self._primitives._object_names_to_ids
