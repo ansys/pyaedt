@@ -767,7 +767,7 @@ class Components(object):
         >>> edb.close_edb()
         """
 
-        if isinstance(pins, str):
+        if isinstance(pins, str) or isinstance(pins, EDBPadstackInstance):
             pins = [pins]
         if isinstance(reference_pins, str):
             reference_pins = [reference_pins]
