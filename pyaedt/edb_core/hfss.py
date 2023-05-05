@@ -1057,9 +1057,9 @@ class EdbHfss(object):
         """
         if not isinstance(nets, list):
             if isinstance(nets, str):
-                nets = list(self._pedb.nets.signal_nets.values())
+                nets = list(self._pedb.nets.signal.values())
         else:
-            nets = [self._pedb.nets.signal_nets[net] for net in nets]
+            nets = [self._pedb.nets.signal[net] for net in nets]
         if nets:
             if isinstance(reference_net, str):
                 reference_net = self._pedb.nets[reference_net]
@@ -1129,6 +1129,7 @@ class EdbHfss(object):
                                 self._logger.info(f"Terminal {term.GetName()} created")
                                 ind = +1
                             term.SetIsCircuitPort(True)
+                            terminal_info.append([net.GetName(), mid_point[0], mid_point[1], term.GetName()])
                             mid_pt_data = self._edb.Geometry.PointData(
                                 self._edb.Utility.Value(mid_point[0]), self._edb.Utility.Value(mid_point[1])
                             )
@@ -1143,7 +1144,7 @@ class EdbHfss(object):
                                 reference_layer = ref_prim[0].layer
                                 if term.SetReferenceLayer(reference_layer):  # pragma no cover
                                     self._logger.info(f"Port {port_name} created")
-                                    terminal_info.append([net.GetName(), mid_point[0], mid_point[1], term])
+
             return terminal_info
         return False
 
