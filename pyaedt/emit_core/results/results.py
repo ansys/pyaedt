@@ -38,27 +38,23 @@ class Results:
 
     @pyaedt_function_handler()
     def _add_revision(self, name=None):
-        """Add a new revision.
+        """Add a new revision or get the current revision if it already exists.
 
         Parameters
         ----------
         name : str, optional
-            Name for the new revision. If None, it will
-            be named the current design revision.
+            Name for the new revision, if created. The default is ``None``, in which
+            case the name of the current design revision is used.
+
+        Raises
+        ------
+        RuntimeError if the name given is not the name of an existing result set and a current result set already
+        exists.
 
         Returns
         -------
         ``Revision`` object that was created.
         """
-        if name == None:
-            # check for a Current Revision that just hasn't been
-            # loaded by pyaedt
-            if self.design.GetCurrentResult() == "":
-                self.design.AddResult()
-                rev_num = self.design.GetRevision()
-                name = "Revision {}".format(rev_num)
-            else:
-                name = self.design.GetCurrentResult()
         revision = Revision(self, self.emit_project, name)
         self.revisions.append(revision)
         return revision

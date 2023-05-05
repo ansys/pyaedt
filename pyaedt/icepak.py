@@ -1848,7 +1848,6 @@ class Icepak(FieldAnalysis3D):
             List containing the requested link data.
 
         """
-
         if "linkData" in kwargs:
             warnings.warn(
                 "The ``linkData`` parameter was deprecated in 0.6.43. Use the ``links_data`` parameter instead.",
@@ -2077,7 +2076,6 @@ class Icepak(FieldAnalysis3D):
 
         >>> oModule.InsertNativeComponent
         """
-
         if "extenttype" in kwargs:
             warnings.warn(
                 "The ``extenttype`` parameter was deprecated in 0.6.43. Use the ``extent_type`` parameter instead.",
@@ -2184,16 +2182,16 @@ class Icepak(FieldAnalysis3D):
             Name of the design.
         resolution : int, optional
             Resolution of the mapping. The default is ``2``.
-        extent_type :
+        extent_type : str, optional
             Type of the extent. Options are ``"Polygon"`` and ``"Bounding Box"``. The default
             is ``"Bounding Box"``.
         outline_polygon : str, optional
             Name of the outline polygon if ``extent_type="Polygon"``. The default is ``""``.
         close_linked_project_after_import : bool, optional
             Whether to close the linked AEDT project after the import. The default is ``True``.
-        custom_x_resolution :
+        custom_x_resolution : int, optional
             The default is ``None``.
-        custom_y_resolution :
+        custom_y_resolution : int, optional
             The default is ``None``.
         power_in : float, optional
             Power in in Watt.
@@ -2208,7 +2206,6 @@ class Icepak(FieldAnalysis3D):
 
         >>> oModule.InsertNativeComponent
         """
-
         if "extenttype" in kwargs:
             warnings.warn(
                 "``extenttype`` was deprecated in 0.6.43. Use ``extent_type`` instead.",
@@ -2270,7 +2267,6 @@ class Icepak(FieldAnalysis3D):
         >>> oEditor.Copy
         >>> oeditor.Paste
         """
-
         if "groupName" in kwargs:
             warnings.warn(
                 "The ``groupName`` parameter was deprecated in 0.6.43. Use the ``group_name`` parameter instead.",
@@ -2360,7 +2356,6 @@ class Icepak(FieldAnalysis3D):
 
         >>> oModule.EditGlobalMeshRegion
         """
-
         bounding_box = self.modeler.oeditor.GetModelBoundingBox()
         xsize = abs(float(bounding_box[0]) - float(bounding_box[3])) / (15 * meshtype * meshtype)
         ysize = abs(float(bounding_box[1]) - float(bounding_box[4])) / (15 * meshtype * meshtype)
@@ -2688,9 +2683,9 @@ class Icepak(FieldAnalysis3D):
             If ``False``, full validation is performed.
         default_fluid : str, optional
             Type of fluid. The default is ``"Air"``.
-        default_solid :
+        default_solid : str, optional
             Type of solid. The default is ``"Al-Extruded"``.
-        default_surface :
+        default_surface : str, optional
             Type of surface. The default is ``"Steel-oxidised-surface"``.
 
         Returns
@@ -2703,7 +2698,6 @@ class Icepak(FieldAnalysis3D):
 
         >>> oDesign.SetDesignSettings
         """
-
         ambient_temperature = self.modeler._arg_with_dim(ambienttemp, "cel")
 
         axes = ["X", "Y", "Z"]

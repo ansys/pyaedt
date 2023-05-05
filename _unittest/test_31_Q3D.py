@@ -53,6 +53,11 @@ class TestClass(BasisTest, object):
         mysetup = self.aedtapp.create_setup()
         mysetup.props["SaveFields"] = True
         assert mysetup.update()
+        assert mysetup.dc_enabled
+        mysetup.dc_resistance_only = True
+        assert mysetup.dc_resistance_only
+        mysetup.dc_enabled = False
+        mysetup.dc_enabled = True
         sweep = self.aedtapp.create_discrete_sweep(mysetup.name, sweepname="mysweep", freqstart=1, units="GHz")
         assert sweep
         assert sweep.props["RangeStart"] == "1GHz"
