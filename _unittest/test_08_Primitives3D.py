@@ -1755,6 +1755,7 @@ class TestClass(BasisTest, object):
         assert comp2.show_layout
         comp2.show_layout = False
         assert not comp2.show_layout
+        comp2.show_layout = True
         assert comp2.fast_transformation
         comp2.fast_transformation = False
         assert not comp2.fast_transformation

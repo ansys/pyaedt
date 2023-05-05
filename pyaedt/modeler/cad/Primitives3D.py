@@ -1431,7 +1431,7 @@ class Primitives3D(Primitives, object):
     def insert_layout_component(
         self,
         comp_file,
-        targetCS="Global",
+        coordinate_system="Global",
         name=None,
         parameter_mapping=False,
     ):
@@ -1441,7 +1441,7 @@ class Primitives3D(Primitives, object):
         ----------
         comp_file : str
             Path of the component file. Either ``".aedb"`` and ``".aedbcomp"`` are allowed.
-        targetCS : str, optional
+        coordinate_system : str, optional
             Target coordinate system. The default is ``"Global"``.
         name : str, optional
             3D component name. The default is ``None``.
@@ -1530,7 +1530,7 @@ class Primitives3D(Primitives, object):
 
         vArg1 = ["NAME:InsertNativeComponentData"]
         vArg1.append("TargetCS:=")
-        vArg1.append(targetCS)
+        vArg1.append(coordinate_system)
         vArg1.append("SubmodelDefinitionName:=")
         vArg1.append("LC")
         varg2 = ["NAME:ComponentPriorityLists"]
