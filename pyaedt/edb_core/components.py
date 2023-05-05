@@ -731,6 +731,86 @@ class Components(object):
         return True
 
     @pyaedt_function_handler()
+    def create_port_on_pins(self, refdes, pins, reference_pins, impedance=50.0):
+        """Create circuit port between pins and reference ones.
+
+        Parameters
+        ----------
+        refdes : Component reference designator
+            str or EDBComponent object.
+        pins : pin name where the terminal has to be created. Single pin or several ones can be provided.If several
+        pins are provided a pin group will is created. Pin names can be the EDB name or the EDBPadstackInstance one.
+        For instance the pin called ``Pin1`` located on component ``U1``, ``U1-Pin1`` or ``Pin1`` can be provided and
+        will be handled.
+            str, [str], EDBPadstackInstance, [EDBPadstackInstance]
+        reference_pins : reference pin name used for terminal reference. Single pin or several ones can be provided.
+        If several pins are provided a pin group will is created. Pin names can be the EDB name or the
+        EDBPadstackInstance one. For instance the pin called ``Pin1`` located on component ``U1``, ``U1-Pin1``
+        or ``Pin1`` can be provided and will be handled.
+            str, [str], EDBPadstackInstance, [EDBPadstackInstance]
+        impedance : Port impedance
+            str, float
+
+        Returns
+        -------
+        EDB terminal created, or False if failed to create.
+
+        Example:
+        >>> from pyaedt import Edb
+        >>> edb = Edb(path_to_edb_file)
+        >>> pin = "AJ6"
+        >>> ref_pins = ["AM7", "AM4"]
+        Or to take all reference pins
+        >>> ref_pins = [pin for pin in list(edb.components["U2A5"].pins.values()) if pin.net_name == "GND"]
+        >>> edb.components.create_port_on_pins(refdes="U2A5", pins=pin, reference_pins=ref_pins)
+        >>> edb.save_edb()
+        >>> edb.close_edb()
+        """
+
+        if isinstance(pins, str) or isinstance(pins, EDBPadstackInstance):
+            pins = [pins]
+        if isinstance(reference_pins, str):
+            reference_pins = [reference_pins]
+        if isinstance(refdes, str) or isinstance(refdes, EDBComponent):
+            refdes = self.instances[refdes]
+        if len([pin for pin in pins if isinstance(pin, str)]) == len(pins):
+            cmp_pins = []
+            for pin_name in pins:
+                cmp_pin = [pin for pin in list(refdes.pins.values()) if pin_name in pin.name]
+                if cmp_pin:
+                    cmp_pins.append(cmp_pin[0])
+            if not cmp_pins:
+                return
+            pins = cmp_pins
+        if not len([pin for pin in pins if isinstance(pin, EDBPadstackInstance)]) == len(pins):
+            self._logger.error("Pin list must contain only pins instances")
+            return
+        if len([pin for pin in reference_pins if isinstance(pin, str)]) == len(reference_pins):
+            ref_cmp_pins = []
+            for ref_pin_name in reference_pins:
+                cmp_ref_pin = [pin for pin in list(refdes.pins.values()) if ref_pin_name in pin.name]
+                if cmp_ref_pin:
+                    ref_cmp_pins.append(cmp_ref_pin[0])
+            if not ref_cmp_pins:
+                return
+            reference_pins = ref_cmp_pins
+        if not len([pin for pin in reference_pins if isinstance(pin, EDBPadstackInstance)]) == len(reference_pins):
+            return
+        group_name = "group_{}_{}".format(pins[0].net_name, pins[0].name)
+        ref_group_name = "group_{}_{}_ref".format(pins[0].net_name, pins[0].name)
+        pin_group = self.create_pingroup_from_pins(pins, group_name)
+        ref_pin_group = self.create_pingroup_from_pins(reference_pins, ref_group_name)
+        term = self._create_pin_group_terminal(pingroup=pin_group, component=refdes.refdes)
+        term.SetIsCircuitPort(True)
+        ref_term = self._create_pin_group_terminal(pingroup=ref_pin_group, component=refdes.refdes)
+        ref_term.SetIsCircuitPort(True)
+        term.SetImpedance(self._edb.Utility.Value(impedance))
+        term.SetReferenceTerminal(ref_term)
+        if term:
+            return term
+        return False
+
+    @pyaedt_function_handler()
     def create_port_on_component(
         self,
         component,
@@ -1395,7 +1475,7 @@ class Components(object):
         Parameters
         ----------
         pins : list
-            List of EDB core pins.
+            List of EDB pins.
         group_name : str, optional
             Name for the group. The default is ``None``, in which case
             a default name is assigned as follows: ``[component Name] [NetName]``.
@@ -1415,8 +1495,16 @@ class Components(object):
         if len(pins) < 1:
             self._logger.error("No pins specified for pin group %s", group_name)
             return (False, None)
+        if len([pin for pin in pins if isinstance(pin, EDBPadstackInstance)]):
+            _pins = [pin._edb_padstackinstance for pin in pins]
+            if _pins:
+                pins = _pins
         if group_name is None:
             group_name = self._edb.Cell.Hierarchy.PinGroup.GetUniqueName(self._active_layout)
+        for pin in pins:
+            pin.SetIsLayoutPin(True)
+        forbiden_car = "-><"
+        group_name = group_name.translate({ord(i): "_" for i in forbiden_car})
         pingroup = _retry_ntimes(
             10,
             self._edb.Cell.Hierarchy.PinGroup.Create,
