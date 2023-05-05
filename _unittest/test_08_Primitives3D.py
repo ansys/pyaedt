@@ -1734,7 +1734,9 @@ class TestClass(BasisTest, object):
         )
         assert len(self.aedtapp.modeler.user_defined_components) == 2
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2023.1", reason="Method available in beta from 2023.1")
+    @pytest.mark.skipif(
+        config["desktopVersion"] < "2023.1" or is_ironpython, reason="Method available in beta from 2023.1"
+    )
     def test_85_insert_layoutcomponent(self):
         self.aedtapp.insert_design("LayoutComponent")
         self.aedtapp.solution_type = "Modal"
@@ -1750,3 +1752,9 @@ class TestClass(BasisTest, object):
         )
         assert isinstance(comp2, UserDefinedComponent)
         assert len(comp2.parameters) == 2
+        assert comp2.show_layout
+        comp2.show_layout = False
+        assert not comp2.show_layout
+        assert comp2.fast_transformation
+        comp2.fast_transformation = False
+        assert not comp2.fast_transformation

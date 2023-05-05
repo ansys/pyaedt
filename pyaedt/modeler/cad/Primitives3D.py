@@ -1500,8 +1500,6 @@ class Primitives3D(Primitives, object):
 
         if not name or name in self.modeler.user_defined_component_names:
             name = generate_unique_name("LC")
-            while name in self.modeler.user_defined_component_names:
-                name = generate_unique_name("LC")
 
         # Open Layout component and get information
         aedb_component_path = comp_file
