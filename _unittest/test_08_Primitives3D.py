@@ -28,6 +28,7 @@ scdoc = "input.scdoc"
 step = "input.stp"
 component3d = "new.a3dcomp"
 encrypted_cylinder = "encrypted_cylinder.a3dcomp"
+layout_comp = "Layoutcomponent_231.aedbcomp"
 test_subfolder = "T08"
 if config["desktopVersion"] > "2022.2":
     assembly = "assembly_231"
@@ -57,6 +58,7 @@ class TestClass(BasisTest, object):
         self.flatten = BasisTest.add_app(self, project_name=components_flatten, subfolder=test_subfolder)
         test_54b_project = os.path.join(local_path, "example_models", test_subfolder, polyline + ".aedt")
         self.test_54b_project = self.local_scratch.copyfile(test_54b_project)
+        self.layout_component = os.path.join(local_path, "example_models", test_subfolder, layout_comp)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -1731,3 +1733,20 @@ class TestClass(BasisTest, object):
             object_list=[box2.name],
         )
         assert len(self.aedtapp.modeler.user_defined_components) == 2
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.1", reason="Method available in beta from 2023.21")
+    def test_85_insert_layoutcomponent(self):
+        self.aedtapp.insert_design("LayoutComponent")
+        self.aedtapp.solution_type = "Modal"
+        assert not self.aedtapp.modeler.insert_layout_component(
+            self.layout_component, name=None, parameter_mapping=False
+        )
+        self.aedtapp.solution_type = "Terminal"
+        comp = self.aedtapp.modeler.insert_layout_component(self.layout_component, name=None, parameter_mapping=False)
+        assert isinstance(comp, UserDefinedComponent)
+        assert len(self.aedtapp.modeler.modeler.user_defined_components[comp.name].parts) == 3
+        comp2 = self.aedtapp.modeler.insert_layout_component(
+            self.layout_component, name="new_layout", parameter_mapping=True
+        )
+        assert isinstance(comp2, UserDefinedComponent)
+        assert len(comp2.parameters) == 2
