@@ -11,6 +11,7 @@ from math import sqrt
 from math import tan
 import os
 
+from pyaedt import Edb
 from pyaedt import Icepak
 from pyaedt.generic import LoadAEDTFile
 from pyaedt.generic.general_methods import _retry_ntimes
@@ -1425,6 +1426,235 @@ class Primitives3D(Primitives, object):
             return udm_obj, mapping_dict, aux_dict
         else:
             return udm_obj
+
+    @pyaedt_function_handler()
+    def insert_layout_component(
+        self,
+        comp_file,
+        targetCS="Global",
+        name=None,
+        parameter_mapping=False,
+    ):
+        """Insert a new layout component.
+
+        Parameters
+        ----------
+        comp_file : str
+            Path of the component file. Either ``".aedb"`` and ``".aedbcomp"`` are allowed.
+        targetCS : str, optional
+            Target coordinate system. The default is ``"Global"``.
+        name : str, optional
+            3D component name. The default is ``None``.
+        parameter_mapping : bool, optional
+            Map the layout parameters in the target HFSS design. The default is ``False``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.components_3d.UserDefinedComponent`
+            User defined component object.
+
+        References
+        ----------
+
+        >>> oEditor.InsertNativeComponent
+        """
+        if self._app.solution_type != "Terminal" and self._app.solution_type != "TransientAPhiFormulation":
+            self.logger.warning("Solution type must be terminal in HFSS or APhi in Maxwell")
+            return False
+
+        component_name = os.path.splitext(os.path.basename(comp_file))[0]
+        aedt_component_name = component_name
+        if component_name not in self._app.o_component_manager.GetNames():
+            compInfo = ["NAME:" + str(component_name), "Info:=", []]
+
+            compInfo.extend(
+                [
+                    "CircuitEnv:=",
+                    0,
+                    "Refbase:=",
+                    "U",
+                    "NumParts:=",
+                    1,
+                    "ModSinceLib:=",
+                    True,
+                    "Terminal:=",
+                    [],
+                    "CompExtID:=",
+                    9,
+                    "ModelEDBFilePath:=",
+                    comp_file,
+                    "EDBCompPassword:=",
+                    "",
+                ]
+            )
+
+            aedt_component_name = self._app.o_component_manager.Add(compInfo)
+
+        if not name or name in self.modeler.user_defined_component_names:
+            name = generate_unique_name("LC")
+            while name in self.modeler.user_defined_component_names:
+                name = generate_unique_name("LC")
+
+        # Open Layout component and get information
+        aedb_component_path = comp_file
+        if os.path.splitext(os.path.basename(comp_file))[1] == ".aedbcomp":
+            aedb_project_path = os.path.join(self._app.project_path, self._app.project_name + ".aedb")
+            aedb_component_path = os.path.join(
+                aedb_project_path, "LayoutComponents", aedt_component_name, aedt_component_name + ".aedb"
+            )
+            aedb_component_path = aedb_component_path.replace("/", "\\")
+
+        component_obj = Edb(
+            edbpath=aedb_component_path,
+            isreadonly=True,
+            edbversion=self._app._aedt_version,
+            student_version=self._app.student_version,
+        )
+
+        # Extract and map parameters
+        parameters = {}
+        for param in component_obj.design_variables:
+            parameters[param] = [param + "_" + name, component_obj.design_variables[param].value_string]
+            if parameter_mapping:
+                self._app[param + "_" + name] = component_obj.design_variables[param].value_string
+
+        # Get coordinate systems
+        component_cs = list(component_obj.components.components.keys())
+        component_obj.close_edb()
+
+        vArg1 = ["NAME:InsertNativeComponentData"]
+        vArg1.append("TargetCS:=")
+        vArg1.append(targetCS)
+        vArg1.append("SubmodelDefinitionName:=")
+        vArg1.append("LC")
+        varg2 = ["NAME:ComponentPriorityLists"]
+        vArg1.append(varg2)
+        vArg1.append("NextUniqueID:=")
+        vArg1.append(0)
+        vArg1.append("MoveBackwards:=")
+        vArg1.append(False)
+        vArg1.append("DatasetType:=")
+        vArg1.append("ComponentDatasetType")
+        varg3 = ["NAME:DatasetDefinitions"]
+        vArg1.append(varg3)
+        varg4 = [
+            "NAME:BasicComponentInfo",
+            "ComponentName:=",
+            "LC",
+            "Company:=",
+            "",
+            "Company URL:=",
+            "",
+            "Model Number:=",
+            "",
+            "Help URL:=",
+            "",
+            "Version:=",
+            "1.0",
+            "Notes:=",
+            "",
+            "IconTypeL:=",
+            "Layout Component",
+        ]
+        vArg1.append(varg4)
+        varg5 = [
+            "NAME:GeometryDefinitionParameters",
+        ]
+        if parameters and parameter_mapping:
+            for param in parameters:
+                varg5.append("VariableProp:=")
+                varg5.append([parameters[param][0], "D", "", parameters[param][1]])
+
+        varg5.append(["NAME:VariableOrders"])
+        vArg1.append(varg5)
+
+        varg6 = ["NAME:DesignDefinitionParameters", ["NAME:VariableOrders"]]
+        vArg1.append(varg6)
+
+        varg7 = ["NAME:MaterialDefinitionParameters", ["NAME:VariableOrders"]]
+        vArg1.append(varg7)
+
+        vArg1.append("DefReferenceCSID:=")
+        vArg1.append(1)
+        vArg1.append("MapInstanceParameters:=")
+        vArg1.append("DesignVariable")
+        vArg1.append("UniqueDefinitionIdentifier:=")
+        vArg1.append("")
+        vArg1.append("OriginFilePath:=")
+        vArg1.append("")
+        vArg1.append("IsLocal:=")
+        vArg1.append(False)
+        vArg1.append("ChecksumString:=")
+        vArg1.append("")
+        vArg1.append("ChecksumHistory:=")
+        vArg1.append([])
+        vArg1.append("VersionHistory:=")
+        vArg1.append([])
+
+        varg8 = ["NAME:VariableMap"]
+
+        for param in parameters:
+            varg8.append(param + ":=")
+            if parameter_mapping:
+                varg8.append(parameters[param][0])
+            else:
+                varg8.append(parameters[param][1])
+
+        varg9 = [
+            "NAME:NativeComponentDefinitionProvider",
+            "Type:=",
+            "Layout Component",
+            "Unit:=",
+            "mm",
+            "Version:=",
+            1.1,
+            "EDBDefinition:=",
+            aedt_component_name,
+            varg8,
+            "ReferenceCS:=",
+            "Global",
+            "CSToImport:=",
+        ]
+
+        if component_cs:
+            varg10 = component_cs
+            varg10.append("Global")
+        else:
+            varg10 = ["Global"]
+        varg9.append(varg10)
+        vArg1.append(varg9)
+
+        varg11 = ["NAME:InstanceParameters"]
+        varg11.append("GeometryParameters:=")
+
+        if parameters and parameter_mapping:
+            varg12 = ""
+            for param in parameters:
+                varg12 += " {0}='{1}'".format(parameters[param][0], parameters[param][0])
+        else:
+            varg12 = ""
+        varg11.append(varg12[1:])
+
+        varg11.append("MaterialParameters:=")
+        varg11.append("")
+        varg11.append("DesignParameters:=")
+        varg11.append("")
+        vArg1.append(varg11)
+
+        try:
+            new_object_name = self.oeditor.InsertNativeComponent(vArg1)
+            udm_obj = False
+            if new_object_name:
+                obj_list = list(self.oeditor.Get3DComponentPartNames(new_object_name))
+                for new_name in obj_list:
+                    self._create_object(new_name)
+
+                udm_obj = self._create_user_defined_component(new_object_name)
+                if name:
+                    udm_obj.name = name
+        except Exception:  # pragma: no cover
+            udm_obj = False
+        return udm_obj
 
     @pyaedt_function_handler()
     def get_3d_component_object_list(self, componentname):
