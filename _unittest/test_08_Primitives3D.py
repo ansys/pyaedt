@@ -1734,7 +1734,7 @@ class TestClass(BasisTest, object):
         )
         assert len(self.aedtapp.modeler.user_defined_components) == 2
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2023.1", reason="Method available in beta from 2023.21")
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.1", reason="Method available in beta from 2023.1")
     def test_85_insert_layoutcomponent(self):
         self.aedtapp.insert_design("LayoutComponent")
         self.aedtapp.solution_type = "Modal"

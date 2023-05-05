@@ -440,7 +440,10 @@ class UserDefinedComponent(object):
            :class:`pyaedt.modeler.Object3d`
 
         """
-        component_parts = list(self._primitives.oeditor.Get3DComponentPartNames(self.name))
+        if self.is3dcomponent:
+            component_parts = list(self._primitives.oeditor.Get3DComponentPartNames(self.name))
+        else:
+            component_parts = list(self._primitives.oeditor.GetChildObject(self.name).GetChildNames())
 
         parts_id = [
             self._primitives._object_names_to_ids[part]
