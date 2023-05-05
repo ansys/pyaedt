@@ -1457,6 +1457,14 @@ class Primitives3D(Primitives, object):
         ----------
 
         >>> oEditor.InsertNativeComponent
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> app = Hfss()
+        >>> layout_component = "path/to/layout_component/component.aedbcomp"
+        >>> comp = app.modeler.insert_layout_component(layout_component)
+
         """
         if self._app.solution_type != "Terminal" and self._app.solution_type != "TransientAPhiFormulation":
             self.logger.warning("Solution type must be terminal in HFSS or APhi in Maxwell")
