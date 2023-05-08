@@ -521,7 +521,7 @@ class TestClass(BasisTest, object):
             exception_raised = True
         assert exception_raised
 
-        # Get WiFi 2012 Tx Bands
+        # Get WiFi 2012 Rx Bands
         bands = rev.get_band_names(radios[2], econsts.tx_rx_mode().rx)
         assert len(bands) == 16
 
@@ -541,7 +541,7 @@ class TestClass(BasisTest, object):
         bands = rev.get_band_names(radios[3])
         assert len(bands) == 192
 
-        # Get WiFi 6 Tx Bands
+        # Get WiFi 6 Rx Bands
         bands = rev.get_band_names(radios[3], econsts.tx_rx_mode().rx)
         assert len(bands) == 192
 

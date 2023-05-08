@@ -726,7 +726,7 @@ class EmitRadioComponent(EmitComponent):
         for node in band_nodes:
             if band_name == node.props["Name"]:
                 return node
-        return False
+        return None
 
     def band_start_frequency(self, band_node, units=""):
         """Get the start frequency of the band node.
