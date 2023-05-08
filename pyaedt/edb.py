@@ -1327,6 +1327,9 @@ class Edb(object):
     ):
         """Import a GDS file and generate an ``edb.def`` file in the working directory.
 
+        ..note::
+            `ANSYSLMD_LICENSE_FILE` is needed to run the translator.
+
         Parameters
         ----------
         inputGDS : str
@@ -1359,9 +1362,9 @@ class Edb(object):
                     os.path.join(self.base_path, "..", "..", "shared_files", "licensing", "ansyslmd.ini")
                 )
                 if os.path.exists(lic):
-                    os.environ["ANSYSLMD_LICENCE_FILE"] = lic
+                    os.environ["ANSYSLMD_LICENSE_FILE"] = lic
                 else:
-                    self.logger.error("ANSYSLMD_LICENCE_FILE is not defined.")
+                    self.logger.error("ANSYSLMD_LICENSE_FILE is not defined.")
             vlc_file_name = os.path.splitext(tech_file)[0]
             control_file = vlc_file_name + ".xml"
             vlc_file = vlc_file_name + ".vlc.tech"
