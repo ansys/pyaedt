@@ -1322,7 +1322,9 @@ class Edb(object):
             return False
 
     @pyaedt_function_handler()
-    def import_gds_file(self, inputGDS, WorkDir=None, anstranslator_full_path="", use_ppe=False, control_file=None):
+    def import_gds_file(
+        self, inputGDS, WorkDir=None, anstranslator_full_path="", use_ppe=False, control_file=None, tech_file=None
+    ):
         """Import a GDS file and generate an ``edb.def`` file in the working directory.
 
         Parameters
@@ -1341,6 +1343,8 @@ class Edb(object):
             Path to the XML file. The default is ``None``, in which case an attempt is made to find
             the XML file in the same directory as the GDS file. To succeed, the XML file and GDS file must
             have the same name. Only the extension differs.
+        tech_file : str, optional
+            Technology file. It uses Helic to convert tech file to xml and then imports the gds. Works on Linux only.
 
         Returns
         -------
@@ -1348,6 +1352,41 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
+        if tech_file and is_linux:  # pragma: no cover
+            os.environ["HELIC_ROOT"] = os.path.join(self.base_path, "helic")
+            vlc_file_name = os.path.splitext(tech_file)[0]
+            control_file = vlc_file_name + ".xml"
+            vlc_file = vlc_file_name + ".vlc.tech"
+            commands = []
+            command = [
+                os.path.join("$HELIC_ROOT", "tools", "bin", "afet", "tech2afet"),
+                "-i",
+                tech_file,
+                "-o",
+                vlc_file,
+                "--backplane",
+                "False",
+            ]
+            commands.append(command)
+            command = [
+                os.path.join("$HELIC_ROOT", "tools", "bin", "afet", "make-edb"),
+                "--dielectric-simplification-method",
+                "1",
+                "-t",
+                vlc_file,
+                "-o",
+                vlc_file_name,
+                "--export-xml",
+                control_file,
+            ]
+            commands.append(command)
+            commands.append(["rm", "-r", vlc_file_name + ".aedb"])
+            for command in commands:
+                p = subprocess.Popen(command)
+                p.wait()
+        elif tech_file:
+            self.logger.error("Technology files are supported only in Linux. Use control file instead.")
+            return False
         if self.import_layout_pcb(
             inputGDS,
             working_dir=WorkDir,
