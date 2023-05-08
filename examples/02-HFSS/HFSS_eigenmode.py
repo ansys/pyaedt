@@ -43,7 +43,7 @@ project_path = pyaedt.downloads.download_file("eigenmode", "emi_PCB_house.aedt",
 # ~~~~~~~~~~~
 # Launch AEDT 2023 R1 in graphical mode.
 
-desktopVersion = "2023.1"
+desktop_version = "2023.1"
 
 ###############################################################################
 # Set non-graphical mode
