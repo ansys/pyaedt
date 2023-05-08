@@ -653,7 +653,7 @@ class Edb(object):
             self.logger.error("Translator failed to translate.")
             return False
         self.edbpath = os.path.join(working_dir, aedb_name)
-        self.open_edb()
+        return self.open_edb()
 
     @pyaedt_function_handler()
     def export_to_ipc2581(self, ipc_path=None, units="MILLIMETER"):
