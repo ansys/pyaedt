@@ -39,7 +39,7 @@ from pyaedt.generic import constants as const
 # Use the 2023R1 release of HFSS.
 
 non_graphical = False
-desktopVersion = "2023.1"
+desktop_version = "2023.1"
 
 
 c0 = 2.99792458e8  # Speed of light in free space.
@@ -164,11 +164,12 @@ for s in samples:
 # are already parametrized in the stackup library.
 
 # new_desktop_session=True
-project_name = pyaedt.generate_unique_project_name(project_name="patch")
-hfss = pyaedt.Hfss(projectname=project_name,
+project_name = pyaedt.general_methods.generate_unique_name("ML_patch", n=3)
+hfss = pyaedt.Hfss(projectname=project_name + '.aedt',
                    solution_type="Terminal",
+                   designname="patch"
                    non_graphical=non_graphical,
-                   specified_version=desktopVersion)
+                   specified_version=desktop_version)
 
 ###############################################################################
 # PCB Stackup
