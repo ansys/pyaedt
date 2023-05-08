@@ -26,8 +26,9 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVR
 
-from pyaedt import Hfss
+import pyaedt
 from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
+from pyaedt.generic import constants as const
 
 ###############################################################################
 # Set non-graphical mode
@@ -35,108 +36,144 @@ from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
 # Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
+# Use the 2023R1 release of HFSS.
 
 non_graphical = False
+desktopVersion = "2023.1"
+
+
+c0 = 2.99792458e8  # Speed of light in free space.
+n_s = 2
+freq_units = "MHz"
+freq_scale = const.scale_units(freq_units)
+
+####################################################################
+# ``setup_name()`` is used to generate the setup name
+# for the HFSS solution.
+
+setup_name = lambda freq: "Setup_" + str(str(int(int(freq*100)/100.0 / freq_scale))) + "_" + freq_units
+sweep_name = "Sweep"  # Use this name for all frequency sweeps.
 
 ###############################################################################
-# Generate database
-# -------------------
-# This section describes the first step, which is for generating the database.
+# Generate the database
+# ----------------------
+# This section describes how data are generated to subsequently
+# be used for the machine learning.
 #
-# Generate input
+# Test Data
 # ~~~~~~~~~~~~~~
-# Generate input randomly by creating a function with four inputs: frequency,
-# substrate permittivity, substrate thickness, and patch width. Frequency ranges
-# from 0.1 GHz to 1 GHz. Permittivity is from 1 to 12.
+# Generate four random strings:
+# - frequency (0.1 GHz - 1 GHz)
+# - substrate permittivity (1 - 12)
+# - substrate thickness
+# - patch width
 #
-# The following code generates a database of 1 frequency x 2 permittivity
-# x 2 thickness x 2 width. It creates eight cases, which are far too few to
-# use to train the model but are a sufficient number for testing
-# the model. Later in this example, you import more than 3,300 different 
-# cases in a previously generated database of 74 frequencies
-# x 5 permittivity x 3 thickness x 3 width.
+# The following code generates a data set consisting of 1 frequency x n_s permittivity
+# x n_s thickness x n_s width, resulting in n_s ** 3 samples.  Use n_s = 2.
+#
+# Each test case is defined in a dictionary. All test cases are compiled
+# in a list. Length units are relative to the free space wavelength. The keys in the
+# used for each test case are:
+# - frequency (frequency in Hz)
+# - permittivity (relative permittivity)
+# - thickness (relative to free-space wavelength)
+# - width (relative to free-space wavelength)
+# - length (relative to free-space wavelength)
+# - previous_impedance
+#
+# This data set will be used to test
+# the model. Later in this example, a large dataset consisting of
+# more than 3,300 variations
+# over 74 frequencies
+# x 5 permittivity x 3 thickness x 3 width will be imported and
+# used to train the model.
 
 tuple_random_frequency_permittivity = []
-frequency_list = [150 * 1e6]
-for in_list in frequency_list:
-    for i in range(2):
-        random_permittivity = 1 + 11 * int(random.random() * 100) / 100
-        temp_tuple = (in_list, random_permittivity)
+frequencies= [150 * freq_scale]  # Allow for multiple frequency values.  # 150 MHz
+for freq in frequencies:
+    for i in range(n_s):
+        rel_permittivity = 1 + 11 * int(random.random() * 100) / 100  # Rel permittivity to 2 decimal places.
+        temp_tuple = (freq, rel_permittivity)
         tuple_random_frequency_permittivity.append(temp_tuple)
 
 ###############################################################################
-# Thickness is generated from 0.0025 to 0.055 of the wavelength in the void.
-# Width is generated from 0.5 to 1.5 of the optimal theoretical width:
+# The substrate thickness ranges from 0.0025 to 0.055 wavelength in the void.
+# The width ranges from 0.5 to 1.5 relative to the theoretical optimum:
 #
 # ``c / (2 * frequency * sqrt((permittivity + 1) / 2))``
 #
-# For each couple of frequency-permittivity, three random thicknesses and three
-# random widths are generated. Patch length is calculated using the analytic
-# formula. Using this formula is important because it reduces the sweep
-# frequency needed for the data recovery. Every case is stored in a list of a
-# dictionary.
+# For frequency-permittivity pairs, three random thicknesses and three
+# random widths are generated. The patch length will be calculated analytically.
+# Use of the analytic formula reduces the required
+# frequency range. Every case is stored in a list whose elements are
+# dictionaries.
 
-dictionary_list = []
-c = 2.99792458e8
-for couple in tuple_random_frequency_permittivity:
-    list_thickness = []
-    list_width = []
-    frequency = couple[0]
-    permittivity = couple[1]
-    er = permittivity
-    wave_length_0 = c / frequency
+samples = []
+
+for f, er in tuple_random_frequency_permittivity:
+    thickness = []
+    width = []
+
+    wave_length_0 = c0 / f
 
     min_thickness = 0.0025 * wave_length_0
     inter_thickness = 0.01 * wave_length_0
     max_thickness = 0.055 * wave_length_0
-    for i in range(2):
-        random_int = random.randint(0, 1)
-        if random_int == 0:
-            thickness = min_thickness + (inter_thickness - min_thickness) * random.random()
+
+    # "Random" thickness has equal probability to lie in the lower or upper thickness range:
+    for i in random.sample((0,1), n_s):
+        if i == 0:
+            thickness.append(min_thickness + (inter_thickness - min_thickness) * random.random())
         else:
-            thickness = inter_thickness + (max_thickness - inter_thickness) * random.random()
-        list_thickness.append(thickness)
+            thickness.append(inter_thickness + (max_thickness - inter_thickness) * random.random())
 
-    min_width = 0.5 * c / (2 * frequency * sqrt((er + 1) / 2))
-    max_width = 1.5 * c / (2 * frequency * sqrt((er + 1) / 2))
-    for i in range(2):
-        width = min_width + (max_width - min_width) * random.random()
-        list_width.append(width)
+    min_width = 0.5 * c0 / (2 * f * sqrt((er + 1) / 2))
+    max_width = 1.5 * c0 / (2 * f * sqrt((er + 1) / 2))
+    for i in range(n_s):
+        width.append(min_width + (max_width - min_width) * random.random())
 
-    for width in list_width:
-        for thickness in list_thickness:
-            effective_permittivity = (er + 1) / 2 + (er - 1) / (2 * sqrt(1 + 10 * thickness / width))
-            er_e = effective_permittivity
-            w_h = width / thickness
-            added_length = 0.412 * thickness * (er_e + 0.3) * (w_h + 0.264) / ((er_e - 0.258) * (w_h + 0.813))
-            wave_length = c / (frequency * sqrt(er_e))
+    for w in width:
+        for t in thickness:
+            er_e = (er + 1) / 2 + (er - 1) / (2 * sqrt(1 + 10 * t / w))
+            w_h = w / t
+            added_length = 0.412 * t * (er_e + 0.3) * (w_h + 0.264) / ((er_e - 0.258) * (w_h + 0.813))
+            wave_length = c0 / (f * sqrt(er_e))
             length = wave_length / 2 - 2 * added_length
-            dictionary = {
-                "frequency": frequency,
-                "permittivity": permittivity,
-                "thickness": thickness,
-                "width": width,
+            sample = {
+                "frequency": f,
+                "permittivity": er,
+                "thickness": t,
+                "width": w,
                 "length": length,
                 "previous_impedance": 0,
             }
-            dictionary_list.append(dictionary)
+            samples.append(sample)
 
-print("List of data: " + str(dictionary_list))
-print("Its length is: " + str(len(dictionary_list)))
+print("Test Samples:")
+for s in samples:
+    print(f">> {s}")
 
 ###############################################################################
 # Generate HFSS design
 # ~~~~~~~~~~~~~~~~~~~~
 # Generate the HFSS design using the ``Stackup3D`` method.
-# Open an HFSS design and create the stackup, add the different layers, and add
-# the patch. In the stackup library, most things, like the layers and patch,
-# are already parametrized.
+# 1. Open an HFSS design and create the stackup.
+# 2. Add the different layers
+# 3. Add the patch.
+# The layers and patch,
+# are already parametrized in the stackup library.
 
-desktopVersion = "2023.1"
+# new_desktop_session=True
+project_name = pyaedt.generate_unique_project_name(project_name="patch")
+hfss = pyaedt.Hfss(projectname=project_name,
+                   solution_type="Terminal",
+                   non_graphical=non_graphical,
+                   specified_version=desktopVersion)
 
-hfss = Hfss(
-    new_desktop_session=True, solution_type="Terminal", non_graphical=non_graphical, specified_version=desktopVersion
-)
+###############################################################################
+# PCB Stackup
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Length units are mm.
 
 stackup = Stackup3D(hfss)
 ground = stackup.add_ground_layer("ground", material="copper", thickness=0.035, fill_material="air")
@@ -147,22 +184,27 @@ patch = signal.add_patch(patch_length=1009.86, patch_width=1185.9, patch_name="P
 ###############################################################################
 # Resize layers around patch
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Resize the layers around the patch so that they change when the patch changes.
+# Resize the layers around the patch so they adapt to changes in
+# the patch dimensions.
 
 stackup.resize_around_element(patch)
 
 ###############################################################################
 # Create lumped port
 # ~~~~~~~~~~~~~~~~~~
-# Create a lumped port that is parametrized with the function of the patch.
+# Create a lumped port to feed the patch antenna.
 
 patch.create_lumped_port(reference_layer=ground, opposite_side=False, port_name="one")
 
 ###############################################################################
-# Create line
-# ~~~~~~~~~~~
-# Create a line that is parametrized with the function of the patch length. This
-# ensures that the air box is large enough in the normal direction of the patch.
+# Define Air Volume
+# ~~~~~~~~~~~~~~~~~
+# The air bounding box is defined using a region with relative (percentage)
+# padding in the x,y,z directions.
+#
+# Create a line perpendicular to the patch surface
+# ensures sufficient size of the air bounding box in the
+# +/- z directions.
 
 points_list = [
     [patch.position_x.name, patch.position_y.name, signal.elevation.name],
@@ -185,31 +227,30 @@ hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jp
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Create a setup and a sweep by frequency.
 
-print(len(dictionary_list))
-for freq in frequency_list:
-    frequency_name = str(int(freq * 1e-6))
-    setup_name = "Setup_" + str(frequency_name)
-    current_setup = hfss.create_setup(setupname=setup_name)
-    current_setup.props["Frequency"] = str(freq) + "Hz"
-    current_setup.props["MaximumPasses"] = 30
-    current_setup.props["MinimumConvergedPasses"] = 2
-    current_setup.props["MaxDeltaS"] = 0.05
-    current_setup.update()
-    current_setup["SaveAnyFields"] = False
+for freq in frequencies:
+    current_setup = hfss.create_setup(setupname=setup_name(freq),
+                                      Frequency=str(freq/freq_scale) + freq_units,
+                                      MaximumPasses=30,
+                                      MinimumConvergedPasses=2)
+   # current_setup.props["Frequency"] = str(freq) + "MHz"
+   # current_setup.props["MaximumPasses"] = 30
+   # current_setup.props["MinimumConvergedPasses"] = 2
+   # current_setup.props["MaxDeltaS"] = 0.05
+   # current_setup.update()
+   # current_setup["SaveAnyFields"] = False
 
-    freq_start = freq * 0.75
-    freq_stop = freq * 1.25
-    sweep_name = "Sweep_of_" + setup_name
-    hfss.create_linear_count_sweep(
-        setupname=setup_name,
-        unit="Hz",
+    freq_start = int(freq/freq_scale*100)/100.0 * 0.75
+    freq_stop = int(freq/freq_scale*100)/100.0 * 1.25
+    sweep_name = "Sweep"
+    current_setup.create_frequency_sweep(
+        unit=freq_units,
+        sweepname="FreqSweep",
         freqstart=freq_start,
         freqstop=freq_stop,
         num_of_freq_points=25000,
-        sweepname="Sweep_of_" + setup_name,
-        save_fields=False,
         sweep_type="Interpolating",
     )
+
 
 ###############################################################################
 # Define function
@@ -240,10 +281,11 @@ def index_of_resonance(imaginary_list, real_list):
 
 
 ###############################################################################
-# Create parametric variation by case
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Use a loop to create a parametric variation by case and associate it with a setup.
-# The parametric variation is composed of the patch length and width and substrate
+# Create parametric variation over all samples
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Use a loop to create a parametric analysis for each
+# sample and associate it with a setup.
+# The parametric variation is comprised of the patch length and width and substrate
 # permittivity and thickness. For each, measure the real resonance frequency to
 # obtain the data length, width, permittivity, and thickness that corresponds
 # to a resonance frequency. Use an error counter to verify that the resonance
@@ -251,15 +293,14 @@ def index_of_resonance(imaginary_list, real_list):
 # of each case using the analytic formula.
 
 error_counter = []
-for i in range(len(dictionary_list)):
-    dictio = dictionary_list[i]
-    frequency_name = str(int(dictio["frequency"] * 1e-6))
+for sample in samples:
+    frequency_name = str(int(sample["frequency"] * 1e-6))
     setup_name = "Setup_" + str(frequency_name)
-    sweep_name = "Sweep_of_" + setup_name
-    length_variation = dictio["length"] * 1e3
-    width_variation = dictio["width"] * 1e3
-    thickness_variation = dictio["thickness"] * 1e3
-    permittivity_variation = dictio["permittivity"]
+    sweep_name = "Sweep"
+    length_variation = sample["length"] * 1e3
+    width_variation = sample["width"] * 1e3
+    thickness_variation = sample["thickness"] * 1e3
+    permittivity_variation = sample["permittivity"]
     param_name = "para_" + setup_name + "_" + str(i)
     this_param = hfss.parametrics.add(
         patch.length.name,
@@ -365,7 +406,7 @@ print(len(my_dictio_list_test))
 # 
 # - One for the input of the training
 # - One for the output of training
-# - Oone for the input of the test
+# - One for the input of the test
 # - One for the output of the test
 
 input_for_training_list = []
