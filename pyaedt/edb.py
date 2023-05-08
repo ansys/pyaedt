@@ -1360,7 +1360,12 @@ class Edb(object):
             if os.getenv("ANSYSLMD_LICENCE_FILE", None) is None:
                 lic = os.path.join(self.base_path, "..", "..", "shared_files", "licensing", "ansyslmd.ini")
                 if os.path.exists(lic):
-                    os.environ["ANSYSLMD_LICENSE_FILE"] = lic
+                    with open(lic, "r") as fh:
+                        lines = fh.read().splitlines()
+                        for line in lines:
+                            if line.startswith("SERVER="):
+                                os.environ["ANSYSLMD_LICENSE_FILE"] = line.split("=")[1]
+                                break
                 else:
                     self.logger.error("ANSYSLMD_LICENSE_FILE is not defined.")
             vlc_file_name = os.path.splitext(tech_file)[0]
