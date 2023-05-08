@@ -642,6 +642,8 @@ class Layer3D(object):
         if not patch_name:
             patch_name = generate_unique_name("{}_patch".format(self._name), n=3)
         lst = self._stackup._layer_name
+
+        # Find the layer where the patch should be placed.
         for i in range(len(lst)):
             if lst[i] == self._name:
                 if self._stackup.stackup_layers[lst[i - 1]].type == "dielectric":
@@ -1507,7 +1509,11 @@ class Stackup3D(object):
         name : str
             Layer name.
         layer_type : str, optional
-            Layer type. Options are ``"S"``, ``"D"``, and ``"G"``. The default is ``"S"``.
+            Layer type. Options are
+            - ``"S"`` for "signal" layer
+            - ``"D"`` for "dielectric" layer
+            - ``"G"`` for "ground" layer
+            The default is ``"S"``.
         material_name : str, optional
             Material name. The default is ``"copper"``. The material will be parametrized.
         thickness : float, optional

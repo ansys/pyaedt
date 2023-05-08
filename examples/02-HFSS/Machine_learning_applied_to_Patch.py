@@ -45,13 +45,16 @@ desktop_version = "2023.1"
 c0 = 2.99792458e8  # Speed of light in free space.
 n_s = 2
 freq_units = "MHz"
+length_units = "mm"
 freq_scale = const.scale_units(freq_units)
 
 ####################################################################
-# ``setup_name()`` is used to generate the setup name
+# ``freq_str()`` is used to generate the setup name
 # for the HFSS solution.
 
-setup_name = lambda freq: "Setup_" + str(str(int(int(freq*100)/100.0 / freq_scale))) + "_" + freq_units
+setup_prefix = "Setup"
+freq_str = lambda freq: str(str(int(int(freq*100)/100.0 / freq_scale))) + freq_units
+setup_name = lambda freq: setup_prefix + "_" + freq_str(freq)
 sweep_name = "Sweep"  # Use this name for all frequency sweeps.
 
 ###############################################################################
@@ -167,9 +170,11 @@ for s in samples:
 project_name = pyaedt.general_methods.generate_unique_name("ML_patch", n=3)
 hfss = pyaedt.Hfss(projectname=project_name + '.aedt',
                    solution_type="Terminal",
-                   designname="patch"
+                   designname="patch",
                    non_graphical=non_graphical,
                    specified_version=desktop_version)
+
+hfss.modeler.model_units = length_units
 
 ###############################################################################
 # PCB Stackup
@@ -230,25 +235,18 @@ hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jp
 
 for freq in frequencies:
     current_setup = hfss.create_setup(setupname=setup_name(freq),
-                                      Frequency=str(freq/freq_scale) + freq_units,
+                                      Frequency=freq_str(freq),
                                       MaximumPasses=30,
                                       MinimumConvergedPasses=2)
-   # current_setup.props["Frequency"] = str(freq) + "MHz"
-   # current_setup.props["MaximumPasses"] = 30
-   # current_setup.props["MinimumConvergedPasses"] = 2
-   # current_setup.props["MaxDeltaS"] = 0.05
-   # current_setup.update()
-   # current_setup["SaveAnyFields"] = False
 
     freq_start = int(freq/freq_scale*100)/100.0 * 0.75
     freq_stop = int(freq/freq_scale*100)/100.0 * 1.25
-    sweep_name = "Sweep"
     current_setup.create_frequency_sweep(
         unit=freq_units,
         sweepname="FreqSweep",
         freqstart=freq_start,
         freqstop=freq_stop,
-        num_of_freq_points=25000,
+        num_of_freq_points=2501,
         sweep_type="Interpolating",
     )
 
@@ -295,21 +293,20 @@ def index_of_resonance(imaginary_list, real_list):
 
 error_counter = []
 for sample in samples:
-    frequency_name = str(int(sample["frequency"] * 1e-6))
-    setup_name = "Setup_" + str(frequency_name)
-    sweep_name = "Sweep"
     length_variation = sample["length"] * 1e3
     width_variation = sample["width"] * 1e3
     thickness_variation = sample["thickness"] * 1e3
     permittivity_variation = sample["permittivity"]
-    param_name = "para_" + setup_name + "_" + str(i)
+    param_name = "para_" + freq_str(sample["frequency"]) # + "_" + str(i)
+
+    # Add the parametric setup. Specify length.
     this_param = hfss.parametrics.add(
         patch.length.name,
         length_variation,
         length_variation,
         step=1,
         variation_type="LinearCount",
-        solution=setup_name,
+        solution=setup_prefix + freq_str(sample["frequency"]),
         parametricname=param_name,
     )
     this_param.add_variation(
@@ -331,7 +328,7 @@ for sample in samples:
         unit=None,
         variation_type="LinearCount",
     )
-    hfss.analyze_setup(param_name, num_cores=4, num_tasks=None)
+    this_param.analyze()
     data = hfss.post.get_solution_data(
         "Zt(one_T1, one_T1)",
         setup_sweep_name=setup_name + " : " + sweep_name,

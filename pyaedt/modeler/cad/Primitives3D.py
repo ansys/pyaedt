@@ -91,8 +91,10 @@ class Primitives3D(Primitives, object):
         >>> box_object = hfss.modeler.primivites.create_box(origin, dimensions, name="mybox", matname="copper")
 
         """
-        assert len(position) == 3, "Position Argument must be a valid 3 Element List"
-        assert len(dimensions_list) == 3, "Dimension Argument must be a valid 3 Element List"
+        if len(position) != 3:
+            raise ValueError("Position Argument must be a valid 3 Element List")
+        if len(dimensions_list) != 3:
+            raise ValueError("Dimension Argument must be a valid 3 Element List")
         XPosition, YPosition, ZPosition = self._pos_with_arg(position)
         XSize, YSize, ZSize = self._pos_with_arg(dimensions_list)
         vArg1 = ["NAME:BoxParameters"]
