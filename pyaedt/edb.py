@@ -1359,7 +1359,7 @@ class Edb(object):
             vlc_file = vlc_file_name + ".vlc.tech"
             commands = []
             command = [
-                os.path.join("$HELIC_ROOT", "tools", "bin", "afet", "tech2afet"),
+                os.path.join(self.base_path, "helic", "tools", "bin", "afet", "tech2afet"),
                 "-i",
                 tech_file,
                 "-o",
@@ -1369,7 +1369,7 @@ class Edb(object):
             ]
             commands.append(command)
             command = [
-                os.path.join("$HELIC_ROOT", "tools", "bin", "afet", "make-edb"),
+                os.path.join(self.base_path, "helic", "tools", "bin", "afet", "make-edb"),
                 "--dielectric-simplification-method",
                 "1",
                 "-t",
