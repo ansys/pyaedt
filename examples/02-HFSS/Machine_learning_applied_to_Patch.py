@@ -38,6 +38,7 @@ from pyaedt.generic import constants as const
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 # Use the 2023R1 release of HFSS.
 
+pyaedt.settings.enable_error_handler = False
 non_graphical = False
 desktop_version = "2023.1"
 

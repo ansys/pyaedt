@@ -455,15 +455,23 @@ class Materials(object):
         return index
 
     @pyaedt_function_handler()
-    def duplicate_material(self, material, new_name):
+    def duplicate_material(self, material_name, new_name=None, props=None):
         """Duplicate a material.
 
         Parameters
         ----------
-        material : str
+        material_name : str
             Name of the material.
         new_name : str
             Name for the copy of the material.
+        props : list
+            List of properties that will be parameterized when the material is duplicated.
+            Parameterized properties will have project scope. Allowed items are:
+            - 'permittivity'
+            - 'permeability'
+            - 'conductivity'
+            - 'dielectric_loss_tan'
+            - 'magnetic_loss_tan'
 
         Returns
         -------
@@ -483,19 +491,46 @@ class Materials(object):
         >>> hfss.materials.duplicate_material("MyMaterial", "MyMaterial2")
 
         """
-        if material.lower() not in list(self.material_keys.keys()):
-            self.logger.error("Material {} is not present".format(material))
-            return False
-        if material.lower() not in list(self.material_keys.keys()):
-            matobj = self._aedmattolibrary(material)
-        else:
-            matobj = self.material_keys[material.lower()]
+        # Special characters must be removed from material names to make
+        # valid strings for parameter names.
+        replace_characters = [(" ", "_"), ("(", ""), (")", ""), ("/", "_"), ("-", "_"), (".", "_"), (",", "_")]
+        valid_prop_names = (
+            "permittivity",
+            "permeability",
+            "conductivity",
+            "dielectric_loss_tangent",
+            "magnetic_loss_tangent",
+        )
 
-        newmat = Material(self, new_name, matobj._props)
-        newmat.update()
+        # Get the material definition.
+        material_in_aedt = material_name.lower() in list(self.mat_names_aedt_lower)
+        material_in_project = material_name.lower() in list(self.material_keys.keys())
+        if not (material_in_aedt or material_in_project):  # Check for material definition
+            self.logger.error("Material {} is not present".format(material_name))
+            return False
+        if not material_in_project:
+            material = self._aedmattolibrary(material_name)
+        else:
+            material = self.material_keys[material_name.lower()]
+
+        if not new_name:
+            new_name = material_name + "_clone"
+        new_material = Material(self, new_name, material._props)
+        new_material.update()
+
+        # Parameterize material properties if these were passed.
+        for p in props:
+            if p in valid_prop_names:
+                var_name = "$" + new_name + "_" + p
+                for r in replace_characters:
+                    var_name = var_name.replace(r[0], r[1])
+                self._app[var_name] = getattr(
+                    material, p
+                ).value  # Assign default value to parameterized material parameter.
+                getattr(new_material, p).name = var_name  # Assign parameter to material property.
         self._mats.append(new_name)
-        self.material_keys[new_name.lower()] = newmat
-        return newmat
+        self.material_keys[new_name.lower()] = new_material
+        return new_material
 
     @pyaedt_function_handler()
     def duplicate_surface_material(self, material, new_name):

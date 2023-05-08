@@ -558,7 +558,18 @@ class Layer3D(object):
         return self._frequency
 
     @pyaedt_function_handler()
-    def duplicate_parametrize_material(self, material_name, cloned_material_name=None, list_of_properties=None):
+    def duplicate_parametrize_material(
+        self,
+        material_name,
+        cloned_material_name=None,
+        list_of_properties=(
+            "permittivity",
+            "permeability",
+            "conductivity",
+            "dielectric_loss_tangent",
+            "magnetic_loss_tangent",
+        ),
+    ):
         """Duplicate a material and parametrize all properties.
 
         Parameters
@@ -568,7 +579,8 @@ class Layer3D(object):
         cloned_material_name : str, optional
             Name of destination material. The default is ``None``.
         list_of_properties : list, optional
-            Properties to parametrize. The default is ``None``.
+            Properties to parametrize. The default is
+            ``("permittivity", "permeability", "conductivity", "dielectric_loss_tan", "magnetic_loss_tan")``.
 
         Returns
         -------
@@ -585,9 +597,12 @@ class Layer3D(object):
         for duplicated_material in self._stackup.duplicated_material_list:
             if duplicated_material.material_name == cloned_material_name:
                 return duplicated_material
-        duplicated_material = DuplicatedParametrizedMaterial(
-            application, material_name, cloned_material_name, list_of_properties
+        duplicated_material = self._app.materials.duplicate_material(
+            material_name, cloned_material_name, props=list_of_properties
         )
+        #        duplicated_material = DuplicatedParametrizedMaterial(
+        #            application, material_name, cloned_material_name, list_of_properties
+        #        )
         self._stackup.duplicated_material_list.append(duplicated_material)
         return duplicated_material
 
