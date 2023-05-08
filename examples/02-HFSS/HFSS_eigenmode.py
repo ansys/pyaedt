@@ -59,7 +59,7 @@ non_graphical = False
 # ~~~~~~~~~~~
 # Launch AEDT 2023 R1 in graphical mode.
 
-d = pyaedt.launch_desktop(desktopVersion, non_graphical=non_graphical, new_desktop_session=True)
+d = pyaedt.launch_desktop(desktop_version, non_graphical=non_graphical, new_desktop_session=True)
 
 ###############################################################################
 # Launch HFSS
