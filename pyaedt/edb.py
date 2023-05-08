@@ -1358,9 +1358,7 @@ class Edb(object):
         if tech_file and is_linux:  # pragma: no cover
             os.environ["HELIC_ROOT"] = os.path.join(self.base_path, "helic")
             if os.getenv("ANSYSLMD_LICENCE_FILE", None) is None:
-                lic = os.path.exists(
-                    os.path.join(self.base_path, "..", "..", "shared_files", "licensing", "ansyslmd.ini")
-                )
+                lic = os.path.join(self.base_path, "..", "..", "shared_files", "licensing", "ansyslmd.ini")
                 if os.path.exists(lic):
                     os.environ["ANSYSLMD_LICENSE_FILE"] = lic
                 else:
