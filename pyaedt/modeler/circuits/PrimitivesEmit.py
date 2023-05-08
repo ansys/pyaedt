@@ -308,7 +308,7 @@ class EmitComponent(object):
         nodes = components.odesign.GetComponentNodeNames(component_name)
         root_node = nodes[0]
         prop_list = components.odesign.GetComponentNodeProperties(component_name, root_node)
-        props = dict(p.split("=",1) for p in prop_list)
+        props = dict(p.split("=", 1) for p in prop_list)
         root_node_type = props["Type"]
         if root_node_type.endswith("Node"):
             root_node_type = root_node_type[: -len("Node")]
@@ -461,7 +461,7 @@ class EmitComponent(object):
         if node is not None:
             node_name = root_node + "-*-" + "-*-".join(node.split("/")[1:])
         props_list = self.odesign.GetComponentNodeProperties(self.name, node_name)
-        props = dict(p.split("=",1) for p in props_list)
+        props = dict(p.split("=", 1) for p in props_list)
         return props
 
     @pyaedt_function_handler()
@@ -711,7 +711,7 @@ class EmitRadioComponent(EmitComponent):
             List of the band nodes in the radio."""
         band_nodes = self.get_prop_nodes({"Type": "Band"})
         return band_nodes
-    
+
     def band_node(self, band_name):
         """Get the specified band node from this radio.
 
@@ -861,7 +861,7 @@ class EmitComponentPropNode(object):
         Dict
             Dictionary of all the properties for this node."""
         prop_list = self.odesign.GetComponentNodeProperties(self.parent_component.name, self.node_name)
-        props = dict(p.split("=",1) for p in prop_list)
+        props = dict(p.split("=", 1) for p in prop_list)
         return props
 
     @property
