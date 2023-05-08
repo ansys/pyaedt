@@ -1369,7 +1369,7 @@ class Edb(object):
             ]
             commands.append(command)
             command = [
-                os.path.join(self.base_path, "helic", "tools", "bin", "afet", "make-edb"),
+                os.path.join(self.base_path, "helic", "tools", "raptorh", "bin", "make-edb"),
                 "--dielectric-simplification-method",
                 "1",
                 "-t",
@@ -1385,6 +1385,8 @@ class Edb(object):
             for command in commands:
                 p = subprocess.Popen(command, env=my_env)
                 p.wait()
+            if os.path.exists(control_file):
+                self.logger.info("Xml file created.")
         elif tech_file:
             self.logger.error("Technology files are supported only in Linux. Use control file instead.")
             return False
