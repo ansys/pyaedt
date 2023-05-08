@@ -640,6 +640,7 @@ def Edb(
     oproject=None,
     student_version=False,
     use_ppe=False,
+    technology_file=None,
 ):
     """Edb Class."""
     from pyaedt.edb import Edb as app
@@ -653,6 +654,7 @@ def Edb(
         oproject=oproject,
         student_version=student_version,
         use_ppe=use_ppe,
+        technology_file=technology_file,
     )
 
 
