@@ -1381,8 +1381,11 @@ class Edb(object):
             ]
             commands.append(command)
             commands.append(["rm", "-r", vlc_file_name + ".aedb"])
+            my_env = os.environ.copy()
+            for env, val in settings.aedt_environment_variables.items():
+                my_env[env] = val
             for command in commands:
-                p = subprocess.Popen(command)
+                p = subprocess.Popen(command, env=my_env)
                 p.wait()
         elif tech_file:
             self.logger.error("Technology files are supported only in Linux. Use control file instead.")
