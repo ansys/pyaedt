@@ -504,8 +504,7 @@ class CommonExcitation(object):
     @name.setter
     def name(self, value):
         if isinstance(value, str):
-            port_already_defined = any(port for port in list(self._pedb.excitations.keys()) if port == value)
-            if not port_already_defined:
+            if not any(port for port in list(self._pedb.excitations.keys()) if port == value):
                 self._edb_terminal.SetName(value)
             else:
                 self._pedb.logger.warning("Port already defined with this name, port name must be unique")
