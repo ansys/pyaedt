@@ -32,7 +32,7 @@ import sys
 import os
 import pyaedt
 
-# create temporary folder to download the example to this folder.
+# Create a temporary folder to download the example to.
 
 temp_folder = pyaedt.generate_unique_folder_name()
 project_path = pyaedt.downloads.download_file("eigenmode", "emi_PCB_house.aedt", temp_folder)
