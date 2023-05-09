@@ -505,7 +505,7 @@ class EdbPadstacks(object):
             if not self._port_exist(name):
                 port_name = name
         else:
-            self._logger.info("Port name already assigned on existing port, falling back to regular naming convention")
+            self._logger.info("Port already defined with this name, using default naming convention")
         self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
             self._active_layout,
             padstackinstance.GetNet(),
