@@ -469,11 +469,11 @@ class EdbPadstacks(object):
         padstackinstance : `Edb.Cell.Primitive.PadstackInstance` or int
             Padstack instance object.
         use_dot_separator : bool
-            When ``True`` will use the ``.`` as separator for the naming convention [component][net][pin]. If ``False``
-            will use ``_`` instead.
+           Whether to use ``.`` as a separator for the naming convention ``[component][net][pin]``. The
+           default is ``True``. If ``False``,  ``_`` is used as the separator instead.
         user_defined_port_name : str
-            if a name is provided will overwrite the default naming convention. If a port is already defined with the
-            same name, default naming will be reverted.
+            Name for the port. If a name is provided, it overwrites the default name. unless another port already
+            has this same name. In this case, the default name is used.
 
         Returns
         -------
