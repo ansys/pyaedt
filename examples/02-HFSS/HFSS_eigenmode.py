@@ -89,7 +89,7 @@ resonance = {}
 
 ###############################################################################
 # Find the modes
-# ~~~~~~~~~~
+# ~~~~~~~~~~~~~~
 # The following cell is a function.  If called, it creates an eigenmode setup and solves it.
 # After the solve, each mode, along with its corresponding real frequency and quality factor,
 # are saved for further processing.
@@ -122,8 +122,8 @@ def find_resonance():
     return data
 
 ###############################################################################
-# Automation
-# ~~~~~~~~~~
+# Automate eigenmode solution
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Running the next cell calls the resonance function and saves only those modes with a Q higher than the defined
 # limit. The ``find_resonance`` function is called until the complete frequency range is covered.
 # When the automation ends, the physical modes in the whole frequency range are reported.
