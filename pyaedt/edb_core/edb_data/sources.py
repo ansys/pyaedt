@@ -811,8 +811,8 @@ class ExcitationPorts(CommonExcitation):
         if self.horizontal_extent_factor:
             p = re.sub(r"'Horizontal Extent Factor'='.*?'", new_arg, self._edb_properties)
         else:
-            match = re.search(r'(.*\))$', self._edb_properties)
-            p = match.group(1)[:-1] + ', ' + new_arg + ')'
+            match = re.search(r"(.*\))$", self._edb_properties)
+            p = match.group(1)[:-1] + ", " + new_arg + ")"
         self._edb_properties = p
 
     @property
@@ -830,8 +830,8 @@ class ExcitationPorts(CommonExcitation):
         if self.vertical_extent_factor:
             p = re.sub(r"'Vertical Extent Factor'='.*?'", new_arg, self._edb_properties)
         else:
-            match = re.search(r'(.*\))$', self._edb_properties)
-            p = match.group(1)[:-1] + ', ' + new_arg + ')'
+            match = re.search(r"(.*\))$", self._edb_properties)
+            p = match.group(1)[:-1] + ", " + new_arg + ")"
         self._edb_properties = p
 
     @property
@@ -849,8 +849,8 @@ class ExcitationPorts(CommonExcitation):
         if self.radial_extent_factor:
             p = re.sub(r"'Radial Extent Factor'='.*?'", new_arg, self._edb_properties)
         else:
-            match = re.search(r'(.*\))$', self._edb_properties)
-            p = match.group(1)[:-1] + ', ' + new_arg + ')'
+            match = re.search(r"(.*\))$", self._edb_properties)
+            p = match.group(1)[:-1] + ", " + new_arg + ")"
         self._edb_properties = p
 
     @property
@@ -869,8 +869,8 @@ class ExcitationPorts(CommonExcitation):
         if self.pec_launch_width:
             p = re.sub(r"'PEC Launch Width'='.*?'", new_arg, self._edb_properties)
         else:
-            match = re.search(r'(.*\))$', self._edb_properties)
-            p = match.group(1)[:-1] + ', ' + new_arg + ')'
+            match = re.search(r"(.*\))$", self._edb_properties)
+            p = match.group(1)[:-1] + ", " + new_arg + ")"
         self._edb_properties = p
 
     @property
