@@ -1691,7 +1691,7 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(is_ironpython, reason="Requires Numpy")
     def test_126_comp_def(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-        target_path = os.path.join(self.local_scratch.path, "test_0123.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_0126.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
         assert edbapp.components.components
@@ -2225,7 +2225,7 @@ class TestClass(BasisTest, object):
 
     def test_136_rlc_component_values_getter_setter(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-        target_path = os.path.join(self.local_scratch.path, "test_0123.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_0136.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
         components_to_change = [res for res in list(edbapp.components.Others.values()) if res.partname == "A93549-027"]
