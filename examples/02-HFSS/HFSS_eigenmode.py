@@ -1,5 +1,5 @@
 """
-HFSS: Eigenmode Filter
+HFSS: Eigenmode filter
 --------------------
 This example shows how you can use PyAEDT to automate eigenmode solver in HFSS.
 Eigenmode analysis can be applied to open, radiating structures
