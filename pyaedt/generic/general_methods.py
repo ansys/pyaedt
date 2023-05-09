@@ -121,6 +121,26 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     )
 
 
+def normalize_path(path_in, sep=None):
+    """Normalize path separators.
+
+    Parameters
+    ----------
+    path_in : str
+        Path to normalize.
+    sep : str, optional
+        Separator.
+
+    Returns
+    -------
+    str
+        Path normalized to new separator.
+    """
+    if sep is None:
+        sep = os.sep
+    return path_in.replace("\\", sep).replace("/", sep)
+
+
 def _check_types(arg):
     if "netref.builtins.list" in str(type(arg)):
         return "list"
