@@ -1,10 +1,10 @@
 """
 HFSS: Eigenmode filter
 --------------------
-This example shows how you can use PyAEDT to automate eigenmode solver in HFSS.
+This example shows how you can use PyAEDT to automate the eigenmode solver in HFSS.
 Eigenmode analysis can be applied to open, radiating structures
-using an absorbing boundary condition. This type of analysis can be very helpful
-to determine the resonant frequency of a geometry or an antenna and can be used to refine
+using an absorbing boundary condition. This type of analysis is useful for
+determining the resonant frequency of a geometry or an antenna and can be used to refine
 the mesh at the resonance, even when the resonant frequency of the antenna is not known.
 
 The challenge posed by this method is to identify and filter the non-physical modes
