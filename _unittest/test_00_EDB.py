@@ -1556,6 +1556,15 @@ class TestClass(BasisTest, object):
 
         paths = [i[1] for i in trace_pathes]
         assert edb.hfss.create_bundle_wave_port(traces, paths)
+        p = edb.excitations["wave_port"]
+        p.horizontal_extent_factor = 6
+        p.vertical_extent_factor = 5
+        p.pec_launch_width = "0.02mm"
+        p.radial_extent_factor = 1
+        assert p.horizontal_extent_factor == 6
+        assert p.vertical_extent_factor == 5
+        assert p.pec_launch_width == "0.02mm"
+        assert p.radial_extent_factor == 1
         edb.close_edb()
 
     def test_122_build_hfss_project_from_config_file(self):
