@@ -88,10 +88,11 @@ limit = 10
 resonance = {}
 
 ###############################################################################
-# Finding the modes
-# ~~~~~~~~~~~~~~~~~
-# The following cell is a function and if called creates an eigenmode setup and solves it.
-# After solve each mode with its corresponding real frequency and quality factor will be saved for further processing.
+# Find the modes
+# ~~~~~~~~~~
+# The following cell is a function.  If called, it creates an eigenmode setup and solves it.
+# After the solve, each mode, along with its corresponding real frequency and quality factor,
+# are saved for further processing.
 
 def find_resonance():
     #setup creation
