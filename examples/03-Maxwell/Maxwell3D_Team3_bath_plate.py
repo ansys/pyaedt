@@ -28,21 +28,21 @@ non_graphical = False
 # the solver, and the version. The following code also creates an instance of the
 # ``Maxwell3d`` class named ``M3D``. 
 
-Project_Name = "COMPUMAG"
-Design_Name = "TEAM 3 Bath Plate"
+project_name = "COMPUMAG"
+design_name = "TEAM 3 Bath Plate"
 Solver = "EddyCurrent"
-DesktopVersion = "2023.1"
+desktop_version = "2023.1"
 
-M3D = pyaedt.Maxwell3d(
+m3d = pyaedt.Maxwell3d(
     projectname=pyaedt.generate_unique_project_name(),
-    designname=Design_Name,
+    designname=design_name,
     solution_type=Solver,
-    specified_version=DesktopVersion,
+    specified_version=desktop_version,
     non_graphical=non_graphical,
     new_desktop_session=True,
 )
-uom = M3D.modeler.model_units = "mm"
-modeler = M3D.modeler
+uom = m3d.modeler.model_units = "mm"
+modeler = m3d.modeler
 
 ###############################################################################
 # Add variable
@@ -51,14 +51,14 @@ modeler = M3D.modeler
 # position of the coil.
 
 Coil_Position = -20
-M3D["Coil_Position"] = str(Coil_Position) + uom  # Creates a design variable in Maxwell
+m3d["Coil_Position"] = str(Coil_Position) + uom  # Creates a design variable in Maxwell
 
 ################################################################################
 # Add material
 # ~~~~~~~~~~~~
 # Add a material named ``team3_aluminium`` for the ladder plate.
 
-mat = M3D.materials.add_material("team3_aluminium")
+mat = m3d.materials.add_material("team3_aluminium")
 mat.conductivity = 32780000
 
 ###############################################################################
@@ -66,25 +66,25 @@ mat.conductivity = 32780000
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Draw a background region that uses the default properties for an air region.
 
-M3D.modeler.create_air_region(x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=100, z_neg=100)
+m3d.modeler.create_air_region(x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=100, z_neg=100)
 
 ################################################################################
 # Draw ladder plate and assign material
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Draw a ladder plate and assign it the newly created material ``team3_aluminium``.
 
-M3D.modeler.create_box(position=[-30, -55, 0], dimensions_list=[60, 110, -6.35], name="LadderPlate",
+m3d.modeler.create_box(position=[-30, -55, 0], dimensions_list=[60, 110, -6.35], name="LadderPlate",
                        matname="team3_aluminium")
-M3D.modeler.create_box(position=[-20, -35, 0], dimensions_list=[40, 30, -6.35], name="CutoutTool1")
-M3D.modeler.create_box(position=[-20, 5, 0], dimensions_list=[40, 30, -6.35], name="CutoutTool2")
-M3D.modeler.subtract("LadderPlate", ["CutoutTool1", "CutoutTool2"], keep_originals=False)
+m3d.modeler.create_box(position=[-20, -35, 0], dimensions_list=[40, 30, -6.35], name="CutoutTool1")
+m3d.modeler.create_box(position=[-20, 5, 0], dimensions_list=[40, 30, -6.35], name="CutoutTool2")
+m3d.modeler.subtract("LadderPlate", ["CutoutTool1", "CutoutTool2"], keep_originals=False)
 
 ################################################################################
 # Add mesh refinement to ladder plate
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Add a mesh refinement to the ladder plate.
 
-M3D.mesh.assign_length_mesh("LadderPlate", maxlength=3, maxel=None, meshop_name="Ladder_Mesh")
+m3d.mesh.assign_length_mesh("LadderPlate", maxlength=3, maxel=None, meshop_name="Ladder_Mesh")
 
 ################################################################################
 # Draw search coil and assign excitation
@@ -92,17 +92,17 @@ M3D.mesh.assign_length_mesh("LadderPlate", maxlength=3, maxel=None, meshop_name=
 # Draw a search coil and assign it a ``stranded`` current excitation. 
 # The stranded type forces the current density to be constant in the coil.
 
-M3D.modeler.create_cylinder(
+m3d.modeler.create_cylinder(
     cs_axis="Z", position=[0, "Coil_Position", 15], radius=40, height=20, name="SearchCoil", matname="copper"
 )
-M3D.modeler.create_cylinder(
+m3d.modeler.create_cylinder(
     cs_axis="Z", position=[0, "Coil_Position", 15], radius=20, height=20, name="Bore", matname="copper"
 )
-M3D.modeler.subtract("SearchCoil", "Bore", keep_originals=False)
-M3D.modeler.section("SearchCoil", "YZ")
-M3D.modeler.separate_bodies("SearchCoil_Section1")
-M3D.modeler.delete("SearchCoil_Section1_Separate1")
-M3D.assign_current(object_list=["SearchCoil_Section1"], amplitude=1260, solid=False, name="SearchCoil_Excitation")
+m3d.modeler.subtract("SearchCoil", "Bore", keep_originals=False)
+m3d.modeler.section("SearchCoil", "YZ")
+m3d.modeler.separate_bodies("SearchCoil_Section1")
+m3d.modeler.delete("SearchCoil_Section1_Separate1")
+m3d.assign_current(object_list=["SearchCoil_Section1"], amplitude=1260, solid=False, name="SearchCoil_Excitation")
 
 ################################################################################
 # Draw a line for plotting Bz
@@ -121,14 +121,14 @@ P2.set_crosssection_properties(type="Circle", width="0.5mm")
 # ~~~~~~~~~~
 # Plot the model.
 
-M3D.plot(show=False, export_path=os.path.join(M3D.working_directory, "Image.jpg"), plot_air_objects=False)
+m3d.plot(show=False, export_path=os.path.join(m3d.working_directory, "Image.jpg"), plot_air_objects=False)
 
 ###############################################################################
 # Add Maxwell 3D setup
 # ~~~~~~~~~~~~~~~~~~~~
 # Add a Maxwell 3D setup with frequency points at 50 Hz and 200 Hz.
 
-Setup = M3D.create_setup(setupname="Setup1")
+Setup = m3d.create_setup(setupname="Setup1")
 Setup.props["Frequency"] = "200Hz"
 Setup.props["HasSweepSetup"] = True
 Setup.add_eddy_current_sweep(range_type="LinearStep", start=50, end=200, count=150, clear=True)
@@ -139,8 +139,8 @@ Setup.add_eddy_current_sweep(range_type="LinearStep", start=50, end=200, count=1
 # Adjust eddy effects for the ladder plate and the search coil. The setting for
 # eddy effect is ignored for the stranded conductor type used in the search coil.
 
-M3D.eddy_effects_on(["LadderPlate"], activate_eddy_effects=True, activate_displacement_current=True)
-M3D.eddy_effects_on(["SearchCoil"], activate_eddy_effects=False, activate_displacement_current=True)
+m3d.eddy_effects_on(["LadderPlate"], activate_eddy_effects=True, activate_displacement_current=True)
+m3d.eddy_effects_on(["SearchCoil"], activate_eddy_effects=False, activate_displacement_current=True)
 
 ################################################################################
 # Add linear parametric sweep
@@ -148,7 +148,7 @@ M3D.eddy_effects_on(["SearchCoil"], activate_eddy_effects=False, activate_displa
 # Add a linear parametric sweep for the two coil positions.
 
 sweepname = "CoilSweep"
-param = M3D.parametrics.add("Coil_Position", -20, 0, 20, "LinearStep", parametricname=sweepname)
+param = m3d.parametrics.add("Coil_Position", -20, 0, 20, "LinearStep", parametricname=sweepname)
 param["SaveFields"] = True
 param["CopyMesh"] = False
 param["SolveWithCopiedMeshOnly"] = True
@@ -157,14 +157,14 @@ param["SolveWithCopiedMeshOnly"] = True
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Solve the parametric sweep directly so that results of all variations are available.
 
-M3D.analyze_setup(sweepname)
+m3d.analyze_setup(sweepname)
 
 ###############################################################################
 # Create expression for Bz
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Create an expression for Bz using the fields calculator.
 
-Fields = M3D.odesign.GetModule("FieldsReporter")
+Fields = m3d.odesign.GetModule("FieldsReporter")
 Fields.EnterQty("B")
 Fields.CalcOp("ScalarZ")
 Fields.EnterScalar(1000)
@@ -178,7 +178,7 @@ Fields.AddNamedExpression("Bz", "Fields")
 # Plot mag(Bz) as a function of frequency for both coil positions.
 
 variations = {"Distance": ["All"], "Freq": ["All"], "Phase": ["0deg"], "Coil_Position": ["-20mm"]}
-M3D.post.create_report(
+m3d.post.create_report(
     expressions="mag(Bz)",
     report_category="Fields",
     context="Line_AB",
@@ -188,7 +188,7 @@ M3D.post.create_report(
 )
 
 variations = {"Distance": ["All"], "Freq": ["All"], "Phase": ["0deg"], "Coil_Position": ["0mm"]}
-M3D.post.create_report(
+m3d.post.create_report(
     expressions="mag(Bz)",
     report_category="Fields",
     context="Line_AB",
@@ -204,7 +204,7 @@ M3D.post.create_report(
 
 variations = {"Distance": ["All"], "Freq": ["All"], "Phase": ["0deg"], "Coil_Position": ["All"]}
 
-solutions = M3D.post.get_solution_data(
+solutions = m3d.post.get_solution_data(
     expressions="mag(Bz)",
     report_category="Fields",
     context="Line_AB",
@@ -235,11 +235,11 @@ solutions.plot()
 
 surflist = modeler.get_object_faces("LadderPlate")
 intrinsic_dict = {"Freq": "50Hz", "Phase": "0deg"}
-M3D.post.create_fieldplot_surface(surflist, "Mag_J", intrinsincDict=intrinsic_dict, plot_name="Mag_J")
+m3d.post.create_fieldplot_surface(surflist, "Mag_J", intrinsincDict=intrinsic_dict, plot_name="Mag_J")
 
 ###############################################################################
 # Release AEDT
 # ~~~~~~~~~~~~
 # Release AEDT from the script engine, leaving both AEDT and the project open.
 
-M3D.release_desktop(True, True)
+m3d.release_desktop(True, True)
