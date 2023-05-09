@@ -123,9 +123,9 @@ def find_resonance():
 ###############################################################################
 # Automation
 # ~~~~~~~~~~
-# Running the next cell will call the resonance function and save only those modes with a Q higher than the defined
-# limit. The find_resonance function will be called until the complete frequency range is covered.
-# At the end the physical modes in the whole frequency range will be reported.
+# Running the next cell calls the resonance function and saves only those modes with a Q higher than the defined
+# limit. The ``find_resonance`` function is called until the complete frequency range is covered.
+# When the automation ends, the physical modes in the whole frequency range are reported.
 
 while next_fmin < fmax:
     output = find_resonance()
