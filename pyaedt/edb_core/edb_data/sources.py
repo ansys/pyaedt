@@ -781,35 +781,97 @@ class ExcitationPorts(CommonExcitation):
         p = self._edb_terminal.GetProductSolverOption(self._edb.ProductId.Designer, "HFSS")
         return p
 
+    @_edb_properties.setter
+    def _edb_properties(self, value):
+        self._edb_terminal.SetProductSolverOption(self._edb.ProductId.Designer, "HFSS", value)
+
     @property
     def hfss_type(self):
         """HFSS port type."""
-        txt = re.search(r"'HFSS Type'='.*?'", self._edb_properties).group()
-        return txt.split("=")[1].replace("'", "")
+        temp = re.search(r"'HFSS Type'='.*?'", self._edb_properties)
+        if temp:
+            txt = temp.group()
+            return txt.split("=")[1].replace("'", "")
+        else:  # pragma: no cover
+            return None
 
     @property
     def horizontal_extent_factor(self):
         """Horizontal extent factor."""
-        txt = re.search(r"'Horizontal Extent Factor'='.*?'", self._edb_properties).group()
-        return float(txt.split("=")[1].replace("'", ""))
+        temp = re.search(r"'Horizontal Extent Factor'='.*?'", self._edb_properties)
+        if temp:
+            txt = temp.group()
+            return float(txt.split("=")[1].replace("'", ""))
+        else:  # pragma: no cover
+            return None
+
+    @horizontal_extent_factor.setter
+    def horizontal_extent_factor(self, value):
+        new_arg = r"'Horizontal Extent Factor'='{}'".format(value)
+        if self.horizontal_extent_factor:
+            p = re.sub(r"'Horizontal Extent Factor'='.*?'", new_arg, self._edb_properties)
+        else:
+            match = re.search(r"(.*\))$", self._edb_properties)
+            p = match.group(1)[:-1] + ", " + new_arg + ")"
+        self._edb_properties = p
 
     @property
     def vertical_extent_factor(self):
-        """Vvertical extent factor."""
-        txt = re.search(r"'Vertical Extent Factor'='.*?'", self._edb_properties).group()
-        return float(txt.split("=")[1].replace("'", ""))
+        """Vertical extent factor."""
+        temp = re.search(r"'Vertical Extent Factor'='.*?'", self._edb_properties)
+        if temp:
+            txt = temp.group()
+            return float(txt.split("=")[1].replace("'", ""))
+        return None  # pragma: no cover
+
+    @vertical_extent_factor.setter
+    def vertical_extent_factor(self, value):
+        new_arg = r"'Vertical Extent Factor'='{}'".format(value)
+        if self.vertical_extent_factor:
+            p = re.sub(r"'Vertical Extent Factor'='.*?'", new_arg, self._edb_properties)
+        else:
+            match = re.search(r"(.*\))$", self._edb_properties)
+            p = match.group(1)[:-1] + ", " + new_arg + ")"
+        self._edb_properties = p
 
     @property
     def radial_extent_factor(self):
         """Radial extent factor."""
-        txt = re.search(r"'Radial Extent Factor'='.*?'", self._edb_properties).group()
-        return float(txt.split("=")[1].replace("'", ""))
+        temp = re.search(r"'Radial Extent Factor'='.*?'", self._edb_properties)
+        if temp:
+            txt = temp.group()
+            return float(txt.split("=")[1].replace("'", ""))
+        return None  # pragma: no cover
+
+    @radial_extent_factor.setter
+    def radial_extent_factor(self, value):
+        new_arg = r"'Radial Extent Factor'='{}'".format(value)
+        if self.radial_extent_factor:
+            p = re.sub(r"'Radial Extent Factor'='.*?'", new_arg, self._edb_properties)
+        else:
+            match = re.search(r"(.*\))$", self._edb_properties)
+            p = match.group(1)[:-1] + ", " + new_arg + ")"
+        self._edb_properties = p
 
     @property
     def pec_launch_width(self):
         """Launch width for the printed electronic component (PEC)."""
-        txt = re.search(r"'PEC Launch Width'='.*?'", self._edb_properties).group()
-        return txt.split("=")[1].replace("'", "")
+        temp = re.search(r"'PEC Launch Width'='.*?'", self._edb_properties)
+        if temp:
+            txt = temp.group()
+            return txt.split("=")[1].replace("'", "")
+        else:  # pragma: no cover
+            return None
+
+    @pec_launch_width.setter
+    def pec_launch_width(self, value):
+        new_arg = r"'PEC Launch Width'='{}'".format(value)
+        if self.pec_launch_width:
+            p = re.sub(r"'PEC Launch Width'='.*?'", new_arg, self._edb_properties)
+        else:
+            match = re.search(r"(.*\))$", self._edb_properties)
+            p = match.group(1)[:-1] + ", " + new_arg + ")"
+        self._edb_properties = p
 
     @property
     def impedance(self):
