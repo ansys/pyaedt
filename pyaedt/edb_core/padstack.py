@@ -460,7 +460,7 @@ class EdbPadstacks(object):
         return False
 
     @pyaedt_function_handler()
-    def create_coax_port(self, padstackinstance, use_dot_separator=True, user_defined_port_name=None):
+    def create_coax_port(self, padstackinstance, use_dot_separator=True, name=None):
         """Create HFSS 3Dlayout coaxial lumped port on a pastack
         Requires to have solder ball defined before calling this method.
 
@@ -469,11 +469,11 @@ class EdbPadstacks(object):
         padstackinstance : `Edb.Cell.Primitive.PadstackInstance` or int
             Padstack instance object.
         use_dot_separator : bool
-           Whether to use ``.`` as a separator for the naming convention ``[component][net][pin]``. The
-           default is ``True``. If ``False``,  ``_`` is used as the separator instead.
+            When ``True`` will use the ``.`` as separator for the naming convention [component][net][pin]. If ``False``
+            will use ``_`` instead.
         user_defined_port_name : str
-            Name for the port. If a name is provided, it overwrites the default name. unless another port already
-            has this same name. In this case, the default name is used.
+            if a name is provided will overwrite the default naming convention. If a port is already defined with the
+            same name, default naming will be reverted.
 
         Returns
         -------
@@ -501,9 +501,9 @@ class EdbPadstacks(object):
         if not padstackinstance.IsLayoutPin():
             padstackinstance.SetIsLayoutPin(True)
         res = padstackinstance.GetLayerRange()
-        if user_defined_port_name:
-            if not self._is_port_exist(user_defined_port_name):
-                port_name = user_defined_port_name
+        if name:
+            if not self._port_exist(name):
+                port_name = name
         else:
             self._logger.info("Port name already assigned on existing port, falling back to regular naming convention")
         self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
@@ -518,7 +518,7 @@ class EdbPadstacks(object):
         return ""
 
     @pyaedt_function_handler()
-    def _is_port_exist(self, port_name):
+    def _port_exist(self, port_name):
         return any(port for port in list(self._pedb.excitations.keys()) if port == port_name)
 
     @pyaedt_function_handler()

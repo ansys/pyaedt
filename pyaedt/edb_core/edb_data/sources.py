@@ -507,7 +507,7 @@ class CommonExcitation(object):
             if not any(port for port in list(self._pedb.excitations.keys()) if port == value):
                 self._edb_terminal.SetName(value)
             else:
-                self._pedb.logger.warning("Port already defined with this name, port name must be unique")
+                self._pedb.logger.warning("An existing port already has this same name. A port name must be unique.")
 
     @property
     def net_name(self):
