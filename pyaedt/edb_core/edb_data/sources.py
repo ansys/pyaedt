@@ -792,7 +792,7 @@ class ExcitationPorts(CommonExcitation):
         if temp:
             txt = temp.group()
             return txt.split("=")[1].replace("'", "")
-        else:
+        else:  # pragma: no cover
             return None
 
     @property
@@ -802,7 +802,7 @@ class ExcitationPorts(CommonExcitation):
         if temp:
             txt = temp.group()
             return float(txt.split("=")[1].replace("'", ""))
-        else:
+        else:  # pragma: no cover
             return None
 
     @horizontal_extent_factor.setter
@@ -822,7 +822,7 @@ class ExcitationPorts(CommonExcitation):
         if temp:
             txt = temp.group()
             return float(txt.split("=")[1].replace("'", ""))
-        return None
+        return None  # pragma: no cover
 
     @vertical_extent_factor.setter
     def vertical_extent_factor(self, value):
@@ -841,7 +841,7 @@ class ExcitationPorts(CommonExcitation):
         if temp:
             txt = temp.group()
             return float(txt.split("=")[1].replace("'", ""))
-        return None
+        return None  # pragma: no cover
 
     @radial_extent_factor.setter
     def radial_extent_factor(self, value):
@@ -860,7 +860,7 @@ class ExcitationPorts(CommonExcitation):
         if temp:
             txt = temp.group()
             return txt.split("=")[1].replace("'", "")
-        else:
+        else:  # pragma: no cover
             return None
 
     @pec_launch_width.setter
