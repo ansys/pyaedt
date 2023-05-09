@@ -9,13 +9,13 @@ the mesh at the resonance, even when the resonant frequency of the antenna is no
 
 The challenge posed by this method is to identify and filter the non-physical modes
 resulting from reflection from boundaries of the main domain.
-Since the Eigenmode solver sorts by frequency and does not filter on the
-quality factor, these virtual modes will be present when the eigenmode approach is
+Because the Eigenmode solver sorts by frequency and does not filter on the
+quality factor, these virtual modes are present when the eigenmode approach is
 applied to nominally open structures.
 When looking for resonant modes over a wide frequency range for nominally
-enclosed structures, several iterations may be required as the minimum frequency
-is determined manually and simulations shall re-run until the complete frequency range is covered
-and all the important physical modes are calculated.
+enclosed structures, several iterations may be required because the minimum frequency
+is determined manually and simulations re-run until the complete frequency range is covered
+and all important physical modes are calculated.
 
 The following script finds the physical modes of a model in a wide frequency range by automating the solution setup.
 During each simulation a user-defined number of modes are simulated and the modes with a Q higher than a user defined value are filtered.
