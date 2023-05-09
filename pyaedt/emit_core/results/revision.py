@@ -272,7 +272,7 @@ class Revision:
         return bands
 
     @pyaedt_function_handler()
-    def get_active_frequencies(self, radio_name, band_name, tx_rx_mode=None, units=""):
+    def get_active_frequencies(self, radio_name, band_name, tx_rx_mode, units=""):
         """
         Get a list of active frequencies for a ``tx`` or ``rx`` band in a radio/emitter.
 
@@ -282,7 +282,7 @@ class Revision:
             Name of the radio/emitter.
         band_name : str
            Name of the band.
-        tx_rx : :class:`EmitConstants.tx_rx_mode`, optional
+        tx_rx : :class:`EmitConstants.tx_rx_mode`
             Specifies whether to get ``tx`` or ``rx`` radio freqs. The default
             is ``None``, in which case both ``tx`` and ``rx`` freqs are returned.
         units : str, optional
@@ -299,8 +299,8 @@ class Revision:
         >>> freqs = aedtapp.results.current_revision.get_active_frequencies(
                 'Bluetooth', 'Rx - Base Data Rate', Emit.tx_rx_mode.rx)
         """
-        if tx_rx_mode is None:
-            tx_rx_mode = emitConsts.tx_rx_mode().both
+        if tx_rx_mode is None or tx_rx_mode == emitConsts.tx_rx_mode().both:
+            raise ValueError("The mode type must be specified as either Tx or Rx.")
         if self.revision_loaded:
             freqs = self.emit_project._emit_api.get_active_frequencies(radio_name, band_name, tx_rx_mode, units)
         else:
