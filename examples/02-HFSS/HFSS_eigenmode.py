@@ -18,9 +18,9 @@ is determined manually and simulations re-run until the complete frequency range
 and all important physical modes are calculated.
 
 The following script finds the physical modes of a model in a wide frequency range by automating the solution setup.
-During each simulation a user-defined number of modes are simulated and the modes with a Q higher than a user defined value are filtered.
-The next simulation will automatically continue to find modes having a frequency higher than the last mode of tge previous analysis.
-This will continue until the maximum frequency in the desired range is achieved.
+During each simulation, a user-defined number of modes is simulated, and the modes with a Q higher than a user- defined value are filtered.
+The next simulation automatically continues to find modes having a frequency higher than the last mode of the previous analysis.
+This continues until the maximum frequency in the desired range is achieved.
 """
 
 ###############################################################################
