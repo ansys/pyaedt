@@ -20,6 +20,7 @@ import pyaedt
 # Download of needed project file and setup of temporary project directory.
 project_dir = tempfile.gettempdir()
 aedb_project = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb')
+coil = pyaedt.downloads.download_file('inductance_3d_component/air_coil.a3dcomp')
 
 project_name = pyaedt.generate_unique_name("HSD")
 output_edb = os.path.join(project_dir, project_name + '.aedb')
@@ -114,13 +115,13 @@ q3d.delete_all_nets()
 # Create new coordinate systems and place 3d component inductors.
 
 q3d.modeler.create_coordinate_system(location_l2_1, name="L2")
-comp = q3d.modeler.insert_3d_component(r'c:\ansysdev\Models\3dcomp\air_coil.a3dcomp', targetCS="L2")
+comp = q3d.modeler.insert_3d_component(coil, targetCS="L2")
 comp.rotate(q3d.AXIS.Z, -90)
 comp.parameters["n_turns"] = "3"
 comp.parameters["d_wire"] = "100um"
 q3d.modeler.set_working_coordinate_system("Global")
 q3d.modeler.create_coordinate_system(location_l4_1, name="L4")
-comp2 = q3d.modeler.insert_3d_component(r'c:\ansysdev\Models\3dcomp\air_coil.a3dcomp', targetCS="L4",)
+comp2 = q3d.modeler.insert_3d_component(coil, targetCS="L4",)
 comp2.rotate(q3d.AXIS.Z, -90)
 comp2.parameters["n_turns"] = "3"
 comp2.parameters["d_wire"] = "100um"
