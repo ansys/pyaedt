@@ -108,7 +108,7 @@ class Maxwell(object):
     def set_core_losses(self, objects, value=True):
         """Whether to enable core losses for a set of objects.
 
-        For ``EddyCurrent`` and ``Transient`` solver design, core losses calulcations
+        For ``EddyCurrent`` and ``Transient`` solver designs, core losses calulcations
         may be included in the simulation on any object that has a corresponding
         core loss definition (with core loss coefficient settings) in the material library.
 
