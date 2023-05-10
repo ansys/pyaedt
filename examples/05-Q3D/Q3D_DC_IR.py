@@ -159,7 +159,7 @@ q3d.edit_sources(dcrl={"{}:{}".format(source1.props["Net"], source1.name): "1.0A
                        "{}:{}".format(source1.props["Net"], source2.name): "1.0A"})
 
 ###############################################################################
-# Create Setup
+# Create setup
 # ~~~~~~~~~~~~
 # Create a setup and a frequency sweep from DC to 2GHz.
 # Analyze project.
