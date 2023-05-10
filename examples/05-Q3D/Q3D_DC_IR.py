@@ -90,7 +90,7 @@ h3d = pyaedt.Hfss3dLayout(output_edb, specified_version="2023.1", non_graphical=
 # Export to Q3D
 # ~~~~~~~~~~~~~
 # Create a dummy setup and export the layout in Q3D.
-# keep_net_name will reassign Q3D nets names from Hfss 3D Layout.
+# The ``keep_net_name`` parameter reassigns Q3D net names from HFSS 3D Layout.
 setup = h3d.create_setup()
 setup.export_to_q3d(output_q3d, keep_net_name=True)
 h3d.close_project()
