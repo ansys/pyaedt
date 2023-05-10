@@ -15,7 +15,7 @@ import pyaedt
 
 
 ###############################################################################
-# Setup project files and path
+# Set up project files and path
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download of needed project file and setup of temporary project directory.
 project_dir = tempfile.gettempdir()
