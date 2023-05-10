@@ -20,7 +20,7 @@ import pyaedt
 # Download needed project file and set up temporary project directory.
 project_dir = tempfile.gettempdir()
 aedb_project = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb')
-coil = pyaedt.downloads.download_file('inductance_3d_component/air_coil.a3dcomp')
+coil = pyaedt.downloads.download_file('inductance_3d_component', 'air_coil.a3dcomp')
 
 project_name = pyaedt.generate_unique_name("HSD")
 output_edb = os.path.join(project_dir, project_name + '.aedb')
