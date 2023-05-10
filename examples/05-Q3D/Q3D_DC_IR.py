@@ -77,9 +77,9 @@ location_l4_1 = [i * 1000 for i in edb.components["L4"].pins["1"].position]
 location_l4_1.append(edb.components["L4"].upper_elevation * 1000)
 
 ###############################################################################
-# Save and close Edb
-# ~~~~~~~~~~~~~~~~~~
-# Save, close Edb and open it in Hfss 3D Layout to generate the 3D model.
+# Save and close EDB
+# ~~~~~~~~~~~~
+# Save and close EDB. Then, open EDT in HFSS 3D Layout to generate the 3D model.
 
 edb.save_edb()
 edb.close_edb()
