@@ -30,7 +30,7 @@ output_q3d = os.path.join(project_dir, project_name + '_q3d.aedt')
 ###############################################################################
 # Open EDB
 # ~~~~~~~~
-# Open the edb project and created a cutout on the selected nets
+# Open the EDB project and create a cutout on the selected nets
 # before exporting to Q3D.
 edb = pyaedt.Edb(aedb_project, edbversion="2023.1")
 edb.cutout(["1.2V_AVDLL_PLL", "1.2V_AVDDL", "1.2V_DVDDL"],
