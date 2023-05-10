@@ -44,7 +44,7 @@ edb.cutout(["1.2V_AVDLL_PLL", "1.2V_AVDDL", "1.2V_DVDDL"],
 # Identify pins position
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Identify [x,y] pin locations on the components to define where to assign sources
-# and sinks for Q3D and append Z elevation.
+# and sinks for Q3D.
 
 pin_u11_scl = [i for i in edb.components["U11"].pins.values() if i.net_name == "1.2V_AVDLL_PLL"]
 pin_u9_1 = [i for i in edb.components["U9"].pins.values() if i.net_name == "1.2V_AVDDL"]
@@ -54,7 +54,7 @@ pin_u9_2 = [i for i in edb.components["U9"].pins.values() if i.net_name == "1.2V
 ###############################################################################
 # Append Z Positions
 # ~~~~~~~~~~~~~~~~~~
-# Note: The factor 100 converts from "meters" to "mm"
+# Compute Q3D 3D position. The factor 100 converts from "meters" to "mm".
 
 location_u11_scl = [i * 1000 for i in pin_u11_scl[0].position]
 location_u11_scl.append(edb.components["U11"].upper_elevation * 1000)
@@ -131,7 +131,7 @@ q3d.modeler.set_working_coordinate_system("Global")
 ###############################################################################
 # Delete dielectrics
 # ~~~~~~~~~~~~~~~~~~
-#
+# Delete all dielectric objects since not needed in DC analysis.
 
 q3d.modeler.delete(q3d.modeler.get_objects_by_material("Megtron4"))
 q3d.modeler.delete(q3d.modeler.get_objects_by_material("Megtron4_2"))
