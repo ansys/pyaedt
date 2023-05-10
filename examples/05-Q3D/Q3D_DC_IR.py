@@ -41,7 +41,7 @@ edb.cutout(["1.2V_AVDLL_PLL", "1.2V_AVDDL", "1.2V_DVDDL"],
 
 
 ###############################################################################
-# Identify pins position
+# Identify pin positions
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Identify [x,y] pin locations on the components to define where to assign sources
 # and sinks for Q3D.
@@ -67,9 +67,9 @@ location_u9_2_scl.append(edb.components["U9"].upper_elevation * 1000)
 
 
 ###############################################################################
-# Identify 3D Components pins positions
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Identify the pin location where 3D components of passives will be added.
+# Identify pin positions for 3D components
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Identify the pin positions where 3D components of passives are to be added.
 
 location_l2_1 = [i * 1000 for i in edb.components["L2"].pins["1"].position]
 location_l2_1.append(edb.components["L2"].upper_elevation * 1000)
@@ -77,9 +77,9 @@ location_l4_1 = [i * 1000 for i in edb.components["L4"].pins["1"].position]
 location_l4_1.append(edb.components["L4"].upper_elevation * 1000)
 
 ###############################################################################
-# Save and close Edb
-# ~~~~~~~~~~~~~~~~~~
-# Save, close Edb and open it in Hfss 3D Layout to generate the 3D model.
+# Save and close EDB
+# ~~~~~~~~~~~~
+# Save and close EDB. Then, open EDT in HFSS 3D Layout to generate the 3D model.
 
 edb.save_edb()
 edb.close_edb()
@@ -90,7 +90,7 @@ h3d = pyaedt.Hfss3dLayout(output_edb, specified_version="2023.1", non_graphical=
 # Export to Q3D
 # ~~~~~~~~~~~~~
 # Create a dummy setup and export the layout in Q3D.
-# keep_net_name will reassign Q3D nets names from Hfss 3D Layout.
+# The ``keep_net_name`` parameter reassigns Q3D net names from HFSS 3D Layout.
 setup = h3d.create_setup()
 setup.export_to_q3d(output_q3d, keep_net_name=True)
 h3d.close_project()
@@ -110,9 +110,9 @@ q3d.delete_all_nets()
 
 
 ###############################################################################
-# Insert Inductors
-# ~~~~~~~~~~~~~~~~
-# Create new coordinate systems and place 3d component inductors.
+# Insert inductors
+# ~~~~~~~~~~
+# Create new coordinate systems and place 3D component inductors.
 
 q3d.modeler.create_coordinate_system(location_l2_1, name="L2")
 comp = q3d.modeler.insert_3d_component(coil, targetCS="L2")
@@ -139,9 +139,9 @@ q3d.modeler.delete(q3d.modeler.get_objects_by_material("Megtron4_3"))
 q3d.modeler.delete(q3d.modeler.get_objects_by_material("Solder Resist"))
 
 ###############################################################################
-# Assing Source and Sink
-# ~~~~~~~~~~~~~~~~~~~~~~
-# Use previously calculated position to identify faces and
+# Assign source and sink
+# ~~~~~~~~~~~~~~~
+# Use previously calculated positions to identify faces and
 # assign sources and sinks on nets.
 
 sink_f = q3d.modeler.create_circle(q3d.PLANE.XY, location_u11_scl, 0.1)
@@ -159,7 +159,7 @@ q3d.edit_sources(dcrl={"{}:{}".format(source1.props["Net"], source1.name): "1.0A
                        "{}:{}".format(source1.props["Net"], source2.name): "1.0A"})
 
 ###############################################################################
-# Create Setup
+# Create setup
 # ~~~~~~~~~~~~
 # Create a setup and a frequency sweep from DC to 2GHz.
 # Analyze project.
@@ -173,7 +173,7 @@ setup.props["DC"]["Cond"]["MaxPass"]=3
 setup.analyze()
 
 ###############################################################################
-# Phi Plot
+# Phi plot
 # ~~~~~~~~
 # Compute ACL solutions and plot them.
 
