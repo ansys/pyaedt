@@ -173,7 +173,7 @@ setup.props["DC"]["Cond"]["MaxPass"]=3
 setup.analyze()
 
 ###############################################################################
-# Phi Plot
+# Phi plot
 # ~~~~~~~~
 # Compute ACL solutions and plot them.
 
