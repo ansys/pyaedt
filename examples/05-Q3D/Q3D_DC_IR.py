@@ -42,7 +42,7 @@ edb.cutout(["1.2V_AVDLL_PLL", "1.2V_AVDDL", "1.2V_DVDDL"],
 
 ###############################################################################
 # Identify pin positions
-# ~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~
 # Identify [x,y] pin locations on the components to define where to assign sources
 # and sinks for Q3D.
 
