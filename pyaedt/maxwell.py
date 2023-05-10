@@ -1520,7 +1520,7 @@ class Maxwell(object):
         last_cycles_number=1,
         calculate_force="Harmonic",
     ):
-        """Enable Harmonic Force calculation for Transient Analysis.
+        """Enable the harmonic force calculation for the transient analysis.
 
         Parameters
         ----------
