@@ -110,9 +110,9 @@ q3d.delete_all_nets()
 
 
 ###############################################################################
-# Insert Inductors
-# ~~~~~~~~~~~~~~~~
-# Create new coordinate systems and place 3d component inductors.
+# Insert inductors
+# ~~~~~~~~~~
+# Create new coordinate systems and place 3D component inductors.
 
 q3d.modeler.create_coordinate_system(location_l2_1, name="L2")
 comp = q3d.modeler.insert_3d_component(coil, targetCS="L2")
