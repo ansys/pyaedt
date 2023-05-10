@@ -27,6 +27,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVR
 
 import pyaedt
+import tempfile
 from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
 from pyaedt.generic import constants as const
 
@@ -38,7 +39,7 @@ from pyaedt.generic import constants as const
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 # Use the 2023R1 release of HFSS.
 
-pyaedt.settings.enable_error_handler = False
+# pyaedt.settings.enable_error_handler = False
 non_graphical = False
 desktop_version = "2023.1"
 
@@ -168,8 +169,12 @@ for s in samples:
 # are already parametrized in the stackup library.
 
 # new_desktop_session=True
-project_name = pyaedt.general_methods.generate_unique_name("ML_patch", n=3)
-hfss = pyaedt.Hfss(projectname=project_name + '.aedt',
+
+project_folder = os.path.join(tempfile.gettempdir(), "ML_patch")
+if not os.path.exists(project_folder):
+    os.mkdir(project_folder)
+project_name = os.path.join(project_folder, pyaedt.general_methods.generate_unique_name("Proj", n=3))
+hfss = pyaedt.Hfss(projectname=project_name,
                    solution_type="Terminal",
                    designname="patch",
                    non_graphical=non_graphical,

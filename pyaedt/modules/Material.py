@@ -318,6 +318,9 @@ class MatProperty(object):
         else:
             self._property_value[0].value = val
 
+    #     getattr(self._material, self.name).value = val  # Update parent material
+    #     self._material._props[self.name] = val
+
     @property
     def unit(self):
         """Units for a material property value."""

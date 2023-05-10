@@ -527,7 +527,12 @@ class Materials(object):
                 self._app[var_name] = getattr(
                     material, p
                 ).value  # Assign default value to parameterized material parameter.
-                getattr(new_material, p).name = var_name  # Assign parameter to material property.
+                try:
+                    setattr(new_material, p, var_name)
+                except TypeError:
+                    print("p = {}".format(p))
+
+            # new_material.update()  # Assign parameter to material property.
         self._mats.append(new_name)
         self.material_keys[new_name.lower()] = new_material
         return new_material

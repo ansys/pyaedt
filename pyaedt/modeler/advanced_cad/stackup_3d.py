@@ -348,11 +348,11 @@ class Layer3D(object):
         self._obj_3d = []
         obj_3d = None
         self._duplicated_material = self.duplicate_parametrize_material(material_name)
-        self._material = self._duplicated_material.material
-        self._material_name = self._material.name
+        self._material = self._duplicated_material  # Set material for this layer.
+
         if self._layer_type != "dielectric":
             self._fill_duplicated_material = self.duplicate_parametrize_material(fill_material)
-            self._fill_material = self._fill_duplicated_material.material
+            self._fill_material = self._fill_duplicated_material
             self._fill_material_name = self._fill_material.name
         self._thickness_variable = self._name + "_thickness"
         if thickness:
@@ -366,7 +366,7 @@ class Layer3D(object):
                 ["dielectric_x_position", "dielectric_y_position", layer_position],
                 ["dielectric_length", "dielectric_width", self._thickness_variable],
                 name=self._name,
-                matname=self._material_name,
+                matname=self.material_name,
             )
         elif self._layer_type == "ground":
             if thickness:
@@ -374,7 +374,7 @@ class Layer3D(object):
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width", self._thickness_variable],
                     name=self._name,
-                    matname=self._material_name,
+                    matname=self.material_name,
                 )
 
             else:
@@ -383,7 +383,7 @@ class Layer3D(object):
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width"],
                     name=self._name,
-                    matname=self._material_name,
+                    matname=self.material_name,
                 )
         elif self._layer_type == "signal":
             if thickness:
@@ -391,7 +391,7 @@ class Layer3D(object):
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width", self._thickness_variable],
                     name=self._name,
-                    matname=self._fill_material,
+                    matname=self._fill_material.name,
                 )
             else:
                 obj_3d = self._app.modeler.create_rectangle(
@@ -399,7 +399,7 @@ class Layer3D(object):
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width"],
                     name=self._name,
-                    matname=self._fill_material,
+                    matname=self._fill_material.name,
                 )
         obj_3d.group_name = "Layer_{}".format(self._name)
         if obj_3d:
@@ -445,7 +445,7 @@ class Layer3D(object):
         -------
         str
         """
-        return self._material_name
+        return self._material.name
 
     @property
     def material(self):
@@ -587,15 +587,15 @@ class Layer3D(object):
         :class:`pyaedt.modules.Material.Material`
             Material object.
         """
-        application = self._app
-        if isinstance(material_name, Material):
+
+        if isinstance(material_name, Material):  # Make sure material_name is of type str.
             material_name = material_name.name
-        if isinstance(cloned_material_name, Material):
+        if isinstance(cloned_material_name, Material):  # Make sure cloned_material_name is of type str.
             cloned_material_name = cloned_material_name.name
-        if not cloned_material_name:
+        if not cloned_material_name:  # If a name has not been defined, create one.
             cloned_material_name = "cloned_" + material_name
-        for duplicated_material in self._stackup.duplicated_material_list:
-            if duplicated_material.material_name == cloned_material_name:
+        for duplicated_material in self._stackup.duplicated_material_list:  # If the new material exists, don't
+            if duplicated_material.name == cloned_material_name:  # return that material.
                 return duplicated_material
         duplicated_material = self._app.materials.duplicate_material(
             material_name, cloned_material_name, props=list_of_properties
@@ -1559,7 +1559,7 @@ class Stackup3D(object):
         self._shifted_index += 1
         if not layer_type:
             raise ValueError("Layer type has to be an S, D, or G string.")
-        self._layer_name.append(name)
+        self._layer_name.append(name)  # update the list of layer names.
 
         lay = Layer3D(
             stackup=self,
@@ -1587,7 +1587,7 @@ class Stackup3D(object):
         elif layer_type == "S":
             self._signal_list.extend(lay._obj_3d)
             self._signal_name_list.append(lay._name)
-            self._signal_material.append(lay._material_name)
+            self._signal_material.append(lay.material_name)
             lay._obj_3d[-1].transparency = "0.8"
         self._stackup[lay._name] = lay
         return lay
