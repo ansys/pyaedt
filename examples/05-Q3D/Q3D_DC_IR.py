@@ -17,7 +17,7 @@ import pyaedt
 ###############################################################################
 # Set up project files and path
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Download of needed project file and setup of temporary project directory.
+# Download needed project file and set up temporary project directory.
 project_dir = tempfile.gettempdir()
 aedb_project = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb')
 coil = pyaedt.downloads.download_file('inductance_3d_component/air_coil.a3dcomp')
