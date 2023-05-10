@@ -1325,7 +1325,7 @@ class Q3d(QExtractor, object):
 
     @pyaedt_function_handler()
     def objects_from_nets(self, nets, materials=None):
-        """Find the objects that belongs to a net. Material can be applied as filter.
+        """Find the objects that belong to one or more nets. You can filter by materials.
 
         Parameters
         ----------
