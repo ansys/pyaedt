@@ -1330,7 +1330,7 @@ class Q3d(QExtractor, object):
         Parameters
         ----------
         nets : str, list
-            Nets to search for. Case-insensitive.
+            One or more nets to search for. The search is case-insensitive.
         materials : str, list, optional
             One or more materials for filtering the net objects. The default
             is ``None``. The search is case insensitive.
