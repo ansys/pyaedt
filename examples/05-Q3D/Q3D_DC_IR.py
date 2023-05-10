@@ -139,9 +139,9 @@ q3d.modeler.delete(q3d.modeler.get_objects_by_material("Megtron4_3"))
 q3d.modeler.delete(q3d.modeler.get_objects_by_material("Solder Resist"))
 
 ###############################################################################
-# Assing Source and Sink
-# ~~~~~~~~~~~~~~~~~~~~~~
-# Use previously calculated position to identify faces and
+# Assign source and sink
+# ~~~~~~~~~~~~~~~
+# Use previously calculated positions to identify faces and
 # assign sources and sinks on nets.
 
 sink_f = q3d.modeler.create_circle(q3d.PLANE.XY, location_u11_scl, 0.1)
