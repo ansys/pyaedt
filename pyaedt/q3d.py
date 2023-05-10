@@ -1316,7 +1316,7 @@ class Q3d(QExtractor, object):
 
     @pyaedt_function_handler()
     def delete_all_nets(self):
-        """Delete all nets in current design."""
+        """Delete all nets in the design."""
         net_names = self.nets[::]
         for i in self.boundaries[::]:
             if i.name in net_names:
