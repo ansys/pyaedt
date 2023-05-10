@@ -67,9 +67,9 @@ location_u9_2_scl.append(edb.components["U9"].upper_elevation * 1000)
 
 
 ###############################################################################
-# Identify 3D Components pins positions
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Identify the pin location where 3D components of passives will be added.
+# Identify pin positions for 3D components
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Identify the pin positions where 3D components of passives are to be added.
 
 location_l2_1 = [i * 1000 for i in edb.components["L2"].pins["1"].position]
 location_l2_1.append(edb.components["L2"].upper_elevation * 1000)
