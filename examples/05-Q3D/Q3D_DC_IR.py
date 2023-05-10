@@ -15,9 +15,9 @@ import pyaedt
 
 
 ###############################################################################
-# Setup project files and path
+# Set up project files and path
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Download of needed project file and setup of temporary project directory.
+# Download needed project file and set up temporary project directory.
 project_dir = tempfile.gettempdir()
 aedb_project = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb')
 coil = pyaedt.downloads.download_file('inductance_3d_component', 'air_coil.a3dcomp')
@@ -30,7 +30,7 @@ output_q3d = os.path.join(project_dir, project_name + '_q3d.aedt')
 ###############################################################################
 # Open EDB
 # ~~~~~~~~
-# Open the edb project and created a cutout on the selected nets
+# Open the EDB project and create a cutout on the selected nets
 # before exporting to Q3D.
 edb = pyaedt.Edb(aedb_project, edbversion="2023.1")
 edb.cutout(["1.2V_AVDLL_PLL", "1.2V_AVDDL", "1.2V_DVDDL"],
