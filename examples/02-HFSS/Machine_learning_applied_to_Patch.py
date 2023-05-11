@@ -132,18 +132,18 @@ for f, er in tuple_random_frequency_permittivity:
         else:
             thickness.append(inter_thickness + (max_thickness - inter_thickness) * random.random())
 
-    min_width = 0.5 * c0 / (2 * f * sqrt((er + 1) / 2))
-    max_width = 1.5 * c0 / (2 * f * sqrt((er + 1) / 2))
+    min_width = 0.5 * c0 / (2.0 * f * sqrt((er + 1.0) / 2.0))
+    max_width = 1.5 * c0 / (2 * f * sqrt((er + 1.0) / 2.0))
     for i in range(n_s):
         width.append(min_width + (max_width - min_width) * random.random())
 
     for w in width:
         for t in thickness:
-            er_e = (er + 1) / 2 + (er - 1) / (2 * sqrt(1 + 10 * t / w))
+            er_e = (er + 1.0) / 2.0 + (er - 1.0) / (2.0 * sqrt(1 + 10.0 * t / w))
             w_h = w / t
             added_length = 0.412 * t * (er_e + 0.3) * (w_h + 0.264) / ((er_e - 0.258) * (w_h + 0.813))
             wave_length = c0 / (f * sqrt(er_e))
-            length = wave_length / 2 - 2 * added_length
+            length = wave_length / 2.0 - 2.0 * added_length
             sample = {
                 "frequency": f,
                 "permittivity": er,
@@ -249,7 +249,7 @@ for freq in frequencies:
     freq_stop = int(freq/freq_scale*100)/100.0 * 1.25
     current_setup.create_frequency_sweep(
         unit=freq_units,
-        sweepname="FreqSweep",
+        sweepname=sweep_name,
         freqstart=freq_start,
         freqstop=freq_stop,
         num_of_freq_points=2501,
@@ -303,7 +303,7 @@ for sample in samples:
     width_variation = sample["width"] * 1e3
     thickness_variation = sample["thickness"] * 1e3
     permittivity_variation = sample["permittivity"]
-    param_name = "para_" + freq_str(sample["frequency"]) # + "_" + str(i)
+    param_name = "para_" + freq_str(sample["frequency"]) + "_" + str(sample) #
 
     # Add the parametric setup. Specify length.
     this_param = hfss.parametrics.add(
@@ -327,7 +327,7 @@ for sample in samples:
         variation_type="LinearCount",
     )
     this_param.add_variation(
-        "$cloned_Duroid__tm__permittivity",
+        "$cloned_Duroid_tm_permittivity",
         permittivity_variation,
         permittivity_variation,
         step=1,
@@ -337,15 +337,15 @@ for sample in samples:
     this_param.analyze()
     data = hfss.post.get_solution_data(
         "Zt(one_T1, one_T1)",
-        setup_sweep_name=setup_name + " : " + sweep_name,
+        setup_sweep_name=setup_name(frequencies[0]) + " : " + sweep_name,
         domain="Sweep",
         variations={
             patch.length.name: [str(length_variation) + "mm"],
             patch.width.name: [str(width_variation) + "mm"],
             dielectric.thickness.name: [str(thickness_variation) + "mm"],
-            "$cloned_Duroid__tm__permittivity": [str(permittivity_variation)],
+            "$cloned_Duroid_tm_permittivity": [str(permittivity_variation)],
         },
-        polyline_points=25000,
+        polyline_points=2501,
     )
     imaginary_part = data.data_imag()
     real_part = data.data_real()
