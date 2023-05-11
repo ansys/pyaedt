@@ -124,7 +124,7 @@ class Revision:
         # save the revision
         self.emit_project._emit_api.save_project()
         return interaction
-    
+
     @pyaedt_function_handler()
     def run(self, domain):
         """
