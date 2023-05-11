@@ -732,6 +732,9 @@ class TestClass(BasisTest, object):
             assert engine is not None
             assert engine.is_domain_valid(domain)
             assert rev.is_domain_valid(domain)
+            interaction_unrun = rev.get_interaction(domain)
+            assert interaction_unrun is not None
+            assert interaction_unrun.is_valid()
             interaction = engine.run(domain)
             assert interaction is not None
             assert interaction.is_valid()

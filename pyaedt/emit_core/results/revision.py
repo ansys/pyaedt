@@ -96,6 +96,36 @@ class Revision:
         print("This function is inaccessible when the revision is not loaded.")
 
     @pyaedt_function_handler()
+    def get_interaction(self, domain):
+        """
+        Creates a new interaction for a domain.
+
+        Parameters
+        ----------
+        domain :
+            ``InteractionDomain`` object for constraining the analysis parameters.
+
+        Returns
+        -------
+        interaction:class: `Interaction`
+            Interaction object.
+
+        Examples
+        ----------
+        >>> domain = aedtapp.results.interaction_domain()
+        >>> rev.get_interaction(domain)
+
+        """
+        self._load_revision()
+        engine = self.emit_project._emit_api.get_engine()
+        if domain.interferer_names and engine.max_simultaneous_interferers != len(domain.interferer_names):
+            raise ValueError("The max_simultaneous_interferers must equal the number of interferers in the domain.")
+        interaction = engine.get_interaction(domain)
+        # save the revision
+        self.emit_project._emit_api.save_project()
+        return interaction
+    
+    @pyaedt_function_handler()
     def run(self, domain):
         """
         Load the revision and then analyze along the given domain.
