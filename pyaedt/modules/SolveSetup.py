@@ -1427,12 +1427,12 @@ class Setup3DLayout(CommonSetup):
                                         obj_dict[pad_ind] = aedtapp.modeler.objects[pad_ind]
             obj_list = list(obj_dict.values())
             if len(obj_list) == 1:
-                obj_list[0].name = net
+                obj_list[0].name = net.replace(".", "_").replace("/", "_")
                 obj_list[0].color = [randrange(255), randrange(255), randrange(255)]
             elif len(obj_list) > 1:
                 united_object = aedtapp.modeler.unite(obj_list, purge=True)
                 obj_ind = aedtapp.modeler._object_names_to_ids[united_object]
-                aedtapp.modeler.objects[obj_ind].name = net
+                aedtapp.modeler.objects[obj_ind].name = net.replace(".", "_").replace("/", "_")
                 aedtapp.modeler.objects[obj_ind].color = [randrange(255), randrange(255), randrange(255)]
         if aedtapp.design_type == "Q3D Extractor":
             aedtapp.auto_identify_nets()
@@ -3076,6 +3076,24 @@ class SetupQ3D(Setup, object):
         if value or (self._ac_rl_enbled or self._capacitance_enabled):
             self._dc_enabled = value
             self.update()
+
+    @property
+    def dc_resistance_only(self):
+        """Get/Set the DC Resistance Only or Resistance/Inductance calculatio in active Q3D setup.
+
+        Returns
+        -------
+        bool
+        """
+        try:
+            return self.props["DC"]["SolveResOnly"]
+        except KeyError:
+            return False
+
+    @dc_resistance_only.setter
+    def dc_resistance_only(self, value):
+        if self.dc_enabled:
+            self.props["DC"]["SolveResOnly"] = value
 
     @pyaedt_function_handler()
     def update(self, update_dictionary=None):

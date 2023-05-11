@@ -52,7 +52,7 @@ repos:
 
 # validate GitHub workflow files
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0.22.0
+  rev: 0.23.0
   hooks:
     - id: check-github-workflows
 
@@ -69,4 +69,4 @@ repos:
 #     additional_dependencies: [toml]
 #     files: ^pyaedt/
 #     args:
-#     - --ignore=D412,D413,D213,D101,D107,D203,D102
+#     - --ignore=D412,D413,D213,D101,D107,D203,D102, D205

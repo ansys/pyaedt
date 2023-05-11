@@ -169,15 +169,23 @@ class TestClass(BasisTest, object):
         assert isinstance(o_box.longest_edge()[0], EdgePrimitive)
         assert isinstance(o_box.shortest_edge()[0], EdgePrimitive)
 
-    def test_04_object_material_property_invalid(self):
+    def test_04a_object_material_property_invalid(self):
         o_box = self.create_copper_box("Invalid1")
         o_box.material_name = "Copper1234Invalid"
         assert o_box.material_name == "copper"
 
-    def test_04_object_material_property_valid(self):
+    def test_04b_object_material_property_valid(self):
         o_box = self.create_copper_box("Valid2")
         o_box.material_name = "aluminum"
         assert o_box.material_name == "aluminum"
+
+    def test_04c_material_name_setter(self):
+        self.aedtapp.materials.add_material("myMat")
+        self.aedtapp.materials.add_material("myMat2")
+        self.aedtapp["mat_sweep_test"] = '["myMat", "myMat2"]'
+        box = self.aedtapp.modeler["MyBox"]
+        box.material_name = "mat_sweep_test[0]"
+        assert self.aedtapp.modeler.get_objects_by_material(materialname="mat_sweep_test[0]")[0].name == "MyBox"
 
     def test_05_object3d_properties_transparency(self):
         o = self.create_copper_box("TransparencyBox")

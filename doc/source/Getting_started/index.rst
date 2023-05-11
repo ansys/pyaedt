@@ -31,4 +31,6 @@ on the Ansys website.
 
    Installation
    ClientServer
+   versioning
+   Contributing
 

@@ -571,12 +571,36 @@ class EdbPadstacks(object):
             padparams = self._edb.Definition.PadstackDefData(pin.GetPadstackDef().GetData()).GetPadParametersValue(
                 layername, self.int_to_pad_type(pad_type)
             )
-        geom_type = int(padparams[1])
-        parameters = [i.ToString() for i in padparams[2]]
-        offset_x = padparams[3].ToDouble()
-        offset_y = padparams[4].ToDouble()
-        rot = padparams[5].ToDouble()
-        return geom_type, parameters, offset_x, offset_y, rot
+        if padparams[2]:
+            geometry_type = int(padparams[1])
+            parameters = [i.ToString() for i in padparams[2]]
+            offset_x = padparams[3].ToDouble()
+            offset_y = padparams[4].ToDouble()
+            rotation = padparams[5].ToDouble()
+            return geometry_type, parameters, offset_x, offset_y, rotation
+        else:
+            if isinstance(pin, self._edb.Definition.PadstackDef):
+                padparams = self._edb.Definition.PadstackDefData(pin.GetData()).GetPolygonalPadParameters(
+                    layername, self.int_to_pad_type(pad_type)
+                )
+            else:
+                padparams = self._edb.Definition.PadstackDefData(
+                    pin.GetPadstackDef().GetData()
+                ).GetPolygonalPadParameters(layername, self.int_to_pad_type(pad_type))
+
+            if padparams[0]:
+                parameters = [
+                    padparams[1].GetBBox().Item1.X.ToDouble(),
+                    padparams[1].GetBBox().Item1.Y.ToDouble(),
+                    padparams[1].GetBBox().Item2.X.ToDouble(),
+                    padparams[1].GetBBox().Item2.Y.ToDouble(),
+                ]
+                offset_x = padparams[2]
+                offset_y = padparams[3]
+                rotation = padparams[4]
+                geometry_type = 7
+                return geometry_type, parameters, offset_x, offset_y, rotation
+            return 0, [0], 0, 0, 0
 
     @pyaedt_function_handler
     def set_all_antipad_value(self, value):

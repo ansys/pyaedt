@@ -765,7 +765,8 @@ class TestClass(BasisTest, object):
             [-0.001, -0.001],
             [0.001, -0.001, "ccw", 0.0, -0.0012],
             [0.001, 0.001],
-            [-0.001, 0.001],
+            [0.0015, 0.0015, 0.0001],
+            [-0.001, 0.0015],
             [-0.001, -0.001],
         ]
         void1 = self.edbapp.modeler.Shape("polygon", points=points)
@@ -1555,6 +1556,15 @@ class TestClass(BasisTest, object):
 
         paths = [i[1] for i in trace_pathes]
         assert edb.hfss.create_bundle_wave_port(traces, paths)
+        p = edb.excitations["wave_port"]
+        p.horizontal_extent_factor = 6
+        p.vertical_extent_factor = 5
+        p.pec_launch_width = "0.02mm"
+        p.radial_extent_factor = 1
+        assert p.horizontal_extent_factor == 6
+        assert p.vertical_extent_factor == 5
+        assert p.pec_launch_width == "0.02mm"
+        assert p.radial_extent_factor == 1
         edb.close_edb()
 
     def test_122_build_hfss_project_from_config_file(self):
@@ -1681,7 +1691,7 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(is_ironpython, reason="Requires Numpy")
     def test_126_comp_def(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-        target_path = os.path.join(self.local_scratch.path, "test_0123.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_0126.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
         assert edbapp.components.components
@@ -2215,7 +2225,7 @@ class TestClass(BasisTest, object):
 
     def test_136_rlc_component_values_getter_setter(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-        target_path = os.path.join(self.local_scratch.path, "test_0123.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_0136.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
         components_to_change = [res for res in list(edbapp.components.Others.values()) if res.partname == "A93549-027"]
@@ -2397,3 +2407,13 @@ class TestClass(BasisTest, object):
                 assert j.tofloat == hfss_extent_info._get_edb_value(config[i]).ToDouble()
             else:
                 assert j == config[i]
+
+    def test_134_create_port_on_pin(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_0134.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, edbversion=desktop_version)
+        pin = "AJ6"
+        ref_pins = [pin for pin in list(edbapp.components["U2A5"].pins.values()) if pin.net_name == "GND"]
+        term = edbapp.components.create_port_on_pins(refdes="U2A5", pins=pin, reference_pins=ref_pins)
+        assert term
