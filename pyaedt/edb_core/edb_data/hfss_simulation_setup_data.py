@@ -476,6 +476,7 @@ class EdbFrequencySweep(object):
                 temp.extend(list(self._edb_sweep_data.SetLogFrequencies(i[1], i[2], i[3])))
             else:
                 return False
+        self._edb_sweep_data.Frequencies.Clear()
         for i in temp:
             self._edb_sweep_data.Frequencies.Add(i)
         return self._update_sweep()
@@ -1184,12 +1185,8 @@ class AdaptiveSettings(object):
         low_freq_adapt_data.MaxDelta = self._parent._edb.edb_value(max_delta_s).ToString()
         low_freq_adapt_data.MaxPasses = max_num_passes
         low_freq_adapt_data.AdaptiveFrequency = self._parent._edb.edb_value(frequency).ToString()
-        high_freq_adapt_data = self._parent._edb.simsetupdata.AdaptiveFrequencyData()
-        high_freq_adapt_data.MaxDelta = self._parent._edb.edb_value(max_delta_s).ToString()
-        high_freq_adapt_data.MaxPasses = max_num_passes
-        high_freq_adapt_data.AdaptiveFrequency = self._parent._edb.edb_value(frequency).ToString()
+        self.adaptive_settings.AdaptiveFrequencyDataList.Clear()
         self.adaptive_settings.AdaptiveFrequencyDataList.Add(low_freq_adapt_data)
-        self.adaptive_settings.AdaptiveFrequencyDataList.Add(high_freq_adapt_data)
         return self._parent._update_setup()
 
     @pyaedt_function_handler()
@@ -1222,6 +1219,7 @@ class AdaptiveSettings(object):
         high_freq_adapt_data.MaxDelta = self._parent._edb.edb_value(max_delta_s).ToString()
         high_freq_adapt_data.MaxPasses = max_num_passes
         high_freq_adapt_data.AdaptiveFrequency = self._parent._edb.edb_value(high_frequency).ToString()
+        self.adaptive_settings.AdaptiveFrequencyDataList.Clear()
         self.adaptive_settings.AdaptiveFrequencyDataList.Add(low_freq_adapt_data)
         self.adaptive_settings.AdaptiveFrequencyDataList.Add(high_freq_adapt_data)
         return self._parent._update_setup()

@@ -309,6 +309,8 @@ class CircuitPins(object):
 
 
 class ComponentParameters(dict):
+    """Manages component parameters."""
+
     def __setitem__(self, key, value):
         try:
             self._component._oeditor.ChangeProperty(
@@ -332,6 +334,8 @@ class ComponentParameters(dict):
 
 
 class ModelParameters(object):
+    """Manages model parameters."""
+
     def update(self):
         """Update the model properties.
 

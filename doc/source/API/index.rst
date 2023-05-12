@@ -33,7 +33,7 @@ PyAEDT app to get access to all modules and methods. Available apps are:
 - `Icepak <https://www.ansys.com/products/electronics>`_
 - `Mechanical <https://www.ansys.com/products/structures/ansys-mechanical>`_
 - RMXprt
-- Emit
+- EMIT
 - Circuit
 - `TwinBuilder <https://www.ansys.com/products/digital-twin/ansys-twin-builder>`_
 

@@ -1,6 +1,6 @@
 """
 Icepak: thermal analysis with 3D components
--------------------------------------
+-------------------------------------------
 This example shows how to create a thermal analysis of an electronic package by taking advantage of 3D components and
 features added by PyAEDT.
 """

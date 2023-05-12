@@ -1509,6 +1509,7 @@ class Analysis(Design, object):
 
         return self.analyze(self.active_setup, num_cores, num_tasks, num_gpu, acf_file, use_auto_settings)
 
+    @pyaedt_function_handler()
     def analyze(
         self,
         setup_name=None,
@@ -1658,7 +1659,18 @@ class Analysis(Design, object):
                     if self.working_directory[0] != "\\"
                     else os.path.join(self.working_directory, config_name + ".acf")
                 )
-            shutil.copy2(source_name, target_name)
+            try:
+                shutil.copy2(source_name, target_name)
+
+            # If source and destination are same
+            except shutil.SameFileError:
+                self.logger.warning("Source and destination represents the same file.")
+            # If there is any permission issue
+            except PermissionError:
+                self.logger.error("Permission denied.")
+            # For other errors
+            except:
+                self.logger.error("Error occurred while copying file.")
 
             if num_cores:
                 update_hpc_option(target_name, "NumCores", num_cores, False)
@@ -1864,7 +1876,7 @@ class Analysis(Design, object):
             self.logger.info("Batch job finished.")
 
         if machine == "localhost":
-            while not os.path.exists(queue_file_completed):
+            while not os.path.exists(queue_file):
                 time.sleep(0.5)
             with open(queue_file, "r") as f:
                 lines = f.readlines()
@@ -1873,6 +1885,8 @@ class Analysis(Design, object):
                         ls = line.split("=")[1].strip().strip("'")
                         self.last_run_job = ls
                         self.last_run_log = os.path.join(filename + ".batchinfo", project_name + "-" + ls + ".log")
+            while not os.path.exists(queue_file_completed):
+                time.sleep(0.5)
         return True
 
     @pyaedt_function_handler()

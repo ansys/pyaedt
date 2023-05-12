@@ -1204,7 +1204,7 @@ class PostProcessorCommon(object):
         return self.export_report_to_file(project_dir, plot_name, extension=".csv")
 
     @pyaedt_function_handler()
-    def export_report_to_jpg(self, project_dir, plot_name):
+    def export_report_to_jpg(self, project_dir, plot_name, width=0, height=0):
         """Export the SParameter plot to a JPG file.
 
         Parameters
@@ -1213,6 +1213,10 @@ class PostProcessorCommon(object):
             Path to the project directory.
         plot_name : str
             Name of the plot to export.
+        width : int, optional
+            Image width. Default is ``0`` which takes Desktop size or 500 pixel in case of non-graphical mode.
+        height : int, optional
+            Image height. Default is ``0`` which takes Desktop size or 500 pixel in case of non-graphical mode.
 
         Returns
         -------
@@ -1227,7 +1231,12 @@ class PostProcessorCommon(object):
         # path
         npath = project_dir
         file_name = os.path.join(npath, plot_name + ".jpg")  # name of the image file
-        self.oreportsetup.ExportImageToFile(plot_name, file_name, 0, 0)
+        if settings.non_graphical:
+            if width == 0:
+                width = 500
+            if height == 0:
+                height = 500
+        self.oreportsetup.ExportImageToFile(plot_name, file_name, width, height)
         return True
 
     @pyaedt_function_handler()
@@ -1740,7 +1749,11 @@ class PostProcessorCommon(object):
                 else:
                     self.logger.warning("Parameter " + attribute + " is not available, check syntax.")
         elif context:
-            if hasattr(self.modeler, "line_names") and context in self.modeler.line_names:
+            if (
+                hasattr(self.modeler, "line_names")
+                and hasattr(self.modeler, "point_names")
+                and context in self.modeler.point_names + self.modeler.line_names
+            ):
                 report.polyline = context
             elif context in [
                 "RL",
@@ -3158,6 +3171,11 @@ class PostProcessor(PostProcessorCommon, object):
                 height = 1080
             self.oeditor.ExportImage(full_name, width, height)
         else:
+            if settings.non_graphical:
+                if width == 0:
+                    width = 500
+                if height == 0:
+                    height = 500
             self.oeditor.ExportModelImageToFile(full_name, width, height, arg)
         return full_name
 
@@ -3331,10 +3349,10 @@ class PostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-        units : str
-            Output power units.
-        temperature : float
-            Temperature to calculate the power.
+        units : str, optional
+            Output power units. The default is ``"W"``.
+        temperature : float, optional
+            Temperature to calculate the power. The default is ``22``.
 
         Returns
         -------
@@ -3626,7 +3644,6 @@ class PostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-
         max_frequency : str, optional
             Maximum Frequency. Default is ``"1GHz"``.
         ray_density : int, optional
@@ -3674,7 +3691,6 @@ class PostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-
         max_frequency : str, optional
             Maximum Frequency. Default is ``"1GHz"``.
         ray_density : int, optional
@@ -3729,7 +3745,6 @@ class PostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-
         max_frequency : str, optional
             Maximum Frequency. Default is ``"1GHz"``.
         ray_density : int, optional
@@ -3803,7 +3818,7 @@ class PostProcessor(PostProcessorCommon, object):
         ----------
 
         max_frequency : str, optional
-            Maximum Frequency. Default is ``"1GHz"``.
+            Maximum Frequency. Default is ``1GHz``.
         ray_density : int, optional
             Ray Density. Default is ``2``.
         number_of_bounces : int, optional
@@ -3817,15 +3832,15 @@ class PostProcessor(PostProcessorCommon, object):
         custom_location : list, optional
             List of x, y,z position of point source. Default is ``None`.
         shoot_filter_type : str, optional
-            Shooter Type. Default is ``"All Rays"``. Options are  ``"Rays by index"``,  ``"Rays in box"``.
+            Shooter Type. Default is ``"All Rays"``. Options are ``Rays by index``, ``Rays in box``.
         ray_index_start : int, optional
-            Ray index start. Valid only if ``"Rays by index"`` is chosen.  Default is ``0``.
+            Ray index start. Valid only if ``Rays by index`` is chosen.  Default is ``0``.
         ray_index_stop : int, optional
-            Ray index stop. Valid only if ``"Rays by index"`` is chosen.  Default is ``1``.
+            Ray index stop. Valid only if ``Rays by index`` is chosen.  Default is ``1``.
         ray_index_step : int, optional
-            Ray index step. Valid only if ``"Rays by index"`` is chosen.  Default is ``1``.
+            Ray index step. Valid only if ``Rays by index`` is chosen.  Default is ``1``.
         ray_box : int or str optional
-            Ray box name or id. Valid only if ``"Rays by box"`` is chosen.  Default is ``None``.
+            Ray box name or id. Valid only if ``Rays by box`` is chosen.  Default is ``None``.
 
         Returns
         -------

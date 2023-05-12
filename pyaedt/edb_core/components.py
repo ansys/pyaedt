@@ -285,7 +285,7 @@ class Components(object):
     @pyaedt_function_handler()
     def refresh_components(self):
         """Refresh the component dictionary."""
-        self._logger.info("Refreshing the Components dictionary.")
+        # self._logger.info("Refreshing the Components dictionary.")
         self._cmp = {
             l.GetName(): EDBComponent(self, l)
             for l in self._active_layout.Groups
@@ -310,7 +310,7 @@ class Components(object):
         >>> edbapp.components.resistors
         """
         self._res = {}
-        for el, val in self.components.items():
+        for el, val in self.instances.items():
             if val.type == "Resistor":
                 self._res[el] = val
         return self._res
@@ -332,7 +332,7 @@ class Components(object):
         >>> edbapp.components.capacitors
         """
         self._cap = {}
-        for el, val in self.components.items():
+        for el, val in self.instances.items():
             if val.type == "Capacitor":
                 self._cap[el] = val
         return self._cap
@@ -355,7 +355,7 @@ class Components(object):
 
         """
         self._ind = {}
-        for el, val in self.components.items():
+        for el, val in self.instances.items():
             if val.type == "Inductor":
                 self._ind[el] = val
         return self._ind
@@ -378,7 +378,7 @@ class Components(object):
 
         """
         self._ics = {}
-        for el, val in self.components.items():
+        for el, val in self.instances.items():
             if val.type == "IC":
                 self._ics[el] = val
         return self._ics
@@ -401,7 +401,7 @@ class Components(object):
 
         """
         self._ios = {}
-        for el, val in self.components.items():
+        for el, val in self.instances.items():
             if val.type == "IO":
                 self._ios[el] = val
         return self._ios
@@ -424,7 +424,7 @@ class Components(object):
 
         """
         self._others = {}
-        for el, val in self.components.items():
+        for el, val in self.instances.items():
             if val.type == "Other":
                 self._others[el] = val
         return self._others
@@ -447,7 +447,7 @@ class Components(object):
 
         """
         self._comps_by_part = {}
-        for el, val in self.components.items():
+        for el, val in self.instances.items():
             if val.partname in self._comps_by_part.keys():
                 self._comps_by_part[val.partname].append(val)
             else:
@@ -509,7 +509,7 @@ class Components(object):
         cmp_list = []
         if isinstance(netlist, str):
             netlist = [netlist]
-        components = list(self.components.keys())
+        components = list(self.instances.keys())
         for refdes in components:
             cmpnets = self._cmp[refdes].nets
             if set(cmpnets).intersection(set(netlist)):
@@ -658,7 +658,7 @@ class Components(object):
 
         Returns
         -------
-        double, bool
+        bool
             ``True`` when successful, ``False`` when failed.
 
         """
@@ -731,6 +731,86 @@ class Components(object):
         return True
 
     @pyaedt_function_handler()
+    def create_port_on_pins(self, refdes, pins, reference_pins, impedance=50.0):
+        """Create circuit port between pins and reference ones.
+
+        Parameters
+        ----------
+        refdes : Component reference designator
+            str or EDBComponent object.
+        pins : pin name where the terminal has to be created. Single pin or several ones can be provided.If several
+        pins are provided a pin group will is created. Pin names can be the EDB name or the EDBPadstackInstance one.
+        For instance the pin called ``Pin1`` located on component ``U1``, ``U1-Pin1`` or ``Pin1`` can be provided and
+        will be handled.
+            str, [str], EDBPadstackInstance, [EDBPadstackInstance]
+        reference_pins : reference pin name used for terminal reference. Single pin or several ones can be provided.
+        If several pins are provided a pin group will is created. Pin names can be the EDB name or the
+        EDBPadstackInstance one. For instance the pin called ``Pin1`` located on component ``U1``, ``U1-Pin1``
+        or ``Pin1`` can be provided and will be handled.
+            str, [str], EDBPadstackInstance, [EDBPadstackInstance]
+        impedance : Port impedance
+            str, float
+
+        Returns
+        -------
+        EDB terminal created, or False if failed to create.
+
+        Example:
+        >>> from pyaedt import Edb
+        >>> edb = Edb(path_to_edb_file)
+        >>> pin = "AJ6"
+        >>> ref_pins = ["AM7", "AM4"]
+        Or to take all reference pins
+        >>> ref_pins = [pin for pin in list(edb.components["U2A5"].pins.values()) if pin.net_name == "GND"]
+        >>> edb.components.create_port_on_pins(refdes="U2A5", pins=pin, reference_pins=ref_pins)
+        >>> edb.save_edb()
+        >>> edb.close_edb()
+        """
+
+        if isinstance(pins, str) or isinstance(pins, EDBPadstackInstance):
+            pins = [pins]
+        if isinstance(reference_pins, str):
+            reference_pins = [reference_pins]
+        if isinstance(refdes, str) or isinstance(refdes, EDBComponent):
+            refdes = self.instances[refdes]
+        if len([pin for pin in pins if isinstance(pin, str)]) == len(pins):
+            cmp_pins = []
+            for pin_name in pins:
+                cmp_pin = [pin for pin in list(refdes.pins.values()) if pin_name in pin.name]
+                if cmp_pin:
+                    cmp_pins.append(cmp_pin[0])
+            if not cmp_pins:
+                return
+            pins = cmp_pins
+        if not len([pin for pin in pins if isinstance(pin, EDBPadstackInstance)]) == len(pins):
+            self._logger.error("Pin list must contain only pins instances")
+            return
+        if len([pin for pin in reference_pins if isinstance(pin, str)]) == len(reference_pins):
+            ref_cmp_pins = []
+            for ref_pin_name in reference_pins:
+                cmp_ref_pin = [pin for pin in list(refdes.pins.values()) if ref_pin_name in pin.name]
+                if cmp_ref_pin:
+                    ref_cmp_pins.append(cmp_ref_pin[0])
+            if not ref_cmp_pins:
+                return
+            reference_pins = ref_cmp_pins
+        if not len([pin for pin in reference_pins if isinstance(pin, EDBPadstackInstance)]) == len(reference_pins):
+            return
+        group_name = "group_{}_{}".format(pins[0].net_name, pins[0].name)
+        ref_group_name = "group_{}_{}_ref".format(pins[0].net_name, pins[0].name)
+        pin_group = self.create_pingroup_from_pins(pins, group_name)
+        ref_pin_group = self.create_pingroup_from_pins(reference_pins, ref_group_name)
+        term = self._create_pin_group_terminal(pingroup=pin_group, component=refdes.refdes)
+        term.SetIsCircuitPort(True)
+        ref_term = self._create_pin_group_terminal(pingroup=ref_pin_group, component=refdes.refdes)
+        ref_term.SetIsCircuitPort(True)
+        term.SetImpedance(self._edb.Utility.Value(impedance))
+        term.SetReferenceTerminal(ref_term)
+        if term:
+            return term
+        return False
+
+    @pyaedt_function_handler()
     def create_port_on_component(
         self,
         component,
@@ -745,19 +825,15 @@ class Components(object):
         ----------
         component : str or self._edb.Cell.Hierarchy.Component
             EDB component or str component name.
-
         net_list : str or list of string.
             List of nets where ports must be created on the component.
             If the net is not part of the component, this parameter is skipped.
-
         port_type : SourceType enumerator, CoaxPort or CircuitPort
             Type of port to create. ``CoaxPort`` generates solder balls.
             ``CircuitPort`` generates circuit ports on pins belonging to the net list.
-
         do_pingroup : bool
             True activate pingroup during port creation (only used with combination of CoaxPort),
             False will take the closest reference pin and generate one port per signal pin.
-
         refnet : string or list of string.
             list of the reference net.
 
@@ -804,8 +880,13 @@ class Components(object):
         pin_layers = cmp_pins[0].GetPadstackDef().GetData().GetLayerNames()
         if port_type == SourceType.CoaxPort:
             pad_params = self._padstack.get_pad_parameters(pin=cmp_pins[0], layername=pin_layers[0], pad_type=0)
-            sball_diam = min([self._pedb.edb_value(val).ToDouble() for val in pad_params[1]])
-            solder_ball_height = sball_diam
+            if not pad_params[0] == 7:
+                sball_diam = min([self._pedb.edb_value(val).ToDouble() for val in pad_params[1]])
+                solder_ball_height = sball_diam / 2
+            else:
+                bbox = pad_params[1]
+                sball_diam = min([abs(bbox[2] - bbox[0]), abs(bbox[3] - bbox[1])]) * 0.8
+                solder_ball_height = sball_diam / 2
             self.set_solder_ball(component, solder_ball_height, sball_diam)
             for pin in cmp_pins:
                 self._padstack.create_coax_port(pin)
@@ -877,9 +958,7 @@ class Components(object):
         """
 
         pin_position = self.get_pin_position(pin)  # pragma no cover
-        pin_pos = self._edb.Geometry.PointData(
-            self._get_edb_value(pin_position[0]), self._get_edb_value(pin_position[1])  # pragma no cover
-        )
+        pin_pos = self._pedb.point_data(*pin_position)
         res, from_layer, _ = pin.GetLayerRange()
         cmp_name = pin.GetComponent().GetName()
         net_name = pin.GetNet().GetName()
@@ -906,14 +985,14 @@ class Components(object):
 
         """
         res, pin_position, pin_rot = pin.GetPositionAndRotation(
-            self._edb.Geometry.PointData(self._get_edb_value(0.0), self._get_edb_value(0.0)),
+            self._pedb.point_data(0.0, 0.0),
             0.0,
         )
         distance = 1e3
         closest_pin = ref_pinlist[0]
         for ref_pin in ref_pinlist:
             res, ref_pin_position, ref_pin_rot = ref_pin.GetPositionAndRotation(
-                self._edb.Geometry.PointData(self._get_edb_value(0.0), self._get_edb_value(0.0)),
+                self._pedb.point_data(0.0, 0.0),
                 0.0,
             )
             temp_distance = pin_position.Distance(ref_pin_position)
@@ -993,21 +1072,27 @@ class Components(object):
         pins = self.get_pin_from_component(component.refdes)
         if len(pins) == 2:  # pragma: no cover
             pos_pin_loc = self.get_pin_position(pins[0])
-            pt = self._pedb.edb.Geometry.PointData(
-                self._get_edb_value(pos_pin_loc[0]), self._get_edb_value(pos_pin_loc[1])
-            )
+            pt = self._pedb.point_data(*pos_pin_loc)
+
             pin_layers = self._padstack._get_pin_layer_range(pins[0])
             pos_pin_term = self._pedb.edb.Cell.Terminal.PointTerminal.Create(
-                self._active_layout, pins[0].GetNet(), pins[0].GetName(), pt, pin_layers[0]
+                self._active_layout,
+                pins[0].GetNet(),
+                "{}_{}".format(component.refdes, pins[0].GetName()),
+                pt,
+                pin_layers[0],
             )
             if not pos_pin_term:  # pragma: no cover
                 return False
             neg_pin_loc = self.get_pin_position(pins[1])
-            pt = self._pedb.edb.Geometry.PointData(
-                self._get_edb_value(neg_pin_loc[0]), self._get_edb_value(neg_pin_loc[1])
-            )
+            pt = self._pedb.point_data(*neg_pin_loc)
+
             neg_pin_term = self._pedb.edb.Cell.Terminal.PointTerminal.Create(
-                self._active_layout, pins[1].GetNet(), pins[1].GetName() + "_ref", pt, pin_layers[0]
+                self._active_layout,
+                pins[1].GetNet(),
+                "{}_{}_ref".format(component.refdes, pins[1].GetName()),
+                pt,
+                pin_layers[0],
             )
             if not neg_pin_term:  # pragma: no cover
                 return False
@@ -1109,19 +1194,14 @@ class Components(object):
              List of EDB pins, length must be 2, since only 2 pins component are currently supported.
              It can be an `pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance` object or
              an Edb Padstack Instance object.
-
         component_name : str
             Component definition name.
-
         r_value : float
             Resistor value.
-
         c_value : float
             Capacitance value.
-
         l_value : float
             Inductor value.
-
         is_parallel : bool
             Using parallel model when ``True``, series when ``False``.
 
@@ -1177,6 +1257,7 @@ class Components(object):
             Inductor value.
         is_parallel : bool
             Using parallel model when ``True``, series when ``False``.
+
         Returns
         -------
         bool
@@ -1251,8 +1332,9 @@ class Components(object):
             ):
                 return False  # pragma no cover
         new_cmp.SetTransform(hosting_component_location)
-        self._cmp[new_cmp.GetName()] = EDBComponent(self, new_cmp)
-        return new_cmp
+        new_edb_comp = EDBComponent(self, new_cmp)
+        self._cmp[new_cmp.GetName()] = new_edb_comp
+        return new_edb_comp
 
     @pyaedt_function_handler()
     def create_component_from_pins(
@@ -1393,7 +1475,7 @@ class Components(object):
         Parameters
         ----------
         pins : list
-            List of EDB core pins.
+            List of EDB pins.
         group_name : str, optional
             Name for the group. The default is ``None``, in which case
             a default name is assigned as follows: ``[component Name] [NetName]``.
@@ -1413,8 +1495,16 @@ class Components(object):
         if len(pins) < 1:
             self._logger.error("No pins specified for pin group %s", group_name)
             return (False, None)
+        if len([pin for pin in pins if isinstance(pin, EDBPadstackInstance)]):
+            _pins = [pin._edb_padstackinstance for pin in pins]
+            if _pins:
+                pins = _pins
         if group_name is None:
             group_name = self._edb.Cell.Hierarchy.PinGroup.GetUniqueName(self._active_layout)
+        for pin in pins:
+            pin.SetIsLayoutPin(True)
+        forbiden_car = "-><"
+        group_name = group_name.translate({ord(i): "_" for i in forbiden_car})
         pingroup = _retry_ntimes(
             10,
             self._edb.Cell.Hierarchy.PinGroup.Create,
@@ -1448,7 +1538,7 @@ class Components(object):
 
         """
         deleted_comps = []
-        for comp, val in self.components.items():
+        for comp, val in self.instances.items():
             if val.numpins < 2 and val.type in ["Resistor", "Capacitor", "Inductor"]:
                 val.edbcomponent.Delete()
                 deleted_comps.append(comp)
@@ -1510,7 +1600,7 @@ class Components(object):
         edb_cmp = self.get_component_by_name(component_name)
         if edb_cmp is not None:
             edb_cmp.Delete()
-            if edb_cmp in list(self.components.keys()):
+            if edb_cmp in list(self.instances.keys()):
                 del self.components[edb_cmp]
             return True
         return False
@@ -1565,7 +1655,7 @@ class Components(object):
 
         Parameters
         ----------
-        component_name : str or EDB component
+        component : str or EDB component, optional
             Name of the discrete component.
         sball_diam  : str, float, optional
             Diameter of the solder ball.
@@ -1576,9 +1666,10 @@ class Components(object):
             ``"Spheroid"``. The default is ``"Cylinder"``.
         sball_mid_diam : str, float, optional
             Mid diameter of the solder ball.
-        chip_orientation : str
+        chip_orientation : str, optional
             Give the chip orientation, ``"chip_down"`` or ``"chip_up"``. Default is ``"chip_down"``. Only applicable on
             IC model.
+
         Returns
         -------
         bool
@@ -1771,7 +1862,7 @@ class Components(object):
             refdescolumn = None
             comptypecolumn = None
             valuecolumn = None
-            unmount_comp_list = list(self.components.keys())
+            unmount_comp_list = list(self.instances.keys())
             for line in Lines:
                 content_line = [i.strip() for i in line.split(delimiter)]
                 if valuefield in content_line:
@@ -1826,13 +1917,14 @@ class Components(object):
         value_col : int, optional
             Column index of value. The default is ``"3"``. Set to ``None``
             if the column does not exist.
+
         Returns
         -------
         bool
         """
         with open(bom_file, "r") as f:
             lines = f.readlines()
-            unmount_comp_list = list(self.components.keys())
+            unmount_comp_list = list(self.instances.keys())
             for l in lines[1:]:
                 l = l.replace(" ", "").replace("\n", "")
                 if not l:
@@ -1901,7 +1993,7 @@ class Components(object):
         """
         with open(bom_file, "w") as f:
             f.writelines([delimiter.join(["RefDes", "Part name", "Type", "Value\n"])])
-            for refdes, comp in self.components.items():
+            for refdes, comp in self.instances.items():
                 if not comp.is_enabled and comp.type in ["Resistor", "Capacitor", "Inductor"]:
                     continue
                 part_name = comp.partname
@@ -2157,7 +2249,7 @@ class Components(object):
 
         """
         df_list = []
-        for refdes in self.components.keys():
+        for refdes in self.instances.keys():
             df = self.get_component_net_connection_info(refdes)
             df_list.append(df)
         return df_list

@@ -6,6 +6,7 @@ import sys
 
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
+from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.sources import Source
 from pyaedt.generic.constants import RadiationBoxType
@@ -25,7 +26,7 @@ from pyaedt.generic.constants import SourceType
 
 try:
     import pytest
-except ImportError:  # 'pragma: no cover
+except ImportError:  # pragma: no cover
     import _unittest_ironpython.conf_unittest as pytest
 
 test_subfolder = "TEDB"
@@ -451,25 +452,27 @@ class TestClass(BasisTest, object):
 
     def test_055_get_padstack(self):
         for el in self.edbapp.padstacks.definitions:
-            pad = self.edbapp.padstacks.definitions[el]
-            assert pad.hole_plating_thickness is not None or False
-            assert pad.hole_properties is not None or False
-            assert pad.hole_plating_thickness is not None or False
-            assert pad.hole_plating_ratio is not None or False
-            assert pad.via_start_layer is not None or False
-            assert pad.via_stop_layer is not None or False
-            assert pad.material is not None or False
-            assert pad.hole_finished_size is not None or False
-            assert pad.hole_rotation is not None or False
-            assert pad.hole_offset_x is not None or False
-            assert pad.hole_offset_y is not None or False
-            assert pad.hole_type is not None or False
-            assert pad.pad_by_layer[pad.via_stop_layer].parameters is not None or False
-            assert pad.pad_by_layer[pad.via_stop_layer].parameters_values is not None or False
-            assert pad.pad_by_layer[pad.via_stop_layer].offset_x is not None or False
-            assert pad.pad_by_layer[pad.via_stop_layer].offset_y is not None or False
-            assert isinstance(pad.pad_by_layer[pad.via_stop_layer].geometry_type, int)
-            polygon = pad.pad_by_layer[pad.via_stop_layer].polygon_data
+            padstack = self.edbapp.padstacks.definitions[el]
+            assert padstack.hole_plating_thickness is not None or False
+            assert padstack.hole_properties is not None or False
+            assert padstack.hole_plating_thickness is not None or False
+            assert padstack.hole_plating_ratio is not None or False
+            assert padstack.via_start_layer is not None or False
+            assert padstack.via_stop_layer is not None or False
+            assert padstack.material is not None or False
+            assert padstack.hole_finished_size is not None or False
+            assert padstack.hole_rotation is not None or False
+            assert padstack.hole_offset_x is not None or False
+            assert padstack.hole_offset_y is not None or False
+            assert padstack.hole_type is not None or False
+            pad = padstack.pad_by_layer[padstack.via_stop_layer]
+            if not pad.shape == "NoGeometry":
+                assert pad.parameters is not None or False
+                assert pad.parameters_values is not None or False
+                assert pad.offset_x is not None or False
+                assert pad.offset_y is not None or False
+                assert isinstance(pad.geometry_type, int)
+            polygon = pad.polygon_data
             if polygon:
                 assert polygon.GetBBox()
 
@@ -489,13 +492,24 @@ class TestClass(BasisTest, object):
         assert abs(pad.hole_properties[0] - hole_pad) < tol
         offset_x = 7
         offset_y = 1
-        param = 7
-        pad.pad_by_layer[pad.via_stop_layer].parameters = param
+        pad.pad_by_layer[pad.via_stop_layer].shape = "Circle"
+        pad.pad_by_layer[pad.via_stop_layer].parameters = 7
         pad.pad_by_layer[pad.via_stop_layer].offset_x = offset_x
         pad.pad_by_layer[pad.via_stop_layer].offset_y = offset_y
+        assert pad.pad_by_layer[pad.via_stop_layer].parameters["Diameter"].tofloat == 7
         assert pad.pad_by_layer[pad.via_stop_layer].offset_x == str(offset_x)
         assert pad.pad_by_layer[pad.via_stop_layer].offset_y == str(offset_y)
-        assert pad.pad_by_layer[pad.via_stop_layer].parameters[0] == str(param)
+        pad.pad_by_layer[pad.via_stop_layer].parameters = {"Diameter": 8}
+        assert pad.pad_by_layer[pad.via_stop_layer].parameters["Diameter"].tofloat == 8
+        pad.pad_by_layer[pad.via_stop_layer].parameters = {"Diameter": 1}
+        pad.pad_by_layer[pad.via_stop_layer].shape = "Square"
+        pad.pad_by_layer[pad.via_stop_layer].parameters = {"Size": 1}
+        pad.pad_by_layer[pad.via_stop_layer].shape = "Rectangle"
+        pad.pad_by_layer[pad.via_stop_layer].parameters = {"XSize": 1, "YSize": 1}
+        pad.pad_by_layer[pad.via_stop_layer].shape = "Oval"
+        pad.pad_by_layer[pad.via_stop_layer].parameters = {"XSize": 1, "YSize": 1, "CornerRadius": 1}
+        pad.pad_by_layer[pad.via_stop_layer].parameters = {"XSize": 1, "YSize": 1, "CornerRadius": 1}
+        pad.pad_by_layer[pad.via_stop_layer].parameters = [1, 1, 1]
 
     def test_057_save_edb_as(self):
         assert self.edbapp.save_edb_as(os.path.join(self.local_scratch.path, "Gelileo_new.aedb"))
@@ -541,8 +555,8 @@ class TestClass(BasisTest, object):
         pins = self.edbapp.components.get_pin_from_component("R13")
         component = self.edbapp.components.create(pins, "newcomp")
         assert component
-        assert component.GetName() == "newcomp"
-        assert len(list(component.LayoutObjs)) == 2
+        assert component.part_name == "newcomp"
+        assert len(component.pins) == 2
 
     def test_062_create_cutout(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
@@ -751,7 +765,8 @@ class TestClass(BasisTest, object):
             [-0.001, -0.001],
             [0.001, -0.001, "ccw", 0.0, -0.0012],
             [0.001, 0.001],
-            [-0.001, 0.001],
+            [0.0015, 0.0015, 0.0001],
+            [-0.001, 0.0015],
             [-0.001, -0.001],
         ]
         void1 = self.edbapp.modeler.Shape("polygon", points=points)
@@ -795,7 +810,7 @@ class TestClass(BasisTest, object):
         edbapp.close_edb()
 
     def test_071_create_edb(self):
-        edb = Edb(os.path.join(self.local_scratch.path, "temp.aedb"))
+        edb = Edb(os.path.join(self.local_scratch.path, "temp.aedb"), edbversion=desktop_version)
         assert edb
         assert edb.active_layout
         edb.close_edb()
@@ -1345,7 +1360,7 @@ class TestClass(BasisTest, object):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "test_107.aedb")
         target_path = os.path.join(self.local_scratch.path, "test_113.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
-        edb = Edb(target_path)
+        edb = Edb(target_path, edbversion=desktop_version)
         initial_extent_info = edb.active_cell.GetHFSSExtentInfo()
         assert initial_extent_info.ExtentType == edb.edb.Utility.HFSSExtentInfoType.Conforming
         config = SimulationConfiguration()
@@ -1413,7 +1428,7 @@ class TestClass(BasisTest, object):
         if not os.path.exists(self.local_scratch.path):
             os.mkdir(self.local_scratch.path)
         self.local_scratch.copyfolder(source_path, target_path)
-        edb = Edb(target_path)
+        edb = Edb(target_path, edbversion=desktop_version)
         assert len(list(edb.active_cell.SimulationSetups)) == 0
         sim_config = SimulationConfiguration()
         sim_config.enforce_causality = False
@@ -1434,7 +1449,7 @@ class TestClass(BasisTest, object):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
         target_path = os.path.join(self.local_scratch.path, "test_0117.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
-        edb = Edb(target_path)
+        edb = Edb(target_path, edbversion=desktop_version)
         sim_setup = SimulationConfiguration()
         sim_setup.mesh_sizefactor = 1.9
         assert not sim_setup.do_lambda_refinement
@@ -1541,6 +1556,15 @@ class TestClass(BasisTest, object):
 
         paths = [i[1] for i in trace_pathes]
         assert edb.hfss.create_bundle_wave_port(traces, paths)
+        p = edb.excitations["wave_port"]
+        p.horizontal_extent_factor = 6
+        p.vertical_extent_factor = 5
+        p.pec_launch_width = "0.02mm"
+        p.radial_extent_factor = 1
+        assert p.horizontal_extent_factor == 6
+        assert p.vertical_extent_factor == 5
+        assert p.pec_launch_width == "0.02mm"
+        assert p.radial_extent_factor == 1
         edb.close_edb()
 
     def test_122_build_hfss_project_from_config_file(self):
@@ -1667,7 +1691,7 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(is_ironpython, reason="Requires Numpy")
     def test_126_comp_def(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-        target_path = os.path.join(self.local_scratch.path, "test_0123.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_0126.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
         assert edbapp.components.components
@@ -2201,7 +2225,7 @@ class TestClass(BasisTest, object):
 
     def test_136_rlc_component_values_getter_setter(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-        target_path = os.path.join(self.local_scratch.path, "test_0123.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_0136.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
         components_to_change = [res for res in list(edbapp.components.Others.values()) if res.partname == "A93549-027"]
@@ -2231,7 +2255,7 @@ class TestClass(BasisTest, object):
         assert len(self.edbapp.pins) > 0
 
     def test_130_create_padstack_instance(self):
-        edb = Edb()
+        edb = Edb(edbversion=desktop_version)
         edb.stackup.add_layer(layer_name="top", fillMaterial="AIR", thickness="30um")
         edb.stackup.add_layer(layer_name="contact", fillMaterial="AIR", thickness="100um", base_layer="top")
 
@@ -2240,8 +2264,6 @@ class TestClass(BasisTest, object):
             padstackname="pad",
             x_size="350um",
             y_size="500um",
-            startlayer="top",
-            endlayer="top",
             holediam=0,
         )
         pad_instance1 = edb.padstacks.place(position=["-0.65mm", "-0.665mm"], definition_name="pad")
@@ -2258,3 +2280,176 @@ class TestClass(BasisTest, object):
         pad_instance2.stop_layer = "top"
         assert pad_instance2.start_layer == "top"
         assert pad_instance2.stop_layer == "top"
+
+    def test_131_assign_hfss_extent_non_multiple_with_simconfig(self):
+        edb = Edb()
+        edb.stackup.add_layer(layer_name="GND", fillMaterial="AIR", thickness="30um")
+        edb.stackup.add_layer(layer_name="FR4", base_layer="gnd", thickness="250um")
+        edb.stackup.add_layer(layer_name="SIGNAL", base_layer="FR4", thickness="30um")
+        edb.core_primitives.create_trace(
+            layer_name="SIGNAL", width=0.02, net_name="net1", path_list=[[-1e3, 0, 1e-3, 0]]
+        )
+        edb.core_primitives.create_rectangle(
+            layer_name="GND",
+            representation_type="CenterWidthHeight",
+            center_point=["0mm", "0mm"],
+            width="4mm",
+            height="4mm",
+            net_name="GND",
+        )
+        sim_setup = edb.new_simulation_configuration()
+        sim_setup.signal_nets = ["net1"]
+        sim_setup.power_nets = ["GND"]
+        sim_setup.use_dielectric_extent_multiple = False
+        sim_setup.use_airbox_horizontal_extent_multiple = False
+        sim_setup.use_airbox_negative_vertical_extent_multiple = False
+        sim_setup.use_airbox_positive_vertical_extent_multiple = False
+        sim_setup.dielectric_extent = 0.0005
+        sim_setup.airbox_horizontal_extent = 0.001
+        sim_setup.airbox_negative_vertical_extent = 0.05
+        sim_setup.airbox_positive_vertical_extent = 0.04
+        edb.build_simulation_project(sim_setup)
+        hfss_ext_info = edb.active_cell.GetHFSSExtentInfo()
+        assert hfss_ext_info
+        assert hfss_ext_info.AirBoxHorizontalExtent.Item1 == 0.001
+        assert not hfss_ext_info.AirBoxHorizontalExtent.Item2
+        assert hfss_ext_info.AirBoxNegativeVerticalExtent.Item1 == 0.05
+        assert not hfss_ext_info.AirBoxNegativeVerticalExtent.Item2
+        assert hfss_ext_info.AirBoxPositiveVerticalExtent.Item1 == 0.04
+        assert not hfss_ext_info.AirBoxPositiveVerticalExtent.Item2
+        assert hfss_ext_info.DielectricExtentSize.Item1 == 0.0005
+        assert not hfss_ext_info.AirBoxPositiveVerticalExtent.Item2
+
+    def test_132_assign_hfss_extent_multiple_with_simconfig(self):
+        edb = Edb()
+        edb.stackup.add_layer(layer_name="GND", fillMaterial="AIR", thickness="30um")
+        edb.stackup.add_layer(layer_name="FR4", base_layer="gnd", thickness="250um")
+        edb.stackup.add_layer(layer_name="SIGNAL", base_layer="FR4", thickness="30um")
+        edb.core_primitives.create_trace(
+            layer_name="SIGNAL", width=0.02, net_name="net1", path_list=[[-1e3, 0, 1e-3, 0]]
+        )
+        edb.core_primitives.create_rectangle(
+            layer_name="GND",
+            representation_type="CenterWidthHeight",
+            center_point=["0mm", "0mm"],
+            width="4mm",
+            height="4mm",
+            net_name="GND",
+        )
+        sim_setup = edb.new_simulation_configuration()
+        sim_setup.signal_nets = ["net1"]
+        sim_setup.power_nets = ["GND"]
+        sim_setup.use_dielectric_extent_multiple = True
+        sim_setup.use_airbox_horizontal_extent_multiple = True
+        sim_setup.use_airbox_negative_vertical_extent_multiple = True
+        sim_setup.use_airbox_positive_vertical_extent_multiple = True
+        sim_setup.dielectric_extent = 0.0005
+        sim_setup.airbox_horizontal_extent = 0.001
+        sim_setup.airbox_negative_vertical_extent = 0.05
+        sim_setup.airbox_positive_vertical_extent = 0.04
+        edb.build_simulation_project(sim_setup)
+        hfss_ext_info = edb.active_cell.GetHFSSExtentInfo()
+        assert hfss_ext_info
+        assert hfss_ext_info.AirBoxHorizontalExtent.Item1 == 0.001
+        assert hfss_ext_info.AirBoxHorizontalExtent.Item2
+        assert hfss_ext_info.AirBoxNegativeVerticalExtent.Item1 == 0.05
+        assert hfss_ext_info.AirBoxNegativeVerticalExtent.Item2
+        assert hfss_ext_info.AirBoxPositiveVerticalExtent.Item1 == 0.04
+        assert hfss_ext_info.AirBoxPositiveVerticalExtent.Item2
+        assert hfss_ext_info.DielectricExtentSize.Item1 == 0.0005
+        assert hfss_ext_info.AirBoxPositiveVerticalExtent.Item2
+
+    def test_133_stackup_properties(self):
+        edb = Edb(edbversion=desktop_version)
+        edb.stackup.add_layer(layer_name="gnd", fillMaterial="AIR", thickness="10um")
+        edb.stackup.add_layer(layer_name="diel1", fillMaterial="AIR", thickness="200um", base_layer="gnd")
+        edb.stackup.add_layer(layer_name="sig1", fillMaterial="AIR", thickness="10um", base_layer="diel1")
+        edb.stackup.add_layer(layer_name="diel2", fillMaterial="AIR", thickness="200um", base_layer="sig1")
+        edb.stackup.add_layer(layer_name="sig3", fillMaterial="AIR", thickness="10um", base_layer="diel2")
+        assert edb.stackup.thickness == 0.00043
+        assert edb.stackup.num_layers == 5
+
+    def test_134_hfss_extent_info(self):
+        from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives as EDBPrimitives
+
+        config = {
+            "air_box_horizontal_extent_enabled": False,
+            "air_box_horizontal_extent": 0.01,
+            "air_box_positive_vertical_extent": 0.3,
+            "air_box_positive_vertical_extent_enabled": False,
+            "air_box_negative_vertical_extent": 0.1,
+            "air_box_negative_vertical_extent_enabled": False,
+            "base_polygon": self.edbapp.modeler.polygons[0],
+            "dielectric_base_polygon": self.edbapp.modeler.polygons[1],
+            "dielectric_extent_size": 0.1,
+            "dielectric_extent_size_enabled": False,
+            "dielectric_extent_type": "Conforming",
+            "extent_type": "Conforming",
+            "honor_user_dielectric": False,
+            "is_pml_visible": False,
+            "open_region_type": "PML",
+            "operating_freq": "2GHz",
+            "radiation_level": 1,
+            "sync_air_box_vertical_extent": False,
+            "use_open_region": False,
+            "use_xy_data_extent_for_vertical_expansion": False,
+            "truncate_air_box_at_ground": True,
+        }
+        hfss_extent_info = self.edbapp.hfss.hfss_extent_info
+        hfss_extent_info.load_config(config)
+        exported_config = hfss_extent_info.export_config()
+        for i, j in exported_config.items():
+            if not i in config:
+                continue
+            if isinstance(j, EDBPrimitives):
+                assert j.id == config[i].id
+            elif isinstance(j, EdbValue):
+                assert j.tofloat == hfss_extent_info._get_edb_value(config[i]).ToDouble()
+            else:
+                assert j == config[i]
+
+    def test_134_create_port_on_pin(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_0134.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, edbversion=desktop_version)
+        pin = "AJ6"
+        ref_pins = [pin for pin in list(edbapp.components["U2A5"].pins.values()) if pin.net_name == "GND"]
+        term = edbapp.components.create_port_on_pins(refdes="U2A5", pins=pin, reference_pins=ref_pins)
+        assert term
+
+    def test_138_import_gds_from_tech(self):
+        c_file_in = os.path.join(
+            local_path, "example_models", "cad", "GDS", "sky130_fictitious_dtc_example_control_no_map.xml"
+        )
+        c_map = os.path.join(local_path, "example_models", "cad", "GDS", "dummy_layermap.map")
+        gds_in = os.path.join(local_path, "example_models", "cad", "GDS", "sky130_fictitious_dtc_example.gds")
+        from pyaedt.edb_core.edb_data.control_file import ControlFile
+
+        c = ControlFile(c_file_in, layer_map=c_map)
+        setup = c.setups.add_setup("Setup1", "1GHz")
+        setup.add_sweep("Sweep1", "0.01GHz", "5GHz", "0.1GHz")
+        c.boundaries.units = "um"
+        c.stackup.units = "um"
+        c.boundaries.add_port("P1", x1=223.7, y1=222.6, layer1="Metal6", x2=223.7, y2=100, layer2="Metal6")
+        c.boundaries.add_extent()
+        comp = c.components.add_component("B1", "BGA", "IC", "Flip chip", "Cylinder")
+        comp.solder_diameter = "65um"
+        comp.add_pin("1", "81.28", "84.6", "met2")
+        comp.add_pin("2", "211.28", "84.6", "met2")
+        comp.add_pin("3", "211.28", "214.6", "met2")
+        comp.add_pin("4", "81.28", "214.6", "met2")
+        for via in c.stackup.vias:
+            via.create_via_group = True
+            via.snap_via_group = True
+        c.write_xml(os.path.join(self.local_scratch.path, "test_138.xml"))
+        c.import_options.import_dummy_nets = True
+        from pyaedt import Edb
+
+        edb = Edb(gds_in, edbversion="2023.1", technology_file=os.path.join(self.local_scratch.path, "test_138.xml"))
+
+        assert edb
+        assert "P1" in edb.excitations
+        assert "Setup1" in edb.setups
+        assert "B1" in edb.components.components
+        edb.close_edb()

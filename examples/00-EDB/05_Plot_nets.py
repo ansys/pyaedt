@@ -51,6 +51,13 @@ edb.nets.plot(["VREF", "V3P3_S0"], color_by_net=True)
 edb.nets.plot(None, ["TOP"], color_by_net=True, plot_components_on_top=True)
 
 ###############################################################################
+# Plot stackup and some padstack definition
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Plot all nets on a layer colored by nets
+
+edb.stackup.plot(scale_elevation=False,plot_definitions=["S45P29", "S50P35"])
+
+###############################################################################
 # Close EDB
 # ~~~~~~~~~
 # Close EDB.

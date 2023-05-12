@@ -99,6 +99,7 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     if message_to_print:
         _write_mes(message_to_print)
     _write_mes("Arguments with values: ")
+    args_name = []
     try:
         if int(sys.version[0]) > 2:
             args_name = list(OrderedDict.fromkeys(inspect.getfullargspec(func)[0] + list(kwargs.keys())))
@@ -112,8 +113,32 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
                 _write_mes("    {} = {} ".format(el, args_dict[el]))
     except:
         pass
+    args = [func.__name__] + [i for i in args_name if i not in ["self"]]
+    _write_mes(
+        "Check Online documentation on: https://aedt.docs.pyansys.com/version/stable/search.html?q={}".format(
+            "+".join(args)
+        )
+    )
 
-    _write_mes("Check Online documentation on: https://aedt.docs.pyansys.com/search.html?q={}".format(func.__name__))
+
+def normalize_path(path_in, sep=None):
+    """Normalize path separators.
+
+    Parameters
+    ----------
+    path_in : str
+        Path to normalize.
+    sep : str, optional
+        Separator.
+
+    Returns
+    -------
+    str
+        Path normalized to new separator.
+    """
+    if sep is None:
+        sep = os.sep
+    return path_in.replace("\\", sep).replace("/", sep)
 
 
 def _check_types(arg):
@@ -1569,6 +1594,126 @@ def _check_installed_version(install_path, long_version):
     return False
 
 
+def install_with_pip(package_name, package_path=None, upgrade=False, uninstall=False):  # pragma: no cover
+    """Install a new package using pip.
+    This method is useful for installing a package from the AEDT Console without launching the Python environment.
+
+    Parameters
+    ----------
+    package_name : str
+        Name of the package to install.
+    package_path : str, optional
+        Path for the GitHub package to download and install. For example, ``git+https://.....``.
+    upgrade : bool, optional
+        Whether to upgrade the package. The default is ``False``.
+    uninstall : bool, optional
+        Whether to install the package or uninstall the package.
+    """
+    if is_linux and is_ironpython:
+        import subprocessdotnet as subprocess
+    else:
+        import subprocess
+    executable = '"{}"'.format(sys.executable) if is_windows else sys.executable
+
+    commands = []
+    if uninstall:
+        commands.append([executable, "-m", "pip", "uninstall", "--yes", package_name])
+    else:
+        if package_path and upgrade:
+            commands.append([executable, "-m", "pip", "uninstall", "--yes", package_name])
+            command = [executable, "-m", "pip", "install", package_path]
+        else:
+            command = [executable, "-m", "pip", "install", package_name]
+        if upgrade:
+            command.append("-U")
+
+        commands.append(command)
+    for command in commands:
+        if is_linux:
+            p = subprocess.Popen(command)
+        else:
+            p = subprocess.Popen(" ".join(command))
+        p.wait()
+
+
+class Help:  # pragma: no cover
+    def __init__(self):
+        self._base_path = "https://aedt.docs.pyansys.com/version/stable"
+        self.browser = "default"
+
+    def _launch_ur(self, url):
+        import webbrowser
+
+        if self.browser != "default":
+            webbrowser.get(self.browser).open_new_tab(url)
+        else:
+            webbrowser.open_new_tab(url)
+
+    def search(self, keywords, app_name=None, search_in_examples_only=False):
+        """Search for one or more keywords.
+
+        Parameters
+        ----------
+        keywords : str or list
+        app_name : str, optional
+            Name of a PyAEDT app. For example, ``"Hfss"``, ``"Circuit"``, ``"Icepak"``, or any other available app.
+        search_in_examples_only : bool, optional
+            Whether to search for the one or more keywords only in the PyAEDT examples.
+            The default is ``False``.
+        """
+        if isinstance(keywords, str):
+            keywords = [keywords]
+        if search_in_examples_only:
+            keywords.append("This example")
+        if app_name:
+            keywords.append(app_name)
+        url = self._base_path + "/search.html?q={}".format("+".join(keywords))
+        self._launch_ur(url)
+
+    def getting_started(self):
+        """Open the PyAEDT User guide page."""
+        url = self._base_path + "/User_guide/index.html"
+        self._launch_ur(url)
+
+    def examples(self):
+        """Open the PyAEDT Examples page."""
+        url = self._base_path + "/examples/index.html"
+        self._launch_ur(url)
+
+    def github(self):
+        """Open the PyAEDT GitHub page."""
+        url = "https://github.com/pyansys/pyaedt"
+        self._launch_ur(url)
+
+    def changelog(self, release=None):
+        """Open the PyAEDT GitHub Changelog for a given release.
+
+        Parameters
+        ----------
+        release : str, optional
+            Release to get the changelog for. For example, ``"0.6.70"``.
+        """
+        if release is None:
+            from pyaedt import __version__ as release
+        url = "https://github.com/pyansys/pyaedt/releases/tag/v" + release
+        self._launch_ur(url)
+
+    def issues(self):
+        """Open the PyAEDT GitHub Issues page."""
+        url = "https://github.com/pyansys/pyaedt/issues"
+        self._launch_ur(url)
+
+    def ansys_forum(self):
+        """Open the PyAEDT GitHub Issues page."""
+        url = "https://discuss.ansys.com/discussions/tagged/pyaedt"
+        self._launch_ur(url)
+
+    def developer_forum(self):
+        """Open the Discussions page on the Ansys Developer site."""
+        url = "https://developer.ansys.com/"
+        self._launch_ur(url)
+
+
 class Settings(object):
     """Manages all PyAEDT environment variables and global settings."""
 
@@ -1614,6 +1759,46 @@ class Settings(object):
         self._lsf_aedt_command = "ansysedt"
         self._lsf_timeout = 3600
         self._lsf_queue = None
+        self._aedt_environment_variables = {
+            "ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3": "1",
+            "ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE": "1",
+            "ANSYSEM_FEATURE_SF159726_SCRIPTOBJECT_ENABLE": "1",
+            "ANSYSEM_FEATURE_SF222134_CABLE_MODELING_ENHANCEMENTS_ENABLE": "1",
+            "ANSYSEM_FEATURE_F395486_RIGID_FLEX_BENDING_ENABLE": "1",
+            "ANSYSEM_FEATURE_S432616_LAYOUT_COMPONENT_IN_3D_ENABLE": "1",
+        }
+        if is_linux:
+            self._aedt_environment_variables["ANS_NODEPCHECK"] = "1"
+        self._desktop_launch_timeout = 90
+
+    @property
+    def desktop_launch_timeout(self):
+        """Set the desktop launcher max timeout. Default is ``90`` seconds.
+
+        Returns
+        -------
+        int
+        """
+        return self._desktop_launch_timeout
+
+    @desktop_launch_timeout.setter
+    def desktop_launch_timeout(self, value):
+        self._desktop_launch_timeout = int(value)
+
+    @property
+    def aedt_environment_variables(self):
+        """Set environment variables to be set before launching a new aedt session.
+        This includes beta features enablemement.
+
+        Returns
+        -------
+        dict
+        """
+        return self._aedt_environment_variables
+
+    @aedt_environment_variables.setter
+    def aedt_environment_variables(self, value):
+        self._aedt_environment_variables = value
 
     @property
     def lsf_queue(self):
@@ -1765,7 +1950,8 @@ class Settings(object):
 
     @property
     def enable_pandas_output(self):
-        """Set/Get a flag to use Pandas to export dict and lists. This applies to Solution data output.
+        """
+        Set/Get a flag to use Pandas to export dict and lists. This applies to Solution data output.
         If ``True`` the property or method will return a pandas object in CPython environment.
         Default is ``False``.
 
@@ -1781,7 +1967,8 @@ class Settings(object):
 
     @property
     def enable_debug_methods_argument_logger(self):
-        """Set/Get a flag to plot methods argument in debug logger.
+        """
+        Set/Get a flag to plot methods argument in debug logger.
         Default is ``False``.
 
         Returns
@@ -1975,3 +2162,4 @@ class Settings(object):
 
 
 settings = Settings()
+online_help = Help()

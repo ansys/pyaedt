@@ -3,11 +3,11 @@
 This module is implicitily loaded in HFSS 3D Layout when launched.
 
 """
-import gc
 import os
 import re
 import shutil
 import sys
+import tempfile
 import time
 import traceback
 import warnings
@@ -21,6 +21,8 @@ from pyaedt.edb_core import EdbHfss
 from pyaedt.edb_core import EdbLayout
 from pyaedt.edb_core import EdbNets
 from pyaedt.edb_core import EdbSiwave
+from pyaedt.edb_core.edb_data.control_file import ControlFile
+from pyaedt.edb_core.edb_data.control_file import convert_technology_file
 from pyaedt.edb_core.edb_data.design_options import EdbDesignOptions
 from pyaedt.edb_core.edb_data.edb_builder import EdbBuilder
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
@@ -92,6 +94,8 @@ class Edb(object):
         Reference to the AEDT project object.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is ``False.``
+    technology_file : str, optional
+        Full path to technology file to be converted to xml before importing or xml. Supported by GDS format only.
 
     Examples
     --------
@@ -138,6 +142,7 @@ class Edb(object):
         oproject=None,
         student_version=False,
         use_ppe=False,
+        technology_file=None,
     ):
         self._clean_variables()
         if inside_desktop:
@@ -163,7 +168,6 @@ class Edb(object):
             self.isaedtowned = isaedtowned
             self._init_dlls()
             self._db = None
-            # self._edb.Database.SetRunAsStandAlone(not isaedtowned)
             self.isreadonly = isreadonly
             self.cellname = cellname
             if not edbpath:
@@ -190,7 +194,13 @@ class Edb(object):
             elif edbpath[-3:] in ["brd", "gds", "xml", "dxf", "tgz"]:
                 self.edbpath = edbpath[:-4] + ".aedb"
                 working_dir = os.path.dirname(edbpath)
-                self.import_layout_pcb(edbpath, working_dir, use_ppe=use_ppe)
+                control_file = None
+                if technology_file:
+                    if os.path.splitext(technology_file)[1] == ".xml":
+                        control_file = technology_file
+                    else:
+                        control_file = convert_technology_file(technology_file, edbversion=edbversion)
+                self.import_layout_pcb(edbpath, working_dir, use_ppe=use_ppe, control_file=control_file)
                 if settings.enable_local_log_file and self.log_name:
                     self._logger = self._global_logger.add_file_logger(self.log_name, "Edb")
                 self.logger.info("EDB %s was created correctly from %s file.", self.edbpath, edbpath[-2:])
@@ -288,7 +298,6 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def _init_objects(self):
-        time.sleep(1)
         self._components = Components(self)
         self._stackup = Stackup(self)
         self._padstack = EdbPadstacks(self)
@@ -319,7 +328,7 @@ class Edb(object):
         list of str, cell names.
         """
         names = []
-        for cell in list(self._db.TopCircuitCells):
+        for cell in list(self._db.CircuitCells):
             names.append(cell.GetName())
         return names
 
@@ -463,10 +472,14 @@ class Edb(object):
         """
         if init_dlls:
             self._init_dlls()
-        self.logger.info("EDB Path %s", self.edbpath)
-        self.logger.info("EDB Version %s", self.edbversion)
+        # self.logger.info("EDB Path is %s", self.edbpath)
+        # self.logger.info("EDB Version is %s", self.edbversion)
+        # if self.edbversion > "2023.1":
+        #     self.standalone = False
+
         self.edb.Database.SetRunAsStandAlone(self.standalone)
-        self.logger.info("EDB Standalone %s", self.standalone)
+
+        # self.logger.info("EDB Standalone %s", self.standalone)
         try:
             db = self.edb.Database.Open(self.edbpath, self.isreadonly)
         except Exception as e:
@@ -479,7 +492,7 @@ class Edb(object):
             self.builder = None
             return None
         self._db = db
-        self.logger.info("Database Opened")
+        self.logger.info("Database {} Opened in {}".format(os.path.split(self.edbpath)[-1], self.edbversion))
 
         self._active_cell = None
         if self.cellname:
@@ -560,6 +573,9 @@ class Edb(object):
         """
         if init_dlls:
             self._init_dlls()
+        # if self.edbversion > "2023.1":
+        #     self.standalone = False
+
         self.edb.Database.SetRunAsStandAlone(self.standalone)
         db = self.edb.Database.Create(self.edbpath)
         if not db:
@@ -643,13 +659,18 @@ class Edb(object):
                 cmd_translator.append("-c={}".format(control_file))
             else:
                 cmd_translator.append('-c="{}"'.format(control_file))
-        p = subprocess.Popen(cmd_translator)
+        if is_linux:
+            p = subprocess.Popen(cmd_translator)
+        else:
+            p = subprocess.Popen(" ".join(cmd_translator))
         p.wait()
         if not os.path.exists(os.path.join(working_dir, aedb_name)):
             self.logger.error("Translator failed to translate.")
             return False
+        else:
+            self.logger.info("Translation correctly completed")
         self.edbpath = os.path.join(working_dir, aedb_name)
-        self.open_edb()
+        return self.open_edb()
 
     @pyaedt_function_handler()
     def export_to_ipc2581(self, ipc_path=None, units="MILLIMETER"):
@@ -1089,6 +1110,8 @@ class Edb(object):
         Instance of `Edb.Utility.Value`
 
         """
+        if isinstance(val, self.edb.Utility.Value):
+            return val
         if isinstance(val, (int, float)):
             return self.edb.Utility.Value(val)
         m1 = re.findall(r"(?<=[/+-/*//^/(/[])([a-z_A-Z/$]\w*)", str(val).replace(" ", ""))
@@ -1105,6 +1128,46 @@ class Edb(object):
         if set(val_decomposed).intersection(var_names):
             return self.edb.Utility.Value(val, var_server_db)
         return self.edb.Utility.Value(val)
+
+    @pyaedt_function_handler()
+    def point_3d(self, x, y, z=0.0):
+        """Compute the Edb 3d Point Data.
+
+        Parameters
+        ----------
+        x : float, int or str
+            X value.
+        y : float, int or str
+            Y value.
+        z : float, int or str, optional
+            Z value.
+
+        Returns
+        -------
+        ``Geometry.Point3DData``.
+        """
+        return self.edb.Geometry.Point3DData(self.edb_value(x), self.edb_value(y), self.edb_value(z))
+
+    @pyaedt_function_handler()
+    def point_data(self, x, y=None):
+        """Compute the Edb Point Data.
+
+        Parameters
+        ----------
+        x : float, int or str
+            X value.
+        y : float, int or str, optional
+            Y value.
+
+
+        Returns
+        -------
+        ``Geometry.PointData``.
+        """
+        if y is None:
+            return self.edb.Geometry.PointData(self.edb_value(x))
+        else:
+            return self.edb.Geometry.PointData(self.edb_value(x), self.edb_value(y))
 
     @pyaedt_function_handler()
     def _is_file_existing_and_released(self, filename):
@@ -1171,17 +1234,11 @@ class Edb(object):
         if self.log_name and settings.enable_local_log_file:
             self._global_logger.remove_file_logger(os.path.splitext(os.path.split(self.log_name)[-1])[0])
             self._logger = self._global_logger
-        time.sleep(2)
         start_time = time.time()
         self._wait_for_file_release()
         elapsed_time = time.time() - start_time
         self.logger.info("EDB file release time: {0:.2f}ms".format(elapsed_time * 1000.0))
         self._clean_variables()
-        timeout = 4
-        time.sleep(2)
-        while gc.collect() != 0 and timeout > 0:
-            time.sleep(1)
-            timeout -= 1
         return True
 
     @pyaedt_function_handler()
@@ -1195,6 +1252,10 @@ class Edb(object):
 
         """
         self._db.Save()
+        start_time = time.time()
+        self._wait_for_file_release()
+        elapsed_time = time.time() - start_time
+        self.logger.info("EDB file save time: {0:.2f}ms".format(elapsed_time * 1000.0))
         return True
 
     @pyaedt_function_handler()
@@ -1213,6 +1274,10 @@ class Edb(object):
 
         """
         self._db.SaveAs(fname)
+        start_time = time.time()
+        self._wait_for_file_release()
+        elapsed_time = time.time() - start_time
+        self.logger.info("EDB file save time: {0:.2f}ms".format(elapsed_time * 1000.0))
         self.edbpath = self._db.GetDirectory()
         if self.log_name:
             self._global_logger.remove_file_logger(os.path.splitext(os.path.split(self.log_name)[-1])[0])
@@ -1274,8 +1339,20 @@ class Edb(object):
             return False
 
     @pyaedt_function_handler()
-    def import_gds_file(self, inputGDS, WorkDir=None, anstranslator_full_path="", use_ppe=False, control_file=None):
+    def import_gds_file(
+        self,
+        inputGDS,
+        WorkDir=None,
+        anstranslator_full_path="",
+        use_ppe=False,
+        control_file=None,
+        tech_file=None,
+        map_file=None,
+    ):
         """Import a GDS file and generate an ``edb.def`` file in the working directory.
+
+        ..note::
+            `ANSYSLMD_LICENSE_FILE` is needed to run the translator.
 
         Parameters
         ----------
@@ -1293,6 +1370,10 @@ class Edb(object):
             Path to the XML file. The default is ``None``, in which case an attempt is made to find
             the XML file in the same directory as the GDS file. To succeed, the XML file and GDS file must
             have the same name. Only the extension differs.
+        tech_file : str, optional
+            Technology file. It uses Helic to convert tech file to xml and then imports the gds. Works on Linux only.
+        map_file : str, optional
+            Layer map file.
 
         Returns
         -------
@@ -1300,6 +1381,14 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
+        if tech_file or map_file:
+            control_file_temp = os.path.join(tempfile.gettempdir(), os.path.split(inputGDS)[-1][:-3] + "xml")
+            control_file = ControlFile(xml_input=control_file, tecnhology=tech_file, layer_map=map_file).write_xml(
+                control_file_temp
+            )
+        elif tech_file:
+            self.logger.error("Technology files are supported only in Linux. Use control file instead.")
+            return False
         if self.import_layout_pcb(
             inputGDS,
             working_dir=WorkDir,
@@ -1388,8 +1477,12 @@ class Edb(object):
                     _polys.extend(list(obj_data))
         if smart_cutout:
             _polys.extend(self._smart_cut(net_signals, reference_list, include_pingroups))
-        _poly = self.edb.Geometry.PolygonData.Unite(convert_py_list_to_net_list(_polys))[0]
-        return _poly
+        _poly_unite = list(self.edb.Geometry.PolygonData.Unite(convert_py_list_to_net_list(_polys)))
+        if len(_poly_unite) == 1:
+            return _poly_unite[0]
+        else:
+            areas = [i.Area() for i in _poly_unite]
+            return _poly_unite[areas.index(max(areas))]
 
     @pyaedt_function_handler()
     def _smart_cut(self, net_signals, reference_list=[], include_pingroups=True):
@@ -1658,7 +1751,7 @@ class Edb(object):
                     check_terminals=check_terminals,
                     include_pingroups=include_pingroups,
                 )
-            if result and not open_cutout_at_end:
+            if result and not open_cutout_at_end and self.edbpath != legacy_path:
                 self.save_edb()
                 self.close_edb()
                 self.edbpath = legacy_path
@@ -2668,10 +2761,11 @@ class Edb(object):
             Either if generate or not power tree image. Default is `True`.
         loop_res : bool, optional
             Either if generate or not loop resistance report. Default is `True`.
+
         Returns
         -------
         list
-            list of files generated.
+            List of files generated.
         """
         process = SiwaveSolve(self.edbpath, aedt_version=self.edbversion)
         try:
@@ -2815,6 +2909,7 @@ class Edb(object):
     @pyaedt_function_handler()
     def change_design_variable_value(self, variable_name, variable_value):
         """Change a variable value.
+
         ..note::
             User can use also the getitem to read the variable value. See example below.
 

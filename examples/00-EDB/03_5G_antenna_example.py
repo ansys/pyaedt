@@ -202,7 +202,7 @@ edb.nets.plot(None)
 
 ###############################################################################
 # Save and close Edb instance prior to opening it in Electronics Desktop.
-# ~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Save EDB.
 
 edb.save_edb()

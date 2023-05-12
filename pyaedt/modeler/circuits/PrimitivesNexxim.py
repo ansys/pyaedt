@@ -1755,18 +1755,12 @@ class NexximComponents(CircuitComponents):
 
     @pyaedt_function_handler()
     def refresh_dynamic_link(self, component_name):
-        """Refresh a dynamic link component.  This method is adapted from the native API.
-        ```
-            oDefinitionManager = oProject.GetDefinitionManager()
-            oComponentManager = oDefinitionManager.GetManager("Component")
-            oComponentManager.UpdateDynamicLink("TeeModel_L1")
-        ```
+        """Refresh a dynamic link component.
 
         Parameters
         ----------
         component_name : str
             Name of the dynamic link component.
-
 
         Returns
         -------

@@ -10,6 +10,8 @@ levels.
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
+#
+# sphinx_gallery_thumbnail_path = "Resources/emit_protection_levels.png"
 import os
 import sys
 import subprocess
@@ -136,7 +138,8 @@ for band in bands:
 rev = emitapp.results.analyze()
 modeRx = econsts.tx_rx_mode().rx
 modeTx = econsts.tx_rx_mode().tx
-resultMode = econsts.result_type().powerAtRx
+mode_power = econsts.result_type().powerAtRx
+mode_emi = econsts.result_type().emi
 tx_interferer = econsts.interferer_type().transmitters
 
 ###############################################################################
@@ -237,74 +240,63 @@ domain = emitapp.results.interaction_domain()
 # at the input to each receiver due to each of the transmitters. Computes
 # which, if any, protection levels are exceeded by these power levels.
 
-emi_matrix=[]
+power_matrix=[]
 all_colors=[]
 for tx_radio in tx_radios:
-    rx_emis = []
+    rx_powers = []
     rx_colors = []
     for rx_radio in rx_radios:
+        # powerAtRx is the same for all Rx bands, so just
+        # use the first one
+        rx_band = rev.get_band_names(rx_radio, modeRx)[0]
         if tx_radio == rx_radio:
             # skip self-interaction
-            rx_emis.append('N/A')
+            rx_powers.append('N/A')
             rx_colors.append('green')
             continue
-        print("Power Thresholds for {tx} vs {rx}".format(tx=tx_radio,rx=rx_radio))
-        for rx_band in rev.get_band_names(rx_radio, modeRx): 
-            # if "L2 P(Y)" not in rx_band:
-            #     # skip 'normal' Rx bands
-            #     continue
-            # check for enabled Bands
-            cur_rx_radio = get_radio_node(rx_radio)
-            bands = cur_rx_radio.bands()
-            for band in bands:
-                if rx_band in band.node_name:
-                    bandEnabled = band.enabled
-                    break
-            if not bandEnabled:
-                continue
-            # get enabled tx band
-            cur_tx_radio = get_radio_node(tx_radio)
-            bands = cur_tx_radio.bands()
-            for band in bands:
-                if band.enabled:
-                    tx_band = band.node_name
-                    break
-            for tx_band_shortname in rev.get_band_names(tx_radio, modeTx): 
-                if tx_band_shortname in tx_band:
-                    break
-
-            # Find the highest power level at the Rx input due
-            # to each Tx Radio
-            domain.set_receiver(rx_radio, rx_band)
-            domain.set_interferer(tx_radio,tx_band_shortname)
+        print("Power Thresholds for {tx} vs {rx}".format(tx=tx_radio,rx=rx_radio))        
+        max_power = -200
+        for tx_band in rev.get_band_names(tx_radio, modeTx): 
+            # Find the highest power level at the Rx input due to each Tx Radio.
+            # Can look at any Rx freq since susceptibility won't impact
+            # powerAtRx, but need to look at all tx channels since coupling
+            # can change over a transmitter's bandwidth
+            rx_freq = rev.get_active_frequencies(rx_radio, rx_band, modeRx)
+            domain.set_receiver(rx_radio, rx_band, rx_freq[0])            
+            domain.set_interferer(tx_radio, tx_band)
             interaction = rev.run(domain)
-            worst = interaction.get_worst_instance(resultMode)
-
-            # If the worst case for the band-pair is below the EMI limit, then
-            # there are no interference issues and no offset is required.
-            if worst.has_valid_values():
-                emi = worst.get_value(resultMode)
-                rx_emis.append(emi)
-                if (emi > damage_threshold):
-                    rx_colors.append('red')
-                    print("{} may damage {}".format(tx_radio, rx_radio))
-                elif (emi > overload_threshold):
-                    rx_colors.append('orange')
-                    print("{} may overload {}".format(tx_radio, rx_radio))
-                elif (emi > intermod_threshold):
-                    rx_colors.append('yellow')
-                    print("{} may cause intermodulation in {}".format(tx_radio, rx_radio))
-                else:
-                    rx_colors.append('green')
-                    print("{} may cause desensitization in {}".format(tx_radio, rx_radio))
-            else:
-                rx_emis.append(-200)
+            tx_freqs = rev.get_active_frequencies(tx_radio, tx_band, modeTx)
+            for tx_freq in tx_freqs:
+                domain.set_interferer(tx_radio, tx_band, tx_freq)
+                #interaction = rev.run(domain)
+                instance = interaction.get_instance(domain)
+                if instance.get_value(mode_power) > max_power:
+                    max_power = instance.get_value(mode_power)
+                    
+        # If the worst case for the band-pair is below the power thresholds, then
+        # there are no interference issues and no offset is required.
+        if max_power > -200:
+            rx_powers.append(max_power)
+            if (max_power > damage_threshold):
                 rx_colors.append('red')
+                print("{} may damage {}".format(tx_radio, rx_radio))
+            elif (max_power > overload_threshold):
+                rx_colors.append('orange')
+                print("{} may overload {}".format(tx_radio, rx_radio))
+            elif (max_power > intermod_threshold):
+                rx_colors.append('yellow')
+                print("{} may cause intermodulation in {}".format(tx_radio, rx_radio))
+            else:
+                rx_colors.append('green')
+                print("{} may cause desensitization in {}".format(tx_radio, rx_radio))
+        else:
+            rx_powers.append(-200)
+            rx_colors.append('red')
     all_colors.append(rx_colors)
-    emi_matrix.append(rx_emis)
+    power_matrix.append(rx_powers)
 
 # Create a scenario matrix-like view for the protection levels
-create_scenario_view(emi_matrix, all_colors, tx_radios, rx_radios)
+create_scenario_view(power_matrix, all_colors, tx_radios, rx_radios)
 
 # Create a legend for the protection levels
 create_legend_table()

@@ -87,7 +87,7 @@ class Parser:
     def _parse_list(self, type=None, base=None, size=1):
         """
         Parser for vector or list. 'vector's are to be interpreted in the linear algebra sense,
-        and converted to numpy.array. 'list's are python lists. Only simple base types can be
+        and converted to numpy.array. 'list's are Python lists. Only simple base types can be
         interpreted as a numpy array
         """
         assert base != None

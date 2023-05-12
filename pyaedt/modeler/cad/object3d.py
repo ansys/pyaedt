@@ -193,6 +193,8 @@ class Object3d(object):
         """
         if self.object_type == "Unclassified":
             return [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        if settings.aedt_version >= "2023.2":
+            return [float(i) for i in self._oeditor.GetObjectBoundingBox(self.name)]
         if not settings.disable_bounding_box_sat:
             bounding = self._bounding_box_sat()
             if bounding:
@@ -890,12 +892,17 @@ class Object3d(object):
     @material_name.setter
     def material_name(self, mat):
         matobj = self._primitives._materials.checkifmaterialexists(mat)
+        mat_value = None
         if matobj:
+            mat_value = chr(34) + matobj.name + chr(34)
+        elif "[" in mat or "(" in mat:
+            mat_value = mat
+        if mat_value is not None:
             if not self.model:
                 self.model = True
-            vMaterial = ["NAME:Material", "Value:=", chr(34) + matobj.name + chr(34)]
+            vMaterial = ["NAME:Material", "Value:=", mat_value]
             self._change_property(vMaterial)
-            self._material_name = matobj.name.lower()
+            self._material_name = mat_value.strip('"')
             self._solve_inside = None
         else:
             self.logger.warning("Material %s does not exist.", mat)
@@ -1557,7 +1564,7 @@ class Object3d(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
+        list of str
             List of names of the newly added objects.
 
         References

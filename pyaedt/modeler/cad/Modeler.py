@@ -2639,7 +2639,6 @@ class GeometryModeler(Modeler, object):
         >>> oEditor.Mirror
         >>> oEditor.DuplicateMirror
         """
-
         selections = self.convert_to_selections(objid)
         Xpos, Ypos, Zpos = self._pos_with_arg(position)
         Xnorm, Ynorm, Znorm = self._pos_with_arg(vector)
@@ -4982,7 +4981,6 @@ class GeometryModeler(Modeler, object):
         >>> oEditor.MoveFaces
 
         """
-
         face_selection = self.convert_to_selections(faces, True)
         selection = {}
         for f in face_selection:
@@ -5044,7 +5042,6 @@ class GeometryModeler(Modeler, object):
         >>> oEditor.MoveEdges
 
         """
-
         edge_selection = self.convert_to_selections(edges, True)
         selection = {}
         for f in edge_selection:

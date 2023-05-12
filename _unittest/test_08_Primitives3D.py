@@ -28,6 +28,7 @@ scdoc = "input.scdoc"
 step = "input.stp"
 component3d = "new.a3dcomp"
 encrypted_cylinder = "encrypted_cylinder.a3dcomp"
+layout_comp = "Layoutcomponent_231.aedbcomp"
 test_subfolder = "T08"
 if config["desktopVersion"] > "2022.2":
     assembly = "assembly_231"
@@ -57,6 +58,7 @@ class TestClass(BasisTest, object):
         self.flatten = BasisTest.add_app(self, project_name=components_flatten, subfolder=test_subfolder)
         test_54b_project = os.path.join(local_path, "example_models", test_subfolder, polyline + ".aedt")
         self.test_54b_project = self.local_scratch.copyfile(test_54b_project)
+        self.layout_component = os.path.join(local_path, "example_models", test_subfolder, layout_comp)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -976,7 +978,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.modeler.model_units = save_model_units
 
     def test_54b_open_and_load_a_polyline(self):
-        aedtapp = Hfss(self.test_54b_project)
+        aedtapp = Hfss(self.test_54b_project, specified_version=config["desktopVersion"])
         # self.aedtapp.load_project(self.test_54b_project)
 
         poly1 = aedtapp.modeler["Inductor1"]
@@ -1145,10 +1147,11 @@ class TestClass(BasisTest, object):
         )
 
     def test_66d_component_bounding_box(self):
+        self.aedtapp["tau_variable"] = "0.65"
         my_udmPairs = []
         mypair = ["OuterRadius", "20.2mm"]
         my_udmPairs.append(mypair)
-        mypair = ["Tau", "0.65"]
+        mypair = ["Tau", "tau_variable"]
         my_udmPairs.append(mypair)
         mypair = ["Sigma", "0.81"]
         my_udmPairs.append(mypair)
@@ -1730,3 +1733,29 @@ class TestClass(BasisTest, object):
             object_list=[box2.name],
         )
         assert len(self.aedtapp.modeler.user_defined_components) == 2
+
+    @pytest.mark.skipif(
+        config["desktopVersion"] < "2023.1" or is_ironpython, reason="Method available in beta from 2023.1"
+    )
+    def test_85_insert_layoutcomponent(self):
+        self.aedtapp.insert_design("LayoutComponent")
+        self.aedtapp.solution_type = "Modal"
+        assert not self.aedtapp.modeler.insert_layout_component(
+            self.layout_component, name=None, parameter_mapping=False
+        )
+        self.aedtapp.solution_type = "Terminal"
+        comp = self.aedtapp.modeler.insert_layout_component(self.layout_component, name=None, parameter_mapping=False)
+        assert isinstance(comp, UserDefinedComponent)
+        assert len(self.aedtapp.modeler.modeler.user_defined_components[comp.name].parts) == 3
+        comp2 = self.aedtapp.modeler.insert_layout_component(
+            self.layout_component, name="new_layout", parameter_mapping=True
+        )
+        assert isinstance(comp2, UserDefinedComponent)
+        assert len(comp2.parameters) == 2
+        assert comp2.show_layout
+        comp2.show_layout = False
+        assert not comp2.show_layout
+        comp2.show_layout = True
+        assert comp2.fast_transformation
+        comp2.fast_transformation = False
+        assert not comp2.fast_transformation

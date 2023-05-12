@@ -8,6 +8,7 @@ It is based on templates to allow for easy creation and modification of setup pr
 from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict
+import copy
 import logging
 import os.path
 from random import randrange
@@ -19,6 +20,7 @@ from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modules.SetupTemplates import MaxwellTransient
 from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SolveSweeps import SetupProps
 from pyaedt.modules.SolveSweeps import SweepHFSS
@@ -1425,12 +1427,12 @@ class Setup3DLayout(CommonSetup):
                                         obj_dict[pad_ind] = aedtapp.modeler.objects[pad_ind]
             obj_list = list(obj_dict.values())
             if len(obj_list) == 1:
-                obj_list[0].name = net
+                obj_list[0].name = net.replace(".", "_").replace("/", "_")
                 obj_list[0].color = [randrange(255), randrange(255), randrange(255)]
             elif len(obj_list) > 1:
                 united_object = aedtapp.modeler.unite(obj_list, purge=True)
                 obj_ind = aedtapp.modeler._object_names_to_ids[united_object]
-                aedtapp.modeler.objects[obj_ind].name = net
+                aedtapp.modeler.objects[obj_ind].name = net.replace(".", "_").replace("/", "_")
                 aedtapp.modeler.objects[obj_ind].color = [randrange(255), randrange(255), randrange(255)]
         if aedtapp.design_type == "Q3D Extractor":
             aedtapp.auto_identify_nets()
@@ -1646,12 +1648,12 @@ class Setup3DLayout(CommonSetup):
         ----------
         file_path : str
             File path of the json file.
-        overwrite : bool
+        overwrite : bool, optional
             Whether to overwrite the file if it already exists.
         """
         if os.path.isdir(file_path):  # pragma no cover
             if not overwrite:  # pragma no cover
-                raise logging.error("File {} already exists. Configure file is not exported".format(file_path))
+                logging.error("File {} already exists. Configure file is not exported".format(file_path))
         return self.props._export_properties_to_json(file_path)
 
 
@@ -2585,6 +2587,76 @@ class SetupMaxwell(Setup, object):
         self.auto_update = legacy_update
         return True
 
+    @pyaedt_function_handler()
+    def enable_control_program(self, control_program_path, control_program_args=" ", call_after_last_step=False):
+        """Enable control program option is solution setup.
+        Provide externally created executable files, or Python (*.py) scripts that are called after each time step,
+        and allow you to control the source input, circuit elements, mechanical quantities, time step,
+        and stopping criteria, based on the updated solutions.
+
+        Parameters
+        ----------
+        control_program_path : str
+            File path of control program.
+        control_program_args : str, optional
+            Arguments to pass to control program.
+            Default value is ``" "``.
+        call_after_last_step : bool, optional
+            If ``True`` the control program is called after the simulation is completed.
+            Default value is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful, ``False`` if it fails.
+
+        Notes
+        -----
+        By default a control program script will be called by the pre-installed Python interpreter:
+        ``<install_path>\Win64\commonfiles\CPython\37\winx64\Release\python\python.exe``.
+        However, the user can specify a custom Python interpreter to be used by setting following environment variable:
+        ``EM_CTRL_PROG_PYTHON_PATH=<path_to\python.exe>``
+
+        References
+        ----------
+        >>> oModule.EditSetup
+        """
+        if self.p_app.solution_type not in ["Transient", "TransientXY", "TransientZ"]:
+            self._app.logger.error("Control Program is only available in Maxwell 2D and 3D Transient solutions.")
+            return False
+
+        if not os.path.exists(control_program_path):
+            self._app.logger.error("Control Program file does not exist.")
+            return False
+
+        if not isinstance(control_program_args, str):
+            self._app.logger.error("Control Program arguments have to be a string.")
+            return False
+
+        self.props = copy.deepcopy(MaxwellTransient)
+        self.props["UseControlProgram"] = True
+        self.props["ControlProgramName"] = control_program_path
+        self.props["ControlProgramArg"] = control_program_args
+        self.props["CallCtrlProgAfterLastStep"] = call_after_last_step
+
+        self.p_app.oanalysis.EditSetup(
+            self.name,
+            [
+                "NAME:" + self.name,
+                "Enabled:=",
+                True,
+                "UseControlProgram:=",
+                True,
+                "ControlProgramName:=",
+                control_program_path,
+                "ControlProgramArg:=",
+                control_program_args,
+                "CallCtrlProgAfterLastStep:=",
+                call_after_last_step,
+            ],
+        )
+        return True
+
 
 class SetupQ3D(Setup, object):
     """Initializes, creates, and updates an Q3D setup.
@@ -3004,6 +3076,24 @@ class SetupQ3D(Setup, object):
         if value or (self._ac_rl_enbled or self._capacitance_enabled):
             self._dc_enabled = value
             self.update()
+
+    @property
+    def dc_resistance_only(self):
+        """Get/Set the DC Resistance Only or Resistance/Inductance calculatio in active Q3D setup.
+
+        Returns
+        -------
+        bool
+        """
+        try:
+            return self.props["DC"]["SolveResOnly"]
+        except KeyError:
+            return False
+
+    @dc_resistance_only.setter
+    def dc_resistance_only(self, value):
+        if self.dc_enabled:
+            self.props["DC"]["SolveResOnly"] = value
 
     @pyaedt_function_handler()
     def update(self, update_dictionary=None):

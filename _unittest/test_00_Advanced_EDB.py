@@ -100,6 +100,50 @@ class TestClass(BasisTest, object):
         edb2.close_edb()
         edb1.close_edb()
 
+    def test_01B_flip_layer_stackup(self):
+        edb_path = os.path.join(self.target_path2, "edb.def")
+        edb1 = Edb(edb_path, edbversion=desktop_version)
+
+        edb2 = Edb(self.target_path, edbversion=desktop_version)
+        assert edb1.stackup.place_instance(
+            edb2,
+            angle=0.0,
+            offset_x="41.783mm",
+            offset_y="35.179mm",
+            flipped_stackup=False,
+            place_on_top=False,
+            solder_height=0.0,
+        )
+        assert edb1.stackup.place_instance(
+            edb2,
+            angle=0.0,
+            offset_x="41.783mm",
+            offset_y="35.179mm",
+            flipped_stackup=True,
+            place_on_top=False,
+            solder_height=0.0,
+        )
+        assert edb1.stackup.place_instance(
+            edb2,
+            angle=0.0,
+            offset_x="41.783mm",
+            offset_y="35.179mm",
+            flipped_stackup=False,
+            place_on_top=True,
+            solder_height=0.0,
+        )
+        assert edb1.stackup.place_instance(
+            edb2,
+            angle=0.0,
+            offset_x="41.783mm",
+            offset_y="35.179mm",
+            flipped_stackup=True,
+            place_on_top=True,
+            solder_height=0.0,
+        )
+        edb2.close_edb()
+        edb1.close_edb()
+
     def test_02_flip_layer_stackup_2(self):
         edb2 = Edb(self.target_path, edbversion=desktop_version)
         assert edb2.stackup.place_in_layout(
@@ -242,14 +286,13 @@ class TestClass(BasisTest, object):
                 ) = cellInstance.Get3DTransformation()
             assert res
             zeroValue = chipEdb.edb_value(0)
-            oneValue = chipEdb.edb_value(1)
-            originPoint = chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, zeroValue)
-            xAxisPoint = chipEdb.edb.Geometry.Point3DData(oneValue, zeroValue, zeroValue)
+            originPoint = chipEdb.point_3d(0.0, 0.0, 0.0)
+            xAxisPoint = chipEdb.point_3d(1.0, 0.0, 0.0)
             assert localOrigin.IsEqual(originPoint)
             assert rotAxisFrom.IsEqual(xAxisPoint)
             assert rotAxisTo.IsEqual(xAxisPoint)
             assert angle.IsEqual(zeroValue)
-            assert loc.IsEqual(chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, chipEdb.edb_value(170e-6)))
+            assert loc.IsEqual(chipEdb.point_3d(0.0, 0.0, chipEdb.edb_value(170e-6)))
         finally:
             chipEdb.close_edb()
             laminateEdb.close_edb()
@@ -305,14 +348,13 @@ class TestClass(BasisTest, object):
                 ) = cellInstance.Get3DTransformation()
             assert res
             zeroValue = chipEdb.edb_value(0)
-            oneValue = chipEdb.edb_value(1)
-            originPoint = chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, zeroValue)
-            xAxisPoint = chipEdb.edb.Geometry.Point3DData(oneValue, zeroValue, zeroValue)
+            originPoint = chipEdb.point_3d(0.0, 0.0, 0.0)
+            xAxisPoint = chipEdb.point_3d(1.0, 0.0, 0.0)
             assert localOrigin.IsEqual(originPoint)
             assert rotAxisFrom.IsEqual(xAxisPoint)
             assert rotAxisTo.IsEqual(xAxisPoint)
             assert angle.IsEqual(zeroValue)
-            assert loc.IsEqual(chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, chipEdb.edb_value(-90e-6)))
+            assert loc.IsEqual(chipEdb.point_3d(0.0, 0.0, chipEdb.edb_value(-90e-6)))
         finally:
             chipEdb.close_edb()
             laminateEdb.close_edb()
@@ -705,7 +747,7 @@ class TestClass(BasisTest, object):
             f.writelines("PowerNets = ['GND']\n")
             f.writelines("Components = ['U2A5', 'U1B5']")
         sim_config = SimulationConfiguration(cfg_file)
-        assert Edb(target_path).build_simulation_project(sim_config)
+        assert Edb(target_path, edbversion=desktop_version).build_simulation_project(sim_config)
 
     @pytest.mark.skipif(is_ironpython or is_linux, reason="Not supported in IPY")
     def test_16_solve(self):
@@ -838,7 +880,7 @@ class TestClass(BasisTest, object):
                         assert (pedb_lay.side_hallhuray_nodule_radius - layer["side_hallhuray_nodule_radius"]) < delta
                         assert (pedb_lay.side_hallhuray_surface_ratio - layer["side_hallhuray_surface_ratio"]) < delta
         edbapp.close_edb()
-        edbapp = Edb()
+        edbapp = Edb(edbversion=desktop_version)
         json_path = os.path.join(local_path, "example_models", test_subfolder, "test_mat2.json")
         assert edbapp.stackup.import_stackup(json_path)
         assert "SOLDER" in edbapp.stackup.stackup_layers

@@ -104,13 +104,13 @@ q3d.plot(show=False, objects=["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"],
 
 
 f1 = q3d.modeler.get_faceid_from_position(location_u13_scl, obj_name="CLOCK_I2C_SCL")
-q3d.assign_source_to_sheet(f1, "CLOCK_I2C_SCL")
+q3d.source(f1, net_name="CLOCK_I2C_SCL")
 f1 = q3d.modeler.get_faceid_from_position(location_u13_sda, obj_name="CLOCK_I2C_SDA")
-q3d.assign_source_to_sheet(f1, "CLOCK_I2C_SDA")
+q3d.source(f1, net_name="CLOCK_I2C_SDA")
 f1 = q3d.modeler.get_faceid_from_position(location_u1_scl, obj_name="CLOCK_I2C_SCL")
-q3d.assign_sink_to_sheet(f1, "CLOCK_I2C_SCL")
+q3d.sink(f1, net_name="CLOCK_I2C_SCL")
 f1 = q3d.modeler.get_faceid_from_position(location_u1_sda, obj_name="CLOCK_I2C_SDA")
-q3d.assign_sink_to_sheet(f1, "CLOCK_I2C_SDA")
+q3d.sink(f1, net_name="CLOCK_I2C_SDA")
 
 ###############################################################################
 # Create Setup

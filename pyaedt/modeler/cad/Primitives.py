@@ -533,7 +533,7 @@ class Primitives(object):
 
         Parameters
         ----------
-        value : string or list of strings
+        value : str or list of str
             One or more strings for numerical lengths. For example, ``"10mm"``
             or ``["10mm", "12mm", "14mm"]``. When a list is given, the entire
             list is converted.
@@ -562,7 +562,7 @@ class Primitives(object):
                 v.rescale_to(self.model_units)
                 num_val = v.numeric_value
             else:
-                raise ("Inputs to value_in_object_units must be strings or numbers.")
+                raise TypeError("Inputs to value_in_object_units must be strings or numbers.")
 
             numeric_list.append(num_val)
 
@@ -1458,6 +1458,10 @@ class Primitives(object):
             if obj_name not in self._object_names_to_ids:
                 self._create_object(obj_name)
                 added_objects.append(obj_name)
+        for obj_name in self.point_names:
+            if obj_name not in self.points.keys():
+                self._create_object(obj_name)
+                added_objects.append(obj_name)
         return added_objects
 
     @pyaedt_function_handler()
@@ -1515,7 +1519,11 @@ class Primitives(object):
 
         """
         if materialname is not None:
-            obj_lst = [x for x in self.object_list if x.material_name == materialname]
+            obj_lst = [
+                x
+                for x in self.object_list
+                if x.material_name == materialname or x.material_name == materialname.lower()
+            ]
         else:
             obj_lst = [
                 self._get_object_dict_by_material(self.materials.conductors),
@@ -3053,13 +3061,16 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _arg_with_dim(self, value, units=None):
-        if isinstance(value, str):
-            val = value
+        if units is None:
+            units = self.model_units
+        if type(value) is str:
+            try:
+                float(value)
+                val = "{0}{1}".format(value, units)
+            except:
+                val = value
         else:
-            if units is None:
-                units = self.model_units
             val = "{0}{1}".format(value, units)
-
         return val
 
     @pyaedt_function_handler()

@@ -374,7 +374,7 @@ class PostProcessor(Post):
             model.range_min = scale_min
             model.range_max = scale_max
         if project_path:
-            model.plot(os.path.join(project_path, self._app.project_name + "." + imageformat))
+            model.plot(os.path.join(project_path, plotname + "." + imageformat))
         elif show:
             model.plot()
         return model
