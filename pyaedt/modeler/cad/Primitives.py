@@ -1519,7 +1519,11 @@ class Primitives(object):
 
         """
         if materialname is not None:
-            obj_lst = [x for x in self.object_list if x.material_name == materialname]
+            obj_lst = [
+                x
+                for x in self.object_list
+                if x.material_name == materialname or x.material_name == materialname.lower()
+            ]
         else:
             obj_lst = [
                 self._get_object_dict_by_material(self.materials.conductors),

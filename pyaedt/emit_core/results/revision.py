@@ -102,7 +102,7 @@ class Revision:
 
         Parameters
         ----------
-        domain :
+        domain : class:`Emit.InteractionDomain`
             ``InteractionDomain`` object for constraining the analysis parameters.
 
         Returns
@@ -122,7 +122,7 @@ class Revision:
             raise ValueError("The max_simultaneous_interferers must equal the number of interferers in the domain.")
         interaction = engine.get_interaction(domain)
         return interaction
-    
+
     @pyaedt_function_handler()
     def run(self, domain):
         """
