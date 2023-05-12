@@ -300,6 +300,7 @@ def index_of_resonance(imaginary_list, real_list):
 error_counter = []
 count = 1
 for sample in samples:
+    dictio = sample
     length_variation = sample["length"] * 1e3
     width_variation = sample["width"] * 1e3
     thickness_variation = sample["thickness"] * 1e3
