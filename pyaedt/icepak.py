@@ -163,9 +163,20 @@ class Icepak(FieldAnalysis3D):
         )
         self._monitor = Monitor(self)
         self._configurations = ConfigurationsIcepak(self)
+        self._thermal_networks = []
+        # TODO: remove after refactoring?
+        if self.boundaries:
+            for bound in self.boundaries:
+                if bound.type == "Network":
+                    self._thermal_networks.append(self.BoundaryNetwork(self, bound.name, bound.props))
+                    self.boundaries.remove(bound)
 
     def __enter__(self):
         return self
+
+    @property
+    def thermal_networks(self):
+        return {t_n.name: t_n for t_n in self._thermal_networks}
 
     @property
     def problem_type(self):
