@@ -20,6 +20,7 @@ from pyaedt.edb_core import EdbHfss
 from pyaedt.edb_core import EdbLayout
 from pyaedt.edb_core import EdbNets
 from pyaedt.edb_core import EdbSiwave
+from pyaedt.edb_core.edb_data.control_file import convert_technology_file
 from pyaedt.edb_core.edb_data.design_options import EdbDesignOptions
 from pyaedt.edb_core.edb_data.edb_builder import EdbBuilder
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
@@ -64,84 +65,6 @@ else:
     import subprocess
 
 
-@pyaedt_function_handler()
-def convert_technology_file(tech_file, edbversion=None, control_file=None):
-    """Convert a technology file to edb control file (xml).
-
-    Parameters
-    ----------
-    tech_file : str
-        Full path to technology file
-    edbversion : str,  optional
-            Edb version to use. Default is `None` to use latest available version of Edb.
-    control_file : str,  optional
-            Control file output file. Default is `None` to use same path and same name of `tech_file`.
-
-    Returns
-    -------
-    str
-        Control file full path if created.
-    """
-    if is_linux:  # pragma: no cover
-        if not edbversion:
-            edbversion = "20{}.{}".format(list_installed_ansysem()[0][-3:-1], list_installed_ansysem()[0][-1:])
-        if env_value(edbversion) in os.environ:
-            base_path = env_path(edbversion)
-            sys.path.append(base_path)
-        else:
-            pyaedt_logger.error("No Edb installation found. Check environment variables")
-            return False
-        os.environ["HELIC_ROOT"] = os.path.join(base_path, "helic")
-        if os.getenv("ANSYSLMD_LICENCE_FILE", None) is None:
-            lic = os.path.join(base_path, "..", "..", "shared_files", "licensing", "ansyslmd.ini")
-            if os.path.exists(lic):
-                with open(lic, "r") as fh:
-                    lines = fh.read().splitlines()
-                    for line in lines:
-                        if line.startswith("SERVER="):
-                            os.environ["ANSYSLMD_LICENSE_FILE"] = line.split("=")[1]
-                            break
-            else:
-                pyaedt_logger.error("ANSYSLMD_LICENSE_FILE is not defined.")
-        vlc_file_name = os.path.splitext(tech_file)[0]
-        if not control_file:
-            control_file = vlc_file_name + ".xml"
-        vlc_file = vlc_file_name + ".vlc.tech"
-        commands = []
-        command = [
-            os.path.join(base_path, "helic", "tools", "bin", "afet", "tech2afet"),
-            "-i",
-            tech_file,
-            "-o",
-            vlc_file,
-            "--backplane",
-            "False",
-        ]
-        commands.append(command)
-        command = [
-            os.path.join(base_path, "helic", "tools", "raptorh", "bin", "make-edb"),
-            "--dielectric-simplification-method",
-            "1",
-            "-t",
-            vlc_file,
-            "-o",
-            vlc_file_name,
-            "--export-xml",
-            control_file,
-        ]
-        commands.append(command)
-        commands.append(["rm", "-r", vlc_file_name + ".aedb"])
-        my_env = os.environ.copy()
-        for command in commands:
-            p = subprocess.Popen(command, env=my_env)
-            p.wait()
-        if os.path.exists(control_file):
-            pyaedt_logger.info("Xml file created.")
-            return control_file
-    pyaedt_logger.error("Technology files are supported only in Linux. Use control file instead.")
-    return False
-
-
 class Edb(object):
     """Provides the EDB application interface.
 
@@ -170,7 +93,7 @@ class Edb(object):
     student_version : bool, optional
         Whether to open the AEDT student version. The default is ``False.``
     technology_file : str, optional
-        Full path to technology file to be converted to xml before importing. Supported by GDS format only.
+        Full path to technology file to be converted to xml before importing or xml. Supported by GDS format only.
 
     Examples
     --------
@@ -271,7 +194,10 @@ class Edb(object):
                 working_dir = os.path.dirname(edbpath)
                 control_file = None
                 if technology_file:
-                    control_file = convert_technology_file(technology_file, edbversion=edbversion)
+                    if os.path.splitext(technology_file)[1] == ".xml":
+                        control_file = technology_file
+                    else:
+                        control_file = convert_technology_file(technology_file, edbversion=edbversion)
                 self.import_layout_pcb(edbpath, working_dir, use_ppe=use_ppe, control_file=control_file)
                 if settings.enable_local_log_file and self.log_name:
                     self._logger = self._global_logger.add_file_logger(self.log_name, "Edb")
@@ -544,14 +470,14 @@ class Edb(object):
         """
         if init_dlls:
             self._init_dlls()
-        self.logger.info("EDB Path is %s", self.edbpath)
-        self.logger.info("EDB Version is %s", self.edbversion)
+        # self.logger.info("EDB Path is %s", self.edbpath)
+        # self.logger.info("EDB Version is %s", self.edbversion)
         # if self.edbversion > "2023.1":
         #     self.standalone = False
 
         self.edb.Database.SetRunAsStandAlone(self.standalone)
 
-        self.logger.info("EDB Standalone %s", self.standalone)
+        # self.logger.info("EDB Standalone %s", self.standalone)
         try:
             db = self.edb.Database.Open(self.edbpath, self.isreadonly)
         except Exception as e:
@@ -564,7 +490,7 @@ class Edb(object):
             self.builder = None
             return None
         self._db = db
-        self.logger.info("Database Opened")
+        self.logger.info("Database {} Opened in {}".format(os.path.split(self.edbpath)[-1], self.edbversion))
 
         self._active_cell = None
         if self.cellname:
@@ -731,11 +657,16 @@ class Edb(object):
                 cmd_translator.append("-c={}".format(control_file))
             else:
                 cmd_translator.append('-c="{}"'.format(control_file))
-        p = subprocess.Popen(cmd_translator)
+        if is_linux:
+            p = subprocess.Popen(cmd_translator)
+        else:
+            p = subprocess.Popen(" ".join(cmd_translator))
         p.wait()
         if not os.path.exists(os.path.join(working_dir, aedb_name)):
             self.logger.error("Translator failed to translate.")
             return False
+        else:
+            self.logger.info("Translation correctly completed")
         self.edbpath = os.path.join(working_dir, aedb_name)
         return self.open_edb()
 

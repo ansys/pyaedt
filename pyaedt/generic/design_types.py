@@ -669,7 +669,7 @@ def Edb(
     student_version : bool, optional
         Whether to open the AEDT student version. The default is ``False.``
     technology_file : str, optional
-        Full path to technology file to be converted to xml before importing. Supported by GDS format only.
+        Full path to technology file to be converted to xml before importing or xml. Supported by GDS format only.
 
     Returns
     -------

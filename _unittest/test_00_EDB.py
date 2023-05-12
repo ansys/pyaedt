@@ -2417,3 +2417,35 @@ class TestClass(BasisTest, object):
         ref_pins = [pin for pin in list(edbapp.components["U2A5"].pins.values()) if pin.net_name == "GND"]
         term = edbapp.components.create_port_on_pins(refdes="U2A5", pins=pin, reference_pins=ref_pins)
         assert term
+
+    def test_138_import_gds_from_tech(self):
+        c_file_in = os.path.join(
+            local_path, "example_models", "cad", "GDS", "sky130_fictitious_dtc_example_control_no_map.xml"
+        )
+        c_map = os.path.join(local_path, "example_models", "cad", "GDS", "dummy_layermap.map")
+        gds_in = os.path.join(local_path, "example_models", "cad", "GDS", "sky130_fictitious_dtc_example.gds")
+        from pyaedt.edb_core.edb_data.control_file import ControlFile
+
+        c = ControlFile(c_file_in, layer_map=c_map)
+        setup = c.setups.add_setup("Setup1", "1GHz")
+        setup.add_sweep("Sweep1", "0.01GHz", "5GHz", "0.1GHz")
+        c.boundaries.units = "um"
+        c.boundaries.add_port("P1", x1=223.7, y1=222.6, layer1="Metal6", x2=223.7, y2=100, layer2="Metal6")
+        c.boundaries.add_extent()
+        comp = c.components.add_component("B1", "BGA", "IC", "Flip chip", "Cylinder")
+        comp.solder_diameter = "65um"
+        comp.add_pin("1", "81.28", "84.6", "met2")
+        comp.add_pin("2", "211.28", "84.6", "met2")
+        comp.add_pin("3", "211.28", "214.6", "met2")
+        comp.add_pin("4", "81.28", "214.6", "met2")
+        c.write_xml(os.path.join(self.local_scratch.path, "test_138.xml"))
+        c.import_options.import_dummy_nets = True
+        from pyaedt import Edb
+
+        edb = Edb(gds_in, edbversion="2023.1", technology_file=os.path.join(self.local_scratch.path, "test_138.xml"))
+
+        assert edb
+        assert "P1" in edb.excitations
+        assert "Setup1" in edb.setups
+        assert "B1" in edb.components.components
+        edb.close_edb()
