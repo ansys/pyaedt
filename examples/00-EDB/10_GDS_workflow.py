@@ -22,10 +22,10 @@ from pyaedt.edb_core.edb_data.control_file import ControlFile
 temppath = tempfile.gettempdir()
 local_path = pyaedt.downloads.download_file('gds')
 c_file_in = os.path.join(
-    local_path, "example_models", "cad", "GDS", "sky130_fictitious_dtc_example_control_no_map.xml"
+    local_path, "sky130_fictitious_dtc_example_control_no_map.xml"
 )
-c_map = os.path.join(local_path, "example_models", "cad", "GDS", "dummy_layermap.map")
-gds_in = os.path.join(local_path, "example_models", "cad", "GDS", "sky130_fictitious_dtc_example.gds")
+c_map = os.path.join(local_path, "dummy_layermap.map")
+gds_in = os.path.join(local_path, "sky130_fictitious_dtc_example.gds")
 gds_out = os.path.join(temppath, "example.gds")
 shutil.copy2(gds_in,gds_out )
 ###############################################################################
