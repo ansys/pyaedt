@@ -97,7 +97,7 @@ tuple_random_frequency_permittivity = []
 frequencies= [150 * freq_scale]  # Allow for multiple frequency values.  # 150 MHz
 for freq in frequencies:
     for i in range(n_s):
-        rel_permittivity = 1 + 11 * int(random.random() * 100) / 100  # Rel permittivity to 2 decimal places.
+        rel_permittivity = 1.0 + 11.0 * int(random.random() * 100) / 100.0  # Rel permittivity to 2 decimal places.
         temp_tuple = (freq, rel_permittivity)
         tuple_random_frequency_permittivity.append(temp_tuple)
 
@@ -298,12 +298,13 @@ def index_of_resonance(imaginary_list, real_list):
 # of each case using the analytic formula.
 
 error_counter = []
+count = 1
 for sample in samples:
     length_variation = sample["length"] * 1e3
     width_variation = sample["width"] * 1e3
     thickness_variation = sample["thickness"] * 1e3
     permittivity_variation = sample["permittivity"]
-    param_name = "para_" + freq_str(sample["frequency"]) + "_" + str(sample) #
+    param_name = "para_" + freq_str(sample["frequency"]) + "_" + str(count) #
 
     # Add the parametric setup. Specify length.
     this_param = hfss.parametrics.add(
@@ -312,7 +313,7 @@ for sample in samples:
         length_variation,
         step=1,
         variation_type="LinearCount",
-        solution=setup_prefix + freq_str(sample["frequency"]),
+        solution=setup_name(sample["frequency"]),
         parametricname=param_name,
     )
     this_param.add_variation(
@@ -362,6 +363,7 @@ for sample in samples:
     print(resonance_frequency)
     dictio["frequency"] = resonance_frequency
     dictio["previous_impedance"] = previous_impedance
+    count += 1
 
 ###############################################################################
 # Print error
