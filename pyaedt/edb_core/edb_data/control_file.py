@@ -98,7 +98,7 @@ class ControlProperty:
             elif isinstance(value, str):
                 self.type = 1
 
-    def write_xml(self, root):
+    def _write_xml(self, root):
         if self.type == 0:
             content = ET.SubElement(root, self.name)
             double = ET.SubElement(content, "Double")
@@ -112,11 +112,11 @@ class ControlFileMaterial:
         for name, property in properties.items():
             self.properties[name] = ControlProperty(name, property)
 
-    def write_xml(self, root):
+    def _write_xml(self, root):
         content = ET.SubElement(root, "Material")
         content.set("Name", self.name)
         for name, property in self.properties.items():
-            property.write_xml(content)
+            property._write_xml(content)
 
 
 class ControlFileLayer:
@@ -126,7 +126,7 @@ class ControlFileLayer:
         for name, prop in properties.items():
             self.properties[name] = prop
 
-    def write_xml(self, root):
+    def _write_xml(self, root):
         content = ET.SubElement(root, "Layer")
         content.set("Color", self.properties.get("Color", "#5c4300"))
         if self.properties.get("Elevation"):
@@ -163,7 +163,7 @@ class ControlFileVia(ControlFileLayer):
         self.remove_unconnected = True
         self.snap_tolerance = 3
 
-    def write_xml(self, root):
+    def _write_xml(self, root):
         content = ET.SubElement(root, "Layer")
         content.set("Color", self.properties.get("Color", "#5c4300"))
         if self.properties.get("Elevation"):
@@ -198,11 +198,55 @@ class ControlFileStackup:
     """Class that manages the Stackup info."""
 
     def __init__(self, units="mm"):
-        self.materials = {}
-        self.layers = []
-        self.dielectrics = []
-        self.vias = []
+        self._materials = {}
+        self._layers = []
+        self._dielectrics = []
+        self._vias = []
         self.units = units
+
+    @property
+    def vias(self):
+        """Via list.
+
+        Returns
+        -------
+        list of :class:`pyaedt.edb_core.edb_data.control_file.ControlFileVia`
+
+        """
+        return self._vias
+
+    @property
+    def materials(self):
+        """Material list.
+
+        Returns
+        -------
+        list of :class:`pyaedt.edb_core.edb_data.control_file.ControlFileMaterial`
+
+        """
+        return self._materials
+
+    @property
+    def dielectrics(self):
+        """Dielectric layer list.
+
+        Returns
+        -------
+        list of :class:`pyaedt.edb_core.edb_data.control_file.ControlFileLayer`
+
+        """
+        return self._dielectrics
+
+    @property
+    def layers(self):
+        """Layer list.
+
+        Returns
+        -------
+        list of :class:`pyaedt.edb_core.edb_data.control_file.ControlFileLayer`
+
+        """
+        return self._layers
 
     def add_material(self, material_name, properties):
         """Add a new material with specific properties.
@@ -218,8 +262,8 @@ class ControlFileStackup:
         -------
         :class:`pyaedt.edb_core.edb_data.control_file.ControlFileMaterial`
         """
-        self.materials[material_name] = ControlFileMaterial(material_name, properties)
-        return self.materials[material_name]
+        self._materials[material_name] = ControlFileMaterial(material_name, properties)
+        return self._materials[material_name]
 
     def add_layer(self, layer_name, properties):
         """Add a new layer.
@@ -235,7 +279,7 @@ class ControlFileStackup:
         -------
         :class:`pyaedt.edb_core.edb_data.control_file.ControlFileLayer`
         """
-        self.layers.append(ControlFileLayer(layer_name, properties))
+        self._layers.append(ControlFileLayer(layer_name, properties))
 
     def add_dielectric(self, layer_name, properties):
         """Add a new dielectric.
@@ -251,7 +295,7 @@ class ControlFileStackup:
         -------
         :class:`pyaedt.edb_core.edb_data.control_file.ControlFileLayer`
         """
-        self.dielectrics.append(ControlFileLayer(layer_name, properties))
+        self._dielectrics.append(ControlFileLayer(layer_name, properties))
 
     def add_via(self, layer_name, properties):
         """Add a new via layer.
@@ -267,30 +311,30 @@ class ControlFileStackup:
         -------
         :class:`pyaedt.edb_core.edb_data.control_file.ControlFileVia`
         """
-        self.vias.append(ControlFileVia(layer_name, properties))
-        return self.vias[-1]
+        self._vias.append(ControlFileVia(layer_name, properties))
+        return self._vias[-1]
 
-    def write_xml(self, root):
+    def _write_xml(self, root):
         content = ET.SubElement(root, "Stackup")
         content.set("schemaVersion", "1.0")
         materials = ET.SubElement(content, "Materials")
         for materialname, material in self.materials.items():
-            material.write_xml(materials)
+            material._write_xml(materials)
 
         elayers = ET.SubElement(content, "ELayers")
         elayers.set("LengthUnit", self.units)
         dielectrics = ET.SubElement(elayers, "Dielectrics")
 
         for layer in self.dielectrics:
-            layer.write_xml(dielectrics)
+            layer._write_xml(dielectrics)
         layers = ET.SubElement(elayers, "Layers")
 
         for layer in self.layers:
-            layer.write_xml(layers)
+            layer._write_xml(layers)
         vias = ET.SubElement(elayers, "Vias")
 
         for layer in self.vias:
-            layer.write_xml(vias)
+            layer._write_xml(vias)
 
 
 class ControlFileImportOptions:
@@ -313,7 +357,7 @@ class ControlFileImportOptions:
         self.gdsii_scaling_factor = 0.0
         self.delte_empty_non_laminate_signal_layers = False
 
-    def write_xml(self, root):
+    def _write_xml(self, root):
         content = ET.SubElement(root, "ImportOptions")
         content.set("AutoClose", str(self.auto_close).lower())
         if self.round_to != 0:
@@ -362,7 +406,7 @@ class ControlExtent:
         self.honor_primitives = honor_primitives
         self.truncate_at_gnd = truncate_at_gnd
 
-    def write_xml(self, root):
+    def _write_xml(self, root):
         content = ET.SubElement(root, "Extents")
         content.set("Type", self.type)
         content.set("DielType", self.dieltype)
@@ -388,7 +432,7 @@ class ControlCircuitPt:
         self.y2 = y2
         self.z0 = z0
 
-    def write_xml(self, root):
+    def _write_xml(self, root):
         content = ET.SubElement(root, "CircuitPortPt")
         content.set("Name", self.name)
         content.set("x1", self.x1)
@@ -434,7 +478,7 @@ class ControlFileComponent:
                 args["RefNet"] = refpin
         self.ports.append(args)
 
-    def write_xml(self, root):
+    def _write_xml(self, root):
         content = ET.SubElement(root, "GDS_COMPONENT")
         for p in self.pins:
             prop = ET.SubElement(content, "GDS_PIN")
@@ -580,17 +624,17 @@ class ControlFileBoundaries:
         )
         return self.extents[-1]
 
-    def write_xml(self, root):
+    def _write_xml(self, root):
         content = ET.SubElement(root, "Boundaries")
         content.set("LengthUnit", self.units)
         for p in self.circuit_models.values():
-            p.write_xml(content)
+            p._write_xml(content)
         for p in self.circuit_elements.values():
-            p.write_xml(content)
+            p._write_xml(content)
         for p in self.ports.values():
-            p.write_xml(content)
+            p._write_xml(content)
         for p in self.extents:
-            p.write_xml(content)
+            p._write_xml(content)
 
 
 class ControlFileSweep:
@@ -603,7 +647,7 @@ class ControlFileSweep:
         self.step_type = step_type
         self.use_q3d = use_q3d
 
-    def write_xml(self, root):
+    def _write_xml(self, root):
         sweep = ET.SubElement(root, "FreqSweep")
         prop = ET.SubElement(sweep, "Name")
         prop.text = self.name
@@ -638,7 +682,7 @@ class ControlFileMeshOp:
         self.num_layers = 2
         self.region_solve_inside = False
 
-    def write_xml(self, root):
+    def _write_xml(self, root):
         mop = ET.SubElement(root, "MeshOperation")
         prop = ET.SubElement(mop, "Name")
         prop.text = self.name
@@ -745,7 +789,7 @@ class ControlFileSetup:
         self.mesh_operations.append(mop)
         return mop
 
-    def write_xml(self, root):
+    def _write_xml(self, root):
         setups = ET.SubElement(root, "HFSSSetup")
         setups.set("schemaVersion", "1.0")
         setups.set("Name", self.name)
@@ -784,10 +828,10 @@ class ControlFileSetup:
         prop2.text = str(self.solver_type)
         prop = ET.SubElement(setup, "HFSSMeshOperations")
         for mesh in self.mesh_operations:
-            mesh.write_xml(prop)
+            mesh._write_xml(prop)
         prop = ET.SubElement(setups, "HFSSSweepDataList")
         for sweep in self.sweeps:
-            sweep.write_xml(prop)
+            sweep._write_xml(prop)
 
 
 class ControlFileSetups:
@@ -815,10 +859,10 @@ class ControlFileSetups:
         self.setups.append(setup)
         return setup
 
-    def write_xml(self, root):
+    def _write_xml(self, root):
         content = ET.SubElement(root, "SimulationSetups")
         for setup in self.setups:
-            setup.write_xml(content)
+            setup._write_xml(content)
 
 
 class ControlFile:
@@ -985,9 +1029,9 @@ class ControlFile:
         bool
         """
         control = ET.Element("{http://www.ansys.com/control}Control", attrib={"schemaVersion": "1.0"})
-        self.stackup.write_xml(control)
+        self.stackup._write_xml(control)
         if self.boundaries.ports or self.boundaries.extents:
-            self.boundaries.write_xml(control)
+            self.boundaries._write_xml(control)
         if self.remove_holes:
             hole = ET.SubElement(control, "RemoveHoles")
             hole.set("HoleAreaMinimum", str(self.remove_holes_area_minimum))
@@ -995,12 +1039,12 @@ class ControlFile:
         if self.setups.setups:
             setups = ET.SubElement(control, "SimulationSetups")
             for setup in self.setups.setups:
-                setup.write_xml(setups)
-        self.import_options.write_xml(control)
+                setup._write_xml(setups)
+        self.import_options._write_xml(control)
         if self.components.components:
             comps = ET.SubElement(control, "GDS_COMPONENTS")
             comps.set("LengthUnit", self.components.units)
             for comp in self.components.components:
-                comp.write_xml(comps)
+                comp._write_xml(comps)
         write_pretty_xml(control, xml_output)
         return True if os.path.exists(xml_output) else False

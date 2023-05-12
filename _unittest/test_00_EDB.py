@@ -2438,6 +2438,9 @@ class TestClass(BasisTest, object):
         comp.add_pin("2", "211.28", "84.6", "met2")
         comp.add_pin("3", "211.28", "214.6", "met2")
         comp.add_pin("4", "81.28", "214.6", "met2")
+        for via in c.stackup.vias:
+            via.create_via_group = True
+            via.snap_via_group = True
         c.write_xml(os.path.join(self.local_scratch.path, "test_138.xml"))
         c.import_options.import_dummy_nets = True
         from pyaedt import Edb

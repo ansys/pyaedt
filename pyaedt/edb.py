@@ -7,6 +7,7 @@ import os
 import re
 import shutil
 import sys
+import tempfile
 import time
 import traceback
 import warnings
@@ -20,6 +21,7 @@ from pyaedt.edb_core import EdbHfss
 from pyaedt.edb_core import EdbLayout
 from pyaedt.edb_core import EdbNets
 from pyaedt.edb_core import EdbSiwave
+from pyaedt.edb_core.edb_data.control_file import ControlFile
 from pyaedt.edb_core.edb_data.control_file import convert_technology_file
 from pyaedt.edb_core.edb_data.design_options import EdbDesignOptions
 from pyaedt.edb_core.edb_data.edb_builder import EdbBuilder
@@ -1338,7 +1340,14 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def import_gds_file(
-        self, inputGDS, WorkDir=None, anstranslator_full_path="", use_ppe=False, control_file=None, tech_file=None
+        self,
+        inputGDS,
+        WorkDir=None,
+        anstranslator_full_path="",
+        use_ppe=False,
+        control_file=None,
+        tech_file=None,
+        map_file=None,
     ):
         """Import a GDS file and generate an ``edb.def`` file in the working directory.
 
@@ -1363,17 +1372,18 @@ class Edb(object):
             have the same name. Only the extension differs.
         tech_file : str, optional
             Technology file. It uses Helic to convert tech file to xml and then imports the gds. Works on Linux only.
-
+        map_file : str, optional
+            Layer map file.
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
 
         """
-        if tech_file and is_linux:  # pragma: no cover
-            control_file = convert_technology_file(
-                tech_file,
-                self.edbversion,
+        if tech_file or map_file:
+            control_file_temp = os.path.join(tempfile.gettempdir(), os.path.split(inputGDS)[-1][:-3] + "xml")
+            control_file = ControlFile(xml_input=control_file, tecnhology=tech_file, layer_map=map_file).write_xml(
+                control_file_temp
             )
         elif tech_file:
             self.logger.error("Technology files are supported only in Linux. Use control file instead.")
