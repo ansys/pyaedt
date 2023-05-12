@@ -144,7 +144,7 @@ class Primitives(object):
 
         Returns
         -------
-        str
+        List
         """
         self._refresh_solids()
         return self._solids
