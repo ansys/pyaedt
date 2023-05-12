@@ -203,6 +203,8 @@ class ControlFileStackup:
         self._dielectrics = []
         self._vias = []
         self.units = units
+        self.metal_layer_snapping_tolerance = None
+        self.dielectrics_base_elevation = 0
 
     @property
     def vias(self):
@@ -323,8 +325,10 @@ class ControlFileStackup:
 
         elayers = ET.SubElement(content, "ELayers")
         elayers.set("LengthUnit", self.units)
+        if self.metal_layer_snapping_tolerance:
+            elayers.set("MetalLayerSnappingTolerance", str(self.metal_layer_snapping_tolerance))
         dielectrics = ET.SubElement(elayers, "Dielectrics")
-
+        dielectrics.set("BaseElevation", str(self.dielectrics_base_elevation))
         for layer in self.dielectrics:
             layer._write_xml(dielectrics)
         layers = ET.SubElement(elayers, "Layers")

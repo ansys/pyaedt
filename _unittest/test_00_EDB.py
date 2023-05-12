@@ -2430,6 +2430,7 @@ class TestClass(BasisTest, object):
         setup = c.setups.add_setup("Setup1", "1GHz")
         setup.add_sweep("Sweep1", "0.01GHz", "5GHz", "0.1GHz")
         c.boundaries.units = "um"
+        c.stackup.units = "um"
         c.boundaries.add_port("P1", x1=223.7, y1=222.6, layer1="Metal6", x2=223.7, y2=100, layer2="Metal6")
         c.boundaries.add_extent()
         comp = c.components.add_component("B1", "BGA", "IC", "Flip chip", "Cylinder")
