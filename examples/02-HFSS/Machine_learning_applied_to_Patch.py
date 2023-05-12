@@ -242,8 +242,8 @@ hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jp
 for freq in frequencies:
     current_setup = hfss.create_setup(setupname=setup_name(freq),
                                       Frequency=freq_str(freq),
-                                      MaximumPasses=30,
-                                      MinimumConvergedPasses=2)
+                                      MaximumPasses=2,  # Increase to 30 to improve accuracy.
+                                      MinimumConvergedPasses=1)
 
     freq_start = int(freq/freq_scale*100)/100.0 * 0.75
     freq_stop = int(freq/freq_scale*100)/100.0 * 1.25
@@ -300,7 +300,6 @@ def index_of_resonance(imaginary_list, real_list):
 error_counter = []
 count = 1
 for sample in samples:
-    dictio = sample
     length_variation = sample["length"] * 1e3
     width_variation = sample["width"] * 1e3
     thickness_variation = sample["thickness"] * 1e3
@@ -362,8 +361,8 @@ for sample in samples:
     frequency_list = data.primary_sweep_values
     resonance_frequency = frequency_list[corresponding_index]
     print(resonance_frequency)
-    dictio["frequency"] = resonance_frequency
-    dictio["previous_impedance"] = previous_impedance
+    sample["frequency"] = resonance_frequency
+    sample["previous_impedance"] = previous_impedance
     count += 1
 
 ###############################################################################
@@ -381,7 +380,7 @@ print("number of range error: " + str(error_counter))
 
 json_file_path = os.path.join(hfss.working_directory, "ml_data_for_test.json")
 with open(json_file_path, "w") as readfile:
-    json.dump(dictionary_list, readfile)
+    json.dump(samples, readfile)
 
 ###############################################################################
 # Create machine learning algorithm
