@@ -121,8 +121,6 @@ class Revision:
         if domain.interferer_names and engine.max_simultaneous_interferers != len(domain.interferer_names):
             raise ValueError("The max_simultaneous_interferers must equal the number of interferers in the domain.")
         interaction = engine.get_interaction(domain)
-        # save the revision
-        self.emit_project._emit_api.save_project()
         return interaction
     
     @pyaedt_function_handler()
