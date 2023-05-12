@@ -48,7 +48,7 @@ tests = [
     "pandas==2.0.1; python_version > '3.7'",
     "pytest==7.3.1",
     "pytest-cov==4.0.0",
-    "pytest-xdist==3.2.1",
+    "pytest-xdist==3.3.0",
     "pyvista==0.38.6",
     "scikit-learn==1.2.2",
     "SRTM.py",
