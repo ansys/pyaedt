@@ -102,7 +102,7 @@ class Revision:
 
         Parameters
         ----------
-        domain :
+        domain : class:`Emit.InteractionDomain`
             ``InteractionDomain`` object for constraining the analysis parameters.
 
         Returns
