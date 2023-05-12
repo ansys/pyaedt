@@ -3787,104 +3787,23 @@ class Icepak(FieldAnalysis3D):
             return bound
 
     @pyaedt_function_handler()
-    def _create_node_dict(self, node_dicts, default_dict):
-        return_dict = OrderedDict({})
-        for i, node_dict in enumerate(node_dicts):
-            node_name = node_dict.get("Name", None)
-            if not node_name:
-                try:
-                    node_name = "Face" + str(node_dict["FaceID"])
-                except KeyError:  # pragma: no cover
-                    raise KeyError('"Name" key is needed for "BoundaryNodes" and "InternalNodes" dictionaries.')
-            else:
-                node_dict.pop("Name")
-            node_args = copy.deepcopy(default_dict)
-            for k in node_dict.keys():
-                val = node_dict[k]
-                if isinstance(val, dict):
-                    val = self._parse_variation_data(
-                        k, val["Type"], variation_value=val["Values"], function=val["Function"]
-                    )
-                    node_args.pop(k)
-                    node_args.update(val)
-                else:
-                    node_args[k] = val
-            return_dict.update({node_name: node_args})
-        return return_dict
-
-    @pyaedt_function_handler()
-    def assign_network(self, nodes_dict, connections, network_name=None):
+    def create_network_object(self, name=None, props=None, create=False):
         """Create a thermal network.
 
         Parameters
         ----------
-        nodes_dict : dict
-            A dictionary containing all the nodes of the network. It must have at least one of the
-            following keys and values pairs:
-            - ``"Faces"``: a list of dictionaries prescribing face nodes. Each dictionary must contain
-            the ``"ID"`` key associated with an int containing the face id
-              Optional keys and values pairs:
-              - ``"ThermalResistance"``: a string specifying the type of thermal resistance -
-              ``"NoResistance"`` (default), ``"Compute"``, or ``"Specified"``
-              - ``"Thickness"``: a string with the thickness value and unit (required if ``"Compute"``
-              is used for ``"ThermalResistance"``)
-              - ``"Material"``: a string with the name of the material (required if ``"Compute"`` is
-              used for ``"ThermalResistance"``)
-              - ``"Resistance"``: a string with the resistance value and unit (required if
-              ``"Specified"`` is used for ``"ThermalResistance"``)
-              - ``"Name"``: a string with the name of the node (generated automatically if not
-              specified)
-
-            - ``"InternalNodes"``: a list of dictionaries representing the internal nodes. Each
-            dictionary must contain the following keys and values pairs:
-              - ``"Name"``: a string with the node name
-              - ``"Power"``: a string with the assigned power or a dictionary for transient or
-              temperature-dependent assignment
-              Optional keys and values pairs:
-              - ``"Mass"``: a string with the mass value and unit
-              - ``"SpecificHeat"``: a string with the specific heat value and unit
-
-            - ``"BoundaryNodes"``: a list of dictionaries representing the boundary nodes. Each
-            dictionary must contain the following keys and values pairs:
-              - ``"Name"``: a string with the node name
-              - ``"ValueType"``: a string specifying the type of value (``"PowerValue"`` or
-              ``"TemperatureValue"``)
-              Depending on the ``"ValueType"`` choice, one of the following keys and values pairs must
-              be used:
-              - ``"Power"``: a string with the power value and unit or a dictionary for transient or
-              temperature-dependent assignment
-              - ``"Temperature"``: a string with the temperature value and unit or a dictionary for
-              transient or temperature-dependent assignment
-              According to the ``"ValueType"`` choice, ``"Power"`` or ``"Temperature"`` key must be
-              used. Their associated value a string with the value and unit of the quantity prescribed or a
-              dictionary for transient or temperature dependent assignment.
-
-            All the temperature dependent or thermal dictionaries should contain three keys:
-            ``"Type"``, ``"Function"`` and ``"Values"``. Accepted ``"Type"`` values are:
-            ``"Temp Dep"`` and ``"Transient"``. Accepted ``"Function"`` are: ``"Linear"``,
-            ``"Power Law"``, ``"Exponential"``, ``"Sinusoidal"``, ``"Square Wave"`` and
-            ``"Piecewise Linear"``. ``"Temp Dep"`` only support the latter. ``"Values"``
-            contains a list of strings containing the parameters required by the ``"Function"``
-            selection (e.g. ``"Linear"`` requires two parameters: the value of the variable at t=0
-            and the slope of the line). The parameters required by each ``Function`` option is in
-            Icepak documentation. The parameters must contain the units where needed.
-        connections : dict or list of dict
-            Dictionary or list of dictionaries containing the links between nodes. Each dictionary
-            must have the following keys:
-            - ``"Connection"``: a 2-item list with the node name (str) or face id (int) that the link
-              is connecting.
-            - ``"Value"``: a string with the value and unit of the link. The link type (resistance,
-              heat transfer coefficient, or mass flow) will be determined automatically.
-            Optional key:
-            - ``"Name"``: a string that prescribes the name of the link.
-        network_name : str, optional
-            Name of the network boundary. The default is ``None`` and the boundary name will
-            be generated automatically.
+        name : str, optional
+            String with the name of the network object. Default is ``None``.
+        props : dict, optional
+            Dictionary with information required by oModule.AssignNetworkBoundary. Default is ``None``.
+        create : bool, optional
+            Whether to create immediately the network inside AEDT or not. Default is ``False`` and the user
+            can modify the network from pyAEDT functions and create the network only afterwards.
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object when successful or ``None`` when failed.
+        :class:`pyaedt.modules.Boundary.BoundaryNetwork`
+            Boundary network object when successful or ``None`` when failed.
 
         References
         ----------
@@ -3896,104 +3815,14 @@ class Icepak(FieldAnalysis3D):
 
         >>> from pyaedt import Icepak
         >>> app = Icepak()
-        >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
-        >>> faces_ids = [face.id for face in box.faces]
-        >>> nodes_dict = {
-        >>>     "Faces": [
-        >>>         {"FaceID": faces_ids[0]},
-        >>>         {"FaceID": faces_ids[1], "ThermalResistance": "Compute", "Thickness": "2mm"},
-        >>>         {"FaceID": faces_ids[2], "ThermalResistance": "Specified", "Resistance": "2cel_per_w"},
-        >>>     ],
-        >>>     "InternalNodes": [{"Name": "Junction", "Power": "1W"}]
-        >>> }
-        >>> connections = [
-        >>>     {"Name": "LinkTest", "Connection": ["Junction", faces_ids[0]], "Value": "1cel_per_w"},
-        >>>     {"Connection": ["Junction", faces_ids[1]], "Value": "2cel_per_w"},
-        >>>     {"Connection": ["Junction", faces_ids[2]], "Value": "3cel_per_w"},
-        >>> ]
-        >>> app.assign_network(nodes_dict, connections)
-
+        >>> network = app.create_network_object()
         """
-        # Method Data
-        unit2type_conversion = {
-            "g_per_s": ["C-Link", "Node1ToNode2"],
-            "kg_per_s": ["C-Link", "Node1ToNode2"],
-            "lbm_per_min": ["C-Link", "Node1ToNode2"],
-            "lbm_per_s": ["C-Link", "Node1ToNode2"],
-            "Kel_per_W": ["R-Link", "R"],
-            "cel_per_w": ["R-Link", "R"],
-            "FahSec_per_btu": ["R-Link", "R"],
-            "Kels_per_J": ["R-Link", "R"],
-            "w_per_m2kel": ["R-Link", "HTC"],
-            "w_per_m2Cel": ["R-Link", "HTC"],
-            "btu_per_rankHrFt2": ["R-Link", "HTC"],
-            "btu_per_fahHrFt2": ["R-Link", "HTC"],
-            "btu_per_rankSecFt2": ["R-Link", "HTC"],
-            "btu_per_fahSecFt2": ["R-Link", "HTC"],
-            "w_per_cm2kel": ["R-Link", "HTC"],
-        }
-        face_node_default_dict = {
-            "FaceID": 0,
-            "ThermalResistance": "NoResistance",
-            "Thickness": "1mm",
-            "Material": "Al-Extruded",
-            "Resistance": "0cel_per_w",
-        }
-        boundary_node_default_dict = {
-            "NodeType": "BoundaryNode",
-            "ValueType": "PowerValue",
-            "Power": "0W",
-            "Temperature": "25cel",
-        }
-        internal_node_default_dict = {
-            "NodeType": "InternalNode",
-            "Power": "0W",
-            "Mass": "0.001kg",
-            "SpecificHeat": "1000J_per_Kelkg",
-        }
-        props = OrderedDict({})
-        props["Faces"] = [face_dict["FaceID"] for face_dict in nodes_dict["Faces"]]
-        props["Nodes"] = OrderedDict({})
-        props["Nodes"].update(
-            self._create_node_dict(node_dicts=nodes_dict.get("Faces", []), default_dict=face_node_default_dict)
-        )
-        props["Nodes"].update(
-            self._create_node_dict(
-                node_dicts=nodes_dict.get("BoundaryNodes", []), default_dict=boundary_node_default_dict
-            )
-        )
-        props["Nodes"].update(
-            self._create_node_dict(
-                node_dicts=nodes_dict.get("InternalNodes", []), default_dict=internal_node_default_dict
-            )
-        )
-        if isinstance(connections, list):
-            connections = {"Link" + str(i): link_dict for i, link_dict in enumerate(connections)}
-        props["Links"] = {}
-        for link_name, link_dict in connections.items():
-            connection_1 = (
-                link_dict["Connection"][0]
-                if isinstance(link_dict["Connection"][0], str)
-                else "Face" + str(link_dict["Connection"][0])
-            )
-            connection_2 = (
-                link_dict["Connection"][1]
-                if isinstance(link_dict["Connection"][1], str)
-                else "Face" + str(link_dict["Connection"][1])
-            )
-            value, unit = decompose_variable_value(link_dict["Value"])
-            props["Links"][link_name] = [connection_1, connection_2] + unit2type_conversion[unit] + [link_dict["Value"]]
-        props["SchematicData"] = OrderedDict({})
-        if network_name is None:
-            network_name = generate_unique_name("Network")
-        bound = BoundaryObject(self, network_name, props, "Network")
-        if bound.create():
-            self.boundaries.append(bound)
-            return bound
-        return None
+        bound = self.BoundaryNetwork(self, name, props, create)
+        self._thermal_networks.append(bound)
+        return bound
 
     @pyaedt_function_handler()
-    def assign_resistor_network_from_matrix(self, sources_power, faces_ids, matrix, network_name=None):
+    def create_resistor_network_from_matrix(self, sources_power, faces_ids, matrix, network_name=None):
         """Create a thermal network.
 
         Parameters
@@ -4015,8 +3844,8 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object when successful or ``None`` when failed.
+        :class:`pyaedt.modules.Boundary.BoundaryNetwork`
+            Boundary network object when successful or ``None`` when failed.
 
         References
         ----------
@@ -4062,8 +3891,742 @@ class Icepak(FieldAnalysis3D):
                             "Value": matrix[i][j] if isinstance(matrix[i][j], str) else str(matrix[i][j]) + "cel_per_w",
                         }
                     )
-        return self.assign_network(
-            nodes_dict=OrderedDict({"Faces": face_nodes_list, "InternalNodes": internal_nodes_list}),
-            connections=connection_list,
-            network_name=network_name,
-        )
+        network = self.create_network_object(name=network_name)
+        network.add_nodes_from_dictionaries({"FaceNodes": face_nodes_list, "InternalNodes": internal_nodes_list})
+        network.add_links_from_dictionaries(connection_list)
+        if network.create():
+            return network
+        else:
+            return None
+
+    class BoundaryNetwork(BoundaryObject):
+        """Manages networks in Icepak projects."""
+
+        def __init__(self, app, name=None, props=None, create=False):
+            if not app.design_type == "Icepak":
+                raise NotImplementedError("Networks object works only with Icepak projects ")
+            if name is None:
+                self._name = generate_unique_name("Network")
+            else:
+                self._name = name
+            if props is None:
+                props_arg = OrderedDict({})
+            else:
+                props_arg = props
+            super().__init__(app, self._name, props_arg, "Network")
+            self._nodes = []
+            self._links = []
+            self._schematic_data = OrderedDict({})
+            self._update_from_props()
+            if create:
+                self.create()
+
+        @pyaedt_function_handler
+        def create(self):
+            if not self.props.get("Faces", None):
+                self.props["Faces"] = [node.props["FaceID"] for _, node in self.face_nodes.items()]
+            if not self.props.get("SchematicData", None):
+                self.props["SchematicData"] = OrderedDict({})
+            self._app.oboundary.AssignNetworkBoundary(self._get_args())
+            return True
+
+        @pyaedt_function_handler
+        def _update_from_props(self):
+            nodes = self.props.get("Nodes", None)
+            if nodes is not None:
+                nd_name_list = [node.name for node in self._nodes]
+                for node_name, node_dict in nodes.items():
+                    if node_name not in nd_name_list:
+                        nd_type = node_dict.get("NodeType", None)
+                        if nd_type == "InternalNode":
+                            self.add_internal_node(
+                                node_name,
+                                node_dict.get("Power", node_dict.get("Power Variation Data", None)),
+                                mass=node_dict.get("Mass", None),
+                                specific_heat=node_dict.get("SpecificHeat", None),
+                            )
+                        elif nd_type == "BoundaryNode":
+                            self.add_boundary_node(
+                                node_name,
+                                assignment_type=node_dict["ValueType"].replace("Value", ""),
+                                value=node_dict[node_dict["ValueType"].replace("Value", "")],
+                            )
+                        else:
+                            if (
+                                node_dict["ThermalResistance"] == "NoResistance"
+                                or node_dict["ThermalResistance"] == "Specified"
+                            ):
+                                node_material, node_thickness = None, None
+                                node_resistance = node_dict["Resistance"]
+                            else:
+                                node_thickness, node_material = node_dict["Thickness"], node_dict["Material"]
+                                node_resistance = None
+                            self.add_face_node(
+                                node_dict["FaceID"],
+                                name=node_name,
+                                thermal_resistance=node_dict["ThermalResistance"],
+                                material=node_material,
+                                thickness=node_thickness,
+                                resistance=node_resistance,
+                            )
+            links = self.props.get("Links", None)
+            if links is not None:
+                l_name_list = [l.name for l in self._links]
+                for link_name, link_dict in links.items():
+                    if link_name not in l_name_list:
+                        self.add_link(link_dict[0], link_dict[1], link_dict[-1], link_name)
+
+        @property
+        def auto_update(self):
+            return False
+
+        @auto_update.setter
+        def auto_update(self, b):
+            if b:
+                self._app.logger.warning(
+                    "Network objects auto_update property is False by default" " and cannot be set to True."
+                )
+
+        @property
+        def links(self):
+            self._update_from_props()
+            return {link.name: link for link in self._links}
+
+        @property
+        def r_links(self):
+            self._update_from_props()
+            return {link.name: link for link in self._links if link.link_type[0] == "R-Link"}
+
+        @property
+        def c_links(self):
+            self._update_from_props()
+            return {link.name: link for link in self._links if link.link_type[0] == "C-Link"}
+
+        @property
+        def nodes(self):
+            self._update_from_props()
+            return {node.name: node for node in self._nodes}
+
+        @property
+        def face_nodes(self):
+            self._update_from_props()
+            return {node.name: node for node in self._nodes if node.node_type == "FaceNode"}
+
+        @property
+        def faces_ids_in_network(self):
+            out_arr = []
+            for _, node_dict in self.face_nodes.items():
+                out_arr.append(node_dict.props["FaceID"])
+            return out_arr
+
+        @property
+        def objects_in_network(self):
+            out_arr = []
+            for face_id in self.faces_ids_in_network:
+                out_arr.append(self._app.oeditor.GetObjectNameByFaceID(face_id))
+            return out_arr
+
+        @property
+        def internal_nodes(self):
+            self._update_from_props()
+            return {node.name: node for node in self._nodes if node.node_type == "InternalNode"}
+
+        @property
+        def boundary_nodes(self):
+            self._update_from_props()
+            return {node.name: node for node in self._nodes if node.node_type == "BoundaryNode"}
+
+        @property
+        def name(self):
+            """Network name.
+
+            Returns
+            -------
+            str
+            """
+            return self._name
+
+        @name.setter
+        def name(self, new_network_name):
+            bound_names = [b.name for b in self._app.boundaries]
+            if self.name in bound_names:
+                if new_network_name not in bound_names:
+                    if new_network_name != self._name:
+                        self._app._oboundary.RenameBoundary(self._name, new_network_name)
+                        self._name = new_network_name
+                else:
+                    self._app.logger.warning("Name %s already assigned in the design", new_network_name)
+            else:
+                self._name = new_network_name
+
+        @pyaedt_function_handler()
+        def add_internal_node(self, name, power, mass=None, specific_heat=None):
+            """
+
+            Parameters
+            ----------
+            name : str
+                String containing the name of the node.
+            power : str or float or dict
+                String or float or dict containing the value of the assignment. If a float is passed ``"W"``
+                units will be used. A dictionary can be passed to use temperature dependent or transient
+                assignment.
+            mass : str or float, optional
+                String or float containing the value of the mass assignment. The assignment is relevant only
+                if the solution is transient. If a float is passed ``"Kg"`` units will be used. Default is
+                ``None`` and  ``"0.001kg"`` will be used.
+            specific_heat : str or float, optional
+                String or float containing the value of the specific heat assignment. The assignment is
+                relevant only if the solution is transient. If a float is passed ``"J_per_Kelkg"`` units will be
+                used. Default is ``None`` and  ``"1000J_per_Kelkg"`` will be used.
+
+            Returns
+            -------
+            bool
+                True if successful.
+
+            Examples
+            --------
+
+            >>> import pyaedt
+            >>> app = pyaedt.Icepak()
+            >>> network = pyaedt.modules.Boundary.Network(app)
+            >>> network.add_internal_node("TestNode", {"Type": "Transient",
+            >>>                                        "Function": "Linear", "Values": ["0.01W", "1"]})
+            """
+            if self._app.solution_type != "SteadyState" and mass is None and specific_heat is None:
+                self._app.logger("The solution is transient but neither mass nor specific heat is assigned.")
+            if self._app.solution_type == "SteadyState" and (mass is not None or specific_heat is not None):
+                self._app.logger.warning(
+                    "The solution is steady state so neither mass nor specific heat assignment will be relevant."
+                )
+            if isinstance(power, (int, float)):
+                power = str(power) + "W"
+            props_dict = {"Power": power}
+            if mass is not None:
+                if isinstance(mass, (int, float)):
+                    mass = str(mass) + "kg"
+                props_dict.update({"Mass": mass})
+            if specific_heat is not None:
+                if isinstance(specific_heat, (int, float)):
+                    specific_heat = str(specific_heat) + "J_per_Kelkg"
+                props_dict.update({"SpecificHeat": specific_heat})
+            new_node = self._Node(name, self._app, node_type="InternalNode", props=props_dict, network=self)
+            self._nodes.append(new_node)
+            self._add_to_props(new_node)
+            return new_node
+
+        @pyaedt_function_handler()
+        def add_boundary_node(self, name, assignment_type, value):
+            """
+
+            Parameters
+            ----------
+            name: str
+                String containing the name of the node.
+            assignment_type: str
+                String containing the type assignment. It can be ``"Power"`` or ``"Temperature"``.
+            value: str or float or dict
+                String or float or dict containing the value of the assignment. If a float is passed ``"W"``
+                 or ``"cel"`` will be used according to ``assignment_type``. If ``type`` is ``"Power"`, a
+                 dictionary can be passed to use temperature dependent or transient assignment.
+
+            Returns
+            -------
+            bool
+                True if successful.
+
+            Examples
+            --------
+
+            >>> import pyaedt
+            >>> app = pyaedt.Icepak()
+            >>> network = pyaedt.modules.Boundary.Network(app)
+            >>> network.add_boundary_node("TestNode", "Temperature", 2)
+            >>> ds = app.create_dataset1d_design("Test_DataSet", [1, 2, 3], [3, 4, 5])
+            >>> network.add_boundary_node("TestNode", "Power", {"Type": "Temp Dep",
+            >>>                                                       "Function": "Piecewise Linear",
+            >>>                                                       "Values": "Test_DataSet"})
+            """
+            if assignment_type not in ["Power", "Temperature"]:
+                raise AttributeError('``type`` can be only ``"Power"`` or ``"Temperature"``')
+            if isinstance(value, (float, int)):
+                if assignment_type == "Power":
+                    value = str(value) + "W"
+                else:
+                    value = str(value) + "cel"
+            if isinstance(value, dict) and assignment_type == "Temperature":
+                raise AttributeError(
+                    "Temperature dependent or transient assignment is not supported in a temperature boundary node."
+                )
+            new_node = self._Node(
+                name,
+                self._app,
+                node_type="BoundaryNode",
+                props={"ValueType": assignment_type + "Value", assignment_type: value},
+                network=self,
+            )
+            self._nodes.append(new_node)
+            self._add_to_props(new_node)
+            return new_node
+
+        @pyaedt_function_handler()
+        def _add_to_props(self, new_node, type_dict="Nodes"):
+            try:
+                self.props[type_dict].update({new_node.name: new_node.props})
+            except:
+                self.props[type_dict] = {new_node.name: new_node.props}
+
+        @pyaedt_function_handler()
+        def add_face_node(
+            self, face_id, name=None, thermal_resistance=None, material=None, thickness=None, resistance=None
+        ):
+            """
+
+            Parameters
+            ----------
+            face_id : int
+            name : str, optional
+            thermal_resistance : str, optional
+                String
+            material : str, optional
+                String with the material specification (required if ``thermal_resistance="Compute"``).
+            thickness : str or float, optional Default is ``None``.
+                String with the thickness value and unit (required if ``thermal_resistance="Compute"``).
+                If a float is passed, ``"mm"`` unit will be automatically used. Default is ``None``.
+            resistance : str or float, optional
+                String with the resistance value and unit (required if ``thermal_resistance="Specified"``).
+                If a float is passed, ``"cel_per_w"`` unit will be automatically used. Default is ``None``.
+
+            Returns
+            -------
+            bool
+                True if successful.
+
+            Examples
+            --------
+
+            >>> import pyaedt
+            >>> app = pyaedt.Icepak()
+            >>> network = pyaedt.modules.Boundary.Network(app)
+            >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
+            >>> faces_ids = [face.id for face in box.faces]
+            >>> network.add_face_node(faces_ids[0])
+            >>> network.add_face_node(faces_ids[1], name="TestNode", thermal_resistance="Compute",
+            >>>                       material="Al-Extruded", thickness="2mm")
+            >>> network.add_face_node(faces_ids[2], name="TestNode", thermal_resistance="Specified", resistance=2)
+            """
+            props_dict = OrderedDict({})
+            props_dict["FaceID"] = face_id
+            if thermal_resistance is not None:
+                if thermal_resistance == "Compute":
+                    if resistance is not None:
+                        self._app.logger.info(
+                            '``resistance`` assignment is incompatible with ``thermal_resistance="Compute"``'
+                            "and it will be ignored."
+                        )
+                    if material is not None or thickness is not None:
+                        props_dict["ThermalResistance"] = thermal_resistance
+                        props_dict["Material"] = material
+                        if not isinstance(thickness, str):
+                            thickness = str(thickness) + "mm"
+                        props_dict["Thickness"] = thickness
+                    else:
+                        raise AttributeError(
+                            'If ``thermal_resistance="Compute"`` both ``material`` and ``thickness``'
+                            "arguments must be prescribed."
+                        )
+                if thermal_resistance == "Specified":
+                    if material is not None or thickness is not None:
+                        self._app.logger.warning(
+                            "``material`` and ``thickness`` assignment is incompatible with"
+                            '``thermal_resistance="Specified"`` and they will be ignored.'
+                        )
+                    if resistance is not None:
+                        props_dict["ThermalResistance"] = thermal_resistance
+                        if not isinstance(resistance, str):
+                            resistance = str(resistance) + "cel_per_w"
+                        props_dict["Resistance"] = resistance
+                    else:
+                        raise AttributeError(
+                            'If ``thermal_resistance="Specified"``, ``resistance`` argument must be prescribed.'
+                        )
+
+            if name is None:
+                name = "FaceID" + str(face_id)
+            new_node = self._Node(name, self._app, node_type="FaceNode", props=props_dict, network=self)
+            self._nodes.append(new_node)
+            self._add_to_props(new_node)
+            return new_node
+
+        @pyaedt_function_handler()
+        def add_nodes_from_dictionaries(self, nodes_dict):
+            """
+            nodes_dict : list or dict
+                A dictionary or list of dictionaries containing nodes to add to the network. Different
+                node types requires different key and value pairs:
+                - Face nodes must contain the ``"ID"`` key associated with an int containing the face id
+                  Optional keys and values pairs:
+                  - ``"ThermalResistance"``: a string specifying the type of thermal resistance -
+                  ``"NoResistance"`` (default), ``"Compute"``, or ``"Specified"``
+                  - ``"Thickness"``: a string with the thickness value and unit (required if ``"Compute"``
+                  is used for ``"ThermalResistance"``)
+                  - ``"Material"``: a string with the name of the material (required if ``"Compute"`` is
+                  used for ``"ThermalResistance"``)
+                  - ``"Resistance"``: a string with the resistance value and unit (required if
+                  ``"Specified"`` is used for ``"ThermalResistance"``)
+                  - ``"Name"``: a string with the name of the node (generated automatically if not
+                  specified)
+
+                - Internal nodes must contain the following keys and values pairs:
+                  - ``"Name"``: a string with the node name
+                  - ``"Power"``: a string with the assigned power or a dictionary for transient or
+                  temperature-dependent assignment
+                  Optional keys and values pairs:
+                  - ``"Mass"``: a string with the mass value and unit
+                  - ``"SpecificHeat"``: a string with the specific heat value and unit
+
+                - Boundary nodes must contain the following keys and values pairs:
+                  - ``"Name"``: a string with the node name
+                  - ``"ValueType"``: a string specifying the type of value (``"Power"`` or
+                  ``"Temperature"``)
+                  Depending on the ``"ValueType"`` choice, one of the following keys and values pairs must
+                  be used:
+                  - ``"Power"``: a string with the power value and unit or a dictionary for transient or
+                  temperature-dependent assignment
+                  - ``"Temperature"``: a string with the temperature value and unit or a dictionary for
+                  transient or temperature-dependent assignment
+                  According to the ``"ValueType"`` choice, ``"Power"`` or ``"Temperature"`` key must be
+                  used. Their associated value a string with the value and unit of the quantity prescribed or
+                  a dictionary for transient or temperature dependent assignment.
+
+                All the temperature dependent or thermal dictionaries should contain three keys:
+                ``"Type"``, ``"Function"`` and ``"Values"``. Accepted ``"Type"`` values are:
+                ``"Temp Dep"`` and ``"Transient"``. Accepted ``"Function"`` are: ``"Linear"``,
+                ``"Power Law"``, ``"Exponential"``, ``"Sinusoidal"``, ``"Square Wave"`` and
+                ``"Piecewise Linear"``. ``"Temp Dep"`` only support the latter. ``"Values"``
+                contains a list of strings containing the parameters required by the ``"Function"``
+                selection (e.g. ``"Linear"`` requires two parameters: the value of the variable at t=0
+                and the slope of the line). The parameters required by each ``Function`` option is in
+                Icepak documentation. The parameters must contain the units where needed.
+
+            Returns
+            -------
+            bool
+                ``True`` if successful. ``False`` otherwise.
+
+            Examples
+            --------
+
+            >>> import pyaedt
+            >>> app = pyaedt.Icepak()
+            >>> network = pyaedt.modules.Boundary.Network(app)
+            >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
+            >>> faces_ids = [face.id for face in box.faces]
+            >>> nodes_dict = [
+            >>>         {"FaceID": faces_ids[0]},
+            >>>         {"Name": "TestNode", "FaceID": faces_ids[1],
+            >>>          "ThermalResistance": "Compute", "Thickness": "2mm"},
+            >>>         {"FaceID": faces_ids[2], "ThermalResistance": "Specified", "Resistance": "2cel_per_w"},
+            >>>         {"Name": "Junction", "Power": "1W"}]
+            >>> network.add_nodes_from_dictionaries(nodes_dict)
+
+            """
+            if isinstance(nodes_dict, dict):
+                nodes_dict = [nodes_dict]
+            for node_dict in nodes_dict:
+                if "FaceID" in node_dict.keys():
+                    self.add_face_node(
+                        face_id=node_dict["FaceID"],
+                        name=node_dict.get("Name", None),
+                        thermal_resistance=node_dict.get("ThermalResistance", None),
+                        material=node_dict.get("Material", None),
+                        thickness=node_dict.get("Thickness", None),
+                        resistance=node_dict.get("Resistance", None),
+                    )
+                elif "ValueType" in node_dict.keys():
+                    self.add_boundary_node(
+                        name=node_dict["Name"],
+                        assignment_type=node_dict["ValueType"],
+                        value=node_dict[node_dict["ValueType"]],
+                    )
+                else:
+                    self.add_internal_node(
+                        name=node_dict["Name"],
+                        power=node_dict.get("Power", None),
+                        mass=node_dict.get("Mass", None),
+                        specific_heat=node_dict.get("SpecificHeat", None),
+                    )
+            return True
+
+        @pyaedt_function_handler()
+        def add_link(self, node1, node2, value, name=None):
+            """Create links in the network object.
+
+            Parameters
+            ----------
+            node1 : str or int
+                String containing one of the node name that the link is connecting or integer containing
+                the id of the face. If id is used and the node associated to the corresponding face is not
+                created yet, it will be added atuomatically.
+            node2 : str or int
+                String containing one of the node name that the link is connecting or integer containing
+                the id of the face. If id is used and the node associated to the corresponding face is not
+                created yet, it will be added atuomatically.
+            value : str or float
+                String containing the value and unit of the connection. If a float is passed, by default an
+                R-Link will be added to the network and the ``"cel_per_w"`` unit will be used.
+            name : str, optional
+                String containing the name of the link. Default is ``None`` and a name will be
+                automatically generated.
+
+            Returns
+            -------
+            bool
+                ``True`` if successful. ``False`` otherwise.
+
+            Examples
+            --------
+
+            >>> import pyaedt
+            >>> app = pyaedt.Icepak()
+            >>> network = pyaedt.modules.Boundary.Network(app)
+            >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
+            >>> faces_ids = [face.id for face in box.faces]
+            >>> connection = {"Name": "LinkTest", "Connection": [faces_ids[1], faces_ids[0]], "Value": "1cel_per_w"}
+            >>> network.add_links_from_dictionaries(connection)
+
+            """
+            if not isinstance(value, str):
+                value = str(value) + "cel_per_w"
+            if name is None:
+                new_name = True
+                while new_name:
+                    name = generate_unique_name("Link")
+                    if name not in self.links.keys():
+                        new_name = False
+            new_link = self._Link(node1, node2, value, name, self)
+            self._links.append(new_link)
+            self._add_to_props(new_link, "Links")
+            return True
+
+        @pyaedt_function_handler()
+        def add_links_from_dictionaries(self, connections):
+            """Create links in the network object.
+
+            Parameters
+            ----------
+            connections : dict or list of dict
+                Dictionary or list of dictionaries containing the links between nodes. Each dictionary is
+                composed by:
+                - ``"Link"``: a 3-item list with the two node that the link is connecting and the value and
+                unit of the link. The node of the connection can be referred to with their name (str) or
+                face id (int). The link type (resistance, heat transfer coefficient, or mass flow) will be
+                determined automatically from the unit.
+                Optional key:
+                - ``"Name"``: a string that prescribes the name of the link.
+
+            Returns
+            -------
+            bool
+                ``True`` if successful.
+
+            Examples
+            --------
+
+            >>> import pyaedt
+            >>> app = pyaedt.Icepak()
+            >>> network = pyaedt.modules.Boundary.Network(app)
+            >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
+            >>> faces_ids = [face.id for face in box.faces]
+            >>> [network.add_face_node(faces_ids[i]) for i in range(2)]
+            >>> connection = {"Name": "LinkTest", "Link": [faces_ids[1], faces_ids[0], "1cel_per_w"]}
+            >>> network.add_links_from_dictionaries(connection)
+
+            """
+            if isinstance(connections, dict):
+                connections = [connections]
+            for connection in connections:
+                name = connection.get("Name", None)
+                try:
+                    self.add_link(connection["Link"][0], connection["Link"][1], connection["Link"][2], name)
+                except:
+                    if name:
+                        self._app.logger("Failed to add " + name + " link.")
+                    else:
+                        self._app.logger(
+                            "Failed to add link associated with the following dictionary:\n" + str(connection)
+                        )
+            return True
+
+        @pyaedt_function_handler()
+        def update(self):
+            """Update the network in AEDT.
+
+            Returns
+            -------
+            bool
+                ``True`` when successful, ``False`` when failed.
+
+            """
+            if self.name in self._app.boundaries.keys():
+                self.delete()
+                try:
+                    self.create()
+                    return True
+                except:
+                    self._app.odesign.Undo()
+                    self._app.logger("Update of network object failed.")
+                    return False
+            else:
+                self._app.logger("Network object not yet created in design.")
+                return False
+
+        @pyaedt_function_handler()
+        def update_assignment(self):
+            return self.update()
+
+        class _Link:
+            def __init__(self, node_1, node_2, value, name, network):
+                self.name = name
+                if not isinstance(node_1, str):
+                    node_1 = "FaceID" + str(node_1)
+                if not isinstance(node_2, str):
+                    node_2 = "FaceID" + str(node_2)
+                if not isinstance(value, str):
+                    node_2 = str(node_2) + "cel_per_w"
+                self.node_1 = node_1
+                self.node_2 = node_2
+                self.value = value
+                self._network = network
+
+            @property
+            def link_type(self):
+                unit2type_conversion = {
+                    "g_per_s": ["C-Link", "Node1ToNode2"],
+                    "kg_per_s": ["C-Link", "Node1ToNode2"],
+                    "lbm_per_min": ["C-Link", "Node1ToNode2"],
+                    "lbm_per_s": ["C-Link", "Node1ToNode2"],
+                    "Kel_per_W": ["R-Link", "R"],
+                    "cel_per_w": ["R-Link", "R"],
+                    "FahSec_per_btu": ["R-Link", "R"],
+                    "Kels_per_J": ["R-Link", "R"],
+                    "w_per_m2kel": ["R-Link", "HTC"],
+                    "w_per_m2Cel": ["R-Link", "HTC"],
+                    "btu_per_rankHrFt2": ["R-Link", "HTC"],
+                    "btu_per_fahHrFt2": ["R-Link", "HTC"],
+                    "btu_per_rankSecFt2": ["R-Link", "HTC"],
+                    "btu_per_fahSecFt2": ["R-Link", "HTC"],
+                    "w_per_cm2kel": ["R-Link", "HTC"],
+                }
+                value, unit = decompose_variable_value(self.value)
+                return unit2type_conversion[unit]
+
+            @property
+            def props(self):
+                return [self.node_1, self.node_2] + self.link_type + [self.value]
+
+            @pyaedt_function_handler
+            def delete_link(self):
+                self._network.props["Links"].pop(self.name)
+                self._network._links.remove(self)
+
+        class _Node:
+            def __init__(self, name, app, network, node_type=None, props=None):
+                self.name = name
+                self._type = node_type
+                self._app = app
+                self._props = props
+                self._node_props()
+                self._network = network
+
+            @pyaedt_function_handler
+            def delete_node(self):
+                self._network.props["Nodes"].pop(self.name)
+                self._network._nodes.remove(self)
+
+            @property
+            def node_type(self):
+                if self._type is None:
+                    if self.props is None:
+                        self._app.logger(
+                            "Cannot define node_type. Both its assignment and props assignment are missing."
+                        )
+                        return None
+                    else:
+                        type_in_dict = self.props.get("NodeType", None)
+                        if type_in_dict is None:
+                            self._type = "FaceNode"
+                        else:
+                            self._type = type_in_dict
+                return self._type
+
+            @property
+            def props(self):
+                return self._props
+
+            @props.setter
+            def props(self, props):
+                self._props = props
+                self._node_props()
+
+            def _node_props(self):
+                face_node_default_dict = {
+                    "FaceID": None,
+                    "ThermalResistance": "NoResistance",
+                    "Thickness": "1mm",
+                    "Material": "Al-Extruded",
+                    "Resistance": "0cel_per_w",
+                }
+                boundary_node_default_dict = {
+                    "NodeType": "BoundaryNode",
+                    "ValueType": "PowerValue",
+                    "Power": "0W",
+                    "Temperature": "25cel",
+                }
+                internal_node_default_dict = {
+                    "NodeType": "InternalNode",
+                    "Power": "0W",
+                    "Mass": "0.001kg",
+                    "SpecificHeat": "1000J_per_Kelkg",
+                }
+                if self.props is None:
+                    if self.node_type == "InternalNode":
+                        self._props = internal_node_default_dict
+                    elif self.node_type == "FaceNode":
+                        self._props = face_node_default_dict
+                    elif self.node_type == "BoundaryNode":
+                        self._props = boundary_node_default_dict
+                else:
+                    if self.node_type == "InternalNode":
+                        self._props = self._create_node_dict(internal_node_default_dict)
+                    elif self.node_type == "FaceNode":
+                        self._props = self._create_node_dict(face_node_default_dict)
+                    elif self.node_type == "BoundaryNode":
+                        self._props = self._create_node_dict(boundary_node_default_dict)
+
+            @pyaedt_function_handler()
+            def _create_node_dict(self, default_dict):
+                node_dict = self.props
+                node_name = node_dict.get("Name", self.name)
+                if not node_name:
+                    try:
+                        self.name = "Face" + str(node_dict["FaceID"])
+                    except KeyError:  # pragma: no cover
+                        raise KeyError('"Name" key is needed for "BoundaryNodes" and "InternalNodes" dictionaries.')
+                else:
+                    self.name = node_name
+                    node_dict.pop("Name", None)
+                node_args = copy.deepcopy(default_dict)
+                for k in node_dict.keys():
+                    val = node_dict[k]
+                    if isinstance(val, dict):
+                        val = self._app._parse_variation_data(
+                            k, val["Type"], variation_value=val["Values"], function=val["Function"]
+                        )
+                        node_args.pop(k)
+                        node_args.update(val)
+                    else:
+                        node_args[k] = val
+
+                return node_args
