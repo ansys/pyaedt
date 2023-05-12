@@ -195,6 +195,8 @@ class ControlFileVia(ControlFileLayer):
 
 
 class ControlFileStackup:
+    """Class that manages the Stackup info."""
+
     def __init__(self, units="mm"):
         self.materials = {}
         self.layers = []
@@ -203,15 +205,68 @@ class ControlFileStackup:
         self.units = units
 
     def add_material(self, material_name, properties):
+        """Add a new material with specific properties.
+
+        Parameters
+        ----------
+        material_name : str
+            Material name.
+        properties : dict
+            Dictionary with key and material property value.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.control_file.ControlFileMaterial`
+        """
         self.materials[material_name] = ControlFileMaterial(material_name, properties)
+        return self.materials[material_name]
 
     def add_layer(self, layer_name, properties):
+        """Add a new layer.
+
+        Parameters
+        ----------
+        layer_name : str
+            Layer name.
+        properties : dict
+            Dictionary with key and  property value.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.control_file.ControlFileLayer`
+        """
         self.layers.append(ControlFileLayer(layer_name, properties))
 
     def add_dielectric(self, layer_name, properties):
+        """Add a new dielectric.
+
+        Parameters
+        ----------
+        layer_name : str
+            Layer name.
+        properties : dict
+            Dictionary with key and  property value.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.control_file.ControlFileLayer`
+        """
         self.dielectrics.append(ControlFileLayer(layer_name, properties))
 
     def add_via(self, layer_name, properties):
+        """Add a new via layer.
+
+        Parameters
+        ----------
+        layer_name : str
+            Layer name.
+        properties : dict
+            Dictionary with key and  property value.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.control_file.ControlFileVia`
+        """
         self.vias.append(ControlFileVia(layer_name, properties))
         return self.vias[-1]
 
@@ -239,6 +294,8 @@ class ControlFileStackup:
 
 
 class ControlFileImportOptions:
+    """Import Options."""
+
     def __init__(self):
         self.auto_close = False
         self.convert_closed_wide_lines_to_polys = False
@@ -281,6 +338,8 @@ class ControlFileImportOptions:
 
 
 class ControlExtent:
+    "Extent options."
+
     def __init__(
         self,
         type="bbox",
@@ -317,6 +376,8 @@ class ControlExtent:
 
 
 class ControlCircuitPt:
+    """Circuit Port."""
+
     def __init__(self, name, x1, y1, lay1, x2, y2, lay2, z0):
         self.name = name
         self.x1 = x1
@@ -340,6 +401,8 @@ class ControlCircuitPt:
 
 
 class ControlFileComponent:
+    """Components."""
+
     def __init__(self):
         self.refdes = "U1"
         self.partname = "BGA"
@@ -397,11 +460,32 @@ class ControlFileComponent:
 
 
 class ControlFileComponents:
+    """Class for component management."""
+
     def __init__(self):
         self.units = "um"
         self.components = []
 
     def add_component(self, ref_des, partname, component_type, die_type="None", solderball_shape="None"):
+        """Create a new component.
+
+        Parameters
+        ----------
+        ref_des : str
+            Reference Designator name.
+        partname : str
+            Part name.
+        component_type : str
+            Component Type. Can be `"IC"`, `"IO"` or `"Other"`.
+        die_type : str, optional
+            Die Type. Can be `"None"`, `"Flip chip"` or `"Wire bond"`.
+        solderball_shape : str, optional
+            Solderball Type. Can be `"None"`, `"Cylinder"` or `"Spheroid"`.
+
+        Returns
+        -------
+
+        """
         comp = ControlFileComponent()
         comp.refdes = ref_des
         comp.partname = partname
@@ -413,6 +497,8 @@ class ControlFileComponents:
 
 
 class ControlFileBoundaries:
+    """Boundaries management."""
+
     def __init__(self, units="um"):
         self.ports = {}
         self.extents = []
@@ -421,6 +507,31 @@ class ControlFileBoundaries:
         self.units = units
 
     def add_port(self, name, x1, y1, layer1, x2, y2, layer2, z0=50):
+        """Add a new port to the gds.
+
+        Parameters
+        ----------
+        name : str
+            Port name.
+        x1 : str
+            Pin 1 x position.
+        y1 : str
+            Pin 1 y position.
+        layer1 : str
+            Pin 1 layer.
+        x2 : str
+            Pin 2 x position.
+        y2 : str
+            Pin 2 y position.
+        layer2 : str
+            Pin 2 layer.
+        z0 : str
+            Characteristic impedance.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.control_file.ControlCircuitPt`
+        """
         self.ports[name] = ControlCircuitPt(name, str(x1), str(y1), layer1, str(x2), str(y2), layer2, str(z0))
         return self.ports[name]
 
@@ -436,6 +547,24 @@ class ControlFileBoundaries:
         honor_primitives=True,
         truncate_at_gnd=True,
     ):
+        """Add a new extent.
+
+        Parameters
+        ----------
+        type
+        dieltype
+        diel_hactor
+        airbox_hfactor
+        airbox_vr_p
+        airbox_vr_n
+        useradiation
+        honor_primitives
+        truncate_at_gnd
+
+        Returns
+        -------
+
+        """
         self.extents.append(
             ControlExtent(
                 type=type,
@@ -495,7 +624,7 @@ class ControlFileSweep:
 
 
 class ControlFileMeshOp:
-    def __int__(self, name, region, type, nets_layers):
+    def __init__(self, name, region, type, nets_layers):
         self.name = name
         self.region = name
         self.type = type
@@ -547,6 +676,8 @@ class ControlFileMeshOp:
 
 
 class ControlFileSetup:
+    """Setup Class."""
+
     def __init__(self, name):
         self.name = name
         self.enabled = True
@@ -566,10 +697,50 @@ class ControlFileSetup:
         self.sweeps = []
 
     def add_sweep(self, name, start, stop, step, sweep_type="Interpolating", step_type="LinearStep", use_q3d=True):
+        """Add a new sweep.
+
+        Parameters
+        ----------
+        name : str
+            Sweep name.
+        start : str
+            Frequency start.
+        stop : str
+            Frequency stop.
+        step : str
+            Frequency step or count.
+        sweep_type : str
+            Sweep type. It can be `"Discrete"` or  `"Interpolating"`.
+        step_type : str
+            Sweep type. It can be `"LinearStep"`, `"DecadeCount"` or  `"LinearCount"`.
+        use_q3d
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.control_file.ControlFileSweep`
+        """
         self.sweeps.append(ControlFileSweep(name, start, stop, step, sweep_type, step_type, use_q3d))
         return self.sweeps[-1]
 
     def add_mesh_operation(self, name, region, type, nets_layers):
+        """Add mesh operations.
+
+        Parameters
+        ----------
+        name : str
+            Mesh name.
+        region : str
+            Region to apply mesh operation.
+        type : str
+            Mesh operation type. It can be `"MeshOperationLength"` or  `"MeshOperationSkinDepth"`.
+        nets_layers : dict
+            Dictionary containing nets and layers on which apply mesh.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.control_file.ControlFileMeshOp`
+
+        """
         mop = ControlFileMeshOp(name, region, type, nets_layers)
         self.mesh_operations.append(mop)
         return mop
@@ -620,10 +791,25 @@ class ControlFileSetup:
 
 
 class ControlFileSetups:
+    """Setup manager class."""
+
     def __init__(self):
         self.setups = []
 
     def add_setup(self, name, frequency):
+        """Add a new setup
+
+        Parameters
+        ----------
+        name : str
+            Setup name.
+        frequency : str
+            Setup Frequency.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.control_file.ControlFileSetup`
+        """
         setup = ControlFileSetup(name)
         setup.frequency = frequency
         self.setups.append(setup)
