@@ -1080,39 +1080,39 @@ class EdbHfss(object):
                 net_paths = [
                     pp for pp in net.primitives if pp.GetPrimitiveType() == self._edb.Cell.Primitive.PrimitiveType.Path
                 ]
-                for trace in net_paths:
-                    port_name = "{}_{}".format(net.GetName(), trace.GetId())
-                    center_line = list(trace.primitive_object.GetCenterLine().Points)
-                    start_point = [center_line[0].X.ToDouble(), center_line[0].Y.ToDouble()]
-                    stop_point = [center_line[-1].X.ToDouble(), center_line[-1].Y.ToDouble()]
-                    if GeometryOperators.point_in_polygon(start_point, user_defined_extent) == 0:
-                        start_term = self._create_edge_terminal(trace, start_point, port_name)  # pragma no cover
-                        start_term.SetIsCircuitPort(True)
-                        ref_prim = [
-                            prim
-                            for prim in reference_net.primitives
-                            if prim.polygon_data.PointInPolygon(center_line[0]) and prim.net_name == reference_net
-                        ]
-                        if not ref_prim:
-                            self._logger.warning("No reference primitive found in port vicinity")
-                            return
-                        reference_layer = ref_prim[0].layer
-                        if start_term.SetReferenceLayer(reference_layer):  # pragma no cover
-                            terminal_info.append([net.GetName(), start_point[0], start_point[1], start_term])
-                    if GeometryOperators.point_in_polygon(stop_point, user_defined_extent) == 0:
-                        stop_term = self._create_edge_terminal(trace, start_point, port_name)  # pragma no cover
-                        stop_term.SetIsCircuitPort(True)
-                        ref_prim = [
-                            prim
-                            for prim in reference_net.primitives
-                            if prim.polygon_data.PointInPolygon(center_line[0]) and prim.net_name == reference_net
-                        ]
-                        if not ref_prim:
-                            self._logger.warning("No reference primitive found in port vicinity")
-                            return
-                        reference_layer = ref_prim[0].layer
-                        if stop_term.SetReferenceLayer(reference_layer):  # pragma no cover
-                            terminal_info.append([net.GetName(), stop_point[0], stop_point[1], stop_term])
+                # for trace in net_paths:
+                #     port_name = "{}_{}".format(net.GetName(), trace.GetId())
+                #     center_line = list(trace.primitive_object.GetCenterLine().Points)
+                #     start_point = [center_line[0].X.ToDouble(), center_line[0].Y.ToDouble()]
+                #     stop_point = [center_line[-1].X.ToDouble(), center_line[-1].Y.ToDouble()]
+                #     if GeometryOperators.point_in_polygon(start_point, user_defined_extent) == 0:
+                #         start_term = self._create_edge_terminal(trace, start_point, port_name)  # pragma no cover
+                #         start_term.SetIsCircuitPort(True)
+                #         ref_prim = [
+                #             prim
+                #             for prim in reference_net.primitives
+                #             if prim.polygon_data.PointInPolygon(center_line[0]) and prim.net_name == reference_net
+                #         ]
+                #         if not ref_prim:
+                #             self._logger.warning("No reference primitive found in port vicinity")
+                #             return
+                #         reference_layer = ref_prim[0].layer
+                #         if start_term.SetReferenceLayer(reference_layer):  # pragma no cover
+                #             terminal_info.append([net.GetName(), start_point[0], start_point[1], start_term])
+                #     if GeometryOperators.point_in_polygon(stop_point, user_defined_extent) == 0:
+                #         stop_term = self._create_edge_terminal(trace, start_point, port_name)  # pragma no cover
+                #         stop_term.SetIsCircuitPort(True)
+                #         ref_prim = [
+                #             prim
+                #             for prim in reference_net.primitives
+                #             if prim.polygon_data.PointInPolygon(center_line[0]) and prim.net_name == reference_net
+                #         ]
+                #         if not ref_prim:
+                #             self._logger.warning("No reference primitive found in port vicinity")
+                #             return
+                #         reference_layer = ref_prim[0].layer
+                #         if stop_term.SetReferenceLayer(reference_layer):  # pragma no cover
+                #             terminal_info.append([net.GetName(), stop_point[0], stop_point[1], stop_term])
                 net_polygons = [
                     pp
                     for pp in net.primitives
@@ -1120,31 +1120,32 @@ class EdbHfss(object):
                 ]
                 for poly in net_polygons:
                     mid_points = [[arc.mid_point.X.ToDouble(), arc.mid_point.Y.ToDouble()] for arc in poly.arcs]
-                    ind = 0
+                    # ind = 0
+
                     for mid_point in mid_points:
                         if GeometryOperators.point_in_polygon(mid_point, user_defined_extent) == 0:
-                            port_name = f"{net.GetName()}_{poly.GetId()}_{ind}"
+                            port_name = generate_unique_name("{}_{}".format(poly.GetNet().GetName(), poly.GetId()))
                             term = self._create_edge_terminal(poly.GetId(), mid_point, port_name)  # pragma no cover
                             if not term.IsNull():
-                                self._logger.info(f"Terminal {term.GetName()} created")
-                                ind = +1
-                            term.SetIsCircuitPort(True)
-                            terminal_info.append([net.GetName(), mid_point[0], mid_point[1], term.GetName()])
-                            mid_pt_data = self._edb.Geometry.PointData(
-                                self._edb.Utility.Value(mid_point[0]), self._edb.Utility.Value(mid_point[1])
-                            )
-                            ref_prim = [
-                                prim
-                                for prim in reference_net.primitives
-                                if prim.polygon_data.PointInPolygon(mid_pt_data)
-                            ]
-                            if not ref_prim:
-                                self._logger.warning("No reference primitive found in port vicinity")
-                            else:
-                                reference_layer = ref_prim[0].layer
-                                if term.SetReferenceLayer(reference_layer):  # pragma no cover
-                                    self._logger.info(f"Port {port_name} created")
-
+                                self._logger.info("Terminal {} created".format(term.GetName()))
+                                term.SetIsCircuitPort(True)
+                                terminal_info.append(
+                                    [poly.GetNet().GetName(), mid_point[0], mid_point[1], term.GetName()]
+                                )
+                                mid_pt_data = self._edb.Geometry.PointData(
+                                    self._edb.Utility.Value(mid_point[0]), self._edb.Utility.Value(mid_point[1])
+                                )
+                                ref_prim = [
+                                    prim
+                                    for prim in reference_net.primitives
+                                    if prim.polygon_data.PointInPolygon(mid_pt_data)
+                                ]
+                                if not ref_prim:
+                                    self._logger.warning("No reference primitive found in port vicinity")
+                                else:
+                                    reference_layer = ref_prim[0].layer
+                                    if term.SetReferenceLayer(reference_layer):  # pragma no cover
+                                        self._logger.info("Port {} created".format(port_name))
             return terminal_info
         return False
 
