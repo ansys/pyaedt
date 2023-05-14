@@ -16,6 +16,7 @@ from pyaedt import Icepak
 from pyaedt.generic import LoadAEDTFile
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import normalize_path
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.advanced_cad.actors import Bird
@@ -1510,7 +1511,7 @@ class Primitives3D(Primitives, object):
             aedb_component_path = os.path.join(
                 aedb_project_path, "LayoutComponents", aedt_component_name, aedt_component_name + ".aedb"
             )
-            aedb_component_path = aedb_component_path.replace("/", "\\")
+            aedb_component_path = normalize_path(aedb_component_path)
 
         component_obj = Edb(
             edbpath=aedb_component_path,
