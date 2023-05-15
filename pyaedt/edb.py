@@ -3345,6 +3345,7 @@ class Edb(object):
         edb_zones = {}
         if not self.setups:
             self.siwave.add_siwave_syz_analysis()
+            self.save_edb()
         for zone in zone_primitives:
             edb_zone_path = os.path.join(
                 working_directory, "{}_{}".format(zone.GetId(), os.path.basename(self.edbpath))
