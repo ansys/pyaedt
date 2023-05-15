@@ -3315,3 +3315,37 @@ class Edb(object):
         max_width = max_width * expansion_factor
         self.logger.info("The W factor is {}, The initial extent = {:e}".format(expansion_factor, max_width))
         return max_width
+
+    @pyaedt_function_handler
+    def copy_zones(self, working_directory=None):
+        """Copy multizone EDB project to one new edb per zone.
+
+        Parameters
+        ----------
+        working_directory : str
+            Directory path where all EDB project are copied, if empty will use the current EDB project.
+
+        Returns
+        -------
+           dict[str](PolygonDAta)
+           Return a dictionary with edb path as key and EDB polygon Data defining the region.
+
+        """
+        if working_directory:
+            if not os.path.isdir(working_directory):
+                os.mkdir(working_directory)
+            else:
+                shutil.rmtree(working_directory)
+                os.mkdir(working_directory)
+        else:
+            working_directory = os.path.dirname(self.edbpath)
+        zone_primitives = list(self.active_layout.GetZonePrimitives())
+        edb_zones = {}
+        for zone in zone_primitives:
+            edb_zone_path = os.path.join(
+                working_directory, "{}_{}".format(zone.GetId(), os.path.basename(self.edbpath))
+            )
+            shutil.copytree(self.edbpath, edb_zone_path)
+            poly_data = zone.GetPolygonData()
+            edb_zones[edb_zone_path] = poly_data
+        return edb_zones
