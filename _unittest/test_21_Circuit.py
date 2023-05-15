@@ -6,6 +6,7 @@ from _unittest.conftest import config
 from _unittest.conftest import local_path
 
 from pyaedt import Circuit  # Setup paths for module imports
+from pyaedt import Edb
 from pyaedt import is_ironpython
 from pyaedt import is_linux
 
@@ -794,3 +795,23 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.change_text_property(text_id, "Location", [5000, 2000])
         assert not self.aedtapp.modeler.change_text_property(1, "Color", [255, 120, 0])
         assert not self.aedtapp.modeler.change_text_property(text_id, "Invalid", {})
+
+    def test_45_create_circuit_from_multizone_layout(self):
+        source_path = os.path.join(local_path, "example_models", "multi_zone_project.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_45.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edb = Edb(edbpath=target_path, edbversion=self.aedtapp._aedt_version)
+        common_reference_net = "gnd"
+        freq_start = "0GHz"
+        freq_stop = "20GHz"
+        freq_step = "10MHz"
+        edb_zones = edb.copy_zones()
+        assert edb_zones
+        defined_ports, terminals_info = edb.cutout_multizone_layout(edb_zones, common_reference_net)
+        assert terminals_info
+        project_connexions = edb.get_connected_ports_from_multizone_cutout(terminals_info)
+        assert project_connexions
+        circuit = Circuit()
+        circuit.connect_circuit_models_from_multi_zone_cutout(project_connexions, edb_zones, defined_ports)
+        assert len([mod for mod in list(circuit.modeler.schematic.components.values()) if "IPort" in mod.name]) == 6
+        edb.close_edb()

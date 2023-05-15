@@ -1026,34 +1026,24 @@ class EdbHfss(object):
 
     @pyaedt_function_handler()
     def create_vertical_circuit_port_on_clipped_traces(self, nets=None, reference_net=None, user_defined_extent=None):
-        """Create an edge port on nets. Only ports on traces (e.g. Path) are currently supported.
-        The command will look for traces on the nets and will try to assign vertical lumped port on first and last
-        point from the trace. To be used with cautious.
+        """Create an edge port on clipped signal traces.
 
         Parameters
         ----------
         nets : list, optional
             List of nets, str or Edb net.
 
-        reference_layer : str, Edb layer.
-             Name or Edb layer object.
+        reference_net : str, Edb net.
+             Name or Edb reference net.
 
-        return_points_only : bool, optional
-            Use this boolean when you want to return only the points from the edges and not creating ports. Default
-            value is ``False``.
-
-        digit_resolution : int, optional
-            The number of digits carried for the edge location accuracy. The default value is ``6``.
-
-        at_bounding_box : bool
-            When ``True`` will keep the edges from traces at the layout bounding box location. This is recommended when
-             a cutout has been performed before and lumped ports have to be created on ending traces. Default value is
-             ``True``.
+        user_defined_extent : [x, y], EDB PolygonData
+            Use this point list or PolygonData object to check if ports are at this polygon border.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        [[str]]
+            Nested list of str, with net name as first value, X value for point at border, Y value for point at border,
+            and terminal name.
         """
         if not isinstance(nets, list):
             if isinstance(nets, str):
@@ -1077,42 +1067,6 @@ class EdbHfss(object):
                     user_defined_extent = [_x, _y]
             terminal_info = []
             for net in nets:
-                net_paths = [
-                    pp for pp in net.primitives if pp.GetPrimitiveType() == self._edb.Cell.Primitive.PrimitiveType.Path
-                ]
-                # for trace in net_paths:
-                #     port_name = "{}_{}".format(net.GetName(), trace.GetId())
-                #     center_line = list(trace.primitive_object.GetCenterLine().Points)
-                #     start_point = [center_line[0].X.ToDouble(), center_line[0].Y.ToDouble()]
-                #     stop_point = [center_line[-1].X.ToDouble(), center_line[-1].Y.ToDouble()]
-                #     if GeometryOperators.point_in_polygon(start_point, user_defined_extent) == 0:
-                #         start_term = self._create_edge_terminal(trace, start_point, port_name)  # pragma no cover
-                #         start_term.SetIsCircuitPort(True)
-                #         ref_prim = [
-                #             prim
-                #             for prim in reference_net.primitives
-                #             if prim.polygon_data.PointInPolygon(center_line[0]) and prim.net_name == reference_net
-                #         ]
-                #         if not ref_prim:
-                #             self._logger.warning("No reference primitive found in port vicinity")
-                #             return
-                #         reference_layer = ref_prim[0].layer
-                #         if start_term.SetReferenceLayer(reference_layer):  # pragma no cover
-                #             terminal_info.append([net.GetName(), start_point[0], start_point[1], start_term])
-                #     if GeometryOperators.point_in_polygon(stop_point, user_defined_extent) == 0:
-                #         stop_term = self._create_edge_terminal(trace, start_point, port_name)  # pragma no cover
-                #         stop_term.SetIsCircuitPort(True)
-                #         ref_prim = [
-                #             prim
-                #             for prim in reference_net.primitives
-                #             if prim.polygon_data.PointInPolygon(center_line[0]) and prim.net_name == reference_net
-                #         ]
-                #         if not ref_prim:
-                #             self._logger.warning("No reference primitive found in port vicinity")
-                #             return
-                #         reference_layer = ref_prim[0].layer
-                #         if stop_term.SetReferenceLayer(reference_layer):  # pragma no cover
-                #             terminal_info.append([net.GetName(), stop_point[0], stop_point[1], stop_term])
                 net_polygons = [
                     pp
                     for pp in net.primitives
@@ -1120,8 +1074,6 @@ class EdbHfss(object):
                 ]
                 for poly in net_polygons:
                     mid_points = [[arc.mid_point.X.ToDouble(), arc.mid_point.Y.ToDouble()] for arc in poly.arcs]
-                    # ind = 0
-
                     for mid_point in mid_points:
                         if GeometryOperators.point_in_polygon(mid_point, user_defined_extent) == 0:
                             port_name = generate_unique_name("{}_{}".format(poly.GetNet().GetName(), poly.GetId()))
