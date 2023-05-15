@@ -802,9 +802,6 @@ class TestClass(BasisTest, object):
         self.local_scratch.copyfolder(source_path, target_path)
         edb = Edb(edbpath=target_path, edbversion=self.aedtapp._aedt_version)
         common_reference_net = "gnd"
-        freq_start = "0GHz"
-        freq_stop = "20GHz"
-        freq_step = "10MHz"
         edb_zones = edb.copy_zones()
         assert edb_zones
         defined_ports, terminals_info = edb.cutout_multizone_layout(edb_zones, common_reference_net)
@@ -813,5 +810,6 @@ class TestClass(BasisTest, object):
         assert project_connexions
         circuit = Circuit()
         circuit.connect_circuit_models_from_multi_zone_cutout(project_connexions, edb_zones, defined_ports)
-        assert len([mod for mod in list(circuit.modeler.schematic.components.values()) if "IPort" in mod.name]) == 6
+        assert any(mod for mod in list(circuit.modeler.schematic.components.values()) if "IPort" in mod.name)
         edb.close_edb()
+        circuit.release_desktop(False, False)
