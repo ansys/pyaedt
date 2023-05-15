@@ -1558,6 +1558,15 @@ class TestClass(BasisTest, object):
 
         paths = [i[1] for i in trace_pathes]
         assert edb.hfss.create_bundle_wave_port(traces, paths)
+        p = edb.excitations["wave_port"]
+        p.horizontal_extent_factor = 6
+        p.vertical_extent_factor = 5
+        p.pec_launch_width = "0.02mm"
+        p.radial_extent_factor = 1
+        assert p.horizontal_extent_factor == 6
+        assert p.vertical_extent_factor == 5
+        assert p.pec_launch_width == "0.02mm"
+        assert p.radial_extent_factor == 1
         edb.close_edb()
 
     def test_122_build_hfss_project_from_config_file(self):
@@ -1684,7 +1693,7 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(is_ironpython, reason="Requires Numpy")
     def test_126_comp_def(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-        target_path = os.path.join(self.local_scratch.path, "test_0123.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_0126.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
         assert edbapp.components.components
@@ -2218,7 +2227,7 @@ class TestClass(BasisTest, object):
 
     def test_136_rlc_component_values_getter_setter(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-        target_path = os.path.join(self.local_scratch.path, "test_0123.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_0136.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
         components_to_change = [res for res in list(edbapp.components.Others.values()) if res.partname == "A93549-027"]
@@ -2410,3 +2419,39 @@ class TestClass(BasisTest, object):
         ref_pins = [pin for pin in list(edbapp.components["U2A5"].pins.values()) if pin.net_name == "GND"]
         term = edbapp.components.create_port_on_pins(refdes="U2A5", pins=pin, reference_pins=ref_pins)
         assert term
+
+    def test_138_import_gds_from_tech(self):
+        c_file_in = os.path.join(
+            local_path, "example_models", "cad", "GDS", "sky130_fictitious_dtc_example_control_no_map.xml"
+        )
+        c_map = os.path.join(local_path, "example_models", "cad", "GDS", "dummy_layermap.map")
+        gds_in = os.path.join(local_path, "example_models", "cad", "GDS", "sky130_fictitious_dtc_example.gds")
+        from pyaedt.edb_core.edb_data.control_file import ControlFile
+
+        c = ControlFile(c_file_in, layer_map=c_map)
+        setup = c.setups.add_setup("Setup1", "1GHz")
+        setup.add_sweep("Sweep1", "0.01GHz", "5GHz", "0.1GHz")
+        c.boundaries.units = "um"
+        c.stackup.units = "um"
+        c.boundaries.add_port("P1", x1=223.7, y1=222.6, layer1="Metal6", x2=223.7, y2=100, layer2="Metal6")
+        c.boundaries.add_extent()
+        comp = c.components.add_component("B1", "BGA", "IC", "Flip chip", "Cylinder")
+        comp.solder_diameter = "65um"
+        comp.add_pin("1", "81.28", "84.6", "met2")
+        comp.add_pin("2", "211.28", "84.6", "met2")
+        comp.add_pin("3", "211.28", "214.6", "met2")
+        comp.add_pin("4", "81.28", "214.6", "met2")
+        for via in c.stackup.vias:
+            via.create_via_group = True
+            via.snap_via_group = True
+        c.write_xml(os.path.join(self.local_scratch.path, "test_138.xml"))
+        c.import_options.import_dummy_nets = True
+        from pyaedt import Edb
+
+        edb = Edb(gds_in, edbversion="2023.1", technology_file=os.path.join(self.local_scratch.path, "test_138.xml"))
+
+        assert edb
+        assert "P1" in edb.excitations
+        assert "Setup1" in edb.setups
+        assert "B1" in edb.components.components
+        edb.close_edb()

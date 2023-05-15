@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<c:Control xmlns:c="http://www.ansys.com/control" schemaVersion="1.0">
+    <!--
+        Based on:
+    https://github.com/google/skywater-pdk/blob/49d3c73c2cd8ea42cdae5056440baef0f72e7e42/docs/_static/metal_stack.svg
+    https://github.com/google/skywater-pdk/blob/49d3c73c2cd8ea42cdae5056440baef0f72e7e42/docs/rules/gds_layers.csv
+        https://github.com/google/skywater-pdk/blob/49d3c73c2cd8ea42cdae5056440baef0f72e7e42/LICENSE
+    -->
+    <!-- Used under the Apache 2.0 license as linked from above URL accessed on 2023-03-28 -->
+    <Stackup schemaVersion="1.0">
+        <Materials>
+            <Material Name="FOX">
+                <Permittivity>
+                    <Double>3.9</Double>
+                </Permittivity>
+            </Material>
+            <Material Name="LINT">
+                <Permittivity>
+                    <Double>7.3</Double>
+                </Permittivity>
+            </Material>
+            <Material Name="METAL">
+                <Permeability>
+                    <Double>0.999991</Double>
+                </Permeability>
+                <Conductivity>
+                    <Double>58000000</Double>
+                </Conductivity>
+            </Material>
+            <Material Name="NILD2">
+                <Permittivity>
+                    <Double>4.05</Double>
+                </Permittivity>
+            </Material>
+            <Material Name="NILD3">
+                <Permittivity>
+                    <Double>4.5</Double>
+                </Permittivity>
+            </Material>
+            <Material Name="NILD4">
+                <Permittivity>
+                    <Double>4.2</Double>
+                </Permittivity>
+            </Material>
+            <Material Name="NILD5">
+                <Permittivity>
+                    <Double>4.1</Double>
+                </Permittivity>
+            </Material>
+            <Material Name="NILD6">
+                <Permittivity>
+                    <Double>4.0</Double>
+                </Permittivity>
+            </Material>
+            <Material Name="PI1">
+                <Permittivity>
+                    <Double>2.94</Double>
+                </Permittivity>
+            </Material>
+            <Material Name="PSG">
+                <Permittivity>
+                    <Double>3.9</Double>
+                </Permittivity>
+            </Material>
+            <Material Name="SUB">
+                <Permittivity>
+                    <Double>11.9</Double>
+                </Permittivity>
+            </Material>
+            <Material Name="TOPNIT">
+                <Permittivity>
+                    <Double>7.5</Double>
+                </Permittivity>
+            </Material>
+        </Materials>
+        <ELayers LengthUnit="um" MetalLayerSnappingTolerance="10nm">
+            <Dielectrics BaseElevation="-100">
+                <Layer Material="PI1" Name="PI1" Thickness="6.1346" />
+                <Layer Material="TOPNIT" Name="TOPNIT" Thickness="0.3777" />
+                <Layer Material="NILD6" Name="NILD6" Thickness="1.35" />
+                <Layer Material="NILD5" Name="NILD5" Thickness="1.235" />
+                <Layer Material="NILD4" Name="NILD4" Thickness="0.78" />
+                <Layer Material="NILD3" Name="NILD3" Thickness="0.63" />
+                <Layer Material="NILD2" Name="NILD2" Thickness="0.365" />
+                <Layer Material="LINT" Name="LINT" Thickness="0.075" />
+                <Layer Material="PSG" Name="PSG" Thickness="0.6099" />
+                <Layer Material="FOX" Name="FOX" Thickness="0.3262" />
+                <Layer Material="SUB" Name="SUB" Thickness="100" />
+            </Dielectrics>
+            <Layers>
+                <Layer Elevation="5.3711" Material="METAL" Name="72" GDSDataType="20"
+                    TargetLayer="met5" Thickness="1.26" Type="conductor" />
+                <Layer Elevation="4.0211" Material="METAL" Name="71" GDSDataType="20"
+                    TargetLayer="met4" Thickness="0.845" Type="conductor" />
+                <Layer Elevation="2.7861" Material="METAL" Name="70" GDSDataType="20"
+                    TargetLayer="met3" Thickness="0.845" Type="conductor" />
+                <Layer Elevation="2.0061" Material="METAL" Name="69" GDSDataType="20"
+                    TargetLayer="met2" Thickness="0.36" Type="conductor" />
+                <Layer Elevation="1.3761" Material="METAL" Name="68" GDSDataType="20"
+                    TargetLayer="met1" Thickness="0.36" Type="conductor" />
+            </Layers>
+            <Vias>
+                <Layer Material="METAL" Name="71" GDSDataType="44" TargetLayer="via4"
+                    StartLayer="met5" StopLayer="met4">
+                    <CreateViaGroups Method="proximity" Tolerance="1um" Persistent="true" />
+                    <SnapViaGroups Method="distance" Tolerance="10nm" />
+                </Layer>
+                <Layer Material="METAL" Name="70" GDSDataType="44" TargetLayer="via3"
+                    StartLayer="met4" StopLayer="met3">
+                    <CreateViaGroups Method="proximity" Tolerance="1um" Persistent="true" />
+                    <SnapViaGroups Method="distance" Tolerance="10nm" />
+                </Layer>
+                <Layer Material="METAL" Name="69" GDSDataType="44" TargetLayer="via2"
+                    StartLayer="met3" StopLayer="met2">
+                    <CreateViaGroups Method="proximity" Tolerance="1um" Persistent="true" />
+                    <SnapViaGroups Method="distance" Tolerance="10nm" />
+                </Layer>
+                <Layer Material="METAL" Name="68" GDSDataType="44" TargetLayer="via1"
+                    StartLayer="met2" StopLayer="met1">
+                    <CreateViaGroups Method="proximity" Tolerance="1um" Persistent="true" />
+                    <SnapViaGroups Method="distance" Tolerance="10nm" />
+                </Layer>
+            </Vias>
+        </ELayers>
+    </Stackup>
+    <Boundaries>
+        <Extents Type="bbox" DielType="bbox" DielHorizFactor="100um" AirboxHorizFactor="100um"
+            AirboxVertFactorNeg="100um" AirboxVertFactorPos="100um" UseRadiationBoundary="true" />
+    </Boundaries>
+    <SimulationSetups>
+        <HFSSSetup Name="Setup1">
+            <HFSSSimulationSettings>
+                <HFSSAdaptiveSettings>
+                    <AdaptiveSettings>
+                        <SingleFrequencyDataList>
+                            <AdaptiveFrequencyData>
+                                <AdaptiveFrequency>1GHz</AdaptiveFrequency>
+                                <MaxDelta>0.01</MaxDelta>
+                                <MaxPasses>20</MaxPasses>
+                            </AdaptiveFrequencyData>
+                        </SingleFrequencyDataList>
+                    </AdaptiveSettings>
+                </HFSSAdaptiveSettings>
+                <HFSSDefeatureSettings>
+                    <ModelType>IC</ModelType>
+                    <ICModelResolutionType>Length</ICModelResolutionType>
+                </HFSSDefeatureSettings>
+                <HFSSSolverSettings>
+                    <OrderBasis>FirstOrder</OrderBasis>
+                    <EnhancedLowFreqAccuracy>true</EnhancedLowFreqAccuracy>
+                </HFSSSolverSettings>
+            </HFSSSimulationSettings>
+            <HFSSSweepDataList>
+                <FreqSweep>
+                    <Name>Sweep1</Name>
+                    <Interpolating>
+                        <LinearStep>
+                            <Start>0</Start>
+                            <Stop>10GHz</Stop>
+                            <Step>0.01GHz</Step>
+                        </LinearStep>
+                        <DecadeCount>
+                            <Start>100kHz</Start>
+                            <Stop>10GHz</Stop>
+                            <Count>50</Count>
+                        </DecadeCount>
+                        <ErrorTolerance>0.001</ErrorTolerance>
+                    </Interpolating>
+                </FreqSweep>
+            </HFSSSweepDataList>
+        </HFSSSetup>
+    </SimulationSetups>
+    <ImportOptions ImportDummyNet="true" />
+    <GDS_NET_DEFINITIONS NET_NAME_CASE_SENSITIVE="false" USE_TOP_LEVEL_TEXT_ONLY="true" />
+    <GDS_COMPONENTS LengthUnit="um">
+        <GDS_COMPONENT>
+            <GDS_PIN Name="1" x="81.28" y="84.6" Layer="met2" />
+            <GDS_PIN Name="2" x="211.28" y="84.6" Layer="met2" />
+            <GDS_PIN Name="3" x="211.28" y="214.6" Layer="met2" />
+            <GDS_PIN Name="4" x="81.28" y="214.6" Layer="met2" />
+            <Component RefDes="B1" PartName="BGA" PartType="IC">
+                <DieProperties Type="Flip chip" Orientation="Chip down" />
+                <SolderballProperties Shape="Cylinder" Diameter="65um" Height="65um"
+                    Material="solder" />
+                <ComponentPort Name="B1_1" Z0="50">
+                    <PosPin Name="2" />
+                </ComponentPort>
+                <ComponentPort Name="B1_2" Z0="50">
+                    <PosPin Name="4" />
+                </ComponentPort>
+            </Component>
+        </GDS_COMPONENT>
+    </GDS_COMPONENTS>
+</c:Control>

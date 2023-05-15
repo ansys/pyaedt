@@ -1268,7 +1268,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
         >>> oDesign.UpdateSources
         """
-        source_p = self.create_source(source_type="CurrentSin")
+        source_p = self.create_source(source_type="PowerSin")
         for port in ports:
             self.excitations[port].enabled_sources.append(source_p.name)
             self.excitations[port].update()

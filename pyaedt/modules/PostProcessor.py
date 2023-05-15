@@ -1749,7 +1749,11 @@ class PostProcessorCommon(object):
                 else:
                     self.logger.warning("Parameter " + attribute + " is not available, check syntax.")
         elif context:
-            if hasattr(self.modeler, "line_names") and context in self.modeler.line_names:
+            if (
+                hasattr(self.modeler, "line_names")
+                and hasattr(self.modeler, "point_names")
+                and context in self.modeler.point_names + self.modeler.line_names
+            ):
                 report.polyline = context
             elif context in [
                 "RL",
