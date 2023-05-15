@@ -3327,7 +3327,7 @@ class Edb(object):
 
         Returns
         -------
-           dict[str](PolygonDAta)
+           dict[str](EDB PolygonData)
            Return a dictionary with edb path as key and EDB polygon Data defining the region.
 
         """
