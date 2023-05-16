@@ -1566,7 +1566,9 @@ class Circuit(FieldAnalysisCircuit, object):
         edb_zones_dict : dict[str][EDB PolygonData]
             dictionary returned by command edb.copy_zones()
         ports : dict[str][str]
-            dictionary return from command edb.cutout_multizone_layout()
+            dictionary return from command edb.cutout_multizone_layout(). These ports are the ones created before
+            processing the multizone clipping. Like for instance ports created on components resulting from previous
+            automated workflow execution.
         schematic_units : str
             units used for shcmematic, "mm", in". Default is "mm",
         model_inc : float
@@ -1574,11 +1576,14 @@ class Circuit(FieldAnalysisCircuit, object):
 
         Examples
         --------
-        command to get the input arguments.
+        These commands show how to get input arguments described in this method:
+        - project_connections
+        - edb_zone_dict
+        -
         >>> edb = Edb(edb_file)
         >>> edb_zones = edb.copy_zones(r"C:\Temp\test")
-        >>> defined_ports, terminals_info = edb.cutout_multizone_layout(edb_zones, common_reference_net)
-        >>> project_connexions = edb.get_connected_ports_from_multizone_cutout(terminals_info)
+        >>> ports, terminals_info = edb.cutout_multizone_layout(edb_zones, common_reference_net)
+        >>> project_connections = edb.get_connected_ports_from_multizone_cutout(terminals_info)
 
         Returns
         -------
