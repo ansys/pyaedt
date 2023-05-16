@@ -277,7 +277,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             if meshregions:
                 arg2.append("MeshRegions:="), arg2.append(meshregions)
         else:
-            if excitation_list:
+            if excitation_list is not None:
                 excitations = excitation_list
             else:
                 excitations = self._app.excitations
