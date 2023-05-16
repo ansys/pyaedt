@@ -4458,7 +4458,7 @@ class Icepak(FieldAnalysis3D):
                 ``True`` when successful, ``False`` when failed.
 
             """
-            if self.name in self._app.boundaries.keys():
+            if self.name in self._app.thermal_networks.keys():
                 self.delete()
                 try:
                     self.create()
