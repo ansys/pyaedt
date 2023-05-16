@@ -1635,6 +1635,17 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @pyaedt_function_handler()
     def import_edb_in_circuit(self, edb_path):
+        """Import EDB design inside Circuit project.
+
+        Parameters
+        ----------
+        edb_path : str
+            path of EDB file to be copied.
+
+        Returns
+        -------
+            Hfss3DLayout component instance.
+        """
         hfss = Hfss3dLayout(edb_path)
         hfss.edit_cosim_options(
             simulate_missing_solution=True,
