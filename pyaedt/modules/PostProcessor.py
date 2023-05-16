@@ -1749,7 +1749,11 @@ class PostProcessorCommon(object):
                 else:
                     self.logger.warning("Parameter " + attribute + " is not available, check syntax.")
         elif context:
-            if hasattr(self.modeler, "line_names") and context in self.modeler.line_names:
+            if (
+                hasattr(self.modeler, "line_names")
+                and hasattr(self.modeler, "point_names")
+                and context in self.modeler.point_names + self.modeler.line_names
+            ):
                 report.polyline = context
             elif context in [
                 "RL",
@@ -3433,7 +3437,7 @@ class PostProcessor(PostProcessorCommon, object):
                 power_dict[bc_obj.name] = power_value * n * mult
                 self.logger.info("The power of {} is {} {}".format(bc_obj.name, str(power_dict[bc_obj.name]), units))
 
-            elif bc_obj.type == "Source":
+            elif bc_obj.type == "SourceIcepak":
                 if bc_obj.props["Thermal Condition"] == "Total Power":
                     n = 0
                     if "Faces" in bc_obj.props:
