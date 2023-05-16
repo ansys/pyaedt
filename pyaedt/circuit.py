@@ -1557,7 +1557,7 @@ class Circuit(FieldAnalysisCircuit, object):
     def connect_circuit_models_from_multi_zone_cutout(
         self, project_connections, edb_zones_dict, ports=None, schematic_units="mm", model_inc=50
     ):
-        """Connect circuit model from multi zone clipped project.
+        """Connect circuit model from multi-zone clipped project.
 
         Parameters
         ----------

@@ -54,7 +54,7 @@ pin_u9_2 = [i for i in edb.components["U9"].pins.values() if i.net_name == "1.2V
 ###############################################################################
 # Append Z Positions
 # ~~~~~~~~~~~~~~~~~~
-# Compute Q3D 3D position. The factor 100 converts from "meters" to "mm".
+# Compute Q3D 3D position. The factor 1000 converts from "meters" to "mm".
 
 location_u11_scl = [i * 1000 for i in pin_u11_scl[0].position]
 location_u11_scl.append(edb.components["U11"].upper_elevation * 1000)
@@ -68,7 +68,7 @@ location_u9_2_scl.append(edb.components["U9"].upper_elevation * 1000)
 
 ###############################################################################
 # Identify pin positions for 3D components
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Identify the pin positions where 3D components of passives are to be added.
 
 location_l2_1 = [i * 1000 for i in edb.components["L2"].pins["1"].position]
@@ -111,7 +111,7 @@ q3d.delete_all_nets()
 
 ###############################################################################
 # Insert inductors
-# ~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~
 # Create new coordinate systems and place 3D component inductors.
 
 q3d.modeler.create_coordinate_system(location_l2_1, name="L2")
@@ -140,7 +140,7 @@ q3d.modeler.delete(q3d.modeler.get_objects_by_material("Solder Resist"))
 
 ###############################################################################
 # Assign source and sink
-# ~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~
 # Use previously calculated positions to identify faces and
 # assign sources and sinks on nets.
 

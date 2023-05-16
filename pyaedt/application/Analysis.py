@@ -1509,6 +1509,7 @@ class Analysis(Design, object):
 
         return self.analyze(self.active_setup, num_cores, num_tasks, num_gpu, acf_file, use_auto_settings)
 
+    @pyaedt_function_handler()
     def analyze(
         self,
         setup_name=None,
