@@ -323,8 +323,8 @@ class BoundaryObject(BoundaryCommon, object):
 
     @property
     def type(self):
-        """Boundary type."""
-        """
+        """Boundary type.
+        
         Returns
         -------
         str
