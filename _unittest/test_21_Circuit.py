@@ -798,7 +798,7 @@ class TestClass(BasisTest, object):
 
     def test_45_create_circuit_from_multizone_layout(self):
         source_path = os.path.join(local_path, "example_models", "multi_zone_project.aedb")
-        target_path = os.path.join(self.local_scratch.path, "test_45.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_multi_zone", "test_45.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edb = Edb(edbpath=target_path, edbversion=self.aedtapp._aedt_version)
         common_reference_net = "gnd"
@@ -808,8 +808,8 @@ class TestClass(BasisTest, object):
         assert terminals_info
         project_connexions = edb.get_connected_ports_from_multizone_cutout(terminals_info)
         assert project_connexions
-        circuit = Circuit()
-        circuit.connect_circuit_models_from_multi_zone_cutout(project_connexions, edb_zones, defined_ports)
-        assert any(mod for mod in list(circuit.modeler.schematic.components.values()) if "IPort" in mod.name)
+        self.aedtapp.insert_design("test_45")
+        self.aedtapp.connect_circuit_models_from_multi_zone_cutout(project_connexions, edb_zones, defined_ports)
+        assert any(mod for mod in list(self.aedtapp.modeler.schematic.components.values()) if "PagePort" in mod.name)
         edb.close_edb()
-        circuit.release_desktop(False, False)
+        self.aedtapp.release_desktop(False, False)
