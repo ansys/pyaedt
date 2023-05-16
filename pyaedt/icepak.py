@@ -3822,7 +3822,7 @@ class Icepak(FieldAnalysis3D):
         return bound
 
     @pyaedt_function_handler()
-    def create_resistor_network_from_matrix(self, sources_power, faces_ids, matrix, network_name=None):
+    def create_resistor_network_from_matrix(self, sources_power, faces_ids, matrix, network_name=None, node_names=None):
         """Create a thermal network.
 
         Parameters
@@ -3841,6 +3841,8 @@ class Icepak(FieldAnalysis3D):
         network_name : str, optional
             Name of the network boundary. The default is ``None`` and the boundary name will
             be generated automatically.
+        node_names : list of str, optional
+            List of the name of all the nodes in the network.
 
         Returns
         -------
@@ -3866,36 +3868,23 @@ class Icepak(FieldAnalysis3D):
         >>>           [1, 2, 4, 0]]
         >>> boundary = app.assign_resistor_network_from_matrix(sources_power, faces_ids, matrix)
         """
-        nodes_list = []
-        internal_nodes_list = []
+
+        net = self.create_network_object(name=network_name)
+        all_nodes = []
         for i, source in enumerate(sources_power):
-            nodes_list.append("Source" + str(i))
-            internal_nodes_list.append(
-                OrderedDict(
-                    {"Name": "Source" + str(i), "Power": source if isinstance(source, str) else str(source) + "W"}
-                )
-            )
-        face_nodes_list = []
-        for id in faces_ids:
-            face_nodes_list.append({"FaceID": id})
-            nodes_list.append(id)
-        link_n = 0
-        connection_list = []
+            node_name = "Source" + str(i) if not node_names else node_names[i]
+            net.add_internal_node(name=node_name, power=source)
+            all_nodes.append(node_name)
+        for i, id in enumerate(faces_ids):
+            node_name = None if not node_names else node_names[i + len(sources_power)]
+            second = net.add_face_node(id, name=node_name)
+            all_nodes.append(second.name)
         for i in range(len(matrix)):
             for j in range(len(matrix[0])):
                 if matrix[i][j] > 0:
-                    link_n += 1
-                    connection_list.append(
-                        {
-                            "Connection": [nodes_list[i], nodes_list[j]],
-                            "Value": matrix[i][j] if isinstance(matrix[i][j], str) else str(matrix[i][j]) + "cel_per_w",
-                        }
-                    )
-        network = self.create_network_object(name=network_name)
-        network.add_nodes_from_dictionaries({"FaceNodes": face_nodes_list, "InternalNodes": internal_nodes_list})
-        network.add_links_from_dictionaries(connection_list)
-        if network.create():
-            return network
+                    net.add_link(all_nodes[i], all_nodes[j], matrix[i][j], "Link_" + all_nodes[i] + "_" + all_nodes[j])
+        if net.create():
+            return net
         else:
             return None
 
