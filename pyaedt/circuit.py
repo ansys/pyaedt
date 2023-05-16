@@ -1563,10 +1563,6 @@ class Circuit(FieldAnalysisCircuit, object):
         ----------
         project_connections : dic[str][str]
             project connections dictionarry return from command edb.get_connected_ports_from_multizone_cutout():
-            >>> edb = Edb(edb_file)
-            >>> edb_zones = edb.copy_zones(r"C:\Temp\test")
-            >>> defined_ports, terminals_info = edb.cutout_multizone_layout(edb_zones, common_reference_net)
-            >>> project_connections = edb.get_connected_ports_from_multizone_cutout(terminals_info)
         edb_zones_dict : dict[str][EDB PolygonData]
             dictionary returned by command edb.copy_zones()
         ports : dict[str][str]
@@ -1577,6 +1573,7 @@ class Circuit(FieldAnalysisCircuit, object):
             Distance increment for adding models.
 
         Examples
+        --------
         command to get the input arguments.
         >>> edb = Edb(edb_file)
         >>> edb_zones = edb.copy_zones(r"C:\Temp\test")
