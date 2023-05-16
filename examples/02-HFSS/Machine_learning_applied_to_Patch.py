@@ -1,19 +1,20 @@
 """
-HFSS: machine learning applied to a patch
------------------------------------------
-This example shows how you can use PyAEDT to create a machine learning algorithm in three steps:
+HFSS: machine learning applied to a patch antenna
+---------------------------------------------------------
+This example demonstrates the use PyAEDT to apply a
+machine learning algorithm in three steps:
 
 #. Generate the database.
 #. Create the machine learning algorithm.
 #. Implement the model in a PyAEDT method.
 
-While this example supplies the code for all three steps in one Python file, it would be
-better to separate the code for each step into its own Python file.
+While this example provides guidance for all three steps, a
+more practical implementation would
+separate the code for each step.
 """
 ###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform required imports.
 
 import json
 import os
@@ -34,12 +35,14 @@ from pyaedt.generic import constants as const
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
-# documentation only.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is set to ``False``
+# to create this documentation.
+#
+# You can set ``non_graphical``  to ``True`` in order to view
+# HFSS while the notebook cells are executed.
+#
 # Use the 2023R1 release of HFSS.
 
-# pyaedt.settings.enable_error_handler = False
 non_graphical = False
 desktop_version = "2023.1"
 
@@ -52,7 +55,7 @@ freq_scale = const.scale_units(freq_units)
 
 ####################################################################
 # ``freq_str()`` is used to generate the setup name
-# for the HFSS solution.
+# for the HFSS solution in subsequent cells.
 
 setup_prefix = "Setup"
 freq_str = lambda freq: str(str(int(int(freq*100)/100.0 / freq_scale))) + freq_units
@@ -60,10 +63,10 @@ setup_name = lambda freq: setup_prefix + "_" + freq_str(freq)
 sweep_name = "Sweep"  # Use this name for all frequency sweeps.
 
 ###############################################################################
-# Generate the database
-# ----------------------
+# Generate the test data.
+# -------------------------
 # This section describes how data are generated to subsequently
-# be used for the machine learning.
+# be used to test the machine learning results.
 #
 # Test Data
 # ~~~~~~~~~~~~~~
@@ -73,8 +76,13 @@ sweep_name = "Sweep"  # Use this name for all frequency sweeps.
 # - substrate thickness
 # - patch width
 #
-# The following code generates a data set consisting of 1 frequency x n_s permittivity
-# x n_s thickness x n_s width, resulting in n_s ** 3 samples.  Use n_s = 2.
+# The following code generates a data set consisting of
+# - 1 frequency value
+# - ``n_s`` permittivity values
+# - ``n_s`` thickness values
+# - n_s width values
+#
+# resulting in :math:`n_s^3` samples.  Use ``n_s`` = 2.
 #
 # Each test case is defined in a dictionary. All test cases are compiled
 # in a list. Length units are relative to the free space wavelength. The keys in the
