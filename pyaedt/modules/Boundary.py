@@ -323,6 +323,12 @@ class BoundaryObject(BoundaryCommon, object):
 
     @property
     def type(self):
+        """
+        Returns
+        -------
+        str
+            Returns Type of the boundary
+        """
         if self._app.design_type == "Icepak" and self._type == "Source":
             return "SourceIcepak"
         else:
