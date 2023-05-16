@@ -95,6 +95,8 @@ class TestClass(BasisTest, object):
 
     def test_06c_autoidentify(self):
         assert self.aedtapp.auto_identify_nets()
+        assert self.aedtapp.delete_all_nets()
+        assert self.aedtapp.auto_identify_nets()
         pass
 
     def test_07_create_source_sinks(self):

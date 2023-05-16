@@ -285,7 +285,7 @@ class Components(object):
     @pyaedt_function_handler()
     def refresh_components(self):
         """Refresh the component dictionary."""
-        self._logger.info("Refreshing the Components dictionary.")
+        # self._logger.info("Refreshing the Components dictionary.")
         self._cmp = {
             l.GetName(): EDBComponent(self, l)
             for l in self._active_layout.Groups
