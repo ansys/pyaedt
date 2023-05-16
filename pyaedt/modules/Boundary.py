@@ -336,8 +336,8 @@ class BoundaryObject(BoundaryCommon, object):
             return self._type
 
     @type.setter
-    def type(self, type_in):
-        self._type = type_in
+    def type(self, value):
+        self._type = value
 
     @property
     def name(self):
