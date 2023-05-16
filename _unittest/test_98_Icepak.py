@@ -938,37 +938,83 @@ class TestClass(BasisTest, object):
             [2, 6, 0, 1, 0, 3, 0, 0],
             [0, 3, 0, 2, 0, 0, 1, 0],
         ]
-        boundary = self.aedtapp.assign_resistor_network_from_matrix(
+        boundary = self.aedtapp.create_resistor_network_from_matrix(
             sources_power, faces_ids, matrix, network_name="Test_network"
         )
         assert boundary
         boundary.delete()
-        boundary = self.aedtapp.assign_resistor_network_from_matrix(sources_power, faces_ids, matrix)
+        boundary = self.aedtapp.create_resistor_network_from_matrix(sources_power, faces_ids, matrix)
         assert boundary
         boundary.delete()
+        boundary = self.aedtapp.create_resistor_network_from_matrix(
+            sources_power,
+            faces_ids,
+            matrix,
+            "testNetwork",
+            ["sourceBig", "sourceSmall", "TestFace", "FaceTest", "ThirdFace", "Face4", "Face_5", "6Face"],
+        )
+        assert boundary
 
     def test_58_assign_network(self):
-        box = self.aedtapp.modeler.create_box([5, 5, 5], [20, 50, 80])
-        faces_ids = [face.id for face in box.faces]
-        x = [1, 2, 3]
-        y = [3, 4, 5]
-        self.aedtapp.create_dataset1d_design("Test_DataSet", x, y)
-        nodes_dict = {
-            "Faces": [
-                {"FaceID": faces_ids[0]},
-                {"FaceID": faces_ids[1], "ThermalResistance": "Compute", "Thickness": "2mm"},
-                {"FaceID": faces_ids[2], "ThermalResistance": "Specified", "Resistance": "2cel_per_w"},
-            ],
-            "InternalNodes": [
-                {
-                    "Name": "Junction",
-                    "Power": {"Type": "Temp Dep", "Function": "Piecewise Linear", "Values": ["1W", "Test_DataSet"]},
-                }
-            ],
-        }
-        connections = [
-            {"Name": "LinkTest", "Connection": ["Junction", faces_ids[0]], "Value": "1cel_per_w"},
-            {"Connection": ["Junction", faces_ids[1]], "Value": "2cel_per_w"},
-            {"Connection": ["Junction", faces_ids[2]], "Value": "3cel_per_w"},
-        ]
-        self.aedtapp.assign_network(nodes_dict, connections)
+        box = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20])
+        ids = [f.id for f in box.faces]
+        net = self.aedtapp.create_network_object()
+        net.add_face_node(ids[0])
+        net.add_face_node(ids[1], thermal_resistance="Specified", resistance=2)
+        net.add_face_node(ids[2], thermal_resistance="Specified", resistance="2cel_per_w")
+        net.add_face_node(ids[3], thermal_resistance="Compute", thickness=2, material="Al-Extruded")
+        net.add_face_node(ids[4], thermal_resistance="Compute", thickness="2mm", material="Al-Extruded")
+        net.add_face_node(ids[5], name="TestFace", thermal_resistance="Specified", resistance="20cel_per_w")
+        net.add_internal_node(name="TestInternal", power=2, mass=None, specific_heat=None)
+        net.add_internal_node(name="TestInternal2", power="4mW")
+        net.add_internal_node(name="TestInternal3", power="6W", mass=2, specific_heat=2000)
+        net.add_boundary_node(name="TestBoundary", assignment_type="Power", value=2)
+        net.add_boundary_node(name="TestBoundary2", assignment_type="Power", value="3mW")
+        net.add_boundary_node(name="TestBoundary3", assignment_type="Temperature", value=3)
+        net.add_boundary_node(name="TestBoundary4", assignment_type="Temperature", value="3kel")
+        nodes_names = list(net.nodes.keys())
+        for i in range(len(net.nodes) - 1):
+            net.add_link(nodes_names[i], nodes_names[i + 1], i * 10 + 1)
+        assert net.create()
+        bkupprops = net.nodes["TestFace"].props
+        bkupprops_internal = net.nodes["TestInternal3"].props
+        bkupprops_boundary = net.nodes["TestBoundary4"].props
+        net.nodes["TestFace"].delete_node()
+        net.nodes["TestInternal3"].delete_node()
+        net.nodes["TestBoundary4"].delete_node()
+        nodes_names = list(net.nodes.keys())
+        for i in range(len(net.nodes) - 1):
+            net.add_link(nodes_names[i], nodes_names[i + 1], str(i + 1) + "cel_per_w", "link_" + str(i))
+        assert net.update()
+        assert all(i not in net.nodes for i in ["TestFace", "TestInternal3", "TestBoundary4"])
+        net.props["Nodes"].update({"TestFace": bkupprops})
+        net.props["Nodes"].update({"TestInternal3": bkupprops_internal})
+        net.props["Nodes"].update({"TestBoundary4": bkupprops_boundary})
+        nodes_names = list(net.nodes.keys())
+        for i in range(len(net.nodes) - 1):
+            net.add_link(nodes_names[i], nodes_names[i + 1], i * 100 + 1)
+        assert net.update()
+        assert all(i in net.nodes for i in ["TestFace", "TestInternal3", "TestBoundary4"])
+        net.nodes["TestFace"].delete_node()
+        net.nodes["TestInternal3"].delete_node()
+        net.nodes["TestBoundary4"].delete_node()
+        bkupprops_input = {"Name": "TestFace"}
+        bkupprops_input.update(bkupprops)
+        bkupprops_internal_input = {"Name": "TestInternal3"}
+        bkupprops_internal_input.update(bkupprops_internal)
+        bkupprops_boundary_input = {"Name": "TestBoundary4"}
+        bkupprops_boundary_input.update(bkupprops_boundary)
+        bkupprops_boundary_input["ValueType"] = bkupprops_boundary_input["ValueType"].replace("Value", "")
+        net.add_nodes_from_dictionaries([bkupprops_input, bkupprops_internal_input, bkupprops_boundary_input])
+        nodes_names = list(net.nodes.keys())
+        net.add_link(nodes_names[0], nodes_names[1], 50, "TestLink")
+        linkvalue = ["cel_per_w", "g_per_s"]
+        for i in range(len(net.nodes) - 2):
+            net.add_link(nodes_names[i + 1], nodes_names[i + 2], str(i + 1) + linkvalue[i % 2])
+        link_dict = net.links["TestLink"].props
+        link_dict = {"Name": "TestLink", "Link": link_dict[0:2] + link_dict[4:]}
+        net.links["TestLink"].delete_link()
+        net.add_links_from_dictionaries(link_dict)
+        assert net.update()
+        net.name = "Network_Test"
+        assert net.name == "Network_Test"
