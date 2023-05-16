@@ -1062,8 +1062,9 @@ class EdbHfss(object):
                     _x = []
                     _y = []
                     for pt in _points:
-                        _x.append(pt.X.ToDouble())
-                        _y.append(pt.Y.ToDouble())
+                        if pt.X.ToDouble() < 1e100 and pt.Y.ToDouble() < 1e100:
+                            _x.append(pt.X.ToDouble())
+                            _y.append(pt.Y.ToDouble())
                     user_defined_extent = [_x, _y]
             terminal_info = []
             for net in nets:

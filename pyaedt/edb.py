@@ -3341,9 +3341,6 @@ class Edb(object):
                 os.mkdir(working_directory)
         else:
             working_directory = os.path.dirname(self.edbpath)
-        for bend_def in list(self.active_layout.GetBoardBendDefs()):
-            bend_def.Delete()
-        self.save_edb()
         zone_primitives = list(self.active_layout.GetZonePrimitives())
         edb_zones = {}
         if not self.setups:
