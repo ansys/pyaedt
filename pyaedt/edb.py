@@ -3414,8 +3414,9 @@ class Edb(object):
         Returns
         -------
         dict[str][str] , list of str
-        first dictionary defined_ports with edb name as key and existing port name list as value
-        second dictionary terminals with edb name as key and created ports name on clipped signal nets
+        first dictionary defined_ports with edb name as key and existing port name list as value. Those ports are the
+        ones defined before processing the multizone clipping.
+        second is the list of connected port.
 
         """
         terminals = {}
@@ -3454,8 +3455,6 @@ class Edb(object):
         -------
         list[str]
             list of connected ports.
-
-
         """
         if terminal_info_dict:
             tolerance = 1e-8

@@ -1552,7 +1552,7 @@ class GeometryOperators(object):
     @staticmethod
     @pyaedt_function_handler()
     def point_in_polygon(point, polygon, tolerance=1e-8):
-        """Determine if a point is inside or outside a polygon, both located on the same plane.
+        """Determine if a point is inside, outside the polygon or at exactly at the border.
 
         The method implements the radial algorithm (https://es.wikipedia.org/wiki/Algoritmo_radial)
 
