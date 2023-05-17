@@ -1562,7 +1562,8 @@ class Circuit(FieldAnalysisCircuit, object):
         Parameters
         ----------
         project_connections : dic[str][str]
-            project connections dictionarry return from command edb.get_connected_ports_from_multizone_cutout():
+            Dictionary of project connections returned from the
+            ``edb.get_connected_ports_from_multizone_cutout()`` method.       
         edb_zones_dict : dict[str][EDB PolygonData]
             dictionary returned by command edb.copy_zones()
         ports : dict[str][str]
