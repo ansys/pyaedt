@@ -1573,8 +1573,8 @@ class Circuit(FieldAnalysisCircuit, object):
         schematic_units : str, optional
             Units for the schematic, such as ``"mm"`` or ``"in"``. The
             default is ``"mm"``.
-        model_inc : float
-            Distance increment for adding models.
+        model_inc : float, optional
+            Distance increment for adding models. The default is ``50``.
 
         Examples
         --------
