@@ -1570,7 +1570,7 @@ class Circuit(FieldAnalysisCircuit, object):
             dictionary return from command edb.cutout_multizone_layout(). These ports are the ones created before
             processing the multizone clipping. Like for instance ports created on components resulting from previous
             automated workflow execution.
-        schematic_units : str
+        schematic_units : str, optional
             Units for the schematic, such as ``"mm"`` or ``"in"``. The
             default is ``"mm"``.
         model_inc : float
