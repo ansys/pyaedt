@@ -1034,7 +1034,7 @@ class EdbHfss(object):
             List of nets, str or Edb net.
 
         reference_net : str, Edb net.
-             Name or Edb reference net.
+             Name or EDB reference net.
 
         user_defined_extent : [x, y], EDB PolygonData
             Use this point list or PolygonData object to check if ports are at this polygon border.
