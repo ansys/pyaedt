@@ -1563,7 +1563,7 @@ class Circuit(FieldAnalysisCircuit, object):
         ----------
         project_connections : dic[str][str]
             Dictionary of project connections returned from the
-            ``edb.get_connected_ports_from_multizone_cutout()`` method.       
+            ``edb.get_connected_ports_from_multizone_cutout()`` method.
         edb_zones_dict : dict[str][EDB PolygonData]
             Dictionary of zones returned by the ``edb.copy_zones()`` method.
         ports : dict[str][str]
