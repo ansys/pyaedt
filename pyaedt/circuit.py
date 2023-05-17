@@ -1648,7 +1648,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
         Returns
         -------
-            Hfss3DLayout component instance.
+            ``Hfss3DLayout`` component instance.
         """
         hfss = Hfss3dLayout(edb_path)
         hfss.edit_cosim_options(
