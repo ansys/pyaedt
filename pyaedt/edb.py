@@ -3,6 +3,7 @@
 This module is implicitily loaded in HFSS 3D Layout when launched.
 
 """
+from itertools import combinations
 import os
 import re
 import shutil
@@ -60,6 +61,7 @@ from pyaedt.generic.general_methods import is_windows
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.process import SiwaveSolve
 from pyaedt.misc.misc import list_installed_ansysem
+from pyaedt.modeler.geometry_operators import GeometryOperators
 
 if is_linux and is_ironpython:
     import subprocessdotnet as subprocess
@@ -145,10 +147,10 @@ class Edb(object):
         technology_file=None,
     ):
         self._clean_variables()
-        if inside_desktop:
-            self.standalone = False
-        else:
-            self.standalone = True
+        # if inside_desktop:
+        #    self.standalone = False
+        # else:
+        self.standalone = True
         if edb_initialized:
             self.oproject = oproject
             self._main = sys.modules["__main__"]
@@ -3356,3 +3358,147 @@ class Edb(object):
         max_width = max_width * expansion_factor
         self.logger.info("The W factor is {}, The initial extent = {:e}".format(expansion_factor, max_width))
         return max_width
+
+    @pyaedt_function_handler()
+    def copy_zones(self, working_directory=None):
+        """Copy multizone EDB project to one new edb per zone.
+
+        Parameters
+        ----------
+        working_directory : str
+            Directory path where all EDB project are copied, if empty will use the current EDB project.
+
+        Returns
+        -------
+           dict[str](EDB PolygonData)
+           Return a dictionary with edb path as key and EDB polygon Data defining the region.
+
+        """
+        if working_directory:
+            if not os.path.isdir(working_directory):
+                os.mkdir(working_directory)
+            else:
+                shutil.rmtree(working_directory)
+                os.mkdir(working_directory)
+        else:
+            working_directory = os.path.dirname(self.edbpath)
+        zone_primitives = list(self.active_layout.GetZonePrimitives())
+        edb_zones = {}
+        if not self.setups:
+            self.siwave.add_siwave_syz_analysis()
+            self.save_edb()
+        for zone in zone_primitives:
+            edb_zone_path = os.path.join(
+                working_directory, "{}_{}".format(zone.GetId(), os.path.basename(self.edbpath))
+            )
+            shutil.copytree(self.edbpath, edb_zone_path)
+            poly_data = zone.GetPolygonData()
+            edb_zones[edb_zone_path] = poly_data
+        return edb_zones
+
+    @pyaedt_function_handler()
+    def cutout_multizone_layout(self, zone_dict, common_reference_net):
+        """Create multizone project cutout.
+
+        Parameters
+        ----------
+        zone_dict : dict[str](EDB PolygonData)
+            Dictionary with EDB path as key and EDB PolygonData as value defining the zone region.
+            This dictionary is returned from the command copy_zones():
+            >>> edb = Edb(edb_file)
+            >>> zone_dict = edb.copy_zones(r"C:\Temp\test")
+
+        common_reference_net : str
+            the common reference net name. This net name must be provided to provide a valid project.
+
+        Returns
+        -------
+        dict[str][str] , list of str
+        first dictionary defined_ports with edb name as key and existing port name list as value. Those ports are the
+        ones defined before processing the multizone clipping.
+        second is the list of connected port.
+
+        """
+        terminals = {}
+        defined_ports = {}
+        for edb_path, zone_polygon in zone_dict.items():
+            edb = Edb(edbversion=self.edbversion, edbpath=edb_path)
+            edb.stackup.stackup_mode = "Laminate"
+            signal_nets = list(self.nets.signal.keys())
+            edb.cutout(use_pyaedt_cutout=True, custom_extent=zone_polygon, open_cutout_at_end=True)
+            edb.active_cell.SetName(os.path.splitext(os.path.basename(edb_path))[0])
+            defined_ports[os.path.splitext(os.path.basename(edb_path))[0]] = list(edb.excitations.keys())
+            edb_terminals_info = edb.hfss.create_vertical_circuit_port_on_clipped_traces(
+                nets=signal_nets, reference_net=common_reference_net, user_defined_extent=zone_polygon
+            )
+            if edb_terminals_info:
+                terminals[os.path.splitext(os.path.basename(edb_path))[0]] = edb_terminals_info
+            edb.save_edb()
+            edb.close_edb()
+        project_connexions = self._get_connected_ports_from_multizone_cutout(terminals)
+        return defined_ports, project_connexions
+
+    @pyaedt_function_handler()
+    def _get_connected_ports_from_multizone_cutout(self, terminal_info_dict):
+        """Return connected port list from clipped multizone layout.
+
+        Parameters
+            terminal_info_dict : dict[str][str]
+                dictionary terminals with edb name as key and created ports name on clipped signal nets.
+                Dictionary is generated by the command cutout_multizone_layout:
+                >>> edb = Edb(edb_file)
+                >>> edb_zones = edb.copy_zones(r"C:\Temp\test")
+                >>> defined_ports, terminals_info = edb.cutout_multizone_layout(edb_zones, common_reference_net)
+                >>> project_connexions = get_connected_ports(terminals_info)
+
+        Returns
+        -------
+        list[str]
+            list of connected ports.
+        """
+        if terminal_info_dict:
+            tolerance = 1e-8
+            connected_ports_list = []
+            project_list = list(terminal_info_dict.keys())
+            project_combinations = list(combinations(range(0, len(project_list)), 2))
+            for comb in project_combinations:
+                terminal_set1 = terminal_info_dict[project_list[comb[0]]]
+                terminal_set2 = terminal_info_dict[project_list[comb[1]]]
+                project1_nets = [t[0] for t in terminal_set1]
+                project2_nets = [t[0] for t in terminal_set2]
+                net_with_connected_ports = list(set(project1_nets).intersection(project2_nets))
+                if net_with_connected_ports:
+                    for net_name in net_with_connected_ports:
+                        project1_port_info = [term_info for term_info in terminal_set1 if term_info[0] == net_name]
+                        project2_port_info = [term_info for term_info in terminal_set2 if term_info[0] == net_name]
+                        port_list = [p[3] for p in project1_port_info] + [p[3] for p in project2_port_info]
+                        port_combinations = list(combinations(port_list, 2))
+                        for port_combination in port_combinations:
+                            if not port_combination[0] == port_combination[1]:
+                                port1 = [port for port in terminal_set1 if port[3] == port_combination[0]]
+                                if not port1:
+                                    port1 = [port for port in terminal_set2 if port[3] == port_combination[0]]
+                                port2 = [port for port in terminal_set2 if port[3] == port_combination[1]]
+                                if not port2:
+                                    port2 = [port for port in terminal_set1 if port[3] == port_combination[1]]
+                                port1 = port1[0]
+                                port2 = port2[0]
+                                if not port1[3] == port2[3]:
+                                    port_distance = GeometryOperators.points_distance(port1[1:3], port2[1:3])
+                                    if port_distance < tolerance:
+                                        port1_connexion = None
+                                        port2_connexion = None
+                                        for project_path, port_info in terminal_info_dict.items():
+                                            port1_map = [port for port in port_info if port[3] == port1[3]]
+                                            if port1_map:
+                                                port1_connexion = (project_path, port1[3])
+                                            port2_map = [port for port in port_info if port[3] == port2[3]]
+                                            if port2_map:
+                                                port2_connexion = (project_path, port2[3])
+                                        if port1_connexion and port2_connexion:
+                                            if (
+                                                not port1_connexion[0] == port2_connexion[0]
+                                                or not port1_connexion[1] == port2_connexion[1]
+                                            ):
+                                                connected_ports_list.append((port1_connexion, port2_connexion))
+            return connected_ports_list
