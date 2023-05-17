@@ -189,9 +189,9 @@ class Design(AedtObjects):
         self.close_on_exit = close_on_exit
         self._global_logger = pyaedt_logger
         self._logger = pyaedt_logger
-
+        self._desktop_class = None
         if "pyaedt_initialized" not in dir(main_module):
-            desktop = Desktop(
+            self._desktop_class = Desktop(
                 specified_version,
                 non_graphical,
                 new_desktop_session,
@@ -203,6 +203,16 @@ class Design(AedtObjects):
             )
             self.release_on_exit = True
         else:
+            self._desktop_class = Desktop(
+                settings.aedt_version,
+                settings.non_graphical,
+                False,
+                close_on_exit,
+                student_version,
+                settings.machine,
+                settings.port,
+                settings.aedt_process_id,
+            )
             self.release_on_exit = False
 
         self.student_version = main_module.student_version
@@ -241,6 +251,16 @@ class Design(AedtObjects):
         self._design_datasets = []
         # _mtime = self.project_time_stamp
         self.logger.info("Variable Manager initialized")
+
+    @property
+    def desktop_class(self):
+        """Return the Desktop class.
+
+        Returns
+        -------
+        :class:`pyaedt.desktop.Desktop`
+        """
+        return self._desktop_class
 
     @property
     def project_datasets(self):

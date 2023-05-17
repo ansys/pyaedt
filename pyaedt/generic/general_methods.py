@@ -1770,6 +1770,36 @@ class Settings(object):
         if is_linux:
             self._aedt_environment_variables["ANS_NODEPCHECK"] = "1"
         self._desktop_launch_timeout = 90
+        self._aedt_process_id = None
+        self._is_student = False
+
+    @property
+    def aedt_process_id(self):
+        """Set the desktop process id. Default is ``None``.
+
+        Returns
+        -------
+        int
+        """
+        return self._aedt_process_id
+
+    @aedt_process_id.setter
+    def aedt_process_id(self, value):
+        self._aedt_process_id = int(value)
+
+    @property
+    def is_student(self):
+        """Set the desktop process is student version. Default is ``False``.
+
+        Returns
+        -------
+        bool
+        """
+        return self._is_student
+
+    @is_student.setter
+    def is_student(self, value):
+        self._is_student = value
 
     @property
     def desktop_launch_timeout(self):

@@ -15,6 +15,7 @@ import logging
 import os
 import pkgutil
 import re
+import shutil
 import socket
 import sys
 import tempfile
@@ -45,6 +46,7 @@ from pyaedt.generic.general_methods import com_active_sessions
 from pyaedt.generic.general_methods import grpc_active_sessions
 from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import open_file
 from pyaedt.misc import list_installed_ansysem
 
 pathname = os.path.dirname(__file__)
@@ -573,6 +575,8 @@ class Desktop(object):
         settings.machine = self.machine
         settings.port = self.port
         self.aedt_process_id = self.odesktop.GetProcessID()  # bit of cleanup for consistency if used in future
+        settings.aedt_process_id = self.aedt_process_id
+        settings.is_student = student_version
         self._logger.info("AEDT %s Build Date %s", self.odesktop.GetVersion(), self.odesktop.GetBuildDateTimeString())
 
         if _com == "ironpython":
@@ -1573,3 +1577,104 @@ class Desktop(object):
         if aedt_version >= "2023.2":
             write_toolkit_config(os.path.join(toolkit_dir, product), lib_dir, toolkit_name, toolkit=toolkit)
         self.logger.info("{} toolkit installed.".format(toolkit_name))
+
+    @pyaedt_function_handler()
+    def submit_job(
+        self,
+        project_file,
+        clustername,
+        aedt_full_exe_path=None,
+        numnodes=1,
+        numcores=32,
+        wait_for_license=True,
+        setting_file=None,
+    ):
+        """Submit a job to be solved on a cluster.
+
+        Parameters
+        ----------
+        project : str
+            Full path to project.
+        clustername : str
+            Name of the cluster to submit the job to.
+        aedt_full_exe_path : str, optional
+            Full path to the AEDT executable file. The default is ``None``, in which
+            case ``"/clustername/AnsysEM/AnsysEM2x.x/Win64/ansysedt.exe"`` is used.
+        numnodes : int, optional
+            Number of nodes. The default is ``1``.
+        numcores : int, optional
+            Number of cores. The default is ``32``.
+        wait_for_license : bool, optional
+             Whether to wait for the license to be validated. The default is ``True``.
+        setting_file : str, optional
+            Name of the file to use as a template. The default value is ``None``.
+
+        Returns
+        -------
+        type
+            ID of the job.
+
+        References
+        ----------
+
+        >>> oDesktop.SubmitJob
+        """
+
+        project_path = os.path.dirname(project_file)
+        project_name = os.path.basename(project_file).split(".")[0]
+        if not aedt_full_exe_path:
+            version = self.odesktop.GetVersion()[2:6]
+            if version >= "22.2":
+                version_name = "v" + version.replace(".", "")
+            else:
+                version_name = "AnsysEM" + version
+            if os.path.exists(r"\\" + clustername + r"\AnsysEM\{}\Win64\ansysedt.exe".format(version_name)):
+                aedt_full_exe_path = (
+                    r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\{}\\\\Win64\\\\ansysedt.exe".format(version_name)
+                )
+            elif os.path.exists(r"\\" + clustername + r"\AnsysEM\{}\Linux64\ansysedt".format(version_name)):
+                aedt_full_exe_path = (
+                    r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\{}\\\\Linux64\\\\ansysedt".format(version_name)
+                )
+            else:
+                self.logger.error("AEDT shared path does not exist. Please provide a full path.")
+                return False
+        else:
+            if not os.path.exists(aedt_full_exe_path):
+                self.logger.error("AEDT shared path does not exist. Provide a full path.")
+                return False
+            aedt_full_exe_path.replace("\\", "\\\\")
+        if project_name in self.project_list:
+            self.odesktop.CloseProject(project_name)
+        path_file = os.path.dirname(__file__)
+        destination_reg = os.path.join(project_path, "Job_settings.areg")
+        if not setting_file:
+            setting_file = os.path.join(path_file, "misc", "Job_Settings.areg")
+        shutil.copy(setting_file, destination_reg)
+
+        f1 = open_file(destination_reg, "w")
+        with open_file(setting_file) as f:
+            lines = f.readlines()
+            for line in lines:
+                if "\\	$begin" == line[:8]:
+                    lin = "\\	$begin \\'{}\\'\\\n".format(clustername)
+                    f1.write(lin)
+                elif "\\	$end" == line[:6]:
+                    lin = "\\	$end \\'{}\\'\\\n".format(clustername)
+                    f1.write(lin)
+                elif "NumCores" in line:
+                    lin = "\\	\\	\\	\\	NumCores={}\\\n".format(numcores)
+                    f1.write(lin)
+                elif "NumNodes=1" in line:
+                    lin = "\\	\\	\\	\\	NumNodes={}\\\n".format(numnodes)
+                    f1.write(lin)
+                elif "ProductPath" in line:
+                    lin = "\\	\\	ProductPath =\\'{}\\'\\\n".format(aedt_full_exe_path)
+                    f1.write(lin)
+                elif "WaitForLicense" in line:
+                    lin = "\\	\\	WaitForLicense={}\\\n".format(str(wait_for_license).lower())
+                    f1.write(lin)
+                else:
+                    f1.write(line)
+        f1.close()
+        return self.odesktop.SubmitJob(os.path.join(project_path, "Job_settings.areg"), project_file)
