@@ -1565,7 +1565,7 @@ class Circuit(FieldAnalysisCircuit, object):
             Dictionary of project connections returned from the
             ``edb.get_connected_ports_from_multizone_cutout()`` method.       
         edb_zones_dict : dict[str][EDB PolygonData]
-            dictionary returned by command edb.copy_zones()
+            Dictionary of zones returned by the ``edb.copy_zones()`` method.
         ports : dict[str][str]
             dictionary return from command edb.cutout_multizone_layout(). These ports are the ones created before
             processing the multizone clipping. Like for instance ports created on components resulting from previous
