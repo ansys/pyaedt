@@ -1025,6 +1025,84 @@ class EdbHfss(object):
         return True
 
     @pyaedt_function_handler()
+    def create_vertical_circuit_port_on_clipped_traces(self, nets=None, reference_net=None, user_defined_extent=None):
+        """Create an edge port on clipped signal traces.
+
+        Parameters
+        ----------
+        nets : list, optional
+            String of one net or EDB net or a list of multiple nets or EDB nets.
+
+        reference_net : str, Edb net.
+             Name or EDB reference net.
+
+        user_defined_extent : [x, y], EDB PolygonData
+            Use this point list or PolygonData object to check if ports are at this polygon border.
+
+        Returns
+        -------
+        [[str]]
+            Nested list of str, with net name as first value, X value for point at border, Y value for point at border,
+            and terminal name.
+        """
+        if not isinstance(nets, list):
+            if isinstance(nets, str):
+                nets = list(self._pedb.nets.signal.values())
+        else:
+            nets = [self._pedb.nets.signal[net] for net in nets]
+        if nets:
+            if isinstance(reference_net, str):
+                reference_net = self._pedb.nets[reference_net]
+            if not reference_net:
+                self._logger.error("No reference net provided for creating port")
+                return False
+            if user_defined_extent:
+                if isinstance(user_defined_extent, self._edb.Geometry.PolygonData):
+                    _points = [pt for pt in list(user_defined_extent.Points)]
+                    _x = []
+                    _y = []
+                    for pt in _points:
+                        if pt.X.ToDouble() < 1e100 and pt.Y.ToDouble() < 1e100:
+                            _x.append(pt.X.ToDouble())
+                            _y.append(pt.Y.ToDouble())
+                    user_defined_extent = [_x, _y]
+            terminal_info = []
+            for net in nets:
+                net_polygons = [
+                    pp
+                    for pp in net.primitives
+                    if pp.GetPrimitiveType() == self._edb.Cell.Primitive.PrimitiveType.Polygon
+                ]
+                for poly in net_polygons:
+                    mid_points = [[arc.mid_point.X.ToDouble(), arc.mid_point.Y.ToDouble()] for arc in poly.arcs]
+                    for mid_point in mid_points:
+                        if GeometryOperators.point_in_polygon(mid_point, user_defined_extent) == 0:
+                            port_name = generate_unique_name("{}_{}".format(poly.GetNet().GetName(), poly.GetId()))
+                            term = self._create_edge_terminal(poly.GetId(), mid_point, port_name)  # pragma no cover
+                            if not term.IsNull():
+                                self._logger.info("Terminal {} created".format(term.GetName()))
+                                term.SetIsCircuitPort(True)
+                                terminal_info.append(
+                                    [poly.GetNet().GetName(), mid_point[0], mid_point[1], term.GetName()]
+                                )
+                                mid_pt_data = self._edb.Geometry.PointData(
+                                    self._edb.Utility.Value(mid_point[0]), self._edb.Utility.Value(mid_point[1])
+                                )
+                                ref_prim = [
+                                    prim
+                                    for prim in reference_net.primitives
+                                    if prim.polygon_data.PointInPolygon(mid_pt_data)
+                                ]
+                                if not ref_prim:
+                                    self._logger.warning("No reference primitive found in port vicinity")
+                                else:
+                                    reference_layer = ref_prim[0].layer
+                                    if term.SetReferenceLayer(reference_layer):  # pragma no cover
+                                        self._logger.info("Port {} created".format(port_name))
+            return terminal_info
+        return False
+
+    @pyaedt_function_handler()
     def get_layout_bounding_box(self, layout=None, digit_resolution=6):
         """Evaluate the layout bounding box.
 
