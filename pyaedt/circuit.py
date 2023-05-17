@@ -1576,6 +1576,11 @@ class Circuit(FieldAnalysisCircuit, object):
         model_inc : float, optional
             Distance increment for adding models. The default is ``50``.
 
+        Returns
+        -------
+        bool
+            ``True`` when succeessful, ``False`` when failed.
+
         Examples
         --------
         These commands show how to get input arguments described in this method:
@@ -1587,13 +1592,6 @@ class Circuit(FieldAnalysisCircuit, object):
         >>> defined_ports, project_connections = edb.cutout_multizone_layout(edb_zones, common_reference_net)
         >>> circ = Circuit()
         >>> circ.connect_circuit_models_from_multi_zone_cutout(project_connexions, edb_zones, defined_ports)
-
-
-        Returns
-        -------
-        bool
-            ``True`` when succeessful, ``False`` when failed.
-
         """
         if project_connections and edb_zones_dict:
             self.modeler.schematic_units = schematic_units
