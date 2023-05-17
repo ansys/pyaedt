@@ -1573,7 +1573,7 @@ class GeometryOperators(object):
         # fmt: off
         tol = tolerance
         if len(point) != 2:  # pragma: no cover
-            raise ValueError("point must be a list in the form [x, y]")
+            raise ValueError("Point must be a list in the form [x, y].")
         pl = len(polygon[0])
         if len(polygon[1]) != pl:  # pragma: no cover
             raise ValueError("Polygon x and y lists must be the same length")
