@@ -1892,7 +1892,7 @@ class Analysis(Design, object):
     @pyaedt_function_handler()
     def submit_job(
         self, clustername, aedt_full_exe_path=None, numnodes=1, numcores=32, wait_for_license=True, setting_file=None
-    ):
+    ):  # pragma: no cover
         """Submit a job to be solved on a cluster.
 
         Parameters
