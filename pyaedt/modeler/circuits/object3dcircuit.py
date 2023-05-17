@@ -291,7 +291,7 @@ class CircuitPins(object):
                     decompose_variable_value(cmp._circuit_comp.location[0])[0]
                 )
             except:
-                x_loc = float(self._circuit_comp.location[0])
+                x_loc = float(cmp._circuit_comp.location[0])
             comp_pin_angle = cmp._circuit_comp.angle * math.pi / 180
             if len(cmp._circuit_comp.pins) == 2:
                 comp_pin_angle += math.pi / 2

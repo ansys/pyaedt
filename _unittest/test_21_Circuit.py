@@ -810,4 +810,3 @@ class TestClass(BasisTest, object):
         self.aedtapp.connect_circuit_models_from_multi_zone_cutout(project_connexions, edb_zones, defined_ports)
         assert [mod for mod in list(self.aedtapp.modeler.schematic.components.values()) if "PagePort" in mod.name]
         edb.close_edb()
-        self.aedtapp.release_desktop(False, False)
