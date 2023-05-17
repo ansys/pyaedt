@@ -1644,7 +1644,7 @@ class Circuit(FieldAnalysisCircuit, object):
         Parameters
         ----------
         edb_path : str
-            path of EDB file to be copied.
+            Path of the EDB file to copy.
 
         Returns
         -------
