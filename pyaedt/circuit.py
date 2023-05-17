@@ -1557,7 +1557,7 @@ class Circuit(FieldAnalysisCircuit, object):
     def connect_circuit_models_from_multi_zone_cutout(
         self, project_connections, edb_zones_dict, ports=None, schematic_units="mm", model_inc=50
     ):
-        """Connect circuit model from multi-zone clipped project.
+        """Connect circuit model from a multizone clipped project.
 
         Parameters
         ----------
@@ -1573,8 +1573,8 @@ class Circuit(FieldAnalysisCircuit, object):
         schematic_units : str, optional
             Units for the schematic, such as ``"mm"`` or ``"in"``. The
             default is ``"mm"``.
-        model_inc : float
-            Distance increment for adding models.
+        model_inc : float, optional
+            Distance increment for adding models. The default is ``50``.
 
         Examples
         --------
@@ -1590,7 +1590,7 @@ class Circuit(FieldAnalysisCircuit, object):
         Returns
         -------
         bool
-            ``True`` when succeeded, ``False`` if failed.
+            ``True`` when succeessful, ``False`` when failed.
 
         """
         if project_connections and edb_zones_dict:
@@ -1639,12 +1639,12 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @pyaedt_function_handler()
     def import_edb_in_circuit(self, edb_path):
-        """Import EDB design inside Circuit project.
+        """Import an EDB design inside a Circuit project.
 
         Parameters
         ----------
         edb_path : str
-            path of EDB file to be copied.
+            Path of the EDB file to copy.
 
         Returns
         -------
