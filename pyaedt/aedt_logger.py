@@ -317,6 +317,10 @@ class AedtLogger(object):
         design_name = design_name or self._design_name
         if self._log_on_desktop or aedt_messages:
             global_message_data = self._desktop.GetMessages("", "", level)
+            # if a 3d component is open, GetMessages without the project name argument returns messages with
+            # "(3D Component)" appended to project name
+            if not any(msg in global_message_data for msg in self._desktop.GetMessages(project_name, "", 0)):
+                project_name = project_name + " (3D Component)"
             return MessageList(global_message_data, project_name, design_name)
         return MessageList([], project_name, design_name)
 
