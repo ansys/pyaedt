@@ -1571,7 +1571,8 @@ class Circuit(FieldAnalysisCircuit, object):
             processing the multizone clipping. Like for instance ports created on components resulting from previous
             automated workflow execution.
         schematic_units : str
-            units used for shcmematic, "mm", in". Default is "mm",
+            Units for the schematic, such as ``"mm"`` or ``"in"``. The
+            default is ``"mm"``.
         model_inc : float
             Distance increment for adding models.
 
