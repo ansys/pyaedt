@@ -3413,7 +3413,7 @@ class Edb(object):
 
         Returns
         -------
-        dict[str][str] , dict[str][str]
+        dict[str][str] , list of str
         first dictionary defined_ports with edb name as key and existing port name list as value
         second dictionary terminals with edb name as key and created ports name on clipped signal nets
 
@@ -3434,10 +3434,11 @@ class Edb(object):
                 terminals[os.path.splitext(os.path.basename(edb_path))[0]] = edb_terminals_info
             edb.save_edb()
             edb.close_edb()
-        return defined_ports, terminals
+        project_connexions = self._get_connected_ports_from_multizone_cutout(terminals)
+        return defined_ports, project_connexions
 
     @pyaedt_function_handler()
-    def get_connected_ports_from_multizone_cutout(self, terminal_info_dict):
+    def _get_connected_ports_from_multizone_cutout(self, terminal_info_dict):
         """Return connected port list from clipped multizone layout.
 
         Parameters

@@ -804,9 +804,7 @@ class TestClass(BasisTest, object):
         common_reference_net = "gnd"
         edb_zones = edb.copy_zones()
         assert edb_zones
-        defined_ports, terminals_info = edb.cutout_multizone_layout(edb_zones, common_reference_net)
-        assert terminals_info
-        project_connexions = edb.get_connected_ports_from_multizone_cutout(terminals_info)
+        defined_ports, project_connexions = edb.cutout_multizone_layout(edb_zones, common_reference_net)
         assert project_connexions
         self.aedtapp.insert_design("test_45")
         self.aedtapp.connect_circuit_models_from_multi_zone_cutout(project_connexions, edb_zones, defined_ports)

@@ -1584,8 +1584,10 @@ class Circuit(FieldAnalysisCircuit, object):
         -
         >>> edb = Edb(edb_file)
         >>> edb_zones = edb.copy_zones(r"C:\Temp\test")
-        >>> ports, terminals_info = edb.cutout_multizone_layout(edb_zones, common_reference_net)
-        >>> project_connections = edb.get_connected_ports_from_multizone_cutout(terminals_info)
+        >>> defined_ports, project_connections = edb.cutout_multizone_layout(edb_zones, common_reference_net)
+        >>> circ = Circuit()
+        >>> circ.connect_circuit_models_from_multi_zone_cutout(project_connexions, edb_zones, defined_ports)
+
 
         Returns
         -------
