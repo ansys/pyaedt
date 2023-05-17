@@ -1639,7 +1639,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @pyaedt_function_handler()
     def import_edb_in_circuit(self, edb_path):
-        """Import EDB design inside Circuit project.
+        """Import an EDB design inside a Circuit project.
 
         Parameters
         ----------
