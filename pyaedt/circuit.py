@@ -1590,7 +1590,7 @@ class Circuit(FieldAnalysisCircuit, object):
         Returns
         -------
         bool
-            ``True`` when succeeded, ``False`` if failed.
+            ``True`` when succeessful, ``False`` when failed.
 
         """
         if project_connections and edb_zones_dict:
