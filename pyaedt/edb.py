@@ -3451,6 +3451,8 @@ class Edb(object):
 
         Returns
         -------
+        list[str]
+            list of connected
 
 
         """
