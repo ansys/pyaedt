@@ -147,10 +147,10 @@ class Edb(object):
         technology_file=None,
     ):
         self._clean_variables()
-        if inside_desktop:
-            self.standalone = False
-        else:
-            self.standalone = True
+        # if inside_desktop:
+        #    self.standalone = False
+        # else:
+        self.standalone = True
         if edb_initialized:
             self.oproject = oproject
             self._main = sys.modules["__main__"]
