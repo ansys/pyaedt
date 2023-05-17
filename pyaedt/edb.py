@@ -3452,7 +3452,7 @@ class Edb(object):
         Returns
         -------
         list[str]
-            list of connected
+            list of connected ports.
 
 
         """
