@@ -264,7 +264,7 @@ class Design(AedtObjects):
 
     @property
     def project_datasets(self):
-        """Dictionary of Project Datasets.
+        """Dictionary of project datasets.
 
         Returns
         -------
