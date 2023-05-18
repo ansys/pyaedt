@@ -1775,7 +1775,7 @@ class Settings(object):
 
     @property
     def aedt_process_id(self):
-        """Set the desktop process id. Default is ``None``.
+        """ID of the desktop process. The default is ``None``.
 
         Returns
         -------
