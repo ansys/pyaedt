@@ -983,3 +983,6 @@ class TestClass(BasisTest, object):
         block = self.aedtapp.assign_solid_block("BlockBox3", "Joule Heating")
         assert block
         block.delete()
+        block = self.aedtapp.assign_solid_block("BlockBox3", "1W")
+        assert block
+        block.delete()
