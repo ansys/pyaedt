@@ -1594,7 +1594,7 @@ class Desktop(object):
         Parameters
         ----------
         project : str
-            Full path to project.
+            Full path to the project.
         clustername : str
             Name of the cluster to submit the job to.
         aedt_full_exe_path : str, optional
