@@ -1637,7 +1637,7 @@ class Desktop(object):
                     r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\{}\\\\Linux64\\\\ansysedt".format(version_name)
                 )
             else:
-                self.logger.error("AEDT shared path does not exist. Please provide a full path.")
+                self.logger.error("AEDT shared path does not exist. Provide a full path.")
                 return False
         else:
             if not os.path.exists(aedt_full_exe_path):
