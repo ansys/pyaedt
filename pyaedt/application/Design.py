@@ -254,7 +254,7 @@ class Design(AedtObjects):
 
     @property
     def desktop_class(self):
-        """Return the Desktop class.
+        """``Desktop`` class.
 
         Returns
         -------
