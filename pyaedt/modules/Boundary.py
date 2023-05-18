@@ -317,9 +317,27 @@ class BoundaryObject(BoundaryCommon, object):
         self._app = app
         self._name = name
         self.props = BoundaryProps(self, OrderedDict(props))
-        self.type = boundarytype
+        self._type = boundarytype
         self._boundary_name = self.name
         self.auto_update = True
+
+    @property
+    def type(self):
+        """Boundary type.
+
+        Returns
+        -------
+        str
+            Returns Type of the boundary
+        """
+        if self._app.design_type == "Icepak" and self._type == "Source":
+            return "SourceIcepak"
+        else:
+            return self._type
+
+    @type.setter
+    def type(self, value):
+        self._type = value
 
     @property
     def name(self):
@@ -599,7 +617,7 @@ class BoundaryObject(BoundaryCommon, object):
         elif self.type == "Block":
             self._app.oboundary.EditBlockBoundary(self._boundary_name, self._get_args())
         elif self.type == "SourceIcepak":
-            self._app.oboundary.EditSourceBoundary(self._get_args())
+            self._app.oboundary.EditSourceBoundary(self._boundary_name, self._get_args())
         elif self.type == "HeatFlux":
             self._app.oboundary.EditHeatFlux(self._boundary_name, self._get_args())
         elif self.type == "HeatGeneration":
