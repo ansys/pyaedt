@@ -1611,7 +1611,7 @@ class Desktop(object):
 
         Returns
         -------
-        type
+        int
             ID of the job.
 
         References
