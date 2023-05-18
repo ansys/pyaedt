@@ -452,7 +452,7 @@ class Icepak(FieldAnalysis3D):
         """Create a source block for an object.
 
         .. deprecated:: 0.6.75
-            This method is replaced by `assign_solid_block`.
+            This method is deprecated. Use the ``assign_solid_block()`` method instead.
 
         Parameters
         ----------
