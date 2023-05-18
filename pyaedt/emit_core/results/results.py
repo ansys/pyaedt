@@ -194,6 +194,7 @@ class Results:
     @pyaedt_function_handler()
     def analyze(self):
         """
+        TEST PRS STILL WORK
         Analyze the current revision or create a new revision if
         the design has changed.
 
