@@ -3652,13 +3652,8 @@ class Icepak(FieldAnalysis3D):
                 variation_value = [variation_value[0], "pwl({},Temp)".format(variation_value[1])]
             out_dict["Variation Value"] = "[{}]".format(", ".join(['"' + str(i) + '"' for i in variation_value]))
         else:
-            try:
+            if variation_value is not None:
                 out_dict["Variation Value"] = "[{}]".format(", ".join([str(i) for i in variation_value]))
-            except TypeError:
-                if variation_value is None:
-                    pass
-                else:
-                    return None
         return {"{} Variation Data".format(quantity): out_dict}
 
     @pyaedt_function_handler()
