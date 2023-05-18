@@ -1789,7 +1789,8 @@ class Settings(object):
 
     @property
     def is_student(self):
-        """Set the desktop process is student version. Default is ``False``.
+        """Whether the desktop process is set to the student version. The
+        default is ``False``.
 
         Returns
         -------
