@@ -923,3 +923,10 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.mesh.add_priority(
             entity_type=2, comp_name=self.aedtapp.modeler.user_defined_component_names[0], priority=1
         )
+
+    def test_57_update_source(self):
+        self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="boxSource")
+        source_2d = self.aedtapp.assign_source(self.aedtapp.modeler["boxSource"].top_face_z.id, "Total Power", "10W")
+        assert source_2d["Total Power"] == "10W"
+        source_2d["Total Power"] = "20W"
+        assert source_2d["Total Power"] == "20W"
