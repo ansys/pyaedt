@@ -969,9 +969,9 @@ class Layer(object):
                         "SideRoughness:=",
                         self._arg_with_dim(self.top_roughness, self.LengthUnitRough),
                         "Material:=",
-                        self._layers._app.materials[self.material].name,
+                        self._layers._app.materials[self.material].name if self.material != "" else "",
                         "FillMaterial:=",
-                        self._layers._app.materials[self.fill_material].name,
+                        self._layers._app.materials[self.fill_material].name if self.fill_material != "" else "",
                     ],
                     "Neg:=",
                     self._is_negative,
@@ -1061,7 +1061,7 @@ class Layer(object):
                         "SideRoughness:=",
                         0,
                         "Material:=",
-                        self.material.lower(),
+                        self.material,
                     ],
                 ]
             )
