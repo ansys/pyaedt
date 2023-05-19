@@ -32,7 +32,7 @@ except ImportError:  # pragma: no cover
 test_subfolder = "TEDB"
 
 
-@pytest.mark.skipif(config["skip_edb"], reason="Optional skip")
+@pytest.mark.skipif(config["skip_edb"], reason="Skipping on IPY and optionally on CPython.")
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self, launch_desktop=False)

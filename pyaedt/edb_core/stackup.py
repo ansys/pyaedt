@@ -348,6 +348,7 @@ class Stackup(object):
             self._layer_collection.SetMode(mode.Overlapping)
         elif value == 2 or value == mode.MultiZone or value == "MultiZone":
             self._layer_collection.SetMode(mode.MultiZone)
+        self._pedb._active_layout.SetLayerCollection(self._layer_collection)
 
     @property
     def _edb_layer_list(self):

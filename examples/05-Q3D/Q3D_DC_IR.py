@@ -21,7 +21,7 @@ import pyaedt
 project_dir = tempfile.gettempdir()
 aedb_project = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb')
 coil = pyaedt.downloads.download_file('inductance_3d_component', 'air_coil.a3dcomp')
-
+res = pyaedt.downloads.download_file('resistors', 'Res_0402.a3dcomp')
 project_name = pyaedt.generate_unique_name("HSD")
 output_edb = os.path.join(project_dir, project_name + '.aedb')
 output_q3d = os.path.join(project_dir, project_name + '_q3d.aedt')
@@ -33,7 +33,7 @@ output_q3d = os.path.join(project_dir, project_name + '_q3d.aedt')
 # Open the EDB project and create a cutout on the selected nets
 # before exporting to Q3D.
 edb = pyaedt.Edb(aedb_project, edbversion="2023.1")
-edb.cutout(["1.2V_AVDLL_PLL", "1.2V_AVDDL", "1.2V_DVDDL"],
+edb.cutout(["1.2V_AVDLL_PLL", "1.2V_AVDDL", "1.2V_DVDDL", "NetR106_1"],
            ["GND"],
            output_aedb_path=output_edb,
            use_pyaedt_extent_computing=True,
@@ -49,7 +49,7 @@ edb.cutout(["1.2V_AVDLL_PLL", "1.2V_AVDDL", "1.2V_DVDDL"],
 pin_u11_scl = [i for i in edb.components["U11"].pins.values() if i.net_name == "1.2V_AVDLL_PLL"]
 pin_u9_1 = [i for i in edb.components["U9"].pins.values() if i.net_name == "1.2V_AVDDL"]
 pin_u9_2 = [i for i in edb.components["U9"].pins.values() if i.net_name == "1.2V_DVDDL"]
-
+pin_u11_r106 = [i for i in edb.components["U11"].pins.values() if i.net_name == "NetR106_1"]
 
 ###############################################################################
 # Append Z Positions
@@ -65,6 +65,8 @@ location_u9_1_scl.append(edb.components["U9"].upper_elevation * 1000)
 location_u9_2_scl = [i * 1000 for i in pin_u9_2[0].position]
 location_u9_2_scl.append(edb.components["U9"].upper_elevation * 1000)
 
+location_u11_r106 = [i * 1000 for i in pin_u11_r106[0].position]
+location_u11_r106.append(edb.components["U11"].upper_elevation * 1000)
 
 ###############################################################################
 # Identify pin positions for 3D components
@@ -75,6 +77,9 @@ location_l2_1 = [i * 1000 for i in edb.components["L2"].pins["1"].position]
 location_l2_1.append(edb.components["L2"].upper_elevation * 1000)
 location_l4_1 = [i * 1000 for i in edb.components["L4"].pins["1"].position]
 location_l4_1.append(edb.components["L4"].upper_elevation * 1000)
+
+location_r106_1 = [i * 1000 for i in edb.components["R106"].pins["1"].position]
+location_r106_1.append(edb.components["R106"].upper_elevation * 1000)
 
 ###############################################################################
 # Save and close EDB
@@ -127,6 +132,12 @@ comp2.parameters["n_turns"] = "3"
 comp2.parameters["d_wire"] = "100um"
 q3d.modeler.set_working_coordinate_system("Global")
 
+q3d.modeler.set_working_coordinate_system("Global")
+q3d.modeler.create_coordinate_system(location_r106_1, name="R106")
+comp3= q3d.modeler.insert_3d_component(res, targetCS="R106",geo_params={'$Resistance': 2000})
+comp3.rotate(q3d.AXIS.Z, -90)
+
+q3d.modeler.set_working_coordinate_system("Global")
 
 ###############################################################################
 # Delete dielectrics
@@ -147,6 +158,7 @@ q3d.modeler.delete(q3d.modeler.get_objects_by_material("Solder Resist"))
 sink_f = q3d.modeler.create_circle(q3d.PLANE.XY, location_u11_scl, 0.1)
 source_f1 = q3d.modeler.create_circle(q3d.PLANE.XY, location_u9_1_scl, 0.1)
 source_f2 = q3d.modeler.create_circle(q3d.PLANE.XY, location_u9_2_scl, 0.1)
+source_f3= q3d.modeler.create_circle(q3d.PLANE.XY, location_u11_r106, 0.1)
 q3d.auto_identify_nets()
 
 
@@ -155,6 +167,8 @@ q3d.sink(sink_f, net_name="1_2V_AVDDL")
 source1 = q3d.source(source_f1, net_name="1_2V_AVDDL")
 
 source2 = q3d.source(source_f2, net_name="1_2V_AVDDL")
+sourc3 = q3d.source(source_f3, net_name="1_2V_AVDDL")
+
 q3d.edit_sources(dcrl={"{}:{}".format(source1.props["Net"], source1.name): "1.0A",
                        "{}:{}".format(source1.props["Net"], source2.name): "1.0A"})
 
