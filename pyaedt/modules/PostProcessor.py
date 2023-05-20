@@ -3437,7 +3437,7 @@ class PostProcessor(PostProcessorCommon, object):
                 power_dict[bc_obj.name] = power_value * n * mult
                 self.logger.info("The power of {} is {} {}".format(bc_obj.name, str(power_dict[bc_obj.name]), units))
 
-            elif bc_obj.type == "Source":
+            elif bc_obj.type == "SourceIcepak":
                 if bc_obj.props["Thermal Condition"] == "Total Power":
                     n = 0
                     if "Faces" in bc_obj.props:

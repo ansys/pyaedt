@@ -97,7 +97,7 @@ class Scratch:
                 pass
         try:
             shutil.copy2(src_file, dst_file)
-        except shutil.SameFileError:  # pragma: no cover
+        except:  # pragma: no cover
             pass
 
         return dst_file

@@ -91,8 +91,11 @@ def install_pyaedt():
         os.environ["LD_LIBRARY_PATH"] = ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv("LD_LIBRARY_PATH", "")
 
     if not os.path.exists(venv_dir):
-        run_command('"{}" -m venv "{}"'.format(sys.executable, venv_dir))
 
+        if args.version == "231":
+            run_command('"{}" -m venv "{}" --system-site-packages'.format(sys.executable, venv_dir))
+        else:
+            run_command('"{}" -m venv "{}"'.format(sys.executable, venv_dir))
         run_command('"{}" -m pip install --upgrade pip'.format(python_exe))
         run_command('"{}" --default-timeout=1000 install wheel'.format(pip_exe))
         run_command('"{}" --default-timeout=1000 install pyaedt[full]'.format(pip_exe))
@@ -100,9 +103,14 @@ def install_pyaedt():
         run_command('"{}" --default-timeout=1000 install jupyterlab'.format(pip_exe))
         run_command('"{}" --default-timeout=1000 install ipython -U'.format(pip_exe))
         run_command('"{}" --default-timeout=1000 install ipyvtklink'.format(pip_exe))
-        run_command('"{}" --default-timeout=1000 install pyside6==6.4.0'.format(pip_exe))
-        run_command('"{}" --default-timeout=1000 install pyqtgraph'.format(pip_exe))
-        run_command('"{}" --default-timeout=1000 install qdarkstyle'.format(pip_exe))
+        # User can uncomment these lines to install Pyside6 modules
+        # run_command('"{}" --default-timeout=1000 install pyside6==6.4.0'.format(pip_exe))
+        # run_command('"{}" --default-timeout=1000 install pyqtgraph'.format(pip_exe))
+        # run_command('"{}" --default-timeout=1000 install qdarkstyle'.format(pip_exe))
+
+        if args.version == "231":
+            run_command('"{}" uninstall -y pywin32'.format(pip_exe))
+
     else:
         run_command('"{}" uninstall --yes pyaedt'.format(pip_exe))
         run_command('"{}" --default-timeout=1000 install pyaedt[full]'.format(pip_exe))
