@@ -7,10 +7,6 @@ from pyaedt import pyaedt_logger as logger
 
 EMIT_API_PYTHON = None
 
-delcross_python_path = os.environ.get("ANSYS_DELCROSS_PYTHON_PATH")
-if delcross_python_path:
-    sys.path.append(delcross_python_path)
-
 
 def emit_api_python():
     """
@@ -27,6 +23,9 @@ def _set_api(aedt_version):
     desktop_path = os.environ.get(aedt_version)
     if desktop_path and numeric_version > 231:
         path = os.path.join(desktop_path, "Delcross")
+        override_path_key = "ANSYS_DELCROSS_PYTHON_PATH"
+        if override_path_key in os.environ:
+            path = os.environ.get(override_path_key)
         sys.path.insert(0, path)
         module_path = imp.find_module("EmitApiPython")[1]
         logger.info("Importing EmitApiPython from: {}".format(module_path))

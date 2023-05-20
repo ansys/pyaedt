@@ -8,7 +8,6 @@ It is based on templates to allow for easy creation and modification of setup pr
 from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict
-import copy
 import logging
 import os.path
 from random import randrange
@@ -20,7 +19,6 @@ from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modules.SetupTemplates import MaxwellTransient
 from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SolveSweeps import SetupProps
 from pyaedt.modules.SolveSweeps import SweepHFSS
@@ -2633,28 +2631,14 @@ class SetupMaxwell(Setup, object):
             self._app.logger.error("Control Program arguments have to be a string.")
             return False
 
-        self.props = copy.deepcopy(MaxwellTransient)
+        self.auto_update = False
         self.props["UseControlProgram"] = True
         self.props["ControlProgramName"] = control_program_path
         self.props["ControlProgramArg"] = control_program_args
         self.props["CallCtrlProgAfterLastStep"] = call_after_last_step
+        self.auto_update = True
+        self.update()
 
-        self.p_app.oanalysis.EditSetup(
-            self.name,
-            [
-                "NAME:" + self.name,
-                "Enabled:=",
-                True,
-                "UseControlProgram:=",
-                True,
-                "ControlProgramName:=",
-                control_program_path,
-                "ControlProgramArg:=",
-                control_program_args,
-                "CallCtrlProgAfterLastStep:=",
-                call_after_last_step,
-            ],
-        )
         return True
 
 

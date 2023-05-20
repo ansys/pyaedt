@@ -13,6 +13,29 @@ requires Ansys Electronics Desktop (AEDT) 2022 R1 or later. The AEDT Student Ver
 
 
 
+Install from a Python file
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+AEDT already includes CPython 3.7, which can be used to run PyAEDT.
+It is also possible to use CPython 3.7 (3.10 from AEDT 2023R2) as a virtual environment to run PyAEDT.
+In order to do that you can download the following file
+:download:`PyAEDT Installer python file <../Resources/PyAEDTInstallerFromDesktop.py>`
+Open an Electronics Desktop Session and click on Tools->Run Script and execute the file.
+
+After installation a new menu appears in AEDT Menu as in the image below.
+
+.. image:: ../Resources/toolkits.png
+  :width: 800
+  :alt: PyAEDT toolkit installed after batch run
+
+
+Starting from 2023R2, a Ribbon button is available in Automation Tab as in the example below.
+
+.. image:: ../Resources/toolkits_ribbon.png
+  :width: 800
+  :alt: PyAEDT toolkit buttons available in AEDT 2023.2 after batch run
+
+
+
 Install on CPython from PyPI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 You can install PyAEDT on CPython 3.7 through 3.10 from PyPI:
@@ -56,27 +79,6 @@ For example, on Windows with Python 3.7, install PyAEDT and all its dependencies
 .. code::
 
     pip install --no-cache-dir --no-index --find-links=file:///<path_to_wheelhouse>/PyAEDT-v<release_version>-wheelhouse-Windows-3.7 pyaedt
-
-Install from a Python file
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-AEDT already includes CPython 3.7, which can be used to run PyAEDT.
-It is also possible to use CPython 3.7 (3.10 from AEDT 2023R2) as a virtual environment to run PyAEDT.
-In order to do that you can download the following file
-:download:`PyAEDT Installer python file <../Resources/PyAEDTInstallerFromDesktop.py>`
-Open an Electronics Desktop Session and click on Tools->Run Script and execute the file.
-
-After installation a new menu appears in AEDT Menu as in the image below.
-
-.. image:: ../Resources/toolkits.png
-  :width: 800
-  :alt: PyAEDT toolkit installed after batch run
-
-
-Starting from 2023R2, a Ribbon button is available in Automation Tab as in the example below.
-
-.. image:: ../Resources/toolkits_ribbon.png
-  :width: 800
-  :alt: PyAEDT toolkit buttons available in AEDT 2023.2 after batch run
 
 
 Install from a batch file
