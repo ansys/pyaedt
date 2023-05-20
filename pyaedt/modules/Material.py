@@ -2112,7 +2112,7 @@ class Material(CommonMaterial, object):
         Returns
         -------
         bool
-            ``True`` when the material is a condutor, ``False`` otherwise.
+            ``True`` when the material is a conductor, ``False`` otherwise.
 
         """
         cond = self.conductivity.value

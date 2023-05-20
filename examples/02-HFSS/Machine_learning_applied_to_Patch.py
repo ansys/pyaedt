@@ -54,8 +54,8 @@ length_units = "mm"
 freq_scale = const.scale_units(freq_units)
 
 ####################################################################
-# ``freq_str()`` is used to generate the setup name
-# for the HFSS solution in subsequent cells.
+# ``freq_str()`` will be used to generate the setup name
+# for the HFSS solution.
 
 setup_prefix = "Setup"
 freq_str = lambda freq: str(str(int(int(freq*100)/100.0 / freq_scale))) + freq_units
@@ -63,14 +63,14 @@ setup_name = lambda freq: setup_prefix + "_" + freq_str(freq)
 sweep_name = "Sweep"  # Use this name for all frequency sweeps.
 
 ###############################################################################
-# Generate the test data.
+# Generate sample data.
 # -------------------------
 # This section describes how data are generated to subsequently
 # be used to test the machine learning results.
 #
 # Test Data
 # ~~~~~~~~~~~~~~
-# Generate four random strings:
+# Generate four random strings comprised of:
 # - frequency (0.1 GHz - 1 GHz)
 # - substrate permittivity (1 - 12)
 # - substrate thickness
@@ -80,12 +80,14 @@ sweep_name = "Sweep"  # Use this name for all frequency sweeps.
 # - 1 frequency value
 # - ``n_s`` permittivity values
 # - ``n_s`` thickness values
-# - n_s width values
+# - ``n_s`` width values
 #
 # resulting in :math:`n_s^3` samples.  Use ``n_s`` = 2.
 #
-# Each test case is defined in a dictionary. All test cases are compiled
-# in a list. Length units are relative to the free space wavelength. The keys in the
+# Each test case is defined in a dictionary. Values for each test
+# case are stored
+# in a list. Length units are relative to the free space wavelength.
+# The keys
 # used for each test case are:
 # - frequency (frequency in Hz)
 # - permittivity (relative permittivity)
@@ -101,13 +103,13 @@ sweep_name = "Sweep"  # Use this name for all frequency sweeps.
 # x 5 permittivity x 3 thickness x 3 width will be imported and
 # used to train the model.
 
-tuple_random_frequency_permittivity = []
+freq_variations = []
 frequencies= [150 * freq_scale]  # Allow for multiple frequency values.  # 150 MHz
 for freq in frequencies:
     for i in range(n_s):
         rel_permittivity = 1.0 + 11.0 * int(random.random() * 100) / 100.0  # Rel permittivity to 2 decimal places.
         temp_tuple = (freq, rel_permittivity)
-        tuple_random_frequency_permittivity.append(temp_tuple)
+        freq_variations.append(temp_tuple)
 
 ###############################################################################
 # The substrate thickness ranges from 0.0025 to 0.055 wavelength in the void.
@@ -123,15 +125,15 @@ for freq in frequencies:
 
 samples = []
 
-for f, er in tuple_random_frequency_permittivity:
+for f, er in freq_variations:
     thickness = []
     width = []
 
-    wave_length_0 = c0 / f
+    wl_0 = c0 / f
 
-    min_thickness = 0.0025 * wave_length_0
-    inter_thickness = 0.01 * wave_length_0
-    max_thickness = 0.055 * wave_length_0
+    min_thickness = 0.0025 * wl_0
+    inter_thickness = 0.01 * wl_0
+    max_thickness = 0.055 * wl_0
 
     # "Random" thickness has equal probability to lie in the lower or upper thickness range:
     for i in random.sample((0,1), n_s):
@@ -150,8 +152,8 @@ for f, er in tuple_random_frequency_permittivity:
             er_e = (er + 1.0) / 2.0 + (er - 1.0) / (2.0 * sqrt(1 + 10.0 * t / w))
             w_h = w / t
             added_length = 0.412 * t * (er_e + 0.3) * (w_h + 0.264) / ((er_e - 0.258) * (w_h + 0.813))
-            wave_length = c0 / (f * sqrt(er_e))
-            length = wave_length / 2.0 - 2.0 * added_length
+            wl = c0 / (f * sqrt(er_e))
+            length = wl / 2.0 - 2.0 * added_length
             sample = {
                 "frequency": f,
                 "permittivity": er,

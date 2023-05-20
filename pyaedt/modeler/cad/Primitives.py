@@ -2715,7 +2715,7 @@ class Primitives(object):
         return list_objs
 
     @pyaedt_function_handler()
-    def _check_material(self, matname, defaultmatname):
+    def _check_material(self, matname, defaultmatname, threshold=100000):
         """Check for a material name.
 
         If a material name exists, it is assigned. Otherwise, the material
@@ -2727,28 +2727,41 @@ class Primitives(object):
             Name of the material.
         defaultmatname : str
             Name of the default material to assign if ``metname`` does not exist.
+        threshold : float
+            Threshold conductivity to distinguish dielectric from conductor.
+            Default value is 100000 S/m.
 
         Returns
         -------
-        str or bool
-            String if a material name, Boolean if the material is a dielectric.
+        (str, bool)
+            Material name, Boolean True if the material is a dielectric, otherwise False.
 
         """
+
+        # Note: Material.is_dielectric() does not work if the conductivity
+        # value is an expression.
+
         if isinstance(matname, Material):
             if self._app._design_type == "HFSS":
-                return matname.name, matname.is_dielectric()
+                conductivity_value = self._app.evaluate_expression(matname.conductivity.value)
+                is_dielectric = False if conductivity_value > threshold else True
+                return matname.name, is_dielectric
             else:
                 return matname.name, True
         if matname:
             if self._app.materials[matname]:
                 if self._app._design_type == "HFSS":
-                    return self._app.materials[matname].name, self._app.materials[matname].is_dielectric()
+                    conductivity_value = self._app.evaluate_expression(self._app.materials[matname].conductivity.value)
+                    is_dielectric = False if conductivity_value > threshold else True
+                    return self._app.materials[matname].name, is_dielectric
                 else:
                     return self._app.materials[matname].name, True
             else:
-                self.logger.warning("Material %s doesn not exists. Assigning default material", matname)
+                self.logger.warning("Material %s does not exist. Assigning default material", matname)
         if self._app._design_type == "HFSS":
-            return defaultmatname, self._app.materials.material_keys[defaultmatname].is_dielectric()
+            conductivity_value = self._app.evaluate_expression(self._app.materials[defaultmatname].conductivity.value)
+            is_dielectric = False if conductivity_value > threshold else True
+            return defaultmatname, is_dielectric
         else:
             return defaultmatname, True
 
@@ -2966,9 +2979,7 @@ class Primitives(object):
 
         material, is_dielectric = self._check_material(matname, self.defaultmaterial)
 
-        solve_inside = False
-        if is_dielectric:
-            solve_inside = True
+        solve_inside = True if is_dielectric else False
 
         if not name:
             name = _uname()

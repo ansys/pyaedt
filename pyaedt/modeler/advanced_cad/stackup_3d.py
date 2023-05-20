@@ -656,13 +656,13 @@ class Layer3D(object):
         """
         if not patch_name:
             patch_name = generate_unique_name("{}_patch".format(self._name), n=3)
-        lst = self._stackup._layer_name
+        layer_names = self._stackup._layer_name
 
         # Find the layer where the patch should be placed.
-        for i in range(len(lst)):
-            if lst[i] == self._name:
-                if self._stackup.stackup_layers[lst[i - 1]].type == "dielectric":
-                    below_layer = self._stackup.stackup_layers[lst[i - 1]]
+        for i in range(len(layer_names)):
+            if layer_names[i] == self._name:
+                if self._stackup.stackup_layers[layer_names[i - 1]].type == "dielectric":
+                    below_layer = self._stackup.stackup_layers[layer_names[i - 1]]
                     break
                 else:
                     self._app.logger.error("The layer below the selected one must be of dielectric type")
@@ -1840,7 +1840,7 @@ class CommonObject(object):
     """CommonObject Class in Stackup3D. This class must not be directly used."""
 
     def __init__(self, application):
-        self._application = application
+        self._app = application
         self._name = None
         self._dielectric_layer = None
         self._signal_layer = None
@@ -1893,7 +1893,7 @@ class CommonObject(object):
     @property
     def application(self):
         """App object."""
-        return self._application
+        return self._app
 
     @property
     def aedt_object(self):
