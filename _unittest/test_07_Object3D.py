@@ -185,7 +185,7 @@ class TestClass(BasisTest, object):
         self.aedtapp["mat_sweep_test"] = '["myMat", "myMat2"]'
         box = self.aedtapp.modeler["MyBox"]
         box.material_name = "mat_sweep_test[0]"
-        assert self.aedtapp.modeler.get_objects_by_material(materialname="mat_sweep_test[0]")[0].name == "MyBox"
+        assert self.aedtapp.modeler.get_objects_by_material(materialname="myMat")[0].name == "MyBox"
 
     def test_05_object3d_properties_transparency(self):
         o = self.create_copper_box("TransparencyBox")

@@ -124,7 +124,7 @@ class Primitives(object):
             3D object.
         """
         self._refresh_unclassified()
-        return [self[name] for name in self._unclassified]
+        return [self[name] for name in self._unclassified if name is not None]
 
     @property
     def object_list(self):
@@ -136,7 +136,7 @@ class Primitives(object):
             3D object.
         """
         self._refresh_object_types()
-        return [self[name] for name in self._all_object_names]
+        return [self[name] for name in self._all_object_names if name is not None]
 
     @property
     def solid_names(self):
@@ -1505,12 +1505,13 @@ class Primitives(object):
 
         Returns
         -------
-        list
+        list of class:`pyaedt.modeler.cad.object3d.Object3d`
             If a material name is not provided, the method returns
-            a list of dictionaries where keys are the material names
-            and values are objects assigned to this material.
+            a list of dictionaries where keys are material names
+            of conductors, dielectrics, gases and liquids respectively
+            in the design and values are objects assigned to these materials.
             If a material name is provided, the method returns a list
-            of objects assigned to this material.
+            of objects assigned to the material.
 
         References
         ----------
@@ -1518,12 +1519,20 @@ class Primitives(object):
         >>> oEditor.GetObjectsByMaterial
 
         """
+        obj_lst = []
         if materialname is not None:
-            obj_lst = [
-                x
-                for x in self.object_list
-                if x.material_name == materialname or x.material_name == materialname.lower()
-            ]
+            for obj in self.object_list:
+                if obj and ("[" in obj.material_name or "(" in obj.material_name):
+                    material = (
+                        self._app.odesign.GetChildObject("3D Modeler")
+                        .GetChildObject(obj.name)
+                        .GetPropEvaluatedValue("Material")
+                        .lower()
+                    )
+                    if materialname.lower() == material:
+                        obj_lst.append(obj)
+                elif obj and (obj.material_name == materialname or obj.material_name == materialname.lower()):
+                    obj_lst.append(obj)
         else:
             obj_lst = [
                 self._get_object_dict_by_material(self.materials.conductors),
@@ -3165,11 +3174,23 @@ class Primitives(object):
         return native_comp_properties
 
     @pyaedt_function_handler
-    def _get_object_dict_by_material(self, material_type):
+    def _get_object_dict_by_material(self, material):
         obj_dict = {}
-        for cond in material_type:
-            obj = [x for x in self.object_list if x.material_name == cond]
-            obj_dict[cond] = obj
+        for mat in material:
+            objs = []
+            for obj in self.object_list:
+                if obj and ("[" in obj.material_name or "(" in obj.material_name):
+                    if (
+                        mat
+                        == self._app.odesign.GetChildObject("3D Modeler")
+                        .GetChildObject(obj.name)
+                        .GetPropEvaluatedValue("Material")
+                        .lower()
+                    ):
+                        objs.append(obj)
+                elif obj and (obj.material_name == mat or obj.material_name == mat.lower()):
+                    objs.append(obj)
+            obj_dict[mat] = objs
         return obj_dict
 
     @pyaedt_function_handler()
