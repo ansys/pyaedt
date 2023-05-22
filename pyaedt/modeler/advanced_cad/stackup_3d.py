@@ -2404,6 +2404,8 @@ class Patch(CommonObject, object):
         # TODO: Draw probe from signal layer to ground.
         #       Create port at ground layer.
 
+        probe_wire = self.application.modeler.create_cylinder
+
     def create_lumped_port(self, reference_layer, opposite_side=False, port_name=None, axisdir=None):
         """Create a parametrized lumped port.
 
