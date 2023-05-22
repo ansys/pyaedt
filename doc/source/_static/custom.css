@@ -3,15 +3,15 @@ nav.bd-links ul li.toctree-l1 > a {
 }
 
 nav.bd-links ul li.toctree-l2 > a {
-    font-size: .75rem;
+    font-size: .8rem;
     text-indent: 1px;
 }
 nav.bd-links ul li.toctree-l3 > a {
-    font-size: .70rem;
+    font-size: .8rem;
     text-indent: 2px;
 }
 
 nav.bd-links ul li.toctree-l4 > a {
-    font-size: .70rem;
+    font-size: .75rem;
     text-indent: 3px;
 }
