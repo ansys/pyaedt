@@ -3848,7 +3848,7 @@ class Icepak(FieldAnalysis3D):
             )
             return None
         if ext_temperature != "AmbientTemp" and ext_temperature is not None and not htc:
-            self.logger.add_error_message("Set an argument for ``htc`` or remove ``ext_temperature`` argument.")
+            self.logger.add_error_message("Set an argument for ``htc`` or remove the ``ext_temperature`` argument.")
             return None
         if isinstance(ext_temperature, dict) and ext_temperature["Type"] == "Temp Dep":
             self.logger.add_error_message(
