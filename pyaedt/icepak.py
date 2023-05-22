@@ -3844,7 +3844,7 @@ class Icepak(FieldAnalysis3D):
         """
         if not self.modeler.get_object_from_name(object_name).solve_inside:
             self.logger.add_error_message(
-                "Use ``assign_hollow_block`` function with this object as" "``solve_inside`` is ``False``."
+                "Use the ``assign_hollow_block()`` method with this object as ``"solve_inside`` is ``False``."
             )
             return None
         if ext_temperature != "AmbientTemp" and ext_temperature is not None and not htc:
