@@ -684,7 +684,7 @@ class Icepak(FieldAnalysis3D):
         if input_power == 0:
             input_power = "0W"
         if not bool(input_power) ^ bool(thermal_dependent_dataset):
-            self.logger.error("Assign one input between ``thermal_dependent_dataset`` and  ``input_power``")
+            self.logger.error("Assign one input between ``thermal_dependent_dataset`` and  ``input_power``.")
         if not source_name:
             source_name = generate_unique_name("Source")
         props = {}
