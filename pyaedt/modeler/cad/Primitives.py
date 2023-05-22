@@ -124,7 +124,7 @@ class Primitives(object):
             3D object.
         """
         self._refresh_unclassified()
-        return [self[name] for name in self._unclassified]
+        return [self[name] for name in self._unclassified if name is not None]
 
     @property
     def object_list(self):
@@ -136,7 +136,7 @@ class Primitives(object):
             3D object.
         """
         self._refresh_object_types()
-        return [self[name] for name in self._all_object_names]
+        return [self[name] for name in self._all_object_names if name is not None]
 
     @property
     def solid_names(self):
@@ -1521,15 +1521,18 @@ class Primitives(object):
         """
         obj_lst = []
         if materialname is not None:
-            for x in self.solid_objects:
-                material = (
-                    self._app.odesign.GetChildObject("3D Modeler")
-                    .GetChildObject(x.name)
-                    .GetPropEvaluatedValue("Material")
-                    .lower()
-                )
-                if materialname.lower() == material:
-                    obj_lst.append(x)
+            for obj in self.object_list:
+                if obj and ("[" in obj.material_name or "(" in obj.material_name):
+                    material = (
+                        self._app.odesign.GetChildObject("3D Modeler")
+                        .GetChildObject(obj.name)
+                        .GetPropEvaluatedValue("Material")
+                        .lower()
+                    )
+                    if materialname.lower() == material:
+                        obj_lst.append(obj)
+                elif obj and (obj.material_name == materialname or obj.material_name == materialname.lower()):
+                    obj_lst.append(obj)
         else:
             obj_lst = [
                 self._get_object_dict_by_material(self.materials.conductors),
@@ -3173,16 +3176,19 @@ class Primitives(object):
     @pyaedt_function_handler
     def _get_object_dict_by_material(self, material):
         obj_dict = {}
-        objs = []
         for mat in material:
-            for obj in self.solid_objects:
-                if (
-                    mat
-                    == self._app.odesign.GetChildObject("3D Modeler")
-                    .GetChildObject(obj.name)
-                    .GetPropEvaluatedValue("Material")
-                    .lower()
-                ):
+            objs = []
+            for obj in self.object_list:
+                if obj and ("[" in obj.material_name or "(" in obj.material_name):
+                    if (
+                        mat
+                        == self._app.odesign.GetChildObject("3D Modeler")
+                        .GetChildObject(obj.name)
+                        .GetPropEvaluatedValue("Material")
+                        .lower()
+                    ):
+                        objs.append(obj)
+                elif obj and (obj.material_name == mat or obj.material_name == mat.lower()):
                     objs.append(obj)
             obj_dict[mat] = objs
         return obj_dict
