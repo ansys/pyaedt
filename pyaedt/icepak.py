@@ -768,7 +768,10 @@ class Icepak(FieldAnalysis3D):
         >>> block.props["Nodes"]["Internal"][0]
         '2W'
         """
-        warnings.warn("This method is deprecated in 0.6.27. Use the create_two_resistor_network_block() method.", DeprecationWarning)
+        warnings.warn(
+            "This method is deprecated in 0.6.27. Use the create_two_resistor_network_block() method.",
+            DeprecationWarning,
+        )
         if object_name in self.modeler.object_names:
             if gravity_dir > 2:
                 gravity_dir = gravity_dir - 3
@@ -3846,7 +3849,7 @@ class Icepak(FieldAnalysis3D):
         """
         if not self.modeler.get_object_from_name(object_name).solve_inside:
             self.logger.add_error_message(
-                "Use the ``assign_hollow_block()`` method with this object as ``"solve_inside`` is ``False``."
+                "Use the ``assign_hollow_block()`` method with this object as ``solve_inside`` is ``False``."
             )
             return None
         if ext_temperature != "AmbientTemp" and ext_temperature is not None and not htc:
