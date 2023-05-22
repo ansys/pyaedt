@@ -3791,6 +3791,7 @@ class Icepak(FieldAnalysis3D):
             ``"Joule Heating"``. For a temperature-dependent or transient
             assignment, a dictionary can be used. The dictionary should contain three keys:
             ``"Type"``, ``"Function"``, and ``"Values"``.
+            
             - For the ``"Type"`` key, accepted values are ``"Temp Dep"`` and ``"Transient"``.
             - For the ``"Function"`` key, acceptable values depend on the ``"Type"`` key
               selection. When the ``"Type"`` key is set to ``"Temp Dep"``, the only
@@ -3804,6 +3805,7 @@ class Icepak(FieldAnalysis3D):
               at t=0 and the slope of the line. For the parameters required by each
               ``"Function"`` key selection, see the Icepack documentation (). The parameters
               must contain the units where needed.
+              
         boundary_name : str, optional
             Name of the source boundary. The default is ``None``, in which case the
             boundary name is automatically generated.
@@ -3920,6 +3922,7 @@ class Icepak(FieldAnalysis3D):
             For a temperature-dependent or transient assignment, a dictionary can be used.
             The dictionary should contain three keys:
             ``"Type"``, ``"Function"``, and ``"Values"``.
+            
             - For the ``"Type"`` key, accepted values are ``"Temp Dep"`` and ``"Transient"``.
             - For the ``"Function"`` key, acceptable values depend on the ``"Type"`` key
               selection. When the ``"Type"`` key is set to ``"Temp Dep"``, the only
@@ -3933,6 +3936,7 @@ class Icepak(FieldAnalysis3D):
               at t=0 and the slope of the line. For the parameters required by each
               ``"Function"`` key selection, see the Icepack documentation (). The parameters
               must contain the units where needed.
+              
         boundary_name : str, optional
             Name of the source boundary. The default is ``None``, in which case the
             boundary is automatically generated.
