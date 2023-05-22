@@ -2740,28 +2740,21 @@ class Primitives(object):
 
         # Note: Material.is_dielectric() does not work if the conductivity
         # value is an expression.
-
         if isinstance(matname, Material):
             if self._app._design_type == "HFSS":
-                conductivity_value = self._app.evaluate_expression(matname.conductivity.value)
-                is_dielectric = False if conductivity_value > threshold else True
-                return matname.name, is_dielectric
+                return matname.name, matname.is_dielectric(threshold)
             else:
                 return matname.name, True
         if matname:
             if self._app.materials[matname]:
                 if self._app._design_type == "HFSS":
-                    conductivity_value = self._app.evaluate_expression(self._app.materials[matname].conductivity.value)
-                    is_dielectric = False if conductivity_value > threshold else True
-                    return self._app.materials[matname].name, is_dielectric
+                    return self._app.materials[matname].name, self._app.materials[matname].is_dielectric(threshold)
                 else:
                     return self._app.materials[matname].name, True
             else:
-                self.logger.warning("Material %s does not exist. Assigning default material", matname)
+                self.logger.warning("Material %s doesn not exists. Assigning default material", matname)
         if self._app._design_type == "HFSS":
-            conductivity_value = self._app.evaluate_expression(self._app.materials[defaultmatname].conductivity.value)
-            is_dielectric = False if conductivity_value > threshold else True
-            return defaultmatname, is_dielectric
+            return defaultmatname, self._app.materials.material_keys[defaultmatname].is_dielectric(threshold)
         else:
             return defaultmatname, True
 

@@ -296,6 +296,16 @@ class MatProperty(object):
             self._property_value = [self._property_value[0]]
 
     @property
+    def evaluated_value(self):
+        """Evaluated value
+
+        Returns
+        -------
+        float
+        """
+        return self._material._materials._app.evaluate_expression(self.value)
+
+    @property
     def value(self):
         """Value for a material property."""
         if len(self._property_value) == 1:
@@ -2115,7 +2125,7 @@ class Material(CommonMaterial, object):
             ``True`` when the material is a conductor, ``False`` otherwise.
 
         """
-        cond = self.conductivity.value
+        cond = self.conductivity.evaluated_value
         if not cond:
             return False
         if "Freq" in str(cond):
