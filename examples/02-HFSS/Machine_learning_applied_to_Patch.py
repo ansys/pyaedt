@@ -216,7 +216,7 @@ stackup.resize_around_element(patch)
 # ~~~~~~~~~~~~~~~~~~
 # Create a lumped port to feed the patch antenna.
 
-patch.create_lumped_port(reference_layer=ground, opposite_side=False, port_name="one")
+patch.create_probe_port(ground)
 
 ###############################################################################
 # Define Air Volume

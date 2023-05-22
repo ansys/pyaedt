@@ -673,7 +673,7 @@ class Layer3D(object):
             patch_width,
             signal_layer=self,
             dielectric_layer=below_layer,
-            patch_length=patch_length,
+            dy=patch_length,
             patch_position_x=patch_position_x,
             patch_position_y=patch_position_y,
             patch_name=patch_name,
@@ -1960,14 +1960,14 @@ class Patch(CommonObject, object):
     frequency : float, None
         The patch frequency, it is used in prediction formulas. If it is None, the patch frequency will be that of the
         layer or of the stackup.
-    patch_width : float
+    dx : float
         The patch width.
     signal_layer : :class:`pyaedt.modeler.stackup_3d.Layer3D`
         The signal layer where the patch will be drawn.
     dielectric_layer : :class:`pyaedt.modeler.stackup_3d.Layer3D`
         The dielectric layer between the patch and the ground layer. Its permittivity and thickness are used in
         prediction formulas.
-    patch_length : float, None, optional
+    dy : float, None, optional
         The patch length. By default, it is None and so the length is calculated by prediction formulas.
     patch_position_x : float, optional
         Patch x position, by default it is 0.
@@ -1999,10 +1999,10 @@ class Patch(CommonObject, object):
         self,
         application,
         frequency,
-        patch_width,
+        dx,
         signal_layer,
         dielectric_layer,
-        patch_length=None,
+        dy=None,
         patch_position_x=0,
         patch_position_y=0,
         patch_name="patch",
@@ -2021,7 +2021,7 @@ class Patch(CommonObject, object):
         self._signal_layer = signal_layer
         self._dielectric_layer = dielectric_layer
         self._substrate_thickness = dielectric_layer.thickness
-        self._width = NamedVariable(application, patch_name + "_width", application.modeler._arg_with_dim(patch_width))
+        self._width = NamedVariable(application, patch_name + "_width", application.modeler._arg_with_dim(dx))
         self._position_x = NamedVariable(
             application, patch_name + "_position_x", application.modeler._arg_with_dim(patch_position_x)
         )
@@ -2044,13 +2044,11 @@ class Patch(CommonObject, object):
             patch_name + "_permittivity",
             self._dielectric_layer.duplicated_material.permittivity.value,  # value -> name
         )
-        if isinstance(patch_length, float) or isinstance(patch_length, int):
-            self._length = NamedVariable(
-                application, patch_name + "_length", application.modeler._arg_with_dim(patch_length)
-            )
+        if isinstance(dy, float) or isinstance(dy, int):
+            self._length = NamedVariable(application, patch_name + "_length", application.modeler._arg_with_dim(dy))
             self._effective_permittivity = self._effective_permittivity_calcul
             self._wave_length = self._wave_length_calcul
-        elif patch_length is None:
+        elif dy is None:
             self._effective_permittivity = self._effective_permittivity_calcul
             self._added_length = self._added_length_calcul
             self._wave_length = self._wave_length_calcul
@@ -2333,7 +2331,7 @@ class Patch(CommonObject, object):
         """
         # "45 * (patch_wave_length/patch_width * sqrt(patch_eff_permittivity)) ** 2"
         # "60 * patch_wave_length/patch_width * sqrt(patch_eff_permittivity)"
-        # "90 * (patch_permittivity)**2/(patch_permittivity -1) * patch_length/patch_width
+        # "90 * (patch_permittivity)**2/(patch_permittivity -1) * dy/patch_width
         er_e = self._effective_permittivity.name
         lbd = self._wave_length.name
         w = self._width.name
@@ -2356,6 +2354,55 @@ class Patch(CommonObject, object):
             " the less correct the impedance calculation is"
         )
         return self._impedance_l_w, self._impedance_w_l
+
+    def create_probe_port(self, reference_layer, rel_x_offset=0, rel_y_offset=0, d=0.01, name="Probe"):
+        """Create a coaxial probe port for the patch.
+
+        Parameters
+        ----------
+        reference_layer : class:`pyaedt.modeler.stackup_3d.Layer3D`
+            Reference layer (Ground).
+
+        rel_x_offset : float, value between 0 and 1
+            Offset in the x-direction relative to the center of the patch.
+            `0` places the probe at the center of the patch.
+            `1` places the probe at the edge of the patch.
+            Default: 0
+
+        rel_y_offset : float, value between 0 and 1
+            `0` places the probe at the center of the patch.
+            `1` places the probe at the edge of the patch.
+            Default: 0
+
+        d : float, probe diameter
+            Default: 0.01
+
+        name : str, optional name of probe port.
+            Default value `"Probe"`
+
+        Returns
+        -------
+        bool
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> from pyaedt.modeler.stackup_3d import Stackup3D
+        >>> hfss = Hfss()
+        >>> my_stackup = Stackup3D(hfss, 2.5e9)
+        >>> gnd = my_stackup.add_ground_layer("gnd")
+        >>> my_stackup.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
+        >>> top = my_stackup.add_signal_layer("top")
+        >>> my_patch = top.add_patch(frequency=None, patch_width=51, patch_name="MLPatch")
+        >>> my_stackup.resize_around_element(my_patch)
+        >>> my_patch.create_probe_port(gnd)
+        """
+
+        x_probe = rel_x_offset * self.dx / 2
+        y_probe = rel_y_offset * self.dy / 2
+        # TODO: Draw probe from signal layer to ground.
+        #       Create port at ground layer.
 
     def create_lumped_port(self, reference_layer, opposite_side=False, port_name=None, axisdir=None):
         """Create a parametrized lumped port.
@@ -3280,7 +3327,7 @@ class MachineLearningPatch(Patch, object):
     frequency : float, None
         The patch frequency, it is used in prediction formulas. If it is None, the patch frequency will be that of the
         layer or of the stackup. From 0.1 to 10 GHz.
-    patch_width : float
+    dx : float
         The patch width. From O.5 to 1.5 of the optimal width value : c0 * 1000/(2 * f * sqrt((er  + 1)/2))
     signal_layer : :class:`pyaedt.modeler.stackup_3d.Layer3D`
         The signal layer where the patch will be drawn.
@@ -3318,7 +3365,7 @@ class MachineLearningPatch(Patch, object):
         self,
         application,
         frequency,
-        patch_width,
+        dx,
         signal_layer,
         dielectric_layer,
         patch_position_x=0,
@@ -3331,10 +3378,10 @@ class MachineLearningPatch(Patch, object):
             self,
             application,
             frequency,
-            patch_width,
+            dx,
             signal_layer,
             dielectric_layer,
-            patch_length=None,
+            dy=None,
             patch_position_x=patch_position_x,
             patch_position_y=patch_position_y,
             patch_name=patch_name,
