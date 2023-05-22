@@ -768,7 +768,7 @@ class Icepak(FieldAnalysis3D):
         >>> block.props["Nodes"]["Internal"][0]
         '2W'
         """
-        warnings.warn("This method is deprecated in 0.6.27. Use create_two_resistor_network_block", DeprecationWarning)
+        warnings.warn("This method is deprecated in 0.6.27. Use the create_two_resistor_network_block() method.", DeprecationWarning)
         if object_name in self.modeler.object_names:
             if gravity_dir > 2:
                 gravity_dir = gravity_dir - 3
