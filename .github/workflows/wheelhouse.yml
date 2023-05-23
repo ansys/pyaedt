@@ -62,18 +62,24 @@ jobs:
         run: |
           testenv\Scripts\Activate.ps1
           pip install wheel setuptools -U
-          pip wheel . -w wheelhouse
+          packages=$(pip freeze)
+          # Iterate over the packages and generate wheels
+          for package in $packages
+          do
+            echo "Generating wheel for $package"
+            pip wheel "$package" -w wheelhouse
+          done
 
       - name: Zip wheelhouse
         uses: vimtor/action-zip@v1
         with:
           files: wheelhouse
-          dest: ${{ env.PACKAGE_NAME }}-v${{ steps.version.outputs.PYAEDT_VERSION }}-wheelhouse-${{ runner.os }}-${{ matrix.python-version }}.zip
+          dest: ${{ env.PACKAGE_NAME }}-v${{ steps.version.outputs.PYAEDT_VERSION }}-${{ runner.os }}-${{ matrix.python-version }}.zip
 
       - name: Upload Wheelhouse
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.PACKAGE_NAME }}-v${{ steps.version.outputs.PYAEDT_VERSION }}-wheelhouse-${{ runner.os }}-${{ matrix.python-version }}
+          name: ${{ env.PACKAGE_NAME }}-v${{ steps.version.outputs.PYAEDT_VERSION }}-${{ runner.os }}-${{ matrix.python-version }}
           path: '*.zip'
           retention-days: 7
 
@@ -83,4 +89,4 @@ jobs:
         with:
           generate_release_notes: true
           files: |
-            ${{ env.PACKAGE_NAME }}-v${{ steps.version.outputs.PYAEDT_VERSION }}-wheelhouse-${{ runner.os }}-${{ matrix.python-version }}.zip
+            ${{ env.PACKAGE_NAME }}-v${{ steps.version.outputs.PYAEDT_VERSION }}-${{ runner.os }}-${{ matrix.python-version }}.zip
