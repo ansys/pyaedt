@@ -190,8 +190,7 @@ class TestClass(BasisTest, object):
         # self.aedtapp.logger.project.handlers.pop()
         # if len(self.aedtapp.logger.design.handlers) > 0:
         #     self.aedtapp.logger.design.handlers.pop()
-
-        os.remove(path)
+        shutil.rmtree(path, ignore_errors=True)
 
     @pytest.mark.skipif(is_ironpython, reason="stdout redirection does not work in IronPython.")
     def test_03_stdout_with_app_filter(self):
@@ -216,7 +215,7 @@ class TestClass(BasisTest, object):
 
         path = os.path.join(logging_dir, "test04.txt")
         if os.path.exists(path):
-            os.remove(path)
+            shutil.rmtree(path, ignore_errors=True)
         logger = AedtLogger(filename=path)
         logger.info("Info for Global before disabling the log file handler.")
         project_logger = logger.add_logger("Project")
@@ -275,7 +274,7 @@ class TestClass(BasisTest, object):
                 handler.close()
                 design_logger.removeHandler(handler)
 
-        os.remove(path)
+        shutil.rmtree(path, ignore_errors=True)
         settings.logger_file_path = ""
 
     @pytest.mark.skipif(is_ironpython, reason="stdout redirection does not work in IronPython.")
