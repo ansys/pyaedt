@@ -8,6 +8,7 @@ import warnings
 
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.Modeler import GeometryModeler
 from pyaedt.modeler.cad.Primitives3D import Primitives3D
@@ -1131,6 +1132,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         if import_in_aedt:
             self.model_units = "meter"
             for part in parts_dict:
+                if not os.path.exists(parts_dict[part]["file_name"]):
+                    continue
                 obj_names = [i for i in self.object_names]
                 self.import_3d_cad(
                     parts_dict[part]["file_name"],

@@ -17,6 +17,7 @@ from pyaedt.generic.general_methods import _dim_arg
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import _uname
 from pyaedt.generic.general_methods import is_number
+from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.cad.elements3d import FacePrimitive
@@ -367,7 +368,7 @@ class Primitives(object):
         attributes.append("Name:="), attributes.append(name)
         attributes.append("Color:="), attributes.append(color)
 
-        _retry_ntimes(10, self.oeditor.CreatePoint, parameters, attributes)
+        _retry_ntimes(3, self.oeditor.CreatePoint, parameters, attributes)
         self._refresh_points()
         return self._create_object(name)
 
@@ -442,7 +443,7 @@ class Primitives(object):
         attributes.append("Name:="), attributes.append(name)
         attributes.append("Color:="), attributes.append(color)
 
-        _retry_ntimes(10, self.oeditor.CreateCutplane, parameters, attributes)
+        _retry_ntimes(3, self.oeditor.CreateCutplane, parameters, attributes)
         # self._refresh_planes()
         self.planes[name] = None
         plane = self._create_object(name)
@@ -458,7 +459,7 @@ class Primitives(object):
             vPropServers.append(el)
         vGeo3d = ["NAME:General", vPropServers, vChangedProps]
         vOut = ["NAME:AllTabs", vGeo3d]
-        _retry_ntimes(10, self.oeditor.ChangeProperty, vOut)
+        _retry_ntimes(3, self.oeditor.ChangeProperty, vOut)
         return True
 
     @pyaedt_function_handler()
@@ -470,7 +471,7 @@ class Primitives(object):
             vPropServers.append(el)
         vGeo3d = ["NAME:Geometry3DAttributeTab", vPropServers, vChangedProps]
         vOut = ["NAME:AllTabs", vGeo3d]
-        _retry_ntimes(10, self.oeditor.ChangeProperty, vOut)
+        _retry_ntimes(3, self.oeditor.ChangeProperty, vOut)
         if "NAME:Name" in vPropChange:
             self.cleanup_objects()
         return True
@@ -484,7 +485,7 @@ class Primitives(object):
             vPropServers.append(el)
         vGeo3d = ["NAME:Geometry3DPointTab", vPropServers, vChangedProps]
         vOut = ["NAME:AllTabs", vGeo3d]
-        _retry_ntimes(10, self.oeditor.ChangeProperty, vOut)
+        _retry_ntimes(3, self.oeditor.ChangeProperty, vOut)
         if "NAME:Name" in vPropChange:
             self.cleanup_objects()
         return True
@@ -498,7 +499,7 @@ class Primitives(object):
             vPropServers.append(el)
         vGeo3d = ["NAME:Geometry3DPlaneTab", vPropServers, vChangedProps]
         vOut = ["NAME:AllTabs", vGeo3d]
-        _retry_ntimes(10, self.oeditor.ChangeProperty, vOut)
+        _retry_ntimes(3, self.oeditor.ChangeProperty, vOut)
         if "NAME:Name" in vPropChange:
             self.cleanup_objects()
         return True
@@ -2819,7 +2820,7 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _refresh_unclassified(self):
-        test = _retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Unclassified")
+        test = _retry_ntimes(3, self.oeditor.GetObjectsInGroup, "Unclassified")
         if test is None or test is False:
             self._unclassified = []
             self.logger.debug("Unclassified is failing")
@@ -3117,7 +3118,7 @@ class Primitives(object):
         if len(objListSolids) > 0:
             objList.extend(objListSolids)
         for obj in objList:
-            val = _retry_ntimes(10, self.oeditor.GetEdgeIDsFromObject, obj)
+            val = _retry_ntimes(3, self.oeditor.GetEdgeIDsFromObject, obj)
             if not (isinstance(val, bool)) and str(lval) in list(val):
                 return obj
         return None

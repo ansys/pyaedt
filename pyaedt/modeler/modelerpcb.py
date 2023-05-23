@@ -10,6 +10,7 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import get_filename_without_extension
 from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import open_file
+from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.Modeler import Modeler
 from pyaedt.modeler.pcb.Primitives3DLayout import Primitives3DLayout
@@ -154,7 +155,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         >>> oEditor.GetActiveUnits
         >>> oEditor.SetActivelUnits
         """
-        return _retry_ntimes(10, self.oeditor.GetActiveUnits)
+        return _retry_ntimes(3, self.oeditor.GetActiveUnits)
 
     @model_units.setter
     def model_units(self, units):
@@ -326,7 +327,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         comp_name = ""
         for i in range(100, 0, -1):
             try:
-                cmp_info = _retry_ntimes(10, self.oeditor.GetComponentInfo, str(i))
+                cmp_info = _retry_ntimes(3, self.oeditor.GetComponentInfo, str(i))
                 if cmp_info and des_name in cmp_info[0]:
                     comp_name = str(i)
                     break
@@ -461,7 +462,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         """
         object_to_expand = self.convert_to_selections(object_to_expand)
         self.cleanup_objects()
-        layer = _retry_ntimes(10, self.oeditor.GetPropertyValue, "BaseElementTab", object_to_expand, "PlacementLayer")
+        layer = _retry_ntimes(3, self.oeditor.GetPropertyValue, "BaseElementTab", object_to_expand, "PlacementLayer")
         poly = self.oeditor.GetPolygonDef(object_to_expand).GetPoints()
         pos = [poly[0].GetX(), poly[0].GetY()]
         geom_names = self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0], pos[1]), layer)

@@ -169,7 +169,7 @@ class AedtLogger(object):
         if to_stdout:
             self._std_out_handler = logging.StreamHandler(sys.stdout)
             self._std_out_handler.setLevel(level)
-            _logger_stdout_formatter = logging.Formatter("pyaedt %(levelname)s: %(message)s")
+            _logger_stdout_formatter = logging.Formatter("PyAEDT %(levelname)s: %(message)s")
 
             self._std_out_handler.setFormatter(_logger_stdout_formatter)
             self._global.addHandler(self._std_out_handler)
@@ -466,7 +466,7 @@ class AedtLogger(object):
             try:
                 self._desktop.AddMessage(proj_name, des_name, message_type, message_text)
             except:
-                print("pyaedt INFO: Failed in Adding Desktop Message")
+                print("PyAEDT INFO: Failed in Adding Desktop Message")
 
     def _log_on_handler(self, message_type, message_text, *args, **kwargs):
         if not (self._log_on_file or self._log_on_screen) or not self._global:

@@ -104,7 +104,7 @@ class Primitives3D(Primitives, object):
         vArg1.append("YSize:="), vArg1.append(YSize)
         vArg1.append("ZSize:="), vArg1.append(ZSize)
         vArg2 = self._default_object_attributes(name=name, matname=matname)
-        new_object_name = _retry_ntimes(10, self.oeditor.CreateBox, vArg1, vArg2)
+        new_object_name = _retry_ntimes(3, self.oeditor.CreateBox, vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @pyaedt_function_handler()
@@ -437,7 +437,7 @@ class Primitives3D(Primitives, object):
         first_argument.append("MinorRadius:="), first_argument.append(minor_radius)
         first_argument.append("WhichAxis:="), first_argument.append(axis)
         second_argument = self._default_object_attributes(name=name, matname=material_name)
-        new_object_name = _retry_ntimes(10, self.oeditor.CreateTorus, first_argument, second_argument)
+        new_object_name = _retry_ntimes(3, self.oeditor.CreateTorus, first_argument, second_argument)
         return self._create_object(new_object_name)
 
     @pyaedt_function_handler()

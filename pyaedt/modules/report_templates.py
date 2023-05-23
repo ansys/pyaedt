@@ -7,6 +7,7 @@ from pyaedt.generic.constants import LineStyle
 from pyaedt.generic.constants import SymbolStyle
 from pyaedt.generic.constants import TraceType
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.geometry_operators import GeometryOperators
 

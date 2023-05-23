@@ -19,6 +19,7 @@ from pyaedt.generic.clr_module import String
 from pyaedt.generic.clr_module import _clr
 from pyaedt.generic.general_methods import get_filename_without_extension
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.geometry_operators import GeometryOperators
 

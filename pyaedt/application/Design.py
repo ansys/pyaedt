@@ -48,6 +48,7 @@ from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import is_project_locked
 from pyaedt.generic.general_methods import is_windows
 from pyaedt.generic.general_methods import open_file
+from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_csv
 from pyaedt.generic.general_methods import read_tab
@@ -3056,7 +3057,7 @@ class Design(AedtObjects):
                     design_type, unique_design_name, self.default_solution_type, ""
                 )
         self.logger.info("Added design '%s' of type %s.", unique_design_name, design_type)
-        name = _retry_ntimes(5, new_design.GetName)
+        name = _retry_ntimes(3, new_design.GetName)
         self._odesign = new_design
         return name
 
@@ -3127,7 +3128,7 @@ class Design(AedtObjects):
 
         >>> oDesign.RenameDesignInstance
         """
-        _retry_ntimes(10, self._odesign.RenameDesignInstance, self.design_name, new_name)
+        _retry_ntimes(3, self._odesign.RenameDesignInstance, self.design_name, new_name)
         if save_after_duplicate:
             self.oproject.Save()
             self._project_dictionary = None
@@ -3223,8 +3224,8 @@ class Design(AedtObjects):
 
         active_design = self.design_name
         design_list = self.design_list
-        _retry_ntimes(10, self._oproject.CopyDesign, active_design)
-        _retry_ntimes(10, self._oproject.Paste)
+        _retry_ntimes(3, self._oproject.CopyDesign, active_design)
+        _retry_ntimes(3, self._oproject.Paste)
         newname = label
         ind = 1
         while newname in self.design_list:
@@ -3527,7 +3528,7 @@ class Design(AedtObjects):
             else:
                 var_obj = self.get_oo_object(app, "Variables/{}".format(variable_name))
         if var_obj:
-            val = _retry_ntimes(10, var_obj.GetPropValue, "SIValue")
+            val = _retry_ntimes(3, var_obj.GetPropValue, "SIValue")
         elif not val:
             try:
                 variation_string = self._odesign.GetNominalVariation()
@@ -3574,22 +3575,31 @@ class Design(AedtObjects):
         # Set the value of an internal reserved design variable to the specified string
         if expression_string in self._variable_manager.variables:
             return self._variable_manager.variables[expression_string].value
-        else:
-            try:
-                self._variable_manager.set_variable(
-                    "pyaedt_evaluator",
-                    expression=expression_string,
-                    readonly=True,
-                    hidden=True,
-                    description="Internal_Evaluator",
-                )
-            except:
-                raise ("Invalid string expression {}".expression_string)
-
+        elif "pwl" in str(expression_string):
+            for ds in self.project_datasets:
+                if ds in expression_string:
+                    return expression_string
+            for ds in self.design_datasets:
+                if ds in expression_string:
+                    return expression_string
+        try:
+            variable_name = "pyaedt_evaluator"
+            if "$" in expression_string:
+                variable_name = "$pyaedt_evaluator"
+            self._variable_manager.set_variable(
+                variable_name,
+                expression=expression_string,
+                readonly=True,
+                hidden=True,
+                description="Internal_Evaluator",
+            )
+            eval_value = self._variable_manager.variables[variable_name].value
             # Extract the numeric value of the expression (in SI units!)
-            eval_value = self._variable_manager.variables["pyaedt_evaluator"].value
-            self._variable_manager.delete_variable("pyaedt_evaluator")
+            self._variable_manager.delete_variable(variable_name)
             return eval_value
+        except:
+            self.logger.warning("Invalid string expression {}".format(expression_string))
+            return expression_string
 
     @pyaedt_function_handler()
     def design_variation(self, variation_string=None):

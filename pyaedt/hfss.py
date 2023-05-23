@@ -17,6 +17,7 @@ from pyaedt.generic.constants import INFINITE_SPHERE_TYPE
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import parse_excitation_file
+from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.geometry_operators import GeometryOperators
@@ -91,8 +92,8 @@ class Hfss(FieldAnalysis3D, object):
 
     >>> from pyaedt import Hfss
     >>> hfss = Hfss()
-    pyaedt INFO: No project is defined...
-    pyaedt INFO: Active design is set to...
+    PyAEDT INFO: No project is defined...
+    PyAEDT INFO: Active design is set to...
 
 
     Create an instance of HFSS and link to a project named
@@ -100,43 +101,43 @@ class Hfss(FieldAnalysis3D, object):
     this name.
 
     >>> hfss = Hfss("HfssProject")
-    pyaedt INFO: Project HfssProject has been created.
-    pyaedt INFO: No design is present. Inserting a new design.
-    pyaedt INFO: Added design ...
+    PyAEDT INFO: Project HfssProject has been created.
+    PyAEDT INFO: No design is present. Inserting a new design.
+    PyAEDT INFO: Added design ...
 
 
     Create an instance of HFSS and link to a design named
     ``HfssDesign1`` in a project named ``HfssProject``.
 
     >>> hfss = Hfss("HfssProject","HfssDesign1")
-    pyaedt INFO: Added design 'HfssDesign1' of type HFSS.
+    PyAEDT INFO: Added design 'HfssDesign1' of type HFSS.
 
 
     Create an instance of HFSS and open the specified project,
     which is named ``"myfile.aedt"``.
 
     >>> hfss = Hfss("myfile.aedt")
-    pyaedt INFO: Project myfile has been created.
-    pyaedt INFO: No design is present. Inserting a new design.
-    pyaedt INFO: Added design...
+    PyAEDT INFO: Project myfile has been created.
+    PyAEDT INFO: No design is present. Inserting a new design.
+    PyAEDT INFO: Added design...
 
 
     Create an instance of HFSS using the 2021 R1 release and open
     the specified project, which is named ``"myfile2.aedt"``.
 
     >>> hfss = Hfss(specified_version="2021.2", projectname="myfile2.aedt")
-    pyaedt INFO: Project myfile2 has been created.
-    pyaedt INFO: No design is present. Inserting a new design.
-    pyaedt INFO: Added design...
+    PyAEDT INFO: Project myfile2 has been created.
+    PyAEDT INFO: No design is present. Inserting a new design.
+    PyAEDT INFO: Added design...
 
 
     Create an instance of HFSS using the 2021 R2 student version and open
     the specified project, which is named ``"myfile3.aedt"``.
 
     >>> hfss = Hfss(specified_version="2021.2", projectname="myfile3.aedt", student_version=True)
-    pyaedt INFO: Project myfile3 has been created.
-    pyaedt INFO: No design is present. Inserting a new design.
-    pyaedt INFO: Added design...
+    PyAEDT INFO: Project myfile3 has been created.
+    PyAEDT INFO: No design is present. Inserting a new design.
+    PyAEDT INFO: Added design...
 
     """
 
@@ -1397,7 +1398,7 @@ class Hfss(FieldAnalysis3D, object):
         --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss(solution_type="SBR+")  # doctest: +SKIP
-        pyaedt INFO: Added design 'HFSS_IPO' of type HFSS.
+        PyAEDT INFO: Added design 'HFSS_IPO' of type HFSS.
         >>> parm = {"polarization": "Vertical"}  # doctest: +SKIP
         >>> par_beam = hfss.create_sbr_antenna(hfss.SbrAntennas.ShortDipole,
         ...                                    parameters_dict=parm,
@@ -1683,7 +1684,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> hfss.create_lumped_port_between_objects("BoxLumped1", "BoxLumped2",
         ...                                         hfss.AxisDir.XNeg, 50,
         ...                                         "LumpedPort", True, False)
-        pyaedt INFO: Connection Correctly created
+        PyAEDT INFO: Connection Correctly created
         'LumpedPort'
 
         """
@@ -1925,7 +1926,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> v1 = hfss.create_voltage_source_from_objects("BoxVolt1", "BoxVolt2",
         ...                                         hfss.AxisDir.XNeg,
         ...                                         "VoltageSource")
-        pyaedt INFO: Connection Correctly created
+        PyAEDT INFO: Connection Correctly created
 
         """
 
@@ -1981,7 +1982,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> i1 = hfss.create_current_source_from_objects("BoxCurrent1", "BoxCurrent2",
         ...                                         hfss.AxisDir.XPos,
         ...                                         "CurrentSource")
-        pyaedt INFO: Connection created 'CurrentSource' correctly.
+        PyAEDT INFO: Connection created 'CurrentSource' correctly.
 
         """
 
@@ -2097,7 +2098,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> wave_port = hfss.create_wave_port_between_objects("BoxWave1", "BoxWave2",
         ...                                                   hfss.AxisDir.XNeg, 50, 1,
         ...                                                   "Wave Port", False)
-        pyaedt INFO: Connection Correctly created
+        PyAEDT INFO: Connection Correctly created
 
         """
         warnings.warn(
@@ -2545,7 +2546,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> port = hfss.create_wave_port_microstrip_between_objects("GND1", "MS1",
         ...                                                         portname="MS1",
         ...                                                         axisdir=1)
-        pyaedt INFO: Connection correctly created.
+        PyAEDT INFO: Connection correctly created.
 
         """
         warnings.warn(
@@ -2613,7 +2614,7 @@ class Hfss(FieldAnalysis3D, object):
         ...                                "perfect2", "copper")
         >>> perfect_e = hfss.create_perfecte_from_objects("perfect1", "perfect2",
         ...                                               hfss.AxisDir.ZNeg, "PerfectE")
-        pyaedt INFO: Connection Correctly created
+        PyAEDT INFO: Connection Correctly created
         >>> type(perfect_e)
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
 
@@ -2674,7 +2675,7 @@ class Hfss(FieldAnalysis3D, object):
         ...                                "perfect2", "copper")
         >>> perfect_h = hfss.create_perfecth_from_objects("perfect1", "perfect2",
         ...                                               hfss.AxisDir.ZNeg, "Perfect H")
-        pyaedt INFO: Connection Correctly created
+        PyAEDT INFO: Connection Correctly created
         >>> type(perfect_h)
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
 
@@ -2825,7 +2826,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> rlc = hfss.create_lumped_rlc_between_objects("rlc1", "rlc2", hfss.AxisDir.XPos,
         ...                                              "Lumped RLC", Rvalue=50,
         ...                                              Lvalue=1e-9, Cvalue = 1e-6)
-        pyaedt INFO: Connection Correctly created
+        PyAEDT INFO: Connection Correctly created
 
         """
 
@@ -2920,7 +2921,7 @@ class Hfss(FieldAnalysis3D, object):
         ...                                           "box2", "copper")
         >>> impedance = hfss.create_impedance_between_objects("box1", "box2", hfss.AxisDir.XPos,
         ...                                                   "ImpedanceExample", 100, 50)
-        pyaedt INFO: Connection Correctly created
+        PyAEDT INFO: Connection Correctly created
 
         """
 
@@ -3806,7 +3807,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> wave_port = hfss.create_wave_port_from_sheet(sheet, 5, hfss.AxisDir.XNeg, 40,
         ...                                              2, "SheetWavePort", True)
         >>> hfss.edit_source("SheetWavePort" + ":1", "10W")
-        pyaedt INFO: Setting up power to "SheetWavePort:1" = 10W
+        PyAEDT INFO: Setting up power to "SheetWavePort:1" = 10W
         True
 
         """
@@ -3956,7 +3957,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> port_for_thickness = hfss.create_wave_port_from_sheet(sheet_for_thickness, 5, hfss.AxisDir.XNeg,
         ...                                                       40, 2, "WavePortForThickness", True)
         >>> hfss.thicken_port_sheets(["SheetForThickness"], 2)
-        pyaedt INFO: done
+        PyAEDT INFO: done
         {}
 
         """
@@ -4105,7 +4106,7 @@ class Hfss(FieldAnalysis3D, object):
         Validate the current design and save the log file in the current project directory.
 
         >>> validation = hfss.validate_full_design()
-        pyaedt INFO: Design Validation Checks
+        PyAEDT INFO: Design Validation Checks
         >>> validation[1]
         False
 
@@ -6007,7 +6008,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> hfss.lumped_port("BoxLumped1", "BoxLumped2",
         ...                  hfss.AxisDir.XNeg, 50,
         ...                  "LumpedPort", True, False)
-        pyaedt INFO: Connection Correctly created
+        PyAEDT INFO: Connection Correctly created
         'LumpedPort'
 
         """
@@ -6148,7 +6149,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> port = hfss.wave_port("GND1", "MS1",
         ...                       name="MS1",
         ...                        integration_line=1)
-        pyaedt INFO: Connection correctly created.
+        PyAEDT INFO: Connection correctly created.
 
         """
         oname = ""

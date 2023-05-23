@@ -21,6 +21,7 @@ from pyaedt.generic.general_methods import _uname
 from pyaedt.generic.general_methods import clamp
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
+from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import rgb_color_codes
 from pyaedt.generic.general_methods import settings
@@ -882,7 +883,7 @@ class Object3d(object):
         if self._material_name is not None:
             return self._material_name
         if "Material" in self.valid_properties and self.model:
-            mat = _retry_ntimes(10, self._oeditor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Material")
+            mat = _retry_ntimes(3, self._oeditor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Material")
             self._material_name = ""
             if mat:
                 self._material_name = mat.strip('"').lower()
@@ -1064,7 +1065,7 @@ class Object3d(object):
                 vPropServers.append(self._m_name)
                 vGeo3d = ["NAME:Geometry3DAttributeTab", vPropServers, vChangedProps]
                 vOut = ["NAME:AllTabs", vGeo3d]
-                _retry_ntimes(10, self._primitives.oeditor.ChangeProperty, vOut)
+                _retry_ntimes(3, self._primitives.oeditor.ChangeProperty, vOut)
                 self._m_name = obj_name
                 self._primitives.add_new_objects()
                 self._primitives.cleanup_objects()
@@ -1081,7 +1082,7 @@ class Object3d(object):
         >>> oEditor.GetProperties
         """
         if not self._all_props:
-            self._all_props = _retry_ntimes(10, self._oeditor.GetProperties, "Geometry3DAttributeTab", self._m_name)
+            self._all_props = _retry_ntimes(3, self._oeditor.GetProperties, "Geometry3DAttributeTab", self._m_name)
         return self._all_props
 
     @property
@@ -1104,7 +1105,7 @@ class Object3d(object):
         if self._color is not None:
             return self._color
         if "Color" in self.valid_properties:
-            color = _retry_ntimes(10, self._oeditor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Color")
+            color = _retry_ntimes(3, self._oeditor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Color")
             if color:
                 b = (int(color) >> 16) & 255
                 g = (int(color) >> 8) & 255
@@ -1347,7 +1348,7 @@ class Object3d(object):
         if self._model is not None:
             return self._model
         if "Model" in self.valid_properties:
-            mod = _retry_ntimes(10, self._oeditor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Model")
+            mod = _retry_ntimes(3, self._oeditor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Model")
             if mod == "false" or mod == "False":
                 self._model = False
             else:

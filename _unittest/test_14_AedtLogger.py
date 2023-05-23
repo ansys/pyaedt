@@ -203,9 +203,9 @@ class TestClass(BasisTest, object):
             logger.warning("Warning for Global")
             logger.error("Error for Global")
 
-        assert "pyaedt INFO: Info for Global" in capture.content
-        assert "pyaedt WARNING: Warning for Global" in capture.content
-        assert "pyaedt ERROR: Error for Global" in capture.content
+        assert "PyAEDT INFO: Info for Global" in capture.content
+        assert "PyAEDT WARNING: Warning for Global" in capture.content
+        assert "PyAEDT ERROR: Error for Global" in capture.content
 
     def test_04_disable_output_file_handler(self):
         content = None
@@ -296,20 +296,20 @@ class TestClass(BasisTest, object):
 
             sys.stdout = sys.__stdout__
 
-            stream.write.assert_any_call("pyaedt INFO: Info for Global\n")
-            stream.write.assert_any_call("pyaedt INFO: Info after re-enabling the stdout handler.\n")
+            stream.write.assert_any_call("PyAEDT INFO: Info for Global\n")
+            stream.write.assert_any_call("PyAEDT INFO: Info after re-enabling the stdout handler.\n")
 
             with pytest.raises(AssertionError) as e_info:
-                stream.write.assert_any_call("pyaedt INFO: Info after disabling the stdout handler.")
+                stream.write.assert_any_call("PyAEDT INFO: Info after disabling the stdout handler.")
             fp.seek(0)
             stream_content = fp.readlines()
         for handler in logger._global.handlers[:]:
             if "MagicMock" in str(handler) or "StreamHandler (DEBUG)" in str(handler):
                 handler.close()
                 logger._global.removeHandler(handler)
-        assert stream_content[0] == "pyaedt INFO: Info for Global\n"
-        assert stream_content[1] == "pyaedt INFO: StdOut has been enabled\n"
-        assert stream_content[2] == "pyaedt INFO: Info after re-enabling the stdout handler.\n"
+        assert stream_content[0] == "PyAEDT INFO: Info for Global\n"
+        assert stream_content[1] == "PyAEDT INFO: StdOut has been enabled\n"
+        assert stream_content[2] == "PyAEDT INFO: Info after re-enabling the stdout handler.\n"
 
 
 class CaptureStdOut:

@@ -5,6 +5,7 @@ from collections import OrderedDict
 from pyaedt.generic.general_methods import _dim_arg
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import clamp
+from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import rgb_color_codes
 from pyaedt.generic.general_methods import settings
@@ -1012,7 +1013,7 @@ class Point(object):
                 property_servers.append(self._name)
                 point_tab = ["NAME:Geometry3DPointTab", property_servers, changed_property]
                 all_tabs = ["NAME:AllTabs", point_tab]
-                _retry_ntimes(10, self._primitives.oeditor.ChangeProperty, all_tabs)
+                _retry_ntimes(3, self._primitives.oeditor.ChangeProperty, all_tabs)
                 self._name = point_name
                 self._primitives.cleanup_objects()
         else:
@@ -1028,13 +1029,13 @@ class Point(object):
         >>> oEditor.GetProperties
         """
         if not self._all_props:
-            self._all_props = _retry_ntimes(10, self._oeditor.GetProperties, "Geometry3DPointTab", self._name)
+            self._all_props = _retry_ntimes(3, self._oeditor.GetProperties, "Geometry3DPointTab", self._name)
         return self._all_props
 
     # Note: We currently cannot get the color property value because
     # when we try to access it, we only get access to the 'edit' button.
     # Following is the line that we would use but it currently returns 'edit'.
-    # color = _retry_ntimes(10, self._oeditor.GetPropertyValue, "Geometry3DPointTab", self._name, "Color")
+    # color = _retry_ntimes(3, self._oeditor.GetPropertyValue, "Geometry3DPointTab", self._name, "Color")
     def set_color(self, color_value):
         """Set symbol color.
 
@@ -1215,7 +1216,7 @@ class Plane(object):
                 property_servers.append(self._name)
                 plane_tab = ["NAME:Geometry3DPlaneTab", property_servers, changed_property]
                 all_tabs = ["NAME:AllTabs", plane_tab]
-                _retry_ntimes(10, self._primitives.oeditor.ChangeProperty, all_tabs)
+                _retry_ntimes(3, self._primitives.oeditor.ChangeProperty, all_tabs)
                 self._name = plane_name
                 # TO BE DELETED self._primitives.cleanup_objects()
                 # Update the name of the plane in the ``planes`` dictionary listing all existing planes.
@@ -1233,13 +1234,13 @@ class Plane(object):
         >>> oEditor.GetProperties
         """
         if not self._all_props:
-            self._all_props = _retry_ntimes(10, self._oeditor.GetProperties, "Geometry3DPlaneTab", self._name)
+            self._all_props = _retry_ntimes(3, self._oeditor.GetProperties, "Geometry3DPlaneTab", self._name)
         return self._all_props
 
     # Note: You currently cannot get the color property value because
     # when you try to access it, you only get access to the 'edit' button.
     # Following is the line that you would use, but it currently returns 'edit'.
-    # color = _retry_ntimes(10, self._oeditor.GetPropertyValue, "Geometry3DPlaneTab", self._name, "Color")
+    # color = _retry_ntimes(3, self._oeditor.GetPropertyValue, "Geometry3DPlaneTab", self._name, "Color")
     @pyaedt_function_handler()
     def set_color(self, color_value):
         """Set symbol color.

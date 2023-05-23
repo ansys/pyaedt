@@ -21,6 +21,7 @@ from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
+from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 import pyaedt.modules.report_templates as rt
 from pyaedt.modules.solutions import FieldPlot
@@ -1878,7 +1879,7 @@ class PostProcessor(PostProcessorCommon, object):
         str
            Model units, such as ``"mm"``.
         """
-        return _retry_ntimes(10, self.oeditor.GetModelUnits)
+        return _retry_ntimes(3, self.oeditor.GetModelUnits)
 
     @property
     def post_osolution(self):
@@ -2470,7 +2471,7 @@ class PostProcessor(PostProcessorCommon, object):
                 else:
                     variation_dict.append("0deg")
         if not sample_points_file and not sample_points_lists:
-            _retry_ntimes(10, self.ofieldsreporter.CalculatorWrite, filename, ["Solution:=", solution], variation_dict)
+            _retry_ntimes(3, self.ofieldsreporter.CalculatorWrite, filename, ["Solution:=", solution], variation_dict)
         elif sample_points_file:
             _retry_ntimes(
                 10,
