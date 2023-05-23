@@ -1651,11 +1651,16 @@ class Circuit(FieldAnalysisCircuit, object):
             ``Hfss3DLayout`` component instance.
         """
         hfss = Hfss3dLayout(edb_path)
-        hfss.edit_cosim_options(
-            simulate_missing_solution=True,
-            setup_override_name=hfss.setup_names[0],
-            sweep_override_name=hfss.existing_analysis_sweeps[0].split(":")[1].strip(" "),
-        )
+        try:
+            hfss.edit_cosim_options(
+                simulate_missing_solution=True,
+                setup_override_name=hfss.setup_names[0],
+                sweep_override_name=hfss.existing_analysis_sweeps[0].split(":")[1].strip(" "),
+            )
+        except:
+            self.logger.error(
+                "Failed to setup co-simulation settings, make sure the simulation setup is properly defined"
+            )
         active_project = hfss.odesktop.SetActiveProject(hfss.project_name)
         active_project.CopyDesign(hfss.design_name)
         active_project = self.odesktop.SetActiveProject(self.project_name)

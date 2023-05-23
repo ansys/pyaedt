@@ -265,7 +265,6 @@ html_short_title = html_title = "PyAEDT"
 html_show_sourcelink = True
 html_theme = "ansys_sphinx_theme"
 html_logo = pyansys_logo_black
-html_facivon = ansys_favicon
 
 # specify the location of your github repo
 html_context = {

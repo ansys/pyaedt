@@ -3188,7 +3188,7 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        blank_list : list of Object3d or list of int
+        blank_list : str, Object3d, int or List of str, int and Object3d.
             List of objects to subtract from. The list can be of
             either :class:`pyaedt.modeler.Object3d.Object3d` objects or object IDs.
         tool_list : list
