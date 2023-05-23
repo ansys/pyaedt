@@ -3374,8 +3374,9 @@ class Edb(object):
 
         Returns
         -------
-           dict[str](EDB PolygonData)
-           Return a dictionary with edb path as key and EDB polygon Data defining the region.
+           dict[str](int, EDB PolygonData)
+           Return a dictionary with edb path as key and tuple Zone Id as first item and EDB polygon Data defining
+           the region as second item.
 
         """
         if working_directory:
@@ -3387,17 +3388,20 @@ class Edb(object):
         else:
             working_directory = os.path.dirname(self.edbpath)
         zone_primitives = list(self.active_layout.GetZonePrimitives())
+        zone_ids = list(self.stackup._layer_collection.GetZoneIds())
         edb_zones = {}
         if not self.setups:
             self.siwave.add_siwave_syz_analysis()
             self.save_edb()
-        for zone in zone_primitives:
+        if not len(zone_primitives) == len(zone_ids):
+            return False
+        for zone_index in range(len(zone_primitives)):
             edb_zone_path = os.path.join(
-                working_directory, "{}_{}".format(zone.GetId(), os.path.basename(self.edbpath))
+                working_directory, "{}_{}".format(zone_primitives[zone_index].GetId(), os.path.basename(self.edbpath))
             )
             shutil.copytree(self.edbpath, edb_zone_path)
-            poly_data = zone.GetPolygonData()
-            edb_zones[edb_zone_path] = poly_data
+            poly_data = zone_primitives[zone_index].GetPolygonData()
+            edb_zones[edb_zone_path] = (zone_ids[zone_index], poly_data)
         return edb_zones
 
     @pyaedt_function_handler()
@@ -3425,15 +3429,20 @@ class Edb(object):
         """
         terminals = {}
         defined_ports = {}
-        for edb_path, zone_polygon in zone_dict.items():
+        for edb_path, zone_info in zone_dict.items():
             edb = Edb(edbversion=self.edbversion, edbpath=edb_path)
+            layers_to_remove = [
+                lay.name for lay in list(edb.stackup.layers.values()) if not lay._edb_layer.IsInZone(zone_info[0])
+            ]
+            for layer in layers_to_remove:
+                edb.stackup.remove_layer(layer)
             edb.stackup.stackup_mode = "Laminate"
-            signal_nets = list(self.nets.signal.keys())
-            edb.cutout(use_pyaedt_cutout=True, custom_extent=zone_polygon, open_cutout_at_end=True)
+            edb.cutout(use_pyaedt_cutout=True, custom_extent=zone_info[1], open_cutout_at_end=True)
             edb.active_cell.SetName(os.path.splitext(os.path.basename(edb_path))[0])
+            signal_nets = list(self.nets.signal.keys())
             defined_ports[os.path.splitext(os.path.basename(edb_path))[0]] = list(edb.excitations.keys())
             edb_terminals_info = edb.hfss.create_vertical_circuit_port_on_clipped_traces(
-                nets=signal_nets, reference_net=common_reference_net, user_defined_extent=zone_polygon
+                nets=signal_nets, reference_net=common_reference_net, user_defined_extent=zone_info[1]
             )
             if edb_terminals_info:
                 terminals[os.path.splitext(os.path.basename(edb_path))[0]] = edb_terminals_info
