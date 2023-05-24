@@ -1721,6 +1721,7 @@ class Help:  # pragma: no cover
 class Property(property):
     @pyaedt_function_handler()
     def __get__(self, obj, objtype=None):
+        """Get value."""
         if obj is None:
             return self
         if self.fget is None:
@@ -1729,26 +1730,31 @@ class Property(property):
 
     @pyaedt_function_handler()
     def __set__(self, obj, value):
+        """Set value."""
         if self.fset is None:
             raise AttributeError("can't set attribute")
         self.fset(obj, value)
 
     @pyaedt_function_handler()
     def __delete__(self, obj):
+        """Delete value."""
         if self.fdel is None:
             raise AttributeError("can't delete attribute")
         self.fdel(obj)
 
     @pyaedt_function_handler()
     def getter(self, fget):
+        """Property getter."""
         return type(self)(fget, self.fset, self.fdel, self.__doc__)
 
     @pyaedt_function_handler()
     def setter(self, fset):
+        """Property setter."""
         return type(self)(self.fget, fset, self.fdel, self.__doc__)
 
     @pyaedt_function_handler()
     def deleter(self, fdel):
+        """Property deleter."""
         return type(self)(self.fget, self.fset, fdel, self.__doc__)
 
 
