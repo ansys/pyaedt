@@ -31,6 +31,7 @@ from pyaedt.generic.constants import VIEW
 from pyaedt.generic.general_methods import filter_tuple
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
+from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.Boundary import MaxwellParameters
 from pyaedt.modules.Boundary import NativeComponentObject
@@ -1258,7 +1259,7 @@ class Analysis(Design, object):
         >>> setup1 = hfss.create_setup(setupname='Setup1')
         >>> hfss.delete_setup(setupname='Setup1')
         ...
-        pyaedt INFO: Sweep was deleted correctly.
+        PyAEDT INFO: Sweep was deleted correctly.
         """
         if setupname in self.existing_analysis_setups:
             self.oanalysis.DeleteSetups([setupname])

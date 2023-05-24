@@ -5,6 +5,7 @@ import random
 import re
 import warnings
 
+from pyaedt import property
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.general_methods import _uname
 from pyaedt.modeler.cad.elements3d import BinaryTreeNode

@@ -20,6 +20,7 @@ from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import settings
 from pyaedt.modeler.cad.elements3d import EdgePrimitive
@@ -188,7 +189,7 @@ class BaseCoordinateSystem(PropsManager, object):
 
         """
         arguments = ["NAME:AllTabs", ["NAME:Geometry3DCSTab", ["NAME:PropServers", name], arg]]
-        _retry_ntimes(5, self._modeler.oeditor.ChangeProperty, arguments)
+        _retry_ntimes(10, self._modeler.oeditor.ChangeProperty, arguments)
 
     @pyaedt_function_handler()
     def rename(self, newname):
@@ -2833,7 +2834,7 @@ class GeometryModeler(Modeler, object):
         vArg2.append("ZComponent:="), vArg2.append(Zpos)
         vArg2.append("Numclones:="), vArg2.append(str(nclones))
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
-        _retry_ntimes(5, self.oeditor.DuplicateAlongLine, vArg1, vArg2, vArg3)
+        _retry_ntimes(10, self.oeditor.DuplicateAlongLine, vArg1, vArg2, vArg3)
         if is_3d_comp:
             return self._duplicate_added_components_tuple()
         if attachObject:

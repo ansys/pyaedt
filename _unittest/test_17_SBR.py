@@ -189,7 +189,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.insert_design("city")
         ansys_home = [40.273726, -80.168269]
         parts_dict = self.aedtapp.modeler.import_from_openstreet_map(
-            ansys_home, terrain_radius=100, road_step=3, plot_before_importing=False, import_in_aedt=True
+            ansys_home, terrain_radius=200, road_step=3, plot_before_importing=False, import_in_aedt=True
         )
         for part in parts_dict["parts"]:
             assert os.path.exists(parts_dict["parts"][part]["file_name"])
