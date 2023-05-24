@@ -128,6 +128,7 @@ class TestClass(BasisTest, object):
         assert "PyAEDT WARNING: Warning for Global" in capture.content
         assert "PyAEDT ERROR: Error for Global" in capture.content
 
+    @pytest.mark.skipif(is_ironpython, reason="stdout redirection does not work in IronPython.")
     def test_04_disable_output_file_handler(self):
         content = None
         temp_dir = tempfile.gettempdir()
