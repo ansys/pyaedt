@@ -240,6 +240,10 @@ class ModelerCircuit(Modeler):
         >>> oEditor.CreateText
 
         """
+        x_origin, y_origin = self.schematic._convert_point_to_meter([x_origin, y_origin])
+        x1, y1 = self.schematic._convert_point_to_meter([x1, y1])
+        x2, y2 = self.schematic._convert_point_to_meter([x2, y2])
+
         element_ids = []
         for el in self.oeditor.GetAllGraphics():
             element_ids.append(int(el.split("@")[1]))
