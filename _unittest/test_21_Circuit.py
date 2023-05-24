@@ -778,10 +778,11 @@ class TestClass(BasisTest, object):
 
     def test_43_create_and_change_prop_text(self):
         self.aedtapp.insert_design("text")
-        text = self.aedtapp.modeler.create_text("text test")
+        self.aedtapp.modeler.schematic_units = "mil"
+        text = self.aedtapp.modeler.create_text("text test", 100, 300)
         assert isinstance(text, str)
         assert text in self.aedtapp.oeditor.GetAllGraphics()
-        assert not self.aedtapp.modeler.create_text("text test", "1000mil", "-2000mil")
+        assert self.aedtapp.modeler.create_text("text test", "1000mil", "-2000mil")
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Change property doesn't work in non-graphical mode.")
     def test_44_change_text_property(self):
