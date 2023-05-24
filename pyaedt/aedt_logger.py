@@ -167,6 +167,7 @@ class AedtLogger(object):
             self.add_file_logger(self.filename, "Global", level)
 
         if to_stdout:
+            settings.enable_screen_logs = True
             self._std_out_handler = logging.StreamHandler(sys.stdout)
             self._std_out_handler.setLevel(level)
             _logger_stdout_formatter = logging.Formatter("PyAEDT %(levelname)s: %(message)s")
