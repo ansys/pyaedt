@@ -1745,17 +1745,17 @@ class Property(property):
     @pyaedt_function_handler()
     def getter(self, fget):
         """Property getter."""
-        return type(self)(fget, self.fset, self.fdel, self.__doc__)
+        return self.__class__.__base__(fget, self.fset, self.fdel, self.__doc__)
 
     @pyaedt_function_handler()
     def setter(self, fset):
         """Property setter."""
-        return type(self)(self.fget, fset, self.fdel, self.__doc__)
+        return self.__class__.__base__(self.fget, fset, self.fdel, self.__doc__)
 
     @pyaedt_function_handler()
     def deleter(self, fdel):
         """Property deleter."""
-        return type(self)(self.fget, self.fset, fdel, self.__doc__)
+        return self.__class__.__base__(self.fget, self.fset, fdel, self.__doc__)
 
 
 class Settings(object):
