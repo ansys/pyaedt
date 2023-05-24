@@ -2,6 +2,7 @@
 import logging
 from logging.handlers import RotatingFileHandler
 import os
+import shutil
 import sys
 import tempfile
 import time
@@ -162,7 +163,7 @@ class AedtLogger(object):
             self._global.addHandler(my_handler)
         self._files_handlers.append(my_handler)
         if self.filename and os.path.exists(self.filename):
-            os.remove(self.filename)
+            shutil.rmtree(self.filename, ignore_errors=True)
         if self.filename and settings.enable_local_log_file:
             self.add_file_logger(self.filename, "Global", level)
 
