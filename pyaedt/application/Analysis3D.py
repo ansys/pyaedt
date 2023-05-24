@@ -368,28 +368,28 @@ class FieldAnalysis3D(Analysis, object):
         }
         if type == "Boundary":
             propserv = boundary[self._design_type]
-            val = _retry_ntimes(3, self.odesign.GetPropertyValue, propserv, objectname, property)
+            val = _retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
             return val
         elif type == "Setup":
             propserv = setup[self._design_type]
-            val = _retry_ntimes(3, self.odesign.GetPropertyValue, propserv, objectname, property)
+            val = _retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
             return val
 
         elif type == "Excitation":
             propserv = excitation[self._design_type]
-            val = _retry_ntimes(3, self.odesign.GetPropertyValue, propserv, objectname, property)
+            val = _retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
             return val
 
         elif type == "Mesh":
             propserv = mesh[self._design_type]
-            val = _retry_ntimes(3, self.odesign.GetPropertyValue, propserv, objectname, property)
+            val = _retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
             return val
         else:
             propservs = all[self._design_type]
             for propserv in propservs:
                 properties = list(self.odesign.GetProperties(propserv, objectname))
                 if property in properties:
-                    val = _retry_ntimes(3, self.odesign.GetPropertyValue, propserv, objectname, property)
+                    val = _retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
                     return val
         return None
 

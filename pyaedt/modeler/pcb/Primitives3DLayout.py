@@ -946,7 +946,7 @@ class Primitives3DLayout(object):
             arg.append("highest_layer:="), arg.append(top_layer)
             arg.append("lowest_layer:="), arg.append(bot_layer)
 
-            _retry_ntimes(3, self.oeditor.CreateVia, arg)
+            _retry_ntimes(10, self.oeditor.CreateVia, arg)
             if netname:
                 self.oeditor.ChangeProperty(
                     [
@@ -1446,7 +1446,7 @@ class Primitives3DLayout(object):
         args.append("3DCompSourceFileName:=")
         args.append(component_path)
 
-        _retry_ntimes(3, self.modeler.o_component_manager.Add, args)
+        _retry_ntimes(10, self.modeler.o_component_manager.Add, args)
         stack_layers = ["0:{}".format(i.name) for i in self.modeler.layers.stackup_layers]
         drawing = ["{}:{}".format(i.name, i.name) for i in self.modeler.layers.drawing_layers]
         arg_x = self.modeler._arg_with_dim(pos_x)
@@ -1470,7 +1470,7 @@ class Primitives3DLayout(object):
             "DrawLayers:=",
             drawing,
         ]
-        comp_name = _retry_ntimes(3, self.modeler.oeditor.CreateComponent, args)
+        comp_name = _retry_ntimes(10, self.modeler.oeditor.CreateComponent, args)
         comp = ComponentsSubCircuit3DLayout(self, comp_name.split(";")[-1])
         self.components_3d[comp_name.split(";")[-1]] = comp
         if create_ports:

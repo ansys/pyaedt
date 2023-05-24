@@ -3057,7 +3057,7 @@ class Design(AedtObjects):
                     design_type, unique_design_name, self.default_solution_type, ""
                 )
         self.logger.info("Added design '%s' of type %s.", unique_design_name, design_type)
-        name = _retry_ntimes(3, new_design.GetName)
+        name = _retry_ntimes(10, new_design.GetName)
         self._odesign = new_design
         return name
 
@@ -3128,7 +3128,7 @@ class Design(AedtObjects):
 
         >>> oDesign.RenameDesignInstance
         """
-        _retry_ntimes(3, self._odesign.RenameDesignInstance, self.design_name, new_name)
+        _retry_ntimes(10, self._odesign.RenameDesignInstance, self.design_name, new_name)
         if save_after_duplicate:
             self.oproject.Save()
             self._project_dictionary = None
@@ -3224,8 +3224,8 @@ class Design(AedtObjects):
 
         active_design = self.design_name
         design_list = self.design_list
-        _retry_ntimes(3, self._oproject.CopyDesign, active_design)
-        _retry_ntimes(3, self._oproject.Paste)
+        _retry_ntimes(10, self._oproject.CopyDesign, active_design)
+        _retry_ntimes(10, self._oproject.Paste)
         newname = label
         ind = 1
         while newname in self.design_list:
@@ -3528,7 +3528,7 @@ class Design(AedtObjects):
             else:
                 var_obj = self.get_oo_object(app, "Variables/{}".format(variable_name))
         if var_obj:
-            val = _retry_ntimes(3, var_obj.GetPropValue, "SIValue")
+            val = _retry_ntimes(10, var_obj.GetPropValue, "SIValue")
         elif not val:
             try:
                 variation_string = self._odesign.GetNominalVariation()

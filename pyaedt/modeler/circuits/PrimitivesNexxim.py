@@ -290,7 +290,7 @@ class NexximComponents(CircuitComponents):
         >>> oProject.CopyDesign
         >>> oEditor.PasteDesign
         """
-        _retry_ntimes(3, self._app._oproject.CopyDesign, sourcename)
+        _retry_ntimes(10, self._app._oproject.CopyDesign, sourcename)
         _retry_ntimes(
             10,
             self.oeditor.PasteDesign,

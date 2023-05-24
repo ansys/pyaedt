@@ -494,7 +494,7 @@ class ModelerNexxim(ModelerCircuit):
         >>> oEditor.GetActiveUnits
         >>> oEditor.SetActiveUnits
         """
-        return _retry_ntimes(3, self.layouteditor.GetActiveUnits)
+        return _retry_ntimes(10, self.layouteditor.GetActiveUnits)
 
     @property
     def layout(self):

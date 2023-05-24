@@ -285,7 +285,7 @@ class MeshOperation(object):
 
         """
         arguments = ["NAME:AllTabs", ["NAME:MeshSetupTab", ["NAME:PropServers", "MeshSetup:{}".format(name)], arg]]
-        _retry_ntimes(3, self._mesh._app.odesign.ChangeProperty, arguments)
+        _retry_ntimes(10, self._mesh._app.odesign.ChangeProperty, arguments)
 
     @pyaedt_function_handler()
     def delete(self):

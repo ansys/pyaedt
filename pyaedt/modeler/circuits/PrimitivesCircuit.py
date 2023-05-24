@@ -642,7 +642,7 @@ class CircuitComponents(object):
             model_name = self.create_model_from_touchstone(model_name)
         arg1 = ["NAME:ComponentProps", "Name:=", model_name, "Id:=", str(id)]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
-        id = _retry_ntimes(3, self.oeditor.CreateComponent, arg1, arg2)
+        id = _retry_ntimes(10, self.oeditor.CreateComponent, arg1, arg2)
         id = int(id.split(";")[1])
         self.add_id_to_component(id)
         return self.components[id]
@@ -697,7 +697,7 @@ class CircuitComponents(object):
         xpos, ypos = self._get_location(location)
 
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
-        id = _retry_ntimes(3, self.oeditor.CreateComponent, arg1, arg2)
+        id = _retry_ntimes(10, self.oeditor.CreateComponent, arg1, arg2)
         id = int(id.split(";")[1])
         # self.refresh_all_ids()
         self.add_id_to_component(id)
@@ -960,7 +960,7 @@ class CircuitComponents(object):
             Number of components.
 
         """
-        obj = _retry_ntimes(3, self.oeditor.GetAllElements)
+        obj = _retry_ntimes(10, self.oeditor.GetAllElements)
         for el in obj:
             name = el.split(";")
             if len(name) > 1 and str(id) == name[1]:
@@ -1017,12 +1017,12 @@ class CircuitComponents(object):
         >>> oEditor.GetComponentPins
         """
         if isinstance(partid, CircuitComponent):
-            pins = _retry_ntimes(3, self.oeditor.GetComponentPins, partid.composed_name)
+            pins = _retry_ntimes(10, self.oeditor.GetComponentPins, partid.composed_name)
         elif isinstance(partid, str):
-            pins = _retry_ntimes(3, self.oeditor.GetComponentPins, partid)
+            pins = _retry_ntimes(10, self.oeditor.GetComponentPins, partid)
             # pins = self.oeditor.GetComponentPins(partid)
         else:
-            pins = _retry_ntimes(3, self.oeditor.GetComponentPins, self.components[partid].composed_name)
+            pins = _retry_ntimes(10, self.oeditor.GetComponentPins, self.components[partid].composed_name)
             # pins = self.oeditor.GetComponentPins(self.components[partid].composed_name)
         return list(pins)
 
@@ -1156,7 +1156,7 @@ class CircuitComponents(object):
         arg1 = ["NAME:WireData", "Name:=", wire_name, "Id:=", wire_id, "Points:=", points]
         arg2 = ["NAME:Attributes", "Page:=", 1]
         try:
-            wire_id = _retry_ntimes(3, self.oeditor.CreateWire, arg1, arg2)
+            wire_id = _retry_ntimes(10, self.oeditor.CreateWire, arg1, arg2)
             w = Wire(self._modeler)
             for segment in self._app.oeditor.GetWireSegments(wire_id):
                 key = "SegmentID_{}".format(segment.split(" ")[3])

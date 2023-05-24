@@ -28,7 +28,7 @@ class Objec3DLayout(object):
     def __init__(self, primitives, prim_type=None):
         self._primitives = primitives
         self._oeditor = self._primitives.oeditor
-        self._n = 3
+        self._n = 10
         self.prim_type = prim_type
         self._points = []
 
@@ -652,7 +652,7 @@ class Components3DLayout(Objec3DLayout, object):
             prop_name = "ICProp:="
             if not self.die_enabled:
                 self.set_die_type()
-            props = _retry_ntimes(3, self._oeditor.GetComponentInfo, self.name)
+            props = _retry_ntimes(10, self._oeditor.GetComponentInfo, self.name)
             model = ""
             for p in props:
                 if "PortProp(" in p:
@@ -764,7 +764,7 @@ class Nets3DLayout(object):
     def __init__(self, primitives, name=""):
         self._primitives = primitives
         self._oeditor = self._primitives.oeditor
-        self._n = 3
+        self._n = 10
         self.name = name
 
     @property

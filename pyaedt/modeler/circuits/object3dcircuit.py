@@ -472,7 +472,7 @@ class CircuitComponent(object):
             proparray = []
 
         for j in proparray:
-            propval = _retry_ntimes(3, self._oeditor.GetPropertyValue, tab, self.composed_name, j)
+            propval = _retry_ntimes(10, self._oeditor.GetPropertyValue, tab, self.composed_name, j)
             _parameters[j] = propval
         self._parameters = ComponentParameters(self, tab, _parameters)
         return self._parameters
@@ -494,7 +494,7 @@ class CircuitComponent(object):
         proparray = self._oeditor.GetProperties(tab, self.composed_name)
 
         for j in proparray:
-            propval = _retry_ntimes(3, self._oeditor.GetPropertyValue, tab, self.composed_name, j)
+            propval = _retry_ntimes(10, self._oeditor.GetPropertyValue, tab, self.composed_name, j)
             _component_info[j] = propval
         self._component_info = ComponentParameters(self, tab, _component_info)
         return self._component_info
@@ -540,7 +540,7 @@ class CircuitComponent(object):
         self._pins = []
 
         try:
-            pins = _retry_ntimes(3, self._oeditor.GetComponentPins, self.composed_name)
+            pins = _retry_ntimes(10, self._oeditor.GetComponentPins, self.composed_name)
 
             if not pins:
                 return []
@@ -812,20 +812,20 @@ class CircuitComponent(object):
         else:
             vPropServers = ["NAME:PropServers", self.composed_name]
         tabname = None
-        if vPropChange[0][5:] in _retry_ntimes(3, self._oeditor.GetProperties, self.tabname, self.composed_name):
+        if vPropChange[0][5:] in _retry_ntimes(10, self._oeditor.GetProperties, self.tabname, self.composed_name):
             tabname = self.tabname
         elif vPropChange[0][5:] in _retry_ntimes(
             10, self._oeditor.GetProperties, "PassedParameterTab", self.composed_name
         ):
             tabname = "PassedParameterTab"
-        elif vPropChange[0][5:] in _retry_ntimes(3, self._oeditor.GetProperties, "BaseElementTab", self.composed_name):
+        elif vPropChange[0][5:] in _retry_ntimes(10, self._oeditor.GetProperties, "BaseElementTab", self.composed_name):
             tabname = "BaseElementTab"
         if tabname:
             vGeo3dlayout = ["NAME:" + tabname, vPropServers, vChangedProps]
             vOut = ["NAME:AllTabs", vGeo3dlayout]
             if "NAME:Component Location" in str(vChangedProps) and "PagePort" not in self.composed_name:
-                _retry_ntimes(3, self._oeditor.ChangeProperty, vOut)
-            return _retry_ntimes(3, self._oeditor.ChangeProperty, vOut)
+                _retry_ntimes(10, self._oeditor.ChangeProperty, vOut)
+            return _retry_ntimes(10, self._oeditor.ChangeProperty, vOut)
         return False
 
 
