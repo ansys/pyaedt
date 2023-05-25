@@ -1628,7 +1628,7 @@ class PostProcessorCommon(object):
             This is the context of the report.
             The default is ``None``. It can be:
             1. `None`
-            2. ``"Differential pairs"``
+            2. ``"Differential Pairs"``
             3. Reduce Matrix Name for Q2d/Q3d solution
             4. Infinite Sphere name for Far Fields Plot.
             5. Dictionary. If dictionary is passed, key is the report property name and value is property value.
