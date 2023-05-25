@@ -64,7 +64,7 @@ circuit.connect_circuit_models_from_multi_zone_cutout(project_connections=projec
 ###############################################################################
 # Add Nexxim LNA simulation setup
 # ~~~~~~~~~~~~~~~
-circuit_setup= circuit.create_setup("Pyedt_LNA")
+circuit_setup= circuit.create_setup("Pyaedt_LNA")
 
 ###############################################################################
 # Add frequency sweep from 0GHt to 20GHz with 10NHz frequency step.
