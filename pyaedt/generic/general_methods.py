@@ -1720,10 +1720,10 @@ class Help:  # pragma: no cover
 
 class Property(property):
     @pyaedt_function_handler()
-    def __get__(self, obj, objtype=None):
+    def __get__(self, obj, *args, **kwargs):
         """Get value."""
-        if obj is None:
-            return self
+        # if obj is None:
+        #     return self
         if self.fget is None:
             raise AttributeError("unreadable attribute")
         return self.fget(obj)

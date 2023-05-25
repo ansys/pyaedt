@@ -830,13 +830,13 @@ class UserDefinedComponent(object):
          target_coordinate_system: {}
          """.format(
             type(self),
-            self.is3dcomponent,
-            self.parts,
-            self.name,
-            self.group_name,
-            self.mesh_assembly,
-            self.parameters,
-            self.target_coordinate_system,
+            self._is3dcomponent,
+            self._parts,
+            self._m_name,
+            self._group_name,
+            self._mesh_assembly,
+            self._parameters,
+            self._target_coordinate_system,
         )
 
     @pyaedt_function_handler()

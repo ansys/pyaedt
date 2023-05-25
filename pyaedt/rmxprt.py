@@ -245,7 +245,6 @@ class Rmxprt(FieldAnalysisRMxprt):
         return self.design_solutions.design_type
 
     @design_type.setter
-    @pyaedt_function_handler()
     def design_type(self, value):
         self.design_solutions.design_type = value
 

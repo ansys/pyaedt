@@ -107,11 +107,12 @@ class Design(AedtObjects):
 
     def __str__(self):
         pyaedt_details = "      pyaedt API\n"
-        pyaedt_details += "pyaedt running AEDT Version {} \n".format(self._aedt_version)
+        pyaedt_details += "pyaedt running AEDT Version {} \n".format(settings.aedt_version)
         pyaedt_details += "Running {} tool in AEDT\n".format(self.design_type)
         pyaedt_details += "Solution Type: {} \n".format(self.solution_type)
         pyaedt_details += "Project Name: {} Design Name {} \n".format(self.project_name, self.design_name)
-        pyaedt_details += 'Project Path: "{}" \n'.format(self.project_path)
+        if self._oproject:
+            pyaedt_details += 'Project Path: "{}" \n'.format(self.project_path)
         return pyaedt_details
 
     def __exit__(self, ex_type, ex_value, ex_traceback):
@@ -178,6 +179,7 @@ class Design(AedtObjects):
             t = threading.Thread(target=load_aedt_thread, args=(project_name,))
             t.start()
         self._init_variables()
+        self._design_type = design_type
         self.last_run_log = ""
         self.last_run_job = ""
         self._design_dictionary = None
@@ -220,13 +222,11 @@ class Design(AedtObjects):
         if self.student_version:
             settings.disable_bounding_box_sat = True
         self._mttime = None
-        self._design_type = design_type
         self._desktop = main_module.oDesktop
 
         self._desktop_install_dir = main_module.sDesktopinstallDirectory
         self._odesign = None
         self._oproject = None
-        self._design_type = design_type
         if design_type == "HFSS":
             self.design_solutions = HFSSDesignSolution(None, design_type, self._aedt_version)
         elif design_type == "Icepak":
@@ -419,9 +419,10 @@ class Design(AedtObjects):
 
     @property
     def _aedt_version(self):
-        v = self.odesktop.GetVersion()
-        if v:
-            return v[0:6]
+        if self.odesktop:
+            v = self.odesktop.GetVersion()
+            if v:
+                return v[0:6]
         return ""
 
     @property
@@ -456,7 +457,6 @@ class Design(AedtObjects):
             return name
 
     @design_name.setter
-    @pyaedt_function_handler()
     def design_name(self, new_name):
         if ";" in new_name:
             new_name = new_name.split(";")[1]
@@ -525,9 +525,9 @@ class Design(AedtObjects):
 
         >>> oProject.GetName
         """
-        if self._oproject:
+        if self.oproject:
             try:
-                return self._oproject.GetName()
+                return self.oproject.GetName()
             except:
                 return None
         else:
@@ -563,7 +563,9 @@ class Design(AedtObjects):
 
         >>> oProject.GetPath
         """
-        return self.oproject.GetPath()
+        if self.oproject:
+            return self.oproject.GetPath()
+        return None
 
     @property
     def project_time_stamp(self):
@@ -590,7 +592,8 @@ class Design(AedtObjects):
             Full absolute name and path for the project.
 
         """
-        return os.path.join(self.project_path, self.project_name + ".aedt")
+        if self.project_path:
+            return os.path.join(self.project_path, self.project_name + ".aedt")
 
     @property
     def lock_file(self):
@@ -602,7 +605,8 @@ class Design(AedtObjects):
             Full absolute name and path for the project's lock file.
 
         """
-        return os.path.join(self.project_path, self.project_name + ".aedt.lock")
+        if self.project_path:
+            return os.path.join(self.project_path, self.project_name + ".aedt.lock")
 
     @property
     def results_directory(self):
@@ -614,7 +618,8 @@ class Design(AedtObjects):
             Full absolute path for the ``aedtresults`` directory.
 
         """
-        return os.path.join(self.project_path, self.project_name + ".aedtresults")
+        if self.project_path:
+            return os.path.join(self.project_path, self.project_name + ".aedtresults")
 
     @property
     def solution_type(self):
@@ -631,12 +636,14 @@ class Design(AedtObjects):
         >>> oDesign.GetSolutionType
         >>> oDesign.SetSolutionType
         """
-        return self.design_solutions.solution_type
+        if self.design_solutions:
+            return self.design_solutions.solution_type
+        return None
 
     @solution_type.setter
-    @pyaedt_function_handler()
     def solution_type(self, soltype):
-        self.design_solutions.solution_type = soltype
+        if self.design_solutions:
+            self.design_solutions.solution_type = soltype
 
     @property
     def valid_design(self):
@@ -885,7 +892,6 @@ class Design(AedtObjects):
         return self._odesign
 
     @odesign.setter
-    @pyaedt_function_handler()
     def odesign(self, des_name):
         if des_name:
             if self._assert_consistent_design_type(des_name) == des_name:
@@ -925,7 +931,6 @@ class Design(AedtObjects):
         return self._oproject
 
     @oproject.setter
-    @pyaedt_function_handler()
     def oproject(self, proj_name=None):
         if not proj_name:
             self._oproject = self.odesktop.GetActiveProject()

@@ -77,9 +77,13 @@ def launch_aedt(full_path, non_graphical, port, first_run=True):
         for env, val in settings.aedt_environment_variables.items():
             my_env[env] = val
         if is_linux:  # pragma: no cover
-            subprocess.Popen(command, env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+            with subprocess.Popen(command, env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) as p:
+                p.wait()
         else:
-            subprocess.Popen(" ".join(command), env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+            with subprocess.Popen(
+                " ".join(command), env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+            ) as p:
+                p.wait()
 
     _aedt_process_thread = threading.Thread(target=launch_desktop_on_port)
     _aedt_process_thread.daemon = True
@@ -127,7 +131,7 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
     if non_graphical:
         command.append("-ng")
     print(command)
-    p = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+    p = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     timeout = settings.lsf_timeout
     i = 0
     while i < timeout:
@@ -154,10 +158,12 @@ def _check_grpc_port(port, machine_name=""):
             machine_name = "127.0.0.1"
         s.connect((machine_name, port))
     except socket.error:
-        return False
+        success = False
     else:
+        success = True
+    finally:
         s.close()
-        return True
+    return success
 
 
 def _find_free_port():
