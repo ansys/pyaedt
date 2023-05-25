@@ -30,7 +30,7 @@ print(edb_file)
 ###############################################################################
 # AEDT version
 # ~~~~~~~~~~~~~~~
-edb_version = "2023.2"
+edb_version = "2023.1"
 
 ###############################################################################
 # Common reference net used across all sub-designs, Mandatory for this work flow.
