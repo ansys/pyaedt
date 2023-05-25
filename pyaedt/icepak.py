@@ -174,7 +174,6 @@ class Icepak(FieldAnalysis3D):
         return self.design_solutions.problem_type
 
     @problem_type.setter
-    @pyaedt_function_handler()
     def problem_type(self, value="TemperatureAndFlow"):
         self.design_solutions.problem_type = value
 
