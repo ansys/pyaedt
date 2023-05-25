@@ -461,7 +461,6 @@ class Design(AedtObjects):
             return name
 
     @design_name.setter
-    @pyaedt_function_handler()
     def design_name(self, new_name):
         if ";" in new_name:
             new_name = new_name.split(";")[1]
@@ -646,7 +645,6 @@ class Design(AedtObjects):
         return None
 
     @solution_type.setter
-    @pyaedt_function_handler()
     def solution_type(self, soltype):
         if self.design_solutions:
             self.design_solutions.solution_type = soltype
@@ -898,7 +896,6 @@ class Design(AedtObjects):
         return self._odesign
 
     @odesign.setter
-    @pyaedt_function_handler()
     def odesign(self, des_name):
         if des_name:
             if self._assert_consistent_design_type(des_name) == des_name:
@@ -938,7 +935,6 @@ class Design(AedtObjects):
         return self._oproject
 
     @oproject.setter
-    @pyaedt_function_handler()
     def oproject(self, proj_name=None):
         if not proj_name:
             self._oproject = self.odesktop.GetActiveProject()

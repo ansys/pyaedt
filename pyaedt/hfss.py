@@ -218,7 +218,6 @@ class Hfss(FieldAnalysis3D, object):
         return self.design_solutions.hybrid
 
     @hybrid.setter
-    @pyaedt_function_handler()
     def hybrid(self, value):
         self.design_solutions.hybrid = value
 
@@ -228,7 +227,6 @@ class Hfss(FieldAnalysis3D, object):
         return self.design_solutions.composite
 
     @composite.setter
-    @pyaedt_function_handler()
     def composite(self, value):
         self.design_solutions.composite = value
 

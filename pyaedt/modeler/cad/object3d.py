@@ -1875,13 +1875,11 @@ class Object3d(object):
     def _change_property(self, vPropChange):
         return self._primitives._change_geometry_property(vPropChange, self._m_name)
 
-    def __repr__(self):
+    def __str__(self):
         return """
-         {}
          name: {}    id: {}    object_type: {}
          """.format(
-            type(self),
             self.name,
-            self._id,
+            self.id,
             self._object_type,
         )

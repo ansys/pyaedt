@@ -2647,7 +2647,6 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         return self.design_solutions.xy_plane
 
     @xy_plane.setter
-    @pyaedt_function_handler()
     def xy_plane(self, value=True):
         self.design_solutions.xy_plane = value
 
