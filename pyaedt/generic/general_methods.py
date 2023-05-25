@@ -1726,10 +1726,7 @@ class Property(property):
         #     return self
         if self.fget is None:
             raise AttributeError("unreadable attribute")
-        try:
-            return self.fget(obj)
-        except:
-            raise AttributeError("unreadable attribute")
+        return self.fget(obj)
 
     @pyaedt_function_handler()
     def __set__(self, obj, value):
