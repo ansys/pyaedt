@@ -140,35 +140,6 @@ def _download_file(directory, filename=None, destination=None):
 # front-facing functions
 
 
-def download_multizone_aedb(destination=None):
-    """Download an example of AEDB File  defined with multizone and return the .def file path.
-
-    Examples files are downloaded to a persistent cache to avoid
-    re-downloading the same file twice.
-
-    Parameters
-    ----------
-    destination : str, optional
-        Path for downloading files. The default is the user's temp folder.
-
-    Returns
-    -------
-    str
-        Path to the example file.
-
-    Examples
-    --------
-    Download an example result file and return the path of the file.
-    >>> import pyaedt
-    >>> path = pyaedt.downloads.download_multizone_aedb()
-    >>> path
-    'C:/Users/user/AppData/local/temp/siwave_multi_zones.aedb'
-    """
-    _download_file("edb/siwave_multi_zones.aedb", "edb.def", destination)
-
-    return _download_file("edb/siwave_multi_zones.aedb", "edb.def", destination)
-
-
 def download_aedb(destination=None):
     """Download an example of AEDB File and return the def path.
 
