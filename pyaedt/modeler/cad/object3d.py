@@ -1877,26 +1877,9 @@ class Object3d(object):
 
     def __str__(self):
         return """
-         {}
          name: {}    id: {}    object_type: {}
-         --- read/write properties  ----
-         solve_inside: {}
-         model: {}
-         material_name: {}
-         color: {}
-         transparency: {}
-         display_wireframe {}
-         part_coordinate_system: {}
          """.format(
-            type(self),
             self.name,
             self.id,
-            self.object_type,
-            self.solve_inside,
-            self.model,
-            self.material_name,
-            self.color,
-            self.transparency,
-            self.display_wireframe,
-            self.part_coordinate_system,
+            self._object_type,
         )
