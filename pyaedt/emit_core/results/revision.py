@@ -366,7 +366,7 @@ class Revision:
         1048576
         """
         if self.emit_project._aedt_version < "2024.1":
-            raise RuntimeError('This function only supported in AEDT version 2024.1 and later.')
+            raise RuntimeError("This function only supported in AEDT version 2024.1 and later.")
         if self.revision_loaded:
             engine = self.emit_project._emit_api.get_engine()
             max_instances = engine.max_n_to_1_instances
@@ -377,7 +377,7 @@ class Revision:
     @max_n_to_1_instances.setter
     def max_n_to_1_instances(self, max_instances):
         if self.emit_project._aedt_version < "2024.1":
-            raise RuntimeError('This function only supported in AEDT version 2024.1 and later.')
+            raise RuntimeError("This function only supported in AEDT version 2024.1 and later.")
         if self.revision_loaded:
             engine = self.emit_project._emit_api.get_engine()
             engine.max_n_to_1_instances = max_instances
