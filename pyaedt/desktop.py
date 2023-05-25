@@ -64,8 +64,6 @@ else:
     _com = "gprc_v3"
     settings.use_grpc_api = True
 
-devnull = subprocess.DEVNULL
-
 
 @pyaedt_function_handler()
 def launch_aedt(full_path, non_graphical, port, first_run=True):
@@ -79,10 +77,12 @@ def launch_aedt(full_path, non_graphical, port, first_run=True):
         for env, val in settings.aedt_environment_variables.items():
             my_env[env] = val
         if is_linux:  # pragma: no cover
-            with subprocess.Popen(command, env=my_env, stdout=devnull, stderr=devnull) as p:
+            with subprocess.Popen(command, env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) as p:
                 p.wait()
         else:
-            with subprocess.Popen(" ".join(command), env=my_env, stdout=devnull, stderr=devnull) as p:
+            with subprocess.Popen(
+                " ".join(command), env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+            ) as p:
                 p.wait()
 
     _aedt_process_thread = threading.Thread(target=launch_desktop_on_port)
@@ -131,7 +131,7 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
     if non_graphical:
         command.append("-ng")
     print(command)
-    p = subprocess.Popen(command, stdout=devnull, stderr=devnull)
+    p = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     timeout = settings.lsf_timeout
     i = 0
     while i < timeout:
