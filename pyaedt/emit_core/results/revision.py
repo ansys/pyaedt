@@ -147,8 +147,6 @@ class Revision:
         """
         self._load_revision()
         engine = self.emit_project._emit_api.get_engine()
-        if domain.interferer_names and engine.max_simultaneous_interferers != len(domain.interferer_names):
-            raise ValueError("The max_simultaneous_interferers must equal the number of interferers in the domain.")
         interaction = engine.run(domain)
         # save the revision
         self.emit_project._emit_api.save_project()
@@ -355,3 +353,31 @@ class Revision:
     def notes(self, notes):
         self.emit_project.odesign.SetResultNotes(self.name, notes)
         self.emit_project._emit_api.save_project()
+
+    @property
+    def max_n_to_1_instances(self):
+        """
+        The maximum number of instances per band combination allowed to run for N to 1.
+
+        Examples
+        ----------
+        >>> aedtapp.results.current_revision.max_n_to_1_instances = 2**20
+        >>> aedtapp.results.current_revision.max_n_to_1_instances
+        1048576
+        """
+        if self.emit_project._aedt_version < "2024.1":
+            raise RuntimeError('This function only supported in AEDT version 2024.1 and later.')
+        if self.revision_loaded:
+            engine = self.emit_project._emit_api.get_engine()
+            max_instances = engine.max_n_to_1_instances
+        else:
+            max_instances = None
+        return max_instances
+
+    @max_n_to_1_instances.setter
+    def max_n_to_1_instances(self, max_instances):
+        if self.emit_project._aedt_version < "2024.1":
+            raise RuntimeError('This function only supported in AEDT version 2024.1 and later.')
+        if self.revision_loaded:
+            engine = self.emit_project._emit_api.get_engine()
+            engine.max_n_to_1_instances = max_instances
