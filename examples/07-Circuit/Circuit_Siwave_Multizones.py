@@ -29,51 +29,66 @@ print(edb_file)
 
 ###############################################################################
 # AEDT version
-# ~~~~~~~~~~~~~~~
-edb_version = "2023.2"
+# ~~~~~~~~~~~~
+# Sets the Aedt version to 2023 R1.
+
+edb_version = "2023.1"
 
 ###############################################################################
+# Groun net
+# ~~~~~~~~~
 # Common reference net used across all sub-designs, Mandatory for this work flow.
-# ~~~~~~~~~~~~~~~
+
 common_reference_net = "GND"
 
 ###############################################################################
-# load initial Edb file, checking if aedt file exists and remove to allow Edb loading.
-# ~~~~~~~~~~~~~~~
+# Project load
+# ~~~~~~~~~~~~
+# Load initial Edb file, checking if aedt file exists and remove to allow Edb loading.
+
 if os.path.isfile(aedt_file):
     os.remove(aedt_file)
 edb = Edb(edbversion=edb_version, edbpath=edb_file)
 
 ###############################################################################
-# Copy project zone into sub project
-# ~~~~~~~~~~~~~~~
+# Project zones
+# ~~~~~~~~~~~~~
+# Copy project zone into sub project.
+
 edb_zones = edb.copy_zones(working_directory=working_directory)
 
 ###############################################################################
-# clip sub-designs along with corresponding zone definition and create port of clipped signal traces
+# Split zones
 # ~~~~~~~~~~~~~~~
+# Clip sub-designs along with corresponding zone definition
+# and create port of clipped signal traces.
 defined_ports, project_connexions = edb.cutout_multizone_layout(edb_zones, common_reference_net)
 
 ###############################################################################
-# create circuit design, import all sub-project as EM model and connect all corresponding pins in circuit
-# ~~~~~~~~~~~~~~~
+# Circuit
+# ~~~~~~~
+# Create circuit design, import all sub-project as EM model and connect all corresponding pins in circuit.
+
 circuit = Circuit(specified_version=edb_version, projectname=circuit_project_file)
 circuit.connect_circuit_models_from_multi_zone_cutout(project_connections=project_connexions,
                                                       edb_zones_dict=edb_zones, ports=defined_ports,
                                                       model_inc=70)
 ###############################################################################
-# Add Nexxim LNA simulation setup
-# ~~~~~~~~~~~~~~~
+# Setup
+# ~~~~~
+#  Add Nexxim LNA simulation setup.
 circuit_setup= circuit.create_setup("Pyedt_LNA")
 
 ###############################################################################
+# Frequency sweep
+# ~~~~~~~~~~~~~~~~
 # Add frequency sweep from 0GHt to 20GHz with 10NHz frequency step.
-# ~~~~~~~~~~~~~~~
 circuit_setup.props["SweepDefinition"]["Data"] = "LIN {} {} {}".format("0GHz", "20GHz", "10MHz")
 
 ###############################################################################
 # Start simulation
-# ~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~
+# Analyze all siwave projects and solves the circuit.
 circuit.analyze()
 
 ###############################################################################
@@ -86,10 +101,10 @@ circuit.set_differential_pair(diff_name="U1", positive_terminal="U1.via_32.B2B_S
 
 ###############################################################################
 # Plot results
-# ~~~~~~~~~~~~~~~
-circuit.post.create_report(expressions=["dB(S(U0,U0))", "dB(S(U1,U0))"], context="Differential pairs")
+# ~~~~~~~~~~~~
+circuit.post.create_report(expressions=["dB(S(U0,U0))", "dB(S(U1,U0))"], context="Differential Pairs")
 
 ###############################################################################
 # Release AEDT desktop
-# ~~~~~~~~~~~~~~~
-circuit.release_desktop(close_desktop=False, close_projects=False)
+# ~~~~~~~~~~~~~~~~~~~~
+circuit.release_desktop()
