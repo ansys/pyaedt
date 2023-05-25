@@ -35,8 +35,8 @@ print(edb_file)
 edb_version = "2023.1"
 
 ###############################################################################
-# Groun net
-# ~~~~~~~~~
+# Ground net
+# ~~~~~~~~~~
 # Common reference net used across all sub-designs, Mandatory for this work flow.
 
 common_reference_net = "GND"
