@@ -87,7 +87,7 @@ circuit.set_differential_pair(diff_name="U1", positive_terminal="U1.via_32.B2B_S
 ###############################################################################
 # Plot results
 # ~~~~~~~~~~~~~~~
-circuit.post.create_report(expressions=["dB(S(U0,U0))", "dB(S(U1,U0))"], context="Differential pairs")
+circuit.post.create_report(expressions=["dB(S(U0,U0))", "dB(S(U1,U0))"], context="Differential Pairs")
 
 ###############################################################################
 # Release AEDT desktop
