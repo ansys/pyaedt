@@ -368,13 +368,15 @@ class CircuitComponents(object):
         >>> oComponentManager.Add
         """
 
-        def _parse_ports_name(file):
+        def _parse_ports_name(file, num_terminal):
             """Parse and interpret the option line in the touchstone file.
 
             Parameters
             ----------
             file : str
                 Path of the Touchstone file.
+            num_terminal : int
+                Number of terminals.
 
             Returns
             -------
@@ -384,11 +386,14 @@ class CircuitComponents(object):
             """
             portnames = []
             line = file.readline()
-            while not line.startswith("! Port"):
+            while not line.startswith("! Port") and line.find("S11") == -1:
                 line = file.readline()
-            while line.startswith("! Port"):
-                portnames.append(line.split(" = ")[1].strip())
-                line = file.readline()
+            if line.startswith("! Port"):
+                while line.startswith("! Port"):
+                    portnames.append(line.split(" = ")[1].strip())
+                    line = file.readline()
+            else:  # pragma: no cover
+                portnames = ["Port" + str(n) for n in range(1, num_terminal + 1)]
             return portnames
 
         if not model_name:
@@ -397,7 +402,7 @@ class CircuitComponents(object):
             model_name = generate_unique_name(model_name, n=2)
         num_terminal = int(os.path.splitext(touchstone_full_path)[1].lower().strip(".sp"))
         with open_file(touchstone_full_path, "r") as f:
-            port_names = _parse_ports_name(f)
+            port_names = _parse_ports_name(f, num_terminal)
         image_subcircuit_path = os.path.join(self._modeler._app.desktop_install_dir, "syslib", "Bitmaps", "nport.bmp")
 
         if not port_names:
