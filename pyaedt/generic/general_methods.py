@@ -1722,8 +1722,8 @@ class Property(property):
     @pyaedt_function_handler()
     def __get__(self, obj, objtype=None):
         """Get value."""
-        if obj is None:
-            return self
+        # if obj is None:
+        #     return self
         if self.fget is None:
             raise AttributeError("unreadable attribute")
         return self.fget(obj)
