@@ -47,6 +47,7 @@ from pyaedt.generic.clr_module import Convert
 from pyaedt.generic.clr_module import List
 from pyaedt.generic.clr_module import Tuple
 from pyaedt.generic.clr_module import _clr
+from pyaedt.generic.clr_module import _unload
 from pyaedt.generic.clr_module import edb_initialized
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import SolverType
@@ -1242,6 +1243,7 @@ class Edb(object):
         elapsed_time = time.time() - start_time
         self.logger.info("EDB file release time: {0:.2f}ms".format(elapsed_time * 1000.0))
         self._clean_variables()
+        _unload()
         return True
 
     @pyaedt_function_handler()

@@ -310,6 +310,10 @@ def release_desktop(close_projects=True, close_desktop=True):
                 warnings.warn("Something went wrong in closing AEDT.")
                 return False
         _delete_objects()
+        if not settings.use_grpc_api:
+            from pyaedt.generic.clr_module import _unload
+
+            _unload()
         return True
     except AttributeError:
         _delete_objects()
