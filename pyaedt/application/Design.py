@@ -328,10 +328,6 @@ class Design(AedtObjects):
         self.optimizations = None
         self._native_components = None
         self._mesh = None
-        self._desktop = None
-        self._odesign = None
-        self._oproject = None
-        self.design_solutions = None
 
     @property
     def settings(self):
