@@ -779,7 +779,19 @@ class TestClass(BasisTest, object):
     def test_43_create_and_change_prop_text(self):
         self.aedtapp.insert_design("text")
         self.aedtapp.modeler.schematic_units = "mil"
-        text = self.aedtapp.modeler.create_text("text test", 100, 300)
+        text = self.aedtapp.modeler.create_text(
+            "text test",
+            100,
+            300,
+            text_size=14,
+            text_angle=45,
+            text_color=[255, 0, 0],
+            show_rect=True,
+            rect_line_width=3,
+            rect_border_color=[0, 255, 0],
+            rect_fill=1,
+            rect_color=[0, 0, 255],
+        )
         assert isinstance(text, str)
         assert text in self.aedtapp.oeditor.GetAllGraphics()
         assert self.aedtapp.modeler.create_text("text test", "1000mil", "-2000mil")
