@@ -358,6 +358,8 @@ class Revision:
     def max_n_to_1_instances(self):
         """
         The maximum number of instances per band combination allowed to run for N to 1.
+        A value of 0 disables N to 1 entirely.
+        A value of -1 allows unlimited N to 1 instances.
 
         Examples
         ----------
