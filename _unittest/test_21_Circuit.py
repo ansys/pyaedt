@@ -806,8 +806,8 @@ class TestClass(BasisTest, object):
         edb_zones = edb.copy_zones()
         assert edb_zones
         defined_ports, project_connexions = edb.cutout_multizone_layout(edb_zones, common_reference_net)
+        edb.close_edb()
         assert project_connexions
         self.aedtapp.insert_design("test_45")
         self.aedtapp.connect_circuit_models_from_multi_zone_cutout(project_connexions, edb_zones, defined_ports)
         assert [mod for mod in list(self.aedtapp.modeler.schematic.components.values()) if "PagePort" in mod.name]
-        edb.close_edb()
