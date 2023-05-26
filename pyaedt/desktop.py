@@ -1,8 +1,6 @@
 """
 This module contains the ``Desktop`` class.
-
 This module is used to initialize AEDT and the message manager for managing AEDT.
-
 You can initialize this module before launching an app or
 have the app automatically initialize it to the latest installed AEDT version.
 """
@@ -310,10 +308,6 @@ def release_desktop(close_projects=True, close_desktop=True):
                 warnings.warn("Something went wrong in closing AEDT.")
                 return False
         _delete_objects()
-        if not settings.use_grpc_api:
-            from pyaedt.generic.clr_module import _unload
-
-            _unload()
         return True
     except AttributeError:
         _delete_objects()
@@ -505,6 +499,10 @@ class Desktop(object):
         self.logfile = None
 
         self._logger = pyaedt_logger
+        if settings.enable_screen_logs:
+            self._logger.enable_stdout_log()
+        else:
+            self._logger.disable_stdout_log()
         self._logger.info("using existing logger.")
 
         if "oDesktop" in dir():  # pragma: no cover
@@ -1689,3 +1687,72 @@ class Desktop(object):
                     f1.write(line)
         f1.close()
         return self.odesktop.SubmitJob(os.path.join(project_path, "Job_settings.areg"), project_file)
+
+    @property
+    def are_there_simulations_running(self):
+        """Check if there are simulation running.
+
+        .. note::
+           It works only for AEDT >= ``"2023.2"``.
+
+        Returns
+        -------
+        float
+
+        """
+        if self.aedt_version_id > "2023.1":
+            return self.odesktop.AreThereSimulationsRunning()
+        else:
+            self.logger.error("It works only for AEDT >= `2023.2`.")
+        return False
+
+    @pyaedt_function_handler()
+    def get_monitor_data(self):
+        """Check and get monitor data of an existing analysis
+
+        .. note::
+           It works only for AEDT >= ``"2023.2"``.
+
+        Returns
+        -------
+        dict
+
+        """
+        counts = {"profile": 0, "convergence": 0, "sweptvar": 0, "progress": 0, "variations": 0, "displaytype": 0}
+        if self.are_there_simulations_running:
+            reqstr = " ".join(["%s %d 0" % (t, counts[t]) for t in counts])
+            data = self.odesktop.GetMonitorData(reqstr)
+            all_lines = (line.strip() for line in data.split("\n"))
+            for line in all_lines:
+                if line.startswith("$begin"):
+                    btype = line.split()[1].strip("'")
+                    if btype == "MonitoringProfileMsg":
+                        counts["profile"] += 1
+                    elif btype == "MonConvData":
+                        counts["convergence"] += 1
+                    elif btype == "MonGenericVariations":
+                        pass
+                    elif btype == "MapMonGraphicalProgMsg":
+                        pass
+                    elif btype == "MonitoringSweptVariableMsg":
+                        counts["sweptvar"] += 1
+            return counts
+        return counts
+
+    @pyaedt_function_handler()
+    def stop_simulations(self, clean_stop=True):
+        """Check if there are simulation running and stops them.
+
+        .. note::
+           It works only for AEDT >= ``"2023.2"``.
+
+        Returns
+        -------
+        str
+
+        """
+        if self.aedt_version_id > "2023.1":
+            return self.odesktop.StopSimulations(clean_stop)
+        else:
+            self.logger.error("It works only for AEDT >= `2023.2`.")
+        return False

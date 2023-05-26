@@ -47,7 +47,6 @@ from pyaedt.generic.clr_module import Convert
 from pyaedt.generic.clr_module import List
 from pyaedt.generic.clr_module import Tuple
 from pyaedt.generic.clr_module import _clr
-from pyaedt.generic.clr_module import _unload
 from pyaedt.generic.clr_module import edb_initialized
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import SolverType
@@ -159,6 +158,10 @@ class Edb(object):
             self._global_logger = pyaedt_logger
             self._logger = pyaedt_logger
             self.student_version = student_version
+            if settings.enable_screen_logs:
+                self.logger.enable_stdout_log()
+            else:
+                self.logger.disable_stdout_log()
             self.logger.info("Logger is initialized in EDB.")
             self.logger.info("pyaedt v%s", __version__)
             self.logger.info("Python version %s", sys.version)
@@ -1243,7 +1246,6 @@ class Edb(object):
         elapsed_time = time.time() - start_time
         self.logger.info("EDB file release time: {0:.2f}ms".format(elapsed_time * 1000.0))
         self._clean_variables()
-        _unload()
         return True
 
     @pyaedt_function_handler()

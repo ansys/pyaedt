@@ -1764,7 +1764,7 @@ class Settings(object):
     def __init__(self):
         self._enable_logger = True
         self._enable_desktop_logs = True
-        self._enable_screen_logs = False
+        self._enable_screen_logs = True
         self._enable_file_logs = True
         self.pyaedt_server_path = ""
         self._logger_file_path = None
