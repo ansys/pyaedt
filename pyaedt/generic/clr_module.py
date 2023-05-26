@@ -91,10 +91,3 @@ if "win32com" in modules:
             import win32com.client as win32_client
         except ImportError:
             win32_client = None
-
-
-def _unload():
-    from pythonnet import _RUNTIME
-
-    if _RUNTIME is not None:
-        _RUNTIME.shutdown()

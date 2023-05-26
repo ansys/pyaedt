@@ -2424,6 +2424,8 @@ class TestClass(BasisTest, object):
         )
         c_map = os.path.join(local_path, "example_models", "cad", "GDS", "dummy_layermap.map")
         gds_in = os.path.join(local_path, "example_models", "cad", "GDS", "sky130_fictitious_dtc_example.gds")
+        gds_out = os.path.join(self.local_scratch.path, "sky130_fictitious_dtc_example.gds")
+        self.local_scratch.copyfile(gds_in, gds_out)
         from pyaedt.edb_core.edb_data.control_file import ControlFile
 
         c = ControlFile(c_file_in, layer_map=c_map)
@@ -2446,7 +2448,7 @@ class TestClass(BasisTest, object):
         c.import_options.import_dummy_nets = True
         from pyaedt import Edb
 
-        edb = Edb(gds_in, edbversion="2023.1", technology_file=os.path.join(self.local_scratch.path, "test_138.xml"))
+        edb = Edb(gds_out, edbversion="2023.1", technology_file=os.path.join(self.local_scratch.path, "test_138.xml"))
 
         assert edb
         assert "P1" in edb.excitations
