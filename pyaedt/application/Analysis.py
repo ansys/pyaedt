@@ -1776,7 +1776,7 @@ class Analysis(Design, object):
 
     @pyaedt_function_handler()
     def get_monitor_data(self):
-        """Check and get monitor data of an existing analysis
+        """Check and get monitor data of an existing analysis.
 
         .. note::
            It works only for AEDT >= ``"2023.2"``.
