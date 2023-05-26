@@ -18,6 +18,7 @@ from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SolveSweeps import SetupProps
@@ -79,6 +80,7 @@ class CommonSetup(PropsManager, object):
         machine="localhost",
         run_in_thread=False,
         revert_to_initial_mesh=False,
+        blocking=True,
     ):
         """Solve the active design.
 
@@ -105,6 +107,9 @@ class CommonSetup(PropsManager, object):
             ``False``.
         revert_to_initial_mesh : bool, optional
             Whether to revert to initial mesh before solving or not. Default is ``False``.
+        blocking : bool, optional
+            Whether to block script while analysis is completed or not. It works from AEDT 2023 R2.
+            Default is ``True``.
 
         Returns
         -------
@@ -127,6 +132,7 @@ class CommonSetup(PropsManager, object):
             machine=machine,
             run_in_thread=run_in_thread,
             revert_to_initial_mesh=revert_to_initial_mesh,
+            blocking=blocking,
         )
 
     @pyaedt_function_handler()

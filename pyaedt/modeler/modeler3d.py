@@ -8,6 +8,7 @@ import warnings
 
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.Modeler import GeometryModeler
 from pyaedt.modeler.cad.Primitives3D import Primitives3D
@@ -363,7 +364,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                         del out_dict["coordinatesystems"][cs]
             with open(auxiliary_dict, "w") as outfile:
                 json.dump(out_dict, outfile)
-        return _retry_ntimes(3, self.oeditor.Create3DComponent, arg, arg2, component_file, arg3)
+        return _retry_ntimes(10, self.oeditor.Create3DComponent, arg, arg2, component_file, arg3)
 
     @pyaedt_function_handler()
     def replace_3dcomponent(
@@ -532,7 +533,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             arg2.append("MeshOperations:="), arg2.append(meshops)
         arg3 = ["NAME:ImageFile", "ImageFile:=", ""]
         old_components = self.user_defined_component_names
-        _retry_ntimes(3, self.oeditor.ReplaceWith3DComponent, arg, arg2, arg3)
+        _retry_ntimes(10, self.oeditor.ReplaceWith3DComponent, arg, arg2, arg3)
         self.refresh_all_ids()
         new_name = list(set(self.user_defined_component_names) - set(old_components))
         return self.user_defined_components[new_name[0]]
@@ -1131,6 +1132,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         if import_in_aedt:
             self.model_units = "meter"
             for part in parts_dict:
+                if not os.path.exists(parts_dict[part]["file_name"]):
+                    continue
                 obj_names = [i for i in self.object_names]
                 self.import_3d_cad(
                     parts_dict[part]["file_name"],

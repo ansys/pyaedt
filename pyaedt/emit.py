@@ -8,6 +8,7 @@ from pyaedt.application.Design import Design
 from pyaedt.emit_core import EmitConstants
 from pyaedt.emit_core.Couplings import CouplingsEmit
 from pyaedt.emit_core.results.results import Results
+from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.schematic import ModelerEmit
 
@@ -53,6 +54,7 @@ class Emit(Design, object):
         Port number on which to start the oDesktop communication on an already existing server.
         This parameter is ignored when creating a server. This parameter works only in 2022 R2 or later.
         The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
+        The default is ``0``.
     machine : str, optional
         Machine name that the Desktop session is to connect to. This
         parameter works only in 2022 R2 and later. The remote server must be

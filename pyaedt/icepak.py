@@ -25,6 +25,7 @@ from pyaedt.generic.DataHandlers import random_string
 from pyaedt.generic.configurations import ConfigurationsIcepak
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
+from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.geometry_operators import GeometryOperators
@@ -94,38 +95,38 @@ class Icepak(FieldAnalysis3D):
 
     >>> from pyaedt import Icepak
     >>> icepak = Icepak()
-    pyaedt INFO: No project is defined. Project ...
-    pyaedt INFO: Active design is set to ...
+    PyAEDT INFO: No project is defined. Project ...
+    PyAEDT INFO: Active design is set to ...
 
     Create an instance of Icepak and link to a project named
     ``IcepakProject``. If this project does not exist, create one with
     this name.
 
     >>> icepak = Icepak("IcepakProject")
-    pyaedt INFO: Project ...
-    pyaedt INFO: Added design ...
+    PyAEDT INFO: Project ...
+    PyAEDT INFO: Added design ...
 
     Create an instance of Icepak and link to a design named
     ``IcepakDesign1`` in a project named ``IcepakProject``.
 
     >>> icepak = Icepak("IcepakProject", "IcepakDesign1")
-    pyaedt INFO: Added design 'IcepakDesign1' of type Icepak.
+    PyAEDT INFO: Added design 'IcepakDesign1' of type Icepak.
 
     Create an instance of Icepak and open the specified project,
     which is ``myipk.aedt``.
 
     >>> icepak = Icepak("myipk.aedt")
-    pyaedt INFO: Project myipk has been created.
-    pyaedt INFO: No design is present. Inserting a new design.
-    pyaedt INFO: Added design ...
+    PyAEDT INFO: Project myipk has been created.
+    PyAEDT INFO: No design is present. Inserting a new design.
+    PyAEDT INFO: Added design ...
 
     Create an instance of Icepak using the 2021 R1 release and
     open the specified project, which is ``myipk2.aedt``.
 
     >>> icepak = Icepak(specified_version="2021.2", projectname="myipk2.aedt")
-    pyaedt INFO: Project...
-    pyaedt INFO: No design is present. Inserting a new design.
-    pyaedt INFO: Added design...
+    PyAEDT INFO: Project...
+    PyAEDT INFO: No design is present. Inserting a new design.
+    PyAEDT INFO: Added design...
     """
 
     def __init__(
@@ -173,7 +174,6 @@ class Icepak(FieldAnalysis3D):
         return self.design_solutions.problem_type
 
     @problem_type.setter
-    @pyaedt_function_handler()
     def problem_type(self, value="TemperatureAndFlow"):
         self.design_solutions.problem_type = value
 
@@ -309,8 +309,8 @@ class Icepak(FieldAnalysis3D):
         >>> faces = icepak.modeler["USB_GND"].faces
         >>> face_names = [face.id for face in faces]
         >>> boundary = icepak.assign_openings(face_names)
-        pyaedt INFO: Face List boundary_faces created
-        pyaedt INFO: Opening Assigned
+        PyAEDT INFO: Face List boundary_faces created
+        PyAEDT INFO: Opening Assigned
         """
         boundary_name = generate_unique_name("Opening")
         self.modeler.create_face_list(air_faces, "boundary_faces" + boundary_name)
@@ -419,7 +419,7 @@ class Icepak(FieldAnalysis3D):
         >>> box1 = icepak.modeler.create_box([1, 1, 1], [3, 3, 3], "BlockBox1", "copper")
         >>> box2 = icepak.modeler.create_box([2, 2, 2], [4, 4, 4], "BlockBox2", "copper")
         >>> blocks = icepak.create_source_blocks_from_list([["BlockBox1", 2], ["BlockBox2", 4]])
-        pyaedt INFO: Block on ...
+        PyAEDT INFO: Block on ...
         >>> blocks[1].props
         {'Objects': ['BlockBox1'], 'Block Type': 'Solid', 'Use External Conditions': False, 'Total Power': '2W'}
         >>> blocks[3].props
@@ -482,7 +482,7 @@ class Icepak(FieldAnalysis3D):
 
         >>> box = icepak.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox3", "copper")
         >>> block = icepak.create_source_block("BlockBox3", "1W", False)
-        pyaedt INFO: Block on ...
+        PyAEDT INFO: Block on ...
         >>> block.props
         {'Objects': ['BlockBox3'], 'Block Type': 'Solid', 'Use External Conditions': False, 'Total Power': '1W'}
 
@@ -684,7 +684,7 @@ class Icepak(FieldAnalysis3D):
         if input_power == 0:
             input_power = "0W"
         if not bool(input_power) ^ bool(thermal_dependent_dataset):
-            self.logger.error("Please assigned one input between ``thermal_dependent_dataset`` and  ``input_power``")
+            self.logger.error("Assign one input between ``thermal_dependent_dataset`` and  ``input_power``.")
         if not source_name:
             source_name = generate_unique_name("Source")
         props = {}
@@ -769,7 +769,8 @@ class Icepak(FieldAnalysis3D):
         '2W'
         """
         warnings.warn(
-            "This method is deprecated in 0.6.27. Please use create_two_resistor_network_block", DeprecationWarning
+            "This method is deprecated in 0.6.27. Use the create_two_resistor_network_block() method.",
+            DeprecationWarning,
         )
         if object_name in self.modeler.object_names:
             if gravity_dir > 2:
@@ -3789,28 +3790,42 @@ class Icepak(FieldAnalysis3D):
         object_name : str
             Name of the object.
         power_assignment : str or dict
-            String with value and units of the power assignment or with ``"Joule Heating"``.
-            Also, a dictionary can be used for temperature dependent or transient assignment.
-            The dictionary should contain three keys: ``"Type"``, ``"Function"`` and
-            ``"Values"``. Accepted ``"Type"`` values are: ``"Temp Dep"`` and ``"Transient"``.
-            Accepted ``"Function"`` are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
-            ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``. ``"Temp Dep"`` only
-            support the latter. ``"Values"`` contains a list of strings containing the parameters
-            required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
-            the value of the variable at t=0 and the slope of the line). The parameters required by
-            each ``Function`` option is in Icepak documentation. The parameters must contain the
-            units where needed.
+            String with the value and units of the power assignment or with
+            ``"Joule Heating"``. For a temperature-dependent or transient
+            assignment, a dictionary can be used. The dictionary should contain three keys:
+            ``"Type"``, ``"Function"``, and ``"Values"``.
+
+            - For the ``"Type"`` key, accepted values are ``"Temp Dep"`` and ``"Transient"``.
+            - For the ``"Function"`` key, acceptable values depend on the ``"Type"`` key
+              selection. When the ``"Type"`` key is set to ``"Temp Dep"``, the only
+              accepted value is ````"Piecewise Linear"`` . When the ``"Type"`` key is
+              set to ``"Transient"``, acceptable values are `"Exponential"``, `"Linear"``,
+              ```"Piecewise Linear"``, ``"Power Law"``, ``"Sinusoidal"``, and ``"Square
+               Wave"``.
+            - For the ``"Values"`` key, a list of strings contain the parameters required by
+              the ``"Function"`` key selection. For example, whn``"Linear"`` is set as the
+              ``"Function"`` key, two parameters are required: the value of the variable
+              at t=0 and the slope of the line. For the parameters required by each
+              ``"Function"`` key selection, see the Icepack documentation (). The parameters
+              must contain the units where needed.
+
         boundary_name : str, optional
-            Name of the source boundary. The default is ``None`` and the boundary name will be
-            generated automatically.
-        htc : float, str or dict, optional
-            String with value and units of heat transfer coefficient for the external conditions.
-            Also, a dictionary can be used for temperature dependent or transient assignment as
-            described in ``power_assignment``. The default is ``None``
+            Name of the source boundary. The default is ``None``, in which case the
+            boundary name is automatically generated.
+        htc : float, str, or dict, optional
+            String with the value and units of the heat transfer coefficient for the
+            external conditions. If a float is provided, ``"w_per_m2kel"`` unit will be used.
+            For a temperature-dependent or transient
+            assignment, a dictionary can be used. For more information, see the
+            description for the preceding ``power_assignment`` parameter. The
+            default is ``None``, in which case no external condition will be applied.
         ext_temperature : float, str or dict, optional
-            String with value and units of temperature for the external conditions.
-            Also, a dictionary can be used for transient assignment as described in ``power_assignment``.
-            The default is ``"AmbientTemp"`` and will have effect if ``htc`` is not ``None``
+            String with the value and units of temperature for the external conditions.
+            If a float is provided, ``"cel"`` unit will be used.
+            For a transient assignment, a dictionary can be used. For more information,
+            see the description for the preceding ``power_assignment`` parameter. The
+            default is ``"AmbientTemp"``, which is used if the ``htc`` parameter is not
+            set to ``None``.
 
 
         Returns
@@ -3834,11 +3849,11 @@ class Icepak(FieldAnalysis3D):
         """
         if not self.modeler.get_object_from_name(object_name).solve_inside:
             self.logger.add_error_message(
-                "Please use ``assign_hollow_block`` function with this object as" "``solve_inside`` is ``False``."
+                "Use the ``assign_hollow_block()`` method with this object as ``solve_inside`` is ``False``."
             )
             return None
         if ext_temperature != "AmbientTemp" and ext_temperature is not None and not htc:
-            self.logger.add_error_message("Please set an argument for ``htc`` or remove ``ext_temperature`` argument.")
+            self.logger.add_error_message("Set an argument for ``htc`` or remove the ``ext_temperature`` argument.")
             return None
         if isinstance(ext_temperature, dict) and ext_temperature["Type"] == "Temp Dep":
             self.logger.add_error_message(
@@ -3902,27 +3917,39 @@ class Icepak(FieldAnalysis3D):
         object_name : str
             Name of the object.
         assignment_type : str
-            Type of the boundary assignment. The accepted types are: "Total Power", "Heat Flux",
-            "Temperature" or "Heat Transfer Coefficient".
+            Type of the boundary assignment. Options are ``"Heat Transfer Coefficient"``,
+            ``"Heat Flux"``, ``"Temperature"``, and ``"Total Power"``.
         assignment_value : str or dict
-            String with value and units of the assignment. If ``"Total Power"`` is assignment_type,
-            ``"Joule Heating"`` can be used.
-            Also, a dictionary can be used for temperature dependent or transient assignment.
-            The dictionary should contain three keys: ``"Type"``, ``"Function"`` and
-            ``"Values"``. Accepted ``"Type"`` values are: ``"Temp Dep"`` and ``"Transient"``.
-            Accepted ``"Function"`` are: ``"Linear"``, ``"Power Law"``, ``"Exponential"``,
-            ``"Sinusoidal"``, ``"Square Wave"`` and ``"Piecewise Linear"``. ``"Temp Dep"`` only
-            support the latter. ``"Values"`` contains a list of strings containing the parameters
-            required by the ``"Function"`` selection (e.g. ``"Linear"`` requires two parameters:
-            the value of the variable at t=0 and the slope of the line). The parameters required by
-            each ``Function`` option is in Icepak documentation. The parameters must contain the
-            units where needed.
+            String with value and units of the assignment. If ``"Total Power"`` is
+            assignment_type, ``"Joule Heating"`` can be used.
+            For a temperature-dependent or transient assignment, a dictionary can be used.
+            The dictionary should contain three keys:
+            ``"Type"``, ``"Function"``, and ``"Values"``.
+
+            - For the ``"Type"`` key, accepted values are ``"Temp Dep"`` and ``"Transient"``.
+            - For the ``"Function"`` key, acceptable values depend on the ``"Type"`` key
+              selection. When the ``"Type"`` key is set to ``"Temp Dep"``, the only
+              accepted value is ````"Piecewise Linear"`` . When the ``"Type"`` key is
+              set to ``"Transient"``, acceptable values are `"Exponential"``, `"Linear"``,
+              ```"Piecewise Linear"``, ``"Power Law"``, ``"Sinusoidal"``, and ``"Square
+               Wave"``.
+            - For the ``"Values"`` key, a list of strings contain the parameters required by
+              the ``"Function"`` key selection. For example, whn``"Linear"`` is set as the
+              ``"Function"`` key, two parameters are required: the value of the variable
+              at t=0 and the slope of the line. For the parameters required by each
+              ``"Function"`` key selection, see the Icepack documentation (). The parameters
+              must contain the units where needed.
+
         boundary_name : str, optional
-            Name of the source boundary. The default is ``None`` and the boundary name will be
-            generated automatically.
+            Name of the source boundary. The default is ``None``, in which case the
+            boundary is automatically generated.
         external_temperature : str, dict or float, optional
-            String with value and unit of temperature for the Heat Transfer Coefficient. If float,
-            ``"cel"`` unit will be added automatically. The default is ``"AmbientTemp"``.
+            String with the value and unit of the temperature for the heat transfer
+            coefficient. If a float value is specified, the ``"cel"`` unit is automatically
+            added.
+            For a transient assignment, a dictionary can be used as described for the
+            assignment_value argument. Temperature dependent assignment is not supported.
+            The default is ``"AmbientTemp"``.
 
 
         Returns
@@ -3947,7 +3974,7 @@ class Icepak(FieldAnalysis3D):
         """
         if self.modeler.get_object_from_name(object_name).solve_inside:
             self.logger.add_error_message(
-                "Please use ``assign_solid_block`` function with this object as" "``solve_inside`` is ``True``."
+                "Use ``assign_solid_block`` function with this object as" "``solve_inside`` is ``True``."
             )
             return None
         if assignment_value == "Joule Heating" and assignment_type != "Total Power":
@@ -3993,7 +4020,7 @@ class Icepak(FieldAnalysis3D):
             if isinstance(external_temperature, dict):
                 if external_temperature["Type"] == "Temp Dep":
                     self.logger.add_error_message(
-                        'It is not possible to use a "Temp Dep" assignment for a' "temperature assignment."
+                        'It is not possible to use a "Temp Dep" assignment for a temperature assignment.'
                     )
                     return None
                 assignment_value_dict = self._parse_variation_data(

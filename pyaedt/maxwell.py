@@ -13,6 +13,7 @@ from pyaedt.generic.DataHandlers import float_units
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
+from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
@@ -2100,13 +2101,13 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
     >>> from pyaedt import Maxwell3d
     >>> aedtapp = Maxwell3d("mymaxwell.aedt")
-    pyaedt INFO: Added design ...
+    PyAEDT INFO: Added design ...
 
     Create an instance of Maxwell 3D using the 2021 R1 release and open
     the specified project, which is named ``mymaxwell2.aedt``.
 
     >>> aedtapp = Maxwell3d(specified_version="2021.2", projectname="mymaxwell2.aedt")
-    pyaedt INFO: Added design ...
+    PyAEDT INFO: Added design ...
 
     """
 
@@ -2646,7 +2647,6 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         return self.design_solutions.xy_plane
 
     @xy_plane.setter
-    @pyaedt_function_handler()
     def xy_plane(self, value=True):
         self.design_solutions.xy_plane = value
 
