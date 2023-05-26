@@ -94,6 +94,7 @@ if "win32com" in modules:
 
 
 def _unload():
-    from pythonnet import unload
+    from pythonnet import _RUNTIME
 
-    unload()
+    if _RUNTIME is not None:
+        _RUNTIME.shutdown()
