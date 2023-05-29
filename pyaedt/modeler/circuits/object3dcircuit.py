@@ -4,8 +4,8 @@ from __future__ import absolute_import
 from collections import OrderedDict
 import math
 
+# from pyaedt import property
 from pyaedt import _retry_ntimes
-from pyaedt import property
 from pyaedt import pyaedt_function_handler
 from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
