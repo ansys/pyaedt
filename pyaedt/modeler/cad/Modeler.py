@@ -146,11 +146,11 @@ class BaseCoordinateSystem(PropsManager, object):
         """
         try:
             self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
-            if "ref_cs" in dir(self):
-                for cs in range(0, len(self._modeler.coordinate_systems)):
-                    if self._modeler.coordinate_systems[cs].ref_cs == self.name:
-                        self._modeler.coordinate_systems.pop(cs)
             self._modeler.coordinate_systems.pop(self._modeler.coordinate_systems.index(self))
+            coordinate_systems = self._modeler._app.oeditor.GetRelativeCoordinateSystems()
+            for cs in self._modeler.coordinate_systems[:]:
+                if cs.name not in coordinate_systems:
+                    self._modeler.coordinate_systems.pop(self._modeler.coordinate_systems.index(cs))
             self._modeler.cleanup_objects()
         except:
             self._modeler._app.logger.warning("Coordinate system does not exist")
