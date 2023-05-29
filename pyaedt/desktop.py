@@ -35,8 +35,8 @@ if is_linux and is_ironpython:
 else:
     import subprocess
 
+# from pyaedt import property
 from pyaedt import __version__
-from pyaedt import property
 from pyaedt import pyaedt_function_handler
 from pyaedt import settings
 from pyaedt.generic.general_methods import _pythonver

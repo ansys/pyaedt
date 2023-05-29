@@ -1,7 +1,8 @@
 import warnings
 
 import pyaedt.emit_core.EmitConstants as emitConsts
-from pyaedt.generic.general_methods import property
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 

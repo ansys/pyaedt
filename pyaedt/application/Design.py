@@ -41,6 +41,8 @@ from pyaedt.generic.DataHandlers import variation_string_to_dict
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import unit_system
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import generate_unique_name
@@ -48,7 +50,6 @@ from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import is_project_locked
 from pyaedt.generic.general_methods import is_windows
 from pyaedt.generic.general_methods import open_file
-from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_csv
 from pyaedt.generic.general_methods import read_tab

@@ -4,12 +4,13 @@ import re
 import sys
 
 from pyaedt import pyaedt_logger
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import ET
 from pyaedt.generic.general_methods import env_path
 from pyaedt.generic.general_methods import env_value
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import is_linux
-from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.misc import list_installed_ansysem
 from pyaedt.misc.aedtlib_personalib_install import write_pretty_xml

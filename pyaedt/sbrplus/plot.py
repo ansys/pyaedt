@@ -6,7 +6,7 @@ import warnings
 import numpy as np
 import pyvista as pv
 
-from pyaedt import property
+# from pyaedt import property
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.plot import CommonPlotter
