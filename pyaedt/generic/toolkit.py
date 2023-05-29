@@ -82,7 +82,8 @@ from pyaedt import is_windows
 from pyaedt.desktop import Desktop
 import pyaedt.edb_core.edb_data.simulation_configuration
 from pyaedt.generic.clr_module import _clr
-from pyaedt.generic.general_methods import property
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 if is_linux and is_ironpython:

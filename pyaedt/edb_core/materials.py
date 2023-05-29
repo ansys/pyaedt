@@ -7,7 +7,8 @@ import warnings
 from pyaedt import is_ironpython
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.clr_module import _clr
-from pyaedt.generic.general_methods import property
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 logger = logging.getLogger(__name__)

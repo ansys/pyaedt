@@ -8,7 +8,7 @@ import tempfile
 import time
 import warnings
 
-from pyaedt import property
+# from pyaedt import property
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import CSS4_COLORS

@@ -5,9 +5,9 @@ import os
 import sys
 import time
 
+# from pyaedt import property
 from pyaedt import get_pyaedt_app
 from pyaedt import is_ironpython
-from pyaedt import property
 from pyaedt import pyaedt_function_handler
 from pyaedt import settings
 from pyaedt.generic.constants import AEDT_UNITS

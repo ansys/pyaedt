@@ -1,6 +1,6 @@
 import sys
 
-from pyaedt import property
+# from pyaedt import property
 from pyaedt import pyaedt_function_handler
 
 

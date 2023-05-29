@@ -13,8 +13,8 @@ if not is_ironpython:
             "The NumPy module is required to run some functionalities of EDB.\n"
             "Install with \n\npip install numpy\n\nRequires CPython."
         )
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import get_filename_without_extension
-from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 

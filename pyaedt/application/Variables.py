@@ -20,7 +20,7 @@ import os
 import re
 import types
 
-from pyaedt import property
+# from pyaedt import property
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import SI_UNITS
