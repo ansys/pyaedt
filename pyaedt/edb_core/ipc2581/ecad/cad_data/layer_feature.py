@@ -2,8 +2,9 @@ import math
 
 from pyaedt.edb_core.ipc2581.ecad.cad_data.feature import Feature
 from pyaedt.edb_core.ipc2581.ecad.cad_data.feature import FeatureType
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import ET
-from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 

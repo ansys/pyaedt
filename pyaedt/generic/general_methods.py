@@ -1718,44 +1718,22 @@ class Help:  # pragma: no cover
         self._launch_ur(url)
 
 
-class Property(property):
-    @pyaedt_function_handler()
-    def __get__(self, obj, *args, **kwargs):
-        """Get value."""
-        # if obj is None:
-        #     return self
-        if self.fget is None:
-            raise AttributeError("unreadable attribute")
-        return self.fget(obj)
-
-    @pyaedt_function_handler()
-    def __set__(self, obj, value):
-        """Set value."""
-        if self.fset is None:
-            raise AttributeError("can't set attribute")
-        self.fset(obj, value)
-
-    @pyaedt_function_handler()
-    def __delete__(self, obj):
-        """Delete value."""
-        if self.fdel is None:
-            raise AttributeError("can't delete attribute")
-        self.fdel(obj)
-
-    @pyaedt_function_handler()
-    def getter(self, fget):
-        """Property getter."""
-        return self.__class__.__base__(fget, self.fset, self.fdel, self.__doc__)
-
-    @pyaedt_function_handler()
-    def setter(self, fset):
-        """Property setter."""
-        return self.__class__.__base__(self.fget, fset, self.fdel, self.__doc__)
-
-    @pyaedt_function_handler()
-    def deleter(self, fdel):
-        """Property deleter."""
-        return self.__class__.__base__(self.fget, self.fset, fdel, self.__doc__)
+# class Property(property):
+#
+#     @pyaedt_function_handler()
+#     def getter(self, fget):
+#         """Property getter."""
+#         return self.__class__.__base__(fget, self.fset, self.fdel, self.__doc__)
+#
+#     @pyaedt_function_handler()
+#     def setter(self, fset):
+#         """Property setter."""
+#         return self.__class__.__base__(self.fget, fset, self.fdel, self.__doc__)
+#
+#     @pyaedt_function_handler()
+#     def deleter(self, fdel):
+#         """Property deleter."""
+#         return self.__class__.__base__(self.fget, self.fset, fdel, self.__doc__)
 
 
 class Settings(object):
@@ -2236,6 +2214,6 @@ class Settings(object):
         self._enable_debug_logger = val
 
 
-property = Property
+# property = Property
 settings = Settings()
 online_help = Help()
