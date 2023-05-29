@@ -2,10 +2,10 @@ from __future__ import absolute_import
 
 from collections import OrderedDict
 
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import _dim_arg
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import clamp
-from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import rgb_color_codes
 from pyaedt.generic.general_methods import settings

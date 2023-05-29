@@ -50,6 +50,8 @@ from pyaedt.generic.clr_module import _clr
 from pyaedt.generic.clr_module import edb_initialized
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import SolverType
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import env_path
 from pyaedt.generic.general_methods import env_path_student
 from pyaedt.generic.general_methods import env_value
@@ -58,7 +60,6 @@ from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import is_windows
-from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.process import SiwaveSolve
 from pyaedt.misc.misc import list_installed_ansysem
@@ -158,6 +159,10 @@ class Edb(object):
             self._global_logger = pyaedt_logger
             self._logger = pyaedt_logger
             self.student_version = student_version
+            if settings.enable_screen_logs:
+                self.logger.enable_stdout_log()
+            else:
+                self.logger.disable_stdout_log()
             self.logger.info("Logger is initialized in EDB.")
             self.logger.info("pyaedt v%s", __version__)
             self.logger.info("Python version %s", sys.version)
