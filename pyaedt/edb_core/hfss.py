@@ -1410,7 +1410,7 @@ class EdbHfss(object):
         )
         ii = 0
         for cc in cmp_names:
-            cmp = self._pedb.component.FindByName(self._active_layout, cc)
+            cmp = self._pedb.edb.cell.hierarchy.component.FindByName(self._active_layout, cc)
             if cmp.IsNull():
                 self._logger.warning("RenamePorts: could not find component {0}".format(cc))
                 continue
