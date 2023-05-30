@@ -817,13 +817,13 @@ class EDBPadstack(object):
                 stop = layer_names[layer_names.index(layer_name) + 1]
                 new_padstack_name = "MV_{}_{}_{}".format(self.name, start, stop)
                 included = [start, stop]
-                new_padstack_definition_data = self._ppadstack._pedb.edb.definition.PadstackDefData.Create()
+                new_padstack_definition_data = self._ppadstack._pedb.edb_api.definition.PadstackDefData.Create()
                 new_padstack_definition_data.AddLayers(convert_py_list_to_net_list(included))
                 for layer in included:
                     pl = self.pad_by_layer[layer]
                     new_padstack_definition_data.SetPadParameters(
                         layer,
-                        self._ppadstack._pedb.edb.definition.PadType.RegularPad,
+                        self._ppadstack._pedb.edb_api.definition.PadType.RegularPad,
                         pl.int_to_geometry_type(pl.geometry_type),
                         list(
                             pl._edb_padstack.GetData().GetPadParametersValue(
@@ -843,7 +843,7 @@ class EDBPadstack(object):
                     pl = self.antipad_by_layer[layer]
                     new_padstack_definition_data.SetPadParameters(
                         layer,
-                        self._ppadstack._pedb.edb.definition.PadType.AntiPad,
+                        self._ppadstack._pedb.edb_api.definition.PadType.AntiPad,
                         pl.int_to_geometry_type(pl.geometry_type),
                         list(
                             pl._edb_padstack.GetData().GetPadParametersValue(
@@ -863,7 +863,7 @@ class EDBPadstack(object):
                     pl = self.thermalpad_by_layer[layer]
                     new_padstack_definition_data.SetPadParameters(
                         layer,
-                        self._ppadstack._pedb.edb.definition.PadType.ThermalPad,
+                        self._ppadstack._pedb.edb_api.definition.PadType.ThermalPad,
                         pl.int_to_geometry_type(pl.geometry_type),
                         list(
                             pl._edb_padstack.GetData().GetPadParametersValue(
@@ -1064,11 +1064,11 @@ class EDBPadstackInstance(object):
         tuple
             Tuple of the layer name and drill diameter.
         """
-        layer = self._pedb.edb.cell.layer("", self._pedb.edb.cell.layer_type.SignalLayer)
+        layer = self._pedb.edb_api.cell.layer("", self._pedb.edb_api.cell.layer_type.SignalLayer)
         val = self._pedb.edb_value(0)
         if is_ironpython:  # pragma: no cover
             diameter = _clr.StrongBox[type(val)]()
-            drill_to_layer = _clr.StrongBox[self._pedb.edb.Cell.ILayerReadOnly]()
+            drill_to_layer = _clr.StrongBox[self._pedb.edb_api.Cell.ILayerReadOnly]()
             flag = self._edb_padstackinstance.GetBackDrillParametersLayerValue(drill_to_layer, diameter, False)
         else:
             (
@@ -1109,11 +1109,11 @@ class EDBPadstackInstance(object):
         tuple
             Tuple of the layer name and drill diameter.
         """
-        layer = self._pedb.edb.cell.layer("", self._pedb.edb.cell.layer_type.SignalLayer)
+        layer = self._pedb.edb_api.cell.layer("", self._pedb.edb_api.cell.layer_type.SignalLayer)
         val = self._pedb.edb_value(0)
         if is_ironpython:  # pragma: no cover
             diameter = _clr.StrongBox[type(val)]()
-            drill_to_layer = _clr.StrongBox[self._pedb.edb.Cell.ILayerReadOnly]()
+            drill_to_layer = _clr.StrongBox[self._pedb.edb_api.Cell.ILayerReadOnly]()
             flag = self._edb_padstackinstance.GetBackDrillParametersLayerValue(drill_to_layer, diameter, True)
         else:
             (
@@ -1154,7 +1154,7 @@ class EDBPadstackInstance(object):
         str
             Name of the starting layer.
         """
-        layer = self._pedb.edb.cell.layer("", self._pedb.edb.cell.layer_type.SignalLayer)
+        layer = self._pedb.edb_api.cell.layer("", self._pedb.edb_api.cell.layer_type.SignalLayer)
         _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange()
 
         if start_layer:
@@ -1176,7 +1176,7 @@ class EDBPadstackInstance(object):
         str
             Name of the stopping layer.
         """
-        layer = self._pedb.edb.cell.layer("", self._pedb.edb.cell.layer_type.SignalLayer)
+        layer = self._pedb.edb_api.cell.layer("", self._pedb.edb_api.cell.layer_type.SignalLayer)
         _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange()
 
         if stop_layer:
@@ -1286,7 +1286,7 @@ class EDBPadstackInstance(object):
                 pos.append(self._pedb.edb_value(v))
             else:
                 pos.append(v)
-        point_data = self._pedb.edb.geometry.point_data(pos[0], pos[1])
+        point_data = self._pedb.edb_api.geometry.point_data(pos[0], pos[1])
         self._edb_padstackinstance.SetPositionAndRotation(point_data, self._pedb.edb_value(self.rotation))
 
     @property
@@ -1298,7 +1298,7 @@ class EDBPadstackInstance(object):
         float
             Rotatation value for the padstack instance.
         """
-        point_data = self._pedb.edb.geometry.point_data(self._pedb.edb_value(0.0), self._pedb.edb_value(0.0))
+        point_data = self._pedb.edb_api.geometry.point_data(self._pedb.edb_value(0.0), self._pedb.edb_value(0.0))
         out = self._edb_padstackinstance.GetPositionAndRotationValue()
 
         if out[0]:
@@ -1328,7 +1328,7 @@ class EDBPadstackInstance(object):
     @name.setter
     def name(self, value):
         self._edb_padstackinstance.SetName(value)
-        self._edb_padstackinstance.SetProductProperty(self._pedb.edb.edb.ProductId.Designer, 11, value)
+        self._edb_padstackinstance.SetProductProperty(self._pedb.edb_api.edb.ProductId.Designer, 11, value)
 
     @property
     def pin_number(self):
@@ -1357,10 +1357,10 @@ class EDBPadstackInstance(object):
         """
         if is_ironpython:
             name = _clr.Reference[String]()
-            self._edb_padstackinstance.GetProductProperty(self._pedb.edb.edb.ProductId.Designer, 11, name)
+            self._edb_padstackinstance.GetProductProperty(self._pedb.edb_api.edb.ProductId.Designer, 11, name)
         else:
             val = String("")
-            _, name = self._edb_padstackinstance.GetProductProperty(self._pedb.edb.edb.ProductId.Designer, 11, val)
+            _, name = self._edb_padstackinstance.GetProductProperty(self._pedb.edb_api.edb.ProductId.Designer, 11, val)
         name = str(name).strip("'")
         return name
 

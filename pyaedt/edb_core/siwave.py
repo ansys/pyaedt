@@ -47,7 +47,7 @@ class EdbSiwave(object):
     @property
     def _edb(self):
         """EDB."""
-        return self._pedb.edb
+        return self._pedb.edb_api
 
     def _get_edb_value(self, value):
         """Get the Edb value."""

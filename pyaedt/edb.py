@@ -462,8 +462,8 @@ class Edb(Database):
                 self.logger.warning("Error getting the database.")
                 self._active_cell = None
                 return None
-            self._active_cell = self.edb.cell.cell.FindByName(
-                self.active_db, self.edb.cell._cell.CellType.CircuitCell, self.cellname
+            self._active_cell = self.edb_api.cell.cell.FindByName(
+                self.active_db, self.edb_api.cell._cell.CellType.CircuitCell, self.cellname
             )
             if self._active_cell is None:
                 self._active_cell = list(self.top_circuit_cells)[0]
@@ -492,8 +492,8 @@ class Edb(Database):
             return None
         if not self.cellname:
             self.cellname = generate_unique_name("Cell")
-        self._active_cell = self.edb.cell.cell.Create(
-            self.active_db, self.edb.cell._cell.CellType.CircuitCell, self.cellname
+        self._active_cell = self.edb_api.cell.cell.Create(
+            self.active_db, self.edb_api.cell._cell.CellType.CircuitCell, self.cellname
         )
         if self._active_cell:
             self._init_objects()
@@ -1013,24 +1013,24 @@ class Edb(Database):
         Instance of `Edb.Utility.Value`
 
         """
-        if isinstance(val, self.edb.utility.utility.Value):
+        if isinstance(val, self.edb_api.utility.utility.Value):
             return val
         if isinstance(val, (int, float)):
-            return self.edb.utility.value(val)
+            return self.edb_api.utility.value(val)
         m1 = re.findall(r"(?<=[/+-/*//^/(/[])([a-z_A-Z/$]\w*)", str(val).replace(" ", ""))
         m2 = re.findall(r"^([a-z_A-Z/$]\w*)", str(val).replace(" ", ""))
         val_decomposed = list(set(m1).union(m2))
         if not val_decomposed:
-            return self.edb.utility.value(val)
+            return self.edb_api.utility.value(val)
         var_server_db = self.active_db.GetVariableServer()
         var_names = var_server_db.GetAllVariableNames()
         var_server_cell = self.active_cell.GetVariableServer()
         var_names_cell = var_server_cell.GetAllVariableNames()
         if set(val_decomposed).intersection(var_names_cell):
-            return self.edb.utility.value(val, var_server_cell)
+            return self.edb_api.utility.value(val, var_server_cell)
         if set(val_decomposed).intersection(var_names):
-            return self.edb.utility.value(val, var_server_db)
-        return self.edb.utility.value(val)
+            return self.edb_api.utility.value(val, var_server_db)
+        return self.edb_api.utility.value(val)
 
     @pyaedt_function_handler()
     def point_3d(self, x, y, z=0.0):
@@ -1049,7 +1049,7 @@ class Edb(Database):
         -------
         ``Geometry.Point3DData``.
         """
-        return self.edb.geometry.point3d_data(self.edb_value(x), self.edb_value(y), self.edb_value(z))
+        return self.edb_api.geometry.point3d_data(self.edb_value(x), self.edb_value(y), self.edb_value(z))
 
     @pyaedt_function_handler()
     def point_data(self, x, y=None):
@@ -1068,9 +1068,9 @@ class Edb(Database):
         ``Geometry.PointData``.
         """
         if y is None:
-            return self.edb.geometry.point_data(self.edb_value(x))
+            return self.edb_api.geometry.point_data(self.edb_value(x))
         else:
-            return self.edb.geometry.point_data(self.edb_value(x), self.edb_value(y))
+            return self.edb_api.geometry.point_data(self.edb_value(x), self.edb_value(y))
 
     @pyaedt_function_handler()
     def _is_file_existing_and_released(self, filename):
@@ -1209,7 +1209,7 @@ class Edb(Database):
             ``True`` when successful, ``False`` when failed.
 
         """
-        return self.edb.utility.utility.Command.Execute(func)
+        return self.edb_api.utility.utility.Command.Execute(func)
 
     @pyaedt_function_handler()
     def import_cadence_file(self, inputBrd, WorkDir=None, anstranslator_full_path="", use_ppe=False):
@@ -1315,7 +1315,7 @@ class Edb(Database):
         reference_list=[],
         include_pingroups=True,
     ):
-        if extent_type in ["Conforming", self.edb.geometry.extent_type.Conforming, 1]:
+        if extent_type in ["Conforming", self.edb_api.geometry.extent_type.Conforming, 1]:
             if use_pyaedt_extent:
                 _poly = self._create_conformal(
                     net_signals,
@@ -1329,11 +1329,16 @@ class Edb(Database):
                 )
             else:
                 _poly = self.layout.expanded_extent(
-                    net_signals, self.edb.geometry.extent_type.Conforming, expansion_size, False, use_round_corner, 1
+                    net_signals,
+                    self.edb_api.geometry.extent_type.Conforming,
+                    expansion_size,
+                    False,
+                    use_round_corner,
+                    1,
                 )
-        elif extent_type in ["Bounding", self.edb.geometry.extent_type.BoundingBox, 0]:
+        elif extent_type in ["Bounding", self.edb_api.geometry.extent_type.BoundingBox, 0]:
             _poly = self.layout.expanded_extent(
-                net_signals, self.edb.geometry.extent_type.BoundingBox, expansion_size, False, use_round_corner, 1
+                net_signals, self.edb_api.geometry.extent_type.BoundingBox, expansion_size, False, use_round_corner, 1
             )
         else:
             if use_pyaedt_extent:
@@ -1349,10 +1354,15 @@ class Edb(Database):
                 )
             else:
                 _poly = self.layout.expanded_extent(
-                    net_signals, self.edb.geometry.extent_type.Conforming, expansion_size, False, use_round_corner, 1
+                    net_signals,
+                    self.edb_api.geometry.extent_type.Conforming,
+                    expansion_size,
+                    False,
+                    use_round_corner,
+                    1,
                 )
                 _poly_list = convert_py_list_to_net_list([_poly])
-                _poly = self.edb.geometry.polygon_data.get_convex_hull_of_polygons(_poly_list)
+                _poly = self.edb_api.geometry.polygon_data.get_convex_hull_of_polygons(_poly_list)
         return _poly
 
     @pyaedt_function_handler()
@@ -1380,7 +1390,7 @@ class Edb(Database):
                     _polys.extend(list(obj_data))
         if smart_cutout:
             _polys.extend(self._smart_cut(net_signals, reference_list, include_pingroups))
-        _poly_unite = list(self.edb.geometry.polygon_data.unite(convert_py_list_to_net_list(_polys)))
+        _poly_unite = list(self.edb_api.geometry.polygon_data.unite(convert_py_list_to_net_list(_polys)))
         if len(_poly_unite) == 1:
             return _poly_unite[0]
         else:
@@ -1405,12 +1415,18 @@ class Edb(Database):
                     if pin.pingroups:
                         locations.append(pin.position)
         for point in locations:
-            pointA = self.edb.geometry.point_data(self.edb_value(point[0] - 1e-12), self.edb_value(point[1] - 1e-12))
-            pointB = self.edb.geometry.point_data(self.edb_value(point[0] + 1e-12), self.edb_value(point[1] + 1e-12))
+            pointA = self.edb_api.geometry.point_data(
+                self.edb_value(point[0] - 1e-12), self.edb_value(point[1] - 1e-12)
+            )
+            pointB = self.edb_api.geometry.point_data(
+                self.edb_value(point[0] + 1e-12), self.edb_value(point[1] + 1e-12)
+            )
             from pyaedt.generic.clr_module import Tuple
 
-            points = Tuple[self.edb.geometry.geometry.PointData, self.edb.geometry.geometry.PointData](pointA, pointB)
-            _polys.append(self.edb.geometry.polygon_data.create_from_bbox(points))
+            points = Tuple[self.edb_api.geometry.geometry.PointData, self.edb_api.geometry.geometry.PointData](
+                pointA, pointB
+            )
+            _polys.append(self.edb_api.geometry.polygon_data.create_from_bbox(points))
         for cname, c in self.components.instances.items():
             if (
                 set(net_signals).intersection(c.nets)
@@ -1442,7 +1458,7 @@ class Edb(Database):
                 _polys.append(prim.primitive_object.GetPolygonData())
         if smart_cut:
             _polys.extend(self._smart_cut(net_signals, reference_list, include_pingroups))
-        _poly = self.edb.geometry.polygon_data.get_convex_hull_of_polygons(convert_py_list_to_net_list(_polys))
+        _poly = self.edb_api.geometry.polygon_data.get_convex_hull_of_polygons(convert_py_list_to_net_list(_polys))
         _poly = _poly.Expand(expansion_size, tolerance, round_corner, round_extension)[0]
         return _poly
 
@@ -1919,7 +1935,7 @@ class Edb(Database):
                 reference_list=reference_list,
                 include_pingroups=include_pingroups,
             )
-            if extent_type in ["Conforming", self.edb.geometry.extent_type.Conforming, 1] and extent_defeature > 0:
+            if extent_type in ["Conforming", self.edb_api.geometry.extent_type.Conforming, 1] and extent_defeature > 0:
                 _poly = _poly.Defeature(extent_defeature)
 
         if not _poly or _poly.IsNull():
@@ -2139,10 +2155,14 @@ class Edb(Database):
             via.pin.Delete()
         if netlist:
             nets = [net for net in temp_edb.layout.nets if net.GetName() in netlist]
-            _poly = temp_edb.layout.expanded_extent(nets, self.edb.geometry.extent_type.Conforming, 0.0, True, True, 1)
+            _poly = temp_edb.layout.expanded_extent(
+                nets, self.edb_api.geometry.extent_type.Conforming, 0.0, True, True, 1
+            )
         else:
             nets = [net for net in temp_edb.layout.nets if "gnd" in net.GetName().lower()]
-            _poly = temp_edb.layout.expanded_extent(nets, self.edb.geometry.extent_type.Conforming, 0.0, True, True, 1)
+            _poly = temp_edb.layout.expanded_extent(
+                nets, self.edb_api.geometry.extent_type.Conforming, 0.0, True, True, 1
+            )
             temp_edb.close_edb()
         if _poly:
             return _poly
@@ -2268,7 +2288,9 @@ class Edb(Database):
             p_missing = [i for i in pinstance_to_add if i.id not in ids]
             self.logger.info("Added {} padstack instances after cutout".format(len(p_missing)))
             for p in p_missing:
-                position = self.edb.geometry.point_data(self.edb_value(p.position[0]), self.edb_value(p.position[1]))
+                position = self.edb_api.geometry.point_data(
+                    self.edb_value(p.position[0]), self.edb_value(p.position[1])
+                )
                 net = self.nets.find_or_create_net(p.net_name)
                 rotation = self.edb_value(p.rotation)
                 sign_layers = list(self.stackup.signal_layers.keys())
@@ -2285,7 +2307,7 @@ class Edb(Database):
                 for pad in list(self.padstacks.definitions.keys()):
                     if pad == p.padstack_definition:
                         padstack = self.padstacks.definitions[pad].edb_padstack
-                        padstack_instance = self.edb.cell.primitive.PadstackInstance.Create(
+                        padstack_instance = self.edb_api.cell.primitive.PadstackInstance.Create(
                             _cutout.GetLayout(),
                             net,
                             p.name,
@@ -2306,7 +2328,7 @@ class Edb(Database):
                     res, center_x, center_y, radius = void_circle.primitive_object.GetParameters()
                 else:
                     res, center_x, center_y, radius = void_circle.primitive_object.GetParameters(0.0, 0.0, 0.0)
-                cloned_circle = self.edb.cell.primitive.Circle.Create(
+                cloned_circle = self.edb_api.cell.primitive.Circle.Create(
                     layout,
                     void_circle.layer_name,
                     void_circle.net,
@@ -2316,7 +2338,7 @@ class Edb(Database):
                 )
                 cloned_circle.SetIsNegative(True)
             elif void_circle.type == "Polygon":
-                cloned_polygon = self.edb.cell.primitive.Polygon.Create(
+                cloned_polygon = self.edb_api.cell.primitive.Polygon.Create(
                     layout, void_circle.layer_name, void_circle.net, void_circle.primitive_object.GetPolygonData()
                 )
                 cloned_polygon.SetIsNegative(True)
@@ -2900,7 +2922,7 @@ class Edb(Database):
                     ):
                         self.logger.info("Cutout processed.")
                         old_cell = self.active_cell.FindByName(
-                            self.db, self.edb.cell.CellType.CircuitCell, old_cell_name
+                            self.db, self.edb_api.cell.CellType.CircuitCell, old_cell_name
                         )
                         if old_cell:
                             old_cell.Delete()
@@ -3100,11 +3122,11 @@ class Edb(Database):
         """
         for i in list(self.active_cell.SimulationSetups):
             if i.GetName() not in self._setups:
-                if i.GetType() == self.edb.utility.utility.SimulationSetupType.kHFSS:
+                if i.GetType() == self.edb_api.utility.utility.SimulationSetupType.kHFSS:
                     self._setups[i.GetName()] = HfssSimulationSetup(self, i.GetName(), i)
-                elif i.GetType() == self.edb.utility.utility.SimulationSetupType.kSIWave:
+                elif i.GetType() == self.edb_api.utility.utility.SimulationSetupType.kSIWave:
                     self._setups[i.GetName()] = SiwaveSYZSimulationSetup(self, i.GetName(), i)
-                elif i.GetType() == self.edb.utility.utility.SimulationSetupType.kSIWaveDCIR:
+                elif i.GetType() == self.edb_api.utility.utility.SimulationSetupType.kSIWaveDCIR:
                     self._setups[i.GetName()] = SiwaveDCSimulationSetup(self, i.GetName(), i)
         return self._setups
 

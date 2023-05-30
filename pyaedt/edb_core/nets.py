@@ -52,7 +52,7 @@ class EdbNets(object):
     @property
     def _edb(self):
         """ """
-        return self._pedb.edb
+        return self._pedb.edb_api
 
     @property
     def _active_layout(self):

@@ -77,7 +77,7 @@ class EDBComponentDef(object):
         """
         comp_list = [
             EDBComponent(self._pcomponents, l)
-            for l in self._pcomponents._pedb.component.FindByComponentDef(
+            for l in self._pcomponents._pedb.edb_api.cell.hierarchy.component.FindByComponentDef(
                 self._pcomponents._pedb.active_layout, self.part_name
             )
         ]
@@ -276,9 +276,7 @@ class EDBComponent(object):
     @property
     def layout_instance(self):
         """Edb layout instance object."""
-        if self._layout_instance is None:
-            self._layout_instance = self._pcomponents._pedb.layout_instance
-        return self._layout_instance
+        return self._pcomponents._pedb.layout_instance
 
     @property
     def component_instance(self):
@@ -446,7 +444,7 @@ class EDBComponent(object):
         str
             Value. ``None`` if not an RLC Type.
         """
-        if self.model_type == "RLC":
+        if self.model_type == "RLC" and self._pin_pairs:
             pin_pair = self._pin_pairs[0]
             if len([i for i in pin_pair.rlc_enable if i]) == 1:
                 return [pin_pair.rlc_values[idx] for idx, val in enumerate(pin_pair.rlc_enable) if val][0]

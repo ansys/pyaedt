@@ -447,7 +447,7 @@ class EDBPrimitives(object):
             if _poly is None or _poly.IsNull() or _poly is False:
                 self._logger.error("Failed to create void polygon data")
                 return False
-            prim = self._app.edb.cell.primitive.Polygon.Create(
+            prim = self._app.edb_api.cell.primitive.Polygon.Create(
                 self._app.active_layout, self.layer_name, self.primitive_object.GetNet(), _poly
             )
         elif isinstance(point_list, EDBPrimitives):
@@ -736,7 +736,7 @@ class EDBPrimitives(object):
         list of float
         """
         if isinstance(point, list):
-            point = self._app.edb.geometry.point_data(self._app.edb_value(point[0]), self._app.edb_value(point[1]))
+            point = self._app.edb_api.geometry.point_data(self._app.edb_value(point[0]), self._app.edb_value(point[1]))
 
         p0 = self.polygon_data.GetClosestPoint(point)
         return [p0.X.ToDouble(), p0.Y.ToDouble()]
@@ -753,7 +753,7 @@ class EDBPrimitives(object):
         -------
         list of float
         """
-        if isinstance(point, self._app.edb.geometry.geometry.PointData):
+        if isinstance(point, self._app.edb_api.geometry.geometry.PointData):
             point = [point.X.ToDouble(), point.Y.ToDouble()]
         dist = 1e12
         out = None
@@ -815,7 +815,7 @@ class EDBPrimitives(object):
             ``True`` when successful, ``False`` when failed.
         """
         if isinstance(point_data, list):
-            point_data = self._app.edb.geometry.point_data(
+            point_data = self._app.edb_api.geometry.point_data(
                 self._app.edb_value(point_data[0]), self._app.edb_value(point_data[1])
             )
         int_val = int(self.polygon_data.PointInPolygon(point_data))
@@ -848,7 +848,7 @@ class EDBPrimitives(object):
             width = self.primitive_object.GetWidthValue()
             corner_style = self.primitive_object.GetCornerStyle()
             end_cap_style = self.primitive_object.GetEndCapStyle()
-            cloned_path = self._app.edb.cell.primitive.Path.Create(
+            cloned_path = self._app.edb_api.cell.primitive.Path.Create(
                 self._app.active_layout,
                 self.layer_name,
                 self.net,
@@ -860,7 +860,7 @@ class EDBPrimitives(object):
             )
             if cloned_path:
                 return cloned_path
-        cloned_poly = self._app.edb.cell.primitive.Polygon.Create(
+        cloned_poly = self._app.edb_api.cell.primitive.Polygon.Create(
             self._app.active_layout, self.layer_name, self.net, self.polygon_data
         )
         if cloned_poly:

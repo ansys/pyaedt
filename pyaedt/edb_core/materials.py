@@ -360,7 +360,7 @@ class Materials(object):
 
     @property
     def _edb(self):
-        return self._pedb.edb
+        return self._pedb.edb_api
 
     @property
     def _db(self):
