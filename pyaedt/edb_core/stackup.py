@@ -292,7 +292,7 @@ class Stackup(object):
     @pyaedt_function_handler()
     def refresh_layer_collection(self):
         """Refresh layer collection from Edb. This method is run on demand after all edit operations on stackup."""
-        lc_readonly = self._pedb._active_layout.GetLayerCollection()
+        lc_readonly = self._pedb.layout.layer_collection
         layers = [i.Clone() for i in list(list(lc_readonly.Layers(self._pedb.edb.Cell.LayerTypeSet.StackupLayerSet)))]
         non_stackup = [
             i.Clone() for i in list(list(lc_readonly.Layers(self._pedb.edb.Cell.LayerTypeSet.NonStackupLayerSet)))
@@ -350,7 +350,7 @@ class Stackup(object):
             self._layer_collection.SetMode(mode.Overlapping)
         elif value == 2 or value == mode.MultiZone or value == "MultiZone":
             self._layer_collection.SetMode(mode.MultiZone)
-        self._pedb._active_layout.SetLayerCollection(self._layer_collection)
+        self._pedb.layout.layer_collection = self._layer_collection
 
     @property
     def _edb_layer_list(self):
@@ -455,7 +455,7 @@ class Stackup(object):
         """
         _lc = self._layer_collection
         if operation in ["change_position", "change_attribute", "change_name"]:
-            lc_readonly = self._pedb._active_layout.GetLayerCollection()
+            lc_readonly = self._pedb.layout.layer_collection
             layers = [
                 i.Clone() for i in list(list(lc_readonly.Layers(self._pedb.edb.Cell.LayerTypeSet.StackupLayerSet)))
             ]
@@ -492,9 +492,9 @@ class Stackup(object):
             _lc.AddStackupLayerAtElevation(layer_clone)
         elif operation == "non_stackup":
             _lc.AddLayerBottom(layer_clone)
-        result = self._pedb._active_layout.SetLayerCollection(_lc)
+        self._pedb.layout.layer_collection = _lc
         self.refresh_layer_collection()
-        return result
+        return True
 
     @pyaedt_function_handler()
     def _create_stackup_layer(self, layer_name, thickness, layer_type="signal"):
@@ -561,7 +561,7 @@ class Stackup(object):
         bool
             "True" if successful, ``False`` if failed.
         """
-        outlineLayer = self._pedb.edb.Cell.Layer.FindByName(self._pedb.active_layout.GetLayerCollection(), outline_name)
+        outlineLayer = self._pedb.edb.Cell.Layer.FindByName(self._pedb.layout.layer_collection, outline_name)
         if outlineLayer.IsNull():
             return self.add_layer(
                 outline_name,
@@ -686,9 +686,9 @@ class Stackup(object):
             if not (lyr.GetName() == name):
                 new_layer_collection.AddLayerBottom(lyr)
 
-        result = self._pedb._active_layout.SetLayerCollection(new_layer_collection)
+        self._pedb.layout.layer_collection = new_layer_collection
         self.refresh_layer_collection()
-        return result
+        return True
 
     @pyaedt_function_handler
     def export(self, fpath, file_format="xml", include_material_with_layer=False):
@@ -983,9 +983,8 @@ class Stackup(object):
 
             layer_list = convert_py_list_to_net_list(non_stackup_layers)
             new_lc.AddLayers(layer_list)
-            if not self._pedb.active_layout.SetLayerCollection(new_lc):
-                self._pedb.logger.error("Failed to Flip Stackup.")
-                return False
+            self._pedb.layout.layer_collection = new_lc
+
             for pyaedt_cmp in list(self._pedb.components.components.values()):
                 cmp = pyaedt_cmp.edbcomponent
                 cmp_type = cmp.GetComponentType()
@@ -1170,11 +1169,11 @@ class Stackup(object):
 
         if edb_cell.GetName() not in self._pedb.cell_names:
             _dbCell = convert_py_list_to_net_list([edb_cell])
-            list_cells = self._pedb.db.CopyCells(_dbCell)
+            list_cells = self._pedb.active_db.CopyCells(_dbCell)
             edb_cell = list_cells[0]
-        self._pedb.active_layout.GetCell().SetBlackBox(True)
+        self._pedb.layout.cell.SetBlackBox(True)
         cell_inst2 = self._pedb.edb.Cell.Hierarchy.CellInstance.Create(
-            edb_cell.GetLayout(), self._pedb.active_layout.GetCell().GetName(), self._pedb.active_layout
+            edb_cell.GetLayout(), self._pedb.layout.cell.GetName(), self._pedb.active_layout
         )
         cell_trans = cell_inst2.GetTransform()
         cell_trans.SetRotationValue(_angle)
@@ -1280,15 +1279,15 @@ class Stackup(object):
 
         if edb_cell.GetName() not in self._pedb.cell_names:
             _dbCell = convert_py_list_to_net_list([edb_cell])
-            list_cells = self._pedb.db.CopyCells(_dbCell)
+            list_cells = self._pedb.active_db.CopyCells(_dbCell)
             edb_cell = list_cells[0]
-        self._pedb.active_layout.GetCell().SetBlackBox(True)
+        self._pedb.layout.cell.SetBlackBox(True)
         cell_inst2 = self._pedb.edb.Cell.Hierarchy.CellInstance.Create(
-            edb_cell.GetLayout(), self._pedb.active_layout.GetCell().GetName(), self._pedb.active_layout
+            edb_cell.GetLayout(), self._pedb.layout.cell.GetName(), self._pedb.active_layout
         )
 
         stackup_target = self._pedb.edb.Cell.LayerCollection(edb_cell.GetLayout().GetLayerCollection())
-        stackup_source = self._pedb.edb.Cell.LayerCollection(self._pedb.active_layout.GetLayerCollection())
+        stackup_source = self._pedb.edb.Cell.LayerCollection(self._pedb.layout.layer_collection)
 
         if place_on_top:
             cell_inst2.SetPlacementLayer(
@@ -1420,9 +1419,9 @@ class Stackup(object):
 
         if edb_cell.GetName() not in self._pedb.cell_names:
             _dbCell = convert_py_list_to_net_list([edb_cell])
-            list_cells = self._pedb.db.CopyCells(_dbCell)
+            list_cells = self._pedb.active_db.CopyCells(_dbCell)
             edb_cell = list_cells[0]
-        for cell in list(self._pedb.db.CircuitCells):
+        for cell in list(self._pedb.active_db.CircuitCells):
             if cell.GetName() == edb_cell.GetName():
                 edb_cell = cell
         # Keep Cell Independent
@@ -1441,7 +1440,7 @@ class Stackup(object):
         )
 
         stackup_source = self._pedb.edb.Cell.LayerCollection(edb_cell.GetLayout().GetLayerCollection())
-        stackup_target = self._pedb.edb.Cell.LayerCollection(self._pedb.active_layout.GetLayerCollection())
+        stackup_target = self._pedb.edb.Cell.LayerCollection(self._pedb.layout.layer_collection)
 
         if place_on_top:
             cell_inst2.SetPlacementLayer(
@@ -1536,7 +1535,7 @@ class Stackup(object):
         _angle = angle * math.pi / 180.0
         rotation_axis_to = self._pedb.point_3d(math.cos(_angle), -1 * math.sin(_angle), 0.0)
 
-        stackup_target = self._pedb.edb.Cell.LayerCollection(self._pedb.active_layout.GetLayerCollection())
+        stackup_target = self._pedb.edb.Cell.LayerCollection(self._pedb.layout.layer_collection)
         sig_set = self._pedb.edb.Cell.LayerTypeSet.SignalLayerSet
         res = stackup_target.GetTopBottomStackupLayers(sig_set)
         target_top_elevation = res[2]
@@ -1957,7 +1956,8 @@ class Stackup(object):
         new_layer_collection = self._pedb.edb.Cell.LayerCollection()
         result = new_layer_collection.ImportFromControlFile(file_path)
         if result:
-            return self._pedb._active_layout.SetLayerCollection(new_layer_collection)
+            self._pedb.layout.layer_collection = new_layer_collection
+            return True
 
     @pyaedt_function_handler
     def _export_xml(self, file_path):

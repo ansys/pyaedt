@@ -662,7 +662,7 @@ class CommonExcitation(object):
         Y = point_data.Y
         shape_pd = self._pedb.edb.Geometry.PointData(X, Y)
         layer_name = ref_layer.GetName()
-        for primitive in self._pedb.active_layout.Primitives:
+        for primitive in self._pedb.layout.primitives:
             if primitive.GetLayer().GetName() == layer_name or not layer_name:
                 prim_shape_data = primitive.GetPolygonData()
                 if prim_shape_data.PointInPolygon(shape_pd):
@@ -685,7 +685,7 @@ class CommonExcitation(object):
         Y = point_data.Y
         shape_pd = self._pedb.edb.Geometry.PointData(X, Y)
         layer_name = layer.GetName()
-        for primitive in self._pedb.active_layout.Primitives:
+        for primitive in self._pedb.layout.primitives:
             if primitive.GetLayer().GetName() == layer_name:
                 prim_shape_data = primitive.GetPolygonData()
                 if prim_shape_data.PointInPolygon(shape_pd):

@@ -39,10 +39,6 @@ class EdbLayout(object):
         return self._pedb.logger
 
     @property
-    def _builder(self):
-        return self._pedb.builder
-
-    @property
     def _edbutils(self):
         return self._pedb.edbutils
 
@@ -51,13 +47,17 @@ class EdbLayout(object):
         return self._pedb.active_layout
 
     @property
+    def _layout(self):
+        return self._pedb.layout
+
+    @property
     def _cell(self):
         return self._pedb.active_cell
 
     @property
     def db(self):
         """Db object."""
-        return self._pedb.db
+        return self._pedb.active_db
 
     @property
     def layers(self):
@@ -81,7 +81,7 @@ class EdbLayout(object):
         """
         _prims = []
         if self._active_layout:
-            for lay_obj in list(self._active_layout.Primitives):
+            for lay_obj in self._layout.primitives:
                 _prims.append(EDBPrimitives(lay_obj, self._pedb))
         return _prims
 
@@ -111,7 +111,7 @@ class EdbLayout(object):
         _prim_by_net = {}
         for net in list(self._pedb.nets.nets.keys()):
             _prim_by_net[net] = [
-                EDBPrimitives(i, self._pedb) for i in self._active_layout.Primitives if i.GetNet().GetName() == net
+                EDBPrimitives(i, self._pedb) for i in self._layout.primitives if i.GetNet().GetName() == net
             ]
         return _prim_by_net
 
@@ -127,7 +127,7 @@ class EdbLayout(object):
         _primitives_by_layer = {}
         for lay in self.layers:
             _primitives_by_layer[lay] = []
-        for i in self._active_layout.Primitives:
+        for i in self._layout.primitives:
             lay = i.GetLayer().GetName()
             _primitives_by_layer[lay].append(EDBPrimitives(i, self._pedb))
         return _primitives_by_layer

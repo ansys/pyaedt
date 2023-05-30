@@ -222,7 +222,7 @@ class Ipc2581(object):
 
     @pyaedt_function_handler()
     def add_layers_info(self):
-        self.design_name = self._pedb._active_layout.GetCell().GetName()
+        self.design_name = self._pedb.layout.cell.GetName()
         self.ecad.design_name = self.design_name
         self.ecad.cad_header.units = self.units
         self.ecad.cad_data.stackup.total_thickness = self.from_meter_to_units(
@@ -247,7 +247,7 @@ class Ipc2581(object):
             embedded = "NOT_EMBEDDED"
             # try:
             material_name = self._pedb.stackup.layers[layer_name]._edb_layer.GetMaterial()
-            edb_material = self._pedb.edb.Definition.MaterialDef.FindByName(self._pedb.db, material_name)
+            edb_material = self._pedb.edb.Definition.MaterialDef.FindByName(self._pedb.active_db, material_name)
             material_type = "CONDUCTOR"
             if self._pedb.stackup.layers[layer_name].type == "dielectric":
                 layer_type = "DIELPREG"

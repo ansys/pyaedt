@@ -51,10 +51,6 @@ class EDBPadProperties(object):
         return self._pedbpadstack._stackup_layers
 
     @property
-    def _builder(self):
-        return self._pedbpadstack._builder
-
-    @property
     def _edb(self):
         return self._pedbpadstack._edb
 
@@ -412,10 +408,6 @@ class EDBPadstack(object):
         return self._ppadstack._stackup_layers
 
     @property
-    def _builder(self):
-        return self._ppadstack._builder
-
-    @property
     def _edb(self):
         return self._ppadstack._edb
 
@@ -711,7 +703,7 @@ class EDBPadstack(object):
         """
         if self.via_start_layer == self.via_stop_layer:
             self._ppadstack._pedb.logger.error("Microvias cannot be applied when Start and Stop Layers are the same.")
-        layout = self._ppadstack._pedb._active_layout
+        layout = self._ppadstack._pedb.active_layout
         layers = self._ppadstack._pedb.stackup.signal_layers
         layer_names = [i for i in list(layers.keys())]
         if convert_only_signal_vias:
@@ -807,7 +799,7 @@ class EDBPadstack(object):
         """
         if self.via_start_layer == self.via_stop_layer:
             self._ppadstack._pedb.logger.error("Microvias cannot be applied when Start and Stop Layers are the same.")
-        layout = self._ppadstack._pedb._active_layout
+        layout = self._ppadstack._pedb.active_layout
         layers = self._ppadstack._pedb.stackup.signal_layers
         layer_names = [i for i in list(layers.keys())]
         if abs(layer_names.index(self.via_start_layer) - layer_names.index(self.via_stop_layer)) < 2:
@@ -898,7 +890,7 @@ class EDBPadstack(object):
                 new_padstack_definition_data.SetMaterial(self.material)
                 new_padstack_definition_data.SetHolePlatingPercentage(self._get_edb_value(self.hole_plating_ratio))
                 padstack_definition = self._edb.Definition.PadstackDef.Create(
-                    self._ppadstack._pedb.db, new_padstack_name
+                    self._ppadstack._pedb.active_db, new_padstack_name
                 )
                 padstack_definition.SetData(new_padstack_definition_data)
                 new_instances.append(EDBPadstack(padstack_definition, self._ppadstack))

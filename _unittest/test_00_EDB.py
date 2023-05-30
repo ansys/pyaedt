@@ -1247,7 +1247,7 @@ class TestClass(BasisTest, object):
             edbpath=os.path.join(local_path, "example_models", test_subfolder, "edge_ports.aedb"),
             edbversion=desktop_version,
         )
-        poly_list = [poly for poly in list(edb.active_layout.Primitives) if int(poly.GetPrimitiveType()) == 2]
+        poly_list = [poly for poly in edb.layout.primitives if int(poly.GetPrimitiveType()) == 2]
         port_poly = [poly for poly in poly_list if poly.GetId() == 17][0]
         ref_poly = [poly for poly in poly_list if poly.GetId() == 19][0]
         port_location = [-65e-3, -13e-3]

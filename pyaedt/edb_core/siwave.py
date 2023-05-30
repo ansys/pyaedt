@@ -45,11 +45,6 @@ class EdbSiwave(object):
         self._pedb = p_edb
 
     @property
-    def _builder(self):
-        """Builder."""
-        return self._pedb.builder
-
-    @property
     def _edb(self):
         """EDB."""
         return self._pedb.edb
@@ -69,6 +64,11 @@ class EdbSiwave(object):
         return self._pedb.active_layout
 
     @property
+    def _layout(self):
+        """Active layout."""
+        return self._pedb.layout
+
+    @property
     def _cell(self):
         """Cell."""
         return self._pedb.active_cell
@@ -76,7 +76,7 @@ class EdbSiwave(object):
     @property
     def _db(self):
         """ """
-        return self._pedb.db
+        return self._pedb.active_db
 
     @property
     def excitations(self):
@@ -103,7 +103,7 @@ class EdbSiwave(object):
             List of all layout pin groups.
         """
         _pingroups = {}
-        for el in self._active_layout.PinGroups:
+        for el in self._layout.pin_groups:
             _pingroups[el.GetName()] = PinGroup(el.GetName(), el, self._pedb)
         return _pingroups
 
@@ -865,7 +865,7 @@ class EdbSiwave(object):
             Name of the source.
 
         """
-        if source.name in [i.GetName() for i in list(self._active_layout.Terminals)]:
+        if source.name in [i.GetName() for i in self._layout.terminals]:
             source.name = generate_unique_name(source.name, n=3)
             self._logger.warning("Port already exists with same name. Renaming to {}".format(source.name))
         pos_pin_group = self._pedb.components.create_pingroup_from_pins(source.positive_node.node_pins)
