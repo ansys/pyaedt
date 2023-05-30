@@ -21,15 +21,6 @@ class HierarchyDotNet:
             except AttributeError:
                 raise AttributeError("Attribute not present")
 
-    def __setattr__(self, key, value):
-        try:
-            return super().__setattr__(key, value)
-        except:
-            try:
-                return setattr(self._hierarchy, key, value)
-            except AttributeError:
-                raise AttributeError("Attribute not present")
-
     def __init__(self, hier):
         self._hierarchy = hier
 
@@ -56,15 +47,6 @@ class PolygonDataDotNet:
         except:
             try:
                 return getattr(self.dotnetobj, key)
-            except AttributeError:
-                raise AttributeError("Attribute not present")
-
-    def __setattr__(self, key, value):
-        try:
-            return super().__setattr__(key, value)
-        except:
-            try:
-                return setattr(self.dotnetobj, key, value)
             except AttributeError:
                 raise AttributeError("Attribute not present")
 
@@ -112,15 +94,6 @@ class NetDotNet:
             except AttributeError:
                 raise AttributeError("Attribute not present")
 
-    def __setattr__(self, key, value):
-        try:
-            return super().__setattr__(key, value)
-        except:
-            try:
-                return setattr(self.net, key, value)
-            except AttributeError:
-                raise AttributeError("Attribute not present")
-
     def __init__(self, net):
         self.net = net
 
@@ -138,15 +111,6 @@ class CellClassDotNet:
         except:
             try:
                 return getattr(self._cell, key)
-            except AttributeError:
-                raise AttributeError("Attribute not present")
-
-    def __setattr__(self, key, value):
-        try:
-            return super().__setattr__(key, value)
-        except:
-            try:
-                return setattr(self._cell, key, value)
             except AttributeError:
                 raise AttributeError("Attribute not present")
 
@@ -204,15 +168,6 @@ class UtilityDotNet:
             except AttributeError:
                 raise AttributeError("Attribute not present")
 
-    def __setattr__(self, key, value):
-        try:
-            return super().__setattr__(key, value)
-        except:
-            try:
-                return setattr(self.utility, key, value)
-            except AttributeError:
-                raise AttributeError("Attribute not present")
-
     def __init__(self, utility):
         self.utility = utility
 
@@ -230,15 +185,6 @@ class GeometryDotNet:
         except:
             try:
                 return getattr(self.geometry, key)
-            except AttributeError:
-                raise AttributeError("Attribute not present")
-
-    def __setattr__(self, key, value):
-        try:
-            return super().__setattr__(key, value)
-        except:
-            try:
-                return setattr(self.geometry, key, value)
             except AttributeError:
                 raise AttributeError("Attribute not present")
 
@@ -293,15 +239,6 @@ class CellDotNet:
             except AttributeError:
                 raise AttributeError("Attribute not present")
 
-    def __setattr__(self, key, value):
-        try:
-            return super().__setattr__(key, value)
-        except:
-            try:
-                return setattr(self.edb, key, value)
-            except AttributeError:
-                raise AttributeError("Attribute not present")
-
     def __init__(self, edb):
         self.edb = edb
 
@@ -335,15 +272,6 @@ class EdbDotNet:
         except:
             try:
                 return getattr(self._edb, key)
-            except AttributeError:
-                raise AttributeError("Attribute not present")
-
-    def __setattr__(self, key, value):
-        try:
-            return super().__setattr__(key, value)
-        except:
-            try:
-                return setattr(self._edb, key, value)
             except AttributeError:
                 raise AttributeError("Attribute not present")
 
@@ -403,19 +331,19 @@ class EdbDotNet:
         self.simsetupdata = self.simSetup.Ansoft.SimSetupData.Data
 
     @property
-    def edb(self):
+    def edb_api(self):
         """Edb Dotnet Api class."""
         return CellDotNet(self._edb)
 
     @property
     def database(self):
         """Edb Dotnet Api Database."""
-        return self.edb.database
+        return self.edb_api.database
 
     @property
     def definition(self):
         """Edb Dotnet Api Database `Edb.Definition`."""
-        return self.edb.Definition
+        return self.edb_api.Definition
 
 
 class Database(EdbDotNet):
@@ -432,7 +360,7 @@ class Database(EdbDotNet):
         return self._db
 
     def run_as_standalone(self, flag):
-        self.edb.database.SetRunAsStandAlone(flag)
+        self.edb_api.database.SetRunAsStandAlone(flag)
 
     def create(self, db_path):
         """Create a Database at the specified file location.
@@ -446,7 +374,7 @@ class Database(EdbDotNet):
         -------
         Database
         """
-        self._db = self.edb.database.Create(db_path)
+        self._db = self.edb_api.database.Create(db_path)
         return self._db
 
     def open(self, db_path, read_only):
@@ -464,7 +392,7 @@ class Database(EdbDotNet):
         Database or None
             The opened Database object, or None if not found.
         """
-        self._db = self.edb.database.Open(
+        self._db = self.edb_api.database.Open(
             db_path,
             read_only,
         )
@@ -478,7 +406,7 @@ class Database(EdbDotNet):
         db_path : str
             Path to top-level database folder.
         """
-        return self.edb.database.Delete(db_path)
+        return self.edb_api.database.Delete(db_path)
 
     def save(self):
         """Save any changes into a file."""
@@ -557,7 +485,7 @@ class Database(EdbDotNet):
         Database
             The Database or Null on failure
         """
-        self.edb.database.FindById(db_id)
+        self.edb_api.database.FindById(db_id)
 
     def save_as(self, path, version=""):
         """Save this Database to a new location and older EDB version.
@@ -830,4 +758,4 @@ class Database(EdbDotNet):
         from pyaedt.generic.clr_module import Convert
 
         hdl = Convert.ToUInt64(hdb)
-        return self.edb.database.attach(hdl)
+        return self.edb_api.database.attach(hdl)

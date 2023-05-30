@@ -28,7 +28,7 @@ class EdbLayout(object):
 
     @property
     def _edb(self):
-        return self._pedb.edb
+        return self._pedb.edb_api
 
     def _get_edb_value(self, value):
         return self._pedb.edb_value(value)

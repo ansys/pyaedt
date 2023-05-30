@@ -247,23 +247,25 @@ class Ipc2581(object):
             embedded = "NOT_EMBEDDED"
             # try:
             material_name = self._pedb.stackup.layers[layer_name]._edb_layer.GetMaterial()
-            edb_material = self._pedb.edb.definition.MaterialDef.FindByName(self._pedb.active_db, material_name)
+            edb_material = self._pedb.edb_api.definition.MaterialDef.FindByName(self._pedb.active_db, material_name)
             material_type = "CONDUCTOR"
             if self._pedb.stackup.layers[layer_name].type == "dielectric":
                 layer_type = "DIELPREG"
                 material_type = "DIELECTRIC"
 
-                permitivity = edb_material.GetProperty(self._pedb.edb.definition.MaterialPropertyId.Permittivity)[1]
+                permitivity = edb_material.GetProperty(self._pedb.edb_api.definition.MaterialPropertyId.Permittivity)[1]
                 if not isinstance(permitivity, float):
                     permitivity = permitivity.ToDouble()
-                loss_tg = edb_material.GetProperty(self._pedb.edb.definition.MaterialPropertyId.DielectricLossTangent)[
-                    1
-                ]
+                loss_tg = edb_material.GetProperty(
+                    self._pedb.edb_api.definition.MaterialPropertyId.DielectricLossTangent
+                )[1]
                 if not isinstance(loss_tg, float):
                     loss_tg = loss_tg.ToDouble()
                 conductivity = 0
             if layer_type == "CONDUCTOR":
-                conductivity = edb_material.GetProperty(self._pedb.edb.definition.MaterialPropertyId.Conductivity)[1]
+                conductivity = edb_material.GetProperty(self._pedb.edb_api.definition.MaterialPropertyId.Conductivity)[
+                    1
+                ]
                 if not isinstance(conductivity, float):
                     conductivity = conductivity.ToDouble()
             self.ecad.cad_header.add_spec(
