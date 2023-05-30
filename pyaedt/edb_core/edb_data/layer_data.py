@@ -169,10 +169,10 @@ class LayerEdbClass(object):
         if new_type == self.type:
             return
         if new_type == "signal":
-            self._edb_layer.SetLayerType(self._edb.Cell.LayerType.SignalLayer)
+            self._edb_layer.SetLayerType(self._edb.cell.layer_type.SignalLayer)
             self._type = new_type
         elif new_type == "dielectric":
-            self._edb_layer.SetLayerType(self._edb.Cell.LayerType.DielectricLayer)
+            self._edb_layer.SetLayerType(self._edb.cell.layer_type.DielectricLayer)
             self._type = new_type
         else:
             return

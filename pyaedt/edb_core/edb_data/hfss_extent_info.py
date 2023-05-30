@@ -19,14 +19,14 @@ class HfssExtentInfo:
         self._pedb = pedb
 
         self._hfss_extent_info_type = {
-            "BoundingBox": self._pedb.edb.Utility.HFSSExtentInfoType.BoundingBox,
-            "Conforming": self._pedb.edb.Utility.HFSSExtentInfoType.Conforming,
-            "ConvexHull": self._pedb.edb.Utility.HFSSExtentInfoType.ConvexHull,
-            "Polygon": self._pedb.edb.Utility.HFSSExtentInfoType.Polygon,
+            "BoundingBox": self._pedb.edb.utility.utility.HFSSExtentInfoType.BoundingBox,
+            "Conforming": self._pedb.edb.utility.utility.HFSSExtentInfoType.Conforming,
+            "ConvexHull": self._pedb.edb.utility.utility.HFSSExtentInfoType.ConvexHull,
+            "Polygon": self._pedb.edb.utility.utility.HFSSExtentInfoType.Polygon,
         }
         self._open_region_type = {
-            "Radiation": self._pedb.edb.Utility.OpenRegionType.Radiation,
-            "PML": self._pedb.edb.Utility.OpenRegionType.PML,
+            "Radiation": self._pedb.edb.utility.utility.OpenRegionType.Radiation,
+            "PML": self._pedb.edb.utility.utility.OpenRegionType.PML,
         }
 
     @pyaedt_function_handler
