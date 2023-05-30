@@ -1166,14 +1166,14 @@ class TestClass(BasisTest, object):
             assert res
             zero_value = laminate_edb.edb_value(0)
             one_value = laminate_edb.edb_value(1)
-            origin_point = laminate_edb.edb.Geometry.Point3DData(zero_value, zero_value, zero_value)
-            x_axis_point = laminate_edb.edb.Geometry.Point3DData(one_value, zero_value, zero_value)
+            origin_point = laminate_edb.edb.geometry.point3d_data(zero_value, zero_value, zero_value)
+            x_axis_point = laminate_edb.edb.geometry.point3d_data(one_value, zero_value, zero_value)
             assert local_origin.IsEqual(origin_point)
             assert rotation_axis_from.IsEqual(x_axis_point)
             assert rotation_axis_to.IsEqual(x_axis_point)
             assert angle.IsEqual(zero_value)
             assert loc.IsEqual(
-                laminate_edb.edb.Geometry.Point3DData(zero_value, zero_value, laminate_edb.edb_value(170e-6))
+                laminate_edb.edb.geometry.point3d_data(zero_value, zero_value, laminate_edb.edb_value(170e-6))
             )
             assert laminate_edb.save_edb()
         finally:
@@ -1223,16 +1223,16 @@ class TestClass(BasisTest, object):
             zero_value = laminate_edb.edb_value(0)
             one_value = laminate_edb.edb_value(1)
             flip_angle_value = laminate_edb.edb_value("180deg")
-            origin_point = laminate_edb.edb.Geometry.Point3DData(zero_value, zero_value, zero_value)
-            x_axis_point = laminate_edb.edb.Geometry.Point3DData(one_value, zero_value, zero_value)
+            origin_point = laminate_edb.edb.geometry.point3d_data(zero_value, zero_value, zero_value)
+            x_axis_point = laminate_edb.edb.geometry.point3d_data(one_value, zero_value, zero_value)
             assert local_origin.IsEqual(origin_point)
             assert rotation_axis_from.IsEqual(x_axis_point)
             assert rotation_axis_to.IsEqual(
-                laminate_edb.edb.Geometry.Point3DData(zero_value, laminate_edb.edb_value(-1.0), zero_value)
+                laminate_edb.edb.geometry.point3d_data(zero_value, laminate_edb.edb_value(-1.0), zero_value)
             )
             assert angle.IsEqual(flip_angle_value)
             assert loc.IsEqual(
-                laminate_edb.edb.Geometry.Point3DData(
+                laminate_edb.edb.geometry.point3d_data(
                     laminate_edb.edb_value(0.5e-3),
                     laminate_edb.edb_value(-0.5e-3),
                     zero_value,
@@ -1360,12 +1360,12 @@ class TestClass(BasisTest, object):
         self.local_scratch.copyfolder(source_path, target_path)
         edb = Edb(target_path, edbversion=desktop_version)
         initial_extent_info = edb.active_cell.GetHFSSExtentInfo()
-        assert initial_extent_info.ExtentType == edb.edb.Utility.HFSSExtentInfoType.Conforming
+        assert initial_extent_info.ExtentType == edb.edb.utility.utility.HFSSExtentInfoType.Conforming
         config = SimulationConfiguration()
         config.radiation_box = RadiationBoxType.BoundingBox
         assert edb.hfss.configure_hfss_extents(config)
         final_extent_info = edb.active_cell.GetHFSSExtentInfo()
-        assert final_extent_info.ExtentType == edb.edb.Utility.HFSSExtentInfoType.BoundingBox
+        assert final_extent_info.ExtentType == edb.edb.utility.utility.HFSSExtentInfoType.BoundingBox
 
     def test_114_create_source(self):
         source = Source()

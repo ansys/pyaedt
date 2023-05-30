@@ -245,8 +245,7 @@ class TestClass(BasisTest, object):
             edbversion=desktop_version,
         )
         try:
-            layout = laminateEdb.active_layout
-            cellInstances = list(layout.cell_instances)
+            cellInstances = laminateEdb.layout.cell_instances
             assert len(cellInstances) == 0
             assert chipEdb.stackup.place_in_layout_3d_placement(
                 laminateEdb,
@@ -411,13 +410,13 @@ class TestClass(BasisTest, object):
             assert res
             zeroValue = chipEdb.edb_value(0)
             oneValue = chipEdb.edb_value(1)
-            originPoint = chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, zeroValue)
-            xAxisPoint = chipEdb.edb.Geometry.Point3DData(oneValue, zeroValue, zeroValue)
+            originPoint = chipEdb.edb.geometry.point3d_data(zeroValue, zeroValue, zeroValue)
+            xAxisPoint = chipEdb.edb.geometry.point3d_data(oneValue, zeroValue, zeroValue)
             assert localOrigin.IsEqual(originPoint)
             assert rotAxisFrom.IsEqual(xAxisPoint)
             assert rotAxisTo.IsEqual(xAxisPoint)
             assert angle.IsEqual(zeroValue)
-            assert loc.IsEqual(chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, chipEdb.edb_value(190e-6)))
+            assert loc.IsEqual(chipEdb.edb.geometry.point3d_data(zeroValue, zeroValue, chipEdb.edb_value(190e-6)))
         finally:
             chipEdb.close_edb()
             laminateEdb.close_edb()
@@ -474,13 +473,13 @@ class TestClass(BasisTest, object):
             assert res
             zeroValue = chipEdb.edb_value(0)
             oneValue = chipEdb.edb_value(1)
-            originPoint = chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, zeroValue)
-            xAxisPoint = chipEdb.edb.Geometry.Point3DData(oneValue, zeroValue, zeroValue)
+            originPoint = chipEdb.edb.geometry.point3d_data(zeroValue, zeroValue, zeroValue)
+            xAxisPoint = chipEdb.edb.geometry.point3d_data(oneValue, zeroValue, zeroValue)
             assert localOrigin.IsEqual(originPoint)
             assert rotAxisFrom.IsEqual(xAxisPoint)
             assert rotAxisTo.IsEqual(xAxisPoint)
             assert angle.IsEqual(chipEdb.edb_value(math.pi))
-            assert loc.IsEqual(chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, chipEdb.edb_value(-20e-6)))
+            assert loc.IsEqual(chipEdb.edb.geometry.point3d_data(zeroValue, zeroValue, chipEdb.edb_value(-20e-6)))
         finally:
             chipEdb.close_edb()
             laminateEdb.close_edb()
@@ -537,13 +536,13 @@ class TestClass(BasisTest, object):
             assert res
             zeroValue = chipEdb.edb_value(0)
             oneValue = chipEdb.edb_value(1)
-            originPoint = chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, zeroValue)
-            xAxisPoint = chipEdb.edb.Geometry.Point3DData(oneValue, zeroValue, zeroValue)
+            originPoint = chipEdb.edb.geometry.point3d_data(zeroValue, zeroValue, zeroValue)
+            xAxisPoint = chipEdb.edb.geometry.point3d_data(oneValue, zeroValue, zeroValue)
             assert localOrigin.IsEqual(originPoint)
             assert rotAxisFrom.IsEqual(xAxisPoint)
             assert rotAxisTo.IsEqual(xAxisPoint)
             assert angle.IsEqual(zeroValue)
-            assert loc.IsEqual(chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, chipEdb.edb_value(160e-6)))
+            assert loc.IsEqual(chipEdb.edb.geometry.point3d_data(zeroValue, zeroValue, chipEdb.edb_value(160e-6)))
         finally:
             chipEdb.close_edb()
             laminateEdb.close_edb()
@@ -600,13 +599,13 @@ class TestClass(BasisTest, object):
             assert res
             zeroValue = chipEdb.edb_value(0)
             oneValue = chipEdb.edb_value(1)
-            originPoint = chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, zeroValue)
-            xAxisPoint = chipEdb.edb.Geometry.Point3DData(oneValue, zeroValue, zeroValue)
+            originPoint = chipEdb.edb.geometry.point3d_data(zeroValue, zeroValue, zeroValue)
+            xAxisPoint = chipEdb.edb.geometry.point3d_data(oneValue, zeroValue, zeroValue)
             assert localOrigin.IsEqual(originPoint)
             assert rotAxisFrom.IsEqual(xAxisPoint)
             assert rotAxisTo.IsEqual(xAxisPoint)
             assert angle.IsEqual(chipEdb.edb_value(math.pi))
-            assert loc.IsEqual(chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, chipEdb.edb_value(10e-6)))
+            assert loc.IsEqual(chipEdb.edb.geometry.point3d_data(zeroValue, zeroValue, chipEdb.edb_value(10e-6)))
         finally:
             chipEdb.close_edb()
             laminateEdb.close_edb()
@@ -663,13 +662,13 @@ class TestClass(BasisTest, object):
             assert res
             zeroValue = chipEdb.edb_value(0)
             oneValue = chipEdb.edb_value(1)
-            originPoint = chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, zeroValue)
-            xAxisPoint = chipEdb.edb.Geometry.Point3DData(oneValue, zeroValue, zeroValue)
+            originPoint = chipEdb.edb.geometry.point3d_data(zeroValue, zeroValue, zeroValue)
+            xAxisPoint = chipEdb.edb.geometry.point3d_data(oneValue, zeroValue, zeroValue)
             assert localOrigin.IsEqual(originPoint)
             assert rotAxisFrom.IsEqual(xAxisPoint)
             assert rotAxisTo.IsEqual(xAxisPoint)
             assert angle.IsEqual(zeroValue)
-            assert loc.IsEqual(chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, chipEdb.edb_value(150e-6)))
+            assert loc.IsEqual(chipEdb.edb.geometry.point3d_data(zeroValue, zeroValue, chipEdb.edb_value(150e-6)))
         finally:
             chipEdb.close_edb()
             laminateEdb.close_edb()
@@ -726,13 +725,13 @@ class TestClass(BasisTest, object):
             assert res
             zeroValue = chipEdb.edb_value(0)
             oneValue = chipEdb.edb_value(1)
-            originPoint = chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, zeroValue)
-            xAxisPoint = chipEdb.edb.Geometry.Point3DData(oneValue, zeroValue, zeroValue)
+            originPoint = chipEdb.edb.geometry.point3d_data(zeroValue, zeroValue, zeroValue)
+            xAxisPoint = chipEdb.edb.geometry.point3d_data(oneValue, zeroValue, zeroValue)
             assert localOrigin.IsEqual(originPoint)
             assert rotAxisFrom.IsEqual(xAxisPoint)
             assert rotAxisTo.IsEqual(xAxisPoint)
             assert angle.IsEqual(chipEdb.edb_value(math.pi))
-            assert loc.IsEqual(chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, chipEdb.edb_value(20e-6)))
+            assert loc.IsEqual(chipEdb.edb.geometry.point3d_data(zeroValue, zeroValue, chipEdb.edb_value(20e-6)))
         finally:
             chipEdb.close_edb()
             laminateEdb.close_edb()

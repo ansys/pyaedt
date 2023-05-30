@@ -416,27 +416,27 @@ class EdbLayout(object):
         """
         net = self._pedb.nets.find_or_create_net(net_name)
         if start_cap_style.lower() == "round":
-            start_cap_style = self._edb.Cell.Primitive.PathEndCapStyle.Round
+            start_cap_style = self._edb.cell.primitive.PathEndCapStyle.Round
         elif start_cap_style.lower() == "extended":
-            start_cap_style = self._edb.Cell.Primitive.PathEndCapStyle.Extended  # pragma: no cover
+            start_cap_style = self._edb.cell.primitive.PathEndCapStyle.Extended  # pragma: no cover
         else:
-            start_cap_style = self._edb.Cell.Primitive.PathEndCapStyle.Flat  # pragma: no cover
+            start_cap_style = self._edb.cell.primitive.PathEndCapStyle.Flat  # pragma: no cover
         if end_cap_style.lower() == "round":
-            end_cap_style = self._edb.Cell.Primitive.PathEndCapStyle.Round  # pragma: no cover
+            end_cap_style = self._edb.cell.primitive.PathEndCapStyle.Round  # pragma: no cover
         elif end_cap_style.lower() == "extended":
-            end_cap_style = self._edb.Cell.Primitive.PathEndCapStyle.Extended  # pragma: no cover
+            end_cap_style = self._edb.cell.primitive.PathEndCapStyle.Extended  # pragma: no cover
         else:
-            end_cap_style = self._edb.Cell.Primitive.PathEndCapStyle.Flat
+            end_cap_style = self._edb.cell.primitive.PathEndCapStyle.Flat
         if corner_style.lower() == "round":
-            corner_style = self._edb.Cell.Primitive.PathCornerStyle.RoundCorner
+            corner_style = self._edb.cell.primitive.PathCornerStyle.RoundCorner
         elif corner_style.lower() == "sharp":
-            corner_style = self._edb.Cell.Primitive.PathCornerStyle.SharpCorner  # pragma: no cover
+            corner_style = self._edb.cell.primitive.PathCornerStyle.SharpCorner  # pragma: no cover
         else:
-            corner_style = self._edb.Cell.Primitive.PathCornerStyle.MiterCorner  # pragma: no cover
+            corner_style = self._edb.cell.primitive.PathCornerStyle.MiterCorner  # pragma: no cover
 
         pointlists = [self._pedb.point_data(i[0], i[1]) for i in path_list.points]
-        polygonData = self._edb.Geometry.PolygonData(convert_py_list_to_net_list(pointlists), False)
-        polygon = self._edb.Cell.Primitive.Path.Create(
+        polygonData = self._edb.geometry.polygon_data.dotnetobj(convert_py_list_to_net_list(pointlists), False)
+        polygon = self._edb.cell.primitive.Path.Create(
             self._active_layout,
             layer_name,
             net,
@@ -565,7 +565,7 @@ class EdbLayout(object):
                 self._logger.error("Failed to create void polygon data")
                 return False
             polygonData.AddHole(voidPolygonData)
-        polygon = self._edb.Cell.Primitive.Polygon.Create(self._active_layout, layer_name, net, polygonData)
+        polygon = self._edb.cell.primitive.Polygon.Create(self._active_layout, layer_name, net, polygonData)
         if polygon.IsNull() or polygonData is False:
             self._logger.error("Null polygon created")
             return False
@@ -648,8 +648,8 @@ class EdbLayout(object):
         """
         edb_net = self._pedb.nets.find_or_create_net(net_name)
         if representation_type == "LowerLeftUpperRight":
-            rep_type = self._edb.Cell.Primitive.RectangleRepresentationType.LowerLeftUpperRight
-            rect = self._edb.Cell.Primitive.Rectangle.Create(
+            rep_type = self._edb.cell.primitive.RectangleRepresentationType.LowerLeftUpperRight
+            rect = self._edb.cell.primitive.Rectangle.Create(
                 self._active_layout,
                 layer_name,
                 edb_net,
@@ -662,8 +662,8 @@ class EdbLayout(object):
                 self._get_edb_value(rotation),
             )
         else:
-            rep_type = self._edb.Cell.Primitive.RectangleRepresentationType.CenterWidthHeight
-            rect = self._edb.Cell.Primitive.Rectangle.Create(
+            rep_type = self._edb.cell.primitive.RectangleRepresentationType.CenterWidthHeight
+            rect = self._edb.cell.primitive.Rectangle.Create(
                 self._active_layout,
                 layer_name,
                 edb_net,
@@ -704,7 +704,7 @@ class EdbLayout(object):
         """
         edb_net = self._pedb.nets.find_or_create_net(net_name)
 
-        circle = self._edb.Cell.Primitive.Circle.Create(
+        circle = self._edb.cell.primitive.Circle.Create(
             self._active_layout,
             layer_name,
             edb_net,
@@ -799,7 +799,7 @@ class EdbLayout(object):
                 radius,
             ) = void_circle.primitive_object.GetParameters()
 
-            cloned_circle = self._edb.Cell.Primitive.Circle.Create(
+            cloned_circle = self._edb.cell.primitive.Circle.Create(
                 self._active_layout,
                 void_circle.layer_name,
                 void_circle.net,
@@ -885,7 +885,7 @@ class EdbLayout(object):
                     or endPoint[0].IsParametric()
                     or endPoint[1].IsParametric()
                 )
-                arc = self._edb.Geometry.ArcData(
+                arc = self._edb.geometry.arc_data(
                     self._pedb.point_data(startPoint[0], startPoint[1]),
                     self._pedb.point_data(endPoint[0], endPoint[1]),
                 )
@@ -899,7 +899,7 @@ class EdbLayout(object):
                     or endPoint[1].IsParametric()
                     or endPoint[2].IsParametric()
                 )
-                arc = self._edb.Geometry.ArcData(
+                arc = self._edb.geometry.arc_data(
                     self._pedb.point_data(startPoint[0], startPoint[1]),
                     self._pedb.point_data(endPoint[0], endPoint[1]),
                     endPoint[2].ToDouble(),
@@ -915,29 +915,29 @@ class EdbLayout(object):
                     or endPoint[3].IsParametric()
                     or endPoint[4].IsParametric()
                 )
-                rotationDirection = self._edb.Geometry.RotationDirection.Colinear
+                rotationDirection = self._edb.geometry.geometry.RotationDirection.Colinear
                 if endPoint[2].ToString() == "cw":
-                    rotationDirection = self._edb.Geometry.RotationDirection.CW
+                    rotationDirection = self._edb.geometry.geometry.RotationDirection.CW
                 elif endPoint[2].ToString() == "ccw":
-                    rotationDirection = self._edb.Geometry.RotationDirection.CCW
+                    rotationDirection = self._edb.geometry.geometry.RotationDirection.CCW
                 else:
                     self._logger.error("Invalid rotation direction %s is specified.", endPoint[2])
                     return None
-                arc = self._edb.Geometry.ArcData(
+                arc = self._edb.geometry.arc_data(
                     self._pedb.point_data(startPoint[0], startPoint[1]),
                     self._pedb.point_data(endPoint[0], endPoint[1]),
                     rotationDirection,
                     self._pedb.point_data(endPoint[3], endPoint[4]),
                 )
                 arcs.append(arc)
-        polygon = self._edb.Geometry.PolygonData.CreateFromArcs(convert_py_list_to_net_list(arcs), True)
+        polygon = self._edb.geometry.polygon_data.create_from_arcs(convert_py_list_to_net_list(arcs), True)
         if not is_parametric:
             return polygon
         else:
             k = 0
             for pt in points:
                 point = [self._get_edb_value(i) for i in pt]
-                new_points = self._edb.Geometry.PointData(point[0], point[1])
+                new_points = self._edb.geometry.point_data(point[0], point[1])
                 if len(point) > 2:
                     k += 1
                 polygon.SetPoint(k, new_points)
@@ -995,14 +995,14 @@ class EdbLayout(object):
     def _createPolygonDataFromRectangle(self, shape):
         if not self._validatePoint(shape.pointA, False) or not self._validatePoint(shape.pointB, False):
             return None
-        pointA = self._edb.Geometry.PointData(
+        pointA = self._edb.geometry.point_data(
             self._get_edb_value(shape.pointA[0]), self._get_edb_value(shape.pointA[1])
         )
-        pointB = self._edb.Geometry.PointData(
+        pointB = self._edb.geometry.point_data(
             self._get_edb_value(shape.pointB[0]), self._get_edb_value(shape.pointB[1])
         )
-        points = Tuple[self._edb.Geometry.PointData, self._edb.Geometry.PointData](pointA, pointB)
-        return self._edb.Geometry.PolygonData.CreateFromBBox(points)
+        points = Tuple[self._edb.geometry.geometry.PointData, self._edb.geometry.geometry.PointData](pointA, pointB)
+        return self._edb.geometry.polygon_data.create_from_bbox(points)
 
     class Shape(object):
         """Shape class.
@@ -1131,13 +1131,13 @@ class EdbLayout(object):
             for net in poly_by_nets:
                 list_polygon_data = [i.GetPolygonData() for i in poly_by_nets[net]]
                 all_voids = [i.Voids for i in poly_by_nets[net]]
-                a = self._edb.Geometry.PolygonData.Unite(convert_py_list_to_net_list(list_polygon_data))
+                a = self._edb.geometry.polygon_data.unite(convert_py_list_to_net_list(list_polygon_data))
                 for item in a:
                     for v in all_voids:
                         for void in v:
                             if int(item.GetIntersectionType(void.GetPolygonData())) == 2:
                                 item.AddHole(void.GetPolygonData())
-                    poly = self._edb.Cell.Primitive.Polygon.Create(
+                    poly = self._edb.cell.primitive.Polygon.Create(
                         self._active_layout,
                         lay,
                         self._pedb.nets.nets[net].net_object,
@@ -1214,7 +1214,7 @@ class EdbLayout(object):
                 nb_pts_removed
             ) / float(nb_ini_pts) < 0.4:
                 pts_list, nb_pts_removed = self._trim_polygon_points(pts, minimum_distance)
-                new_poly = self._edb.Geometry.PolygonData(pts_list, True)
+                new_poly = self._edb.geometry.polygon_data.dotnetobj(pts_list, True)
                 current_surf = new_poly.Area()
                 if current_surf == 0:
                     surf_dev = 1

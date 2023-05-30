@@ -287,7 +287,7 @@ class PinGroup(object):
         if pin_group_net.IsNull():  # pragma: no cover
             pin_group_net = list(self._edb_pin_group.GetPins())[0].GetNet()
         if pg_term.IsNull():
-            return self._pedb.edb.Cell.Terminal.PinGroupTerminal.Create(
+            return self._pedb.edb.cell.terminal.PinGroupTerminal.Create(
                 self._active_layout,
                 pin_group_net,
                 self.name,
@@ -300,23 +300,23 @@ class PinGroup(object):
     @pyaedt_function_handler()
     def create_current_source_terminal(self, magnitude=1, phase=0):
         terminal = self._create_terminal()
-        terminal.SetBoundaryType(self._pedb.edb.Cell.Terminal.BoundaryType.kCurrentSource)
+        terminal.SetBoundaryType(self._pedb.edb.cell.terminal.BoundaryType.kCurrentSource)
         terminal.SetSourceAmplitude(self._pedb.edb_value(magnitude))
-        terminal.SetSourcePhase(self._pedb.edb.Utility.Value(phase))
+        terminal.SetSourcePhase(self._pedb.edb.utility.value(phase))
         return terminal
 
     @pyaedt_function_handler()
     def create_voltage_source_terminal(self, magnitude=1, phase=0):
         terminal = self._create_terminal()
-        terminal.SetBoundaryType(self._pedb.edb.Cell.Terminal.BoundaryType.kVoltageSource)
+        terminal.SetBoundaryType(self._pedb.edb.cell.terminal.BoundaryType.kVoltageSource)
         terminal.SetSourceAmplitude(self._pedb.edb_value(magnitude))
-        terminal.SetSourcePhase(self._pedb.edb.Utility.Value(phase))
+        terminal.SetSourcePhase(self._pedb.edb.utility.value(phase))
         return terminal
 
     @pyaedt_function_handler()
     def create_port_terminal(self, impedance=50):
         terminal = self._create_terminal()
-        terminal.SetBoundaryType(self._pedb.edb.Cell.Terminal.BoundaryType.PortBoundary)
+        terminal.SetBoundaryType(self._pedb.edb.cell.terminal.BoundaryType.PortBoundary)
         terminal.SetImpedance(self._pedb.edb_value(impedance))
         terminal.SetIsCircuitPort(True)
         return terminal
@@ -555,18 +555,18 @@ class CommonExcitation(object):
         if not self._reference_object:
             term = self._edb_terminal
             try:
-                if self.terminal_type == self._pedb.edb.Cell.Terminal.TerminalType.EdgeTerminal:
+                if self.terminal_type == self._pedb.edb.cell.terminal.TerminalType.EdgeTerminal:
                     edges = self._edb_terminal.GetEdges()
                     edgeType = edges[0].GetEdgeType()
-                    if edgeType == self._pedb.edb.Cell.Terminal.EdgeType.PadEdge:
+                    if edgeType == self._pedb.edb.cell.terminal.EdgeType.PadEdge:
                         self._reference_object = self.get_pad_edge_terminal_reference_pin()
                     else:
                         self._reference_object = self.get_edge_terminal_reference_primitive()
-                elif self.terminal_type == self._pedb.edb.Cell.Terminal.TerminalType.PinGroupTerminal:
+                elif self.terminal_type == self._pedb.edb.cell.terminal.TerminalType.PinGroupTerminal:
                     self._reference_object = self.get_pin_group_terminal_reference_pin()
-                elif self.terminal_type == self._pedb.edb.Cell.Terminal.TerminalType.PointTerminal:
+                elif self.terminal_type == self._pedb.edb.cell.terminal.TerminalType.PointTerminal:
                     self._reference_object = self.get_point_terminal_reference_primitive()
-                elif self.terminal_type == self._pedb.edb.Cell.Terminal.TerminalType.PadstackInstanceTerminal:
+                elif self.terminal_type == self._pedb.edb.cell.terminal.TerminalType.PadstackInstanceTerminal:
                     self._reference_object = self.get_padstack_terminal_reference_pin()
                 else:
                     self._pedb.logger.warning(
@@ -626,14 +626,14 @@ class CommonExcitation(object):
         """
 
         refTerm = self._edb_terminal.GetReferenceTerminal()
-        if self._edb_terminal.GetTerminalType() == self._pedb.edb.Cell.Terminal.TerminalType.PinGroupTerminal:
+        if self._edb_terminal.GetTerminalType() == self._pedb.edb.cell.terminal.TerminalType.PinGroupTerminal:
             padStackInstance = self._edb_terminal.GetPinGroup().GetPins()[0]
             pingroup = refTerm.GetPinGroup()
             refPinList = pingroup.GetPins()
             return self._get_closest_pin(padStackInstance, refPinList, gnd_net_name_preference)
-        elif self._edb_terminal.GetTerminalType() == self._pedb.edb.Cell.Terminal.TerminalType.PadstackInstanceTerminal:
+        elif self._edb_terminal.GetTerminalType() == self._pedb.edb.cell.terminal.TerminalType.PadstackInstanceTerminal:
             _, padStackInstance, layer = self._edb_terminal.GetParameters()
-            if refTerm.GetTerminalType() == self._pedb.edb.Cell.Terminal.TerminalType.PinGroupTerminal:
+            if refTerm.GetTerminalType() == self._pedb.edb.cell.terminal.TerminalType.PinGroupTerminal:
                 pingroup = refTerm.GetPinGroup()
                 refPinList = pingroup.GetPins()
                 return self._get_closest_pin(padStackInstance, refPinList, gnd_net_name_preference)
@@ -660,7 +660,7 @@ class CommonExcitation(object):
         _, prim_value, point_data = edges[0].GetParameters()
         X = point_data.X
         Y = point_data.Y
-        shape_pd = self._pedb.edb.Geometry.PointData(X, Y)
+        shape_pd = self._pedb.edb.geometry.point_data(X, Y)
         layer_name = ref_layer.GetName()
         for primitive in self._pedb.layout.primitives:
             if primitive.GetLayer().GetName() == layer_name or not layer_name:
@@ -683,7 +683,7 @@ class CommonExcitation(object):
         _, point_data, layer = ref_term.GetParameters()
         X = point_data.X
         Y = point_data.Y
-        shape_pd = self._pedb.edb.Geometry.PointData(X, Y)
+        shape_pd = self._pedb.edb.geometry.point_data(X, Y)
         layer_name = layer.GetName()
         for primitive in self._pedb.layout.primitives:
             if primitive.GetLayer().GetName() == layer_name:
@@ -779,12 +779,12 @@ class ExcitationPorts(CommonExcitation):
 
     @property
     def _edb_properties(self):
-        p = self._edb_terminal.GetProductSolverOption(self._edb.ProductId.Designer, "HFSS")
+        p = self._edb_terminal.GetProductSolverOption(self._edb.edb.ProductId.Designer, "HFSS")
         return p
 
     @_edb_properties.setter
     def _edb_properties(self, value):
-        self._edb_terminal.SetProductSolverOption(self._edb.ProductId.Designer, "HFSS", value)
+        self._edb_terminal.SetProductSolverOption(self._edb.edb.ProductId.Designer, "HFSS", value)
 
     @property
     def hfss_type(self):
@@ -955,7 +955,7 @@ class ExcitationSources(CommonExcitation):
 
     @magnitude.setter
     def magnitude(self, value):
-        self._edb_terminal.SetSourceAmplitude(self._edb.Utility.Value(value))
+        self._edb_terminal.SetSourceAmplitude(self._edb.utility.value(value))
 
     @property
     def phase(self):
@@ -964,7 +964,7 @@ class ExcitationSources(CommonExcitation):
 
     @phase.setter
     def phase(self, value):
-        self._edb_terminal.SetSourcePhase(self._edb.Utility.Value(value))
+        self._edb_terminal.SetSourcePhase(self._edb.utility.value(value))
 
 
 class ExcitationProbes(CommonExcitation):
