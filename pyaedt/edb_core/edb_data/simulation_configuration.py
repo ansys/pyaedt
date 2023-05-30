@@ -2215,10 +2215,10 @@ class SimulationConfiguration(object):
         """
         return self._batch_solve_settings
 
+    @pyaedt_function_handler()
     def build_simulation_project(self):
         """Build active simulation project. This method requires to be run inside Edb Class."""
-        if self._pedb:
-            return self._pedb.build_simulation_project(self)
+        return self._pedb.build_simulation_project(self)
 
     @property
     def solver_type(self):  # pragma: no cover

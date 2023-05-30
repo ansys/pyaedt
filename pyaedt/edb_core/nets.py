@@ -50,11 +50,6 @@ class EdbNets(object):
         self._pedb = p_edb
 
     @property
-    def _builder(self):
-        """ """
-        return self._pedb.builder
-
-    @property
     def _edb(self):
         """ """
         return self._pedb.edb
@@ -65,6 +60,11 @@ class EdbNets(object):
         return self._pedb.active_layout
 
     @property
+    def _layout(self):
+        """ """
+        return self._pedb.layout
+
+    @property
     def _cell(self):
         """ """
         return self._pedb.cell
@@ -72,7 +72,7 @@ class EdbNets(object):
     @property
     def db(self):
         """Db object."""
-        return self._pedb.db
+        return self._pedb.active_db
 
     @property
     def _logger(self):
@@ -89,7 +89,7 @@ class EdbNets(object):
             Dictionary of nets.
         """
         nets = {}
-        for net in self._active_layout.Nets:
+        for net in self._layout.nets:
             nets[net.GetName()] = EDBNetsData(net, self._pedb)
         return nets
 
@@ -179,8 +179,7 @@ class EdbNets(object):
         list of  :class:`pyaedt.edb_core.edb_data.EDBNetsData`
         """
         pwr_gnd_nets = []
-        nets = list(self._active_layout.Nets)
-        for net in nets:
+        for net in self._layout.nets[:]:
             total_plane_area = 0.0
             total_trace_area = 0.0
             for primitive in net.Primitives:

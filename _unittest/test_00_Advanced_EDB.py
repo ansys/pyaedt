@@ -246,7 +246,7 @@ class TestClass(BasisTest, object):
         )
         try:
             layout = laminateEdb.active_layout
-            cellInstances = list(layout.CellInstances)
+            cellInstances = list(layout.cell_instances)
             assert len(cellInstances) == 0
             assert chipEdb.stackup.place_in_layout_3d_placement(
                 laminateEdb,
@@ -257,7 +257,7 @@ class TestClass(BasisTest, object):
                 place_on_top=True,
             )
             merged_cell = chipEdb.edb.Cell.Cell.FindByName(
-                chipEdb.db, chipEdb.edb.Cell.CellType.CircuitCell, "lam_with_mold"
+                chipEdb.active_db, chipEdb.edb.Cell.CellType.CircuitCell, "lam_with_mold"
             )
             assert not merged_cell.IsNull()
             layout = merged_cell.GetLayout()
@@ -319,7 +319,7 @@ class TestClass(BasisTest, object):
                 place_on_top=False,
             )
             merged_cell = chipEdb.edb.Cell.Cell.FindByName(
-                chipEdb.db, chipEdb.edb.Cell.CellType.CircuitCell, "lam_with_mold"
+                chipEdb.active_db, chipEdb.edb.Cell.CellType.CircuitCell, "lam_with_mold"
             )
             assert not merged_cell.IsNull()
             layout = merged_cell.GetLayout()
@@ -381,7 +381,7 @@ class TestClass(BasisTest, object):
                 place_on_top=True,
             )
             merged_cell = chipEdb.edb.Cell.Cell.FindByName(
-                chipEdb.db, chipEdb.edb.Cell.CellType.CircuitCell, "lam_with_mold"
+                chipEdb.active_db, chipEdb.edb.Cell.CellType.CircuitCell, "lam_with_mold"
             )
             assert not merged_cell.IsNull()
             layout = merged_cell.GetLayout()
@@ -444,7 +444,7 @@ class TestClass(BasisTest, object):
                 place_on_top=False,
             )
             merged_cell = chipEdb.edb.Cell.Cell.FindByName(
-                chipEdb.db, chipEdb.edb.Cell.CellType.CircuitCell, "lam_with_mold"
+                chipEdb.active_db, chipEdb.edb.Cell.CellType.CircuitCell, "lam_with_mold"
             )
             assert not merged_cell.IsNull()
             layout = merged_cell.GetLayout()
@@ -507,7 +507,7 @@ class TestClass(BasisTest, object):
                 place_on_top=True,
             )
             merged_cell = chipEdb.edb.Cell.Cell.FindByName(
-                chipEdb.db, chipEdb.edb.Cell.CellType.CircuitCell, "lam_with_mold"
+                chipEdb.active_db, chipEdb.edb.Cell.CellType.CircuitCell, "lam_with_mold"
             )
             assert not merged_cell.IsNull()
             layout = merged_cell.GetLayout()
@@ -570,7 +570,7 @@ class TestClass(BasisTest, object):
                 place_on_top=False,
             )
             merged_cell = chipEdb.edb.Cell.Cell.FindByName(
-                chipEdb.db, chipEdb.edb.Cell.CellType.CircuitCell, "lam_with_mold"
+                chipEdb.active_db, chipEdb.edb.Cell.CellType.CircuitCell, "lam_with_mold"
             )
             assert not merged_cell.IsNull()
             layout = merged_cell.GetLayout()
@@ -633,7 +633,7 @@ class TestClass(BasisTest, object):
                 place_on_top=True,
             )
             merged_cell = chipEdb.edb.Cell.Cell.FindByName(
-                chipEdb.db, chipEdb.edb.Cell.CellType.CircuitCell, "lam_with_mold"
+                chipEdb.active_db, chipEdb.edb.Cell.CellType.CircuitCell, "lam_with_mold"
             )
             assert not merged_cell.IsNull()
             layout = merged_cell.GetLayout()
@@ -696,7 +696,7 @@ class TestClass(BasisTest, object):
                 place_on_top=False,
             )
             merged_cell = chipEdb.edb.Cell.Cell.FindByName(
-                chipEdb.db, chipEdb.edb.Cell.CellType.CircuitCell, "lam_with_mold"
+                chipEdb.active_db, chipEdb.edb.Cell.CellType.CircuitCell, "lam_with_mold"
             )
             assert not merged_cell.IsNull()
             layout = merged_cell.GetLayout()

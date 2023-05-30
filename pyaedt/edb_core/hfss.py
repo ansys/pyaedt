@@ -57,16 +57,16 @@ class EdbHfss(object):
         return self._pedb.active_layout
 
     @property
+    def _layout(self):
+        return self._pedb.layout
+
+    @property
     def _cell(self):
         return self._pedb.cell
 
     @property
     def _db(self):
-        return self._pedb.db
-
-    @property
-    def _builder(self):
-        return self._pedb.builder
+        return self._pedb.active_db
 
     @property
     def excitations(self):
@@ -684,7 +684,7 @@ class EdbHfss(object):
 
         >>> edb_path = path_to_edb
         >>> edb = Edb(edb_path)
-        >>> poly_list = [poly for poly in list(edb.active_layout.Primitives) if poly.GetPrimitiveType() == 2]
+        >>> poly_list = [poly for poly in list(edb.layout.primitives) if poly.GetPrimitiveType() == 2]
         >>> port_poly = [poly for poly in poly_list if poly.GetId() == 17][0]
         >>> ref_poly = [poly for poly in poly_list if poly.GetId() == 19][0]
         >>> port_location = [-65e-3, -13e-3]
@@ -1204,7 +1204,7 @@ class EdbHfss(object):
         hfss_extent.HonorUserDielectric = simulation_setup.honor_user_dielectric
         hfss_extent.TruncateAirBoxAtGround = simulation_setup.truncate_airbox_at_ground
         hfss_extent.UseOpenRegion = simulation_setup.use_radiation_boundary
-        self._active_layout.GetCell().SetHFSSExtentInfo(hfss_extent)  # returns void
+        self._layout.cell.SetHFSSExtentInfo(hfss_extent)  # returns void
         return True
 
     @pyaedt_function_handler()
@@ -1293,10 +1293,10 @@ class EdbHfss(object):
             self._logger.error("Exception in Sweep configuration: {0}".format(err))
 
         sim_setup = self._edb.Utility.HFSSSimulationSetup(simsetup_info)
-        for setup in self._active_layout.GetCell().SimulationSetups:
-            self._active_layout.GetCell().DeleteSimulationSetup(setup.GetName())
+        for setup in self._layout.cell.SimulationSetups:
+            self._layout.cell.DeleteSimulationSetup(setup.GetName())
             self._logger.warning("Setup {} has been deleted".format(setup.GetName()))
-        return self._active_layout.GetCell().AddSimulationSetup(sim_setup)
+        return self._layout.cell.AddSimulationSetup(sim_setup)
 
     def _setup_decade_count_sweep(self, sweep, start_freq="1", stop_freq="1MHz", decade_count="10"):
         start_f = GeometryOperators.parse_dim_arg(start_freq)
@@ -1404,11 +1404,9 @@ class EdbHfss(object):
             as argument."
             )
             return False
-        net_names = [net.GetName() for net in list(self._active_layout.Nets) if not net.IsPowerGround()]
+        net_names = [net.GetName() for net in self._layout.nets if not net.IsPowerGround()]
         cmp_names = (
-            simulation_setup.components
-            if simulation_setup.components
-            else [gg.GetName() for gg in self._active_layout.Groups]
+            simulation_setup.components if simulation_setup.components else [gg.GetName() for gg in self._layout.groups]
         )
         ii = 0
         for cc in cmp_names:
@@ -1503,7 +1501,7 @@ class EdbHfss(object):
            Number of ports.
 
         """
-        terms = [term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) == 0]
+        terms = [term for term in self._layout.terminals if int(term.GetBoundaryType()) == 0]
         return len([i for i in terms if not i.IsReferenceTerminal()])
 
     @pyaedt_function_handler()

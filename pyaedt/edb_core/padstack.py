@@ -52,11 +52,6 @@ class EdbPadstacks(object):
         self._pedb = p_edb
 
     @property
-    def _builder(self):
-        """ """
-        return self._pedb.builder
-
-    @property
     def _edb(self):
         """ """
         return self._pedb.edb
@@ -70,9 +65,14 @@ class EdbPadstacks(object):
         return self._pedb.active_layout
 
     @property
+    def _layout(self):
+        """ """
+        return self._pedb.layout
+
+    @property
     def db(self):
         """Db object."""
-        return self._pedb.db
+        return self._pedb.active_db
 
     @property
     def _logger(self):
@@ -164,7 +164,7 @@ class EdbPadstacks(object):
 
         """
         _padstacks = {}
-        for padstackdef in self.db.PadstackDefs:
+        for padstackdef in self._pedb.padstack_defs:
             PadStackData = padstackdef.GetData()
             if len(PadStackData.GetLayerNames()) >= 1:
                 _padstacks[padstackdef.GetName()] = EDBPadstack(padstackdef, self)
@@ -198,7 +198,7 @@ class EdbPadstacks(object):
         """
 
         padstack_instances = {}
-        edb_padstack_inst_list = list(self._active_layout.PadstackInstances)
+        edb_padstack_inst_list = self._pedb.layout.padstack_instances
         for edb_padstack_instance in edb_padstack_inst_list:
             padstack_instances[edb_padstack_instance.GetId()] = EDBPadstackInstance(edb_padstack_instance, self._pedb)
         return padstack_instances
@@ -269,7 +269,7 @@ class EdbPadstacks(object):
             List of all layout pin groups.
         """
         pingroups = []
-        for el in self._active_layout.PinGroups:
+        for el in self._layout.pin_groups:
             pingroups.append(el)
         return pingroups
 
@@ -323,7 +323,7 @@ class EdbPadstacks(object):
             Name of the padstack if the operation is successful.
         """
 
-        PadStack = self._edb.Definition.PadstackDef.Create(self._active_layout.GetCell().GetDatabase(), padstackname)
+        PadStack = self._edb.Definition.PadstackDef.Create(self._layout.cell.GetDatabase(), padstackname)
         new_PadStackData = self._edb.Definition.PadstackDefData.Create()
         list_values = convert_py_list_to_net_list(
             [self._get_edb_value(holediam), self._get_edb_value(paddiam), self._get_edb_value(antipaddiam)]
@@ -699,7 +699,7 @@ class EdbPadstacks(object):
 
         if not isinstance(net_list, list):
             net_list = [net_list]
-        layout_lobj_collection = list(self._active_layout.PadstackInstances)
+        layout_lobj_collection = self._layout.padstack_instances
         via_list = []
         for lobj in layout_lobj_collection:
             pad_layers_name = lobj.GetPadstackDef().GetData().GetLayerNames()

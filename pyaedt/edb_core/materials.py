@@ -364,7 +364,7 @@ class Materials(object):
 
     @property
     def _db(self):
-        return self._pedb.db
+        return self._pedb.active_db
 
     @property
     def materials(self):

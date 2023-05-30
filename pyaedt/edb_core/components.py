@@ -119,10 +119,6 @@ class Components(object):
         a = self.components_by_partname
         return True
 
-    @property
-    def _builder(self):
-        return self._pedb.builder
-
     def _get_edb_value(self, value):
         return self._pedb.edb_value(value)
 
@@ -135,12 +131,16 @@ class Components(object):
         return self._pedb.active_layout
 
     @property
+    def _layout(self):
+        return self._pedb.layout
+
+    @property
     def _cell(self):
         return self._pedb.cell
 
     @property
     def _db(self):
-        return self._pedb.db
+        return self._pedb.active_db
 
     @property
     def components(self):
@@ -290,7 +290,7 @@ class Components(object):
         # self._logger.info("Refreshing the Components dictionary.")
         self._cmp = {
             l.GetName(): EDBComponent(self, l)
-            for l in self._active_layout.Groups
+            for l in self._layout.groups
             if l.ToString() == "Ansys.Ansoft.Edb.Cell.Hierarchy.Component"
         }
         return True
