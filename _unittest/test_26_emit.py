@@ -777,7 +777,7 @@ class TestClass(BasisTest, object):
         config["desktopVersion"] < "2024.1" or is_ironpython,
         reason="Skipped on versions earlier than 2024.1",
     )
-    def test_optimal_N_to_1_feature(self):
+    def test_optimal_n_to_1_feature(self):
         self.aedtapp = BasisTest.add_app(self, application=Emit)
         # place components and generate the appropriate number of revisions
         rad1 = self.aedtapp.modeler.components.create_component("Bluetooth")
