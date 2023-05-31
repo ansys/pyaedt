@@ -33,6 +33,7 @@ class SimulationConfigurationBatch(object):
         self._cutout_subdesign_round_corner = True
         self._use_default_cutout = True
         self._generate_excitations = True
+        self._add_frequency_sweep = True
         self._generate_solder_balls = True
         self._coax_solder_ball_diameter = []
         self._use_default_coax_port_radial_extension = True
@@ -578,6 +579,23 @@ class SimulationConfigurationBatch(object):
     def generate_excitations(self, value):
         if isinstance(value, bool):
             self._generate_excitations = value
+
+    @property
+    def add_frequency_sweep(self):
+        """Activate the frequency sweep creation when build project with the class.
+
+        Returns
+        -------
+        bool
+            ``True`` freuquency sweep is created, ``False`` skip sweep adding. Default value is ``True``.
+
+        """
+        return self._add_frequency_sweep
+
+    @add_frequency_sweep.setter
+    def add_frequency_sweep(self, value):
+        if isinstance(value, bool):
+            self._add_frequency_sweep = value
 
 
 class SimulationConfigurationDc(object):

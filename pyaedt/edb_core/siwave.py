@@ -1014,27 +1014,31 @@ class EdbSiwave(object):
             if simulation_setup.min_void_area:  # pragma: no cover
                 simsetup_info.SimulationSettings.DCAdvancedSettings.DcMinVoidAreaToMesh = simulation_setup.min_void_area
             try:
-                sweep = self._pedb.simsetupdata.SweepData(simulation_setup.sweep_name)
-                sweep.IsDiscrete = False  # need True for package??
-                sweep.UseQ3DForDC = simulation_setup.use_q3d_for_dc
-                sweep.RelativeSError = simulation_setup.relative_error
-                sweep.InterpUsePortImpedance = False
-                sweep.EnforceCausality = (GeometryOperators.parse_dim_arg(simulation_setup.start_freq) - 0) < 1e-9
-                sweep.EnforcePassivity = simulation_setup.enforce_passivity
-                sweep.PassivityTolerance = simulation_setup.passivity_tolerance
-                sweep.Frequencies.Clear()
-                if simulation_setup.sweep_type == SweepType.LogCount:  # pragma: no cover
-                    self._setup_decade_count_sweep(
-                        sweep,
-                        simulation_setup.start_freq,
-                        simulation_setup.stop_freq,
-                        simulation_setup.decade_count,
-                    )
+                if simulation_setup.add_frequency_sweep:
+                    self._logger.info("Adding frequency sweep")
+                    sweep = self._pedb.simsetupdata.SweepData(simulation_setup.sweep_name)
+                    sweep.IsDiscrete = False  # need True for package??
+                    sweep.UseQ3DForDC = simulation_setup.use_q3d_for_dc
+                    sweep.RelativeSError = simulation_setup.relative_error
+                    sweep.InterpUsePortImpedance = False
+                    sweep.EnforceCausality = (GeometryOperators.parse_dim_arg(simulation_setup.start_freq) - 0) < 1e-9
+                    sweep.EnforcePassivity = simulation_setup.enforce_passivity
+                    sweep.PassivityTolerance = simulation_setup.passivity_tolerance
+                    sweep.Frequencies.Clear()
+                    if simulation_setup.sweep_type == SweepType.LogCount:  # pragma: no cover
+                        self._setup_decade_count_sweep(
+                            sweep,
+                            simulation_setup.start_freq,
+                            simulation_setup.stop_freq,
+                            simulation_setup.decade_count,
+                        )
+                    else:
+                        sweep.Frequencies = self._pedb.simsetupdata.SweepData.SetFrequencies(
+                            simulation_setup.start_freq, simulation_setup.stop_freq, simulation_setup.step_freq
+                        )
+                    simsetup_info.SweepDataList.Add(sweep)
                 else:
-                    sweep.Frequencies = self._pedb.simsetupdata.SweepData.SetFrequencies(
-                        simulation_setup.start_freq, simulation_setup.stop_freq, simulation_setup.step_freq
-                    )
-                simsetup_info.SweepDataList.Add(sweep)
+                    self._logger.info("Adding frequency sweep disabled")
             except Exception as err:
                 self._logger.error("Exception in sweep configuration: {0}.".format(err))
             edb_sim_setup = self._edb.Utility.SIWaveSimulationSetup(simsetup_info)
