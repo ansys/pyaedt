@@ -1,5 +1,5 @@
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
-from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
+from pyaedt.edb_core.edb_data.primitives_data import cast
 from pyaedt.edb_core.general import convert_pytuple_to_nettuple
 
 # from pyaedt.generic.general_methods import property
@@ -126,7 +126,7 @@ class HfssExtentInfo:
         -------
         :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitive`
         """
-        return EDBPrimitives(self._edb_hfss_extent_info.BasePolygon, self._pedb)
+        return cast(self._edb_hfss_extent_info.BasePolygon, self._pedb)
 
     @base_polygon.setter
     def base_polygon(self, value):
@@ -142,7 +142,7 @@ class HfssExtentInfo:
         -------
         :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitive`
         """
-        return EDBPrimitives(self._edb_hfss_extent_info.DielectricBasePolygon, self._pedb)
+        return cast(self._edb_hfss_extent_info.DielectricBasePolygon, self._pedb)
 
     @dielectric_base_polygon.setter
     def dielectric_base_polygon(self, value):

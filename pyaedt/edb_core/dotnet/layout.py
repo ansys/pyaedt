@@ -1,10 +1,12 @@
+from pyaedt.edb_core.dotnet.database import NetDotNet
+from pyaedt.edb_core.dotnet.primitive import cast
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 
 
 class Layout:
     """Layout."""
 
-    def __init__(self, cell):
+    def __init__(self, cell, edb_api):
         """Initialize a new layout.
 
         Parameters
@@ -12,6 +14,7 @@ class Layout:
         msg : EDBObjMessage
         """
         self._cell = cell
+        self._edb_api = edb_api
         self._layout = cell.GetLayout()
         self._layout_instance = None
 
@@ -40,7 +43,7 @@ class Layout:
 
         Read-Only.
         """
-        return list(self._layout.Primitives)
+        return [cast(self._edb_api.cell.primitive, i) for i in list(self._layout.Primitives)]
 
     @property
     def padstack_instances(self):
@@ -74,7 +77,7 @@ class Layout:
 
         Read-Only.
         """
-        return list(self._layout.Nets)
+        return [NetDotNet(self._edb_api.cell.net, i) for i in self._layout.Nets]
 
     @property
     def groups(self):
@@ -86,7 +89,7 @@ class Layout:
 
     @property
     def net_classes(self):
-        """:obj:`list` of :class:`NetClass <ansys.edb.net.NetClass>` : List of all the netclassses in this layout.
+        """:obj:`list` of :class:`NetClass <ansys.edb.net.NetClass>` : List of all the netclasses in this layout.
 
         Read-Only.
         """

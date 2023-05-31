@@ -2,6 +2,8 @@
 import os
 import sys
 
+from pyaedt import __version__
+from pyaedt import pyaedt_logger
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import env_path
 from pyaedt.generic.general_methods import env_path_student
@@ -9,6 +11,7 @@ from pyaedt.generic.general_methods import env_value
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import settings
+from pyaedt.misc import list_installed_ansysem
 
 
 class HierarchyDotNet:
@@ -54,31 +57,71 @@ class PolygonDataDotNet:
         self.dotnetobj = pdata
 
     def get_bbox_of_boxes(self, points):
+        """Edb Dotnet Api Database `Edb.Geometry.GetBBoxOfBoxes`.
+
+        Parameters
+        ----------
+        points : list or `Edb.Geometry.PointData`
+        """
         if isinstance(points, list):
             points = convert_py_list_to_net_list(points)
         return self.dotnetobj.GetBBoxOfBoxes(points)
 
     def get_bbox_of_polygons(self, polygons):
+        """Edb Dotnet Api Database `Edb.Geometry.GetBBoxOfPolygons`.
+
+        Parameters
+        ----------
+        polygons : list or `Edb.Geometry.PolygonData`"""
         if isinstance(polygons, list):
             polygons = convert_py_list_to_net_list(polygons)
         return self.dotnetobj.GetBBoxOfPolygons(polygons)
 
     def create_from_bbox(self, points):
+        """Edb Dotnet Api Database `Edb.Geometry.CreateFromBBox`.
+
+        Parameters
+        ----------
+        points : list or `Edb.Geometry.PointData`
+        """
         if isinstance(points, list):
             points = convert_py_list_to_net_list(points)
         return self.dotnetobj.CreateFromBBox(points)
 
     def create_from_arcs(self, arcs, flag):
+        """Edb Dotnet Api Database `Edb.Geometry.CreateFromArcs`.
+
+        Parameters
+        ----------
+        arcs : list or `Edb.Geometry.ArcData`
+            List of ArcData.
+        flag : bool
+        """
         if isinstance(arcs, list):
             arcs = convert_py_list_to_net_list(arcs)
         return self.dotnetobj.CreateFromArcs(arcs, flag)
 
     def unite(self, pdata):
+        """Edb Dotnet Api Database `Edb.Geometry.Unite`.
+
+        Parameters
+        ----------
+        pdata : list or `Edb.Geometry.PolygonData`
+            Polygons to unite.
+
+        """
         if isinstance(pdata, list):
             pdata = convert_py_list_to_net_list(pdata)
         return self.dotnetobj.Unite(pdata)
 
     def get_convex_hull_of_polygons(self, pdata):
+        """Edb Dotnet Api Database `Edb.Geometry.GetConvexHullOfPolygons`.
+
+        Parameters
+        ----------
+        pdata : list or List of `Edb.Geometry.PolygonData`
+            Polygons to unite in a Convex Hull.
+        """
         if isinstance(pdata, list):
             pdata = convert_py_list_to_net_list(pdata)
         return self.dotnetobj.GetConvexHullOfPolygons(pdata)
@@ -89,19 +132,61 @@ class NetDotNet:
         try:
             return super().__getattribute__(key)
         except:
+            if self.net_obj:
+                obj = self.net_obj
+            else:
+                obj = self.net
             try:
-                return getattr(self.net, key)
+                return getattr(obj, key)
             except AttributeError:
                 raise AttributeError("Attribute not present")
 
-    def __init__(self, net):
+    def __init__(self, net, net_obj=None):
         self.net = net
+        self.net_obj = net_obj
 
     def find_by_name(self, layout, net):
+        """Edb Dotnet Api Database `Edb.Net.FindByName`."""
         return self.net.FindByName(layout, net)
 
     def create(self, layout, name):
+        """Edb Dotnet Api Database `Edb.Net.Create`."""
+
         return self.net.Create(layout, name)
+
+    def delete(self):
+        """Edb Dotnet Api Database `Edb.Net.Delete`."""
+        if self.net_obj:
+            self.net_obj.Delete()
+            self.net_obj = None
+
+    @property
+    def name(self):
+        """Edb Dotnet Api Database `net.name` and  `Net.SetName()`."""
+        if self.net_obj:
+            return self.net_obj.GetName()
+
+    @name.setter
+    def name(self, value):
+        if self.net_obj:
+            self.net_obj.SetName(value)
+
+    @property
+    def is_null(self):
+        """Edb Dotnet Api Database `Net.IsNull()`."""
+        if self.net_obj:
+            return self.net_obj.IsNull()
+
+    @property
+    def is_power_ground(self):
+        """Edb Dotnet Api Database `Net.IsPowerGround()` and  `Net.SetIsPowerGround()`."""
+        if self.net_obj:
+            return self.net_obj.IsPowerGround()
+
+    @is_power_ground.setter
+    def is_power_ground(self, value):
+        if self.net_obj:
+            self.net_obj.SetIsPowerGround(value)
 
 
 class CellClassDotNet:
@@ -124,7 +209,12 @@ class CellClassDotNet:
 
     @property
     def hierarchy(self):
-        """Edb Dotnet Api Database `Edb.Cell.Hierarchy`."""
+        """Edb Dotnet Api Database `Edb.Cell.Hierarchy`.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.dotnet.HierarchyDotNet`
+        """
         return HierarchyDotNet(self._cell.Hierarchy)
 
     @property
@@ -134,22 +224,27 @@ class CellClassDotNet:
 
     @property
     def net(self):
+        """Edb Dotnet Api Cell.Layer."""
         return NetDotNet(self._cell.Net)
 
     @property
     def layer_type(self):
+        """Edb Dotnet Api Cell.LayerType."""
         return self._cell.LayerType
 
     @property
     def layer_type_set(self):
+        """Edb Dotnet Api Cell.LayerTypeSet."""
         return self._cell.LayerTypeSet
 
     @property
     def layer(self):
+        """Edb Dotnet Api Cell.Layer."""
         return self._cell.Layer
 
     @property
     def layout_object_type(self):
+        """Edb Dotnet Api LayoutObjType."""
         return self._cell.LayoutObjType
 
     @property
@@ -172,6 +267,7 @@ class UtilityDotNet:
         self.utility = utility
 
     def value(self, value, varserver=None):
+        """Edb Dotnet Api Utility.Value."""
         if varserver:
             return self.utility.Value(value, varserver)
         else:
@@ -193,6 +289,7 @@ class GeometryDotNet:
         self.utility = utility
 
     def point_data(self, p1, p2):
+        """Edb Dotnet Api Point."""
         if isinstance(p1, (int, float, str, list)):
             p1 = UtilityDotNet(self.utility).value(p1)
         if isinstance(p2, (int, float, str, list)):
@@ -200,6 +297,7 @@ class GeometryDotNet:
         return self.geometry.PointData(p1, p2)
 
     def point3d_data(self, p1, p2, p3):
+        """Edb Dotnet Api Point 3D."""
         if isinstance(p1, (int, float, str, list)):
             p1 = UtilityDotNet(self.utility).value(p1)
         if isinstance(p2, (int, float, str, list)):
@@ -210,10 +308,17 @@ class GeometryDotNet:
 
     @property
     def extent_type(self):
+        """Edb Dotnet Api Extent Type."""
         return self.geometry.ExtentType
 
     @property
     def polygon_data(self):
+        """Polygon Data.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.dotnet.PolygonDataDotNet`
+        """
         return PolygonDataDotNet(self.geometry.PolygonData)
 
     def arc_data(self, point1, point2, rotation=None, height=None):
@@ -244,6 +349,8 @@ class CellDotNet:
 
     @property
     def definition(self):
+        """Edb Dotnet Api Definition."""
+
         return self.edb.Definition
 
     @property
@@ -266,21 +373,32 @@ class CellDotNet:
 
 
 class EdbDotNet:
-    def __getattr__(self, key):
-        try:
-            return super().__getattribute__(key)
-        except:
-            try:
-                return getattr(self._edb, key)
-            except AttributeError:
-                raise AttributeError("Attribute not present")
-
     def __init__(self, edbversion, student_version=False):
+        self._global_logger = pyaedt_logger
+        self._logger = pyaedt_logger
+        if not edbversion:
+            try:
+                edbversion = "20{}.{}".format(list_installed_ansysem()[0][-3:-1], list_installed_ansysem()[0][-1:])
+                self._logger.info("Edb version " + edbversion)
+            except IndexError:
+                raise Exception("No ANSYSEM_ROOTxxx is found.")
         self.edbversion = edbversion
         self.student_version = student_version
         """Initialize DLLs."""
         from pyaedt.generic.clr_module import _clr
+        from pyaedt.generic.clr_module import edb_initialized
 
+        self.student_version = student_version
+        if settings.enable_screen_logs:
+            self.logger.enable_stdout_log()
+        else:
+            self.logger.disable_stdout_log()
+        if not edb_initialized:
+            self.logger.error("Failed to initialize Dlls.")
+            return
+        self.logger.info("Logger is initialized in EDB.")
+        self.logger.info("pyaedt v%s", __version__)
+        self.logger.info("Python version %s", sys.version)
         if is_linux:
             if env_value(self.edbversion) in os.environ or settings.edb_dll_path:
                 if settings.edb_dll_path:
@@ -331,8 +449,23 @@ class EdbDotNet:
         self.simsetupdata = self.simSetup.Ansoft.SimSetupData.Data
 
     @property
+    def logger(self):
+        """Logger for EDB.
+
+        Returns
+        -------
+        :class:`pyaedt.aedt_logger.AedtLogger`
+        """
+        return self._logger
+
+    @property
     def edb_api(self):
-        """Edb Dotnet Api class."""
+        """Edb Dotnet Api class.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.dotnet.database.CellDotNet`
+        """
         return CellDotNet(self._edb)
 
     @property
