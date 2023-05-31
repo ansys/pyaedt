@@ -95,10 +95,48 @@ class EDBPrimitivesMain:
         """
         return self.net.GetName()
 
+    @net_name.setter
+    def net_name(self, name):
+        if isinstance(name, str):
+            self.net.SetName(name)
+        else:
+            try:
+                self.net.SetName(name.GetName())
+            except:
+                self._app.logger.error("Failed to set net name.")
+
     @pyaedt_function_handler()
     def delete(self):
         """Delete this primitive."""
         return self.primitive_object.Delete()
+
+    @property
+    def layer(self):
+        """Get the primitive edb layer object."""
+        return self.primitive_object.GetLayer()
+
+    @property
+    def layer_name(self):
+        """Get or Set the primitive layer name.
+
+        Returns
+        -------
+        str
+        """
+        return self.layer.GetName()
+
+    @layer_name.setter
+    def layer_name(self, val):
+        if val in self._core_stackup.stackup_layers.layers:
+            lay = self._core_stackup.stackup_layers.layers[val]._edb_layer
+            self.primitive_object.SetLayer(lay)
+        elif not isinstance(val, str):
+            try:
+                self.primitive_object.SetLayer(val)
+            except:
+                raise AttributeError("Value inserted not found. Input has to be layer name or layer object.")
+        else:
+            raise AttributeError("Value inserted not found. Input has to be layer name or layer object.")
 
     @pyaedt_function_handler
     def clone(self):
@@ -331,34 +369,6 @@ class EDBPrimitives(EDBPrimitivesMain):
         bool
         """
         return point.IsArc()
-
-    @property
-    def layer(self):
-        """Get the primitive edb layer object."""
-        return self.primitive_object.GetLayer()
-
-    @property
-    def layer_name(self):
-        """Get or Set the primitive layer name.
-
-        Returns
-        -------
-        str
-        """
-        return self.layer.GetName()
-
-    @layer_name.setter
-    def layer_name(self, val):
-        if val in self._core_stackup.stackup_layers.layers:
-            lay = self._core_stackup.stackup_layers.layers[val]._edb_layer
-            self.primitive_object.SetLayer(lay)
-        elif not isinstance(val, str):
-            try:
-                self.primitive_object.SetLayer(val)
-            except:
-                raise AttributeError("Value inserted not found. Input has to be layer name or layer object.")
-        else:
-            raise AttributeError("Value inserted not found. Input has to be layer name or layer object.")
 
     @pyaedt_function_handler()
     def get_connected_object_id_set(self):
