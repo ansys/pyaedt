@@ -335,6 +335,11 @@ class Edb(object):
         Returns
         -------
         tuple
+
+        Examples
+        --------
+        >>> app = Edb()
+        >>> app.board_size
         """
         net_list = [j.net_object for i, j in self.nets.nets.items()]
         net_list = convert_py_list_to_net_list(net_list)
