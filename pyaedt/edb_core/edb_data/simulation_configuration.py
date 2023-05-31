@@ -34,6 +34,7 @@ class SimulationConfigurationBatch(object):
         self._use_default_cutout = True
         self._generate_excitations = True
         self._add_frequency_sweep = True
+        self._include_only_selected_nets = True
         self._generate_solder_balls = True
         self._coax_solder_ball_diameter = []
         self._use_default_coax_port_radial_extension = True
@@ -587,7 +588,7 @@ class SimulationConfigurationBatch(object):
         Returns
         -------
         bool
-            ``True`` freuquency sweep is created, ``False`` skip sweep adding. Default value is ``True``.
+            ``True`` frequency sweep is created, ``False`` skip sweep adding. Default value is ``True``.
 
         """
         return self._add_frequency_sweep
@@ -596,6 +597,23 @@ class SimulationConfigurationBatch(object):
     def add_frequency_sweep(self, value):
         if isinstance(value, bool):
             self._add_frequency_sweep = value
+
+    @property
+    def include_only_selected_nets(self):
+        """Include only net selection in the project. Is only used when do_cutout is set to ``False``. Will also be
+        ignored if signal_nets and power_nets are ``None``, resulting project will have all nets included.
+
+        Returns
+        -------
+        bool
+            ``True`` or ``False. Default value is ``True``.
+
+        """
+
+    @include_only_selected_nets.setter
+    def include_only_selected_nets(self, value):
+        if isinstance(value, bool):
+            self._include_only_selected_nets = value
 
 
 class SimulationConfigurationDc(object):
