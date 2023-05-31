@@ -609,6 +609,7 @@ class SimulationConfigurationBatch(object):
             ``True`` or ``False. Default value is ``True``.
 
         """
+        return self._include_only_selected_nets
 
     @include_only_selected_nets.setter
     def include_only_selected_nets(self, value):

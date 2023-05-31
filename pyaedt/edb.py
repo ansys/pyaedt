@@ -3039,7 +3039,9 @@ class Edb(object):
             else:
                 if simulation_setup.include_only_selected_nets:
                     included_nets = simulation_setup.signal_nets + simulation_setup.power_nets
-                    nets_to_remove = [net for net in list(self.nets.nets.values()) if not net.name in included_nets]
+                    nets_to_remove = [
+                        net.name for net in list(self.nets.nets.values()) if not net.name in included_nets
+                    ]
                     self.nets.delete(nets_to_remove)
             self.logger.info("Deleting existing ports.")
             map(lambda port: port.Delete(), list(self.active_layout.Terminals))
