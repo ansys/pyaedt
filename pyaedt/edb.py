@@ -1345,7 +1345,7 @@ class Edb(Database):
         names = []
         _polys = []
         for net in net_signals:
-            names.append(net.name)
+            names.append(net.GetName())
         for prim in self.modeler.primitives:
             if prim.net_name in names:
                 obj_data = prim.primitive_object.GetPolygonData().Expand(
