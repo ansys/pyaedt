@@ -845,7 +845,7 @@ class Components(object):
         for net in net_list:
             if not isinstance(net, str):
                 try:
-                    net_name = net.GetName()
+                    net_name = net.name
                     if net_name != "":
                         net_list.append(net_name)
                 except:

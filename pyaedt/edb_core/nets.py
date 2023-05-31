@@ -90,7 +90,7 @@ class EdbNets(object):
         """
         nets = {}
         for net in self._layout.nets:
-            nets[net.GetName()] = EDBNetsData(net, self._pedb)
+            nets[net.name] = EDBNetsData(net.net_obj, self._pedb)
         return nets
 
     @property
@@ -192,11 +192,11 @@ class EdbNets(object):
             if total_plane_area == 0.0:
                 continue
             if total_trace_area == 0.0:
-                pwr_gnd_nets.append(EDBNetsData(net, self._pedb))
+                pwr_gnd_nets.append(EDBNetsData(net_obj, self._pedb))
                 continue
             if total_plane_area > 0.0 and total_trace_area > 0.0:
                 if total_plane_area / (total_plane_area + total_trace_area) > threshold:
-                    pwr_gnd_nets.append(EDBNetsData(net, self._pedb))
+                    pwr_gnd_nets.append(EDBNetsData(net_obj, self._pedb))
         return pwr_gnd_nets
 
     @staticmethod

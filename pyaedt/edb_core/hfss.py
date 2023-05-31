@@ -712,7 +712,7 @@ class EdbHfss(object):
             )
         if not port_name:
             port_name = generate_unique_name("Port_")
-        edge = self._edb.cell.terminal.PrimitiveEdge.Create(polygon, terminal_point)
+        edge = self._edb.cell.terminal.PrimitiveEdge.Create(polygon.prim_obj, terminal_point)
         edges = convert_py_list_to_net_list(edge, self._edb.cell.terminal.Edge)
         edge_term = self._edb.cell.terminal.EdgeTerminal.Create(
             polygon.GetLayout(), polygon.GetNet(), port_name, edges, isRef=False
@@ -726,7 +726,7 @@ class EdbHfss(object):
             edge_term.SetImpedance(self._pedb.edb_value(port_impedance))
         edge_term.SetName(port_name)
         if reference_polygon and reference_point:
-            ref_edge = self._edb.cell.terminal.PrimitiveEdge.Create(reference_polygon, reference_point)
+            ref_edge = self._edb.cell.terminal.PrimitiveEdge.Create(reference_polygon.prim_obj, reference_point)
             ref_edges = convert_py_list_to_net_list(ref_edge, self._edb.cell.terminal.Edge)
             ref_edge_term = self._edb.cell.terminal.EdgeTerminal.Create(
                 reference_polygon.GetLayout(), reference_polygon.GetNet(), port_name + "_ref", ref_edges, isRef=True
@@ -1002,7 +1002,7 @@ class EdbHfss(object):
                 ]
                 for path in net_paths:
                     trace_path_pts = list(path.GetCenterLine().Points)
-                    port_name = "{}_{}".format(net.GetName(), path.GetId())
+                    port_name = "{}_{}".format(net.name, path.GetId())
                     for pt in trace_path_pts:
                         _pt = [
                             round(pt.X.ToDouble(), digit_resolution),
@@ -1404,7 +1404,7 @@ class EdbHfss(object):
             as argument."
             )
             return False
-        net_names = [net.GetName() for net in self._layout.nets if not net.IsPowerGround()]
+        net_names = [net.name for net in self._layout.nets if not net.IsPowerGround()]
         cmp_names = (
             simulation_setup.components if simulation_setup.components else [gg.GetName() for gg in self._layout.groups]
         )

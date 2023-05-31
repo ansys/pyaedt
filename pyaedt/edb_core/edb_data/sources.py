@@ -4,7 +4,7 @@ import re
 from pyaedt import pyaedt_function_handler
 from pyaedt.edb_core.edb_data.nets_data import EDBNetsData
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
-from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
+from pyaedt.edb_core.edb_data.primitives_data import cast
 from pyaedt.generic.constants import NodeType
 from pyaedt.generic.constants import SourceType
 
@@ -669,7 +669,7 @@ class CommonExcitation(object):
             if primitive.GetLayer().GetName() == layer_name or not layer_name:
                 prim_shape_data = primitive.GetPolygonData()
                 if prim_shape_data.PointInPolygon(shape_pd):
-                    return EDBPrimitives(primitive, self._pedb)
+                    return cast(primitive, self._pedb)
         return None  # pragma: no cover
 
     @pyaedt_function_handler()
@@ -692,7 +692,7 @@ class CommonExcitation(object):
             if primitive.GetLayer().GetName() == layer_name:
                 prim_shape_data = primitive.GetPolygonData()
                 if prim_shape_data.PointInPolygon(shape_pd):
-                    return EDBPrimitives(primitive, self._pedb)
+                    return cast(primitive, self._pedb)
         for vias in self._pedb.padstacks.instances.values():
             if layer_name in vias.layer_range_names:
                 plane = self._pedb.modeler.Shape(

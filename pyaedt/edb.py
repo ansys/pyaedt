@@ -13,8 +13,6 @@ import time
 import traceback
 import warnings
 
-from pyaedt import __version__
-from pyaedt import pyaedt_logger
 from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.edb_core import Components
@@ -44,7 +42,6 @@ from pyaedt.edb_core.ipc2581.ipc2581 import Ipc2581
 from pyaedt.edb_core.materials import Materials
 from pyaedt.edb_core.padstack import EdbPadstacks
 from pyaedt.edb_core.stackup import Stackup
-from pyaedt.generic.clr_module import edb_initialized
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.general_methods import generate_unique_name
@@ -54,7 +51,6 @@ from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import is_windows
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.process import SiwaveSolve
-from pyaedt.misc.misc import list_installed_ansysem
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
 # from pyaedt.generic.general_methods import property
@@ -144,89 +140,68 @@ class Edb(Database):
         technology_file=None,
     ):
         self._clean_variables()
-        # if inside_desktop:
-        #    self.standalone = False
-        # else:
-        self.standalone = True
-        if edb_initialized:
-            self.oproject = oproject
-            self._main = sys.modules["__main__"]
-            self._global_logger = pyaedt_logger
-            self._logger = pyaedt_logger
-            self.student_version = student_version
-            if settings.enable_screen_logs:
-                self.logger.enable_stdout_log()
-            else:
-                self.logger.disable_stdout_log()
-            self.logger.info("Logger is initialized in EDB.")
-            self.logger.info("pyaedt v%s", __version__)
-            self.logger.info("Python version %s", sys.version)
-            if not edbversion:
-                try:
-                    edbversion = "20{}.{}".format(list_installed_ansysem()[0][-3:-1], list_installed_ansysem()[0][-1:])
-                    self._logger.info("Edb version " + edbversion)
-                except IndexError:
-                    raise Exception("No ANSYSEM_ROOTxxx is found.")
-            self.edbversion = edbversion
-            self.isaedtowned = isaedtowned
-            Database.__init__(self, self.edbversion, student_version)
-            self.isreadonly = isreadonly
-            self.cellname = cellname
-            if not edbpath:
-                if is_windows:
-                    edbpath = os.getenv("USERPROFILE")
-                    if not edbpath:
-                        edbpath = os.path.expanduser("~")
-                    edbpath = os.path.join(edbpath, "Documents", generate_unique_name("layout") + ".aedb")
-                else:
-                    edbpath = os.getenv("HOME")
-                    if not edbpath:
-                        edbpath = os.path.expanduser("~")
-                    edbpath = os.path.join(edbpath, generate_unique_name("layout") + ".aedb")
-                self.logger.info("No EDB is provided. Creating a new EDB {}.".format(edbpath))
-            self.edbpath = edbpath
-            self.log_name = None
-            if edbpath:
-                self.log_name = os.path.join(
-                    os.path.dirname(edbpath), "pyaedt_" + os.path.splitext(os.path.split(edbpath)[-1])[0] + ".log"
-                )
 
-            if isaedtowned and (inside_desktop or settings.remote_api):
-                self.open_edb_inside_aedt()
-            elif edbpath[-3:] in ["brd", "gds", "xml", "dxf", "tgz"]:
-                self.edbpath = edbpath[:-4] + ".aedb"
-                working_dir = os.path.dirname(edbpath)
-                control_file = None
-                if technology_file:
-                    if os.path.splitext(technology_file)[1] == ".xml":
-                        control_file = technology_file
-                    else:
-                        control_file = convert_technology_file(technology_file, edbversion=edbversion)
-                self.import_layout_pcb(edbpath, working_dir, use_ppe=use_ppe, control_file=control_file)
-                if settings.enable_local_log_file and self.log_name:
-                    self._logger = self._global_logger.add_file_logger(self.log_name, "Edb")
-                self.logger.info("EDB %s was created correctly from %s file.", self.edbpath, edbpath[-2:])
-            elif edbpath.endswith("edb.def"):
-                self.edbpath = os.path.dirname(edbpath)
-                if settings.enable_local_log_file and self.log_name:
-                    self._logger = self._global_logger.add_file_logger(self.log_name, "Edb")
-                self.open_edb()
-            elif not os.path.exists(os.path.join(self.edbpath, "edb.def")):
-                self.create_edb()
-                if settings.enable_local_log_file and self.log_name:
-                    self._logger = self._global_logger.add_file_logger(self.log_name, "Edb")
-                self.logger.info("EDB %s was created correctly.", self.edbpath)
-            elif ".aedb" in edbpath:
-                self.edbpath = edbpath
-                if settings.enable_local_log_file and self.log_name:
-                    self._logger = self._global_logger.add_file_logger(self.log_name, "Edb")
-                self.open_edb()
-            if self.active_cell:
-                self.logger.info("EDB was initialized.")
+        Database.__init__(self, edbversion, student_version)
+        self.standalone = True
+        self.oproject = oproject
+        self._main = sys.modules["__main__"]
+        self.edbversion = edbversion
+        self.isaedtowned = isaedtowned
+        self.isreadonly = isreadonly
+        self.cellname = cellname
+        if not edbpath:
+            if is_windows:
+                edbpath = os.getenv("USERPROFILE")
+                if not edbpath:
+                    edbpath = os.path.expanduser("~")
+                edbpath = os.path.join(edbpath, "Documents", generate_unique_name("layout") + ".aedb")
             else:
-                self.logger.info("Failed to initialize DLLs.")
+                edbpath = os.getenv("HOME")
+                if not edbpath:
+                    edbpath = os.path.expanduser("~")
+                edbpath = os.path.join(edbpath, generate_unique_name("layout") + ".aedb")
+            self.logger.info("No EDB is provided. Creating a new EDB {}.".format(edbpath))
+        self.edbpath = edbpath
+        self.log_name = None
+        if edbpath:
+            self.log_name = os.path.join(
+                os.path.dirname(edbpath), "pyaedt_" + os.path.splitext(os.path.split(edbpath)[-1])[0] + ".log"
+            )
+
+        if isaedtowned and (inside_desktop or settings.remote_api):
+            self.open_edb_inside_aedt()
+        elif edbpath[-3:] in ["brd", "gds", "xml", "dxf", "tgz"]:
+            self.edbpath = edbpath[:-4] + ".aedb"
+            working_dir = os.path.dirname(edbpath)
+            control_file = None
+            if technology_file:
+                if os.path.splitext(technology_file)[1] == ".xml":
+                    control_file = technology_file
+                else:
+                    control_file = convert_technology_file(technology_file, edbversion=edbversion)
+            self.import_layout_pcb(edbpath, working_dir, use_ppe=use_ppe, control_file=control_file)
+            if settings.enable_local_log_file and self.log_name:
+                self._logger = self._global_logger.add_file_logger(self.log_name, "Edb")
+            self.logger.info("EDB %s was created correctly from %s file.", self.edbpath, edbpath[-2:])
+        elif edbpath.endswith("edb.def"):
+            self.edbpath = os.path.dirname(edbpath)
+            if settings.enable_local_log_file and self.log_name:
+                self._logger = self._global_logger.add_file_logger(self.log_name, "Edb")
+            self.open_edb()
+        elif not os.path.exists(os.path.join(self.edbpath, "edb.def")):
+            self.create_edb()
+            if settings.enable_local_log_file and self.log_name:
+                self._logger = self._global_logger.add_file_logger(self.log_name, "Edb")
+            self.logger.info("EDB %s was created correctly.", self.edbpath)
+        elif ".aedb" in edbpath:
+            self.edbpath = edbpath
+            if settings.enable_local_log_file and self.log_name:
+                self._logger = self._global_logger.add_file_logger(self.log_name, "Edb")
+            self.open_edb()
+        if self.active_cell:
+            self.logger.info("EDB was initialized.")
         else:
-            warnings.warn("Failed to initialize DLLs.")
+            self.logger.info("Failed to initialize DLLs.")
 
     def __enter__(self):
         return self
@@ -307,16 +282,6 @@ class Edb(Database):
         self._materials = Materials(self)
 
         self.logger.info("Objects Initialized")
-
-    @property
-    def logger(self):
-        """Logger for EDB.
-
-        Returns
-        -------
-        :class:`pyaedt.aedt_logger.AedtLogger`
-        """
-        return self._logger
 
     @property
     def cell_names(self):
@@ -951,7 +916,7 @@ class Edb(Database):
         -------
         :class:`pyaedt.edb_core.dotnet.layout.Layout`
         """
-        return Layout(self.active_cell)
+        return Layout(self.active_cell, self.edb_api)
 
     @property
     def active_layout(self):
@@ -1380,7 +1345,7 @@ class Edb(Database):
         names = []
         _polys = []
         for net in net_signals:
-            names.append(net.GetName())
+            names.append(net.name)
         for prim in self.modeler.primitives:
             if prim.net_name in names:
                 obj_data = prim.primitive_object.GetPolygonData().Expand(
@@ -1697,10 +1662,10 @@ class Edb(Database):
         expansion_size = self.edb_value(expansion_size).ToDouble()
 
         # validate nets in layout
-        net_signals = [net for net in self.layout.nets if net.GetName() in signal_list]
+        net_signals = [net.net_obj for net in self.layout.nets if net.name in signal_list]
 
         # validate references in layout
-        _netsClip = convert_py_list_to_net_list([net for net in self.layout.nets if net.GetName() in reference_list])
+        _netsClip = convert_py_list_to_net_list([net.net_obj for net in self.layout.nets if net.name in reference_list])
 
         _poly = self._create_extent(
             net_signals,
@@ -1716,7 +1681,7 @@ class Edb(Database):
         # Create new cutout cell/design
         included_nets_list = signal_list + reference_list
         included_nets = convert_py_list_to_net_list(
-            [net for net in self.layout.nets if net.GetName() in included_nets_list]
+            [net.net_obj for net in self.layout.nets if net.name in included_nets_list]
         )
         _cutout = self.active_cell.CutOut(included_nets, _netsClip, _poly, True)
         # Analysis setups do not come over with the clipped design copy,
@@ -1924,7 +1889,7 @@ class Edb(Database):
         elif custom_extent:
             _poly = custom_extent
         else:
-            net_signals = [net for net in self.layout.nets if net.GetName() in signal_list]
+            net_signals = [net.net_obj for net in self.layout.nets if net.name in signal_list]
             _poly = self._create_extent(
                 net_signals,
                 extent_type,
@@ -2154,12 +2119,12 @@ class Edb(Database):
         for via in list(temp_edb.padstacks.instances.values()):
             via.pin.Delete()
         if netlist:
-            nets = [net for net in temp_edb.layout.nets if net.GetName() in netlist]
+            nets = [net for net in temp_edb.layout.nets if net.name in netlist]
             _poly = temp_edb.layout.expanded_extent(
                 nets, self.edb_api.geometry.extent_type.Conforming, 0.0, True, True, 1
             )
         else:
-            nets = [net for net in temp_edb.layout.nets if "gnd" in net.GetName().lower()]
+            nets = [net.net_obj for net in temp_edb.layout.nets if "gnd" in net.name.lower()]
             _poly = temp_edb.layout.expanded_extent(
                 nets, self.edb_api.geometry.extent_type.Conforming, 0.0, True, True, 1
             )

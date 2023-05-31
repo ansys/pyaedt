@@ -5,6 +5,7 @@ import math
 import warnings
 
 from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
+from pyaedt.edb_core.edb_data.primitives_data import cast
 from pyaedt.edb_core.edb_data.utilities import EDBStatistics
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.clr_module import Tuple
@@ -82,7 +83,7 @@ class EdbLayout(object):
         _prims = []
         if self._active_layout:
             for lay_obj in self._layout.primitives:
-                _prims.append(EDBPrimitives(lay_obj, self._pedb))
+                _prims.append(cast(lay_obj, self._pedb))
         return _prims
 
     @property
@@ -110,9 +111,7 @@ class EdbLayout(object):
         """
         _prim_by_net = {}
         for net in list(self._pedb.nets.nets.keys()):
-            _prim_by_net[net] = [
-                EDBPrimitives(i, self._pedb) for i in self._layout.primitives if i.GetNet().GetName() == net
-            ]
+            _prim_by_net[net] = [cast(i, self._pedb) for i in self._layout.primitives if i.GetNet().GetName() == net]
         return _prim_by_net
 
     @property
@@ -129,7 +128,7 @@ class EdbLayout(object):
             _primitives_by_layer[lay] = []
         for i in self._layout.primitives:
             lay = i.GetLayer().GetName()
-            _primitives_by_layer[lay].append(EDBPrimitives(i, self._pedb))
+            _primitives_by_layer[lay].append(cast(i, self._pedb))
         return _primitives_by_layer
 
     @property
@@ -449,7 +448,7 @@ class EdbLayout(object):
         if polygon.IsNull():
             self._logger.error("Null path created")
             return False
-        return EDBPrimitives(polygon, self._pedb)
+        return cast(polygon, self._pedb)
 
     @pyaedt_function_handler()
     def create_trace(
@@ -570,7 +569,7 @@ class EdbLayout(object):
             self._logger.error("Null polygon created")
             return False
         else:
-            return EDBPrimitives(polygon, self._pedb)
+            return cast(polygon, self._pedb)
 
     @pyaedt_function_handler()
     def create_polygon_from_points(self, point_list, layer_name, net_name=""):
@@ -676,7 +675,7 @@ class EdbLayout(object):
                 self._get_edb_value(rotation),
             )
         if rect:
-            return EDBPrimitives(rect, self._pedb)
+            return cast(rect, self._pedb)
         return False  # pragma: no cover
 
     @pyaedt_function_handler()
@@ -713,7 +712,7 @@ class EdbLayout(object):
             self._get_edb_value(radius),
         )
         if circle:
-            return EDBPrimitives(circle, self._pedb)
+            return cast(circle, self._pedb)
         return False  # pragma: no cover
 
     @pyaedt_function_handler
