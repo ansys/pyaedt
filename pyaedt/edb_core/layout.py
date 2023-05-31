@@ -530,9 +530,15 @@ class EdbLayout(object):
         """
         net = self._pedb.nets.find_or_create_net(net_name)
         if isinstance(main_shape, list):
-            temp_points = [(0, 0) for _ in main_shape]
-            shape = self.Shape("polygon", points=temp_points)
-            polygonData = self.shape_to_polygon_data(shape)
+            arcs = []
+            for _ in range(len(main_shape)):
+                arcs.append(self._edb.Geometry.ArcData(
+                    self._pedb.point_data(0, 0),
+                    self._pedb.point_data(0, 0),
+
+                ))
+            polygonData = self._edb.Geometry.PolygonData.CreateFromArcs(convert_py_list_to_net_list(arcs), True)
+
             for idx, i in enumerate(main_shape):
                 pdata_0 = self._pedb.edb_value(i[0])
                 pdata_1 = self._pedb.edb_value(i[1])
