@@ -94,10 +94,13 @@ edbapp.save_edb()
 
 sim_setup = edbapp.new_simulation_configuration()
 sim_setup.solver_type = sim_setup.SOLVER_TYPE.SiwaveSYZ
-sim_setup.batch_solve_settings.cutout_subdesign_expansion = 0.01
+sim_setup.batch_solve_settings.cutout_subdesign_expansion = 0.003
 sim_setup.batch_solve_settings.do_cutout_subdesign = True
 sim_setup.use_default_cutout = False
-sim_setup.batch_solve_settings.signal_nets = ['PCIe_Gen4_TX2_CAP_P', 'PCIe_Gen4_TX2_CAP_N', 'PCIe_Gen4_TX2_P', 'PCIe_Gen4_TX2_N']
+sim_setup.batch_solve_settings.signal_nets = ['PCIe_Gen4_TX2_CAP_P',
+                                              'PCIe_Gen4_TX2_CAP_N',
+                                              'PCIe_Gen4_TX2_P',
+                                              'PCIe_Gen4_TX2_N']
 sim_setup.batch_solve_settings.components = ["U1", "X1"]
 sim_setup.batch_solve_settings.power_nets = ["GND", "GND_DP"]
 sim_setup.ac_settings.start_freq = "100Hz"
