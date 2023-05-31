@@ -2319,6 +2319,9 @@ class SimulationConfiguration(object):
     def _read_cfg(self):  # pragma: no cover
         """Configuration file reader.
 
+        .. deprecated:: 0.6.78
+           Use :func:`import_json` instead.
+
         Examples
         --------
 
