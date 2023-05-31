@@ -43,7 +43,7 @@ for p in net.primitives:
 
 ###############################################################################
 # Create and assign delta w variable per layer
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 for p in trace_segments:
     vname = f"{p.net_name}_{p.layer_name}_dw"
     if vname not in appedb.variables:
@@ -53,17 +53,32 @@ for p in trace_segments:
 
 ###############################################################################
 # Create and assign clearance variable per layer
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 for p in trace_segments:
     clr = f"{p.net_name}_{p.layer_name}_clr"
     if clr not in appedb.variables:
         appedb[clr] = "0.5mm"
     path = p.get_center_line()
     for g in appedb.modeler.get_polygons_by_layer(p.layer_name, coplanar_plane_net_name):
+        for v in g.voids:
+            if p.is_intersecting(v):
+                v.delete()
         void = appedb.modeler.create_trace(path, p.layer_name, f"{p.width}+{clr}*2")
         g.add_void(void)
 
-appedb.nets.plot(layers=layers[0])
+###############################################################################
+# Cutout and plot
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+appedb.cutout([signal_net_name], [coplanar_plane_net_name, "GND"])
+board_size_x, board_size_y = appedb.board_size
+fig_size_x = 2000
+fig_size_y = board_size_y*fig_size_x/board_size_x
+appedb.nets.plot(layers=layers[0], size=(fig_size_x, fig_size_y))
+
+###############################################################################
+# Save and close Edb
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 save_edb_fpath = os.path.join(temppath, pyaedt.generate_unique_name("post_layout_parameterization") + ".aedb")
 appedb.save_edb_as(save_edb_fpath)
 print("Edb is saved to ", save_edb_fpath)

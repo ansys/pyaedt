@@ -329,6 +329,22 @@ class Edb(object):
         return self._logger
 
     @property
+    def board_size(self):
+        """Get board size.
+
+        Returns
+        -------
+        tuple
+        """
+        net_list = [j.net_object for i, j in self.nets.nets.items()]
+        net_list = convert_py_list_to_net_list(net_list)
+
+        poly = self._create_extent(net_list, "Bounding", 0, False)
+        dx = abs(poly.GetBBox().Item2.get_X().ToDouble() - poly.GetBBox().Item1.get_X().ToDouble())
+        dy = abs(poly.GetBBox().Item2.get_Y().ToDouble() - poly.GetBBox().Item1.get_Y().ToDouble())
+        return dx, dy
+
+    @property
     def cell_names(self):
         """Cell name container.
         Returns
