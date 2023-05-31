@@ -32,6 +32,7 @@ class SimulationConfigurationBatch(object):
         self._cutout_subdesign_expansion = 0.001
         self._cutout_subdesign_round_corner = True
         self._use_default_cutout = True
+        self._generate_excitations = True
         self._generate_solder_balls = True
         self._coax_solder_ball_diameter = []
         self._use_default_coax_port_radial_extension = True
@@ -560,6 +561,23 @@ class SimulationConfigurationBatch(object):
     def signal_layers_properties(self, value):  # pragma: no cover
         if isinstance(value, dict):
             self._signal_layers_properties = value
+
+    @property
+    def generate_excitations(self):
+        """Activate ports and sources for DC generation when build project with the class.
+
+        Returns
+        -------
+        bool
+            ``True`` ports are created, ``False`` skip port generation. Default value is ``True``.
+
+        """
+        return self._generate_excitations
+
+    @generate_excitations.setter
+    def generate_excitations(self, value):
+        if isinstance(value, bool):
+            self._generate_excitations = value
 
 
 class SimulationConfigurationDc(object):
