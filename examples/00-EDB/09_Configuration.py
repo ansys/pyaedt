@@ -29,7 +29,7 @@ non_graphical = True
 
 
 project_path = pyaedt.generate_unique_folder_name()
-target_aedb = pyaedt.downloads.download_file('edb/Galileo.aedb',destination=project_path)
+target_aedb = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb', destination=project_path)
 print("Project folder will be", target_aedb)
 
 ###############################################################################
@@ -56,7 +56,7 @@ edbapp.components.import_definition(os.path.join(target_aedb, "1_comp_definition
 # Components not in the BOM are deactivated.
 # Csv file is store for convenience in aedb folder.
 
-edbapp.components.import_bom(os.path.join(target_aedb,"0_bom.csv"),
+edbapp.components.import_bom(os.path.join(target_aedb, "0_bom.csv"),
                                   refdes_col=0,
                                   part_name_col=1,
                                   comp_type_col=2,
@@ -68,14 +68,9 @@ edbapp.components.import_bom(os.path.join(target_aedb,"0_bom.csv"),
 # Check Component Values
 # ~~~~~~~~~~~~~~~~~~~~~~
 
-comp = edbapp.components["C3B14"]
+comp = edbapp.components["C1"]
 comp.model_type, comp.value
 
-###############################################################################
-# Check Component Values
-# ~~~~~~~~~~~~~~~~~~~~~~
-comp2 = edbapp.components["C3A3"]
-comp2.model_type, comp2.value
 
 ###############################################################################
 # Check Component Definition
@@ -102,10 +97,9 @@ sim_setup.solver_type = sim_setup.SOLVER_TYPE.SiwaveSYZ
 sim_setup.batch_solve_settings.cutout_subdesign_expansion = 0.01
 sim_setup.batch_solve_settings.do_cutout_subdesign = True
 sim_setup.use_default_cutout = False
-sim_setup.batch_solve_settings.signal_nets = ["PCIE0_RX0_P", "PCIE0_RX0_N", "PCIE0_TX0_P_C", "PCIE0_TX0_N_C",
-                                              "PCIE0_TX0_P", "PCIE0_TX0_N"]
-sim_setup.batch_solve_settings.components = ["U2A5", "J2L1"]
-sim_setup.batch_solve_settings.power_nets = ["GND"]
+sim_setup.batch_solve_settings.signal_nets = ['PCIe_Gen4_TX2_CAP_P', 'PCIe_Gen4_TX2_CAP_N', 'PCIe_Gen4_TX2_P', 'PCIe_Gen4_TX2_N']
+sim_setup.batch_solve_settings.components = ["U1", "X1"]
+sim_setup.batch_solve_settings.power_nets = ["GND", "GND_DP"]
 sim_setup.ac_settings.start_freq = "100Hz"
 sim_setup.ac_settings.stop_freq = "6GHz"
 sim_setup.ac_settings.step_freq = "10MHz"
