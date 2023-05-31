@@ -2329,10 +2329,8 @@ class TestClass(BasisTest, object):
         edb.stackup.add_layer(layer_name="GND", fillMaterial="AIR", thickness="30um")
         edb.stackup.add_layer(layer_name="FR4", base_layer="gnd", thickness="250um")
         edb.stackup.add_layer(layer_name="SIGNAL", base_layer="FR4", thickness="30um")
-        edb.core_primitives.create_trace(
-            layer_name="SIGNAL", width=0.02, net_name="net1", path_list=[[-1e3, 0, 1e-3, 0]]
-        )
-        edb.core_primitives.create_rectangle(
+        edb.modeler.create_trace(layer_name="SIGNAL", width=0.02, net_name="net1", path_list=[[-1e3, 0, 1e-3, 0]])
+        edb.mo.create_rectangle(
             layer_name="GND",
             representation_type="CenterWidthHeight",
             center_point=["0mm", "0mm"],
