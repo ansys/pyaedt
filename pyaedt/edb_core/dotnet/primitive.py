@@ -126,9 +126,9 @@ class PrimitiveDotNet:
             if _poly is None or _poly.IsNull() or _poly is False:
                 self._logger.error("Failed to create void polygon data")
                 return False
-            point_list = self._app.edb_api.cell.primitive.polygon.Create(
+            point_list = self._app.edb_api.cell.primitive.polygon.create(
                 self._app.active_layout, self.layer_name, self.prim_obj.GetNet(), _poly
-            )
+            ).prim_obj
         elif "prim_obj" in dir(point_list):
             point_list = point_list.prim_obj
         elif "primitive_obj" in dir(point_list):
@@ -355,7 +355,8 @@ class RectangleDotNet(PrimitiveDotNet):
 
         Returns
         -------
-        Rectangle
+        :class:`pyaedt.edb_core.dotnet.primitive.RectangleDotNet`
+
             Rectangle that was created.
         """
         if isinstance(net, NetDotNet):
@@ -475,7 +476,7 @@ class CircleDotNet(PrimitiveDotNet):
 
         Returns
         -------
-        Circle
+        :class:`pyaedt.edb_core.dotnet.primitive.CircleDotNet`
             Circle object created.
         """
         if isinstance(net, NetDotNet):
@@ -566,7 +567,7 @@ class TextDotNet(PrimitiveDotNet):
 
         Returns
         -------
-        Text
+        :class:`pyaedt.edb_core.dotnet.primitive.TextDotNet`
             The text Object that was created.
         """
         return TextDotNet(
@@ -643,7 +644,7 @@ class PolygonDotNet(PrimitiveDotNet):
 
         Returns
         -------
-        Polygon
+        :class:`pyaedt.edb_core.dotnet.primitive.PolygonDotNet`
             Polygon object created.
         """
         if isinstance(net, NetDotNet):
@@ -689,7 +690,7 @@ class PathDotNet(PrimitiveDotNet):
 
         Returns
         -------
-        Path
+        :class:`pyaedt.edb_core.dotnet.primitive.PathDotNet`
             Path object created.
         """
         if isinstance(net, NetDotNet):
@@ -775,7 +776,7 @@ class PathDotNet(PrimitiveDotNet):
         keep_inside: bool
             Indicates whether the part of the path inside the polygon should be preserved.
         """
-        return self.prim_obj.SetClipInfo(
+        self.prim_obj.SetClipInfo(
             clipping_poly,
             keep_inside,
         )
@@ -787,7 +788,7 @@ class PathDotNet(PrimitiveDotNet):
 
     @corner_style.setter
     def corner_style(self, corner_type):
-        return self.prim_obj.SetCornerStyle(corner_type)
+        self.prim_obj.SetCornerStyle(corner_type)
 
     @property
     def width(self):
@@ -877,7 +878,7 @@ class BondwireDotNet(PrimitiveDotNet):
 
         Returns
         -------
-        Bondwire
+        :class:`pyaedt.edb_core.dotnet.primitive.BondwireDotNet`
             Bondwire object created.
         """
         if isinstance(net, NetDotNet):
@@ -1130,7 +1131,7 @@ class PadstackInstanceDotNet(PrimitiveDotNet):
 
         Returns
         -------
-        PadstackInstance
+        :class:`pyaedt.edb_core.dotnet.primitive.PadstackInstanceDotNet`
             Padstack instance object created.
         """
         if isinstance(net, NetDotNet):
