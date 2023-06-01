@@ -407,15 +407,31 @@ class GeometryDotNet:
         """
         return PolygonDataDotNet(self.edb_api)
 
-    def arc_data(self, point1, point2, rotation=None, height=None):
+    def arc_data(self, point1, point2, rotation=None, center=None, height=None):
+        """Compute Edb ArcData.
+
+        Parameters
+        ----------
+        point1 : list or PointData object
+        point2 : list or PointData object
+        rotation : int or RotationDir enumerator
+        center :  list or PointData object
+        height : float
+
+        Returns
+        -------
+        Edb ArcData object
+        """
         if isinstance(point1, (list, tuple)):
             point1 = self.point_data(point1[0], point1[1])
         if isinstance(point2, (list, tuple)):
             point2 = self.point_data(point2[0], point2[1])
-        if height and isinstance(height, (list, tuple)):
-            height = self.point_data(height[0], height[1])
-        if rotation and height:
-            return self.geometry.ArcData(point1, point2, rotation, height)
+        if center and isinstance(center, (list, tuple)):
+            center = self.point_data(center[0], center[1])
+        if rotation and center:
+            return self.geometry.ArcData(point1, point2, rotation, center)
+        elif height:
+            return self.geometry.ArcData(point1, point2, height)
         else:
             return self.geometry.ArcData(point1, point2)
 
@@ -452,15 +468,30 @@ class CellDotNet:
 
     @property
     def cell(self):
-        """Edb Dotnet Api Database `Edb.Cell`."""
+        """Edb Dotnet Api Database `Edb.Cell`.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.dotnet.database.CellClassDotNet`"""
         return CellClassDotNet(self._app)
 
     @property
     def utility(self):
+        """Utility class.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.dotnet.database.UtilityDotNet`"""
+
         return UtilityDotNet(self._app)
 
     @property
     def geometry(self):
+        """Geometry class.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.dotnet.database.GeometryDotNet`"""
         return GeometryDotNet(self._app)
 
 
@@ -595,6 +626,13 @@ class Database(EdbDotNet):
         return self._db
 
     def run_as_standalone(self, flag):
+        """Set if Edb is run as standalone or embedded in AEDT.
+
+        Parameters
+        ----------
+        flag : bool
+            Whether if Edb is run as standalone or embedded in AEDT.
+        """
         self.edb_api.database.SetRunAsStandAlone(flag)
 
     def create(self, db_path):
@@ -718,7 +756,7 @@ class Database(EdbDotNet):
         Returns
         -------
         Database
-            The Database or Null on failure
+            The Database or Null on failure.
         """
         self.edb_api.database.FindById(db_id)
 
