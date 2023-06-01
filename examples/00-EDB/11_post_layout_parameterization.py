@@ -7,9 +7,9 @@ This example shows you how to parameterize the signal net in post-layout.
 ###############################################################################
 # Define input parameters
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-signal_net_name = "SEL_A0"
-coplanar_plane_net_name = "VSHLD_S5"  # Specify coplanar plane net name for adding clearance
-layers = ["LYR_2"]  # Specify layers to be parameterized
+signal_net_name = "DDR4_ALERT3"
+coplanar_plane_net_name = "1V0"  # Specify coplanar plane net name for adding clearance
+layers = ["16_Bottom"]  # Specify layers to be parameterized
 
 ###############################################################################
 # Perform required imports
@@ -26,8 +26,14 @@ temppath = tempfile.gettempdir()
 ###############################################################################
 # Download and open example layout file in edb format
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-edb_fpath = downloads.download_aedb()
+edb_fpath = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb')
 appedb = Edb(edb_fpath, edbversion="2023.1")
+
+###############################################################################
+# Cutout
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+appedb.cutout([signal_net_name], [coplanar_plane_net_name, "GND"],
+              remove_single_pin_components=True)
 
 ###############################################################################
 # Get all trace segments from the signal net
@@ -52,6 +58,15 @@ for p in trace_segments:
     p.width = new_w
 
 ###############################################################################
+# Delete existing clearance
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+for p in trace_segments:
+    for g in appedb.modeler.get_polygons_by_layer(p.layer_name, coplanar_plane_net_name):
+        for v in g.voids:
+            if p.is_intersecting(v):
+                v.delete()
+
+###############################################################################
 # Create and assign clearance variable per layer
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 for p in trace_segments:
@@ -60,20 +75,13 @@ for p in trace_segments:
         appedb[clr] = "0.5mm"
     path = p.get_center_line()
     for g in appedb.modeler.get_polygons_by_layer(p.layer_name, coplanar_plane_net_name):
-        for v in g.voids:
-            if p.is_intersecting(v):
-                v.delete()
         void = appedb.modeler.create_trace(path, p.layer_name, f"{p.width}+{clr}*2")
         g.add_void(void)
 
 ###############################################################################
-# Cutout and plot
+# Plot
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-appedb.cutout([signal_net_name], [coplanar_plane_net_name, "GND"])
-board_size_x, board_size_y = appedb.get_statistics().layout_size
-fig_size_x = 2000
-fig_size_y = board_size_y*fig_size_x/board_size_x
-appedb.nets.plot(layers=layers[0], size=(fig_size_x, fig_size_y))
+appedb.nets.plot(layers=layers[0], size=2000)
 
 ###############################################################################
 # Save and close Edb

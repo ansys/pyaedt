@@ -674,7 +674,7 @@ class EdbNets(object):
             If a file path is specified the plot will be saved to such file.
         outline : list, optional
             List of points of the outline to plot.
-        size : tuple, optional
+        size : tuple, int, optional
             Image size in pixel (width, height). Default value is ``(2000, 1000)``
         plot_components_on_top : bool, optional
             If ``True``  the components placed on top layer are plotted.
@@ -698,6 +698,13 @@ class EdbNets(object):
             plot_components_on_top,
             plot_components_on_bottom,
         )
+
+        if isinstance(size, int):
+            board_size_x, board_size_y = self._pedb.get_statistics().layout_size
+            fig_size_x = size
+            fig_size_y = board_size_y * fig_size_x / board_size_x
+            size = (fig_size_x, fig_size_y)
+
         plot_matplotlib(
             object_lists,
             size,
