@@ -39,10 +39,11 @@ class LayoutDotNet:
 
     @property
     def primitives(self):
-        """:obj:`list` of :class:`Primitive <ansys.edb.primitive.Primitive>` : List of all the primitives in this \
-        layout.
+        """List of primitives.Read-Only.
 
-        Read-Only.
+        Returns
+        -------
+        list of :class:`pyaedt.edb_core.dotnet.primitive.PrimitiveDotNet` cast objects.
         """
         return [cast(self._app, i) for i in list(self._layout.Primitives)]
 
