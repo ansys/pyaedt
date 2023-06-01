@@ -1045,7 +1045,7 @@ class EdbPadstacks(object):
         if padstack:
             padstack_instance = self._edb.cell.primitive.PadstackInstance.Create(
                 self._active_layout,
-                net,
+                net.net_obj,
                 via_name,
                 padstack,
                 position,

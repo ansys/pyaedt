@@ -18,14 +18,15 @@ class HierarchyDotNet:
     def __getattr__(self, key):
         try:
             return super().__getattribute__(key)
-        except:
+        except AttributeError:
             try:
                 return getattr(self._hierarchy, key)
             except AttributeError:
                 raise AttributeError("Attribute not present")
 
     def __init__(self, hier):
-        self._hierarchy = hier
+        self._hierarchy = hier.Cell.Hierarchy
+        self.edb_api = hier
 
     @property
     def component(self):
@@ -47,14 +48,15 @@ class PolygonDataDotNet:
     def __getattr__(self, key):
         try:
             return super().__getattribute__(key)
-        except:
+        except AttributeError:
             try:
                 return getattr(self.dotnetobj, key)
             except AttributeError:
                 raise AttributeError("Attribute not present")
 
     def __init__(self, pdata):
-        self.dotnetobj = pdata
+        self.dotnetobj = pdata.Geometry.PolygonData
+        self.edb_api = pdata
 
     def get_bbox_of_boxes(self, points):
         """Edb Dotnet Api Database `Edb.Geometry.GetBBoxOfBoxes`.
@@ -131,7 +133,7 @@ class NetDotNet:
     def __getattr__(self, key):
         try:
             return super().__getattribute__(key)
-        except:
+        except AttributeError:
             if self.net_obj:
                 obj = self.net_obj
             else:
@@ -142,17 +144,22 @@ class NetDotNet:
                 raise AttributeError("Attribute not present")
 
     def __init__(self, net, net_obj=None):
-        self.net = net
+        if isinstance(net, CellDotNet):
+            self.net = net.cell.Net
+            self.edb_api = net.edb_api
+        else:
+            self.net = net.Cell.Net
+            self.edb_api = net
         self.net_obj = net_obj
 
     def find_by_name(self, layout, net):
         """Edb Dotnet Api Database `Edb.Net.FindByName`."""
-        return self.net.FindByName(layout, net)
+        return NetDotNet(self.edb_api, self.net.FindByName(layout, net))
 
     def create(self, layout, name):
         """Edb Dotnet Api Database `Edb.Net.Create`."""
 
-        return self.net.Create(layout, name)
+        return NetDotNet(self.edb_api, self.net.Create(layout, name))
 
     def delete(self):
         """Edb Dotnet Api Database `Edb.Net.Delete`."""
@@ -193,14 +200,15 @@ class CellClassDotNet:
     def __getattr__(self, key):
         try:
             return super().__getattribute__(key)
-        except:
+        except AttributeError:
             try:
                 return getattr(self._cell, key)
             except AttributeError:
                 raise AttributeError("Attribute not present")
 
     def __init__(self, cell):
-        self._cell = cell
+        self.edb_api = cell
+        self._cell = cell.Cell
 
     @property
     def terminal(self):
@@ -215,7 +223,7 @@ class CellClassDotNet:
         -------
         :class:`pyaedt.edb_core.dotnet.HierarchyDotNet`
         """
-        return HierarchyDotNet(self._cell.Hierarchy)
+        return HierarchyDotNet(self.edb_api)
 
     @property
     def cell(self):
@@ -225,7 +233,7 @@ class CellClassDotNet:
     @property
     def net(self):
         """Edb Dotnet Api Cell.Layer."""
-        return NetDotNet(self._cell.Net)
+        return NetDotNet(self.edb_api)
 
     @property
     def layer_type(self):
@@ -257,14 +265,15 @@ class UtilityDotNet:
     def __getattr__(self, key):
         try:
             return super().__getattribute__(key)
-        except:
+        except AttributeError:
             try:
                 return getattr(self.utility, key)
             except AttributeError:
                 raise AttributeError("Attribute not present")
 
     def __init__(self, utility):
-        self.utility = utility
+        self.utility = utility.Utility
+        self.edb_api = utility
 
     def value(self, value, varserver=None):
         """Edb Dotnet Api Utility.Value."""
@@ -278,32 +287,33 @@ class GeometryDotNet:
     def __getattr__(self, key):
         try:
             return super().__getattribute__(key)
-        except:
+        except AttributeError:
             try:
                 return getattr(self.geometry, key)
             except AttributeError:
                 raise AttributeError("Attribute not present")
 
-    def __init__(self, geometry, utility):
-        self.geometry = geometry
-        self.utility = utility
+    def __init__(self, edb_api):
+        self.geometry = edb_api.Geometry
+        self.utility = edb_api.Utility
+        self.edb_api = edb_api
 
     def point_data(self, p1, p2):
         """Edb Dotnet Api Point."""
         if isinstance(p1, (int, float, str, list)):
-            p1 = UtilityDotNet(self.utility).value(p1)
+            p1 = UtilityDotNet(self.edb_api).value(p1)
         if isinstance(p2, (int, float, str, list)):
-            p2 = UtilityDotNet(self.utility).value(p2)
+            p2 = UtilityDotNet(self.edb_api).value(p2)
         return self.geometry.PointData(p1, p2)
 
     def point3d_data(self, p1, p2, p3):
         """Edb Dotnet Api Point 3D."""
         if isinstance(p1, (int, float, str, list)):
-            p1 = UtilityDotNet(self.utility).value(p1)
+            p1 = UtilityDotNet(self.edb_api).value(p1)
         if isinstance(p2, (int, float, str, list)):
-            p2 = UtilityDotNet(self.utility).value(p2)
+            p2 = UtilityDotNet(self.edb_api).value(p2)
         if isinstance(p3, (int, float, str, list)):
-            p3 = UtilityDotNet(self.utility).value(p3)
+            p3 = UtilityDotNet(self.edb_api).value(p3)
         return self.geometry.Point3DData(p1, p2, p3)
 
     @property
@@ -319,7 +329,7 @@ class GeometryDotNet:
         -------
         :class:`pyaedt.edb_core.dotnet.PolygonDataDotNet`
         """
-        return PolygonDataDotNet(self.geometry.PolygonData)
+        return PolygonDataDotNet(self.edb_api)
 
     def arc_data(self, point1, point2, rotation=None, height=None):
         if isinstance(point1, (list, tuple)):
@@ -338,38 +348,38 @@ class CellDotNet:
     def __getattr__(self, key):
         try:
             return super().__getattribute__(key)
-        except:
+        except AttributeError:
             try:
-                return getattr(self.edb, key)
+                return getattr(self.edb_api, key)
             except AttributeError:
                 raise AttributeError("Attribute not present")
 
     def __init__(self, edb):
-        self.edb = edb
+        self.edb_api = edb
 
     @property
     def definition(self):
         """Edb Dotnet Api Definition."""
 
-        return self.edb.Definition
+        return self.edb_api.Definition
 
     @property
     def database(self):
         """Edb Dotnet Api Database."""
-        return self.edb.Database
+        return self.edb_api.Database
 
     @property
     def cell(self):
         """Edb Dotnet Api Database `Edb.Cell`."""
-        return CellClassDotNet(self.edb.Cell)
+        return CellClassDotNet(self.edb_api)
 
     @property
     def utility(self):
-        return UtilityDotNet(self.edb.Utility)
+        return UtilityDotNet(self.edb_api)
 
     @property
     def geometry(self):
-        return GeometryDotNet(self.edb.Geometry, self.edb.Utility)
+        return GeometryDotNet(self.edb_api)
 
 
 class EdbDotNet:

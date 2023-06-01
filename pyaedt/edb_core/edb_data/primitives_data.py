@@ -152,7 +152,7 @@ class EDBPrimitivesMain:
             width = self.primitive_object.GetWidthValue()
             corner_style = self.primitive_object.GetCornerStyle()
             end_cap_style = self.primitive_object.GetEndCapStyle()
-            cloned_path = self._app.edb_api.cell.primitive.Path.Create(
+            cloned_path = self._app.edb_api.cell.Primitive.Path.Create(
                 self._app.active_layout,
                 self.layer_name,
                 self.net,
@@ -736,7 +736,7 @@ class EDBPrimitives(EDBPrimitivesMain):
 class EdbPath(EDBPrimitives, Path):
     def __init__(self, raw_primitive, core_app):
         EDBPrimitives.__init__(self, raw_primitive, core_app)
-        Path.__init__(self, self._app.edb_api.cell.primitive, raw_primitive)
+        Path.__init__(self, self._app.edb_api, raw_primitive)
 
     @property
     def width(self):
@@ -781,19 +781,19 @@ class EdbPath(EDBPrimitives, Path):
 class EdbRectangle(EDBPrimitives, Rectangle):
     def __init__(self, raw_primitive, core_app):
         EDBPrimitives.__init__(self, raw_primitive, core_app)
-        Rectangle.__init__(self, self._app.edb_api.cell.primitive, raw_primitive)
+        Rectangle.__init__(self, self._app.edb_api, raw_primitive)
 
 
 class EdbCircle(EDBPrimitives, Circle):
     def __init__(self, raw_primitive, core_app):
         EDBPrimitives.__init__(self, raw_primitive, core_app)
-        Circle.__init__(self, self._app.edb_api.cell.primitive, raw_primitive)
+        Circle.__init__(self, self._app.edb_api, raw_primitive)
 
 
 class EdbPolygon(EDBPrimitives, Polygon):
     def __init__(self, raw_primitive, core_app):
         EDBPrimitives.__init__(self, raw_primitive, core_app)
-        Polygon.__init__(self, self._app.edb_api.cell.primitive, raw_primitive)
+        Polygon.__init__(self, self._app.edb_api, raw_primitive)
 
     @pyaedt_function_handler()
     def in_polygon(
@@ -854,7 +854,7 @@ class EdbPolygon(EDBPrimitives, Polygon):
             if _poly is None or _poly.IsNull() or _poly is False:
                 self._logger.error("Failed to create void polygon data")
                 return False
-            prim = self._app.edb_api.cell.primitive.Polygon.Create(
+            prim = self._app.edb_api.cell.Primitive.Polygon.Create(
                 self._app.active_layout, self.layer_name, self.primitive_object.GetNet(), _poly
             )
         elif isinstance(point_list, EDBPrimitives):
@@ -866,13 +866,13 @@ class EdbPolygon(EDBPrimitives, Polygon):
 
 class EdbText(EDBPrimitivesMain, Text):
     def __init__(self, raw_primitive, core_app):
-        Text.__init__(self, self._app.edb_api.cell.primitive, raw_primitive)
+        Text.__init__(self, self._app.edb_api, raw_primitive)
         EDBPrimitives.__init__(self, raw_primitive, core_app)
 
 
 class EdbBondwire(EDBPrimitivesMain, Bondwire):
     def __init__(self, raw_primitive, core_app):
-        Bondwire.__init__(self, self._app.edb_api.cell.primitive, raw_primitive)
+        Bondwire.__init__(self, self._app.edb_api, raw_primitive)
         EDBPrimitives.__init__(self, raw_primitive, core_app)
 
 

@@ -2080,10 +2080,10 @@ class Components(object):
             pin = pin._edb_padstackinstance
         if is_ironpython:
             name = _clr.Reference[String]()
-            pin.GetProductProperty(self._edb.edb.ProductId.Designer, 11, name)
+            pin.GetProductProperty(self._edb.edb_api.ProductId.Designer, 11, name)
         else:
             val = String("")
-            _, name = pin.GetProductProperty(self._edb.edb.ProductId.Designer, 11, val)
+            _, name = pin.GetProductProperty(self._edb.edb_api.ProductId.Designer, 11, val)
         name = str(name).strip("'")
         return name
 

@@ -311,7 +311,7 @@ class EdbSiwave(object):
                     )
                     negative_terminal = self._edb.cell.terminal.PointTerminal.Create(
                         self._active_layout,
-                        reference_net,
+                        reference_net.net_obj,
                         "{}_ref".format(term_name),
                         position,
                         self._pedb.stackup.signal_layers[layer_name]._edb_layer,
@@ -876,7 +876,7 @@ class EdbSiwave(object):
             10,
             self._edb.cell.terminal.PinGroupTerminal.Create,
             self._active_layout,
-            pos_node_net,
+            pos_node_net.net_obj,
             pos_pingroup_term_name,
             pos_pin_group,
             False,
@@ -890,7 +890,7 @@ class EdbSiwave(object):
                 20,
                 self._edb.cell.terminal.PinGroupTerminal.Create,
                 self._active_layout,
-                neg_node_net,
+                neg_node_net.net_obj,
                 neg_pingroup_term_name,
                 neg_pin_group,
                 False,

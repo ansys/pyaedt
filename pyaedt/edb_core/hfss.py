@@ -802,7 +802,7 @@ class EdbHfss(object):
             ]
         )
         pos_edge_term.SetProductSolverOption(
-            self._pedb.edb_api.edb.ProductId.Designer,
+            self._pedb.edb_api.ProductId.Designer,
             "HFSS",
             prop,
         )
@@ -874,7 +874,7 @@ class EdbHfss(object):
             ]
         )
         pos_edge_term.SetProductSolverOption(
-            self._pedb.edb_api.edb.ProductId.Designer,
+            self._pedb.edb_api.ProductId.Designer,
             "HFSS",
             prop,
         )
@@ -929,7 +929,7 @@ class EdbHfss(object):
         if not layer_alignment == "Upper":
             layer_alignment = "Lower"
         pos_edge_term.SetProductSolverOption(
-            self._pedb.edb_api.edb.ProductId.Designer,
+            self._pedb.edb_api.ProductId.Designer,
             "HFSS",
             "HFSS('HFSS Type'='Gap(coax)', Orientation='Horizontal', 'Layer Alignment'='{}')".format(layer_alignment),
         )
@@ -1449,7 +1449,7 @@ class EdbHfss(object):
                             "'PEC Launch Width'='0mm')"
                         )
                         for tt in terms:
-                            tt.SetProductSolverOption(self._edb.edb.ProductId.Designer, "HFSS", option)
+                            tt.SetProductSolverOption(self._edb.edb_api.ProductId.Designer, "HFSS", option)
         return True
 
     @pyaedt_function_handler()

@@ -618,6 +618,7 @@ class TestClass(BasisTest, object):
         target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_2.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
+        edbapp.nets.nets
         if is_ironpython:
             assert not edbapp.cutout(
                 signal_list=["V3P3_S0"],
