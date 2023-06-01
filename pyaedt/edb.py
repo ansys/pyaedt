@@ -341,12 +341,9 @@ class Edb(object):
         >>> app = Edb()
         >>> app.board_size
         """
-        net_list = [j.net_object for i, j in self.nets.nets.items()]
-        net_list = convert_py_list_to_net_list(net_list)
-
-        poly = self._create_extent(net_list, "Bounding", 0, False)
-        dx = abs(poly.GetBBox().Item2.get_X().ToDouble() - poly.GetBBox().Item1.get_X().ToDouble())
-        dy = abs(poly.GetBBox().Item2.get_Y().ToDouble() - poly.GetBBox().Item1.get_Y().ToDouble())
+        p0, p1 = self.get_bounding_box()
+        dx = p1[0] - p0[0]
+        dy = p1[1] - p0[1]
         return dx, dy
 
     @property
