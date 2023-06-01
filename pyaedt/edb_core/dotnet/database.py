@@ -1031,4 +1031,5 @@ class Database(EdbDotNet):
         from pyaedt.generic.clr_module import Convert
 
         hdl = Convert.ToUInt64(hdb)
-        return self.edb_api.database.Attach(hdl)
+        self._db = self.edb_api.database.Attach(hdl)
+        return self._db
