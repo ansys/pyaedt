@@ -329,24 +329,6 @@ class Edb(object):
         return self._logger
 
     @property
-    def board_size(self):
-        """Get board size.
-
-        Returns
-        -------
-        tuple
-
-        Examples
-        --------
-        >>> app = Edb()
-        >>> app.board_size
-        """
-        p0, p1 = self.get_bounding_box()
-        dx = p1[0] - p0[0]
-        dy = p1[1] - p0[1]
-        return dx, dy
-
-    @property
     def cell_names(self):
         """Cell name container.
         Returns

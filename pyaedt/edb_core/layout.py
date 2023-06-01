@@ -1271,7 +1271,8 @@ class EdbLayout(object):
         stat_model.num_capacitors = len(self._pedb.components.capacitors)
         stat_model.num_resistors = len(self._pedb.components.resistors)
         stat_model.num_inductors = len(self._pedb.components.inductors)
-        stat_model.layout_size = self._pedb._hfss.get_layout_bounding_box(self._active_layout)
+        bbox = self._pedb._hfss.get_layout_bounding_box(self._active_layout)
+        stat_model._layout_size = bbox[2] - bbox[0], bbox[3] - bbox[1]
         stat_model.num_discrete_components = (
             len(self._pedb.components.Others) + len(self._pedb.components.ICs) + len(self._pedb.components.IOs)
         )

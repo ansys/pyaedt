@@ -70,7 +70,7 @@ for p in trace_segments:
 # Cutout and plot
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 appedb.cutout([signal_net_name], [coplanar_plane_net_name, "GND"])
-board_size_x, board_size_y = appedb.board_size
+board_size_x, board_size_y = appedb.get_statistics().layout_size
 fig_size_x = 2000
 fig_size_y = board_size_y*fig_size_x/board_size_x
 appedb.nets.plot(layers=layers[0], size=(fig_size_x, fig_size_y))

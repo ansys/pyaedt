@@ -563,7 +563,6 @@ class TestClass(BasisTest, object):
         target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_1.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
-        assert edbapp.board_size
         output = os.path.join(self.local_scratch.path, "cutout.aedb")
         assert edbapp.cutout(
             ["A0_N", "A0_P"],
