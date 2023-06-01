@@ -126,14 +126,14 @@ class PrimitiveDotNet:
             if _poly is None or _poly.IsNull() or _poly is False:
                 self._logger.error("Failed to create void polygon data")
                 return False
-            point_list = self._app.edb_api.cell.primitive.polygon.create(
+            point_list = self._app.edb_api.cell.primitive.polygon.Create(
                 self._app.active_layout, self.layer_name, self.prim_obj.GetNet(), _poly
             )
         elif "prim_obj" in dir(point_list):
             point_list = point_list.prim_obj
         elif "primitive_obj" in dir(point_list):
             point_list = point_list.primitive_obj
-        return self.prim_obj.add_void(point_list)
+        return self.prim_obj.AddVoid(point_list)
 
     def set_hfss_prop(self, material, solve_inside):
         """Set HFSS properties.
