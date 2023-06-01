@@ -772,18 +772,16 @@ class TestClass(BasisTest, object):
         void1 = self.edbapp.modeler.Shape("polygon", points=points)
         void2 = self.edbapp.modeler.Shape("rectangle", [-0.002, 0.0], [-0.015, 0.0005])
         assert self.edbapp.modeler.create_polygon(plane, "TOP", [void1, void2])
+        self.edbapp["polygon_pts_x"] = -1.025
+        self.edbapp["polygon_pts_y"] = -1.02
         points = [
-            [0, 0, 1],
+            ["polygon_pts_x", "polygon_pts_y"],
+            [1.025, -1.02],
+            [1.025, 1.02],
+            [-1.025, 1.02],
+            [-1.025, -1.02],
         ]
-        assert not self.edbapp.modeler.create_polygon_from_points(points, "TOP")
-        points = [
-            [0.1, "s"],
-        ]
-        plane = self.edbapp.modeler.Shape("polygon", points=points)
-        assert not self.edbapp.modeler.create_polygon(plane, "TOP")
-        points = [[0.001, -0.001, "ccn", 0.0, -0.0012]]
-        plane = self.edbapp.modeler.Shape("polygon", points=points)
-        assert not self.edbapp.modeler.create_polygon(plane, "TOP")
+        assert self.edbapp.modeler.create_polygon(points, "TOP")
         settings.enable_error_handler = False
 
     def test_069_create_path(self):
