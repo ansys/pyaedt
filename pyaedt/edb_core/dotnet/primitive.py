@@ -1,5 +1,6 @@
 """Primitive."""
-from pyaedt.edb_core.dotnet.database import CellDotNet
+from pyaedt.edb_core.dotnet.database import NetDotNet
+from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
@@ -8,45 +9,82 @@ def cast(api, prim_object):
 
     Returns
     -------
-    Primitive
+    PrimitiveDotNet
     """
     prim_type = prim_object.GetPrimitiveType()
     if prim_type == prim_type.Rectangle:
-        return Rectangle(api, prim_object)
+        return RectangleDotNet(api, prim_object)
     elif prim_type == prim_type.Polygon:
-        return Polygon(api, prim_object)
+        return PolygonDotNet(api, prim_object)
     elif prim_type == prim_type.Path:
-        return Path(api, prim_object)
+        return PathDotNet(api, prim_object)
     elif prim_type == prim_type.Bondwire:
-        return Bondwire(api, prim_object)
+        return BondwireDotNet(api, prim_object)
     elif prim_type == prim_type.Text:
-        return Text(api, prim_object)
+        return TextDotNet(api, prim_object)
     elif prim_type == prim_type.Circle:
-        return Circle(api, prim_object)
+        return CircleDotNet(api, prim_object)
     else:
         return None
 
 
-class Primitive:
+class PrimitiveDotNet:
     """Base class representing primitive objects."""
 
     def __getattr__(self, key):
         try:
             return super().__getattribute__(key)
         except AttributeError:
+            if self.prim_obj and key in dir(self.prim_obj):
+                obj = self.prim_obj
+            else:
+                obj = self.api
             try:
-                return getattr(self.prim_obj, key)
+                return getattr(obj, key)
             except AttributeError:
                 raise AttributeError("Attribute not present")
 
-    def __init__(self, api, object):
-        if isinstance(api, CellDotNet):
-            self.api = api.cell.Primitive
-            self.edb_api = api.edb_api
-        else:
-            self.api = api.Cell.Primitive
-            self.edb_api = api
+    def __init__(self, api, object=None):
+        self._app = api
+        self.api = api._edb.Cell.Primitive
+        self.edb_api = api._edb
         self.prim_obj = object
+
+    @property
+    def api_class(self):
+        return self.api
+
+    @property
+    def api_object(self):
+        return self.prim_obj
+
+    @property
+    def path(self):
+        return PathDotNet(self._app)
+
+    @property
+    def rectangle(self):
+        return RectangleDotNet(self._app)
+
+    @property
+    def circle(self):
+        return CircleDotNet(self._app)
+
+    @property
+    def polygon(self):
+        return PolygonDotNet(self._app)
+
+    @property
+    def text(self):
+        return TextDotNet(self._app)
+
+    @property
+    def bondwire(self):
+        return BondwireDotNet(self._app)
+
+    @property
+    def padstack_instance(self):
+        return PadstackInstanceDotNet(self._app)
 
     @property
     def net(self):
@@ -69,15 +107,33 @@ class Primitive:
         """
         return self.prim_obj.GetPrimitiveType()
 
-    def add_void(self, hole):
-        """Add a void to primitive.
+    def add_void(self, point_list):
+        """Add a void to current primitive.
 
         Parameters
         ----------
-        hole : Primitive
-            Void to be added to the primitive.
+        point_list : list or  :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives` or EDB Primitive Object
+            Point list in the format of `[[x1,y1], [x2,y2],..,[xn,yn]]`.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful, either  ``False``.
         """
-        self.prim_obj.AddVoid(hole)
+        if isinstance(point_list, list):
+            plane = self._app.modeler.Shape("polygon", points=point_list)
+            _poly = self._app.modeler.shape_to_polygon_data(plane)
+            if _poly is None or _poly.IsNull() or _poly is False:
+                self._logger.error("Failed to create void polygon data")
+                return False
+            point_list = self._app.edb_api.cell.primitive.polygon.create(
+                self._app.active_layout, self.layer_name, self.prim_obj.GetNet(), _poly
+            )
+        elif "prim_obj" in dir(point_list):
+            point_list = point_list.prim_obj
+        elif "primitive_obj" in dir(point_list):
+            point_list = point_list.primitive_obj
+        return self.prim_obj.add_void(point_list)
 
     def set_hfss_prop(self, material, solve_inside):
         """Set HFSS properties.
@@ -130,7 +186,7 @@ class Primitive:
 
         Read-Only.
         """
-        return [cast(self.edb_api, void) for void in self.prim_obj.Voids]
+        return [cast(self._app, void) for void in self.prim_obj.Voids]
 
     @property
     def owner(self):
@@ -138,7 +194,7 @@ class Primitive:
 
         Read-Only.
         """
-        return cast(self.edb_api, self.prim_obj)
+        return cast(self._app, self.prim_obj)
 
     @property
     def is_parameterized(self):
@@ -265,11 +321,11 @@ class Primitive:
             return points
 
 
-class Rectangle(Primitive):
+class RectangleDotNet(PrimitiveDotNet):
     """Class representing a rectangle object."""
 
-    def __init__(self, api, prim_obj):
-        Primitive.__init__(self, api, prim_obj)
+    def __init__(self, api, prim_obj=None):
+        PrimitiveDotNet.__init__(self, api, prim_obj)
 
     def create(self, layout, layer, net, rep_type, param1, param2, param3, param4, corner_rad, rotation):
         """Create a rectangle.
@@ -302,9 +358,11 @@ class Rectangle(Primitive):
         Rectangle
             Rectangle that was created.
         """
-        return Rectangle(
-            self.api,
-            self.api.Create(
+        if isinstance(net, NetDotNet):
+            net = net.api_object
+        return RectangleDotNet(
+            self._app,
+            self.api.Rectangle.Create(
                 layout,
                 layer,
                 net,
@@ -391,11 +449,11 @@ class Rectangle(Primitive):
         return True
 
 
-class Circle(Primitive):
+class CircleDotNet(PrimitiveDotNet):
     """Class representing a circle object."""
 
-    def __init__(self, api, prim_obj):
-        Primitive.__init__(self, api, prim_obj)
+    def __init__(self, api, prim_obj=None):
+        PrimitiveDotNet.__init__(self, api, prim_obj)
 
     def create(self, layout, layer, net, center_x, center_y, radius):
         """Create a circle.
@@ -420,9 +478,11 @@ class Circle(Primitive):
         Circle
             Circle object created.
         """
-        return Circle(
-            self.api,
-            self.api.Create(
+        if isinstance(net, NetDotNet):
+            net = net.api_object
+        return CircleDotNet(
+            self._app,
+            self.api.Circle.Create(
                 layout,
                 layer,
                 net,
@@ -482,11 +542,11 @@ class Circle(Primitive):
         return True
 
 
-class Text(Primitive):
+class TextDotNet(PrimitiveDotNet):
     """Class representing a text object."""
 
-    def __init__(self, api, prim_obj):
-        Primitive.__init__(self, api, prim_obj)
+    def __init__(self, api, prim_obj=None):
+        PrimitiveDotNet.__init__(self, api, prim_obj)
 
     def create(self, layout, layer, center_x, center_y, text):
         """Create a text object.
@@ -509,9 +569,9 @@ class Text(Primitive):
         Text
             The text Object that was created.
         """
-        return Text(
-            self.api,
-            self.api.Create(
+        return TextDotNet(
+            self._app,
+            self.api.Text.Create(
                 layout,
                 layer,
                 center_x,
@@ -561,11 +621,11 @@ class Text(Primitive):
         )
 
 
-class Polygon(Primitive):
+class PolygonDotNet(PrimitiveDotNet):
     """Class representing a polygon object."""
 
-    def __init__(self, api, prim_obj):
-        Primitive.__init__(self, api, prim_obj)
+    def __init__(self, api, prim_obj=None):
+        PrimitiveDotNet.__init__(self, api, prim_obj)
 
     def create(self, layout, layer, net, polygon_data):
         """Create a polygon.
@@ -586,7 +646,9 @@ class Polygon(Primitive):
         Polygon
             Polygon object created.
         """
-        return Polygon(self.api, self.api.Create(layout, layer, net, polygon_data))
+        if isinstance(net, NetDotNet):
+            net = net.api_object
+        return PolygonDotNet(self._app, self.api.Polygon.Create(layout, layer, net, polygon_data))
 
     @property
     def can_be_zone_primitive(self):
@@ -597,11 +659,11 @@ class Polygon(Primitive):
         return True
 
 
-class Path(Primitive):
+class PathDotNet(PrimitiveDotNet):
     """Class representing a path object."""
 
-    def __init__(self, api, prim_obj):
-        Primitive.__init__(self, api, prim_obj)
+    def __init__(self, api, prim_obj=None):
+        PrimitiveDotNet.__init__(self, api, prim_obj)
 
     def create(self, layout, layer, net, width, end_cap1, end_cap2, corner_style, points):
         """Create a path.
@@ -622,7 +684,7 @@ class Path(Primitive):
             End cap style of path end end cap.
         corner_style: :class:`PathCornerType`
             Corner style.
-        points : :class:`PolygonData <ansys.edb.geometry.PolygonData>`
+        points : :class:`PolygonData <ansys.edb.geometry.PolygonData>` or center line point list.
             Centerline polygonData to set.
 
         Returns
@@ -630,7 +692,16 @@ class Path(Primitive):
         Path
             Path object created.
         """
-        return Path(self.api, self.api.Create(layout, layer, net, width, end_cap1, end_cap2, corner_style, points))
+        if isinstance(net, NetDotNet):
+            net = net.api_object
+        width = self._app.edb_api.utility.value(width)
+        if isinstance(points, list):
+            points = self._app.edb_api.geometry.polygon_data.api_class(
+                convert_py_list_to_net_list([self._app.geometry.point_data(i) for i in points]), False
+            )
+        return PathDotNet(
+            self._app, self.api.Path.Create(layout, layer, net, width, end_cap1, end_cap2, corner_style, points)
+        )
 
     @property
     def center_line(self):
@@ -641,7 +712,8 @@ class Path(Primitive):
     def center_line(self, center_line):
         self.prim_obj.SetCenterLineMessage(center_line)
 
-    def get_end_cap_style(self):
+    @property
+    def end_cap_style(self):
         """Get path end cap styles.
 
         Returns
@@ -661,7 +733,8 @@ class Path(Primitive):
         """
         return self.prim_obj.GetEndCapStyle()
 
-    def set_end_cap_style(self, end_cap1, end_cap2):
+    @end_cap_style.setter
+    def end_cap_style(self, end_cap1, end_cap2):
         """Set path end cap styles.
 
         Parameters
@@ -673,6 +746,7 @@ class Path(Primitive):
         """
         self.prim_obj.SetEndCapStyle(end_cap1, end_cap2)
 
+    @property
     def get_clip_info(self):
         """Get data used to clip the path.
 
@@ -690,7 +764,8 @@ class Path(Primitive):
         """
         return self.prim_obj.GetClipInfo()
 
-    def set_clip_info(self, clipping_poly, keep_inside=True):
+    @get_clip_info.setter
+    def get_clip_info(self, clipping_poly, keep_inside=True):
         """Set data used to clip the path.
 
         Parameters
@@ -741,11 +816,11 @@ class Path(Primitive):
         return True
 
 
-class Bondwire(Primitive):
+class BondwireDotNet(PrimitiveDotNet):
     """Class representing a bondwire object."""
 
-    def __init__(self, api, prim_obj):
-        Primitive.__init__(self, api, prim_obj)
+    def __init__(self, api, prim_obj=None):
+        PrimitiveDotNet.__init__(self, api, prim_obj)
 
     def create(
         self,
@@ -805,9 +880,11 @@ class Bondwire(Primitive):
         Bondwire
             Bondwire object created.
         """
-        return Bondwire(
-            self.api,
-            self.api.Create(
+        if isinstance(net, NetDotNet):
+            net = net.api_object
+        return BondwireDotNet(
+            self._app,
+            self.api.Bondwire.Create(
                 layout,
                 net,
                 bondwire_type,
@@ -1009,11 +1086,11 @@ class Bondwire(Primitive):
         self.prim_obj.SetEndElevation(end_context, layer)
 
 
-class PadstackInstance(Primitive):
+class PadstackInstanceDotNet(PrimitiveDotNet):
     """Class representing a Padstack Instance object."""
 
-    def __init__(self, api, prim_obj):
-        Primitive.__init__(self, api, prim_obj)
+    def __init__(self, api, prim_obj=None):
+        PrimitiveDotNet.__init__(self, api, prim_obj)
 
     def create(
         self,
@@ -1021,6 +1098,7 @@ class PadstackInstance(Primitive):
         net,
         name,
         padstack_def,
+        point,
         rotation,
         top_layer,
         bottom_layer,
@@ -1055,13 +1133,18 @@ class PadstackInstance(Primitive):
         PadstackInstance
             Padstack instance object created.
         """
-        return PadstackInstance(
-            self.api,
-            self.api.Create(
+        if isinstance(net, NetDotNet):
+            net = net.api_object
+        if isinstance(point, list):
+            point = self._app.geometry.point_data(point[0], point[1])
+        return PadstackInstanceDotNet(
+            self._app,
+            self.api.PadstackInstance.Create(
                 layout,
                 net,
                 name,
-                padstack_def.msg,
+                padstack_def,
+                point,
                 rotation,
                 top_layer,
                 bottom_layer,
@@ -1339,19 +1422,17 @@ class PadstackInstance(Primitive):
         return self.prim_obj.GetPinGroups()
 
 
-class BoardBendDef(Primitive):
+class BoardBendDef(PrimitiveDotNet):
     """Class representing board bending definitions."""
 
-    def __init__(self, api, prim_obj):
-        Primitive.__init__(self, api, prim_obj)
+    def __init__(self, api, prim_obj=None):
+        PrimitiveDotNet.__init__(self, api, prim_obj)
 
-    def create(self, layout, zone_prim, bend_middle, bend_radius, bend_angle):
+    def create(self, zone_prim, bend_middle, bend_radius, bend_angle):
         """Create a board bend definition.
 
         Parameters
         ----------
-        layout : :class:`Layout <ansys.edb.layout.Layout>`
-            Layout this board bend definition will be in.
         zone_prim : :class:`Primitive <Primitive>`
             Zone primitive this board bend definition exists on.
         bend_middle : :term:`PointDataTuple`
@@ -1367,8 +1448,8 @@ class BoardBendDef(Primitive):
             BoardBendDef that was created.
         """
         return BoardBendDef(
-            self.api,
-            self.api.Create(
+            self._app,
+            self.api.BoardBendDef.Create(
                 zone_prim,
                 bend_middle,
                 bend_radius,

@@ -1,5 +1,6 @@
 """Database."""
 import os
+import re
 import sys
 
 from pyaedt import __version__
@@ -24,9 +25,15 @@ class HierarchyDotNet:
             except AttributeError:
                 raise AttributeError("Attribute not present")
 
-    def __init__(self, hier):
-        self._hierarchy = hier.Cell.Hierarchy
-        self.edb_api = hier
+    def __init__(self, app):
+        self._app = app
+        self.edb_api = self._app._edb
+        self._hierarchy = self.edb_api.Cell.Hierarchy
+
+    @property
+    def api_class(self):
+        """Return Ansys.Ansoft.Edb class object."""
+        return self._hierarchy
 
     @property
     def component(self):
@@ -57,6 +64,11 @@ class PolygonDataDotNet:
     def __init__(self, pdata):
         self.dotnetobj = pdata.Geometry.PolygonData
         self.edb_api = pdata
+
+    @property
+    def api_class(self):
+        """Return Ansys.Ansoft.Edb class object."""
+        return self.dotnetobj
 
     def get_bbox_of_boxes(self, points):
         """Edb Dotnet Api Database `Edb.Geometry.GetBBoxOfBoxes`.
@@ -143,23 +155,31 @@ class NetDotNet:
             except AttributeError:
                 raise AttributeError("Attribute not present")
 
-    def __init__(self, net, net_obj=None):
-        if isinstance(net, CellDotNet):
-            self.net = net.cell.Net
-            self.edb_api = net.edb_api
-        else:
-            self.net = net.Cell.Net
-            self.edb_api = net
+    def __init__(self, app, net_obj=None):
+        self.net = app._edb.Cell.Net
+
+        self.edb_api = app._edb
+        self._app = app
         self.net_obj = net_obj
+
+    @property
+    def api_class(self):
+        """Return Ansys.Ansoft.Edb class object."""
+        return self.net
+
+    @property
+    def api_object(self):
+        """Return Ansys.Ansoft.Edb object."""
+        return self.net_obj
 
     def find_by_name(self, layout, net):
         """Edb Dotnet Api Database `Edb.Net.FindByName`."""
-        return NetDotNet(self.edb_api, self.net.FindByName(layout, net))
+        return NetDotNet(self._app, self.net.FindByName(layout, net))
 
     def create(self, layout, name):
         """Edb Dotnet Api Database `Edb.Net.Create`."""
 
-        return NetDotNet(self.edb_api, self.net.Create(layout, name))
+        return NetDotNet(self._app, self.net.Create(layout, name))
 
     def delete(self):
         """Edb Dotnet Api Database `Edb.Net.Delete`."""
@@ -204,11 +224,32 @@ class CellClassDotNet:
             try:
                 return getattr(self._cell, key)
             except AttributeError:
-                raise AttributeError("Attribute not present")
+                if self._active_cell:
+                    try:
+                        return getattr(self._active_cell, key)
+                    except AttributeError:
+                        raise AttributeError("Attribute not present")
+                else:
+                    raise AttributeError("Attribute not present")
 
-    def __init__(self, cell):
-        self.edb_api = cell
-        self._cell = cell.Cell
+    def __init__(self, app, active_cell=None):
+        self._app = app
+        self.edb_api = app._edb
+        self._cell = self.edb_api.Cell
+        self._active_cell = active_cell
+
+    @property
+    def api_class(self):
+        """Return Ansys.Ansoft.Edb class object."""
+        return self._cell
+
+    @property
+    def api_object(self):
+        """Return Ansys.Ansoft.Edb object."""
+        return self._active_cell
+
+    def create(self, db, cell_type, cell_name):
+        return CellClassDotNet(self._app, self.cell.Create(db, cell_type, cell_name))
 
     @property
     def terminal(self):
@@ -223,7 +264,7 @@ class CellClassDotNet:
         -------
         :class:`pyaedt.edb_core.dotnet.HierarchyDotNet`
         """
-        return HierarchyDotNet(self.edb_api)
+        return HierarchyDotNet(self._app)
 
     @property
     def cell(self):
@@ -233,7 +274,7 @@ class CellClassDotNet:
     @property
     def net(self):
         """Edb Dotnet Api Cell.Layer."""
-        return NetDotNet(self.edb_api)
+        return NetDotNet(self._app)
 
     @property
     def layer_type(self):
@@ -258,7 +299,9 @@ class CellClassDotNet:
     @property
     def primitive(self):
         """Edb Dotnet Api Database `Edb.Cell.Primitive`."""
-        return self._cell.Primitive
+        from pyaedt.edb_core.dotnet.primitive import PrimitiveDotNet
+
+        return PrimitiveDotNet(self._app)
 
 
 class UtilityDotNet:
@@ -271,16 +314,40 @@ class UtilityDotNet:
             except AttributeError:
                 raise AttributeError("Attribute not present")
 
-    def __init__(self, utility):
-        self.utility = utility.Utility
-        self.edb_api = utility
+    def __init__(self, app):
+        self._app = app
+        self.utility = app._edb.Utility
+        self.edb_api = app._edb
+        self.active_db = app._db
+        self.active_cell = app._active_cell
 
-    def value(self, value, varserver=None):
+    @property
+    def api_class(self):
+        """Return Ansys.Ansoft.Edb class object."""
+        return self.utility
+
+    def value(self, value, var_server=None):
         """Edb Dotnet Api Utility.Value."""
-        if varserver:
-            return self.utility.Value(value, varserver)
-        else:
+        if isinstance(value, self.utility.Value):
+            return value
+        if var_server:
+            return self.utility.Value(value, var_server)
+        if isinstance(value, (int, float)):
             return self.utility.Value(value)
+        m1 = re.findall(r"(?<=[/+-/*//^/(/[])([a-z_A-Z/$]\w*)", str(value).replace(" ", ""))
+        m2 = re.findall(r"^([a-z_A-Z/$]\w*)", str(value).replace(" ", ""))
+        val_decomposed = list(set(m1).union(m2))
+        if not val_decomposed:
+            return self.utility.Value(value)
+        var_server_db = self.active_db.GetVariableServer()
+        var_names = var_server_db.GetAllVariableNames()
+        var_server_cell = self.active_cell.GetVariableServer()
+        var_names_cell = var_server_cell.GetAllVariableNames()
+        if set(val_decomposed).intersection(var_names_cell):
+            return self.utility.Value(value, var_server_cell)
+        if set(val_decomposed).intersection(var_names):
+            return self.utility.Value(value, var_server_db)
+        return self.utility.Value(value)
 
 
 class GeometryDotNet:
@@ -293,27 +360,36 @@ class GeometryDotNet:
             except AttributeError:
                 raise AttributeError("Attribute not present")
 
-    def __init__(self, edb_api):
-        self.geometry = edb_api.Geometry
-        self.utility = edb_api.Utility
-        self.edb_api = edb_api
+    def __init__(self, app):
+        self._app = app
+        self.geometry = self._app._edb.Geometry
+        self.edb_api = self._app._edb
+
+    @property
+    def api_class(self):
+        """Return Ansys.Ansoft.Edb class object."""
+        return self.geometry
+
+    @property
+    def utility(self):
+        return UtilityDotNet(self._app)
 
     def point_data(self, p1, p2):
         """Edb Dotnet Api Point."""
         if isinstance(p1, (int, float, str, list)):
-            p1 = UtilityDotNet(self.edb_api).value(p1)
+            p1 = self.utility.value(p1)
         if isinstance(p2, (int, float, str, list)):
-            p2 = UtilityDotNet(self.edb_api).value(p2)
+            p2 = self.utility.value(p2)
         return self.geometry.PointData(p1, p2)
 
     def point3d_data(self, p1, p2, p3):
         """Edb Dotnet Api Point 3D."""
         if isinstance(p1, (int, float, str, list)):
-            p1 = UtilityDotNet(self.edb_api).value(p1)
+            p1 = self.utility.value(p1)
         if isinstance(p2, (int, float, str, list)):
-            p2 = UtilityDotNet(self.edb_api).value(p2)
+            p2 = self.utility.value(p2)
         if isinstance(p3, (int, float, str, list)):
-            p3 = UtilityDotNet(self.edb_api).value(p3)
+            p3 = self.utility.value(p3)
         return self.geometry.Point3DData(p1, p2, p3)
 
     @property
@@ -354,8 +430,14 @@ class CellDotNet:
             except AttributeError:
                 raise AttributeError("Attribute not present")
 
-    def __init__(self, edb):
-        self.edb_api = edb
+    def __init__(self, app):
+        self._app = app
+        self.edb_api = app._edb
+
+    @property
+    def api_class(self):
+        """Return Ansys.Ansoft.Edb class object."""
+        return self.edb_api
 
     @property
     def definition(self):
@@ -371,15 +453,15 @@ class CellDotNet:
     @property
     def cell(self):
         """Edb Dotnet Api Database `Edb.Cell`."""
-        return CellClassDotNet(self.edb_api)
+        return CellClassDotNet(self._app)
 
     @property
     def utility(self):
-        return UtilityDotNet(self.edb_api)
+        return UtilityDotNet(self._app)
 
     @property
     def geometry(self):
-        return GeometryDotNet(self.edb_api)
+        return GeometryDotNet(self._app)
 
 
 class EdbDotNet:
@@ -476,7 +558,7 @@ class EdbDotNet:
         -------
         :class:`pyaedt.edb_core.dotnet.database.CellDotNet`
         """
-        return CellDotNet(self._edb)
+        return CellDotNet(self)
 
     @property
     def database(self):
@@ -496,6 +578,16 @@ class Database(EdbDotNet):
         """Initialize a new Database."""
         EdbDotNet.__init__(self, edbversion, student_version)
         self._db = None
+
+    @property
+    def api_class(self):
+        """Return Ansys.Ansoft.Edb class object."""
+        return self._edb
+
+    @property
+    def api_object(self):
+        """Return Ansys.Ansoft.Edb object."""
+        return self._db
 
     @property
     def db(self):
@@ -571,7 +663,7 @@ class Database(EdbDotNet):
         -------
         list[:class:`Cell <ansys.edb.layout.Cell>`]
         """
-        return list(self._db.TopCircuitCells)
+        return [CellClassDotNet(self, i) for i in list(self._db.TopCircuitCells)]
 
     @property
     def circuit_cells(self):
@@ -581,7 +673,7 @@ class Database(EdbDotNet):
         -------
         list[:class:`Cell <ansys.edb.layout.Cell>`]
         """
-        return list(self._db.CircuitCells)
+        return [CellClassDotNet(self, i) for i in list(self._db.CircuitCells)]
 
     @property
     def footprint_cells(self):
@@ -591,7 +683,7 @@ class Database(EdbDotNet):
         -------
         list[:class:`Cell <ansys.edb.layout.Cell>`]
         """
-        return list(self._db.FootprintCells)
+        return [CellClassDotNet(self, i) for i in list(self._db.FootprintCells)]
 
     @property
     def edb_uid(self):
@@ -901,4 +993,4 @@ class Database(EdbDotNet):
         from pyaedt.generic.clr_module import Convert
 
         hdl = Convert.ToUInt64(hdb)
-        return self.edb_api.database.attach(hdl)
+        return self.edb_api.database.Attach(hdl)

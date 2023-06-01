@@ -722,14 +722,14 @@ class EDBPadstack(object):
                 pos = via.position
                 started = False
                 if len(self.pad_by_layer[self.via_start_layer].parameters) == 0:
-                    self._edb.cell.primitive.Polygon.Create(
+                    self._edb.cell.primitive.polygon.create(
                         layout,
                         self.via_start_layer,
                         via._edb_padstackinstance.GetNet(),
                         self.pad_by_layer[self.via_start_layer].polygon_data,
                     )
                 else:
-                    self._edb.cell.primitive.Circle.Create(
+                    self._edb.cell.primitive.circle.create(
                         layout,
                         self.via_start_layer,
                         via._edb_padstackinstance.GetNet(),
@@ -738,14 +738,14 @@ class EDBPadstack(object):
                         self._get_edb_value(self.pad_by_layer[self.via_start_layer].parameters_values[0] / 2),
                     )
                 if len(self.pad_by_layer[self.via_stop_layer].parameters) == 0:
-                    self._edb.cell.primitive.Polygon.Create(
+                    self._edb.cell.primitive.polygon.create(
                         layout,
                         self.via_stop_layer,
                         via._edb_padstackinstance.GetNet(),
                         self.pad_by_layer[self.via_stop_layer].polygon_data,
                     )
                 else:
-                    self._edb.cell.primitive.Circle.Create(
+                    self._edb.cell.primitive.circle.create(
                         layout,
                         self.via_stop_layer,
                         via._edb_padstackinstance.GetNet(),
@@ -758,7 +758,7 @@ class EDBPadstack(object):
                     if layer_name == via.start_layer or started:
                         start = layer_name
                         stop = layer_names[layer_names.index(layer_name) + 1]
-                        cloned_circle = self._edb.cell.primitive.Circle.Create(
+                        cloned_circle = self._edb.cell.primitive.circle.create(
                             layout,
                             start,
                             via._edb_padstackinstance.GetNet(),
@@ -766,7 +766,7 @@ class EDBPadstack(object):
                             self._get_edb_value(pos[1]),
                             self._get_edb_value(rad1),
                         )
-                        cloned_circle2 = self._edb.cell.primitive.Circle.Create(
+                        cloned_circle2 = self._edb.cell.primitive.circle.create(
                             layout,
                             stop,
                             via._edb_padstackinstance.GetNet(),
@@ -777,8 +777,8 @@ class EDBPadstack(object):
                         s3d = self._edb.cell.hierarchy._hierarchy.Structure3D.Create(
                             layout, generate_unique_name("via3d_" + via.aedt_name.replace("via_", ""), n=3)
                         )
-                        s3d.AddMember(cloned_circle)
-                        s3d.AddMember(cloned_circle2)
+                        s3d.AddMember(cloned_circle.prim_obj)
+                        s3d.AddMember(cloned_circle2.prim_obj)
                         s3d.SetMaterial(self.material)
                         s3d.SetMeshClosureProp(self._edb.cell.hierarchy._hierarchy.Structure3D.TClosure.EndsClosed)
                         started = True
@@ -911,7 +911,7 @@ class EDBPadstack(object):
                     for l in self._ppadstack._pedb.stackup._edb_layer_list
                     if l.GetName() == list(instance.GetData().GetLayerNames())[-1]
                 ][0]
-                padstack_instance = self._edb.cell.primitive.PadstackInstance.Create(
+                padstack_instance = self._edb.cell.primitive.padstack_instance.create(
                     layout,
                     via._edb_padstackinstance.GetNet(),
                     generate_unique_name(instance.GetName()),

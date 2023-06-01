@@ -1179,7 +1179,7 @@ class Stackup(object):
         _offset_y = self._edb_value(offset_y)
 
         if edb_cell.GetName() not in self._pedb.cell_names:
-            _dbCell = convert_py_list_to_net_list([edb_cell])
+            _dbCell = convert_py_list_to_net_list([edb_cell.api_object])
             list_cells = self._pedb.active_db.CopyCells(_dbCell)
             edb_cell = list_cells[0]
         self._pedb.layout.cell.SetBlackBox(True)
@@ -1289,7 +1289,7 @@ class Stackup(object):
         _offset_y = self._edb_value(offset_y)
 
         if edb_cell.GetName() not in self._pedb.cell_names:
-            _dbCell = convert_py_list_to_net_list([edb_cell])
+            _dbCell = convert_py_list_to_net_list([edb_cell.api_object])
             list_cells = self._pedb.active_db.CopyCells(_dbCell)
             edb_cell = list_cells[0]
         self._pedb.layout.cell.SetBlackBox(True)
@@ -1429,7 +1429,7 @@ class Stackup(object):
         _offset_y = self._edb_value(offset_y)
 
         if edb_cell.GetName() not in self._pedb.cell_names:
-            _dbCell = convert_py_list_to_net_list([edb_cell])
+            _dbCell = convert_py_list_to_net_list([edb_cell.api_object])
             list_cells = self._pedb.active_db.CopyCells(_dbCell)
             edb_cell = list_cells[0]
         for cell in list(self._pedb.active_db.CircuitCells):

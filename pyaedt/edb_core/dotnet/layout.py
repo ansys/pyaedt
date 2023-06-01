@@ -3,19 +3,20 @@ from pyaedt.edb_core.dotnet.primitive import cast
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 
 
-class Layout:
+class LayoutDotNet:
     """Layout."""
 
-    def __init__(self, cell, edb_api):
+    def __init__(self, app):
         """Initialize a new layout.
 
         Parameters
         ----------
         msg : EDBObjMessage
         """
-        self._cell = cell
-        self._edb_api = edb_api
-        self._layout = cell.GetLayout()
+        self._app = app
+        self._cell = app._active_cell
+        self._edb_api = app._edb
+        self._layout = self._cell.GetLayout()
         self._layout_instance = None
 
     @property
@@ -43,7 +44,7 @@ class Layout:
 
         Read-Only.
         """
-        return [cast(self._edb_api, i) for i in list(self._layout.Primitives)]
+        return [cast(self._app, i) for i in list(self._layout.Primitives)]
 
     @property
     def padstack_instances(self):
@@ -77,7 +78,7 @@ class Layout:
 
         Read-Only.
         """
-        return [NetDotNet(self._edb_api, i) for i in self._layout.Nets]
+        return [NetDotNet(self._app, i) for i in self._layout.Nets]
 
     @property
     def groups(self):
