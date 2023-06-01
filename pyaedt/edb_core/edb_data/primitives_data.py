@@ -20,25 +20,37 @@ def cast(raw_primitive, core_app):
     -------
     Primitive
     """
-    try:
-        prim_type = raw_primitive.primitive_type
-        raw_primitive = raw_primitive.prim_obj
-    except:
-        prim_type = raw_primitive.GetPrimitiveType()
-    if prim_type == prim_type.Rectangle:
-        return EdbRectangle(raw_primitive, core_app)
-    elif prim_type == prim_type.Polygon:
-        return EdbPolygon(raw_primitive, core_app)
-    elif prim_type == prim_type.Path:
-        return EdbPath(raw_primitive, core_app)
-    elif prim_type == prim_type.Bondwire:
-        return EdbBondwire(raw_primitive, core_app)
-    elif prim_type == prim_type.Text:
-        return EdbText(raw_primitive, core_app)
-    elif prim_type == prim_type.Circle:
-        return EdbCircle(raw_primitive, core_app)
+    if isinstance(raw_primitive, Rectangle):
+        return EdbRectangle(raw_primitive.prim_obj, core_app)
+    elif isinstance(raw_primitive, Polygon):
+        return EdbPolygon(raw_primitive.prim_obj, core_app)
+    elif isinstance(raw_primitive, Path):
+        return EdbPath(raw_primitive.prim_obj, core_app)
+    elif isinstance(raw_primitive, Bondwire):
+        return EdbBondwire(raw_primitive.prim_obj, core_app)
+    elif isinstance(raw_primitive, Text):
+        return EdbText(raw_primitive.prim_obj, core_app)
+    elif isinstance(raw_primitive, EdbCircle):
+        return EdbCircle(raw_primitive.prim_obj, core_app)
     else:
-        return None
+        try:
+            prim_type = raw_primitive.GetPrimitiveType()
+            if prim_type == prim_type.Rectangle:
+                return EdbRectangle(raw_primitive, core_app)
+            elif prim_type == prim_type.Polygon:
+                return EdbPolygon(raw_primitive, core_app)
+            elif prim_type == prim_type.Path:
+                return EdbPath(raw_primitive, core_app)
+            elif prim_type == prim_type.Bondwire:
+                return EdbBondwire(raw_primitive, core_app)
+            elif prim_type == prim_type.Text:
+                return EdbText(raw_primitive, core_app)
+            elif prim_type == prim_type.Circle:
+                return EdbCircle(raw_primitive, core_app)
+            else:
+                return None
+        except:
+            return None
 
 
 class EDBPrimitivesMain:
