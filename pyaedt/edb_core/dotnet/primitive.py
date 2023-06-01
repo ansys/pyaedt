@@ -1,4 +1,5 @@
 """Primitive."""
+from pyaedt.edb_core.dotnet.database import CellDotNet
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
@@ -10,17 +11,17 @@ def cast(api, prim_object):
     Primitive
     """
     prim_type = prim_object.GetPrimitiveType()
-    if prim_type == prim_object.GetPrimitiveType().Rectangle:
+    if prim_type == prim_type.Rectangle:
         return Rectangle(api, prim_object)
-    elif prim_type == prim_object.GetPrimitiveType().Polygon:
+    elif prim_type == prim_type.Polygon:
         return Polygon(api, prim_object)
-    elif prim_type == prim_object.GetPrimitiveType().Path:
+    elif prim_type == prim_type.Path:
         return Path(api, prim_object)
-    elif prim_type == prim_object.GetPrimitiveType().Bondwire:
+    elif prim_type == prim_type.Bondwire:
         return Bondwire(api, prim_object)
-    elif prim_type == prim_object.GetPrimitiveType().Text:
+    elif prim_type == prim_type.Text:
         return Text(api, prim_object)
-    elif prim_type == prim_object.GetPrimitiveType().Circle:
+    elif prim_type == prim_type.Circle:
         return Circle(api, prim_object)
     else:
         return None
@@ -32,14 +33,19 @@ class Primitive:
     def __getattr__(self, key):
         try:
             return super().__getattribute__(key)
-        except:
+        except AttributeError:
             try:
                 return getattr(self.prim_obj, key)
             except AttributeError:
                 raise AttributeError("Attribute not present")
 
     def __init__(self, api, object):
-        self.api = api
+        if isinstance(api, CellDotNet):
+            self.api = api.cell.Primitive
+            self.edb_api = api.edb_api
+        else:
+            self.api = api.Cell.Primitive
+            self.edb_api = api
         self.prim_obj = object
 
     @property
@@ -124,7 +130,7 @@ class Primitive:
 
         Read-Only.
         """
-        return [cast(self.api, void) for void in self.prim_obj.Voids]
+        return [cast(self.edb_api, void) for void in self.prim_obj.Voids]
 
     @property
     def owner(self):
@@ -132,7 +138,7 @@ class Primitive:
 
         Read-Only.
         """
-        return cast(self.api, self.prim_obj)
+        return cast(self.edb_api, self.prim_obj)
 
     @property
     def is_parameterized(self):
@@ -1376,7 +1382,7 @@ class BoardBendDef(Primitive):
 
         Read-Only.
         """
-        return cast(self.api, self.prim_obj.GetBoundaryPrim())
+        return cast(self.edb_api, self.prim_obj.GetBoundaryPrim())
 
     @property
     def bend_middle(self):

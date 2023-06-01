@@ -43,7 +43,7 @@ class Layout:
 
         Read-Only.
         """
-        return [cast(self._edb_api.cell.primitive, i) for i in list(self._layout.Primitives)]
+        return [cast(self._edb_api, i) for i in list(self._layout.Primitives)]
 
     @property
     def padstack_instances(self):
@@ -77,7 +77,7 @@ class Layout:
 
         Read-Only.
         """
-        return [NetDotNet(self._edb_api.cell.net, i) for i in self._layout.Nets]
+        return [NetDotNet(self._edb_api, i) for i in self._layout.Nets]
 
     @property
     def groups(self):

@@ -266,6 +266,7 @@ class Edb(Database):
         self._layout_instance = None
         self._variables = None
         self._active_cell = None
+        self._layout = None
         # time.sleep(2)
         # gc.collect()
 
@@ -916,7 +917,7 @@ class Edb(Database):
         -------
         :class:`pyaedt.edb_core.dotnet.layout.Layout`
         """
-        return Layout(self.active_cell, self.edb_api)
+        return Layout(self.active_cell, self._edb)
 
     @property
     def active_layout(self):

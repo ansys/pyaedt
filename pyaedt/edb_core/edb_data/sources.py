@@ -782,12 +782,12 @@ class ExcitationPorts(CommonExcitation):
 
     @property
     def _edb_properties(self):
-        p = self._edb_terminal.GetProductSolverOption(self._edb.edb.ProductId.Designer, "HFSS")
+        p = self._edb_terminal.GetProductSolverOption(self._edb.edb_api.ProductId.Designer, "HFSS")
         return p
 
     @_edb_properties.setter
     def _edb_properties(self, value):
-        self._edb_terminal.SetProductSolverOption(self._edb.edb.ProductId.Designer, "HFSS", value)
+        self._edb_terminal.SetProductSolverOption(self._edb.edb_api.ProductId.Designer, "HFSS", value)
 
     @property
     def hfss_type(self):

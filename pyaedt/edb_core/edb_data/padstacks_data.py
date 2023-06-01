@@ -949,8 +949,8 @@ class EDBPadstackInstance(object):
 
     def __getattr__(self, key):
         try:
-            return self[key]
-        except:
+            return super().__getattribute__(key)
+        except AttributeError:
             try:
                 return getattr(self._edb_padstackinstance, key)
             except AttributeError:
@@ -1229,7 +1229,7 @@ class EDBPadstackInstance(object):
     def net_name(self, val):
         if not isinstance(val, str):
             try:
-                self._edb_padstackinstance.SetNet(val)
+                self._edb_padstackinstance.SetNet(val.net_obj)
             except:
                 raise AttributeError("Value inserted not found. Input has to be net name or net object.")
         elif val in self._pedb.nets.netlist:
@@ -1328,7 +1328,7 @@ class EDBPadstackInstance(object):
     @name.setter
     def name(self, value):
         self._edb_padstackinstance.SetName(value)
-        self._edb_padstackinstance.SetProductProperty(self._pedb.edb_api.edb.ProductId.Designer, 11, value)
+        self._edb_padstackinstance.SetProductProperty(self._pedb.edb_api.ProductId.Designer, 11, value)
 
     @property
     def pin_number(self):
@@ -1357,10 +1357,10 @@ class EDBPadstackInstance(object):
         """
         if is_ironpython:
             name = _clr.Reference[String]()
-            self._edb_padstackinstance.GetProductProperty(self._pedb.edb_api.edb.ProductId.Designer, 11, name)
+            self._edb_padstackinstance.GetProductProperty(self._pedb.edb_api.ProductId.Designer, 11, name)
         else:
             val = String("")
-            _, name = self._edb_padstackinstance.GetProductProperty(self._pedb.edb_api.edb.ProductId.Designer, 11, val)
+            _, name = self._edb_padstackinstance.GetProductProperty(self._pedb.edb_api.ProductId.Designer, 11, val)
         name = str(name).strip("'")
         return name
 

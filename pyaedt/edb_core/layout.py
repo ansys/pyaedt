@@ -97,8 +97,8 @@ class EdbLayout(object):
         """
         _primitives_by_layer = {}
         for lay in self.layers:
-            _primitives_by_layer[lay] = self.get_polygons_by_layer(lay)
-        return _primitives_by_layer
+            self._primitives_by_layer[lay] = self.get_polygons_by_layer(lay)
+        return self._primitives_by_layer
 
     @property
     def primitives_by_net(self):
@@ -438,7 +438,7 @@ class EdbLayout(object):
         polygon = self._edb.cell.primitive.Path.Create(
             self._active_layout,
             layer_name,
-            net,
+            net.net_obj,
             self._get_edb_value(width),
             start_cap_style,
             end_cap_style,
@@ -564,7 +564,7 @@ class EdbLayout(object):
                 self._logger.error("Failed to create void polygon data")
                 return False
             polygonData.AddHole(voidPolygonData)
-        polygon = self._edb.cell.primitive.Polygon.Create(self._active_layout, layer_name, net, polygonData)
+        polygon = self._edb.cell.primitive.Polygon.Create(self._active_layout, layer_name, net.net_obj, polygonData)
         if polygon.IsNull() or polygonData is False:
             self._logger.error("Null polygon created")
             return False
@@ -651,7 +651,7 @@ class EdbLayout(object):
             rect = self._edb.cell.primitive.Rectangle.Create(
                 self._active_layout,
                 layer_name,
-                edb_net,
+                edb_net.net_obj,
                 rep_type,
                 self._get_edb_value(lower_left_point[0]),
                 self._get_edb_value(lower_left_point[1]),
@@ -665,7 +665,7 @@ class EdbLayout(object):
             rect = self._edb.cell.primitive.Rectangle.Create(
                 self._active_layout,
                 layer_name,
-                edb_net,
+                edb_net.net_obj,
                 rep_type,
                 self._get_edb_value(center_point[0]),
                 self._get_edb_value(center_point[1]),
@@ -706,7 +706,7 @@ class EdbLayout(object):
         circle = self._edb.cell.primitive.Circle.Create(
             self._active_layout,
             layer_name,
-            edb_net,
+            edb_net.net_obj,
             self._get_edb_value(x),
             self._get_edb_value(y),
             self._get_edb_value(radius),

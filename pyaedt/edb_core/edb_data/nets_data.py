@@ -33,7 +33,7 @@ class EDBNetsData(NetDotNet):
         self._core_components = core_app.components
         self._core_primitive = core_app.modeler
         self.net_object = raw_net
-        NetDotNet.__init__(self, self._app.edb_api.cell.net, raw_net)
+        NetDotNet.__init__(self, self._app.edb_api, raw_net)
 
     @property
     def primitives(self):
