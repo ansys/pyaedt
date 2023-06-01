@@ -97,8 +97,8 @@ class EdbLayout(object):
         """
         _primitives_by_layer = {}
         for lay in self.layers:
-            self._primitives_by_layer[lay] = self.get_polygons_by_layer(lay)
-        return self._primitives_by_layer
+            _primitives_by_layer[lay] = self.get_polygons_by_layer(lay)
+        return _primitives_by_layer
 
     @property
     def primitives_by_net(self):
