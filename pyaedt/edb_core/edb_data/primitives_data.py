@@ -1,11 +1,11 @@
 import math
 
-from pyaedt.edb_core.dotnet.primitive import Bondwire
-from pyaedt.edb_core.dotnet.primitive import Circle
-from pyaedt.edb_core.dotnet.primitive import Path
-from pyaedt.edb_core.dotnet.primitive import Polygon
-from pyaedt.edb_core.dotnet.primitive import Rectangle
-from pyaedt.edb_core.dotnet.primitive import Text
+from pyaedt.edb_core.dotnet.primitive import BondwireDotNet
+from pyaedt.edb_core.dotnet.primitive import CircleDotNet
+from pyaedt.edb_core.dotnet.primitive import PathDotNet
+from pyaedt.edb_core.dotnet.primitive import PolygonDotNet
+from pyaedt.edb_core.dotnet.primitive import RectangleDotNet
+from pyaedt.edb_core.dotnet.primitive import TextDotNet
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 
 # from pyaedt.generic.general_methods import property
@@ -20,17 +20,17 @@ def cast(raw_primitive, core_app):
     -------
     Primitive
     """
-    if isinstance(raw_primitive, Rectangle):
+    if isinstance(raw_primitive, RectangleDotNet):
         return EdbRectangle(raw_primitive.prim_obj, core_app)
-    elif isinstance(raw_primitive, Polygon):
+    elif isinstance(raw_primitive, PolygonDotNet):
         return EdbPolygon(raw_primitive.prim_obj, core_app)
-    elif isinstance(raw_primitive, Path):
+    elif isinstance(raw_primitive, PathDotNet):
         return EdbPath(raw_primitive.prim_obj, core_app)
-    elif isinstance(raw_primitive, Bondwire):
+    elif isinstance(raw_primitive, BondwireDotNet):
         return EdbBondwire(raw_primitive.prim_obj, core_app)
-    elif isinstance(raw_primitive, Text):
+    elif isinstance(raw_primitive, TextDotNet):
         return EdbText(raw_primitive.prim_obj, core_app)
-    elif isinstance(raw_primitive, EdbCircle):
+    elif isinstance(raw_primitive, CircleDotNet):
         return EdbCircle(raw_primitive.prim_obj, core_app)
     else:
         try:
@@ -149,39 +149,6 @@ class EDBPrimitivesMain:
                 raise AttributeError("Value inserted not found. Input has to be layer name or layer object.")
         else:
             raise AttributeError("Value inserted not found. Input has to be layer name or layer object.")
-
-    @pyaedt_function_handler
-    def clone(self):
-        """Clone a primitive object with keeping same definition and location.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        if self.type == "Path":
-            center_line = self.primitive_object.GetCenterLine()
-            width = self.primitive_object.GetWidthValue()
-            corner_style = self.primitive_object.GetCornerStyle()
-            end_cap_style = self.primitive_object.GetEndCapStyle()
-            cloned_path = self._app.edb_api.cell.Primitive.Path.Create(
-                self._app.active_layout,
-                self.layer_name,
-                self.net,
-                width,
-                end_cap_style[1],
-                end_cap_style[2],
-                corner_style,
-                center_line,
-            )
-            if cloned_path:
-                return cloned_path
-        cloned_poly = self._app.edb_api.cell.primitive.Polygon.Create(
-            self._app.active_layout, self.layer_name, self.net, self.polygon_data
-        )
-        if cloned_poly:
-            return cloned_poly
-        return False
 
 
 class EDBPrimitives(EDBPrimitivesMain):
@@ -745,10 +712,10 @@ class EDBPrimitives(EDBPrimitivesMain):
         return arc
 
 
-class EdbPath(EDBPrimitives, Path):
+class EdbPath(EDBPrimitives, PathDotNet):
     def __init__(self, raw_primitive, core_app):
         EDBPrimitives.__init__(self, raw_primitive, core_app)
-        Path.__init__(self, self._app.edb_api, raw_primitive)
+        PathDotNet.__init__(self, self._app, raw_primitive)
 
     @property
     def width(self):
@@ -789,23 +756,65 @@ class EdbPath(EDBPrimitives, Path):
         else:
             return [[p.X.ToDouble(), p.Y.ToDouble()] for p in list(self.primitive_object.GetCenterLine().Points)]
 
+    @pyaedt_function_handler
+    def clone(self):
+        """Clone a primitive object with keeping same definition and location.
 
-class EdbRectangle(EDBPrimitives, Rectangle):
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        center_line = self.center_line
+        width = self.width
+        corner_style = self.corner_style
+        end_cap_style = self.end_cap_style
+        cloned_path = self._app.edb_api.cell.primitive.path.create(
+            self._app.active_layout,
+            self.layer_name,
+            self.net,
+            width,
+            end_cap_style[1],
+            end_cap_style[2],
+            corner_style,
+            center_line,
+        )
+        if cloned_path:
+            return cloned_path
+
+
+class EdbRectangle(EDBPrimitives, RectangleDotNet):
     def __init__(self, raw_primitive, core_app):
         EDBPrimitives.__init__(self, raw_primitive, core_app)
-        Rectangle.__init__(self, self._app.edb_api, raw_primitive)
+        RectangleDotNet.__init__(self, self._app, raw_primitive)
 
 
-class EdbCircle(EDBPrimitives, Circle):
+class EdbCircle(EDBPrimitives, CircleDotNet):
     def __init__(self, raw_primitive, core_app):
         EDBPrimitives.__init__(self, raw_primitive, core_app)
-        Circle.__init__(self, self._app.edb_api, raw_primitive)
+        CircleDotNet.__init__(self, self._app, raw_primitive)
 
 
-class EdbPolygon(EDBPrimitives, Polygon):
+class EdbPolygon(EDBPrimitives, PolygonDotNet):
     def __init__(self, raw_primitive, core_app):
         EDBPrimitives.__init__(self, raw_primitive, core_app)
-        Polygon.__init__(self, self._app.edb_api, raw_primitive)
+        PolygonDotNet.__init__(self, self._app, raw_primitive)
+
+    @pyaedt_function_handler
+    def clone(self):
+        """Clone a primitive object with keeping same definition and location.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        cloned_poly = self._app.edb_api.cell.primitive.polygon.create(
+            self._app.active_layout, self.layer_name, self.net, self.polygon_data
+        )
+        if cloned_poly:
+            return cloned_poly
+        return False
 
     @pyaedt_function_handler()
     def in_polygon(
@@ -846,45 +855,45 @@ class EdbPolygon(EDBPrimitives, Polygon):
         else:
             return False
 
-    @pyaedt_function_handler()
-    def add_void(self, point_list):
-        """Add a void to current primitive.
+    # @pyaedt_function_handler()
+    # def add_void(self, point_list):
+    #     """Add a void to current primitive.
+    #
+    #     Parameters
+    #     ----------
+    #     point_list : list or  :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives` or EDB Primitive Object
+    #         Point list in the format of `[[x1,y1], [x2,y2],..,[xn,yn]]`.
+    #
+    #     Returns
+    #     -------
+    #     bool
+    #         ``True`` if successful, either  ``False``.
+    #     """
+    #     if isinstance(point_list, list):
+    #         plane = self._app.modeler.Shape("polygon", points=point_list)
+    #         _poly = self._app.modeler.shape_to_polygon_data(plane)
+    #         if _poly is None or _poly.IsNull() or _poly is False:
+    #             self._logger.error("Failed to create void polygon data")
+    #             return False
+    #         prim = self._app.edb_api.cell.primitive.polygon.create(
+    #             self._app.active_layout, self.layer_name, self.primitive_object.GetNet(), _poly
+    #         )
+    #     elif isinstance(point_list, EDBPrimitives):
+    #         prim = point_list.primitive_object
+    #     else:
+    #         prim = point_list
+    #     return self.add_void(prim)
 
-        Parameters
-        ----------
-        point_list : list or  :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives` or EDB Primitive Object
-            Point list in the format of `[[x1,y1], [x2,y2],..,[xn,yn]]`.
 
-        Returns
-        -------
-        bool
-            ``True`` if successful, either  ``False``.
-        """
-        if isinstance(point_list, list):
-            plane = self._app.modeler.Shape("polygon", points=point_list)
-            _poly = self._app.modeler.shape_to_polygon_data(plane)
-            if _poly is None or _poly.IsNull() or _poly is False:
-                self._logger.error("Failed to create void polygon data")
-                return False
-            prim = self._app.edb_api.cell.Primitive.Polygon.Create(
-                self._app.active_layout, self.layer_name, self.primitive_object.GetNet(), _poly
-            )
-        elif isinstance(point_list, EDBPrimitives):
-            prim = point_list.primitive_object
-        else:
-            prim = point_list
-        return self.primitive_object.AddVoid(prim)
-
-
-class EdbText(EDBPrimitivesMain, Text):
+class EdbText(EDBPrimitivesMain, TextDotNet):
     def __init__(self, raw_primitive, core_app):
-        Text.__init__(self, self._app.edb_api, raw_primitive)
+        TextDotNet.__init__(self, self._app, raw_primitive)
         EDBPrimitives.__init__(self, raw_primitive, core_app)
 
 
-class EdbBondwire(EDBPrimitivesMain, Bondwire):
+class EdbBondwire(EDBPrimitivesMain, BondwireDotNet):
     def __init__(self, raw_primitive, core_app):
-        Bondwire.__init__(self, self._app.edb_api, raw_primitive)
+        BondwireDotNet.__init__(self, self._app, raw_primitive)
         EDBPrimitives.__init__(self, raw_primitive, core_app)
 
 

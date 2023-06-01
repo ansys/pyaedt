@@ -90,7 +90,7 @@ class EdbNets(object):
         """
         nets = {}
         for net in self._layout.nets:
-            nets[net.name] = EDBNetsData(net.net_obj, self._pedb)
+            nets[net.name] = EDBNetsData(net.api_object, self._pedb)
         return nets
 
     @property
@@ -192,11 +192,11 @@ class EdbNets(object):
             if total_plane_area == 0.0:
                 continue
             if total_trace_area == 0.0:
-                pwr_gnd_nets.append(EDBNetsData(net.net_obj, self._pedb))
+                pwr_gnd_nets.append(EDBNetsData(net.api_object, self._pedb))
                 continue
             if total_plane_area > 0.0 and total_trace_area > 0.0:
                 if total_plane_area / (total_plane_area + total_trace_area) > threshold:
-                    pwr_gnd_nets.append(EDBNetsData(net.net_obj, self._pedb))
+                    pwr_gnd_nets.append(EDBNetsData(net.api_object, self._pedb))
         return pwr_gnd_nets
 
     @staticmethod
@@ -1168,7 +1168,7 @@ class EdbNets(object):
                     for poly in merged_polygon:
                         for void in void_list:
                             poly.AddHole(void.GetPolygonData())
-                        _new_poly = self._edb.cell.primitive.Polygon.Create(self._active_layout, layer, net, poly)
+                        _new_poly = self._edb.cell.primitive.polygon.create(self._active_layout, layer, net, poly)
                         returned_poly.append(_new_poly)
                 for init_poly in list(list(connected_polygons)):
                     for _pp in list(init_poly):

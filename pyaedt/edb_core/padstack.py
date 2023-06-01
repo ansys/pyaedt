@@ -1026,7 +1026,7 @@ class EdbPadstacks(object):
         for pad in list(self.definitions.keys()):
             if pad == definition_name:
                 padstack = self.definitions[pad].edb_padstack
-        position = self._edb.geometry.point_data(self._get_edb_value(position[0]), self._get_edb_value(position[1]))
+        position = self._edb.geometry.point_data(position[0], position[1])
         net = self._pedb.nets.find_or_create_net(net_name)
         rotation = self._get_edb_value(rotation * math.pi / 180)
         sign_layers_values = {i: v for i, v in self._pedb.stackup.signal_layers.items()}
@@ -1043,9 +1043,9 @@ class EdbPadstacks(object):
         if solderlayer:
             solderlayer = sign_layers_values[solderlayer]._edb_layer
         if padstack:
-            padstack_instance = self._edb.cell.primitive.PadstackInstance.Create(
+            padstack_instance = self._edb.cell.primitive.padstack_instance.create(
                 self._active_layout,
-                net.net_obj,
+                net,
                 via_name,
                 padstack,
                 position,
@@ -1056,7 +1056,7 @@ class EdbPadstacks(object):
                 None,
             )
             padstack_instance.SetIsLayoutPin(is_pin)
-            py_padstack_instance = EDBPadstackInstance(padstack_instance, self._pedb)
+            py_padstack_instance = EDBPadstackInstance(padstack_instance.api_object, self._pedb)
 
             return py_padstack_instance
         else:

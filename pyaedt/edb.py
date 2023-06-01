@@ -5,7 +5,6 @@ This module is implicitily loaded in HFSS 3D Layout when launched.
 """
 from itertools import combinations
 import os
-import re
 import shutil
 import sys
 import tempfile
@@ -21,7 +20,7 @@ from pyaedt.edb_core import EdbLayout
 from pyaedt.edb_core import EdbNets
 from pyaedt.edb_core import EdbSiwave
 from pyaedt.edb_core.dotnet.database import Database
-from pyaedt.edb_core.dotnet.layout import Layout
+from pyaedt.edb_core.dotnet.layout import LayoutDotNet
 from pyaedt.edb_core.edb_data.control_file import ControlFile
 from pyaedt.edb_core.edb_data.control_file import convert_technology_file
 from pyaedt.edb_core.edb_data.design_options import EdbDesignOptions
@@ -458,8 +457,8 @@ class Edb(Database):
             return None
         if not self.cellname:
             self.cellname = generate_unique_name("Cell")
-        self._active_cell = self.edb_api.cell.cell.Create(
-            self.active_db, self.edb_api.cell._cell.CellType.CircuitCell, self.cellname
+        self._active_cell = self.edb_api.cell.create(
+            self.active_db, self.edb_api.cell.CellType.CircuitCell, self.cellname
         )
         if self._active_cell:
             self._init_objects()
@@ -917,7 +916,7 @@ class Edb(Database):
         -------
         :class:`pyaedt.edb_core.dotnet.layout.Layout`
         """
-        return Layout(self.active_cell, self._edb)
+        return LayoutDotNet(self)
 
     @property
     def active_layout(self):
@@ -979,23 +978,6 @@ class Edb(Database):
         Instance of `Edb.Utility.Value`
 
         """
-        if isinstance(val, self.edb_api.utility.utility.Value):
-            return val
-        if isinstance(val, (int, float)):
-            return self.edb_api.utility.value(val)
-        m1 = re.findall(r"(?<=[/+-/*//^/(/[])([a-z_A-Z/$]\w*)", str(val).replace(" ", ""))
-        m2 = re.findall(r"^([a-z_A-Z/$]\w*)", str(val).replace(" ", ""))
-        val_decomposed = list(set(m1).union(m2))
-        if not val_decomposed:
-            return self.edb_api.utility.value(val)
-        var_server_db = self.active_db.GetVariableServer()
-        var_names = var_server_db.GetAllVariableNames()
-        var_server_cell = self.active_cell.GetVariableServer()
-        var_names_cell = var_server_cell.GetAllVariableNames()
-        if set(val_decomposed).intersection(var_names_cell):
-            return self.edb_api.utility.value(val, var_server_cell)
-        if set(val_decomposed).intersection(var_names):
-            return self.edb_api.utility.value(val, var_server_db)
         return self.edb_api.utility.value(val)
 
     @pyaedt_function_handler()
@@ -1015,7 +997,7 @@ class Edb(Database):
         -------
         ``Geometry.Point3DData``.
         """
-        return self.edb_api.geometry.point3d_data(self.edb_value(x), self.edb_value(y), self.edb_value(z))
+        return self.edb_api.geometry.point3d_data(x, y, z)
 
     @pyaedt_function_handler()
     def point_data(self, x, y=None):
@@ -1034,9 +1016,9 @@ class Edb(Database):
         ``Geometry.PointData``.
         """
         if y is None:
-            return self.edb_api.geometry.point_data(self.edb_value(x))
+            return self.edb_api.geometry.point_data(x)
         else:
-            return self.edb_api.geometry.point_data(self.edb_value(x), self.edb_value(y))
+            return self.edb_api.geometry.point_data(x, y)
 
     @pyaedt_function_handler()
     def _is_file_existing_and_released(self, filename):
@@ -1663,10 +1645,12 @@ class Edb(Database):
         expansion_size = self.edb_value(expansion_size).ToDouble()
 
         # validate nets in layout
-        net_signals = [net.net_obj for net in self.layout.nets if net.name in signal_list]
+        net_signals = [net.api_object for net in self.layout.nets if net.name in signal_list]
 
         # validate references in layout
-        _netsClip = convert_py_list_to_net_list([net.net_obj for net in self.layout.nets if net.name in reference_list])
+        _netsClip = convert_py_list_to_net_list(
+            [net.api_object for net in self.layout.nets if net.name in reference_list]
+        )
 
         _poly = self._create_extent(
             net_signals,
@@ -1682,7 +1666,7 @@ class Edb(Database):
         # Create new cutout cell/design
         included_nets_list = signal_list + reference_list
         included_nets = convert_py_list_to_net_list(
-            [net.net_obj for net in self.layout.nets if net.name in included_nets_list]
+            [net.api_object for net in self.layout.nets if net.name in included_nets_list]
         )
         _cutout = self.active_cell.CutOut(included_nets, _netsClip, _poly, True)
         # Analysis setups do not come over with the clipped design copy,
@@ -1890,7 +1874,7 @@ class Edb(Database):
         elif custom_extent:
             _poly = custom_extent
         else:
-            net_signals = [net.net_obj for net in self.layout.nets if net.name in signal_list]
+            net_signals = [net.api_object for net in self.layout.nets if net.name in signal_list]
             _poly = self._create_extent(
                 net_signals,
                 extent_type,
@@ -2125,7 +2109,7 @@ class Edb(Database):
                 nets, self.edb_api.geometry.extent_type.Conforming, 0.0, True, True, 1
             )
         else:
-            nets = [net.net_obj for net in temp_edb.layout.nets if "gnd" in net.name.lower()]
+            nets = [net.api_object for net in temp_edb.layout.nets if "gnd" in net.name.lower()]
             _poly = temp_edb.layout.expanded_extent(
                 nets, self.edb_api.geometry.extent_type.Conforming, 0.0, True, True, 1
             )
@@ -2273,7 +2257,7 @@ class Edb(Database):
                 for pad in list(self.padstacks.definitions.keys()):
                     if pad == p.padstack_definition:
                         padstack = self.padstacks.definitions[pad].edb_padstack
-                        padstack_instance = self.edb_api.cell.primitive.PadstackInstance.Create(
+                        padstack_instance = self.edb_api.cell.primitive.padstack_instance.create(
                             _cutout.GetLayout(),
                             net,
                             p.name,
@@ -2294,7 +2278,7 @@ class Edb(Database):
                     res, center_x, center_y, radius = void_circle.primitive_object.GetParameters()
                 else:
                     res, center_x, center_y, radius = void_circle.primitive_object.GetParameters(0.0, 0.0, 0.0)
-                cloned_circle = self.edb_api.cell.primitive.Circle.Create(
+                cloned_circle = self.edb_api.cell.primitive.circle.create(
                     layout,
                     void_circle.layer_name,
                     void_circle.net,
@@ -2304,7 +2288,7 @@ class Edb(Database):
                 )
                 cloned_circle.SetIsNegative(True)
             elif void_circle.type == "Polygon":
-                cloned_polygon = self.edb_api.cell.primitive.Polygon.Create(
+                cloned_polygon = self.edb_api.cell.primitive.polygon.create(
                     layout, void_circle.layer_name, void_circle.net, void_circle.primitive_object.GetPolygonData()
                 )
                 cloned_polygon.SetIsNegative(True)

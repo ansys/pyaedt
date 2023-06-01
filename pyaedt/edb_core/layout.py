@@ -4,6 +4,11 @@ This module contains these classes: `EdbLayout` and `Shape`.
 import math
 import warnings
 
+from pyaedt.edb_core.dotnet.primitive import BondwireDotNet
+from pyaedt.edb_core.dotnet.primitive import CircleDotNet
+from pyaedt.edb_core.dotnet.primitive import PathDotNet
+from pyaedt.edb_core.dotnet.primitive import PolygonDotNet
+from pyaedt.edb_core.dotnet.primitive import RectangleDotNet
 from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
 from pyaedt.edb_core.edb_data.primitives_data import cast
 from pyaedt.edb_core.edb_data.utilities import EDBStatistics
@@ -110,8 +115,8 @@ class EdbLayout(object):
             Dictionary of primitives with nat names as keys.
         """
         _prim_by_net = {}
-        for net in list(self._pedb.nets.nets.keys()):
-            _prim_by_net[net] = [cast(i, self._pedb) for i in self._layout.primitives if i.GetNet().GetName() == net]
+        for net, net_obj in self._pedb.nets.nets.items():
+            _prim_by_net[net] = [cast(i, self._pedb) for i in net_obj.primitives]
         return _prim_by_net
 
     @property
@@ -141,7 +146,7 @@ class EdbLayout(object):
             List of rectangles.
 
         """
-        return [i for i in self.primitives if i.type == "Rectangle"]
+        return [i for i in self.primitives if isinstance(i, RectangleDotNet)]
 
     @property
     def circles(self):
@@ -153,7 +158,7 @@ class EdbLayout(object):
             List of circles.
 
         """
-        return [i for i in self.primitives if i.type == "Circle"]
+        return [i for i in self.primitives if isinstance(i, CircleDotNet)]
 
     @property
     def paths(self):
@@ -164,7 +169,7 @@ class EdbLayout(object):
         list of :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`
             List of paths.
         """
-        return [i for i in self.primitives if i.type == "Path"]
+        return [i for i in self.primitives if isinstance(i, PathDotNet)]
 
     @property
     def bondwires(self):
@@ -175,7 +180,7 @@ class EdbLayout(object):
         list of :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`
             List of bondwires.
         """
-        return [i for i in self.primitives if i.type == "Bondwire"]
+        return [i for i in self.primitives if isinstance(i, BondwireDotNet)]
 
     @property
     def polygons(self):
@@ -186,7 +191,7 @@ class EdbLayout(object):
         list of :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`
             List of polygons.
         """
-        return [i for i in self.primitives if i.type == "Polygon"]
+        return [i for i in self.primitives if isinstance(i, PolygonDotNet)]
 
     @pyaedt_function_handler()
     def get_polygons_by_layer(self, layer_name, net_list=None):
@@ -435,10 +440,10 @@ class EdbLayout(object):
 
         pointlists = [self._pedb.point_data(i[0], i[1]) for i in path_list.points]
         polygonData = self._edb.geometry.polygon_data.dotnetobj(convert_py_list_to_net_list(pointlists), False)
-        polygon = self._edb.cell.primitive.Path.Create(
+        polygon = self._edb.cell.primitive.path.create(
             self._active_layout,
             layer_name,
-            net.net_obj,
+            net,
             self._get_edb_value(width),
             start_cap_style,
             end_cap_style,
@@ -564,7 +569,7 @@ class EdbLayout(object):
                 self._logger.error("Failed to create void polygon data")
                 return False
             polygonData.AddHole(voidPolygonData)
-        polygon = self._edb.cell.primitive.Polygon.Create(self._active_layout, layer_name, net.net_obj, polygonData)
+        polygon = self._edb.cell.primitive.polygon.create(self._active_layout, layer_name, net, polygonData)
         if polygon.IsNull() or polygonData is False:
             self._logger.error("Null polygon created")
             return False
@@ -703,10 +708,10 @@ class EdbLayout(object):
         """
         edb_net = self._pedb.nets.find_or_create_net(net_name)
 
-        circle = self._edb.cell.primitive.Circle.Create(
+        circle = self._edb.cell.primitive.circle.create(
             self._active_layout,
             layer_name,
-            edb_net.net_obj,
+            edb_net,
             self._get_edb_value(x),
             self._get_edb_value(y),
             self._get_edb_value(radius),
@@ -798,7 +803,7 @@ class EdbLayout(object):
                 radius,
             ) = void_circle.primitive_object.GetParameters()
 
-            cloned_circle = self._edb.cell.primitive.Circle.Create(
+            cloned_circle = self._edb.cell.primitive.circle.create(
                 self._active_layout,
                 void_circle.layer_name,
                 void_circle.net,
@@ -1136,10 +1141,10 @@ class EdbLayout(object):
                         for void in v:
                             if int(item.GetIntersectionType(void.GetPolygonData())) == 2:
                                 item.AddHole(void.GetPolygonData())
-                    poly = self._edb.cell.primitive.Polygon.Create(
+                    poly = self._edb.cell.primitive.polygon.create(
                         self._active_layout,
                         lay,
-                        self._pedb.nets.nets[net].net_object,
+                        self._pedb.nets.nets[net],
                         item,
                     )
                 list_to_delete = [i for i in poly_by_nets[net]]
