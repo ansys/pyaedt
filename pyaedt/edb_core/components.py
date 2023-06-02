@@ -1488,14 +1488,14 @@ class Components(object):
             if _pins:
                 pins = _pins
         if group_name is None:
-            group_name = self._edb.cell.hierarchy._hierarchy.PinGroup.GetUniqueName(self._active_layout)
+            group_name = self._edb.cell.hierarchy.pin_group.GetUniqueName(self._active_layout)
         for pin in pins:
             pin.SetIsLayoutPin(True)
         forbiden_car = "-><"
         group_name = group_name.translate({ord(i): "_" for i in forbiden_car})
         pingroup = _retry_ntimes(
             10,
-            self._edb.cell.hierarchy._hierarchy.PinGroup.Create,
+            self._edb.cell.hierarchy.pin_group.Create,
             self._active_layout,
             group_name,
             convert_py_list_to_net_list(pins),

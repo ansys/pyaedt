@@ -60,7 +60,7 @@ class Siwave(object):
         """Current version of AEDT."""
         return self.version_keys[0]
 
-    def __init__(self, specified_version=None):  # pragma: no cover
+    def __init__(self, specified_version=None):
         if is_ironpython:
             _com = "pythonnet"
             import System

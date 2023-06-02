@@ -1187,10 +1187,10 @@ class EdbSiwave(object):
             pin_numbers = [pin_numbers]
         pin_numbers = [str(p) for p in pin_numbers]
         if group_name is None:
-            group_name = self._edb.cell.hierarchy._hierarchy.PinGroup.GetUniqueName(self._active_layout)
+            group_name = self._edb.cell.hierarchy.pin_group.GetUniqueName(self._active_layout)
         comp = self._pedb.components.components[reference_designator]
         pins = [pin.pin for name, pin in comp.pins.items() if name in pin_numbers]
-        edb_pingroup = self._edb.cell.hierarchy._hierarchy.PinGroup.Create(
+        edb_pingroup = self._edb.cell.hierarchy.pin_group.Create(
             self._active_layout, group_name, convert_py_list_to_net_list(pins)
         )
 

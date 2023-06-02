@@ -31,7 +31,7 @@ class HierarchyDotNet:
         self._hierarchy = self.edb_api.Cell.Hierarchy
 
     @property
-    def api_class(self):
+    def api_class(self):  # pragma: no cover
         """Return Ansys.Ansoft.Edb class object."""
         return self._hierarchy
 
@@ -52,7 +52,7 @@ class HierarchyDotNet:
 
 
 class PolygonDataDotNet:
-    def __getattr__(self, key):
+    def __getattr__(self, key):  # pragma: no cover
         try:
             return super().__getattribute__(key)
         except AttributeError:
@@ -66,7 +66,7 @@ class PolygonDataDotNet:
         self.edb_api = pdata
 
     @property
-    def api_class(self):
+    def api_class(self):  # pragma: no cover
         """Return Ansys.Ansoft.Edb class object."""
         return self.dotnetobj
 
@@ -98,8 +98,10 @@ class PolygonDataDotNet:
         ----------
         points : list or `Edb.Geometry.PointData`
         """
-        if isinstance(points, list):
-            points = convert_py_list_to_net_list(points)
+        from pyaedt.generic.clr_module import Tuple
+
+        if isinstance(points, (tuple, list)):
+            points = Tuple[self.edb_api.Geometry.PointData, self.edb_api.Geometry.PointData](points[0], points[1])
         return self.dotnetobj.CreateFromBBox(points)
 
     def create_from_arcs(self, arcs, flag):
@@ -126,7 +128,7 @@ class PolygonDataDotNet:
         """
         if isinstance(pdata, list):
             pdata = convert_py_list_to_net_list(pdata)
-        return self.dotnetobj.Unite(pdata)
+        return list(self.dotnetobj.Unite(pdata))
 
     def get_convex_hull_of_polygons(self, pdata):
         """Edb Dotnet Api Database `Edb.Geometry.GetConvexHullOfPolygons`.
@@ -146,7 +148,7 @@ class NetDotNet:
         try:
             return super().__getattribute__(key)
         except AttributeError:
-            if self.net_obj:
+            if self.net_obj and key in dir(self.net_obj):
                 obj = self.net_obj
             else:
                 obj = self.net
@@ -163,7 +165,7 @@ class NetDotNet:
         self.net_obj = net_obj
 
     @property
-    def api_class(self):
+    def api_class(self):  # pragma: no cover
         """Return Ansys.Ansoft.Edb class object."""
         return self.net
 
@@ -224,10 +226,10 @@ class CellClassDotNet:
             try:
                 return getattr(self._cell, key)
             except AttributeError:
-                if self._active_cell:
+                if self._active_cell and key in dir(self._active_cell):
                     try:
                         return getattr(self._active_cell, key)
-                    except AttributeError:
+                    except AttributeError:  # pragma: no cover
                         raise AttributeError("Attribute not present")
                 else:
                     raise AttributeError("Attribute not present")
@@ -499,7 +501,7 @@ class EdbDotNet:
     def __init__(self, edbversion, student_version=False):
         self._global_logger = pyaedt_logger
         self._logger = pyaedt_logger
-        if not edbversion:
+        if not edbversion:  # pragma: no cover
             try:
                 edbversion = "20{}.{}".format(list_installed_ansysem()[0][-3:-1], list_installed_ansysem()[0][-1:])
                 self._logger.info("Edb version " + edbversion)
@@ -514,15 +516,15 @@ class EdbDotNet:
         self.student_version = student_version
         if settings.enable_screen_logs:
             self.logger.enable_stdout_log()
-        else:
+        else:  # pragma: no cover
             self.logger.disable_stdout_log()
-        if not edb_initialized:
+        if not edb_initialized:  # pragma: no cover
             self.logger.error("Failed to initialize Dlls.")
             return
         self.logger.info("Logger is initialized in EDB.")
         self.logger.info("pyaedt v%s", __version__)
         self.logger.info("Python version %s", sys.version)
-        if is_linux:
+        if is_linux:  # pragma: no cover
             if env_value(self.edbversion) in os.environ or settings.edb_dll_path:
                 if settings.edb_dll_path:
                     self.base_path = settings.edb_dll_path
@@ -772,21 +774,6 @@ class Database(EdbDotNet):
         """
         self._db.SaveAs(path, version)
 
-    def get_version_by_release(self, release):
-        """Get the EDB version corresponding to the given release name.
-
-        Parameters
-        ----------
-        release : str
-           Release name.
-
-        Returns
-        -------
-        str
-           EDB version.
-        """
-        self._db.GetVersionByRelease(release)
-
     @property
     def directory(self):
         """Get the directory of the Database.
@@ -882,7 +869,7 @@ class Database(EdbDotNet):
         scale_factor : float
             Amount that coordinates are multiplied by.
         """
-        self._db.Scale(scale_factor)
+        return self._db.Scale(scale_factor)
 
     @property
     def source(self):
@@ -934,6 +921,8 @@ class Database(EdbDotNet):
         list[:class:`Cell <ansys.edb.layout.Cell>`]
             New Cells created in this Database.
         """
+        if not isinstance(cells_to_copy, list):
+            cells_to_copy = [cells_to_copy]
         _dbCells = convert_py_list_to_net_list(cells_to_copy)
         return self._db.CopyCells(_dbCells)
 
@@ -1017,7 +1006,7 @@ class Database(EdbDotNet):
         """
         return list(self._db.DatasetDefs)
 
-    def attach(self, hdb):
+    def attach(self, hdb):  # pragma no cover
         """Attach the database to existing AEDT instance.
 
         Parameters

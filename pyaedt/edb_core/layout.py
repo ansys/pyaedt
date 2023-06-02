@@ -13,7 +13,6 @@ from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
 from pyaedt.edb_core.edb_data.primitives_data import cast
 from pyaedt.edb_core.edb_data.utilities import EDBStatistics
 from pyaedt.edb_core.general import convert_py_list_to_net_list
-from pyaedt.generic.clr_module import Tuple
 
 # from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -450,7 +449,7 @@ class EdbLayout(object):
             corner_style,
             polygonData,
         )
-        if polygon.IsNull():
+        if polygon.IsNull():  # pragma: no cover
             self._logger.error("Null path created")
             return False
         return cast(polygon, self._pedb)
@@ -570,7 +569,7 @@ class EdbLayout(object):
                 return False
             polygonData.AddHole(voidPolygonData)
         polygon = self._edb.cell.primitive.polygon.create(self._active_layout, layer_name, net, polygonData)
-        if polygon.IsNull() or polygonData is False:
+        if polygon.IsNull() or polygonData is False:  # pragma: no cover
             self._logger.error("Null polygon created")
             return False
         else:
@@ -934,7 +933,7 @@ class EdbLayout(object):
                     self._pedb.point_data(endPoint[3], endPoint[4]),
                 )
                 arcs.append(arc)
-        polygon = self._edb.geometry.polygon_data.create_from_arcs(convert_py_list_to_net_list(arcs), True)
+        polygon = self._edb.geometry.polygon_data.create_from_arcs(arcs, True)
         if not is_parametric:
             return polygon
         else:
@@ -959,40 +958,40 @@ class EdbLayout(object):
                 return False
             return True
         elif len(point) == 3:
-            if not allowArcs:
+            if not allowArcs:  # pragma: no cover
                 self._logger.error("Arc found but arcs are not allowed in _validatePoint.")
                 return False
-            if not isinstance(point[0], (int, float, str)):
+            if not isinstance(point[0], (int, float, str)):  # pragma: no cover
                 self._logger.error("Point X value must be a number.")
                 return False
-            if not isinstance(point[1], (int, float, str)):
+            if not isinstance(point[1], (int, float, str)):  # pragma: no cover
                 self._logger.error("Point Y value must be a number.")
                 return False
-            if not isinstance(point[1], (int, float, str)):
+            if not isinstance(point[1], (int, float, str)):  # pragma: no cover
                 self._logger.error("Invalid point height.")
                 return False
             return True
         elif len(point) == 5:
-            if not allowArcs:
+            if not allowArcs:  # pragma: no cover
                 self._logger.error("Arc found but arcs are not allowed in _validatePoint.")
                 return False
-            if not isinstance(point[0], (int, float, str)):
+            if not isinstance(point[0], (int, float, str)):  # pragma: no cover
                 self._logger.error("Point X value must be a number.")
                 return False
-            if not isinstance(point[1], (int, float, str)):
+            if not isinstance(point[1], (int, float, str)):  # pragma: no cover
                 self._logger.error("Point Y value must be a number.")
                 return False
             if not isinstance(point[2], str) or point[2] not in ["cw", "ccw"]:
                 self._logger.error("Invalid rotation direction {} is specified.")
                 return False
-            if not isinstance(point[3], (int, float, str)):
+            if not isinstance(point[3], (int, float, str)):  # pragma: no cover
                 self._logger.error("Arc center point X value must be a number.")
                 return False
-            if not isinstance(point[4], (int, float, str)):
+            if not isinstance(point[4], (int, float, str)):  # pragma: no cover
                 self._logger.error("Arc center point Y value must be a number.")
                 return False
             return True
-        else:
+        else:  # pragma: no cover
             self._logger.error("Arc point descriptor has incorrect number of elements (%s)", len(point))
             return False
 
@@ -1005,8 +1004,7 @@ class EdbLayout(object):
         pointB = self._edb.geometry.point_data(
             self._get_edb_value(shape.pointB[0]), self._get_edb_value(shape.pointB[1])
         )
-        points = Tuple[self._edb.geometry.geometry.PointData, self._edb.geometry.geometry.PointData](pointA, pointB)
-        return self._edb.geometry.polygon_data.create_from_bbox(points)
+        return self._edb.geometry.polygon_data.create_from_bbox((pointA, pointB))
 
     class Shape(object):
         """Shape class.
@@ -1170,102 +1168,26 @@ class EdbLayout(object):
         return True
 
     @pyaedt_function_handler()
-    def defeature_polygon(self, setup_info, poly, max_surface_deviation=0.001):
+    def defeature_polygon(self, poly, tolerance=0.001):
         """Defeature the polygon based on the maximum surface deviation criteria.
 
         Parameters
         ----------
-        setup_info : EDB_Data_SimulatiomConfiguratio object
-            When the ``setup_info`` argument is provided, it overwrites the
-            ``maximum_surface_deviation`` value.
-
+        maximum_surface_deviation : float
         poly : Edb Polygon primitive
             Polygon to defeature.
-
-        max_surface_deviation : float, optional
-            Maximum surface deviation criteria. The default is ``0.001``.
+        tolerance : float, optional
+            Maximum tolerance criteria. The default is ``0.001``.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        try:
-            if setup_info:
-                max_surface_deviation = setup_info.max_suf_dev
-            poly_data = poly.GetPolygonData()
-            pts_list = []
-            pts = poly_data.Points
-            defeaturing_step = 1e-6
-            if len(poly_data) <= 16:
-                # Defeaturing skipped for polygons with less than 16 points
-                self._logger.info(
-                    "Polygon {} is skipped for defeaturing because its number of point is less than 16. ".format(
-                        poly.GetId()
-                    )
-                )
-                return poly_data
-
-            for pt in pts:
-                pts_list.append(pt)
-            nb_ini_pts = len(pts_list)
-            minimum_distance = defeaturing_step  # 1e-6
-            init_surf = poly_data.Area()
-            nb_pts_removed = 0
-            surf_dev = 0
-            new_poly = None
-            while (surf_dev < max_surface_deviation and pts_list.Count > 16 and minimum_distance < 1000e-6) and float(
-                nb_pts_removed
-            ) / float(nb_ini_pts) < 0.4:
-                pts_list, nb_pts_removed = self._trim_polygon_points(pts, minimum_distance)
-                new_poly = self._edb.geometry.polygon_data.dotnetobj(pts_list, True)
-                current_surf = new_poly.Area()
-                if current_surf == 0:
-                    surf_dev = 1
-                else:
-                    surf_dev = abs(init_surf - current_surf) / init_surf
-                    minimum_distance = minimum_distance + defeaturing_step
-            self._logger.info(
-                "Defeaturing polygon {0}: Final surface deviation = {1} , Maximum distance(um) = {2}, "
-                "Number of points removed = {3}/{4}".format(
-                    str(poly.GetId()),
-                    str(surf_dev),
-                    str(minimum_distance * 1e6),
-                    str(nb_pts_removed),
-                    str(nb_ini_pts),
-                )
-            )
-            return new_poly
-        except:
-            return False
-
-    @pyaedt_function_handler()
-    def _trim_polygon_points(self, points, minimum_distance):
-        pts_list = []
-        ind = 0
-
-        nb_pts_removed = 0
-        for pt in points:
-            pts_list.append(pt)
-        # NbIniPts = pts_list.Count
-
-        while ind < pts_list.Count - 2:
-            pts_list, nb_pts_removed = self._get_point_list_with_minimum_distance(
-                pts_list, minimum_distance, ind, nb_pts_removed
-            )
-            ind = ind + 1
-
-        return pts_list, nb_pts_removed
-
-    @pyaedt_function_handler()
-    def _get_point_list_with_minimum_distance(self, pts_list, minimum_distance, ind, nb_pts_removed):
-        pt_ind = ind + 1
-        while pts_list[ind].Distance(pts_list[pt_ind]) < minimum_distance and pt_ind < pts_list.Count - 2:
-            pts_list.RemoveAt(pt_ind)
-            nb_pts_removed += 1
-            pt_ind += 1
-
-        return pts_list, nb_pts_removed
+        poly_data = poly.polygon_data
+        new_poly = poly_data.Defeature(tolerance)
+        poly.polygon_data = new_poly
+        return True
 
     @pyaedt_function_handler()
     def get_layout_statistics(self, evaluate_area=False, net_list=None):
