@@ -34,7 +34,7 @@ class SimulationConfigurationBatch(object):
         self._use_default_cutout = True
         self._generate_excitations = True
         self._add_frequency_sweep = True
-        self._include_only_selected_nets = True
+        self._include_only_selected_nets = False
         self._generate_solder_balls = True
         self._coax_solder_ball_diameter = []
         self._use_default_coax_port_radial_extension = True
@@ -606,7 +606,7 @@ class SimulationConfigurationBatch(object):
         Returns
         -------
         bool
-            ``True`` or ``False. Default value is ``True``.
+            ``True`` or ``False. Default value is ``False``.
 
         """
         return self._include_only_selected_nets

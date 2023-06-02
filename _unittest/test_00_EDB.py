@@ -1790,7 +1790,11 @@ class TestClass(BasisTest, object):
         edbapp.close_edb()
 
     def test_129_hfss_simulation_setup(self):
-        setup1 = self.edbapp.create_hfss_setup("setup1")
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_0129.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, edbversion=desktop_version)
+        setup1 = edbapp.create_hfss_setup("setup1")
         assert setup1.set_solution_single_frequency()
         assert setup1.set_solution_multi_frequencies()
         assert setup1.set_solution_broadband()
@@ -1800,7 +1804,7 @@ class TestClass(BasisTest, object):
         setup1.hfss_solver_settings.relative_residual = 0.0002
         setup1.hfss_solver_settings.use_shell_elements = True
 
-        hfss_solver_settings = self.edbapp.setups["setup1"].hfss_solver_settings
+        hfss_solver_settings = edbapp.setups["setup1"].hfss_solver_settings
         assert hfss_solver_settings.order_basis == "first"
         assert hfss_solver_settings.relative_residual == 0.0002
         assert hfss_solver_settings.solver_type
@@ -1819,15 +1823,15 @@ class TestClass(BasisTest, object):
         setup1.adaptive_settings.use_convergence_matrix = True
         setup1.adaptive_settings.use_max_refinement = True
 
-        assert self.edbapp.setups["setup1"].adaptive_settings.adapt_type == "kBroadband"
-        assert not self.edbapp.setups["setup1"].adaptive_settings.basic
-        assert self.edbapp.setups["setup1"].adaptive_settings.max_refinement == 1000001
-        assert self.edbapp.setups["setup1"].adaptive_settings.max_refine_per_pass == 20
-        assert self.edbapp.setups["setup1"].adaptive_settings.min_passes == 2
-        assert self.edbapp.setups["setup1"].adaptive_settings.save_fields
-        assert self.edbapp.setups["setup1"].adaptive_settings.save_rad_field_only
+        assert edbapp.setups["setup1"].adaptive_settings.adapt_type == "kBroadband"
+        assert not edbapp.setups["setup1"].adaptive_settings.basic
+        assert edbapp.setups["setup1"].adaptive_settings.max_refinement == 1000001
+        assert edbapp.setups["setup1"].adaptive_settings.max_refine_per_pass == 20
+        assert edbapp.setups["setup1"].adaptive_settings.min_passes == 2
+        assert edbapp.setups["setup1"].adaptive_settings.save_fields
+        assert edbapp.setups["setup1"].adaptive_settings.save_rad_field_only
         # assert adaptive_settings.use_convergence_matrix
-        assert self.edbapp.setups["setup1"].adaptive_settings.use_max_refinement
+        assert edbapp.setups["setup1"].adaptive_settings.use_max_refinement
 
         setup1.defeature_settings.defeature_abs_length = "1um"
         setup1.defeature_settings.defeature_ratio = 1e-5
@@ -1839,7 +1843,7 @@ class TestClass(BasisTest, object):
         setup1.defeature_settings.use_defeature = False
         setup1.defeature_settings.use_defeature_abs_length = True
 
-        defeature_settings = self.edbapp.setups["setup1"].defeature_settings
+        defeature_settings = edbapp.setups["setup1"].defeature_settings
         assert defeature_settings.defeature_abs_length == "1um"
         assert defeature_settings.defeature_ratio == 1e-5
         # assert defeature_settings.healing_option == 0
@@ -1856,7 +1860,7 @@ class TestClass(BasisTest, object):
         via_settings.via_num_sides = 8
         via_settings.via_style = "kNum25DViaStyle"
 
-        via_settings = self.edbapp.setups["setup1"].via_settings
+        via_settings = edbapp.setups["setup1"].via_settings
         assert via_settings.via_density == 1
         assert via_settings.via_material == "pec"
         assert via_settings.via_num_sides == 8
@@ -1867,7 +1871,7 @@ class TestClass(BasisTest, object):
         advanced_mesh_settings.mesh_display_attributes = "#0000001"
         advanced_mesh_settings.replace_3d_triangles = False
 
-        advanced_mesh_settings = self.edbapp.setups["setup1"].advanced_mesh_settings
+        advanced_mesh_settings = edbapp.setups["setup1"].advanced_mesh_settings
         assert advanced_mesh_settings.layer_snap_tol == "1e-6"
         assert advanced_mesh_settings.mesh_display_attributes == "#0000001"
         assert not advanced_mesh_settings.replace_3d_triangles
@@ -1879,7 +1883,7 @@ class TestClass(BasisTest, object):
         curve_approx_settings.start_azimuth = "1"
         curve_approx_settings.use_arc_to_chord_error = True
 
-        curve_approx_settings = self.edbapp.setups["setup1"].curve_approx_settings
+        curve_approx_settings = edbapp.setups["setup1"].curve_approx_settings
         assert curve_approx_settings.arc_to_chord_error == "0.1"
         assert curve_approx_settings.max_arc_points == 12
         assert curve_approx_settings.start_azimuth == "1"
@@ -1892,7 +1896,7 @@ class TestClass(BasisTest, object):
         dcr_settings.conduction_per_error = 2.0
         dcr_settings.conduction_per_refine = 33.0
 
-        dcr_settings = self.edbapp.setups["setup1"].dcr_settings
+        dcr_settings = edbapp.setups["setup1"].dcr_settings
         assert dcr_settings.conduction_max_passes == 11
         assert dcr_settings.conduction_min_converged_passes == 2
         assert dcr_settings.conduction_min_passes == 2
@@ -1925,11 +1929,11 @@ class TestClass(BasisTest, object):
         sweep1.adaptive_sampling = True
         assert sweep1.adaptive_sampling
 
-        self.edbapp.setups["setup1"].name = "setup1a"
-        assert "setup1" not in self.edbapp.setups
-        assert "setup1a" in self.edbapp.setups
+        edbapp.setups["setup1"].name = "setup1a"
+        assert "setup1" not in edbapp.setups
+        assert "setup1a" in edbapp.setups
 
-        mop = self.edbapp.setups["setup1a"].add_length_mesh_operation({"GND": ["TOP", "BOTTOM"]}, "m1")
+        mop = edbapp.setups["setup1a"].add_length_mesh_operation({"GND": ["TOP", "BOTTOM"]}, "m1")
         assert mop.name == "m1"
         assert mop.max_elements == "1000"
         assert mop.restrict_max_elements
@@ -1948,7 +1952,7 @@ class TestClass(BasisTest, object):
         assert not mop.restrict_length
         assert mop.max_length == "2mm"
 
-        mop = self.edbapp.setups["setup1a"].add_skin_depth_mesh_operation({"GND": ["TOP", "BOTTOM"]})
+        mop = edbapp.setups["setup1a"].add_skin_depth_mesh_operation({"GND": ["TOP", "BOTTOM"]})
         assert mop.max_elements == "1000"
         assert mop.restrict_max_elements
         assert mop.skin_depth == "1um"
@@ -2330,7 +2334,7 @@ class TestClass(BasisTest, object):
         edb.stackup.add_layer(layer_name="FR4", base_layer="gnd", thickness="250um")
         edb.stackup.add_layer(layer_name="SIGNAL", base_layer="FR4", thickness="30um")
         edb.modeler.create_trace(layer_name="SIGNAL", width=0.02, net_name="net1", path_list=[[-1e3, 0, 1e-3, 0]])
-        edb.mo.create_rectangle(
+        edb.modeler.create_rectangle(
             layer_name="GND",
             representation_type="CenterWidthHeight",
             center_point=["0mm", "0mm"],
