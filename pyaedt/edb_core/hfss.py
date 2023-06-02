@@ -1147,7 +1147,7 @@ class EdbHfss(object):
         for lobj in layout_obj_instances.Items:
             lobj_bbox = lobj.GetLayoutInstanceContext().GetBBox(False)
             tuple_list.append(lobj_bbox)
-        _bbox = self._edb.geometry.polygon_data.get_bbox_of_boxes(convert_py_list_to_net_list(tuple_list))
+        _bbox = self._edb.geometry.polygon_data.get_bbox_of_boxes(tuple_list)
         layout_bbox = [
             round(_bbox.Item1.X.ToDouble(), digit_resolution),
             round(_bbox.Item1.Y.ToDouble(), digit_resolution),
@@ -1489,7 +1489,7 @@ class EdbHfss(object):
             terms_bbox.append(
                 self._edb.geometry.polygon_data.dotnetobj(ll[0] - dim, ll[1] - dim, ur[0] + dim, ur[1] + dim)
             )
-        return self._edb.geometry.polygon_data.get_bbox_of_polygons(convert_py_list_to_net_list(terms_bbox))
+        return self._edb.geometry.polygon_data.get_bbox_of_polygons(terms_bbox)
 
     @pyaedt_function_handler()
     def get_ports_number(self):

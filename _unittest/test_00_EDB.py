@@ -189,6 +189,10 @@ class TestClass(BasisTest, object):
         assert len(powernets) > 2
         assert len(self.edbapp.nets.netlist) > 0
         assert powernets["V3P3_S0"].is_power_ground
+        powernets["V3P3_S0"].is_power_ground = False
+        assert not powernets["V3P3_S0"].is_power_ground
+        powernets["V3P3_S0"].is_power_ground = True
+        assert powernets["V3P3_S0"].name == "V3P3_S0"
         assert powernets["V3P3_S0"].IsPowerGround()
         assert len(list(powernets["V3P3_S0"].components.keys())) > 0
         assert len(powernets["V3P3_S0"].primitives) > 0
@@ -2457,3 +2461,24 @@ class TestClass(BasisTest, object):
         assert "Setup1" in edb.setups
         assert "B1" in edb.components.components
         edb.close()
+
+    def test_139_test_database(self):
+        assert isinstance(self.edbapp.dataset_defs, list)
+        assert isinstance(self.edbapp.material_defs, list)
+        assert isinstance(self.edbapp.component_defs, list)
+        assert isinstance(self.edbapp.package_defs, list)
+
+        assert isinstance(self.edbapp.padstack_defs, list)
+        assert isinstance(self.edbapp.jedec5_bondwire_defs, list)
+        assert isinstance(self.edbapp.jedec4_bondwire_defs, list)
+        assert isinstance(self.edbapp.apd_bondwire_defs, list)
+        assert self.edbapp.source_version == ""
+        self.edbapp.source_version = "2022.2"
+        assert self.edbapp.source == ""
+        assert self.edbapp.scale(1.0)
+        assert isinstance(self.edbapp.version, tuple)
+        assert isinstance(self.edbapp.footprint_cells, list)
+        assert len(self.edbapp.modeler.primitive_by_net) > 0
+
+    def test_140_defeature(self):
+        assert self.edbapp.modeler.defeature_polygon(self.edbapp.modeler.primitives_by_net["GND"][-1], 0.01)

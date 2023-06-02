@@ -44,11 +44,11 @@ class PrimitiveDotNet:
             except AttributeError:
                 raise AttributeError("Attribute not present")
 
-    def __init__(self, api, object=None):
+    def __init__(self, api, prim_object=None):
         self._app = api
         self.api = api._edb.Cell.Primitive
         self.edb_api = api._edb
-        self.prim_obj = object
+        self.prim_obj = prim_object
 
     @property
     def api_class(self):
@@ -217,7 +217,7 @@ class PrimitiveDotNet:
         """
         material = ""
         solve_inside = True
-        prop_msg = self.prim_obj.GetHfssProp(material, solve_inside)
+        self.prim_obj.GetHfssProp(material, solve_inside)
         return material, solve_inside
 
     def remove_hfss_prop(self):
@@ -251,7 +251,7 @@ class PrimitiveDotNet:
         """
         self.prim_obj.MakeZonePrimitive(zone_id)
 
-    def _get_points_for_plot(self, my_net_points):
+    def _get_points_for_plot(self, my_net_points, num):
         """
         Get the points to be plot
         """
@@ -271,7 +271,7 @@ class PrimitiveDotNet:
                     p2 = [my_net_points[i+1].X.ToDouble(), my_net_points[i+1].Y.ToDouble()]
                 else:
                     p2 = [my_net_points[0].X.ToDouble(), my_net_points[0].Y.ToDouble()]
-                x_arc, y_arc = self._eval_arc_points(p1, p2, arc_h)
+                x_arc, y_arc = self._eval_arc_points(p1, p2, arc_h, num)
                 x.extend(x_arc)
                 y.extend(y_arc)
                 # i += 1

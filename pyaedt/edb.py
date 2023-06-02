@@ -1338,7 +1338,7 @@ class Edb(Database):
                     _polys.extend(list(obj_data))
         if smart_cutout:
             _polys.extend(self._smart_cut(net_signals, reference_list, include_pingroups))
-        _poly_unite = list(self.edb_api.geometry.polygon_data.unite(convert_py_list_to_net_list(_polys)))
+        _poly_unite = self.edb_api.geometry.polygon_data.unite(_polys)
         if len(_poly_unite) == 1:
             return _poly_unite[0]
         else:
@@ -1369,7 +1369,6 @@ class Edb(Database):
             pointB = self.edb_api.geometry.point_data(
                 self.edb_value(point[0] + 1e-12), self.edb_value(point[1] + 1e-12)
             )
-            from pyaedt.generic.clr_module import Tuple
 
             points = Tuple[self.edb_api.geometry.geometry.PointData, self.edb_api.geometry.geometry.PointData](
                 pointA, pointB

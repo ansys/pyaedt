@@ -1179,11 +1179,10 @@ class Stackup(object):
         _offset_y = self._edb_value(offset_y)
 
         if edb_cell.GetName() not in self._pedb.cell_names:
-            _dbCell = convert_py_list_to_net_list([edb_cell.api_object])
-            list_cells = self._pedb.active_db.CopyCells(_dbCell)
+            list_cells = self._pedb.copy_cells([edb_cell.api_object])
             edb_cell = list_cells[0]
         self._pedb.layout.cell.SetBlackBox(True)
-        cell_inst2 = self._pedb.edb_api.cell.hierarchy._hierarchy.CellInstance.Create(
+        cell_inst2 = self._pedb.edb_api.cell.hierarchy.cell_instance.Create(
             edb_cell.GetLayout(), self._pedb.layout.cell.GetName(), self._pedb.active_layout
         )
         cell_trans = cell_inst2.GetTransform()
@@ -1289,11 +1288,10 @@ class Stackup(object):
         _offset_y = self._edb_value(offset_y)
 
         if edb_cell.GetName() not in self._pedb.cell_names:
-            _dbCell = convert_py_list_to_net_list([edb_cell.api_object])
-            list_cells = self._pedb.active_db.CopyCells(_dbCell)
+            list_cells = self._pedb.copy_cells(edb_cell.api_object)
             edb_cell = list_cells[0]
         self._pedb.layout.cell.SetBlackBox(True)
-        cell_inst2 = self._pedb.edb_api.cell.hierarchy._hierarchy.CellInstance.Create(
+        cell_inst2 = self._pedb.edb_api.cell.hierarchy.cell_instance.Create(
             edb_cell.GetLayout(), self._pedb.layout.cell.GetName(), self._pedb.active_layout
         )
 
@@ -1429,8 +1427,7 @@ class Stackup(object):
         _offset_y = self._edb_value(offset_y)
 
         if edb_cell.GetName() not in self._pedb.cell_names:
-            _dbCell = convert_py_list_to_net_list([edb_cell.api_object])
-            list_cells = self._pedb.active_db.CopyCells(_dbCell)
+            list_cells = self._pedb.copy_cells(edb_cell.api_object)
             edb_cell = list_cells[0]
         for cell in list(self._pedb.active_db.CircuitCells):
             if cell.GetName() == edb_cell.GetName():
@@ -1446,7 +1443,7 @@ class Stackup(object):
 
         instance_name = generate_unique_name(edb_cell.GetName(), n=2)
 
-        cell_inst2 = self._pedb.edb_api.cell.hierarchy._hierarchy.CellInstance.Create(
+        cell_inst2 = self._pedb.edb_api.cell.hierarchy.cell_instance.Create(
             self._pedb.active_layout, instance_name, edb_cell.GetLayout()
         )
 
