@@ -25,7 +25,7 @@ temppath = tempfile.gettempdir()
 
 ###############################################################################
 # Download and open example layout file in edb format
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 edb_fpath = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb')
 appedb = Edb(edb_fpath, edbversion="2023.1")
 
