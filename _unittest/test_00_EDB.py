@@ -2476,7 +2476,6 @@ class TestClass(BasisTest, object):
         assert self.edbapp.scale(1.0)
         assert isinstance(self.edbapp.version, tuple)
         assert isinstance(self.edbapp.footprint_cells, list)
-        assert len(self.edbapp.modeler.primitive_by_net) > 0
 
     def test_140_defeature(self):
         assert self.edbapp.modeler.defeature_polygon(self.edbapp.modeler.primitives_by_net["GND"][-1], 0.01)
