@@ -699,7 +699,7 @@ class EdbNets(object):
             plot_components_on_bottom,
         )
 
-        if isinstance(size, int):
+        if isinstance(size, int):  # pragma: no cover
             board_size_x, board_size_y = self._pedb.get_statistics().layout_size
             fig_size_x = size
             fig_size_y = board_size_y * fig_size_x / board_size_x
