@@ -215,7 +215,14 @@ class Hfss(FieldAnalysis3D, object):
 
     @property
     def hybrid(self):
-        """HFSS hybrid mode for the active solution."""
+        """HFSS hybrid mode for the active solution.
+
+        For instance, it must be set to ``True`` to define the solution type as 'HFSS with Hybrid and Arrays'.
+
+        Returns
+        -------
+        bool
+        """
         return self.design_solutions.hybrid
 
     @hybrid.setter
@@ -224,7 +231,12 @@ class Hfss(FieldAnalysis3D, object):
 
     @property
     def composite(self):
-        """HFSS composite mode for the active solution."""
+        """HFSS composite mode for the active solution.
+
+        Returns
+        -------
+        bool
+        """
         return self.design_solutions.composite
 
     @composite.setter
