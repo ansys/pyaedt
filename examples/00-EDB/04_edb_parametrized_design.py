@@ -85,8 +85,6 @@ edb.padstacks.create(
             holediam="$via_diam",
             paddiam="$pad_diam",
             antipaddiam="",
-            startlayer="top",
-            endlayer="bottom",
             antipad_shape="Bullet",
             x_size="$x_size",
             y_size="$y_size",
@@ -113,7 +111,7 @@ edb.padstacks.place(
             via_name="",
             rotation=90.0,
             fromlayer=layers[-1]["name"],
-            tolayer=layers[0]["name"],)
+            tolayer=layers[-3]["name"],)
 
 edb.padstacks.place(
             position=["2*$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing)/2"],
@@ -122,7 +120,7 @@ edb.padstacks.place(
             via_name="",
             rotation=90.0,
             fromlayer=layers[-1]["name"],
-            tolayer=layers[0]["name"],)
+            tolayer=layers[-3]["name"],)
 
 edb.padstacks.place(
             position=["$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing)/2"],
@@ -131,7 +129,7 @@ edb.padstacks.place(
             via_name="",
             rotation=-90.0,
             fromlayer=layers[-1]["name"],
-            tolayer=layers[0]["name"],)
+            tolayer=layers[-3]["name"],)
 
 edb.padstacks.place(
             position=["2*$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing)/2"],
@@ -140,7 +138,7 @@ edb.padstacks.place(
             via_name="",
             rotation=-90.0,
             fromlayer=layers[-1]["name"],
-            tolayer=layers[0]["name"],)
+            tolayer=layers[-3]["name"],)
 
 
 # ###############################################################################
@@ -253,7 +251,7 @@ void_shape = edb.modeler.Shape("polygon", points=void_poly)
 
 # Add ground layers
 
-for layer in layers[1:-1]:
+for layer in layers[:-1:2]:
 
     # add void if the layer is the signal routing layer.
     void = [void_shape] if layer["name"] == route_layer[1] else []
@@ -294,6 +292,8 @@ h3d = pyaedt.Hfss3dLayout(projectname=aedb_path, specified_version="2023.1",
 # Add HFSS simulation setup.
 
 setup = h3d.create_setup()
+setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 3
+
 h3d.create_linear_count_sweep(
     setupname=setup.name,
     unit="GHz",
@@ -308,13 +308,32 @@ h3d.create_linear_count_sweep(
     use_q3d_for_dc=False,
 )
 
+###############################################################################
+# Set Differential Pairs.
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Define the differential pairs to be used in the postprocessing.
+h3d.set_differential_pair(diff_name="In", positive_terminal="wave_port_1:T1", negative_terminal="wave_port_1:T2")
+h3d.set_differential_pair(diff_name="Out", positive_terminal="wave_port_2:T1", negative_terminal="wave_port_2:T2")
 
 ###############################################################################
 # Start HFSS solver
 # ~~~~~~~~~~~~~~~~~
 # Start the HFSS solver by uncommenting the ``h3d.analyze()`` command.
 
-# h3d.analyze()
+h3d.analyze()
+
+
+###############################################################################
+# Generate Plot
+# ~~~~~~~~~~~~~
+# Generate the plot of differential pairs.
+
+solutions = h3d.post.get_solution_data(["dB(S(In,In))", "dB(S(In,Out))"], context="Differential Pairs")
+solutions.plot()
+
+
+
+
 
 h3d.release_desktop()
 

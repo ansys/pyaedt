@@ -889,8 +889,8 @@ class EdbLayout(object):
                     or endPoint[1].IsParametric()
                 )
                 arc = self._edb.geometry.arc_data(
-                    self._pedb.point_data(startPoint[0], startPoint[1]),
-                    self._pedb.point_data(endPoint[0], endPoint[1]),
+                    self._pedb.point_data(startPoint[0].ToDouble(), startPoint[1].ToDouble()),
+                    self._pedb.point_data(endPoint[0].ToDouble(), endPoint[1].ToDouble()),
                 )
                 arcs.append(arc)
             elif len(endPoint) == 3:
@@ -903,8 +903,8 @@ class EdbLayout(object):
                     or endPoint[2].IsParametric()
                 )
                 arc = self._edb.geometry.arc_data(
-                    self._pedb.point_data(startPoint[0], startPoint[1]),
-                    self._pedb.point_data(endPoint[0], endPoint[1]),
+                    self._pedb.point_data(startPoint[0].ToDouble(), startPoint[1].ToDouble()),
+                    self._pedb.point_data(endPoint[0].ToDouble(), endPoint[1].ToDouble()),
                     endPoint[2].ToDouble(),
                 )
                 arcs.append(arc)
@@ -927,10 +927,10 @@ class EdbLayout(object):
                     self._logger.error("Invalid rotation direction %s is specified.", endPoint[2])
                     return None
                 arc = self._edb.geometry.arc_data(
-                    self._pedb.point_data(startPoint[0], startPoint[1]),
-                    self._pedb.point_data(endPoint[0], endPoint[1]),
+                    self._pedb.point_data(startPoint[0].ToDouble(), startPoint[1].ToDouble()),
+                    self._pedb.point_data(endPoint[0].ToDouble(), endPoint[1].ToDouble()),
                     rotationDirection,
-                    self._pedb.point_data(endPoint[3], endPoint[4]),
+                    self._pedb.point_data(endPoint[3].ToDouble(), endPoint[4].ToDouble()),
                 )
                 arcs.append(arc)
         polygon = self._edb.geometry.polygon_data.create_from_arcs(arcs, True)
