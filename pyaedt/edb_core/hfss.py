@@ -12,6 +12,8 @@ from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.general import convert_pytuple_to_nettuple
 from pyaedt.generic.constants import RadiationBoxType
 from pyaedt.generic.constants import SweepType
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -1094,8 +1096,28 @@ class EdbHfss(object):
                                     if prim.polygon_data.PointInPolygon(mid_pt_data)
                                 ]
                                 if not ref_prim:
-                                    self._logger.warning("No reference primitive found in port vicinity")
-                                else:
+                                    self._logger.warning("no reference primitive found, trying to extend scanning area")
+                                    scanning_zone = [
+                                        (mid_point[0] - mid_point[0] * 1e-3, mid_point[1] - mid_point[1] * 1e-3),
+                                        (mid_point[0] - mid_point[0] * 1e-3, mid_point[1] + mid_point[1] * 1e-3),
+                                        (mid_point[0] + mid_point[0] * 1e-3, mid_point[1] + mid_point[1] * 1e-3),
+                                        (mid_point[0] + mid_point[0] * 1e-3, mid_point[1] - mid_point[1] * 1e-3),
+                                    ]
+                                    for new_point in scanning_zone:
+                                        mid_pt_data = self._edb.Geometry.PointData(
+                                            self._edb.Utility.Value(new_point[0]), self._edb.Utility.Value(new_point[1])
+                                        )
+                                        ref_prim = [
+                                            prim
+                                            for prim in reference_net.primitives
+                                            if prim.polygon_data.PointInPolygon(mid_pt_data)
+                                        ]
+                                        if ref_prim:
+                                            self._logger.info("Reference primitive found")
+                                            break
+                                    if not ref_prim:
+                                        self._logger.error("Failed to collect valid reference primitives for terminal")
+                                if ref_prim:
                                     reference_layer = ref_prim[0].layer
                                     if term.SetReferenceLayer(reference_layer):  # pragma no cover
                                         self._logger.info("Port {} created".format(port_name))

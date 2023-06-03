@@ -9,6 +9,8 @@ from __future__ import absolute_import  # noreorder
 from collections import OrderedDict
 
 from pyaedt.generic.DataHandlers import _dict2arg
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler

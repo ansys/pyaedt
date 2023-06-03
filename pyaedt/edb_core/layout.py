@@ -8,6 +8,8 @@ from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
 from pyaedt.edb_core.edb_data.utilities import EDBStatistics
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.clr_module import Tuple
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -528,8 +530,22 @@ class EdbLayout(object):
         """
         net = self._pedb.nets.find_or_create_net(net_name)
         if isinstance(main_shape, list):
-            shape = self.Shape("polygon", points=main_shape)
-            polygonData = self.shape_to_polygon_data(shape)
+            arcs = []
+            for _ in range(len(main_shape)):
+                arcs.append(
+                    self._edb.Geometry.ArcData(
+                        self._pedb.point_data(0, 0),
+                        self._pedb.point_data(0, 0),
+                    )
+                )
+            polygonData = self._edb.Geometry.PolygonData.CreateFromArcs(convert_py_list_to_net_list(arcs), True)
+
+            for idx, i in enumerate(main_shape):
+                pdata_0 = self._pedb.edb_value(i[0])
+                pdata_1 = self._pedb.edb_value(i[1])
+                new_points = self._edb.Geometry.PointData(pdata_0, pdata_1)
+                polygonData.SetPoint(idx, new_points)
+
         elif isinstance(main_shape, EdbLayout.Shape):
             polygonData = self.shape_to_polygon_data(main_shape)
         else:

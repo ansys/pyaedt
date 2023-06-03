@@ -89,16 +89,15 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
         messages = []
     except TypeError:
         messages = []
-    if messages:
+    if messages and "error" in messages[-1].lower():
         message_to_print = messages[-1]
-    for el in tblist:
-        if func.__name__ in el:
-            _write_mes("Error in : " + el)
-    _write_mes("{} - {} -  {}.".format(ex_info[1], func.__name__, message.upper()))
+    # _write_mes("{} - {} -  {}.".format(ex_info[1], func.__name__, message.upper()))
 
     if message_to_print:
-        _write_mes(message_to_print)
-    _write_mes("Arguments with values: ")
+        _write_mes("API Message - " + message_to_print)
+    for el in tblist:
+        if func.__name__ in el:
+            _write_mes("{}, {}".format(el, message.upper()))
     args_name = []
     try:
         if int(sys.version[0]) > 2:
@@ -107,18 +106,23 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
         else:
             args_name = list(OrderedDict.fromkeys(inspect.getargspec(func)[0] + list(kwargs.keys())))
             args_dict = OrderedDict(list(itertools.izip(args_name, args)) + list(kwargs.iteritems()))
+        first_time_log = True
 
         for el in args_dict:
-            if el != "self":
+            if el != "self" and args_dict[el]:
+                if first_time_log:
+                    _write_mes("Method arguments: ")
+                    first_time_log = False
                 _write_mes("    {} = {} ".format(el, args_dict[el]))
     except:
         pass
     args = [func.__name__] + [i for i in args_name if i not in ["self"]]
-    _write_mes(
-        "Check Online documentation on: https://aedt.docs.pyansys.com/version/stable/search.html?q={}".format(
-            "+".join(args)
+    if not func.__name__.startswith("_"):
+        _write_mes(
+            "Check Online documentation on: https://aedt.docs.pyansys.com/version/stable/search.html?q={}".format(
+                "+".join(args)
+            )
         )
-    )
 
 
 def normalize_path(path_in, sep=None):
@@ -656,7 +660,7 @@ def _retry_ntimes(n, function, *args, **kwargs):
                 ret_val = True
         except:
             retry += 1
-            time.sleep(0.1)
+            time.sleep(0.5)
         else:
             break
     if retry == n:
@@ -1714,6 +1718,24 @@ class Help:  # pragma: no cover
         self._launch_ur(url)
 
 
+# class Property(property):
+#
+#     @pyaedt_function_handler()
+#     def getter(self, fget):
+#         """Property getter."""
+#         return self.__class__.__base__(fget, self.fset, self.fdel, self.__doc__)
+#
+#     @pyaedt_function_handler()
+#     def setter(self, fset):
+#         """Property setter."""
+#         return self.__class__.__base__(self.fget, fset, self.fdel, self.__doc__)
+#
+#     @pyaedt_function_handler()
+#     def deleter(self, fdel):
+#         """Property deleter."""
+#         return self.__class__.__base__(self.fget, self.fset, fdel, self.__doc__)
+
+
 class Settings(object):
     """Manages all PyAEDT environment variables and global settings."""
 
@@ -1770,6 +1792,37 @@ class Settings(object):
         if is_linux:
             self._aedt_environment_variables["ANS_NODEPCHECK"] = "1"
         self._desktop_launch_timeout = 90
+        self._aedt_process_id = None
+        self._is_student = False
+
+    @property
+    def aedt_process_id(self):
+        """ID of the desktop process. The default is ``None``.
+
+        Returns
+        -------
+        int
+        """
+        return self._aedt_process_id
+
+    @aedt_process_id.setter
+    def aedt_process_id(self, value):
+        self._aedt_process_id = int(value)
+
+    @property
+    def is_student(self):
+        """Whether the desktop process is set to the student version. The
+        default is ``False``.
+
+        Returns
+        -------
+        bool
+        """
+        return self._is_student
+
+    @is_student.setter
+    def is_student(self, value):
+        self._is_student = value
 
     @property
     def desktop_launch_timeout(self):
@@ -2161,5 +2214,6 @@ class Settings(object):
         self._enable_debug_logger = val
 
 
+# property = Property
 settings = Settings()
 online_help = Help()

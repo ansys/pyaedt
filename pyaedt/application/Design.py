@@ -41,6 +41,8 @@ from pyaedt.generic.DataHandlers import variation_string_to_dict
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import unit_system
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import generate_unique_name
@@ -106,11 +108,12 @@ class Design(AedtObjects):
 
     def __str__(self):
         pyaedt_details = "      pyaedt API\n"
-        pyaedt_details += "pyaedt running AEDT Version {} \n".format(self._aedt_version)
+        pyaedt_details += "pyaedt running AEDT Version {} \n".format(settings.aedt_version)
         pyaedt_details += "Running {} tool in AEDT\n".format(self.design_type)
         pyaedt_details += "Solution Type: {} \n".format(self.solution_type)
         pyaedt_details += "Project Name: {} Design Name {} \n".format(self.project_name, self.design_name)
-        pyaedt_details += 'Project Path: "{}" \n'.format(self.project_path)
+        if self._oproject:
+            pyaedt_details += 'Project Path: "{}" \n'.format(self.project_path)
         return pyaedt_details
 
     def __exit__(self, ex_type, ex_value, ex_traceback):
@@ -177,6 +180,7 @@ class Design(AedtObjects):
             t = threading.Thread(target=load_aedt_thread, args=(project_name,))
             t.start()
         self._init_variables()
+        self._design_type = design_type
         self.last_run_log = ""
         self.last_run_job = ""
         self._design_dictionary = None
@@ -189,9 +193,9 @@ class Design(AedtObjects):
         self.close_on_exit = close_on_exit
         self._global_logger = pyaedt_logger
         self._logger = pyaedt_logger
-
+        self._desktop_class = None
         if "pyaedt_initialized" not in dir(main_module):
-            desktop = Desktop(
+            self._desktop_class = Desktop(
                 specified_version,
                 non_graphical,
                 new_desktop_session,
@@ -203,19 +207,27 @@ class Design(AedtObjects):
             )
             self.release_on_exit = True
         else:
+            self._desktop_class = Desktop(
+                settings.aedt_version,
+                settings.non_graphical,
+                False,
+                close_on_exit,
+                student_version,
+                settings.machine,
+                settings.port,
+                settings.aedt_process_id,
+            )
             self.release_on_exit = False
 
         self.student_version = main_module.student_version
         if self.student_version:
             settings.disable_bounding_box_sat = True
         self._mttime = None
-        self._design_type = design_type
         self._desktop = main_module.oDesktop
 
         self._desktop_install_dir = main_module.sDesktopinstallDirectory
         self._odesign = None
         self._oproject = None
-        self._design_type = design_type
         if design_type == "HFSS":
             self.design_solutions = HFSSDesignSolution(None, design_type, self._aedt_version)
         elif design_type == "Icepak":
@@ -243,8 +255,18 @@ class Design(AedtObjects):
         self.logger.info("Variable Manager initialized")
 
     @property
+    def desktop_class(self):
+        """``Desktop`` class.
+
+        Returns
+        -------
+        :class:`pyaedt.desktop.Desktop`
+        """
+        return self._desktop_class
+
+    @property
     def project_datasets(self):
-        """Dictionary of Project Datasets.
+        """Dictionary of project datasets.
 
         Returns
         -------
@@ -398,9 +420,10 @@ class Design(AedtObjects):
 
     @property
     def _aedt_version(self):
-        v = self.odesktop.GetVersion()
-        if v:
-            return v[0:6]
+        if self.odesktop:
+            v = self.odesktop.GetVersion()
+            if v:
+                return v[0:6]
         return ""
 
     @property
@@ -435,7 +458,6 @@ class Design(AedtObjects):
             return name
 
     @design_name.setter
-    @pyaedt_function_handler()
     def design_name(self, new_name):
         if ";" in new_name:
             new_name = new_name.split(";")[1]
@@ -504,9 +526,9 @@ class Design(AedtObjects):
 
         >>> oProject.GetName
         """
-        if self._oproject:
+        if self.oproject:
             try:
-                return self._oproject.GetName()
+                return self.oproject.GetName()
             except:
                 return None
         else:
@@ -542,7 +564,9 @@ class Design(AedtObjects):
 
         >>> oProject.GetPath
         """
-        return self.oproject.GetPath()
+        if self.oproject:
+            return self.oproject.GetPath()
+        return None
 
     @property
     def project_time_stamp(self):
@@ -569,7 +593,8 @@ class Design(AedtObjects):
             Full absolute name and path for the project.
 
         """
-        return os.path.join(self.project_path, self.project_name + ".aedt")
+        if self.project_path:
+            return os.path.join(self.project_path, self.project_name + ".aedt")
 
     @property
     def lock_file(self):
@@ -581,7 +606,8 @@ class Design(AedtObjects):
             Full absolute name and path for the project's lock file.
 
         """
-        return os.path.join(self.project_path, self.project_name + ".aedt.lock")
+        if self.project_path:
+            return os.path.join(self.project_path, self.project_name + ".aedt.lock")
 
     @property
     def results_directory(self):
@@ -593,7 +619,8 @@ class Design(AedtObjects):
             Full absolute path for the ``aedtresults`` directory.
 
         """
-        return os.path.join(self.project_path, self.project_name + ".aedtresults")
+        if self.project_path:
+            return os.path.join(self.project_path, self.project_name + ".aedtresults")
 
     @property
     def solution_type(self):
@@ -610,12 +637,14 @@ class Design(AedtObjects):
         >>> oDesign.GetSolutionType
         >>> oDesign.SetSolutionType
         """
-        return self.design_solutions.solution_type
+        if self.design_solutions:
+            return self.design_solutions.solution_type
+        return None
 
     @solution_type.setter
-    @pyaedt_function_handler()
     def solution_type(self, soltype):
-        self.design_solutions.solution_type = soltype
+        if self.design_solutions:
+            self.design_solutions.solution_type = soltype
 
     @property
     def valid_design(self):
@@ -864,7 +893,6 @@ class Design(AedtObjects):
         return self._odesign
 
     @odesign.setter
-    @pyaedt_function_handler()
     def odesign(self, des_name):
         if des_name:
             if self._assert_consistent_design_type(des_name) == des_name:
@@ -904,7 +932,6 @@ class Design(AedtObjects):
         return self._oproject
 
     @oproject.setter
-    @pyaedt_function_handler()
     def oproject(self, proj_name=None):
         if not proj_name:
             self._oproject = self.odesktop.GetActiveProject()
@@ -3036,7 +3063,7 @@ class Design(AedtObjects):
                     design_type, unique_design_name, self.default_solution_type, ""
                 )
         self.logger.info("Added design '%s' of type %s.", unique_design_name, design_type)
-        name = _retry_ntimes(5, new_design.GetName)
+        name = _retry_ntimes(10, new_design.GetName)
         self._odesign = new_design
         return name
 
@@ -3554,22 +3581,31 @@ class Design(AedtObjects):
         # Set the value of an internal reserved design variable to the specified string
         if expression_string in self._variable_manager.variables:
             return self._variable_manager.variables[expression_string].value
-        else:
-            try:
-                self._variable_manager.set_variable(
-                    "pyaedt_evaluator",
-                    expression=expression_string,
-                    readonly=True,
-                    hidden=True,
-                    description="Internal_Evaluator",
-                )
-            except:
-                raise ("Invalid string expression {}".expression_string)
-
+        elif "pwl" in str(expression_string):
+            for ds in self.project_datasets:
+                if ds in expression_string:
+                    return expression_string
+            for ds in self.design_datasets:
+                if ds in expression_string:
+                    return expression_string
+        try:
+            variable_name = "pyaedt_evaluator"
+            if "$" in expression_string:
+                variable_name = "$pyaedt_evaluator"
+            self._variable_manager.set_variable(
+                variable_name,
+                expression=expression_string,
+                readonly=True,
+                hidden=True,
+                description="Internal_Evaluator",
+            )
+            eval_value = self._variable_manager.variables[variable_name].value
             # Extract the numeric value of the expression (in SI units!)
-            eval_value = self._variable_manager.variables["pyaedt_evaluator"].value
-            self._variable_manager.delete_variable("pyaedt_evaluator")
+            self._variable_manager.delete_variable(variable_name)
             return eval_value
+        except:
+            self.logger.warning("Invalid string expression {}".format(expression_string))
+            return expression_string
 
     @pyaedt_function_handler()
     def design_variation(self, variation_string=None):

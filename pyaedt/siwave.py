@@ -13,6 +13,8 @@ import sys
 import time
 
 from pyaedt.generic.clr_module import _clr
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import _pythonver
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import is_windows

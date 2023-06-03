@@ -3,6 +3,8 @@ import os
 
 from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.filesystem import get_json_files
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.advanced_cad.parts import Antenna
 from pyaedt.modeler.advanced_cad.parts import Part

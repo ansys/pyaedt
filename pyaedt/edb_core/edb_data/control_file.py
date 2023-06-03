@@ -4,6 +4,8 @@ import re
 import sys
 
 from pyaedt import pyaedt_logger
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import ET
 from pyaedt.generic.general_methods import env_path
 from pyaedt.generic.general_methods import env_value
