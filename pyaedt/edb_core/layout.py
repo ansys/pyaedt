@@ -553,7 +553,7 @@ class EdbLayout(object):
             polygonData = self.shape_to_polygon_data(main_shape)
         else:
             polygonData = main_shape
-        if polygonData is None or polygonData.IsNull() or polygonData is False:
+        if polygonData is False or polygonData is None or polygonData.IsNull():
             self._logger.error("Failed to create main shape polygon data")
             return False
         for void in voids:
@@ -564,7 +564,7 @@ class EdbLayout(object):
                 voidPolygonData = self.shape_to_polygon_data(void)
             else:
                 voidPolygonData = void
-            if voidPolygonData is None or voidPolygonData.IsNull() or polygonData is False:
+            if voidPolygonData is False or voidPolygonData is None or voidPolygonData.IsNull():
                 self._logger.error("Failed to create void polygon data")
                 return False
             polygonData.AddHole(voidPolygonData)

@@ -1897,9 +1897,6 @@ class Edb(Database):
         poly_to_create = []
         pins_to_delete = []
 
-        def get_polygon_data(prim):
-            return prim.primitive_object.GetPolygonData()
-
         def intersect(poly1, poly2):
             if not isinstance(poly2, list):
                 poly2 = [poly2]
@@ -1909,7 +1906,7 @@ class Edb(Database):
             return poly.Subtract(convert_py_list_to_net_list(poly), convert_py_list_to_net_list(voids))
 
         def clean_prim(prim_1):  # pragma: no cover
-            pdata = get_polygon_data(prim_1)
+            pdata = prim_1.polygon_data
             int_data = _poly.GetIntersectionType(pdata)
             if int_data == 2:
                 return
@@ -1926,7 +1923,7 @@ class Edb(Database):
                         points = list(p.Points)
                         list_void = []
                         if voids:
-                            voids_data = [get_polygon_data(void) for void in voids]
+                            voids_data = [void.polygon_data for void in voids]
                             list_prims = subtract(p, voids_data)
                             for prim in list_prims:
                                 if not prim.IsNull():
