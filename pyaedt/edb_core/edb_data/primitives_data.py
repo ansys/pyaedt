@@ -621,8 +621,10 @@ class EDBPrimitives(EDBPrimitivesMain):
             4 - undefined intersection.
         """
         poly = primitive
-        if isinstance(primitive, EDBPrimitives):
+        try:
             poly = primitive.polygon_data
+        except AttributeError:
+            pass
         return int(self.polygon_data.GetIntersectionType(poly))
 
     @pyaedt_function_handler()
