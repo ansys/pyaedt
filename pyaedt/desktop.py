@@ -1323,6 +1323,16 @@ class Desktop(object):
 
         """
         result = release_desktop(close_projects, close_on_exit)
+        props = [a for a in dir(self) if not a.startswith("__")]
+        for a in props:
+            self.__dict__.pop(a, None)
+        dicts = [self, sys.modules["__main__"]]
+        for dict_to_clean in dicts:
+            props = [a for a in dir(dict_to_clean) if "win32com" in str(type(dict_to_clean.__dict__.get(a, None)))]
+            for a in props:
+                dict_to_clean.__dict__[a] = None
+
+        gc.collect()
         self.odesktop = None
         return result
 

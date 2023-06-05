@@ -2201,10 +2201,24 @@ class Design(AedtObjects):
             ``True`` when successful, ``False`` when failed.
 
         """
+        self.desktop_class.release_desktop(close_projects, close_desktop)
         release_desktop(close_projects, close_desktop)
         props = [a for a in dir(self) if not a.startswith("__")]
         for a in props:
             self.__dict__.pop(a, None)
+
+        dicts = [self, sys.modules["__main__"]]
+        for dict_to_clean in dicts:
+            props = [
+                a
+                for a in dir(dict_to_clean)
+                if "win32com" in str(type(dict_to_clean.__dict__.get(a, None)))
+                or "pyaedt" in str(type(dict_to_clean.__dict__.get(a, None)))
+            ]
+            for a in props:
+                dict_to_clean.__dict__[a] = None
+
+        self._desktop_class = None
         gc.collect()
         return True
 
