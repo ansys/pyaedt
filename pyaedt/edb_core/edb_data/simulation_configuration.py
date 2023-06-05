@@ -606,7 +606,7 @@ class SimulationConfigurationBatch(object):
         Returns
         -------
         bool
-            ``True`` or ``False. Default value is ``False``.
+            ``True`` or ``False``. Default value is ``False``.
 
         """
         return self._include_only_selected_nets
