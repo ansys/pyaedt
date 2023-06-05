@@ -82,8 +82,12 @@ edb.add_design_variable("trace_out_width", "0.1mm", is_parameter=True)
 # Create two definitions, one for the ground and one for the signal. The definitions
 # are parametric.
 
-edb.padstacks.create(
-    padstackname="SVIA", holediam="$via_hole_size", antipaddiam="$antipaddiam", paddiam="$paddiam"
+edb.padstacks.create(padstackname="SVIA",
+                     holediam="$via_hole_size",
+                     antipaddiam="$antipaddiam",
+                     paddiam="$paddiam",
+                     start_layer=trace_in_layer,
+                     stop_layer=trace_out_layer
 )
 edb.padstacks.create(padstackname="GVIA", holediam="0.3mm", antipaddiam="0.7mm", paddiam="0.5mm")
 
@@ -92,7 +96,7 @@ edb.padstacks.create(padstackname="GVIA", holediam="0.3mm", antipaddiam="0.7mm",
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Place the padstack for the signal.
 
-edb.padstacks.place([0, 0], "SVIA", net_name="RF", fromlayer=trace_in_layer, tolayer=trace_out_layer)
+edb.padstacks.place([0, 0], "SVIA", net_name="RF")
 
 ##################################################################################
 # Place padstack for ground
@@ -160,7 +164,8 @@ _create_ground_planes(edb=edb, layers=ground_layers)
 # ~~~~~~~~~~~
 # Generate and plot the layout.
 
-edb.nets.plot(layers=["TOP", "L10"])
+#edb.nets.plot(layers=["TOP", "L10"])
+edb.stackup.plot(plot_definitions=["GVIA", "SVIA"])
 
 
 ##################################################################################
