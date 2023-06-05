@@ -1261,33 +1261,37 @@ class EdbHfss(object):
         simsetup_info.SimulationSettings.DefeatureSettings.DefeatureAbsLength = simulation_setup.defeature_abs_length
 
         try:
-            sweep = self._pedb.simsetupdata.SweepData(simulation_setup.sweep_name)
-            sweep.IsDiscrete = False
-            sweep.UseQ3DForDC = simulation_setup.use_q3d_for_dc
-            sweep.RelativeSError = simulation_setup.relative_error
-            sweep.InterpUsePortImpedance = False
-            sweep.EnforceCausality = simulation_setup.enforce_causality
-            # sweep.EnforceCausality = False
-            sweep.EnforcePassivity = simulation_setup.enforce_passivity
-            sweep.PassivityTolerance = simulation_setup.passivity_tolerance
-            sweep.Frequencies.Clear()
+            if simulation_setup.add_frequency_sweep:
+                self._logger.info("Adding frequency sweep")
+                sweep = self._pedb.simsetupdata.SweepData(simulation_setup.sweep_name)
+                sweep.IsDiscrete = False
+                sweep.UseQ3DForDC = simulation_setup.use_q3d_for_dc
+                sweep.RelativeSError = simulation_setup.relative_error
+                sweep.InterpUsePortImpedance = False
+                sweep.EnforceCausality = simulation_setup.enforce_causality
+                # sweep.EnforceCausality = False
+                sweep.EnforcePassivity = simulation_setup.enforce_passivity
+                sweep.PassivityTolerance = simulation_setup.passivity_tolerance
+                sweep.Frequencies.Clear()
 
-            if simulation_setup.sweep_type == SweepType.LogCount:  # setup_info.SweepType == 'DecadeCount'
-                self._setup_decade_count_sweep(
-                    sweep,
-                    str(simulation_setup.start_freq),
-                    str(simulation_setup.stop_freq),
-                    str(simulation_setup.decade_count),
-                )  # Added DecadeCount as a new attribute
+                if simulation_setup.sweep_type == SweepType.LogCount:  # setup_info.SweepType == 'DecadeCount'
+                    self._setup_decade_count_sweep(
+                        sweep,
+                        str(simulation_setup.start_freq),
+                        str(simulation_setup.stop_freq),
+                        str(simulation_setup.decade_count),
+                    )  # Added DecadeCount as a new attribute
 
+                else:
+                    sweep.Frequencies = self._pedb.simsetupdata.SweepData.SetFrequencies(
+                        simulation_setup.start_freq,
+                        simulation_setup.stop_freq,
+                        simulation_setup.step_freq,
+                    )
+
+                simsetup_info.SweepDataList.Add(sweep)
             else:
-                sweep.Frequencies = self._pedb.simsetupdata.SweepData.SetFrequencies(
-                    simulation_setup.start_freq,
-                    simulation_setup.stop_freq,
-                    simulation_setup.step_freq,
-                )
-
-            simsetup_info.SweepDataList.Add(sweep)
+                self._logger.info("Adding frequency sweep disabled")
 
         except Exception as err:
             self._logger.error("Exception in Sweep configuration: {0}".format(err))
