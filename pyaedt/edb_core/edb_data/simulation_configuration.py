@@ -600,8 +600,8 @@ class SimulationConfigurationBatch(object):
 
     @property
     def include_only_selected_nets(self):
-        """Include only net selection in the project. It is only used when ``do_cutout`` is set to ``False``. Will also be
-        ignored if signal_nets and power_nets are ``None``, resulting project will have all nets included.
+        """Include only net selection in the project. It is only used when ``do_cutout`` is set to ``False``.
+        Will also be ignored if signal_nets and power_nets are ``None``, resulting project will have all nets included.
 
         Returns
         -------
