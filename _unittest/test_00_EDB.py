@@ -129,7 +129,7 @@ class TestClass(BasisTest, object):
         self.edbapp.modeler.primitives_by_layer["TOP"][0].is_negative = False
         assert not self.edbapp.modeler.primitives_by_layer["TOP"][0].has_voids
         assert not self.edbapp.modeler.primitives_by_layer["TOP"][0].is_parameterized
-        assert isinstance(self.edbapp.modeler.primitives_by_layer["TOP"][0].get_hfss_prop, tuple)
+        assert isinstance(self.edbapp.modeler.primitives_by_layer["TOP"][0].get_hfss_prop(), tuple)
 
         assert not self.edbapp.modeler.primitives_by_layer["TOP"][0].is_zone_primitive
         assert self.edbapp.modeler.primitives_by_layer["TOP"][0].can_be_zone_primitive
