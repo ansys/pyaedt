@@ -1972,13 +1972,15 @@ class Edb(Database):
             if val.numpins == 0:
                 val.edbcomponent.Delete()
                 i += 1
+                i += 1
         self.logger.info("Deleted {} additional components".format(i))
         if remove_single_pin_components:
             self.components.delete_single_pin_rlc()
             self.logger.info_timer("Single Pins components deleted")
 
         self.components.refresh_components()
-
+        if output_aedb_path:
+            self.save_edb()
         self.logger.info_timer("Cutout completed.", timer_start)
         self.logger.reset_timer()
         return True
