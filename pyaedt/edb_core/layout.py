@@ -652,7 +652,7 @@ class EdbLayout(object):
         edb_net = self._pedb.nets.find_or_create_net(net_name)
         if representation_type == "LowerLeftUpperRight":
             rep_type = self._edb.cell.primitive.RectangleRepresentationType.LowerLeftUpperRight
-            rect = self._edb.cell.primitive.Rectangle.Create(
+            rect = self._edb.cell.primitive.rectangle.create(
                 self._active_layout,
                 layer_name,
                 edb_net.net_obj,
@@ -666,7 +666,7 @@ class EdbLayout(object):
             )
         else:
             rep_type = self._edb.cell.primitive.RectangleRepresentationType.CenterWidthHeight
-            rect = self._edb.cell.primitive.Rectangle.Create(
+            rect = self._edb.cell.primitive.rectangle.create(
                 self._active_layout,
                 layer_name,
                 edb_net.net_obj,

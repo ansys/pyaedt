@@ -361,18 +361,21 @@ class RectangleDotNet(PrimitiveDotNet):
         """
         if isinstance(net, NetDotNet):
             net = net.api_object
+        if isinstance(rep_type, int):
+            if rep_type == 1:
+                rep_type = self.edb_api.cell.primitive.RectangleRepresentationType.CenterWidthHeight
+            else:
+                rep_type = self.edb_api.cell.primitive.RectangleRepresentationType.LowerLeftUpperRight
+        param1 = self._app.edb_api.utility.value(param1)
+        param2 = self._app.edb_api.utility.value(param2)
+        param3 = self._app.edb_api.utility.value(param3)
+        param4 = self._app.edb_api.utility.value(param4)
+        corner_rad = self._app.edb_api.utility.value(corner_rad)
+        rotation = self._app.edb_api.utility.value(rotation)
         return RectangleDotNet(
             self._app,
             self.api.Rectangle.Create(
-                layout,
-                layer,
-                net,
-                rep_type,
-                param1,
-                param2,
-                param3,
-                param4,
-                corner_rad,
+                layout, layer, net, rep_type, param1, param2, param3, param4, corner_rad, rotation
             ),
         )
 

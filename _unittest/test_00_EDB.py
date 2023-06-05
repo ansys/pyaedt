@@ -121,6 +121,19 @@ class TestClass(BasisTest, object):
         assert not poly0.is_arc(poly0.points_raw()[0])
         assert isinstance(poly0.voids, list)
         assert self.edbapp.modeler.primitives_by_layer["TOP"][0].layer_name == "TOP"
+        assert self.edbapp.modeler.primitives_by_layer["TOP"][0].layer.GetName() == "TOP"
+        assert not self.edbapp.modeler.primitives_by_layer["TOP"][0].is_negative
+        assert not self.edbapp.modeler.primitives_by_layer["TOP"][0].is_void
+        self.edbapp.modeler.primitives_by_layer["TOP"][0].is_negative = True
+        assert self.edbapp.modeler.primitives_by_layer["TOP"][0].is_negative
+        self.edbapp.modeler.primitives_by_layer["TOP"][0].is_negative = False
+        assert not self.edbapp.modeler.primitives_by_layer["TOP"][0].has_voids
+        assert not self.edbapp.modeler.primitives_by_layer["TOP"][0].is_parameterized
+        assert isinstance(self.edbapp.modeler.primitives_by_layer["TOP"][0].get_hfss_prop, tuple)
+
+        assert not self.edbapp.modeler.primitives_by_layer["TOP"][0].is_zone_primitive
+        assert self.edbapp.modeler.primitives_by_layer["TOP"][0].can_be_zone_primitive
+
         assert isinstance(poly0.intersection_type(poly1), int)
         assert poly0.is_intersecting(poly1)
         assert isinstance(poly0.get_closest_point([0, 0]), list)
