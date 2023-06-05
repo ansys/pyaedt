@@ -811,6 +811,9 @@ class EdbPadstacks(object):
         pad_offset_x="0.0",
         pad_offset_y="0.0",
         pad_rotation="0.0",
+        start_layer=None,
+        stop_layer=None,
+        add_default_layer=False,
     ):
         """Create a padstack.
 
@@ -848,6 +851,12 @@ class EdbPadstacks(object):
             Padstack offset in Y direction.
         pad_rotation : str, optional
             Padstack rotation.
+        start_layer : str, optional
+            Start layer of the padstack definition.
+        stop_layer : str, optional
+            Stop layer of the padstack definition.
+        add_default_layer : bool, optional
+            Add ``"Default"`` to padstack definition. Default is ``False``.
 
         Returns
         -------
@@ -884,10 +893,13 @@ class EdbPadstacks(object):
         padstackData.SetHolePlatingPercentage(self._get_edb_value(20.0))
         padstackData.SetHoleRange(self._edb.definition.PadstackHoleRange.UpperPadToLowerPad)
         padstackData.SetMaterial("copper")
-        layers = list(self._pedb.stackup.signal_layers.keys())
-
+        layers = list(self._pedb.stackup.signal_layers.keys())[:]
+        if start_layer and start_layer in layers:
+            layers = layers[layers.index(start_layer) :]
+        if stop_layer and stop_layer in layers:
+            layers = layers[: layers.index(stop_layer) + 1]
+        pad_array = Array[type(paddiam)]([paddiam])
         if pad_shape == "Circle":
-            pad_array = Array[type(paddiam)]([paddiam])
             pad_shape = self._edb.definition.PadGeometryType.Circle
         elif pad_shape == "Rectangle":
             pad_array = Array[type(x_size)]([x_size, y_size])
@@ -898,8 +910,9 @@ class EdbPadstacks(object):
         else:
             antipad_array = Array[type(antipaddiam)]([antipaddiam])
             antipad_shape = self._edb.definition.PadGeometryType.Circle
-
-        for layer in ["Default"] + layers:
+        if add_default_layer:
+            layers = layers + ["Default"]
+        for layer in layers:
             # padparam_array = Array[type(paddiam)]([paddiam])
             padstackData.SetPadParameters(
                 layer,
@@ -1032,12 +1045,18 @@ class EdbPadstacks(object):
         sign_layers_values = {i: v for i, v in self._pedb.stackup.signal_layers.items()}
         sign_layers = list(sign_layers_values.keys())
         if not fromlayer:
-            fromlayer = sign_layers_values[sign_layers[0]]._edb_layer
+            try:
+                fromlayer = sign_layers_values[list(self.definitions[pad].pad_by_layer.keys())[0]]._edb_layer
+            except KeyError:
+                fromlayer = sign_layers_values[sign_layers[0]]._edb_layer
         else:
             fromlayer = sign_layers_values[fromlayer]._edb_layer
 
         if not tolayer:
-            tolayer = sign_layers_values[sign_layers[-1]]._edb_layer
+            try:
+                tolayer = sign_layers_values[list(self.definitions[pad].pad_by_layer.keys())[-1]]._edb_layer
+            except KeyError:
+                tolayer = sign_layers_values[sign_layers[-1]]._edb_layer
         else:
             tolayer = sign_layers_values[tolayer]._edb_layer
         if solderlayer:

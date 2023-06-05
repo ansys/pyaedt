@@ -89,6 +89,8 @@ edb.padstacks.create(
             x_size="$x_size",
             y_size="$y_size",
             corner_radius="$corner_rad",
+            start_layer=layers[-1]["name"],
+            stop_layer=layers[-3]["name"]
         )
 
 ###############################################################################
@@ -109,9 +111,8 @@ edb.padstacks.place(
             definition_name=signal_via_padstack,
             net_name=net_p,
             via_name="",
-            rotation=90.0,
-            fromlayer=layers[-1]["name"],
-            tolayer=layers[-3]["name"],)
+            rotation=90.0
+)
 
 edb.padstacks.place(
             position=["2*$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing)/2"],
@@ -119,8 +120,7 @@ edb.padstacks.place(
             net_name=net_p,
             via_name="",
             rotation=90.0,
-            fromlayer=layers[-1]["name"],
-            tolayer=layers[-3]["name"],)
+)
 
 edb.padstacks.place(
             position=["$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing)/2"],
@@ -128,8 +128,7 @@ edb.padstacks.place(
             net_name=net_n,
             via_name="",
             rotation=-90.0,
-            fromlayer=layers[-1]["name"],
-            tolayer=layers[-3]["name"],)
+)
 
 edb.padstacks.place(
             position=["2*$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing)/2"],
@@ -137,8 +136,7 @@ edb.padstacks.place(
             net_name=net_n,
             via_name="",
             rotation=-90.0,
-            fromlayer=layers[-1]["name"],
-            tolayer=layers[-3]["name"],)
+)
 
 
 # ###############################################################################
