@@ -368,18 +368,18 @@ class Revision:
         >>> aedtapp.results.current_revision.max_n_to_1_instances
         1048576
         """
-        if self.emit_project._aedt_version < "2024.1":
+        if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
             raise RuntimeError("This function only supported in AEDT version 2024.1 and later.")
         if self.revision_loaded:
             engine = self.emit_project._emit_api.get_engine()
             max_instances = engine.max_n_to_1_instances
-        else:
+        else:  # pragma: no cover
             max_instances = None
         return max_instances
 
     @max_n_to_1_instances.setter
     def max_n_to_1_instances(self, max_instances):
-        if self.emit_project._aedt_version < "2024.1":
+        if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
             raise RuntimeError("This function only supported in AEDT version 2024.1 and later.")
         if self.revision_loaded:
             engine = self.emit_project._emit_api.get_engine()
