@@ -1920,7 +1920,7 @@ class Edb(Database):
                     for p in list_poly:
                         if p.IsNull():
                             continue
-                        points = list(p.Points)
+                        # points = list(p.Points)
                         list_void = []
                         if voids:
                             voids_data = [void.polygon_data for void in voids]
