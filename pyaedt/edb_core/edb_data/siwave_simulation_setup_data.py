@@ -713,10 +713,10 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
 
     @pyaedt_function_handler()
     def _update_setup(self):
-        self._edb_sim_setup = self._edb.edb.Utility.SIWaveSimulationSetup(self._edb_sim_setup_info)
+        self._edb_sim_setup = self._edb.edb_api.utility.utility.SIWaveSimulationSetup(self._edb_sim_setup_info)
         if self.name in self._edb.setups:
-            self._edb._active_layout.GetCell().DeleteSimulationSetup(self.name)
-        self._edb._active_layout.GetCell().AddSimulationSetup(self._edb_sim_setup)
+            self._edb.layout.cell.DeleteSimulationSetup(self.name)
+        self._edb.layout.cell.AddSimulationSetup(self._edb_sim_setup)
         return True
 
     @property
@@ -957,9 +957,9 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
 
     @pyaedt_function_handler()
     def _update_setup(self):
-        edb_sim_setup = self._edb.edb.Utility.SIWaveDCIRSimulationSetup(self._edb_sim_setup_info)
+        edb_sim_setup = self._edb.edb_api.utility.utility.SIWaveDCIRSimulationSetup(self._edb_sim_setup_info)
         if self.name in self._edb.setups:
-            self._edb._active_layout.GetCell().DeleteSimulationSetup(self.name)
+            self._edb.layout.cell.DeleteSimulationSetup(self.name)
         self._edb.active_cell.AddSimulationSetup(edb_sim_setup)
         return True
 

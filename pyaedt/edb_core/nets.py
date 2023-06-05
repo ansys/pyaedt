@@ -50,19 +50,19 @@ class EdbNets(object):
         self._pedb = p_edb
 
     @property
-    def _builder(self):
-        """ """
-        return self._pedb.builder
-
-    @property
     def _edb(self):
         """ """
-        return self._pedb.edb
+        return self._pedb.edb_api
 
     @property
     def _active_layout(self):
         """ """
         return self._pedb.active_layout
+
+    @property
+    def _layout(self):
+        """ """
+        return self._pedb.layout
 
     @property
     def _cell(self):
@@ -72,7 +72,7 @@ class EdbNets(object):
     @property
     def db(self):
         """Db object."""
-        return self._pedb.db
+        return self._pedb.active_db
 
     @property
     def _logger(self):
@@ -89,8 +89,8 @@ class EdbNets(object):
             Dictionary of nets.
         """
         nets = {}
-        for net in self._active_layout.Nets:
-            nets[net.GetName()] = EDBNetsData(net, self._pedb)
+        for net in self._layout.nets:
+            nets[net.name] = EDBNetsData(net.api_object, self._pedb)
         return nets
 
     @property
@@ -179,25 +179,24 @@ class EdbNets(object):
         list of  :class:`pyaedt.edb_core.edb_data.EDBNetsData`
         """
         pwr_gnd_nets = []
-        nets = list(self._active_layout.Nets)
-        for net in nets:
+        for net in self._layout.nets[:]:
             total_plane_area = 0.0
             total_trace_area = 0.0
             for primitive in net.Primitives:
-                if primitive.GetPrimitiveType() == self._edb.Cell.Primitive.PrimitiveType.Bondwire:
+                if primitive.GetPrimitiveType() == self._edb.cell.primitive.PrimitiveType.Bondwire:
                     continue
-                if primitive.GetPrimitiveType() != self._edb.Cell.Primitive.PrimitiveType.Path:
+                if primitive.GetPrimitiveType() != self._edb.cell.primitive.PrimitiveType.Path:
                     total_plane_area += float(primitive.GetPolygonData().Area())
                 else:
                     total_trace_area += float(primitive.GetPolygonData().Area())
             if total_plane_area == 0.0:
                 continue
             if total_trace_area == 0.0:
-                pwr_gnd_nets.append(EDBNetsData(net, self._pedb))
+                pwr_gnd_nets.append(EDBNetsData(net.api_object, self._pedb))
                 continue
             if total_plane_area > 0.0 and total_trace_area > 0.0:
                 if total_plane_area / (total_plane_area + total_trace_area) > threshold:
-                    pwr_gnd_nets.append(EDBNetsData(net, self._pedb))
+                    pwr_gnd_nets.append(EDBNetsData(net.api_object, self._pedb))
         return pwr_gnd_nets
 
     @staticmethod
@@ -851,7 +850,7 @@ class EdbNets(object):
     @pyaedt_function_handler()
     def get_net_by_name(self, net_name):
         """Find a net by name."""
-        edb_net = self._edb.Cell.Net.FindByName(self._active_layout, net_name)
+        edb_net = self._edb.cell.net.find_by_name(self._active_layout, net_name)
         if edb_net is not None:
             return edb_net
 
@@ -938,13 +937,13 @@ class EdbNets(object):
         """
         if not net_name and not start_with and not contain and not end_with:
             net_name = generate_unique_name("NET_")
-            net = self._edb.Cell.Net.Create(self._active_layout, net_name)
+            net = self._edb.cell.net.create(self._active_layout, net_name)
             return net
         else:
             if not start_with and not contain and not end_with:
-                net = self._edb.Cell.Net.FindByName(self._active_layout, net_name)
+                net = self._edb.cell.net.find_by_name(self._active_layout, net_name)
                 if net.IsNull():
-                    net = self._edb.Cell.Net.Create(self._active_layout, net_name)
+                    net = self._edb.cell.net.create(self._active_layout, net_name)
                 return net
             elif start_with:
                 nets_found = [
@@ -1172,11 +1171,11 @@ class EdbNets(object):
                     layer = list(poly_list)[0].Obj.GetLayer().GetName()
                     net = list(poly_list)[0].Obj.GetNet()
                     _poly_list = convert_py_list_to_net_list([obj.Poly for obj in list(poly_list)])
-                    merged_polygon = list(self._edb.Geometry.PolygonData.Unite(_poly_list))
+                    merged_polygon = list(self._edb.geometry.polygon_data.unite(_poly_list))
                     for poly in merged_polygon:
                         for void in void_list:
                             poly.AddHole(void.GetPolygonData())
-                        _new_poly = self._edb.Cell.Primitive.Polygon.Create(self._active_layout, layer, net, poly)
+                        _new_poly = self._edb.cell.primitive.polygon.create(self._active_layout, layer, net, poly)
                         returned_poly.append(_new_poly)
                 for init_poly in list(list(connected_polygons)):
                     for _pp in list(init_poly):

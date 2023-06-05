@@ -90,6 +90,21 @@ settings.non_graphical = config["NonGraphical"]
 settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
 
 test_folder = "unit_test" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+for filename in os.listdir(tempfile.gettempdir()):
+    file_path = os.path.join(tempfile.gettempdir(), filename)
+    try:
+        if os.path.isfile(file_path) and "tmp" in file_path:
+            os.unlink(file_path)
+        if (
+            os.path.isdir(file_path)
+            and "pyaedt" in file_path
+            or "scratch" in file_path
+            or file_path.startswith("_")
+            or ".aedb" in file_path
+        ):
+            shutil.rmtree(file_path, ignore_errors=True)
+    except Exception as e:
+        print("Failed to delete %s. Reason: %s" % (file_path, e))
 scratch_path = os.path.join(tempfile.gettempdir(), test_folder)
 if not os.path.exists(scratch_path):
     try:

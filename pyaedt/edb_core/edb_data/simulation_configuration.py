@@ -32,6 +32,9 @@ class SimulationConfigurationBatch(object):
         self._cutout_subdesign_expansion = 0.001
         self._cutout_subdesign_round_corner = True
         self._use_default_cutout = True
+        self._generate_excitations = True
+        self._add_frequency_sweep = True
+        self._include_only_selected_nets = False
         self._generate_solder_balls = True
         self._coax_solder_ball_diameter = []
         self._use_default_coax_port_radial_extension = True
@@ -560,6 +563,58 @@ class SimulationConfigurationBatch(object):
     def signal_layers_properties(self, value):  # pragma: no cover
         if isinstance(value, dict):
             self._signal_layers_properties = value
+
+    @property
+    def generate_excitations(self):
+        """Activate ports and sources for DC generation when build project with the class.
+
+        Returns
+        -------
+        bool
+            ``True`` ports are created, ``False`` skip port generation. Default value is ``True``.
+
+        """
+        return self._generate_excitations
+
+    @generate_excitations.setter
+    def generate_excitations(self, value):
+        if isinstance(value, bool):
+            self._generate_excitations = value
+
+    @property
+    def add_frequency_sweep(self):
+        """Activate the frequency sweep creation when build project with the class.
+
+        Returns
+        -------
+        bool
+            ``True`` frequency sweep is created, ``False`` skip sweep adding. Default value is ``True``.
+
+        """
+        return self._add_frequency_sweep
+
+    @add_frequency_sweep.setter
+    def add_frequency_sweep(self, value):
+        if isinstance(value, bool):
+            self._add_frequency_sweep = value
+
+    @property
+    def include_only_selected_nets(self):
+        """Include only net selection in the project. It is only used when ``do_cutout`` is set to ``False``.
+        Will also be ignored if signal_nets and power_nets are ``None``, resulting project will have all nets included.
+
+        Returns
+        -------
+        bool
+            ``True`` or ``False``. Default value is ``False``.
+
+        """
+        return self._include_only_selected_nets
+
+    @include_only_selected_nets.setter
+    def include_only_selected_nets(self, value):
+        if isinstance(value, bool):
+            self._include_only_selected_nets = value
 
 
 class SimulationConfigurationDc(object):
@@ -2215,10 +2270,10 @@ class SimulationConfiguration(object):
         """
         return self._batch_solve_settings
 
+    @pyaedt_function_handler()
     def build_simulation_project(self):
         """Build active simulation project. This method requires to be run inside Edb Class."""
-        if self._pedb:
-            return self._pedb.build_simulation_project(self)
+        return self._pedb.build_simulation_project(self)
 
     @property
     def solver_type(self):  # pragma: no cover
@@ -2318,6 +2373,9 @@ class SimulationConfiguration(object):
 
     def _read_cfg(self):  # pragma: no cover
         """Configuration file reader.
+
+        .. deprecated:: 0.6.78
+           Use :func:`import_json` instead.
 
         Examples
         --------
