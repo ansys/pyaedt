@@ -176,5 +176,3 @@ class EDBNetsData(NetDotNet):
         get_net_list(self.name, nets, rlc_serial, comps)
 
         return [nets, rlc_serial, comps]
-
-
