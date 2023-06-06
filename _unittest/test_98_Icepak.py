@@ -572,8 +572,14 @@ class TestClass(BasisTest, object):
     def test_40_power_budget(self):
         self.power_budget = self.local_scratch.copyfile(source_power_budget)
         app = Icepak(self.power_budget, specified_version=desktop_version)
-        power_boundaries, total_power = app.post.power_budget(temperature=20)
+        power_boundaries, total_power = app.post.power_budget(temperature=20, output_type="boundary")
         assert abs(total_power - 787.5221374239883) < 1
+        power_boundaries, total_power = app.post.power_budget(temperature=20, output_type="component")
+        assert len(power_boundaries) == 15
+        power_components, total_power_comp, power_boundaries, total_power = app.post.power_budget(
+            temperature=20, output_type=None
+        )
+        assert total_power_comp == total_power
 
     def test_41_exporting_monitor_data(self):
         assert self.aedtapp.edit_design_settings()
