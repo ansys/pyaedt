@@ -13,7 +13,7 @@ class StandardCircle(object):
         fill.set("id", self.fill_id)
 
 
-class Rectangle(object):
+class RectangleDotNet(object):
     def __init__(self):
         self.width = ""
         self.height = ""
