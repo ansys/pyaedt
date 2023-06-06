@@ -3,8 +3,8 @@ from __future__ import absolute_import
 import math
 import warnings
 
+# from pyaedt import property
 from pyaedt import _retry_ntimes
-from pyaedt import property
 from pyaedt import pyaedt_function_handler
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import PLANE

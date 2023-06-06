@@ -495,6 +495,14 @@ class TestClass(BasisTest, object):
     def test_19A_validate(self):
         assert self.aedtapp.validate_full_design()
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
+    def test_19A_analyze_setup(self):
+        self.aedtapp.save_project()
+        assert self.aedtapp.analyze_setup("RFBoardSetup", blocking=False)
+        assert self.aedtapp.are_there_simulations_running
+        # assert self.aedtapp.get_monitor_data()
+        assert self.aedtapp.stop_simulations()
+
     def test_19B_analyze_setup(self):
         self.aedtapp.save_project()
         assert self.aedtapp.mesh.generate_mesh("RFBoardSetup3")
@@ -529,7 +537,7 @@ class TestClass(BasisTest, object):
         setup = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
         assert setup.export_to_q3d(file_fullname)
 
-    def test_19_F_export_results(self):
+    def test_19F_export_results(self):
         files = self.aedtapp.export_results()
         assert len(files) > 0
 

@@ -336,6 +336,7 @@ class TestClass(BasisTest, object):
 
     def test_40_create_coordinate_system(self):
         cs = self.aedtapp.modeler.create_coordinate_system()
+        cs1 = self.aedtapp.modeler.create_coordinate_system()
         assert cs
         assert cs.update()
         assert cs.change_cs_mode(1)
@@ -346,9 +347,19 @@ class TestClass(BasisTest, object):
             assert False
         except ValueError:
             assert True
-
         assert cs.change_cs_mode(0)
         assert cs.delete()
+        assert len(self.aedtapp.modeler.coordinate_systems) == 1
+        cs2 = self.aedtapp.modeler.create_coordinate_system(reference_cs=cs1.name)
+        cs3 = self.aedtapp.modeler.create_coordinate_system(reference_cs=cs2.name)
+        assert cs1.delete()
+        assert not self.aedtapp.modeler.coordinate_systems
+        cs4 = self.aedtapp.modeler.create_coordinate_system()
+        cs5 = self.aedtapp.modeler.create_coordinate_system()
+        cs6 = self.aedtapp.modeler.create_coordinate_system(reference_cs=cs4.name)
+        assert cs4.delete()
+        assert len(self.aedtapp.modeler.coordinate_systems) == 1
+        assert cs5.delete()
 
     def test_40a_create_face_coordinate_system(self):
         box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])

@@ -13,8 +13,8 @@ if not is_ironpython:
             "The NumPy module is required to run some functionalities of EDB.\n"
             "Install with \n\npip install numpy\n\nRequires CPython."
         )
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import get_filename_without_extension
-from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -77,7 +77,7 @@ class EDBComponentDef(object):
         """
         comp_list = [
             EDBComponent(self._pcomponents, l)
-            for l in self._pcomponents._edb.Cell.Hierarchy.Component.FindByComponentDef(
+            for l in self._pcomponents._pedb.edb_api.cell.hierarchy.component.FindByComponentDef(
                 self._pcomponents._pedb.active_layout, self.part_name
             )
         ]
@@ -276,9 +276,7 @@ class EDBComponent(object):
     @property
     def layout_instance(self):
         """Edb layout instance object."""
-        if self._layout_instance is None:
-            self._layout_instance = self._pcomponents._pedb.layout_instance
-        return self._layout_instance
+        return self._pcomponents._pedb.layout_instance
 
     @property
     def component_instance(self):
@@ -427,11 +425,11 @@ class EDBComponent(object):
         if isinstance(value, list):  # pragma no cover
             rlc_enabled = [True if i else False for i in value]
             rlc_values = [self._get_edb_value(i) for i in value]
-            model = self._edb.Cell.Hierarchy.PinPairModel()
+            model = self._edb.cell.hierarchy._hierarchy.PinPairModel()
             pin_names = list(self.pins.keys())
             for idx, i in enumerate(np.arange(len(pin_names) // 2)):
-                pin_pair = self._edb.Utility.PinPair(pin_names[idx], pin_names[idx + 1])
-                rlc = self._edb.Utility.Rlc(
+                pin_pair = self._edb.utility.utility.PinPair(pin_names[idx], pin_names[idx + 1])
+                rlc = self._edb.utility.utility.Rlc(
                     rlc_values[0], rlc_enabled[0], rlc_values[1], rlc_enabled[1], rlc_values[2], rlc_enabled[2], False
                 )
                 model.SetPinPairRlc(pin_pair, rlc)
@@ -446,7 +444,7 @@ class EDBComponent(object):
         str
             Value. ``None`` if not an RLC Type.
         """
-        if self.model_type == "RLC":
+        if self.model_type == "RLC" and self._pin_pairs:
             pin_pair = self._pin_pairs[0]
             if len([i for i in pin_pair.rlc_enable if i]) == 1:
                 return [pin_pair.rlc_values[idx] for idx, val in enumerate(pin_pair.rlc_enable) if val][0]
@@ -465,11 +463,11 @@ class EDBComponent(object):
         rlc_values = [value if i == self.type else 0 for i in ["Resistor", "Inductor", "Capacitor"]]
         rlc_values = [self._get_edb_value(i) for i in rlc_values]
 
-        model = self._edb.Cell.Hierarchy.PinPairModel()
+        model = self._edb.cell.hierarchy._hierarchy.PinPairModel()
         pin_names = list(self.pins.keys())
         for idx, i in enumerate(np.arange(len(pin_names) // 2)):
-            pin_pair = self._edb.Utility.PinPair(pin_names[idx], pin_names[idx + 1])
-            rlc = self._edb.Utility.Rlc(
+            pin_pair = self._edb.utility.utility.PinPair(pin_names[idx], pin_names[idx + 1])
+            rlc = self._edb.utility.utility.Rlc(
                 rlc_values[0], rlc_enabled[0], rlc_values[1], rlc_enabled[1], rlc_values[2], rlc_enabled[2], False
             )
             model.SetPinPairRlc(pin_pair, rlc)
@@ -649,7 +647,7 @@ class EDBComponent(object):
         pins = [
             p
             for p in self.edbcomponent.LayoutObjs
-            if p.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance
+            if p.GetObjType() == self._edb.cell.layout_object_type.PadstackInstance
             and p.IsLayoutPin()
             and p.GetComponent().GetName() == self.refdes
         ]
@@ -717,17 +715,17 @@ class EDBComponent(object):
             ``"IC"``, ``"IO"`` and ``"Other"``.
         """
         if new_type == "Resistor":
-            type_id = self._edb.Definition.ComponentType.Resistor
+            type_id = self._edb.definition.ComponentType.Resistor
         elif new_type == "Inductor":
-            type_id = self._edb.Definition.ComponentType.Inductor
+            type_id = self._edb.definition.ComponentType.Inductor
         elif new_type == "Capacitor":
-            type_id = self._edb.Definition.ComponentType.Capacitor
+            type_id = self._edb.definition.ComponentType.Capacitor
         elif new_type == "IC":
-            type_id = self._edb.Definition.ComponentType.IC
+            type_id = self._edb.definition.ComponentType.IC
         elif new_type == "IO":
-            type_id = self._edb.Definition.ComponentType.IO
+            type_id = self._edb.definition.ComponentType.IO
         elif new_type == "Other":
-            type_id = self._edb.Definition.ComponentType.Other
+            type_id = self._edb.definition.ComponentType.Other
         else:
             return
         self.edbcomponent.SetComponentType(type_id)
@@ -869,7 +867,7 @@ class EDBComponent(object):
                     pinNames.remove(pinNames[0])
                     break
         if len(pinNames) == self.numpins:
-            model = self._edb.Cell.Hierarchy.SPICEModel()
+            model = self._edb.cell.hierarchy._hierarchy.SPICEModel()
             model.SetModelPath(file_path)
             model.SetModelName(name)
             terminal = 1
@@ -900,13 +898,13 @@ class EDBComponent(object):
             name = get_filename_without_extension(file_path)
 
         edbComponentDef = self.edbcomponent.GetComponentDef()
-        nPortModel = self._edb.Definition.NPortComponentModel.FindByName(edbComponentDef, name)
+        nPortModel = self._edb.definition.NPortComponentModel.FindByName(edbComponentDef, name)
         if nPortModel.IsNull():
-            nPortModel = self._edb.Definition.NPortComponentModel.Create(name)
+            nPortModel = self._edb.definition.NPortComponentModel.Create(name)
             nPortModel.SetReferenceFile(file_path)
             edbComponentDef.AddComponentModel(nPortModel)
 
-        model = self._edb.Cell.Hierarchy.SParameterModel()
+        model = self._edb.cell.hierarchy._hierarchy.SParameterModel()
         model.SetComponentModelName(name)
         if reference_net:
             model.SetReferenceNet(reference_net)
@@ -937,13 +935,13 @@ class EDBComponent(object):
         ind = 0 if ind is None else ind
         cap = 0 if cap is None else cap
         res, ind, cap = self._get_edb_value(res), self._get_edb_value(ind), self._get_edb_value(cap)
-        model = self._edb.Cell.Hierarchy.PinPairModel()
+        model = self._edb.cell.hierarchy._hierarchy.PinPairModel()
 
         pin_names = list(self.pins.keys())
         for idx, i in enumerate(np.arange(len(pin_names) // 2)):
-            pin_pair = self._edb.Utility.PinPair(pin_names[idx], pin_names[idx + 1])
+            pin_pair = self._edb.utility.utility.PinPair(pin_names[idx], pin_names[idx + 1])
 
-            rlc = self._edb.Utility.Rlc(res, r_enabled, ind, l_enabled, cap, c_enabled, is_parallel)
+            rlc = self._edb.utility.utility.Rlc(res, r_enabled, ind, l_enabled, cap, c_enabled, is_parallel)
             model.SetPinPairRlc(pin_pair, rlc)
         return self._set_model(model)
 

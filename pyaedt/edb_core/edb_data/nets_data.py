@@ -1,10 +1,12 @@
+from pyaedt.edb_core.dotnet.database import NetDotNet
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
-from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
-from pyaedt.generic.general_methods import property
+from pyaedt.edb_core.edb_data.primitives_data import cast
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
-class EDBNetsData(object):
+class EDBNetsData(NetDotNet):
     """Manages EDB functionalities for a primitives.
     It Inherits EDB Object properties.
 
@@ -14,7 +16,7 @@ class EDBNetsData(object):
     >>> edb = Edb(myedb, edbversion="2021.2")
     >>> edb_net = edb.nets.nets["GND"]
     >>> edb_net.name # Class Property
-    >>> edb_net.GetName() # EDB Object Property
+    >>> edb_net.name # EDB Object Property
     """
 
     def __getattr__(self, key):
@@ -31,20 +33,7 @@ class EDBNetsData(object):
         self._core_components = core_app.components
         self._core_primitive = core_app.modeler
         self.net_object = raw_net
-
-    @property
-    def name(self):
-        """Return the Net Name.
-
-        Returns
-        -------
-        str
-        """
-        return self.net_object.GetName()
-
-    @name.setter
-    def name(self, val):
-        self.net_object.SetName(val)
+        NetDotNet.__init__(self, self._app, raw_net)
 
     @property
     def primitives(self):
@@ -54,7 +43,7 @@ class EDBNetsData(object):
         -------
         list of :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`
         """
-        return [EDBPrimitives(i, self._app) for i in self.net_object.Primitives]
+        return [cast(i, self._app) for i in self.net_object.Primitives]
 
     @property
     def padstack_instances(self):
@@ -69,23 +58,6 @@ class EDBNetsData(object):
         ]
 
     @property
-    def is_power_ground(self):
-        """Either to get/set boolean for power/ground net.
-
-        Returns
-        -------
-        bool
-        """
-        return self.net_object.IsPowerGround()
-
-    @is_power_ground.setter
-    def is_power_ground(self, val):
-        if isinstance(val, bool):
-            self.net_object.SetIsPowerGround(val)
-        else:
-            raise AttributeError("Value has to be a boolean.")
-
-    @property
     def components(self):
         """Return the list of components that touch the net.
 
@@ -98,11 +70,6 @@ class EDBNetsData(object):
             if self.name in val.nets:
                 comps[el] = val
         return comps
-
-    @pyaedt_function_handler
-    def delete(self):
-        """Delete this net from layout."""
-        self.net_object.Delete()
 
     @pyaedt_function_handler()
     def plot(

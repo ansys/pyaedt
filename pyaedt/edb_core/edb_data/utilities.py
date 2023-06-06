@@ -84,12 +84,6 @@ class EDBStatistics(object):
     def layout_size(self):
         return self._layout_size
 
-    @layout_size.setter
-    def layout_size(self, value):
-        if isinstance(value, list):
-            if len([pt for pt in value if isinstance(pt, float)]) == len(value):
-                self._layout_size = value
-
     @property
     def num_polygons(self):
         return self._nb_polygons

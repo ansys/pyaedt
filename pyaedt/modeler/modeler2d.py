@@ -1,7 +1,7 @@
 import math
 from warnings import warn
 
-from pyaedt.generic.general_methods import property
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.Modeler import GeometryModeler
 from pyaedt.modeler.cad.Modeler import Modeler

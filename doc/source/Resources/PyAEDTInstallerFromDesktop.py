@@ -115,7 +115,8 @@ def install_pyaedt():
                 # Extract all contents to a directory (you can specify a different extraction path if needed)
                 zip_ref.extractall(unzipped_path)
 
-            run_command('"{}" install --no-cache-dir --no-index --find-links={} pyaedt'.format(pip_exe, unzipped_path))
+            run_command('"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all]'.format(pip_exe, unzipped_path))
+            run_command('"{}" install --no-cache-dir --no-index --find-links={} jupyterlab'.format(pip_exe, unzipped_path))
 
         else:
             run_command('"{}" -m pip install --upgrade pip'.format(python_exe))

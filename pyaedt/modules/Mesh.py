@@ -10,10 +10,11 @@ import shutil
 from pyaedt.application.design_solutions import model_names
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import MethodNotSupportedError
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import settings
 from pyaedt.modeler.cad.elements3d import EdgePrimitive
