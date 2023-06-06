@@ -133,9 +133,11 @@ class EDBNetsData(NetDotNet):
         resistor_below : int, float, optional
             Threshold of resistor value. Search extended net across resistors which has value lower than the threshold.
         inductor_below : int, float, optional
-            Threshold of inductor value. Search extended net across inductances which has value lower than the threshold.
+            Threshold of inductor value. Search extended net across inductances which has value lower than the
+            threshold.
         capacitor_above : int, float, optional
-            Threshold of capacitor value. Search extended net across capacitors which has value higher than the threshold.
+            Threshold of capacitor value. Search extended net across capacitors which has value higher than the
+            threshold.
         Returns
         -------
         list[
@@ -176,5 +178,3 @@ class EDBNetsData(NetDotNet):
         get_net_list(self.name, nets, rlc_serial, comps)
 
         return [nets, rlc_serial, comps]
-
-
