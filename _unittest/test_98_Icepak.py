@@ -579,7 +579,7 @@ class TestClass(BasisTest, object):
         power_components, total_power_comp, power_boundaries, total_power = app.post.power_budget(
             temperature=20, output_type=None
         )
-        assert total_power_comp == total_power
+        assert abs(total_power_comp - total_power) < 1e-06
 
     def test_41_exporting_monitor_data(self):
         assert self.aedtapp.edit_design_settings()
