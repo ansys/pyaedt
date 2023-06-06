@@ -1258,7 +1258,7 @@ class EdbSiwave(object):
 
     @pyaedt_function_handler
     def create_voltage_source_on_pin_group(
-        self, pos_pin_group_name, neg_pin_group_name, magnitude=1, phase=0, name=None
+        self, pos_pin_group_name, neg_pin_group_name, magnitude=1, phase=0, name=None, impedance=0.001
     ):
         """Create voltage source between two pin groups.
 
@@ -1279,7 +1279,7 @@ class EdbSiwave(object):
 
         """
         pos_pin_group = self.pin_groups[pos_pin_group_name]
-        pos_terminal = pos_pin_group.create_voltage_source_terminal(magnitude, phase)
+        pos_terminal = pos_pin_group.create_voltage_source_terminal(magnitude, phase, impedance)
         if name:
             pos_terminal.SetName(name)
         else:

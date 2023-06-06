@@ -306,11 +306,12 @@ class PinGroup(object):
         return terminal
 
     @pyaedt_function_handler()
-    def create_voltage_source_terminal(self, magnitude=1, phase=0):
+    def create_voltage_source_terminal(self, magnitude=1, phase=0, impedance=0.001):
         terminal = self._create_terminal()
         terminal.SetBoundaryType(self._pedb.edb.Cell.Terminal.BoundaryType.kVoltageSource)
         terminal.SetSourceAmplitude(self._pedb.edb_value(magnitude))
         terminal.SetSourcePhase(self._pedb.edb.Utility.Value(phase))
+        terminal.SetImpedance(self._pedb.edb_value(impedance))
         return terminal
 
     @pyaedt_function_handler()
@@ -482,7 +483,7 @@ class ResistorSource(Source):
         return self._source_type
 
 
-class CommonExcitation(object):
+class Terminal(object):
     def __init__(self, pedb, edb_terminal):
         self._pedb = pedb
         self._edb_terminal = edb_terminal
@@ -541,6 +542,15 @@ class CommonExcitation(object):
         int
         """
         return self._edb_terminal.GetBoundaryType()
+
+    @property
+    def impedance(self):
+        """Impedance of the port."""
+        return self._edb_terminal.GetImpedance().ToDouble()
+
+    @impedance.setter
+    def impedance(self, value):
+        self._edb_terminal.SetImpedance(self._pedb.edb_value(value))
 
     @property
     def reference_object(self):
@@ -754,7 +764,7 @@ class CommonExcitation(object):
             return EDBPadstackInstance(pin_obj, self._pedb)
 
 
-class ExcitationPorts(CommonExcitation):
+class ExcitationPorts(Terminal):
     """Manages excitation properties.
 
     Parameters
@@ -775,7 +785,7 @@ class ExcitationPorts(CommonExcitation):
     """
 
     def __init__(self, pedb, edb_terminal):
-        CommonExcitation.__init__(self, pedb, edb_terminal)
+        Terminal.__init__(self, pedb, edb_terminal)
 
     @property
     def _edb_properties(self):
@@ -875,11 +885,6 @@ class ExcitationPorts(CommonExcitation):
         self._edb_properties = p
 
     @property
-    def impedance(self):
-        """Impedance of the port."""
-        return self._edb_terminal.GetImpedance().ToDouble()
-
-    @property
     def is_circuit(self):
         """Whether it is a circuit port."""
         return self._edb_terminal.GetIsCircuitPort()
@@ -923,7 +928,7 @@ class ExcitationPorts(CommonExcitation):
         )
 
 
-class ExcitationSources(CommonExcitation):
+class ExcitationSources(Terminal):
     """Manage sources properties.
 
     Parameters
@@ -946,7 +951,7 @@ class ExcitationSources(CommonExcitation):
     """
 
     def __init__(self, pedb, edb_terminal):
-        CommonExcitation.__init__(self, pedb, edb_terminal)
+        Terminal.__init__(self, pedb, edb_terminal)
 
     @property
     def magnitude(self):
@@ -967,7 +972,7 @@ class ExcitationSources(CommonExcitation):
         self._edb_terminal.SetSourcePhase(self._edb.Utility.Value(value))
 
 
-class ExcitationProbes(CommonExcitation):
+class ExcitationProbes(Terminal):
     """Manage probes properties.
 
     Parameters
@@ -988,7 +993,7 @@ class ExcitationProbes(CommonExcitation):
     """
 
     def __init__(self, pedb, edb_terminal):
-        CommonExcitation.__init__(self, pedb, edb_terminal)
+        Terminal.__init__(self, pedb, edb_terminal)
 
 
 class ExcitationBundle:

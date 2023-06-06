@@ -157,3 +157,58 @@ class EDBNetsData(object):
                 if width < current_value:
                     current_value = width
         return current_value
+
+    @pyaedt_function_handler
+    def get_extended_net(self, resistor_below=10, inductor_below=1, capacitor_above=1):
+        """Get extended net and associated components.
+
+        Parameters
+        ----------
+        resistor_below : int, float, optional
+            Threshold of resistor value. Search extended net across resistors which has value lower than the threshold.
+        inductor_below : int, float, optional
+            Threshold of inductor value. Search extended net across inductances which has value lower than the threshold.
+        capacitor_above : int, float, optional
+            Threshold of capacitor value. Search extended net across capacitors which has value higher than the threshold.
+        Returns
+        -------
+        list[
+        dict[str, :class:`pyaedt.edb_core.edb_data.nets_data.EDBNetsData`],
+        dict[str, :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`],
+        dict[str, :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`],
+        ]
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> app = Edb()
+        >>> app.nets["BST_V3P3_S5"].get_extended_net()
+        """
+        all_nets = self._app.nets.nets
+        nets = {}
+        rlc_serial = {}
+        comps = {}
+
+        def get_net_list(net_name, _net_list, _rlc_serial, _comp):
+            edb_net = all_nets[net_name]
+            for refdes, val in edb_net.components.items():
+                if val.type == "Inductor" and val.value < inductor_below:
+                    pass
+                elif val.type == "Resistor" and val.value < resistor_below:
+                    pass
+                elif val.type == "Capacitor" and val.value > capacitor_above:
+                    pass
+                else:
+                    _comp[refdes] = val
+                    continue
+
+                _rlc_serial[refdes] = val
+                for net in val.nets:
+                    if net not in _net_list:
+                        _net_list[net] = all_nets[net]
+                        get_net_list(net, _net_list, _rlc_serial, _comp)
+
+        get_net_list(self.name, nets, rlc_serial, comps)
+
+        return [nets, rlc_serial, comps]
+
+
