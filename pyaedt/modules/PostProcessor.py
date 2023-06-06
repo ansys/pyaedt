@@ -3452,7 +3452,7 @@ class PostProcessor(PostProcessorCommon, object):
 
                 for objs in bc_obj.props["Objects"]:
                     obj_name = self.modeler[objs].name
-                    power_dict_obj[obj_name] = power_value
+                    power_dict_obj[obj_name] = power_value * mult
 
                 power_dict[bc_obj.name] = power_value * n * mult
 
@@ -3477,12 +3477,12 @@ class PostProcessor(PostProcessorCommon, object):
                     if "Objects" in bc_obj.props:
                         for objs in bc_obj.props["Objects"]:
                             obj_name = self.modeler[objs].name
-                            power_dict_obj[obj_name] = power_value
+                            power_dict_obj[obj_name] = power_value * mult
 
                     elif "Faces" in bc_obj.props:
                         for facs in bc_obj.props["Faces"]:
                             obj_name = self.modeler.oeditor.GetObjectNameByFaceID(facs) + "_FaceID" + str(facs)
-                            power_dict_obj[obj_name] = power_value
+                            power_dict_obj[obj_name] = power_value * mult
 
                     power_dict[bc_obj.name] = power_value * n * mult
 
@@ -3500,7 +3500,7 @@ class PostProcessor(PostProcessorCommon, object):
                             output_units="irrad_W_per_m2",
                         )
                     else:
-                        mult = 0
+                        mult = 1
                         if bc_obj.props["Surface Heat Variation Data"]["Variation Type"] == "Temp Dep":
                             heat_value, exp = extract_dataset_info(bc_obj, boundary="SurfaceHeat")
                             mult = multiplier_from_dataset(exp, temperature)
@@ -3582,12 +3582,12 @@ class PostProcessor(PostProcessorCommon, object):
                 if "Objects" in bc_obj.props:
                     for objs in bc_obj.props["Objects"]:
                         obj_name = self.modeler[objs].name
-                        power_dict_obj[obj_name] = power_value
+                        power_dict_obj[obj_name] = power_value * mult
 
                 elif "Faces" in bc_obj.props:
                     for facs in bc_obj.props["Faces"]:
                         obj_name = self.modeler.oeditor.GetObjectNameByFaceID(facs) + "_FaceID" + str(facs)
-                        power_dict_obj[obj_name] = power_value
+                        power_dict_obj[obj_name] = power_value * mult
 
                 power_dict[bc_obj.name] = power_value * n * mult
 
@@ -3649,7 +3649,7 @@ class PostProcessor(PostProcessorCommon, object):
 
                 for objs in bc_obj.props["Objects"]:
                     obj_name = self.modeler[objs].name
-                    power_dict_obj[obj_name] = power_value
+                    power_dict_obj[obj_name] = power_value * mult
 
                 power_dict[bc_obj.name] = power_value * n * mult
 
@@ -3695,27 +3695,23 @@ class PostProcessor(PostProcessorCommon, object):
 
         if output_type == "boundary":
             for comp in power_dict.keys():
-                self.logger.info(
-                    "The power of {} is {} {}".format(comp, str(round(power_dict[comp], 3)), units))
-            self.logger.info("The total power is {} {}".format(str(round(sum(power_dict.values()),3)), units))
+                self.logger.info("The power of {} is {} {}".format(comp, str(round(power_dict[comp], 3)), units))
+            self.logger.info("The total power is {} {}".format(str(round(sum(power_dict.values()), 3)), units))
             return power_dict, sum(power_dict.values())
 
         elif output_type == "component":
             for comp in power_dict_obj.keys():
-                self.logger.info(
-                    "The power of {} is {} {}".format(comp, str(round(power_dict_obj[comp], 3)), units))
-            self.logger.info("The total power is {} {}".format(str(round(sum(power_dict_obj.values()),3)), units))
+                self.logger.info("The power of {} is {} {}".format(comp, str(round(power_dict_obj[comp], 3)), units))
+            self.logger.info("The total power is {} {}".format(str(round(sum(power_dict_obj.values()), 3)), units))
             return power_dict_obj, sum(power_dict_obj.values())
 
         else:
             for comp in power_dict.keys():
-                self.logger.info(
-                    "The power of {} is {} {}".format(comp, str(round(power_dict[comp], 3)), units))
-            self.logger.info("The total power is {} {}".format(str(round(sum(power_dict.values()),3)), units))
+                self.logger.info("The power of {} is {} {}".format(comp, str(round(power_dict[comp], 3)), units))
+            self.logger.info("The total power is {} {}".format(str(round(sum(power_dict.values()), 3)), units))
             for comp in power_dict_obj.keys():
-                self.logger.info(
-                    "The power of {} is {} {}".format(comp, str(round(power_dict_obj[comp], 3)), units))
-            self.logger.info("The total power is {} {}".format(str(round(sum(power_dict_obj.values()),3)), units))
+                self.logger.info("The power of {} is {} {}".format(comp, str(round(power_dict_obj[comp], 3)), units))
+            self.logger.info("The total power is {} {}".format(str(round(sum(power_dict_obj.values()), 3)), units))
             return power_dict_obj, sum(power_dict_obj.values()), power_dict, sum(power_dict.values())
 
     def create_creeping_plane_visual_ray_tracing(
