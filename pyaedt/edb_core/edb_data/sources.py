@@ -483,7 +483,7 @@ class ResistorSource(Source):
         return self._source_type
 
 
-class Terminal(object):
+class CommonExcitation(object):
     def __init__(self, pedb, edb_terminal):
         self._pedb = pedb
         self._edb_terminal = edb_terminal
