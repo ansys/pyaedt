@@ -141,10 +141,10 @@ class EDBNetsData(NetDotNet):
         Returns
         -------
         list[
-        dict[str, :class:`pyaedt.edb_core.edb_data.nets_data.EDBNetsData`],
-        dict[str, :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`],
-        dict[str, :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`],
-        ]
+            dict[str, :class: `pyaedt.edb_core.edb_data.nets_data.EDBNetsData`],
+            dict[str, :class: `pyaedt.edb_core.edb_data.components_data.EDBComponent`],
+            dict[str, :class: `pyaedt.edb_core.edb_data.components_data.EDBComponent`],
+            ]
         Examples
         --------
         >>> from pyaedt import Edb
