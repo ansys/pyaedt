@@ -393,7 +393,7 @@ class EDBComponent(object):
         if self.type in ["Resistor", "Capacitor", "Inductor"]:
             return self.component_property.IsEnabled()
         else:  # pragma: no cover
-            return False
+            return True
 
     @is_enabled.setter
     def is_enabled(self, enabled):

@@ -159,6 +159,9 @@ class EDBNetsData(NetDotNet):
         def get_net_list(net_name, _net_list, _rlc_serial, _comp):
             edb_net = all_nets[net_name]
             for refdes, val in edb_net.components.items():
+                if not val.is_enabled:
+                    continue
+
                 if val.type == "Inductor" and val.value < inductor_below and val.is_enabled:
                     pass
                 elif val.type == "Resistor" and val.value < resistor_below and val.is_enabled:
