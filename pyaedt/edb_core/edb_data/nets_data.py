@@ -159,11 +159,11 @@ class EDBNetsData(NetDotNet):
         def get_net_list(net_name, _net_list, _rlc_serial, _comp):
             edb_net = all_nets[net_name]
             for refdes, val in edb_net.components.items():
-                if val.type == "Inductor" and val.value < inductor_below:
+                if val.type == "Inductor" and val.value < inductor_below and val.is_enabled:
                     pass
-                elif val.type == "Resistor" and val.value < resistor_below:
+                elif val.type == "Resistor" and val.value < resistor_below and val.is_enabled:
                     pass
-                elif val.type == "Capacitor" and val.value > capacitor_above:
+                elif val.type == "Capacitor" and val.value > capacitor_above and val.is_enabled:
                     pass
                 else:
                     _comp[refdes] = val
