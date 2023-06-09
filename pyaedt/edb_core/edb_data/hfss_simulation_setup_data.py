@@ -1,5 +1,7 @@
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.clr_module import Tuple
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
@@ -1724,7 +1726,7 @@ class HfssSimulationSetup(object):
             self._name = name
             self.hfss_solver_settings.order_basis = "mixed"
 
-            self._edb_sim_setup = self._edb.edb.Utility.HFSSSimulationSetup(self._edb_sim_setup_info)
+            self._edb_sim_setup = self._edb.edb_api.utility.utility.HFSSSimulationSetup(self._edb_sim_setup_info)
             self._update_setup()
 
     @property
@@ -1739,7 +1741,7 @@ class HfssSimulationSetup(object):
         for mop in self.mesh_operations.values():
             mesh_operations.Add(mop.mesh_operation)
 
-        self._edb_sim_setup = self._edb.edb.Utility.HFSSSimulationSetup(self._edb_sim_setup_info)
+        self._edb_sim_setup = self._edb.edb_api.utility.utility.HFSSSimulationSetup(self._edb_sim_setup_info)
 
         if self._name in self._edb.setups:
             self._edb.active_cell.DeleteSimulationSetup(self._name)

@@ -15,6 +15,8 @@ import os
 import re
 
 from pyaedt.generic.constants import AEDT_UNITS
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import _to_boolean
 from pyaedt.generic.general_methods import _uname
@@ -892,12 +894,17 @@ class Object3d(object):
     @material_name.setter
     def material_name(self, mat):
         matobj = self._primitives._materials.checkifmaterialexists(mat)
+        mat_value = None
         if matobj:
+            mat_value = chr(34) + matobj.name + chr(34)
+        elif "[" in mat or "(" in mat:
+            mat_value = mat
+        if mat_value is not None:
             if not self.model:
                 self.model = True
-            vMaterial = ["NAME:Material", "Value:=", chr(34) + matobj.name + chr(34)]
+            vMaterial = ["NAME:Material", "Value:=", mat_value]
             self._change_property(vMaterial)
-            self._material_name = matobj.name.lower()
+            self._material_name = mat_value.strip('"')
             self._solve_inside = None
         else:
             self.logger.warning("Material %s does not exist.", mat)
@@ -1871,26 +1878,9 @@ class Object3d(object):
 
     def __str__(self):
         return """
-         {}
          name: {}    id: {}    object_type: {}
-         --- read/write properties  ----
-         solve_inside: {}
-         model: {}
-         material_name: {}
-         color: {}
-         transparency: {}
-         display_wireframe {}
-         part_coordinate_system: {}
          """.format(
-            type(self),
             self.name,
             self.id,
-            self.object_type,
-            self.solve_inside,
-            self.model,
-            self.material_name,
-            self.color,
-            self.transparency,
-            self.display_wireframe,
-            self.part_coordinate_system,
+            self._object_type,
         )

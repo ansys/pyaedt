@@ -11,6 +11,8 @@ import re
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.DataHandlers import float_units
 from pyaedt.generic.constants import SOLUTIONS
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -108,7 +110,7 @@ class Maxwell(object):
     def set_core_losses(self, objects, value=True):
         """Whether to enable core losses for a set of objects.
 
-        For``EddyCurrent`` and ``Transient`` solver design, core losses calulcations
+        For ``EddyCurrent`` and ``Transient`` solver designs, core losses calulcations
         may be included in the simulation on any object that has a corresponding
         core loss definition (with core loss coefficient settings) in the material library.
 
@@ -1520,7 +1522,7 @@ class Maxwell(object):
         last_cycles_number=1,
         calculate_force="Harmonic",
     ):
-        """Set the Harmonic Force for Transient Analysis.
+        """Enable the harmonic force calculation for the transient analysis.
 
         Parameters
         ----------
@@ -2100,13 +2102,13 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
     >>> from pyaedt import Maxwell3d
     >>> aedtapp = Maxwell3d("mymaxwell.aedt")
-    pyaedt INFO: Added design ...
+    PyAEDT INFO: Added design ...
 
     Create an instance of Maxwell 3D using the 2021 R1 release and open
     the specified project, which is named ``mymaxwell2.aedt``.
 
     >>> aedtapp = Maxwell3d(specified_version="2021.2", projectname="mymaxwell2.aedt")
-    pyaedt INFO: Added design ...
+    PyAEDT INFO: Added design ...
 
     """
 
@@ -2646,7 +2648,6 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         return self.design_solutions.xy_plane
 
     @xy_plane.setter
-    @pyaedt_function_handler()
     def xy_plane(self, value=True):
         self.design_solutions.xy_plane = value
 

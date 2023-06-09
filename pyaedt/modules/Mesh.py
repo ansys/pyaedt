@@ -10,6 +10,8 @@ import shutil
 from pyaedt.application.design_solutions import model_names
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import MethodNotSupportedError
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
@@ -284,7 +286,7 @@ class MeshOperation(object):
 
         """
         arguments = ["NAME:AllTabs", ["NAME:MeshSetupTab", ["NAME:PropServers", "MeshSetup:{}".format(name)], arg]]
-        _retry_ntimes(5, self._mesh._app.odesign.ChangeProperty, arguments)
+        _retry_ntimes(10, self._mesh._app.odesign.ChangeProperty, arguments)
 
     @pyaedt_function_handler()
     def delete(self):

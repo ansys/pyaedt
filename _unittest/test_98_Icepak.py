@@ -8,6 +8,7 @@ from _unittest.conftest import local_path
 
 from pyaedt import Hfss
 from pyaedt import Icepak
+from pyaedt import settings
 from pyaedt.modules.Boundary import NativeComponentObject
 
 try:
@@ -571,8 +572,14 @@ class TestClass(BasisTest, object):
     def test_40_power_budget(self):
         self.power_budget = self.local_scratch.copyfile(source_power_budget)
         app = Icepak(self.power_budget, specified_version=desktop_version)
-        power_boundaries, total_power = app.post.power_budget(temperature=20)
+        power_boundaries, total_power = app.post.power_budget(temperature=20, output_type="boundary")
         assert abs(total_power - 787.5221374239883) < 1
+        power_boundaries, total_power = app.post.power_budget(temperature=20, output_type="component")
+        assert len(power_boundaries) == 15
+        power_components, total_power_comp, power_boundaries, total_power = app.post.power_budget(
+            temperature=20, output_type=None
+        )
+        assert abs(total_power_comp - total_power) < 1e-06
 
     def test_41_exporting_monitor_data(self):
         assert self.aedtapp.edit_design_settings()
@@ -923,6 +930,68 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.mesh.add_priority(
             entity_type=2, comp_name=self.aedtapp.modeler.user_defined_component_names[0], priority=1
         )
+
+    def test_57_update_source(self):
+        self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="boxSource")
+        source_2d = self.aedtapp.assign_source(self.aedtapp.modeler["boxSource"].top_face_z.id, "Total Power", "10W")
+        assert source_2d["Total Power"] == "10W"
+        source_2d["Total Power"] = "20W"
+        assert source_2d["Total Power"] == "20W"
+
+    def test_58_assign_hollow_block(self):
+        settings.enable_desktop_logs = True
+        self.aedtapp.solution_type = "Transient"
+        box = self.aedtapp.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox5", "copper")
+        box.solve_inside = False
+        temp_dict = {"Type": "Transient", "Function": "Square Wave", "Values": ["1cel", "0s", "1s", "0.5s", "0cel"]}
+        power_dict = {"Type": "Transient", "Function": "Sinusoidal", "Values": ["0W", 1, 1, "1s"]}
+        block = self.aedtapp.assign_hollow_block(
+            "BlockBox5", "Heat Transfer Coefficient", "1w_per_m2kel", "Test", temp_dict
+        )
+        assert block
+        block.delete()
+        box.solve_inside = True
+        assert not self.aedtapp.assign_hollow_block(
+            "BlockBox5", "Heat Transfer Coefficient", "1w_per_m2kel", "Test", "1cel"
+        )
+        box.solve_inside = False
+        temp_dict["Type"] = "Temp Dep"
+        assert not self.aedtapp.assign_hollow_block(
+            "BlockBox5", "Heat Transfer Coefficient", "1w_per_m2kel", "Test", temp_dict
+        )
+        assert not self.aedtapp.assign_hollow_block("BlockBox5", "Heat Transfer Coefficient", "Joule Heating", "Test")
+        assert not self.aedtapp.assign_hollow_block("BlockBox5", "Power", "1W", "Test")
+        block = self.aedtapp.assign_hollow_block("BlockBox5", "Total Power", "Joule Heating", "Test")
+        assert block
+        block.delete()
+        block = self.aedtapp.assign_hollow_block("BlockBox5", "Total Power", power_dict, "Test")
+        assert block
+        block.delete()
+        block = self.aedtapp.assign_hollow_block("BlockBox5", "Total Power", "1W")
+        assert block
+
+    def test_59_assign_solid_block(self):
+        self.aedtapp.solution_type = "Transient"
+        box = self.aedtapp.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox3", "copper")
+        power_dict = {"Type": "Transient", "Function": "Sinusoidal", "Values": ["0W", 1, 1, "1s"]}
+        block = self.aedtapp.assign_solid_block("BlockBox3", power_dict)
+        assert block
+        block.delete()
+        box.solve_inside = False
+        assert not self.aedtapp.assign_solid_block("BlockBox3", power_dict)
+        box.solve_inside = True
+        assert not self.aedtapp.assign_solid_block("BlockBox3", power_dict, ext_temperature="1cel")
+        assert not self.aedtapp.assign_solid_block("BlockBox3", power_dict, htc=5, ext_temperature={"Type": "Temp Dep"})
+        temp_dict = {"Type": "Transient", "Function": "Square Wave", "Values": ["1cel", "0s", "1s", "0.5s", "0cel"]}
+        block = self.aedtapp.assign_solid_block("BlockBox3", 5, htc=5, ext_temperature=temp_dict)
+        assert block
+        block.delete()
+        block = self.aedtapp.assign_solid_block("BlockBox3", "Joule Heating")
+        assert block
+        block.delete()
+        block = self.aedtapp.assign_solid_block("BlockBox3", "1W")
+        assert block
+        block.delete()
 
     def test_60_assign_network_from_matrix(self):
         box = self.aedtapp.modeler.create_box([0, 0, 0], [20, 50, 80])

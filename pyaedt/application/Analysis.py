@@ -28,6 +28,8 @@ from pyaedt.generic.constants import PLANE
 from pyaedt.generic.constants import SETUPS
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.constants import VIEW
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import filter_tuple
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
@@ -1258,7 +1260,7 @@ class Analysis(Design, object):
         >>> setup1 = hfss.create_setup(setupname='Setup1')
         >>> hfss.delete_setup(setupname='Setup1')
         ...
-        pyaedt INFO: Sweep was deleted correctly.
+        PyAEDT INFO: Sweep was deleted correctly.
         """
         if setupname in self.existing_analysis_setups:
             self.oanalysis.DeleteSetups([setupname])
@@ -1509,6 +1511,7 @@ class Analysis(Design, object):
 
         return self.analyze(self.active_setup, num_cores, num_tasks, num_gpu, acf_file, use_auto_settings)
 
+    @pyaedt_function_handler()
     def analyze(
         self,
         setup_name=None,
@@ -1521,6 +1524,7 @@ class Analysis(Design, object):
         machine="localhost",
         run_in_thread=False,
         revert_to_initial_mesh=False,
+        blocking=True,
     ):
         """Solve the active design.
 
@@ -1550,6 +1554,9 @@ class Analysis(Design, object):
             ``False``.
         revert_to_initial_mesh : bool, optional
             Whether to revert to initial mesh before solving or not. Default is ``False``.
+        blocking : bool, optional
+            Whether to block script while analysis is completed or not. It works from AEDT 2023 R2.
+            Default is ``True``.
 
         Returns
         -------
@@ -1579,6 +1586,7 @@ class Analysis(Design, object):
                 acf_file,
                 use_auto_settings,
                 revert_to_initial_mesh=revert_to_initial_mesh,
+                blocking=blocking,
             )
 
     @pyaedt_function_handler()
@@ -1593,6 +1601,7 @@ class Analysis(Design, object):
         num_variations_to_distribute=None,
         allowed_distribution_types=None,
         revert_to_initial_mesh=False,
+        blocking=True,
     ):
         """Analyze a design setup.
 
@@ -1618,6 +1627,9 @@ class Analysis(Design, object):
             An empty list ``[]`` disables all types.
         revert_to_initial_mesh : bool, optional
             Whether to revert to initial mesh before solving or not. Default is ``False``.
+        blocking : bool, optional
+            Whether to block script while analysis is completed or not. It works from AEDT 2023 R2.
+            Default is ``True``.
 
         Returns
         -------
@@ -1708,7 +1720,10 @@ class Analysis(Design, object):
         if not name:
             try:
                 self.logger.info("Solving all design setups")
-                self.odesign.AnalyzeAll()
+                if self.desktop_class.aedt_version_id > "2023.1":
+                    self.odesign.AnalyzeAll(blocking)
+                else:
+                    self.odesign.AnalyzeAll()
             except:
                 if set_custom_dso:
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
@@ -1719,7 +1734,10 @@ class Analysis(Design, object):
                 if revert_to_initial_mesh:
                     self.oanalysis.RevertSetupToInitial(name)
                 self.logger.info("Solving design setup %s", name)
-                self.odesign.Analyze(name)
+                if self.desktop_class.aedt_version_id > "2023.1":
+                    self.odesign.Analyze(name, blocking)
+                else:
+                    self.odesign.Analyze(name)
             except:
                 if set_custom_dso:
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
@@ -1742,6 +1760,48 @@ class Analysis(Design, object):
             "Design setup {} solved correctly in {}h {}m {}s".format(name, round(h, 0), round(m, 0), round(s, 0))
         )
         return True
+
+    @property
+    def are_there_simulations_running(self):
+        """Check if there are simulation running.
+
+        .. note::
+           It works only for AEDT >= ``"2023.2"``.
+
+        Returns
+        -------
+        float
+
+        """
+        return self.desktop_class.are_there_simulations_running
+
+    @pyaedt_function_handler()
+    def get_monitor_data(self):
+        """Check and get monitor data of an existing analysis.
+
+        .. note::
+           It works only for AEDT >= ``"2023.2"``.
+
+        Returns
+        -------
+        dict
+
+        """
+        return self.desktop_class.get_monitor_data()
+
+    @pyaedt_function_handler()
+    def stop_simulations(self, clean_stop=True):
+        """Check if there are simulation running and stops them.
+
+        .. note::
+           It works only for AEDT >= ``"2023.2"``.
+
+        Returns
+        -------
+        str
+
+        """
+        return self.desktop_class.stop_simulations(clean_stop=clean_stop)
 
     @pyaedt_function_handler()
     def solve_in_batch(
@@ -1891,7 +1951,7 @@ class Analysis(Design, object):
     @pyaedt_function_handler()
     def submit_job(
         self, clustername, aedt_full_exe_path=None, numnodes=1, numcores=32, wait_for_license=True, setting_file=None
-    ):
+    ):  # pragma: no cover
         """Submit a job to be solved on a cluster.
 
         Parameters
@@ -1920,64 +1980,9 @@ class Analysis(Design, object):
 
         >>> oDesktop.SubmitJob
         """
-        project_file = self.project_file
-        project_path = self.project_path
-        if not aedt_full_exe_path:
-            version = self.odesktop.GetVersion()[2:6]
-            if version >= "22.2":
-                version_name = "v" + version.replace(".", "")
-            else:
-                version_name = "AnsysEM" + version
-            if os.path.exists(r"\\" + clustername + r"\AnsysEM\{}\Win64\ansysedt.exe".format(version_name)):
-                aedt_full_exe_path = (
-                    r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\{}\\\\Win64\\\\ansysedt.exe".format(version_name)
-                )
-            elif os.path.exists(r"\\" + clustername + r"\AnsysEM\{}\Linux64\ansysedt".format(version_name)):
-                aedt_full_exe_path = (
-                    r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\{}\\\\Linux64\\\\ansysedt".format(version_name)
-                )
-            else:
-                self.logger.error("AEDT shared path does not exist. Please provide a full path.")
-                return False
-        else:
-            if not os.path.exists(aedt_full_exe_path):
-                self.logger.error("AEDT shared path does not exist. Provide a full path.")
-                return False
-            aedt_full_exe_path.replace("\\", "\\\\")
-
-        self.close_project()
-        path_file = os.path.dirname(__file__)
-        destination_reg = os.path.join(project_path, "Job_settings.areg")
-        if not setting_file:
-            setting_file = os.path.join(path_file, "..", "misc", "Job_Settings.areg")
-        shutil.copy(setting_file, destination_reg)
-
-        f1 = open_file(destination_reg, "w")
-        with open_file(setting_file) as f:
-            lines = f.readlines()
-            for line in lines:
-                if "\\	$begin" == line[:8]:
-                    lin = "\\	$begin \\'{}\\'\\\n".format(clustername)
-                    f1.write(lin)
-                elif "\\	$end" == line[:6]:
-                    lin = "\\	$end \\'{}\\'\\\n".format(clustername)
-                    f1.write(lin)
-                elif "NumCores" in line:
-                    lin = "\\	\\	\\	\\	NumCores={}\\\n".format(numcores)
-                    f1.write(lin)
-                elif "NumNodes=1" in line:
-                    lin = "\\	\\	\\	\\	NumNodes={}\\\n".format(numnodes)
-                    f1.write(lin)
-                elif "ProductPath" in line:
-                    lin = "\\	\\	ProductPath =\\'{}\\'\\\n".format(aedt_full_exe_path)
-                    f1.write(lin)
-                elif "WaitForLicense" in line:
-                    lin = "\\	\\	WaitForLicense={}\\\n".format(str(wait_for_license).lower())
-                    f1.write(lin)
-                else:
-                    f1.write(line)
-        f1.close()
-        return self.odesktop.SubmitJob(os.path.join(project_path, "Job_settings.areg"), project_file)
+        return self.desktop_class.submit_job(
+            self.project_file, clustername, aedt_full_exe_path, numnodes, numcores, wait_for_license, setting_file
+        )
 
     @pyaedt_function_handler()
     def _export_touchstone(

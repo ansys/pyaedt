@@ -1,6 +1,8 @@
 import warnings
 
 import pyaedt.emit_core.EmitConstants as emitConsts
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -96,6 +98,34 @@ class Revision:
         print("This function is inaccessible when the revision is not loaded.")
 
     @pyaedt_function_handler()
+    def get_interaction(self, domain):
+        """
+        Creates a new interaction for a domain.
+
+        Parameters
+        ----------
+        domain : class:`Emit.InteractionDomain`
+            ``InteractionDomain`` object for constraining the analysis parameters.
+
+        Returns
+        -------
+        interaction:class: `Interaction`
+            Interaction object.
+
+        Examples
+        ----------
+        >>> domain = aedtapp.results.interaction_domain()
+        >>> rev.get_interaction(domain)
+
+        """
+        self._load_revision()
+        engine = self.emit_project._emit_api.get_engine()
+        if domain.interferer_names and engine.max_simultaneous_interferers != len(domain.interferer_names):
+            raise ValueError("The max_simultaneous_interferers must equal the number of interferers in the domain.")
+        interaction = engine.get_interaction(domain)
+        return interaction
+
+    @pyaedt_function_handler()
     def run(self, domain):
         """
         Load the revision and then analyze along the given domain.
@@ -118,8 +148,6 @@ class Revision:
         """
         self._load_revision()
         engine = self.emit_project._emit_api.get_engine()
-        if domain.interferer_names and engine.max_simultaneous_interferers != len(domain.interferer_names):
-            raise ValueError("The max_simultaneous_interferers must equal the number of interferers in the domain.")
         interaction = engine.run(domain)
         # save the revision
         self.emit_project._emit_api.save_project()
@@ -272,7 +300,7 @@ class Revision:
         return bands
 
     @pyaedt_function_handler()
-    def get_active_frequencies(self, radio_name, band_name, tx_rx_mode=None, units=""):
+    def get_active_frequencies(self, radio_name, band_name, tx_rx_mode, units=""):
         """
         Get a list of active frequencies for a ``tx`` or ``rx`` band in a radio/emitter.
 
@@ -282,7 +310,7 @@ class Revision:
             Name of the radio/emitter.
         band_name : str
            Name of the band.
-        tx_rx : :class:`EmitConstants.tx_rx_mode`, optional
+        tx_rx : :class:`EmitConstants.tx_rx_mode`
             Specifies whether to get ``tx`` or ``rx`` radio freqs. The default
             is ``None``, in which case both ``tx`` and ``rx`` freqs are returned.
         units : str, optional
@@ -299,8 +327,8 @@ class Revision:
         >>> freqs = aedtapp.results.current_revision.get_active_frequencies(
                 'Bluetooth', 'Rx - Base Data Rate', Emit.tx_rx_mode.rx)
         """
-        if tx_rx_mode is None:
-            tx_rx_mode = emitConsts.tx_rx_mode().both
+        if tx_rx_mode is None or tx_rx_mode == emitConsts.tx_rx_mode().both:
+            raise ValueError("The mode type must be specified as either Tx or Rx.")
         if self.revision_loaded:
             freqs = self.emit_project._emit_api.get_active_frequencies(radio_name, band_name, tx_rx_mode, units)
         else:
@@ -326,3 +354,33 @@ class Revision:
     def notes(self, notes):
         self.emit_project.odesign.SetResultNotes(self.name, notes)
         self.emit_project._emit_api.save_project()
+
+    @property
+    def max_n_to_1_instances(self):
+        """
+        The maximum number of instances per band combination allowed to run for N to 1.
+        A value of 0 disables N to 1 entirely.
+        A value of -1 allows unlimited N to 1 instances.
+
+        Examples
+        ----------
+        >>> aedtapp.results.current_revision.max_n_to_1_instances = 2**20
+        >>> aedtapp.results.current_revision.max_n_to_1_instances
+        1048576
+        """
+        if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
+            raise RuntimeError("This function only supported in AEDT version 2024.1 and later.")
+        if self.revision_loaded:
+            engine = self.emit_project._emit_api.get_engine()
+            max_instances = engine.max_n_to_1_instances
+        else:  # pragma: no cover
+            max_instances = None
+        return max_instances
+
+    @max_n_to_1_instances.setter
+    def max_n_to_1_instances(self, max_instances):
+        if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
+            raise RuntimeError("This function only supported in AEDT version 2024.1 and later.")
+        if self.revision_loaded:
+            engine = self.emit_project._emit_api.get_engine()
+            engine.max_n_to_1_instances = max_instances

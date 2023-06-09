@@ -1,8 +1,6 @@
 """
 This module contains the ``Desktop`` class.
-
 This module is used to initialize AEDT and the message manager for managing AEDT.
-
 You can initialize this module before launching an app or
 have the app automatically initialize it to the latest installed AEDT version.
 """
@@ -15,6 +13,7 @@ import logging
 import os
 import pkgutil
 import re
+import shutil
 import socket
 import sys
 import tempfile
@@ -36,6 +35,7 @@ if is_linux and is_ironpython:
 else:
     import subprocess
 
+# from pyaedt import property
 from pyaedt import __version__
 from pyaedt import pyaedt_function_handler
 from pyaedt import settings
@@ -45,6 +45,7 @@ from pyaedt.generic.general_methods import com_active_sessions
 from pyaedt.generic.general_methods import grpc_active_sessions
 from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import open_file
 from pyaedt.misc import list_installed_ansysem
 
 pathname = os.path.dirname(__file__)
@@ -55,7 +56,7 @@ modules = [tup[1] for tup in pkgutil.iter_modules()]
 
 if is_ironpython:
     _com = "ironpython"
-elif is_windows and "pythonnet" in modules:  # pragma: no cover
+elif is_windows and "pythonnet" in modules:
     _com = "pythonnet_v3"
 else:
     _com = "gprc_v3"
@@ -74,9 +75,13 @@ def launch_aedt(full_path, non_graphical, port, first_run=True):
         for env, val in settings.aedt_environment_variables.items():
             my_env[env] = val
         if is_linux:  # pragma: no cover
-            subprocess.Popen(command, env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+            with subprocess.Popen(command, env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) as p:
+                p.wait()
         else:
-            subprocess.Popen(" ".join(command), env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+            with subprocess.Popen(
+                " ".join(command), env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+            ) as p:
+                p.wait()
 
     _aedt_process_thread = threading.Thread(target=launch_desktop_on_port)
     _aedt_process_thread.daemon = True
@@ -124,7 +129,7 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
     if non_graphical:
         command.append("-ng")
     print(command)
-    p = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+    p = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     timeout = settings.lsf_timeout
     i = 0
     while i < timeout:
@@ -151,10 +156,12 @@ def _check_grpc_port(port, machine_name=""):
             machine_name = "127.0.0.1"
         s.connect((machine_name, port))
     except socket.error:
-        return False
+        success = False
     else:
+        success = True
+    finally:
         s.close()
-        return True
+    return success
 
 
 def _find_free_port():
@@ -444,19 +451,19 @@ class Desktop(object):
 
     >>> import pyaedt
     >>> desktop = pyaedt.Desktop("2021.2", non_graphical=True)
-    pyaedt INFO: pyaedt v...
-    pyaedt INFO: Python version ...
+    PyAEDT INFO: pyaedt v...
+    PyAEDT INFO: Python version ...
     >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
-    pyaedt INFO: Project...
-    pyaedt INFO: Added design 'HFSSDesign1' of type HFSS.
+    PyAEDT INFO: Project...
+    PyAEDT INFO: Added design 'HFSSDesign1' of type HFSS.
 
     Launch AEDT 2021 R1 in graphical mode and initialize HFSS.
 
     >>> desktop = Desktop("2021.2")
-    pyaedt INFO: pyaedt v...
-    pyaedt INFO: Python version ...
+    PyAEDT INFO: pyaedt v...
+    PyAEDT INFO: Python version ...
     >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
-    pyaedt INFO: No project is defined. Project...
+    PyAEDT INFO: No project is defined. Project...
     """
 
     def __init__(
@@ -492,6 +499,10 @@ class Desktop(object):
         self.logfile = None
 
         self._logger = pyaedt_logger
+        if settings.enable_screen_logs:
+            self._logger.enable_stdout_log()
+        else:
+            self._logger.disable_stdout_log()
         self._logger.info("using existing logger.")
 
         if "oDesktop" in dir():  # pragma: no cover
@@ -573,6 +584,8 @@ class Desktop(object):
         settings.machine = self.machine
         settings.port = self.port
         self.aedt_process_id = self.odesktop.GetProcessID()  # bit of cleanup for consistency if used in future
+        settings.aedt_process_id = self.aedt_process_id
+        settings.is_student = student_version
         self._logger.info("AEDT %s Build Date %s", self.odesktop.GetVersion(), self.odesktop.GetBuildDateTimeString())
 
         if _com == "ironpython":
@@ -1304,12 +1317,22 @@ class Desktop(object):
         --------
         >>> import pyaedt
         >>> desktop = pyaedt.Desktop("2021.2")
-        pyaedt INFO: pyaedt v...
-        pyaedt INFO: Python version ...
+        PyAEDT INFO: pyaedt v...
+        PyAEDT INFO: Python version ...
         >>> desktop.release_desktop(close_projects=False, close_on_exit=False) # doctest: +SKIP
 
         """
         result = release_desktop(close_projects, close_on_exit)
+        props = [a for a in dir(self) if not a.startswith("__")]
+        for a in props:
+            self.__dict__.pop(a, None)
+        dicts = [self, sys.modules["__main__"]]
+        for dict_to_clean in dicts:
+            props = [a for a in dir(dict_to_clean) if "win32com" in str(type(dict_to_clean.__dict__.get(a, None)))]
+            for a in props:
+                dict_to_clean.__dict__[a] = None
+
+        gc.collect()
         self.odesktop = None
         return result
 
@@ -1325,8 +1348,8 @@ class Desktop(object):
         --------
         >>> import pyaedt
         >>> desktop = pyaedt.Desktop("2021.2")
-        pyaedt INFO: pyaedt v...
-        pyaedt INFO: Python version ...
+        PyAEDT INFO: pyaedt v...
+        PyAEDT INFO: Python version ...
         >>> desktop.close_desktop() # doctest: +SKIP
 
         """
@@ -1339,8 +1362,8 @@ class Desktop(object):
         --------
         >>> import pyaedt
         >>> desktop = pyaedt.Desktop("2021.2")
-        pyaedt INFO: pyaedt v...
-        pyaedt INFO: Python version ...
+        PyAEDT INFO: pyaedt v...
+        PyAEDT INFO: Python version ...
         >>> desktop.enable_autosave()
 
         """
@@ -1353,8 +1376,8 @@ class Desktop(object):
         --------
         >>> import pyaedt
         >>> desktop = pyaedt.Desktop("2021.2")
-        pyaedt INFO: pyaedt v...
-        pyaedt INFO: Python version ...
+        PyAEDT INFO: pyaedt v...
+        PyAEDT INFO: Python version ...
         >>> desktop.disable_autosave()
 
         """
@@ -1573,3 +1596,173 @@ class Desktop(object):
         if aedt_version >= "2023.2":
             write_toolkit_config(os.path.join(toolkit_dir, product), lib_dir, toolkit_name, toolkit=toolkit)
         self.logger.info("{} toolkit installed.".format(toolkit_name))
+
+    @pyaedt_function_handler()
+    def submit_job(
+        self,
+        project_file,
+        clustername,
+        aedt_full_exe_path=None,
+        numnodes=1,
+        numcores=32,
+        wait_for_license=True,
+        setting_file=None,
+    ):  # pragma: no cover
+        """Submit a job to be solved on a cluster.
+
+        Parameters
+        ----------
+        project : str
+            Full path to the project.
+        clustername : str
+            Name of the cluster to submit the job to.
+        aedt_full_exe_path : str, optional
+            Full path to the AEDT executable file. The default is ``None``, in which
+            case ``"/clustername/AnsysEM/AnsysEM2x.x/Win64/ansysedt.exe"`` is used.
+        numnodes : int, optional
+            Number of nodes. The default is ``1``.
+        numcores : int, optional
+            Number of cores. The default is ``32``.
+        wait_for_license : bool, optional
+             Whether to wait for the license to be validated. The default is ``True``.
+        setting_file : str, optional
+            Name of the file to use as a template. The default value is ``None``.
+
+        Returns
+        -------
+        int
+            ID of the job.
+
+        References
+        ----------
+
+        >>> oDesktop.SubmitJob
+        """
+
+        project_path = os.path.dirname(project_file)
+        project_name = os.path.basename(project_file).split(".")[0]
+        if not aedt_full_exe_path:
+            version = self.odesktop.GetVersion()[2:6]
+            if version >= "22.2":
+                version_name = "v" + version.replace(".", "")
+            else:
+                version_name = "AnsysEM" + version
+            if os.path.exists(r"\\" + clustername + r"\AnsysEM\{}\Win64\ansysedt.exe".format(version_name)):
+                aedt_full_exe_path = (
+                    r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\{}\\\\Win64\\\\ansysedt.exe".format(version_name)
+                )
+            elif os.path.exists(r"\\" + clustername + r"\AnsysEM\{}\Linux64\ansysedt".format(version_name)):
+                aedt_full_exe_path = (
+                    r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\{}\\\\Linux64\\\\ansysedt".format(version_name)
+                )
+            else:
+                self.logger.error("AEDT shared path does not exist. Provide a full path.")
+                return False
+        else:
+            if not os.path.exists(aedt_full_exe_path):
+                self.logger.error("AEDT shared path does not exist. Provide a full path.")
+                return False
+            aedt_full_exe_path.replace("\\", "\\\\")
+        if project_name in self.project_list:
+            self.odesktop.CloseProject(project_name)
+        path_file = os.path.dirname(__file__)
+        destination_reg = os.path.join(project_path, "Job_settings.areg")
+        if not setting_file:
+            setting_file = os.path.join(path_file, "misc", "Job_Settings.areg")
+        shutil.copy(setting_file, destination_reg)
+
+        f1 = open_file(destination_reg, "w")
+        with open_file(setting_file) as f:
+            lines = f.readlines()
+            for line in lines:
+                if "\\	$begin" == line[:8]:
+                    lin = "\\	$begin \\'{}\\'\\\n".format(clustername)
+                    f1.write(lin)
+                elif "\\	$end" == line[:6]:
+                    lin = "\\	$end \\'{}\\'\\\n".format(clustername)
+                    f1.write(lin)
+                elif "NumCores" in line:
+                    lin = "\\	\\	\\	\\	NumCores={}\\\n".format(numcores)
+                    f1.write(lin)
+                elif "NumNodes=1" in line:
+                    lin = "\\	\\	\\	\\	NumNodes={}\\\n".format(numnodes)
+                    f1.write(lin)
+                elif "ProductPath" in line:
+                    lin = "\\	\\	ProductPath =\\'{}\\'\\\n".format(aedt_full_exe_path)
+                    f1.write(lin)
+                elif "WaitForLicense" in line:
+                    lin = "\\	\\	WaitForLicense={}\\\n".format(str(wait_for_license).lower())
+                    f1.write(lin)
+                else:
+                    f1.write(line)
+        f1.close()
+        return self.odesktop.SubmitJob(os.path.join(project_path, "Job_settings.areg"), project_file)
+
+    @property
+    def are_there_simulations_running(self):
+        """Check if there are simulation running.
+
+        .. note::
+           It works only for AEDT >= ``"2023.2"``.
+
+        Returns
+        -------
+        float
+
+        """
+        if self.aedt_version_id > "2023.1":
+            return self.odesktop.AreThereSimulationsRunning()
+        else:
+            self.logger.error("It works only for AEDT >= `2023.2`.")
+        return False
+
+    @pyaedt_function_handler()
+    def get_monitor_data(self):
+        """Check and get monitor data of an existing analysis.
+
+        .. note::
+           It works only for AEDT >= ``"2023.2"``.
+
+        Returns
+        -------
+        dict
+
+        """
+        counts = {"profile": 0, "convergence": 0, "sweptvar": 0, "progress": 0, "variations": 0, "displaytype": 0}
+        if self.are_there_simulations_running:
+            reqstr = " ".join(["%s %d 0" % (t, counts[t]) for t in counts])
+            data = self.odesktop.GetMonitorData(reqstr)
+            all_lines = (line.strip() for line in data.split("\n"))
+            for line in all_lines:
+                if line.startswith("$begin"):
+                    btype = line.split()[1].strip("'")
+                    if btype == "MonitoringProfileMsg":
+                        counts["profile"] += 1
+                    elif btype == "MonConvData":
+                        counts["convergence"] += 1
+                    elif btype == "MonGenericVariations":
+                        pass
+                    elif btype == "MapMonGraphicalProgMsg":
+                        pass
+                    elif btype == "MonitoringSweptVariableMsg":
+                        counts["sweptvar"] += 1
+            return counts
+        return counts
+
+    @pyaedt_function_handler()
+    def stop_simulations(self, clean_stop=True):
+        """Check if there are simulation running and stops them.
+
+        .. note::
+           It works only for AEDT >= ``"2023.2"``.
+
+        Returns
+        -------
+        str
+
+        """
+        if self.aedt_version_id > "2023.1":
+            return self.odesktop.StopSimulations(clean_stop)
+        else:
+            self.logger.error("It works only for AEDT >= `2023.2`.")
+        return False

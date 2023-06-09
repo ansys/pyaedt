@@ -10,6 +10,7 @@ import os
 import re
 import shutil
 
+from pyaedt import Hfss3dLayout
 from pyaedt.application.AnalysisNexxim import FieldAnalysisCircuit
 from pyaedt.generic import ibis_reader
 from pyaedt.generic.DataHandlers import from_rkm_to_aedt
@@ -1268,7 +1269,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
         >>> oDesign.UpdateSources
         """
-        source_p = self.create_source(source_type="CurrentSin")
+        source_p = self.create_source(source_type="PowerSin")
         for port in ports:
             self.excitations[port].enabled_sources.append(source_p.name)
             self.excitations[port].update()
@@ -1551,3 +1552,119 @@ class Circuit(FieldAnalysisCircuit, object):
         shutil.copy(latest_file, filepath)
         filename = os.path.basename(latest_file)
         return os.path.join(filepath, filename)
+
+    @pyaedt_function_handler()
+    def connect_circuit_models_from_multi_zone_cutout(
+        self, project_connections, edb_zones_dict, ports=None, schematic_units="mm", model_inc=50
+    ):
+        """Connect circuit model from a multizone clipped project.
+
+        Parameters
+        ----------
+        project_connections : dic[str][str]
+            Dictionary of project connections returned from the
+            ``edb.get_connected_ports_from_multizone_cutout()`` method.
+        edb_zones_dict : dict[str][EDB PolygonData]
+            Dictionary of zones returned by the ``edb.copy_zones()`` method.
+        ports : dict[str][str]
+            dictionary return from command edb.cutout_multizone_layout(). These ports are the ones created before
+            processing the multizone clipping. Like for instance ports created on components resulting from previous
+            automated workflow execution.
+        schematic_units : str, optional
+            Units for the schematic, such as ``"mm"`` or ``"in"``. The
+            default is ``"mm"``.
+        model_inc : float, optional
+            Distance increment for adding models. The default is ``50``.
+
+        Returns
+        -------
+        bool
+            ``True`` when succeessful, ``False`` when failed.
+
+        Examples
+        --------
+        These commands show how to get input arguments described in this method:
+        - project_connections
+        - edb_zone_dict
+        -
+        >>> edb = Edb(edb_file)
+        >>> edb_zones = edb.copy_zones(r"C:\Temp\test")
+        >>> defined_ports, project_connections = edb.cutout_multizone_layout(edb_zones, common_reference_net)
+        >>> circ = Circuit()
+        >>> circ.connect_circuit_models_from_multi_zone_cutout(project_connexions, edb_zones, defined_ports)
+        """
+        if project_connections and edb_zones_dict:
+            self.modeler.schematic_units = schematic_units
+            inc = model_inc
+            ind = 1
+            for edb_file in list(edb_zones_dict.keys()):
+                hfss3d_layout_model = self.import_edb_in_circuit(edb_path=edb_file)
+                model_position = [ind * inc, 0]
+                hfss3d_layout_model.location = model_position
+                ind += 1
+            for connection in project_connections:
+                pin1 = None
+                pin2 = None
+                model1 = next(
+                    cmp for cmp in list(self.modeler.schematic.components.values()) if connection[0][0] in cmp.name
+                )
+                if model1:
+                    try:
+                        pin1 = next(pin for pin in model1.pins if pin.name == connection[0][1])
+                    except:
+                        print("failed to get pin1")
+                model2 = next(
+                    cmp for cmp in list(self.modeler.schematic.components.values()) if connection[1][0] in cmp.name
+                )
+                if model2:
+                    try:
+                        pin2 = next(pin for pin in model2.pins if pin.name == connection[1][1])
+                    except:
+                        print("failed to get pin2")
+                if pin1 and pin2:
+                    pin1.connect_to_component(component_pin=pin2, use_wire=False)
+            for model_name, ports in ports.items():
+                if any(cmp for cmp in list(self.modeler.schematic.components.values()) if model_name in cmp.name):
+                    model = next(
+                        cmp for cmp in list(self.modeler.schematic.components.values()) if model_name in cmp.name
+                    )
+                    if model:
+                        for port_name in ports:
+                            model_pin = next(pin for pin in model.pins if pin.name == port_name)
+                            if model_pin:
+                                self.modeler.components.create_interface_port(port_name, model_pin.location)
+            self.save_project()
+            return True
+        return False
+
+    @pyaedt_function_handler()
+    def import_edb_in_circuit(self, edb_path):
+        """Import an EDB design inside a Circuit project.
+
+        Parameters
+        ----------
+        edb_path : str
+            Path of the EDB file to copy.
+
+        Returns
+        -------
+            ``Hfss3DLayout`` component instance.
+        """
+        hfss = Hfss3dLayout(edb_path)
+        try:
+            hfss.edit_cosim_options(
+                simulate_missing_solution=True,
+                setup_override_name=hfss.setup_names[0],
+                sweep_override_name=hfss.existing_analysis_sweeps[0].split(":")[1].strip(" "),
+            )
+        except:
+            self.logger.error(
+                "Failed to setup co-simulation settings, make sure the simulation setup is properly defined"
+            )
+        active_project = hfss.odesktop.SetActiveProject(hfss.project_name)
+        active_project.CopyDesign(hfss.design_name)
+        active_project = self.odesktop.SetActiveProject(self.project_name)
+        active_project.Paste()
+        hfss_3d_layout_model = self.modeler.schematic.add_subcircuit_3dlayout(hfss.design_name)
+        hfss.close_project(save_project=False)
+        return hfss_3d_layout_model

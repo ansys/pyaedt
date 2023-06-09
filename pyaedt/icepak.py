@@ -25,6 +25,8 @@ from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.DataHandlers import random_string
 from pyaedt.generic.configurations import ConfigurationsIcepak
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -96,38 +98,38 @@ class Icepak(FieldAnalysis3D):
 
     >>> from pyaedt import Icepak
     >>> icepak = Icepak()
-    pyaedt INFO: No project is defined. Project ...
-    pyaedt INFO: Active design is set to ...
+    PyAEDT INFO: No project is defined. Project ...
+    PyAEDT INFO: Active design is set to ...
 
     Create an instance of Icepak and link to a project named
     ``IcepakProject``. If this project does not exist, create one with
     this name.
 
     >>> icepak = Icepak("IcepakProject")
-    pyaedt INFO: Project ...
-    pyaedt INFO: Added design ...
+    PyAEDT INFO: Project ...
+    PyAEDT INFO: Added design ...
 
     Create an instance of Icepak and link to a design named
     ``IcepakDesign1`` in a project named ``IcepakProject``.
 
     >>> icepak = Icepak("IcepakProject", "IcepakDesign1")
-    pyaedt INFO: Added design 'IcepakDesign1' of type Icepak.
+    PyAEDT INFO: Added design 'IcepakDesign1' of type Icepak.
 
     Create an instance of Icepak and open the specified project,
     which is ``myipk.aedt``.
 
     >>> icepak = Icepak("myipk.aedt")
-    pyaedt INFO: Project myipk has been created.
-    pyaedt INFO: No design is present. Inserting a new design.
-    pyaedt INFO: Added design ...
+    PyAEDT INFO: Project myipk has been created.
+    PyAEDT INFO: No design is present. Inserting a new design.
+    PyAEDT INFO: Added design ...
 
     Create an instance of Icepak using the 2021 R1 release and
     open the specified project, which is ``myipk2.aedt``.
 
     >>> icepak = Icepak(specified_version="2021.2", projectname="myipk2.aedt")
-    pyaedt INFO: Project...
-    pyaedt INFO: No design is present. Inserting a new design.
-    pyaedt INFO: Added design...
+    PyAEDT INFO: Project...
+    PyAEDT INFO: No design is present. Inserting a new design.
+    PyAEDT INFO: Added design...
     """
 
     def __init__(
@@ -186,7 +188,6 @@ class Icepak(FieldAnalysis3D):
         return self.design_solutions.problem_type
 
     @problem_type.setter
-    @pyaedt_function_handler()
     def problem_type(self, value="TemperatureAndFlow"):
         self.design_solutions.problem_type = value
 
@@ -322,8 +323,8 @@ class Icepak(FieldAnalysis3D):
         >>> faces = icepak.modeler["USB_GND"].faces
         >>> face_names = [face.id for face in faces]
         >>> boundary = icepak.assign_openings(face_names)
-        pyaedt INFO: Face List boundary_faces created
-        pyaedt INFO: Opening Assigned
+        PyAEDT INFO: Face List boundary_faces created
+        PyAEDT INFO: Opening Assigned
         """
         boundary_name = generate_unique_name("Opening")
         self.modeler.create_face_list(air_faces, "boundary_faces" + boundary_name)
@@ -432,7 +433,7 @@ class Icepak(FieldAnalysis3D):
         >>> box1 = icepak.modeler.create_box([1, 1, 1], [3, 3, 3], "BlockBox1", "copper")
         >>> box2 = icepak.modeler.create_box([2, 2, 2], [4, 4, 4], "BlockBox2", "copper")
         >>> blocks = icepak.create_source_blocks_from_list([["BlockBox1", 2], ["BlockBox2", 4]])
-        pyaedt INFO: Block on ...
+        PyAEDT INFO: Block on ...
         >>> blocks[1].props
         {'Objects': ['BlockBox1'], 'Block Type': 'Solid', 'Use External Conditions': False, 'Total Power': '2W'}
         >>> blocks[3].props
@@ -464,6 +465,9 @@ class Icepak(FieldAnalysis3D):
     ):
         """Create a source block for an object.
 
+        .. deprecated:: 0.6.75
+            This method is deprecated. Use the ``assign_solid_block()`` method instead.
+
         Parameters
         ----------
         object_name : str, list
@@ -492,7 +496,7 @@ class Icepak(FieldAnalysis3D):
 
         >>> box = icepak.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox3", "copper")
         >>> block = icepak.create_source_block("BlockBox3", "1W", False)
-        pyaedt INFO: Block on ...
+        PyAEDT INFO: Block on ...
         >>> block.props
         {'Objects': ['BlockBox3'], 'Block Type': 'Solid', 'Use External Conditions': False, 'Total Power': '1W'}
 
@@ -694,7 +698,7 @@ class Icepak(FieldAnalysis3D):
         if input_power == 0:
             input_power = "0W"
         if not bool(input_power) ^ bool(thermal_dependent_dataset):
-            self.logger.error("Please assigned one input between ``thermal_dependent_dataset`` and  ``input_power``")
+            self.logger.error("Assign one input between ``thermal_dependent_dataset`` and  ``input_power``.")
         if not source_name:
             source_name = generate_unique_name("Source")
         props = {}
@@ -779,7 +783,8 @@ class Icepak(FieldAnalysis3D):
         '2W'
         """
         warnings.warn(
-            "This method is deprecated in 0.6.27. Please use create_two_resistor_network_block", DeprecationWarning
+            "This method is deprecated in 0.6.27. Use the create_two_resistor_network_block() method.",
+            DeprecationWarning,
         )
         if object_name in self.modeler.object_names:
             if gravity_dir > 2:
@@ -3662,7 +3667,8 @@ class Icepak(FieldAnalysis3D):
                 variation_value = [variation_value[0], "pwl({},Temp)".format(variation_value[1])]
             out_dict["Variation Value"] = "[{}]".format(", ".join(['"' + str(i) + '"' for i in variation_value]))
         else:
-            out_dict["Variation Value"] = "[{}]".format(", ".join([str(i) for i in variation_value]))
+            if variation_value is not None:
+                out_dict["Variation Value"] = "[{}]".format(", ".join([str(i) for i in variation_value]))
         return {"{} Variation Data".format(quantity): out_dict}
 
     @pyaedt_function_handler()
@@ -4619,3 +4625,266 @@ class Icepak(FieldAnalysis3D):
                         node_args[k] = val
 
                 return node_args
+
+    @pyaedt_function_handler
+    def assign_solid_block(
+        self, object_name, power_assignment, boundary_name=None, htc=None, ext_temperature="AmbientTemp"
+    ):
+        """
+        Assign block boundary for solid objects.
+
+        Parameters
+        ----------
+        object_name : str
+            Name of the object.
+        power_assignment : str or dict
+            String with the value and units of the power assignment or with
+            ``"Joule Heating"``. For a temperature-dependent or transient
+            assignment, a dictionary can be used. The dictionary should contain three keys:
+            ``"Type"``, ``"Function"``, and ``"Values"``.
+
+            - For the ``"Type"`` key, accepted values are ``"Temp Dep"`` and ``"Transient"``.
+            - For the ``"Function"`` key, acceptable values depend on the ``"Type"`` key
+              selection. When the ``"Type"`` key is set to ``"Temp Dep"``, the only
+              accepted value is ````"Piecewise Linear"`` . When the ``"Type"`` key is
+              set to ``"Transient"``, acceptable values are `"Exponential"``, `"Linear"``,
+              ```"Piecewise Linear"``, ``"Power Law"``, ``"Sinusoidal"``, and ``"Square
+               Wave"``.
+            - For the ``"Values"`` key, a list of strings contain the parameters required by
+              the ``"Function"`` key selection. For example, whn``"Linear"`` is set as the
+              ``"Function"`` key, two parameters are required: the value of the variable
+              at t=0 and the slope of the line. For the parameters required by each
+              ``"Function"`` key selection, see the Icepack documentation (). The parameters
+              must contain the units where needed.
+
+        boundary_name : str, optional
+            Name of the source boundary. The default is ``None``, in which case the
+            boundary name is automatically generated.
+        htc : float, str, or dict, optional
+            String with the value and units of the heat transfer coefficient for the
+            external conditions. If a float is provided, ``"w_per_m2kel"`` unit will be used.
+            For a temperature-dependent or transient
+            assignment, a dictionary can be used. For more information, see the
+            description for the preceding ``power_assignment`` parameter. The
+            default is ``None``, in which case no external condition will be applied.
+        ext_temperature : float, str or dict, optional
+            String with the value and units of temperature for the external conditions.
+            If a float is provided, ``"cel"`` unit will be used.
+            For a transient assignment, a dictionary can be used. For more information,
+            see the description for the preceding ``power_assignment`` parameter. The
+            default is ``"AmbientTemp"``, which is used if the ``htc`` parameter is not
+            set to ``None``.
+
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignBlockBoundary
+
+        Examples
+        --------
+        >>> from pyaedt import Icepak
+        >>> ipk = Icepak()
+        >>> ipk.solution_type = "Transient"
+        >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox3", "copper")
+        >>> power_dict = {"Type": "Transient", "Function": "Sinusoidal", "Values": ["0W", 1, 1, "1s"]}
+        >>> block = ipk.assign_solid_block("BlockBox3", power_dict)
+        """
+        if not self.modeler.get_object_from_name(object_name).solve_inside:
+            self.logger.add_error_message(
+                "Use the ``assign_hollow_block()`` method with this object as ``solve_inside`` is ``False``."
+            )
+            return None
+        if ext_temperature != "AmbientTemp" and ext_temperature is not None and not htc:
+            self.logger.add_error_message("Set an argument for ``htc`` or remove the ``ext_temperature`` argument.")
+            return None
+        if isinstance(ext_temperature, dict) and ext_temperature["Type"] == "Temp Dep":
+            self.logger.add_error_message(
+                'It is not possible to use a "Temp Dep" assignment for ' "temperature assignment."
+            )
+            return None
+        props = {"Block Type": "Solid", "Objects": [object_name]}
+        if isinstance(power_assignment, dict):
+            assignment_value = self._parse_variation_data(
+                "Total Power",
+                power_assignment["Type"],
+                variation_value=power_assignment["Values"],
+                function=power_assignment["Function"],
+            )
+            props.update(assignment_value)
+        elif power_assignment == "Joule Heating":
+            assignment_value = self._parse_variation_data(
+                "Total Power", "Joule Heating", variation_value=None, function="None"
+            )
+            props.update(assignment_value)
+        elif isinstance(power_assignment, (float, int)):
+            props["Total Power"] = str(power_assignment) + "W"
+        else:
+            props["Total Power"] = power_assignment
+
+        if htc:
+            props["Use External Conditions"] = True
+            for quantity, assignment in [("Temperature", ext_temperature), ("Heat Transfer Coefficient", htc)]:
+                if isinstance(assignment, dict):
+                    assignment_value = self._parse_variation_data(
+                        quantity,
+                        assignment["Type"],
+                        variation_value=assignment["Values"],
+                        function=assignment["Function"],
+                    )
+                    props.update(assignment_value)
+                else:
+                    if isinstance(assignment, (float, int)):
+                        assignment = str(assignment) + ["w_per_m2kel", "cel"][int(quantity == "Temperature")]
+                    props[quantity] = assignment
+        else:
+            props["Use External Conditions"] = False
+
+        if not boundary_name:
+            boundary_name = generate_unique_name(object_name + "_Block")
+
+        bound = BoundaryObject(self, boundary_name, props, "Block")
+        if bound.create():
+            self.boundaries.append(bound)
+            return bound
+
+    @pyaedt_function_handler
+    def assign_hollow_block(
+        self, object_name, assignment_type, assignment_value, boundary_name=None, external_temperature="AmbientTemp"
+    ):
+        """
+        Assign block boundary for hollow objects.
+
+        Parameters
+        ----------
+        object_name : str
+            Name of the object.
+        assignment_type : str
+            Type of the boundary assignment. Options are ``"Heat Transfer Coefficient"``,
+            ``"Heat Flux"``, ``"Temperature"``, and ``"Total Power"``.
+        assignment_value : str or dict
+            String with value and units of the assignment. If ``"Total Power"`` is
+            assignment_type, ``"Joule Heating"`` can be used.
+            For a temperature-dependent or transient assignment, a dictionary can be used.
+            The dictionary should contain three keys:
+            ``"Type"``, ``"Function"``, and ``"Values"``.
+
+            - For the ``"Type"`` key, accepted values are ``"Temp Dep"`` and ``"Transient"``.
+            - For the ``"Function"`` key, acceptable values depend on the ``"Type"`` key
+              selection. When the ``"Type"`` key is set to ``"Temp Dep"``, the only
+              accepted value is ````"Piecewise Linear"`` . When the ``"Type"`` key is
+              set to ``"Transient"``, acceptable values are `"Exponential"``, `"Linear"``,
+              ```"Piecewise Linear"``, ``"Power Law"``, ``"Sinusoidal"``, and ``"Square
+               Wave"``.
+            - For the ``"Values"`` key, a list of strings contain the parameters required by
+              the ``"Function"`` key selection. For example, whn``"Linear"`` is set as the
+              ``"Function"`` key, two parameters are required: the value of the variable
+              at t=0 and the slope of the line. For the parameters required by each
+              ``"Function"`` key selection, see the Icepack documentation (). The parameters
+              must contain the units where needed.
+
+        boundary_name : str, optional
+            Name of the source boundary. The default is ``None``, in which case the
+            boundary is automatically generated.
+        external_temperature : str, dict or float, optional
+            String with the value and unit of the temperature for the heat transfer
+            coefficient. If a float value is specified, the ``"cel"`` unit is automatically
+            added.
+            For a transient assignment, a dictionary can be used as described for the
+            assignment_value argument. Temperature dependent assignment is not supported.
+            The default is ``"AmbientTemp"``.
+
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignBlockBoundary
+
+        Examples
+        --------
+        >>> from pyaedt import Icepak
+        >>> ipk = Icepak()
+        >>> ipk.solution_type = "Transient"
+        >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox5", "copper")
+        >>> box.solve_inside = False
+        >>> temp_dict = {"Type": "Transient", "Function": "Square Wave", "Values": ["1cel", "0s", "1s", "0.5s", "0cel"]}
+        >>> block = ipk.assign_hollow_block("BlockBox5", "Heat Transfer Coefficient", "1w_per_m2kel", "Test", temp_dict)
+        """
+        if self.modeler.get_object_from_name(object_name).solve_inside:
+            self.logger.add_error_message(
+                "Use ``assign_solid_block`` function with this object as" "``solve_inside`` is ``True``."
+            )
+            return None
+        if assignment_value == "Joule Heating" and assignment_type != "Total Power":
+            self.logger.add_error_message(
+                '``"Joule Heating"`` assignment is supported only if ``assignment_type``' 'is ``"Total Power"``.'
+            )
+            return None
+
+        assignment_dict = {
+            "Total Power": ["Fixed Heat", "Total Power"],
+            "Heat Flux": ["Fixed Heat", "Heat Flux"],
+            "Temperature": ["Fixed Temperature", "Fixed Temperature"],
+            "Heat Transfer Coefficient": ["Internal Conditions", "Heat Transfer Coefficient"],
+        }
+        thermal_condition = assignment_dict.get(assignment_type, None)
+        if thermal_condition is None:
+            self.logger.add_error_message(
+                'Available assignment_type are "Total Power", "Heat Flux",'
+                '"Temperature" and "Heat Transfer Coefficient".'
+                "{} not recognized.".format(assignment_type)
+            )
+            return None
+
+        props = {"Block Type": "Hollow", "Objects": [object_name], "Thermal Condition": thermal_condition[0]}
+        if thermal_condition[0] == "Fixed Heat":
+            props["Use Total Power"] = thermal_condition[1] == "Total Power"
+        if isinstance(assignment_value, dict):
+            assignment_value_dict = self._parse_variation_data(
+                thermal_condition[1],
+                assignment_value["Type"],
+                variation_value=assignment_value["Values"],
+                function=assignment_value["Function"],
+            )
+            props.update(assignment_value_dict)
+        elif assignment_value == "Joule Heating":
+            assignment_value_dict = self._parse_variation_data(
+                thermal_condition[1], "Joule Heating", variation_value=None, function="None"
+            )
+            props.update(assignment_value_dict)
+        else:
+            props[thermal_condition[1]] = assignment_value
+        if thermal_condition[0] == "Internal Conditions":
+            if isinstance(external_temperature, dict):
+                if external_temperature["Type"] == "Temp Dep":
+                    self.logger.add_error_message(
+                        'It is not possible to use a "Temp Dep" assignment for a temperature assignment.'
+                    )
+                    return None
+                assignment_value_dict = self._parse_variation_data(
+                    "Temperature",
+                    external_temperature["Type"],
+                    variation_value=external_temperature["Values"],
+                    function=external_temperature["Function"],
+                )
+                props.update(assignment_value_dict)
+            else:
+                props["Temperature"] = external_temperature
+
+        if not boundary_name:
+            boundary_name = generate_unique_name(object_name + "_Block")
+
+        bound = BoundaryObject(self, boundary_name, props, "Block")
+        if bound.create():
+            self.boundaries.append(bound)
+            return bound

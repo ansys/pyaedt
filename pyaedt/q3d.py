@@ -12,6 +12,8 @@ from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import MATRIXOPERATIONSQ2D
 from pyaedt.generic.constants import MATRIXOPERATIONSQ3D
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.geometry_operators import GeometryOperators as go
@@ -1315,15 +1317,25 @@ class Q3d(QExtractor, object):
         return net_names
 
     @pyaedt_function_handler()
+    def delete_all_nets(self):
+        """Delete all nets in the design."""
+        net_names = self.nets[::]
+        for i in self.boundaries[::]:
+            if i.name in net_names:
+                i.delete()
+        return True
+
+    @pyaedt_function_handler()
     def objects_from_nets(self, nets, materials=None):
-        """Find the objects that belongs to a net. Material can be applied as filter.
+        """Find the objects that belong to one or more nets. You can filter by materials.
 
         Parameters
         ----------
         nets : str, list
-            Nets to search for. Case insensitive.
+            One or more nets to search for. The search is case-insensitive.
         materials : str, list, optional
-            Materials to filter the nets objects. Case insensitive.
+            One or more materials for filtering the net objects. The default
+            is ``None``. The search is case insensitive.
 
         Returns
         -------
