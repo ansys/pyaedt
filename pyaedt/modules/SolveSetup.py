@@ -14,8 +14,7 @@ from random import randrange
 import time
 import warnings
 
-import numpy as np
-
+from pyaedt import is_ironpython
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.constants import AEDT_UNITS
 
@@ -30,6 +29,9 @@ from pyaedt.modules.SolveSweeps import SweepHFSS
 from pyaedt.modules.SolveSweeps import SweepHFSS3DLayout
 from pyaedt.modules.SolveSweeps import SweepMatrix
 from pyaedt.modules.SolveSweeps import identify_setup
+
+if not is_ironpython:
+    import numpy as np
 
 
 class CommonSetup(PropsManager, object):
@@ -1353,7 +1355,7 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler()
     def export_to_hfss(self, file_fullname, keep_net_name=False):
-        """Export the HFSS 3DLayout design to HFSS 3D design.
+        """Export the HFSS 3DLayout design to HFSS 3D design. Not supported with IronPython.
 
         Parameters
         ----------
@@ -1383,9 +1385,12 @@ class Setup3DLayout(CommonSetup):
         self.omodule.ExportToHfss(self.name, file_fullname)
         succeeded = self._check_export_log(info_messages, error_messages, file_fullname)
         if succeeded and keep_net_name:
-            from pyaedt import Hfss
+            if not is_ironpython:
+                from pyaedt import Hfss
 
-            self._get_net_names(Hfss, file_fullname)
+                self._get_net_names(Hfss, file_fullname)
+            else:
+                self.p_app.odesktop.SetMessages("Exporting layout with keeping net name not supported with ironpython")
         return succeeded
 
     @pyaedt_function_handler()
