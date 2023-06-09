@@ -1355,7 +1355,9 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler()
     def export_to_hfss(self, file_fullname, keep_net_name=False):
-        """Export the HFSS 3DLayout design to HFSS 3D design. Not supported with IronPython.
+        """Export the HFSS 3D Layout design to HFSS 3D design.
+        
+        This method is not supported with IronPython.
 
         Parameters
         ----------
