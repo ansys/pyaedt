@@ -998,6 +998,8 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                     "Misalignments (Planes/Traces/Vias)",
                 ],
             )
+            self.logger.info("Geometry check succeed")
             return True
         except:
+            self.logger.error("Geometry check Failed.")
             return False
