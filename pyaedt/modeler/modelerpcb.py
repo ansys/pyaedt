@@ -964,3 +964,40 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         list
         """
         return [i for i in self.oeditor.FindObjects("Name", "VCP*")]
+
+    @pyaedt_function_handler()
+    def geometry_check_and_fix_all(self):
+        """Run Geometry Check
+
+        All checks are used
+        All Auto Fix are used
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        try:
+            self.oeditor.GeometryCheckAndAutofix(
+                [
+                    "NAME:checks",
+                    "Self-Intersecting Polygons",
+                    "Disjoint Nets (Floating Nodes)",
+                    "DC-Short Errors",
+                    "Identical/Overlapping Vias",
+                    "Misaligments",
+                ],
+                "minimum_area_meters_squared:=",
+                0.000002,
+                [
+                    "NAME:fixes",
+                    "Self-Intersecting Polygons",
+                    "Disjoint Nets",
+                    "Identical/Overlapping Vias",
+                    "Traces-Inside-Traces Errors",
+                    "Misalignments (Planes/Traces/Vias)",
+                ],
+            )
+            return True
+        except:
+            return False

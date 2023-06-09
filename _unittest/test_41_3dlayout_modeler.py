@@ -754,3 +754,6 @@ class TestClass(BasisTest, object):
     def test_97_mesh_settings(self):
         assert self.aedtapp.set_meshing_settings(mesh_method="PhiPlus", enable_intersections_check=False)
         assert self.aedtapp.set_meshing_settings(mesh_method="Classic", enable_intersections_check=True)
+
+    def test_98_geom_check(self):
+        assert self.aedtapp.modeler.geometry_check_and_fix_all()
