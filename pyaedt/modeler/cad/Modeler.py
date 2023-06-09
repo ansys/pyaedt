@@ -3395,15 +3395,17 @@ class GeometryModeler(Modeler, object):
         return bound
 
     @pyaedt_function_handler()
-    def unite(self, theList, purge=False):
+    def unite(self, unite_list, purge=False, keep_originals=False):
         """Unite objects from a list.
 
         Parameters
         ----------
-        theList : list
+        unite_list : list
             List of objects.
         purge : bool, optional
-            Purge history after unite.
+            Purge history after unite. Default is False.
+        keep_originals : bool, optional
+            Keep original objects used for the operation. Default is False.
 
         Returns
         -------
@@ -3415,15 +3417,15 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.Unite
         """
-        slice = min(100, len(theList))
-        num_objects = len(theList)
+        slice = min(100, len(unite_list))
+        num_objects = len(unite_list)
         remaining = num_objects
         objs_groups = []
         while remaining > 1:
-            objs = theList[:slice]
+            objs = unite_list[:slice]
             szSelections = self.convert_to_selections(objs)
             vArg1 = ["NAME:Selections", "Selections:=", szSelections]
-            vArg2 = ["NAME:UniteParameters", "KeepOriginals:=", False]
+            vArg2 = ["NAME:UniteParameters", "KeepOriginals:=", keep_originals]
             self.oeditor.Unite(vArg1, vArg2)
             if szSelections.split(",")[0] in self.unclassified_names:
                 self.logger.error("Error in uniting objects.")
@@ -3435,14 +3437,14 @@ class GeometryModeler(Modeler, object):
             objs_groups.append(objs[0])
             remaining -= slice
             if remaining > 0:
-                theList = theList[slice:]
+                unite_list = unite_list[slice:]
         if remaining > 0:
-            objs_groups.extend(theList)
+            objs_groups.extend(unite_list)
         self.cleanup_objects()
         if len(objs_groups) > 1:
             return self.unite(objs_groups, purge=purge)
         self.logger.info("Union of {} objects has been executed.".format(num_objects))
-        return self.convert_to_selections(theList[0], False)
+        return self.convert_to_selections(unite_list[0], False)
 
     @pyaedt_function_handler()
     def clone(self, objid):

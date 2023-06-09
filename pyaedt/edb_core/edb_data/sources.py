@@ -306,11 +306,12 @@ class PinGroup(object):
         return terminal
 
     @pyaedt_function_handler()
-    def create_voltage_source_terminal(self, magnitude=1, phase=0):
+    def create_voltage_source_terminal(self, magnitude=1, phase=0, impedance=0.001):
         terminal = self._create_terminal()
         terminal.SetBoundaryType(self._pedb.edb_api.cell.terminal.BoundaryType.kVoltageSource)
         terminal.SetSourceAmplitude(self._pedb.edb_value(magnitude))
         terminal.SetSourcePhase(self._pedb.edb_api.utility.value(phase))
+        terminal.SetImpedance(self._pedb.edb_value(impedance))
         return terminal
 
     @pyaedt_function_handler()
@@ -541,6 +542,15 @@ class CommonExcitation(object):
         int
         """
         return self._edb_terminal.GetBoundaryType()
+
+    @property
+    def impedance(self):
+        """Impedance of the port."""
+        return self._edb_terminal.GetImpedance().ToDouble()
+
+    @impedance.setter
+    def impedance(self, value):
+        self._edb_terminal.SetImpedance(self._pedb.edb_value(value))
 
     @property
     def reference_object(self):
