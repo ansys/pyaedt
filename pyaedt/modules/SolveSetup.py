@@ -1460,7 +1460,7 @@ class Setup3DLayout(CommonSetup):
             primitive_dict[net] = []
             n = 0
             while len(primitive_dict[net]) < len(net_primitives[net]):
-                if n > 200:
+                if n > 1000:
                     return
                 n += 10
                 primitive_dict[net] = []
