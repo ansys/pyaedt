@@ -1390,7 +1390,7 @@ class Setup3DLayout(CommonSetup):
 
                 self._get_net_names(Hfss, file_fullname)
             else:
-                self.p_app.odesktop.SetMessages("Exporting layout with keeping net name not supported with ironpython")
+                self.p_app.odesktop.SetMessages("Exporting layout while keeping net name is not supported with IronPython")
         return succeeded
 
     @pyaedt_function_handler()
