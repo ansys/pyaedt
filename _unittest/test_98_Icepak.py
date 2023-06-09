@@ -924,7 +924,7 @@ class TestClass(BasisTest, object):
             entity_type=2, comp_name=self.aedtapp.modeler.user_defined_component_names[0], priority=1
         )
 
-    def test_57_assign_network_from_matrix(self):
+    def test_60_assign_network_from_matrix(self):
         box = self.aedtapp.modeler.create_box([0, 0, 0], [20, 50, 80])
         faces_ids = [face.id for face in box.faces]
         sources_power = [3, "4mW"]
@@ -955,7 +955,7 @@ class TestClass(BasisTest, object):
         )
         assert boundary
 
-    def test_58_assign_network(self):
+    def test_61_assign_network(self):
         box = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20])
         ids = [f.id for f in box.faces]
         net = self.aedtapp.create_network_object()
