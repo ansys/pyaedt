@@ -14,6 +14,8 @@ from random import randrange
 import time
 import warnings
 
+import numpy as np
+
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.constants import AEDT_UNITS
 
@@ -21,6 +23,7 @@ from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SolveSweeps import SetupProps
 from pyaedt.modules.SolveSweeps import SweepHFSS
@@ -1450,15 +1453,39 @@ class Setup3DLayout(CommonSetup):
         primitive_dict = {}
         for net, primitives in net_primitives.items():
             primitive_dict[net] = []
-            if primitives:
+            n = 0
+            while len(primitive_dict[net]) < len(net_primitives[net]):
+                if n > 200:
+                    return
+                n += 10
+                primitive_dict[net] = []
                 for prim in primitives:
                     layer = edb.stackup.signal_layers[prim.layer_name]
                     z = layer.lower_elevation + layer.thickness / 2
-                    for arc in prim.arcs:
-                        pt = self._get_polygon_centroid(arc.points)
+                    pt = self._get_point_inside_primitive(prim, n)
+                    if pt:
                         pt.append(z)
                         primitive_dict[net].append(pt)
         return primitive_dict
+
+    @pyaedt_function_handler()
+    def _get_point_inside_primitive(self, primitive, n):
+        bbox = primitive.bbox
+        primitive_x_points = []
+        primitive_y_points = []
+        for arc in primitive.arcs:
+            if len(arc.points) == 2:
+                primitive_x_points += arc.points[0]
+                primitive_y_points += arc.points[1]
+        dx = (bbox[2] - bbox[0]) / n
+        dy = (bbox[3] - bbox[1]) / n
+        xcoords = [i for i in np.arange(bbox[0], bbox[2], dx)]
+        ycoords = [i for i in np.arange(bbox[1], bbox[3], dy)]
+        for x in xcoords:
+            for y in ycoords:
+                test = GeometryOperators.point_in_polygon([x, y], [primitive_x_points, primitive_y_points])
+                if test == 1:
+                    return [x, y]
 
     @pyaedt_function_handler()
     def _get_polygon_centroid(self, arcs=None):
