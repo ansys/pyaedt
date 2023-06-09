@@ -522,6 +522,7 @@ class TestClass(BasisTest, object):
         sweep_name = None
         assert self.aedtapp.export_touchstone(solution_name, sweep_name)
 
+    @pytest.mark.skipif(is_ironpython, reason="Not supported with ironpython")
     def test_19D_export_to_hfss(self):
         filename = "export_to_hfss_test"
         filename2 = "export_to_hfss_test2"
