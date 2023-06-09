@@ -312,14 +312,14 @@ class BoundaryObject(BoundaryCommon, object):
     >>> coat = hfss.assign_coating([inner_id], "copper", usethickness=True, thickness="0.2mm")
     """
 
-    def __init__(self, app, name, props, boundarytype):
+    def __init__(self, app, name, props, boundarytype, auto_update=True):
         self.auto_update = False
         self._app = app
         self._name = name
         self.props = BoundaryProps(self, OrderedDict(props))
         self.type = boundarytype
         self._boundary_name = self.name
-        self.auto_update = True
+        self.auto_update = auto_update
 
     @property
     def name(self):

@@ -1987,14 +1987,24 @@ class Design(AedtObjects):
             for ds in self.design_properties["BoundarySetup"]["Boundaries"]:
                 try:
                     if isinstance(self.design_properties["BoundarySetup"]["Boundaries"][ds], (OrderedDict, dict)):
-                        boundaries.append(
-                            BoundaryObject(
-                                self,
-                                ds,
-                                self.design_properties["BoundarySetup"]["Boundaries"][ds],
-                                self.design_properties["BoundarySetup"]["Boundaries"][ds]["BoundType"],
+                        if (
+                            self.design_properties["BoundarySetup"]["Boundaries"][ds]["BoundType"] == "Network"
+                            and self.design_type == "Icepak"
+                        ):
+                            boundaries.append(
+                                self.BoundaryNetwork(
+                                    self, ds, self.design_properties["BoundarySetup"]["Boundaries"][ds]
+                                )
                             )
-                        )
+                        else:
+                            boundaries.append(
+                                BoundaryObject(
+                                    self,
+                                    ds,
+                                    self.design_properties["BoundarySetup"]["Boundaries"][ds],
+                                    self.design_properties["BoundarySetup"]["Boundaries"][ds]["BoundType"],
+                                )
+                            )
                 except:
                     pass
         if self.design_properties and "MaxwellParameterSetup" in self.design_properties:

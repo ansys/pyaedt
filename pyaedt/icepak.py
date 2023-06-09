@@ -3902,7 +3902,7 @@ class Icepak(FieldAnalysis3D):
                 props_arg = OrderedDict({})
             else:
                 props_arg = props
-            super().__init__(app, self._name, props_arg, "Network")
+            super().__init__(app, self._name, props_arg, "Network", False)
             self._nodes = []
             self._links = []
             self._schematic_data = OrderedDict({})
