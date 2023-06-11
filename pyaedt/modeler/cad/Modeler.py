@@ -17,6 +17,8 @@ import warnings
 
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.constants import AEDT_UNITS
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
@@ -144,11 +146,11 @@ class BaseCoordinateSystem(PropsManager, object):
         """
         try:
             self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
-            if "ref_cs" in dir(self):
-                for cs in range(0, len(self._modeler.coordinate_systems)):
-                    if self._modeler.coordinate_systems[cs].ref_cs == self.name:
-                        self._modeler.coordinate_systems.pop(cs)
             self._modeler.coordinate_systems.pop(self._modeler.coordinate_systems.index(self))
+            coordinate_systems = self._modeler._app.oeditor.GetRelativeCoordinateSystems()
+            for cs in self._modeler.coordinate_systems[:]:
+                if cs.name not in coordinate_systems:
+                    self._modeler.coordinate_systems.pop(self._modeler.coordinate_systems.index(cs))
             self._modeler.cleanup_objects()
         except:
             self._modeler._app.logger.warning("Coordinate system does not exist")
@@ -188,7 +190,7 @@ class BaseCoordinateSystem(PropsManager, object):
 
         """
         arguments = ["NAME:AllTabs", ["NAME:Geometry3DCSTab", ["NAME:PropServers", name], arg]]
-        _retry_ntimes(5, self._modeler.oeditor.ChangeProperty, arguments)
+        _retry_ntimes(10, self._modeler.oeditor.ChangeProperty, arguments)
 
     @pyaedt_function_handler()
     def rename(self, newname):
@@ -2833,7 +2835,7 @@ class GeometryModeler(Modeler, object):
         vArg2.append("ZComponent:="), vArg2.append(Zpos)
         vArg2.append("Numclones:="), vArg2.append(str(nclones))
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
-        _retry_ntimes(5, self.oeditor.DuplicateAlongLine, vArg1, vArg2, vArg3)
+        _retry_ntimes(10, self.oeditor.DuplicateAlongLine, vArg1, vArg2, vArg3)
         if is_3d_comp:
             return self._duplicate_added_components_tuple()
         if attachObject:
@@ -3188,7 +3190,7 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        blank_list : list of Object3d or list of int
+        blank_list : str, Object3d, int or List of str, int and Object3d.
             List of objects to subtract from. The list can be of
             either :class:`pyaedt.modeler.Object3d.Object3d` objects or object IDs.
         tool_list : list
@@ -3393,15 +3395,17 @@ class GeometryModeler(Modeler, object):
         return bound
 
     @pyaedt_function_handler()
-    def unite(self, theList, purge=False):
+    def unite(self, unite_list, purge=False, keep_originals=False):
         """Unite objects from a list.
 
         Parameters
         ----------
-        theList : list
+        unite_list : list
             List of objects.
         purge : bool, optional
-            Purge history after unite.
+            Purge history after unite. Default is False.
+        keep_originals : bool, optional
+            Keep original objects used for the operation. Default is False.
 
         Returns
         -------
@@ -3413,15 +3417,15 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.Unite
         """
-        slice = min(100, len(theList))
-        num_objects = len(theList)
+        slice = min(100, len(unite_list))
+        num_objects = len(unite_list)
         remaining = num_objects
         objs_groups = []
         while remaining > 1:
-            objs = theList[:slice]
+            objs = unite_list[:slice]
             szSelections = self.convert_to_selections(objs)
             vArg1 = ["NAME:Selections", "Selections:=", szSelections]
-            vArg2 = ["NAME:UniteParameters", "KeepOriginals:=", False]
+            vArg2 = ["NAME:UniteParameters", "KeepOriginals:=", keep_originals]
             self.oeditor.Unite(vArg1, vArg2)
             if szSelections.split(",")[0] in self.unclassified_names:
                 self.logger.error("Error in uniting objects.")
@@ -3433,14 +3437,14 @@ class GeometryModeler(Modeler, object):
             objs_groups.append(objs[0])
             remaining -= slice
             if remaining > 0:
-                theList = theList[slice:]
+                unite_list = unite_list[slice:]
         if remaining > 0:
-            objs_groups.extend(theList)
+            objs_groups.extend(unite_list)
         self.cleanup_objects()
         if len(objs_groups) > 1:
             return self.unite(objs_groups, purge=purge)
         self.logger.info("Union of {} objects has been executed.".format(num_objects))
-        return self.convert_to_selections(theList[0], False)
+        return self.convert_to_selections(unite_list[0], False)
 
     @pyaedt_function_handler()
     def clone(self, objid):

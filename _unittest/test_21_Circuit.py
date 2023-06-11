@@ -778,10 +778,23 @@ class TestClass(BasisTest, object):
 
     def test_43_create_and_change_prop_text(self):
         self.aedtapp.insert_design("text")
-        text = self.aedtapp.modeler.create_text("text test")
+        self.aedtapp.modeler.schematic_units = "mil"
+        text = self.aedtapp.modeler.create_text(
+            "text test",
+            100,
+            300,
+            text_size=14,
+            text_angle=45,
+            text_color=[255, 0, 0],
+            show_rect=True,
+            rect_line_width=3,
+            rect_border_color=[0, 255, 0],
+            rect_fill=1,
+            rect_color=[0, 0, 255],
+        )
         assert isinstance(text, str)
         assert text in self.aedtapp.oeditor.GetAllGraphics()
-        assert not self.aedtapp.modeler.create_text("text test", "1000mil", "-2000mil")
+        assert self.aedtapp.modeler.create_text("text test", "1000mil", "-2000mil")
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Change property doesn't work in non-graphical mode.")
     def test_44_change_text_property(self):
@@ -805,8 +818,8 @@ class TestClass(BasisTest, object):
         edb_zones = edb.copy_zones()
         assert edb_zones
         defined_ports, project_connexions = edb.cutout_multizone_layout(edb_zones, common_reference_net)
+        edb.close_edb()
         assert project_connexions
         self.aedtapp.insert_design("test_45")
         self.aedtapp.connect_circuit_models_from_multi_zone_cutout(project_connexions, edb_zones, defined_ports)
         assert [mod for mod in list(self.aedtapp.modeler.schematic.components.values()) if "PagePort" in mod.name]
-        edb.close_edb()

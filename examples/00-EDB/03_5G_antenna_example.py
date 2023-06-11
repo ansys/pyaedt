@@ -153,7 +153,7 @@ con_pin = edb.padstacks.place(
 # Add a connector ground.
 
 edb.modeler.create_polygon(first_patch.points, "Virt_GND", net_name="GND")
-edb.padstacks.create("gnd_via", "100um", "0", "0", "GND", "Virt_GND")
+edb.padstacks.create("gnd_via", "100um", "0", "0")
 con_ref1 = edb.padstacks.place(
     [first_patch.points[0][0] + 0.2e-3, first_patch.points[0][1] + 0.2e-3],
     "gnd_via",
