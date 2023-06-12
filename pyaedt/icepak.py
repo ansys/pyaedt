@@ -4457,6 +4457,7 @@ class Icepak(FieldAnalysis3D):
                 self.delete()
                 try:
                     self.create()
+                    self._app.boundaries.append(self)
                     return True
                 except:
                     self._app.odesign.Undo()
