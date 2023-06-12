@@ -1493,8 +1493,7 @@ class Setup3DLayout(CommonSetup):
         ycoords = [i for i in np.arange(bbox[1], bbox[3], dy)]
         for x in xcoords:
             for y in ycoords:
-                test = GeometryOperators.point_in_polygon([x, y], [primitive_x_points, primitive_y_points])
-                if test == 1:
+                if GeometryOperators.point_in_polygon([x, y], [primitive_x_points, primitive_y_points]) == 1:
                     return [x, y]
 
     @pyaedt_function_handler()
