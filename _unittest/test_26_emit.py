@@ -7,7 +7,9 @@ from _unittest.conftest import config
 from _unittest.conftest import is_ironpython
 
 from pyaedt import Emit
-from pyaedt.emit_core.EmitConstants import ResultType, TxRxMode, InterfererType
+from pyaedt.emit_core.EmitConstants import InterfererType
+from pyaedt.emit_core.EmitConstants import ResultType
+from pyaedt.emit_core.EmitConstants import TxRxMode
 from pyaedt.generic import constants as consts
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitAntennaComponent
@@ -663,11 +665,11 @@ class TestClass(BasisTest, object):
             py_version = "EmitApiPython311"
         assert str(type(domain)) == "<class '{}.InteractionDomain'>".format(py_version)
 
-        #assert str(type(TxRxMode)) == "<class '{}.tx_rx_mode'>".format(py_version)
+        # assert str(type(TxRxMode)) == "<class '{}.tx_rx_mode'>".format(py_version)
         assert str(type(TxRxMode.RX)) == "<class '{}.tx_rx_mode'>".format(py_version)
         assert str(type(TxRxMode.TX)) == "<class '{}.tx_rx_mode'>".format(py_version)
         assert str(type(TxRxMode.BOTH)) == "<class '{}.tx_rx_mode'>".format(py_version)
-        #assert str(type(ResultType)) == "<class '{}.result_type'>".format(py_version)
+        # assert str(type(ResultType)) == "<class '{}.result_type'>".format(py_version)
         assert str(type(ResultType.SENSITIVITY)) == "<class '{}.result_type'>".format(py_version)
         assert str(type(ResultType.EMI)) == "<class '{}.result_type'>".format(py_version)
         assert str(type(ResultType.DESENSE)) == "<class '{}.result_type'>".format(py_version)

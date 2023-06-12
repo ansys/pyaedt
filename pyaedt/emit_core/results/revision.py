@@ -1,6 +1,7 @@
 import warnings
 
-from pyaedt.emit_core.EmitConstants import TxRxMode, InterfererType
+from pyaedt.emit_core.EmitConstants import InterfererType
+from pyaedt.emit_core.EmitConstants import TxRxMode
 
 # from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -216,9 +217,7 @@ class Revision:
         >>> rxs = aedtapp.results.current_revision.get_reciver_names()
         """
         if self.revision_loaded:
-            radios = self.emit_project._emit_api.get_radio_names(
-                TxRxMode.RX, InterfererType.TRANSMITTERS_AND_EMITTERS
-            )
+            radios = self.emit_project._emit_api.get_radio_names(TxRxMode.RX, InterfererType.TRANSMITTERS_AND_EMITTERS)
         else:
             radios = None
             self.result_mode_error()
