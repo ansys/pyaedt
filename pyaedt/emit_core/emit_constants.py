@@ -1,5 +1,3 @@
-from pyaedt import emit_core
-
 """
 Enums from EmitApiPython are defined as none until the EmitApiPython module initializes.
 This allows IDE auto-complete to find them and emit_constants to import before the

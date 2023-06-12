@@ -100,7 +100,7 @@ class Emit(Design, object):
     The output of the run command is an ``interaction`` object. This object summarizes the interaction data
     that is defined in the interaction domain.
 
-    >>> instance = interaction.worst_instance(ResultType.SENSIVITY)
+    >>> instance = interaction.worst_instance(ResultType.SENSITIVITY)
     >>> val = instance.value(ResultType.SENSITIVITY)
     >>> print("Worst-case sensitivity for Rx '{}' is {}dB.".format(domain.rx_radio_name, val))
     """
