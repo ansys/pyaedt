@@ -966,11 +966,18 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         return [i for i in self.oeditor.FindObjects("Name", "VCP*")]
 
     @pyaedt_function_handler()
-    def geometry_check_and_fix_all(self):
+    def geometry_check_and_fix_all(
+        self,
+        min_area=2e-6,
+    ):
         """Run Geometry Check
 
         All checks are used
         All Auto Fix are used
+
+        min_area : float, optional
+            CutOuts that are smaller than this minimum area will be ignored during validation checks.
+            The default is ``2e-6``.
 
         Returns
         -------
@@ -988,7 +995,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                     "Misaligments",
                 ],
                 "minimum_area_meters_squared:=",
-                0.000002,
+                min_area,
                 [
                     "NAME:fixes",
                     "Self-Intersecting Polygons",
