@@ -6,23 +6,27 @@ This allows IDE auto-complete to find them and emit_constants to import before t
 EmitApiPython module has loaded (typically when a pyaedt.Emit() object is created).
 """
 
-class ResultType():
+
+class ResultType:
     EMI = None
     DESENSE = None
     SENSITIVITY = None
     POWER_AT_RX = None
 
-class TxRxMode():
+
+class TxRxMode:
     TX = None
     RX = None
     BOTH = None
 
-class InterfererType():
+
+class InterfererType:
     TRANSMITTERS = None
     EMITTERS = None
     TRANSMITTERS_AND_EMITTERS = None
 
-class UnitType():
+
+class UnitType:
     POWER = None
     FREQUENCY = None
     LENGTH = None
@@ -30,6 +34,7 @@ class UnitType():
     VOLTAGE = None
     DATA_RATE = None
     RESISTANCE = None
+
 
 EMIT_VALID_UNITS = {
     "Power": ["mW", "W", "kW", "dBm", "dBW"],
@@ -41,6 +46,7 @@ EMIT_VALID_UNITS = {
     "Resistance": ["uOhm", "mOhm", "Ohm", "kOhm", "megOhm", "GOhm"],
 }
 """Valid units for each unit type."""
+
 
 def emit_unit_type_string_to_enum(unit_string):
     EMIT_UNIT_TYPE_STRING_TO_ENUM = {

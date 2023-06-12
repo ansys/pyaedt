@@ -5,8 +5,9 @@ import warnings
 from pyaedt import emit_core
 from pyaedt import generate_unique_project_name
 from pyaedt.application.Design import Design
-from pyaedt.emit_core.emit_constants import EMIT_VALID_UNITS, emit_unit_type_string_to_enum
 from pyaedt.emit_core.Couplings import CouplingsEmit
+from pyaedt.emit_core.emit_constants import EMIT_VALID_UNITS
+from pyaedt.emit_core.emit_constants import emit_unit_type_string_to_enum
 from pyaedt.emit_core.results.results import Results
 
 # from pyaedt.generic.general_methods import property
@@ -243,10 +244,14 @@ class Emit(Design, object):
         if isinstance(unit_type, list):
             for t, v in zip(unit_type, unit_value):
                 if t not in EMIT_VALID_UNITS:
-                    warnings.warn("[{}] units are not supported by EMIT. The options are: {}: ".format(t, EMIT_VALID_UNITS.keys()))
+                    warnings.warn(
+                        "[{}] units are not supported by EMIT. The options are: {}: ".format(t, EMIT_VALID_UNITS.keys())
+                    )
                     return False
                 if v not in EMIT_VALID_UNITS[t]:
-                    warnings.warn("[{}] are not supported by EMIT. The options are: {}: ".format(v, EMIT_VALID_UNITS[t]))
+                    warnings.warn(
+                        "[{}] are not supported by EMIT. The options are: {}: ".format(v, EMIT_VALID_UNITS[t])
+                    )
                     return False
                 ut = emit_unit_type_string_to_enum(t)
                 self._emit_api.set_units(ut, v)
@@ -254,12 +259,16 @@ class Emit(Design, object):
         else:
             if unit_type not in EMIT_VALID_UNITS:
                 warnings.warn(
-                    "[{}] units are not supported by EMIT. The options are: {}: ".format(unit_type, EMIT_VALID_UNITS.keys())
+                    "[{}] units are not supported by EMIT. The options are: {}: ".format(
+                        unit_type, EMIT_VALID_UNITS.keys()
+                    )
                 )
                 return False
             if unit_value not in EMIT_VALID_UNITS[unit_type]:
                 warnings.warn(
-                    "[{}] are not supported by EMIT. The options are: {}: ".format(unit_value, EMIT_VALID_UNITS[unit_type])
+                    "[{}] are not supported by EMIT. The options are: {}: ".format(
+                        unit_value, EMIT_VALID_UNITS[unit_type]
+                    )
                 )
                 return False
             # keep the backend global units synced
@@ -290,9 +299,7 @@ class Emit(Design, object):
             return self._units
         if unit_type not in EMIT_VALID_UNITS:
             warnings.warn(
-                "[{}] units are not supported by EMIT. The options are: {}: ".format(
-                    unit_type, EMIT_VALID_UNITS.keys()
-                )
+                "[{}] units are not supported by EMIT. The options are: {}: ".format(unit_type, EMIT_VALID_UNITS.keys())
             )
             return None
         return self._units[unit_type]

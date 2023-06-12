@@ -4,7 +4,10 @@ import os
 import sys
 
 from pyaedt import pyaedt_logger as logger
-from pyaedt.emit_core.emit_constants import ResultType, TxRxMode, InterfererType, UnitType
+from pyaedt.emit_core.emit_constants import InterfererType
+from pyaedt.emit_core.emit_constants import ResultType
+from pyaedt.emit_core.emit_constants import TxRxMode
+from pyaedt.emit_core.emit_constants import UnitType
 
 EMIT_API_PYTHON = None
 
@@ -18,6 +21,7 @@ def emit_api_python():
     if not EMIT_API_PYTHON:
         raise Exception("A pyaedt.Emit() object must be initialized before using the EMIT API.")
     return EMIT_API_PYTHON
+
 
 def _init_enums():
     ResultType.EMI = emit_api_python().result_type().emi
