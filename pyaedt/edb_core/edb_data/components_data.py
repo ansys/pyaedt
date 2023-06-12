@@ -393,7 +393,7 @@ class EDBComponent(object):
         if self.type in ["Resistor", "Capacitor", "Inductor"]:
             return self.component_property.IsEnabled()
         else:  # pragma: no cover
-            return False
+            return True
 
     @is_enabled.setter
     def is_enabled(self, enabled):
@@ -444,8 +444,16 @@ class EDBComponent(object):
         str
             Value. ``None`` if not an RLC Type.
         """
-        if self.model_type == "RLC" and self._pin_pairs:
-            pin_pair = self._pin_pairs[0]
+        if self.model_type == "RLC":
+            if not self._pin_pairs:
+                if self.type == "Inductor":
+                    return 1e-9
+                elif self.type == "Resistor":
+                    return 1e6
+                else:
+                    return 1
+            else:
+                pin_pair = self._pin_pairs[0]
             if len([i for i in pin_pair.rlc_enable if i]) == 1:
                 return [pin_pair.rlc_values[idx] for idx, val in enumerate(pin_pair.rlc_enable) if val][0]
             else:
