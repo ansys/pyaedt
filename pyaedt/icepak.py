@@ -2270,7 +2270,7 @@ class Icepak(FieldAnalysis3D):
         source_design : str
             Name of the source design.
         source_project_name : str, optional
-            Name of the source project. The default is ``None`` in which case, the current active project will be used.
+            Name of the source project. The default is ``None`` in which case, the current active project is used.
         source_project_path : str, optional
             Path to the source project. The default is ``None``.
 
@@ -3704,7 +3704,7 @@ class Icepak(FieldAnalysis3D):
             each ``Function`` option is in Icepak documentation. The parameters must contain the
             units where needed.
         boundary_name : str, optional
-            Name of the source boundary. The default is ``None`` and the boundary name will be
+            Name of the source boundary. The default is ``None`` and the boundary name is
             generated automatically.
         radiate : bool, optional
             Whether to enable radiation. The default is ``False``.
@@ -3835,13 +3835,13 @@ class Icepak(FieldAnalysis3D):
         ----------
         sources_power : list of str or list of float
             List containing all the power value of the internal nodes. If the element of the list
-            is a float, "W" unit will be assigned.
+            is a float, "W" unit is assigned.
         faces_ids :  list of int
             List containing all the face ids that are network nodes.
         matrix : list of list
             Strict lower square triangular matrix containing the links value between the nodes of the network.
-            If the element of the matrix is a float "cel_per_w" unit will be automatically assigned,
-            else the unit prescribed in the string will be used. The element of the matrix in the i-th row
+            If the element of the matrix is a float "cel_per_w" unit is automatically assigned,
+            else the unit prescribed in the string is used. The element of the matrix in the i-th row
             and j-th column is the link value between the i-th node and j-th node. The list of nodes is
             automatically created from sources_power and faces_ids list (in this order).
         network_name : str, optional
@@ -4064,16 +4064,16 @@ class Icepak(FieldAnalysis3D):
                 String containing the name of the node.
             power : str or float or dict
                 String or float or dict containing the value of the assignment. If a float is passed ``"W"``
-                units will be used. A dictionary can be passed to use temperature dependent or transient
+                units is used. A dictionary can be passed to use temperature dependent or transient
                 assignment.
             mass : str or float, optional
                 String or float containing the value of the mass assignment. The assignment is relevant only
-                if the solution is transient. If a float is passed ``"Kg"`` units will be used. Default is
-                ``None`` and  ``"0.001kg"`` will be used.
+                if the solution is transient. If a float is passed ``"Kg"`` units is used. Default is
+                ``None`` and  ``"0.001kg"`` is used.
             specific_heat : str or float, optional
                 String or float containing the value of the specific heat assignment. The assignment is
-                relevant only if the solution is transient. If a float is passed ``"J_per_Kelkg"`` units will be
-                used. Default is ``None`` and  ``"1000J_per_Kelkg"`` will be used.
+                relevant only if the solution is transient. If a float is passed ``"J_per_Kelkg"`` units is
+                used. Default is ``None`` and  ``"1000J_per_Kelkg"`` is used.
 
             Returns
             -------
@@ -4093,7 +4093,7 @@ class Icepak(FieldAnalysis3D):
                 self._app.logger.warning("The solution is transient but neither mass nor specific heat is assigned.")
             if self._app.solution_type == "SteadyState" and (mass is not None or specific_heat is not None):
                 self._app.logger.warning(
-                    "The solution is steady state so neither mass nor specific heat assignment will be relevant."
+                    "The solution is steady state so neither mass nor specific heat assignment is relevant."
                 )
             if isinstance(power, (int, float)):
                 power = str(power) + "W"
@@ -4123,7 +4123,7 @@ class Icepak(FieldAnalysis3D):
                 String containing the type assignment. It can be ``"Power"`` or ``"Temperature"``.
             value: str or float or dict
                 String or float or dict containing the value of the assignment. If a float is passed ``"W"``
-                 or ``"cel"`` will be used according to ``assignment_type``. If ``type`` is ``"Power"`, a
+                 or ``"cel"`` is used according to ``assignment_type``. If ``type`` is ``"Power"`, a
                  dictionary can be passed to use temperature dependent or transient assignment.
 
             Returns
@@ -4188,10 +4188,10 @@ class Icepak(FieldAnalysis3D):
                 String with the material specification (required if ``thermal_resistance="Compute"``).
             thickness : str or float, optional Default is ``None``.
                 String with the thickness value and unit (required if ``thermal_resistance="Compute"``).
-                If a float is passed, ``"mm"`` unit will be automatically used. Default is ``None``.
+                If a float is passed, ``"mm"`` unit is automatically used. Default is ``None``.
             resistance : str or float, optional
                 String with the resistance value and unit (required if ``thermal_resistance="Specified"``).
-                If a float is passed, ``"cel_per_w"`` unit will be automatically used. Default is ``None``.
+                If a float is passed, ``"cel_per_w"`` unit is automatically used. Default is ``None``.
 
             Returns
             -------
@@ -4218,7 +4218,7 @@ class Icepak(FieldAnalysis3D):
                     if resistance is not None:
                         self._app.logger.info(
                             '``resistance`` assignment is incompatible with ``thermal_resistance="Compute"``'
-                            "and it will be ignored."
+                            "and it is ignored."
                         )
                     if material is not None or thickness is not None:
                         props_dict["ThermalResistance"] = thermal_resistance
@@ -4235,7 +4235,7 @@ class Icepak(FieldAnalysis3D):
                     if material is not None or thickness is not None:
                         self._app.logger.warning(
                             "``material`` and ``thickness`` assignment is incompatible with"
-                            '``thermal_resistance="Specified"`` and they will be ignored.'
+                            '``thermal_resistance="Specified"`` and they are ignored.'
                         )
                     if resistance is not None:
                         props_dict["ThermalResistance"] = thermal_resistance
@@ -4363,16 +4363,16 @@ class Icepak(FieldAnalysis3D):
             node1 : str or int
                 String containing one of the node name that the link is connecting or integer containing
                 the id of the face. If id is used and the node associated to the corresponding face is not
-                created yet, it will be added atuomatically.
+                created yet, it is added atuomatically.
             node2 : str or int
                 String containing one of the node name that the link is connecting or integer containing
                 the id of the face. If id is used and the node associated to the corresponding face is not
-                created yet, it will be added atuomatically.
+                created yet, it is added atuomatically.
             value : str or float
                 String containing the value and unit of the connection. If a float is passed, by default an
-                R-Link will be added to the network and the ``"cel_per_w"`` unit will be used.
+                R-Link is added to the network and the ``"cel_per_w"`` unit is used.
             name : str, optional
-                String containing the name of the link. Default is ``None`` and a name will be
+                String containing the name of the link. Default is ``None`` and a name is
                 automatically generated.
 
             Returns
@@ -4416,7 +4416,7 @@ class Icepak(FieldAnalysis3D):
                 composed by:
                 - ``"Link"``: a 3-item list with the two node that the link is connecting and the value and
                 unit of the link. The node of the connection can be referred to with their name (str) or
-                face id (int). The link type (resistance, heat transfer coefficient, or mass flow) will be
+                face id (int). The link type (resistance, heat transfer coefficient, or mass flow) is
                 determined automatically from the unit.
                 Optional key:
                 - ``"Name"``: a string that prescribes the name of the link.
@@ -4654,7 +4654,7 @@ class Icepak(FieldAnalysis3D):
               the ``"Function"`` key selection. For example, whn``"Linear"`` is set as the
               ``"Function"`` key, two parameters are required: the value of the variable
               at t=0 and the slope of the line. For the parameters required by each
-              ``"Function"`` key selection, see the Icepack documentation (). The parameters
+              ``"Function"`` key selection, see the Icepak documentation. The parameters
               must contain the units where needed.
 
         boundary_name : str, optional
@@ -4662,14 +4662,14 @@ class Icepak(FieldAnalysis3D):
             boundary name is automatically generated.
         htc : float, str, or dict, optional
             String with the value and units of the heat transfer coefficient for the
-            external conditions. If a float is provided, ``"w_per_m2kel"`` unit will be used.
+            external conditions. If a float is provided, ``"w_per_m2kel"`` unit is used.
             For a temperature-dependent or transient
             assignment, a dictionary can be used. For more information, see the
             description for the preceding ``power_assignment`` parameter. The
-            default is ``None``, in which case no external condition will be applied.
+            default is ``None``, in which case no external condition is applied.
         ext_temperature : float, str or dict, optional
             String with the value and units of temperature for the external conditions.
-            If a float is provided, ``"cel"`` unit will be used.
+            If a float is provided, ``"cel"`` unit is used.
             For a transient assignment, a dictionary can be used. For more information,
             see the description for the preceding ``power_assignment`` parameter. The
             default is ``"AmbientTemp"``, which is used if the ``htc`` parameter is not
@@ -4769,7 +4769,7 @@ class Icepak(FieldAnalysis3D):
             ``"Heat Flux"``, ``"Temperature"``, and ``"Total Power"``.
         assignment_value : str or dict
             String with value and units of the assignment. If ``"Total Power"`` is
-            assignment_type, ``"Joule Heating"`` can be used.
+            the assignment type, ``"Joule Heating"`` can be used.
             For a temperature-dependent or transient assignment, a dictionary can be used.
             The dictionary should contain three keys:
             ``"Type"``, ``"Function"``, and ``"Values"``.
@@ -4785,7 +4785,7 @@ class Icepak(FieldAnalysis3D):
               the ``"Function"`` key selection. For example, whn``"Linear"`` is set as the
               ``"Function"`` key, two parameters are required: the value of the variable
               at t=0 and the slope of the line. For the parameters required by each
-              ``"Function"`` key selection, see the Icepack documentation (). The parameters
+              ``"Function"`` key selection, see the Icepak documentation. The parameters
               must contain the units where needed.
 
         boundary_name : str, optional
@@ -4796,7 +4796,7 @@ class Icepak(FieldAnalysis3D):
             coefficient. If a float value is specified, the ``"cel"`` unit is automatically
             added.
             For a transient assignment, a dictionary can be used as described for the
-            assignment_value argument. Temperature dependent assignment is not supported.
+            ``assignment_value argument``. Temperature dependent assignment is not supported.
             The default is ``"AmbientTemp"``.
 
 
@@ -4822,7 +4822,7 @@ class Icepak(FieldAnalysis3D):
         """
         if self.modeler.get_object_from_name(object_name).solve_inside:
             self.logger.add_error_message(
-                "Use ``assign_solid_block`` function with this object as" "``solve_inside`` is ``True``."
+                "Use ``assign_solid_block`` method with this object as" "``solve_inside`` is ``True``."
             )
             return None
         if assignment_value == "Joule Heating" and assignment_type != "Total Power":
@@ -4840,7 +4840,7 @@ class Icepak(FieldAnalysis3D):
         thermal_condition = assignment_dict.get(assignment_type, None)
         if thermal_condition is None:
             self.logger.add_error_message(
-                'Available assignment_type are "Total Power", "Heat Flux",'
+                'Valid options for assignment type are "Total Power", "Heat Flux",'
                 '"Temperature" and "Heat Transfer Coefficient".'
                 "{} not recognized.".format(assignment_type)
             )
@@ -4867,9 +4867,7 @@ class Icepak(FieldAnalysis3D):
         if thermal_condition[0] == "Internal Conditions":
             if isinstance(external_temperature, dict):
                 if external_temperature["Type"] == "Temp Dep":
-                    self.logger.add_error_message(
-                        'It is not possible to use a "Temp Dep" assignment for a temperature assignment.'
-                    )
+                    self.logger.add_error_message('It is not possible to use "Temp Dep" for a temperature assignment.')
                     return None
                 assignment_value_dict = self._parse_variation_data(
                     "Temperature",
