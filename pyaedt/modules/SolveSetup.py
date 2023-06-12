@@ -14,13 +14,13 @@ from random import randrange
 import time
 import warnings
 
-from pyaedt import is_ironpython
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.constants import AEDT_UNITS
 
 # from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.SetupTemplates import SetupKeys
@@ -1389,9 +1389,7 @@ class Setup3DLayout(CommonSetup):
 
                 self._get_net_names(Hfss, file_fullname)
             else:
-                self.p_app.odesktop.SetMessages(
-                    "Exporting layout while keeping net name is not supported with IronPython"
-                )
+                self.p_app.logger.error("Exporting layout while keeping net name is not supported with IronPython")
         return succeeded
 
     @pyaedt_function_handler()
