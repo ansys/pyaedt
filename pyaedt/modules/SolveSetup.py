@@ -1595,9 +1595,12 @@ class Setup3DLayout(CommonSetup):
         self.omodule.ExportToQ3d(self.name, file_fullname)
         succeeded = self._check_export_log(info_messages, error_messages, file_fullname)
         if succeeded and keep_net_name:
-            from pyaedt import Q3d
+            if not is_ironpython:
+                from pyaedt import Q3d
 
-            self._get_net_names(Q3d, file_fullname)
+                self._get_net_names(Q3d, file_fullname)
+            else:
+                self.p_app.logger.error("Exporting layout while keeping net name is not supported with IronPython")
         return succeeded
 
     @pyaedt_function_handler()

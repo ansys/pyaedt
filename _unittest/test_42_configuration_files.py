@@ -14,6 +14,7 @@ from pyaedt import Hfss3dLayout
 from pyaedt import Icepak
 from pyaedt import Q2d
 from pyaedt import Q3d
+from pyaedt import is_ironpython
 
 # Import required modules
 # Setup paths for module imports
@@ -179,8 +180,12 @@ class TestClass(BasisTest, object):
         conf_file = self.icepak_a.configurations.export_config()
         assert os.path.exists(conf_file)
         f = self.icepak_a.create_fan("test_fan")
+        if is_ironpython:
+            idx = 1
+        else:
+            idx = 0
         self.icepak_a.monitor.assign_point_monitor_to_vertex(
-            list(self.icepak_a.modeler.user_defined_components[f.name].parts.values())[0].vertices[0].id
+            list(self.icepak_a.modeler.user_defined_components[f.name].parts.values())[idx].vertices[0].id
         )
         assert self.icepak_a.configurations.export_config()
         f.delete()
@@ -241,9 +246,6 @@ class TestClass(BasisTest, object):
         )
         self.icepak_b.modeler.user_defined_components[fan.name].move([1, 2, 3])
         fan4 = self.icepak_b.modeler.user_defined_components[fan.name].duplicate_around_axis("Z")
-        self.icepak_b.monitor.assign_point_monitor_to_vertex(
-            list(self.icepak_b.modeler.user_defined_components[fan4[0]].parts.values())[0].vertices[0].id
-        )
         self.icepak_b.modeler.user_defined_components[fan2[0]].duplicate_and_mirror([4, 5, 6], [1, 2, 3])
         self.icepak_b.monitor.assign_point_monitor_in_object(
             list(self.icepak_b.modeler.user_defined_components[fan4[0]].parts.values())[0]
