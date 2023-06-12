@@ -970,10 +970,9 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self,
         min_area=2e-6,
     ):
-        """Run Geometry Check
+        """Run Geometry Check.
 
-        All checks are used
-        All Auto Fix are used
+        All checks are used and all auto fix options are enabled.
 
         min_area : float, optional
             CutOuts that are smaller than this minimum area will be ignored during validation checks.
