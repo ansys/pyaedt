@@ -2019,9 +2019,7 @@ class Design(AedtObjects):
                             and self.design_type == "Icepak"
                         ):
                             boundaries.append(
-                                self.BoundaryNetwork(
-                                    self, ds, self.design_properties["BoundarySetup"]["Boundaries"][ds]
-                                )
+                                self.NetworkObject(self, ds, self.design_properties["BoundarySetup"]["Boundaries"][ds])
                             )
                         else:
                             boundaries.append(
