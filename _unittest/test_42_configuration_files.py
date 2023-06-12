@@ -197,7 +197,10 @@ class TestClass(BasisTest, object):
         assert app.configurations.results.global_import_success
         app.close_project(save_project=False)
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 GRPC")
+    @pytest.mark.skipif(
+        is_ironpython or (config["desktopVersion"] < "2023.1" and config["use_grpc"]),
+        reason="Not working in 2022.2 GRPC",
+    )
     def test_04b_icepak(self):
         box1 = self.icepak_b.modeler.create_box([0, 0, 0], [10, 10, 10])
         box1.surface_material_name = "Shellac-Dull-surface"
