@@ -508,7 +508,24 @@ class CoordinateSystem(BaseCoordinateSystem, object):
                 pass
         self._ref_cs = None
         self._quaternion = None
-        self.mode = None
+        self._mode = None
+
+    @property
+    def mode(self):
+        """Coordinate System mode."""
+        if self._mode:
+            return self._mode
+        if "Axis" in self.props.get("Mode", ""):
+            self._mode = "axis"
+        elif "ZXZ" in self.props.get("Mode", ""):
+            self._mode = "zxz"
+        elif "ZYZ" in self.props.get("Mode", ""):
+            self._mode == "zyz"
+        return self._mode
+
+    @mode.setter
+    def mode(self, value):
+        self._mode = value
 
     @property
     def props(self):
@@ -531,7 +548,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         if props["Mode"] == "Axis/Position":
             props["XAxisXvec"] = axisvec[1]
             props["XAxisYvec"] = axisvec[3]
-            props["XAxisYvec"] = axisvec[5]
+            props["XAxisZvec"] = axisvec[5]
             ypoint = obj1.GetPropValue("Y Point")
 
             props["YAxisXvec"] = ypoint[1]
