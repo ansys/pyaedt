@@ -12,7 +12,8 @@ the simulation of an antenna.
 # sphinx_gallery_thumbnail_path = "Resources/emit_simple_cosite.png"
 
 import pyaedt
-import pyaedt.emit_core.EmitConstants as econsts
+from pyaedt.emit_core.EmitConstants import TxRxMode, ResultType
+
 
 ###############################################################################
 # Set non-graphical mode
@@ -68,18 +69,15 @@ rad3, ant3 = aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Ener
 
 if desktop_version > "2023.1":
     rev = aedtapp.results.analyze()
-    modeRx = econsts.tx_rx_mode().rx
-    modeTx = econsts.tx_rx_mode().tx
-    modeEmi = econsts.result_type().emi
-    rx_bands = rev.get_band_names(rad2.name, modeRx) 
-    tx_bands = rev.get_band_names(rad3.name, modeTx) 
+    rx_bands = rev.get_band_names(rad2.name, TxRxMode.RX) 
+    tx_bands = rev.get_band_names(rad3.name, TxRxMode.TX) 
     domain = aedtapp.results.interaction_domain()
     domain.set_receiver(rad2.name, rx_bands[0], -1)
     domain.set_interferer(rad3.name,tx_bands[0])
     interaction = rev.run(domain)
-    worst = interaction.get_worst_instance(modeEmi)
+    worst = interaction.get_worst_instance(ResultType.EMI)
     if worst.has_valid_values():
-        emi = worst.get_value(modeEmi)
+        emi = worst.get_value(ResultType.EMI)
         print("Worst case interference is: {} dB".format(emi))
 
 ###############################################################################

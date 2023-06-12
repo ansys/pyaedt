@@ -5,7 +5,7 @@ import warnings
 from pyaedt import emit_core
 from pyaedt import generate_unique_project_name
 from pyaedt.application.Design import Design
-from pyaedt.emit_core import EmitConstants
+from pyaedt.emit_core.EmitConstants import EMIT_VALID_UNITS, emit_unit_type_string_to_enum
 from pyaedt.emit_core.Couplings import CouplingsEmit
 from pyaedt.emit_core.results.results import Results
 
@@ -99,8 +99,8 @@ class Emit(Design, object):
     The output of the run command is an ``interaction`` object. This object summarizes the interaction data
     that is defined in the interaction domain.
 
-    >>> instance = interaction.worst_instance(Emit.result_type().sensitivity)
-    >>> val = instance.value(Emit.result_type().sensitivity)
+    >>> instance = interaction.worst_instance(ResultType.SENSIVITY)
+    >>> val = instance.value(ResultType.SENSITIVITY)
     >>> print("Worst-case sensitivity for Rx '{}' is {}dB.".format(domain.rx_radio_name, val))
     """
 
@@ -239,33 +239,31 @@ class Emit(Design, object):
             ``True`` if the units were successfully changed and ``False``
             if there was an error.
         """
-        valid_type = EmitConstants.EMIT_UNIT_TYPE
-        valid_units = EmitConstants.EMIT_VALID_UNITS
 
         if isinstance(unit_type, list):
             for t, v in zip(unit_type, unit_value):
-                if t not in valid_type:
-                    warnings.warn("[{}] units are not supported by EMIT. The options are: {}: ".format(t, valid_type))
+                if t not in EMIT_VALID_UNITS:
+                    warnings.warn("[{}] units are not supported by EMIT. The options are: {}: ".format(t, EMIT_VALID_UNITS.keys()))
                     return False
-                if v not in valid_units[t]:
-                    warnings.warn("[{}] are not supported by EMIT. The options are: {}: ".format(v, valid_units[t]))
+                if v not in EMIT_VALID_UNITS[t]:
+                    warnings.warn("[{}] are not supported by EMIT. The options are: {}: ".format(v, EMIT_VALID_UNITS[t]))
                     return False
-                ut = EmitConstants.emit_unit_type_string_to_enum(t)
+                ut = emit_unit_type_string_to_enum(t)
                 self._emit_api.set_units(ut, v)
                 self._units[t] = v
         else:
-            if unit_type not in valid_type:
+            if unit_type not in EMIT_VALID_UNITS:
                 warnings.warn(
-                    "[{}] units are not supported by EMIT. The options are: {}: ".format(unit_type, valid_type)
+                    "[{}] units are not supported by EMIT. The options are: {}: ".format(unit_type, EMIT_VALID_UNITS.keys())
                 )
                 return False
-            if unit_value not in valid_units[unit_type]:
+            if unit_value not in EMIT_VALID_UNITS[unit_type]:
                 warnings.warn(
-                    "[{}] are not supported by EMIT. The options are: {}: ".format(unit_value, valid_units[unit_type])
+                    "[{}] are not supported by EMIT. The options are: {}: ".format(unit_value, EMIT_VALID_UNITS[unit_type])
                 )
                 return False
             # keep the backend global units synced
-            ut = EmitConstants.emit_unit_type_string_to_enum(unit_type)
+            ut = emit_unit_type_string_to_enum(unit_type)
             self._emit_api.set_units(ut, unit_value)
             self._units[unit_type] = unit_value
         return True
@@ -290,10 +288,10 @@ class Emit(Design, object):
         """
         if not unit_type:
             return self._units
-        if unit_type not in EmitConstants.EMIT_UNIT_TYPE:
+        if unit_type not in EMIT_VALID_UNITS:
             warnings.warn(
                 "[{}] units are not supported by EMIT. The options are: {}: ".format(
-                    unit_type, EmitConstants.EMIT_UNIT_TYPE
+                    unit_type, EMIT_VALID_UNITS.keys()
                 )
             )
             return None
