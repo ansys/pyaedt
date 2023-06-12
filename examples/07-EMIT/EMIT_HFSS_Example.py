@@ -17,7 +17,7 @@ import os
 # Import required modules
 import pyaedt
 from pyaedt.generic.filesystem import Scratch
-from pyaedt.emit_core.EmitConstants import TxRxMode, ResultType
+from pyaedt.emit_core.emit_constants import TxRxMode, ResultType
 
 ###############################################################################
 ## Set non-graphical mode

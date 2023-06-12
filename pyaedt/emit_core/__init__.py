@@ -4,7 +4,7 @@ import os
 import sys
 
 from pyaedt import pyaedt_logger as logger
-from pyaedt.emit_core.EmitConstants import ResultType, TxRxMode, InterfererType, UnitType
+from pyaedt.emit_core.emit_constants import ResultType, TxRxMode, InterfererType, UnitType
 
 EMIT_API_PYTHON = None
 

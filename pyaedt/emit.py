@@ -5,7 +5,7 @@ import warnings
 from pyaedt import emit_core
 from pyaedt import generate_unique_project_name
 from pyaedt.application.Design import Design
-from pyaedt.emit_core.EmitConstants import EMIT_VALID_UNITS, emit_unit_type_string_to_enum
+from pyaedt.emit_core.emit_constants import EMIT_VALID_UNITS, emit_unit_type_string_to_enum
 from pyaedt.emit_core.Couplings import CouplingsEmit
 from pyaedt.emit_core.results.results import Results
 

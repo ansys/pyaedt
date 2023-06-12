@@ -7,7 +7,7 @@ from _unittest.conftest import config
 from _unittest.conftest import is_ironpython
 
 from pyaedt import Emit
-from pyaedt.emit_core.EmitConstants import ResultType, TxRxMode, InterfererType
+from pyaedt.emit_core.emit_constants import ResultType, TxRxMode, InterfererType
 from pyaedt.generic import constants as consts
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitAntennaComponent

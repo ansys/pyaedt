@@ -12,7 +12,7 @@ the simulation of an antenna.
 # sphinx_gallery_thumbnail_path = "Resources/emit_simple_cosite.png"
 
 import pyaedt
-from pyaedt.emit_core.EmitConstants import TxRxMode, ResultType
+from pyaedt.emit_core.emit_constants import TxRxMode, ResultType
 
 
 ###############################################################################

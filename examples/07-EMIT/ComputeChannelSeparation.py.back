@@ -17,7 +17,7 @@ import sys
 import subprocess
 import pyaedt
 from pyaedt import Emit
-from pyaedt.emit_core.EmitConstants import ResultType, TxRxMode, InterfererType
+from pyaedt.emit_core.emit_constants import ResultType, TxRxMode, InterfererType
 
 # Check to see which Python libraries have been installed
 reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])

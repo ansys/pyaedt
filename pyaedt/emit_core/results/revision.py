@@ -1,6 +1,6 @@
 import warnings
 
-from pyaedt.emit_core.EmitConstants import TxRxMode, InterfererType
+from pyaedt.emit_core.emit_constants import TxRxMode, InterfererType
 
 # from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -273,7 +273,7 @@ class Revision:
         ----------
         radio_name : str
             Name of the radio/emitter.
-        tx_rx : :class:`EmitConstants.TxRxMode`, optional
+        tx_rx : :class:`emit_constants.TxRxMode`, optional
             Specifies whether to get ``tx`` or ``rx`` band names. The default
             is ``None``, in which case the names of all enabled bands are returned.
 
@@ -307,7 +307,7 @@ class Revision:
             Name of the radio/emitter.
         band_name : str
            Name of the band.
-        tx_rx : :class:`EmitConstants.TxRxMode`
+        tx_rx : :class:`emit_constants.TxRxMode`
             Specifies whether to get ``tx`` or ``rx`` radio freqs. The default
             is ``None``, in which case both ``tx`` and ``rx`` freqs are returned.
         units : str, optional
