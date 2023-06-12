@@ -170,10 +170,6 @@ class Icepak(FieldAnalysis3D):
         return self
 
     @property
-    def thermal_networks(self):
-        return {t_n.name: t_n for t_n in self._thermal_networks}
-
-    @property
     def problem_type(self):
         """Problem type of the Icepak design. Options are ``"TemperatureAndFlow"``, ``"TemperatureOnly"``,
         and ``"FlowOnly"``.
