@@ -964,3 +964,48 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         list
         """
         return [i for i in self.oeditor.FindObjects("Name", "VCP*")]
+
+    @pyaedt_function_handler()
+    def geometry_check_and_fix_all(
+        self,
+        min_area=2e-6,
+    ):
+        """Run Geometry Check.
+
+        All checks are used and all auto fix options are enabled.
+
+        min_area : float, optional
+            CutOuts that are smaller than this minimum area will be ignored during validation checks.
+            The default is ``2e-6``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        try:
+            self.oeditor.GeometryCheckAndAutofix(
+                [
+                    "NAME:checks",
+                    "Self-Intersecting Polygons",
+                    "Disjoint Nets (Floating Nodes)",
+                    "DC-Short Errors",
+                    "Identical/Overlapping Vias",
+                    "Misaligments",
+                ],
+                "minimum_area_meters_squared:=",
+                min_area,
+                [
+                    "NAME:fixes",
+                    "Self-Intersecting Polygons",
+                    "Disjoint Nets",
+                    "Identical/Overlapping Vias",
+                    "Traces-Inside-Traces Errors",
+                    "Misalignments (Planes/Traces/Vias)",
+                ],
+            )
+            self.logger.info("Geometry check succeed")
+            return True
+        except:
+            self.logger.error("Geometry check Failed.")
+            return False
