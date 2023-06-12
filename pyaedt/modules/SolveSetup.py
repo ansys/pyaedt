@@ -30,9 +30,6 @@ from pyaedt.modules.SolveSweeps import SweepHFSS3DLayout
 from pyaedt.modules.SolveSweeps import SweepMatrix
 from pyaedt.modules.SolveSweeps import identify_setup
 
-if not is_ironpython:
-    import numpy as np
-
 
 class CommonSetup(PropsManager, object):
     def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
@@ -1479,6 +1476,10 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler()
     def _get_point_inside_primitive(self, primitive, n):
+        if not is_ironpython:
+            import numpy as np
+        else:
+            return False
         bbox = primitive.bbox
         primitive_x_points = []
         primitive_y_points = []
