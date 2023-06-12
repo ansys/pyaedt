@@ -4090,7 +4090,7 @@ class Icepak(FieldAnalysis3D):
             >>>                                        "Function": "Linear", "Values": ["0.01W", "1"]})
             """
             if self._app.solution_type != "SteadyState" and mass is None and specific_heat is None:
-                self._app.logger("The solution is transient but neither mass nor specific heat is assigned.")
+                self._app.logger.warning("The solution is transient but neither mass nor specific heat is assigned.")
             if self._app.solution_type == "SteadyState" and (mass is not None or specific_heat is not None):
                 self._app.logger.warning(
                     "The solution is steady state so neither mass nor specific heat assignment will be relevant."
@@ -4447,9 +4447,9 @@ class Icepak(FieldAnalysis3D):
                     self.add_link(connection["Link"][0], connection["Link"][1], connection["Link"][2], name)
                 except:
                     if name:
-                        self._app.logger("Failed to add " + name + " link.")
+                        self._app.logger.error("Failed to add " + name + " link.")
                     else:
-                        self._app.logger(
+                        self._app.logger.error(
                             "Failed to add link associated with the following dictionary:\n" + str(connection)
                         )
             return True
@@ -4471,10 +4471,10 @@ class Icepak(FieldAnalysis3D):
                     return True
                 except:
                     self._app.odesign.Undo()
-                    self._app.logger("Update of network object failed.")
+                    self._app.logger.error("Update of network object failed.")
                     return False
             else:
-                self._app.logger("Network object not yet created in design.")
+                self._app.logger.warning("Network object not yet created in design.")
                 return False
 
         @pyaedt_function_handler()
@@ -4544,7 +4544,7 @@ class Icepak(FieldAnalysis3D):
             def node_type(self):
                 if self._type is None:
                     if self.props is None:
-                        self._app.logger(
+                        self._app.logger.error(
                             "Cannot define node_type. Both its assignment and props assignment are missing."
                         )
                         return None
