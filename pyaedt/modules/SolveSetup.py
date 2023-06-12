@@ -22,7 +22,6 @@ from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SolveSweeps import SetupProps
 from pyaedt.modules.SolveSweeps import SweepHFSS
@@ -1474,6 +1473,8 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler()
     def _get_point_inside_primitive(self, primitive, n):
+        from pyaedt.modeler.geometry_operators import GeometryOperators
+
         if not is_ironpython:
             import numpy as np
         else:
