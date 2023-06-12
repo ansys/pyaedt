@@ -3813,7 +3813,7 @@ class Icepak(FieldAnalysis3D):
         >>> network = app.create_network_object()
         """
         bound = self.NetworkObject(self, name, props, create)
-        self._thermal_networks.append(bound)
+        self.boundaries.append(bound)
         return bound
 
     @pyaedt_function_handler()
