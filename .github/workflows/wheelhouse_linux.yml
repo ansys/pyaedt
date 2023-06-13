@@ -56,8 +56,8 @@ jobs:
       - name: Generate wheelhouse
         run: |
           pip install wheel setuptools -U
-          pip wheel . -w wheelhouse
-          export wheellist=`pip freeze`
+          pip install --upgrade pip
+          wheellist=`pip freeze`
           for file in $wheellist; do 
              pip wheel $file -w wheelhouse
           done
