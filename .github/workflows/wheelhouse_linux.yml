@@ -43,6 +43,7 @@ jobs:
       - name: Install pyaedt
         run: |
           pip install .[all]
+          pip install jupyterlab
 
       - name: Verify pyaedt can be imported
         run: python -c "import pyaedt"
@@ -59,7 +60,7 @@ jobs:
           pip install --upgrade pip
           wheellist=`pip freeze`
           for file in $wheellist; do 
-             pip wheel $file -w wheelhouse
+              pip wheel $file wheelhouse
           done
 
       - name: Zip wheelhouse
