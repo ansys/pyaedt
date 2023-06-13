@@ -20,6 +20,7 @@ from pyaedt.generic.constants import AEDT_UNITS
 # from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SolveSweeps import SetupProps
@@ -1350,7 +1351,9 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler()
     def export_to_hfss(self, file_fullname, keep_net_name=False):
-        """Export the HFSS 3DLayout design to HFSS 3D design.
+        """Export the HFSS 3D Layout design to HFSS 3D design.
+
+        This method is not supported with IronPython.
 
         Parameters
         ----------
@@ -1380,9 +1383,12 @@ class Setup3DLayout(CommonSetup):
         self.omodule.ExportToHfss(self.name, file_fullname)
         succeeded = self._check_export_log(info_messages, error_messages, file_fullname)
         if succeeded and keep_net_name:
-            from pyaedt import Hfss
+            if not is_ironpython:
+                from pyaedt import Hfss
 
-            self._get_net_names(Hfss, file_fullname)
+                self._get_net_names(Hfss, file_fullname)
+            else:
+                self.p_app.logger.error("Exporting layout while keeping net name is not supported with IronPython")
         return succeeded
 
     @pyaedt_function_handler()
@@ -1450,15 +1456,44 @@ class Setup3DLayout(CommonSetup):
         primitive_dict = {}
         for net, primitives in net_primitives.items():
             primitive_dict[net] = []
-            if primitives:
+            n = 0
+            while len(primitive_dict[net]) < len(net_primitives[net]):
+                if n > 1000:  # adding 1000 as maximum value to prevent infinite loop
+                    return
+                n += 10
+                primitive_dict[net] = []
                 for prim in primitives:
                     layer = edb.stackup.signal_layers[prim.layer_name]
                     z = layer.lower_elevation + layer.thickness / 2
-                    for arc in prim.arcs:
-                        pt = self._get_polygon_centroid(arc.points)
+                    pt = self._get_point_inside_primitive(prim, n)
+                    if pt:
                         pt.append(z)
                         primitive_dict[net].append(pt)
         return primitive_dict
+
+    @pyaedt_function_handler()
+    def _get_point_inside_primitive(self, primitive, n):
+        from pyaedt.modeler.geometry_operators import GeometryOperators
+
+        if not is_ironpython:
+            import numpy as np
+        else:
+            return False
+        bbox = primitive.bbox
+        primitive_x_points = []
+        primitive_y_points = []
+        for arc in primitive.arcs:
+            if len(arc.points) == 2:
+                primitive_x_points += arc.points[0]
+                primitive_y_points += arc.points[1]
+        dx = (bbox[2] - bbox[0]) / n
+        dy = (bbox[3] - bbox[1]) / n
+        xcoords = [i for i in np.arange(bbox[0], bbox[2], dx)]
+        ycoords = [i for i in np.arange(bbox[1], bbox[3], dy)]
+        for x in xcoords:
+            for y in ycoords:
+                if GeometryOperators.point_in_polygon([x, y], [primitive_x_points, primitive_y_points]) == 1:
+                    return [x, y]
 
     @pyaedt_function_handler()
     def _get_polygon_centroid(self, arcs=None):
@@ -1560,9 +1595,12 @@ class Setup3DLayout(CommonSetup):
         self.omodule.ExportToQ3d(self.name, file_fullname)
         succeeded = self._check_export_log(info_messages, error_messages, file_fullname)
         if succeeded and keep_net_name:
-            from pyaedt import Q3d
+            if not is_ironpython:
+                from pyaedt import Q3d
 
-            self._get_net_names(Q3d, file_fullname)
+                self._get_net_names(Q3d, file_fullname)
+            else:
+                self.p_app.logger.error("Exporting layout while keeping net name is not supported with IronPython")
         return succeeded
 
     @pyaedt_function_handler()

@@ -1,5 +1,5 @@
-Components
-==========
+Nets
+====
 This section contains API references for net management.
 The main component object is called directly from main application using the property ``nets``.
 

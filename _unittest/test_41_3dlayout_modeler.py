@@ -522,6 +522,7 @@ class TestClass(BasisTest, object):
         sweep_name = None
         assert self.aedtapp.export_touchstone(solution_name, sweep_name)
 
+    @pytest.mark.skipif(is_ironpython, reason="Not supported with IronPython")
     def test_19D_export_to_hfss(self):
         filename = "export_to_hfss_test"
         filename2 = "export_to_hfss_test2"
@@ -754,3 +755,6 @@ class TestClass(BasisTest, object):
     def test_97_mesh_settings(self):
         assert self.aedtapp.set_meshing_settings(mesh_method="PhiPlus", enable_intersections_check=False)
         assert self.aedtapp.set_meshing_settings(mesh_method="Classic", enable_intersections_check=True)
+
+    def test_98_geom_check(self):
+        assert self.aedtapp.modeler.geometry_check_and_fix_all()
