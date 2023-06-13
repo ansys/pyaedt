@@ -59,8 +59,10 @@ jobs:
           pip install wheel setuptools -U
           pip install --upgrade pip
           wheellist=`pip freeze`
-          for file in $wheellist; do 
-              pip wheel $file wheelhouse
+          for file in $wheellist; do
+              if [[ $file != *"@"* ]]; then
+                pip wheel $file -w wheelhouse
+              fi
           done
         continue-on-error: true
 
