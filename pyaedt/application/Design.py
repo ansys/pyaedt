@@ -58,6 +58,7 @@ from pyaedt.generic.general_methods import settings
 from pyaedt.generic.general_methods import write_csv
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import MaxwellParameters
+from pyaedt.modules.Boundary import NetworkObject
 
 if sys.version_info.major > 2:
     import base64
@@ -2019,7 +2020,7 @@ class Design(AedtObjects):
                             and self.design_type == "Icepak"
                         ):
                             boundaries.append(
-                                self.NetworkObject(self, ds, self.design_properties["BoundarySetup"]["Boundaries"][ds])
+                                NetworkObject(self, ds, self.design_properties["BoundarySetup"]["Boundaries"][ds])
                             )
                         else:
                             boundaries.append(
