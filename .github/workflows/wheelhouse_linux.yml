@@ -61,7 +61,7 @@ jobs:
           pip wheel . -w wheelhouse
           export wheellist=$(pip freeze)
           for file in $wheellist; do
-              if [[ $file != *"@"* ]]; then
+              if [[ $file != *"@"* ]] && [[ $file != *"pyaedt"* ]]; then
                 pip wheel $file -w wheelhouse
               fi
           done
