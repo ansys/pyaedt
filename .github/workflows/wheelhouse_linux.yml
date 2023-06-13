@@ -55,6 +55,7 @@ jobs:
         id: version
 
       - name: Generate wheelhouse
+        ignore_error: true
         run: |
           pip install wheel setuptools -U
           pip install --upgrade pip
