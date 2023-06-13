@@ -62,4 +62,4 @@ def _set_api(aedt_version):
         global EMIT_API_PYTHON
         EMIT_API_PYTHON = import_module("EmitApiPython")
         logger.info("Loaded {}".format(EMIT_API_PYTHON.EmitApi().get_version(True)))
-    _init_enums()
+        _init_enums()
