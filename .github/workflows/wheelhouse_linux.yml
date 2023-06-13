@@ -55,7 +55,6 @@ jobs:
         id: version
 
       - name: Generate wheelhouse
-        ignore_error: true
         run: |
           pip install wheel setuptools -U
           pip install --upgrade pip
@@ -63,6 +62,7 @@ jobs:
           for file in $wheellist; do 
               pip wheel $file wheelhouse
           done
+        continue-on-error: true
 
       - name: Zip wheelhouse
         uses: vimtor/action-zip@v1
