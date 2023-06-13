@@ -33,17 +33,17 @@ plots in AEDT. They are accessible through the ``post`` property.
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
 
-    # This call return the PostProcessor class
+    # This call returns the PostProcessor class
     post = app.post
 
-    # This call return a FieldPlot object
+    # This call returns a FieldPlot object
     plotf = post.create_fieldplot_volume(object_list, quantityname, setup_name, intrinsic_dict)
 
-    # This call return a SolutionData object
-    my_data = post.get_report_data(expression=trace_names)
+    # This call returns a SolutionData object
+    my_data = post.get_solution_data(expressions=trace_names)
 
     # This call returns a new standard report object and creates one or multiple reports from it.
-    standard_report = post.report_by_category.standard("db(S(1,1))")
+    standard_report = post.reports_by_category.standard("db(S(1,1))")
     standard_report.create()
     sols = standard_report.get_solution_data()
     ...

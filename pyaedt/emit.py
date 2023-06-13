@@ -8,7 +8,8 @@ from pyaedt.application.Design import Design
 from pyaedt.emit_core import EmitConstants
 from pyaedt.emit_core.Couplings import CouplingsEmit
 from pyaedt.emit_core.results.results import Results
-from pyaedt.generic.general_methods import property
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.schematic import ModelerEmit
 

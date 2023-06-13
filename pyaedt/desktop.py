@@ -1,8 +1,6 @@
 """
 This module contains the ``Desktop`` class.
-
 This module is used to initialize AEDT and the message manager for managing AEDT.
-
 You can initialize this module before launching an app or
 have the app automatically initialize it to the latest installed AEDT version.
 """
@@ -37,8 +35,8 @@ if is_linux and is_ironpython:
 else:
     import subprocess
 
+# from pyaedt import property
 from pyaedt import __version__
-from pyaedt import property
 from pyaedt import pyaedt_function_handler
 from pyaedt import settings
 from pyaedt.generic.general_methods import _pythonver
@@ -58,7 +56,7 @@ modules = [tup[1] for tup in pkgutil.iter_modules()]
 
 if is_ironpython:
     _com = "ironpython"
-elif is_windows and "pythonnet" in modules:  # pragma: no cover
+elif is_windows and "pythonnet" in modules:
     _com = "pythonnet_v3"
 else:
     _com = "gprc_v3"
@@ -501,6 +499,10 @@ class Desktop(object):
         self.logfile = None
 
         self._logger = pyaedt_logger
+        if settings.enable_screen_logs:
+            self._logger.enable_stdout_log()
+        else:
+            self._logger.disable_stdout_log()
         self._logger.info("using existing logger.")
 
         if "oDesktop" in dir():  # pragma: no cover
@@ -1321,6 +1323,16 @@ class Desktop(object):
 
         """
         result = release_desktop(close_projects, close_on_exit)
+        props = [a for a in dir(self) if not a.startswith("__")]
+        for a in props:
+            self.__dict__.pop(a, None)
+        dicts = [self, sys.modules["__main__"]]
+        for dict_to_clean in dicts:
+            props = [a for a in dir(dict_to_clean) if "win32com" in str(type(dict_to_clean.__dict__.get(a, None)))]
+            for a in props:
+                dict_to_clean.__dict__[a] = None
+
+        gc.collect()
         self.odesktop = None
         return result
 
@@ -1685,3 +1697,72 @@ class Desktop(object):
                     f1.write(line)
         f1.close()
         return self.odesktop.SubmitJob(os.path.join(project_path, "Job_settings.areg"), project_file)
+
+    @property
+    def are_there_simulations_running(self):
+        """Check if there are simulation running.
+
+        .. note::
+           It works only for AEDT >= ``"2023.2"``.
+
+        Returns
+        -------
+        float
+
+        """
+        if self.aedt_version_id > "2023.1":
+            return self.odesktop.AreThereSimulationsRunning()
+        else:
+            self.logger.error("It works only for AEDT >= `2023.2`.")
+        return False
+
+    @pyaedt_function_handler()
+    def get_monitor_data(self):
+        """Check and get monitor data of an existing analysis.
+
+        .. note::
+           It works only for AEDT >= ``"2023.2"``.
+
+        Returns
+        -------
+        dict
+
+        """
+        counts = {"profile": 0, "convergence": 0, "sweptvar": 0, "progress": 0, "variations": 0, "displaytype": 0}
+        if self.are_there_simulations_running:
+            reqstr = " ".join(["%s %d 0" % (t, counts[t]) for t in counts])
+            data = self.odesktop.GetMonitorData(reqstr)
+            all_lines = (line.strip() for line in data.split("\n"))
+            for line in all_lines:
+                if line.startswith("$begin"):
+                    btype = line.split()[1].strip("'")
+                    if btype == "MonitoringProfileMsg":
+                        counts["profile"] += 1
+                    elif btype == "MonConvData":
+                        counts["convergence"] += 1
+                    elif btype == "MonGenericVariations":
+                        pass
+                    elif btype == "MapMonGraphicalProgMsg":
+                        pass
+                    elif btype == "MonitoringSweptVariableMsg":
+                        counts["sweptvar"] += 1
+            return counts
+        return counts
+
+    @pyaedt_function_handler()
+    def stop_simulations(self, clean_stop=True):
+        """Check if there are simulation running and stops them.
+
+        .. note::
+           It works only for AEDT >= ``"2023.2"``.
+
+        Returns
+        -------
+        str
+
+        """
+        if self.aedt_version_id > "2023.1":
+            return self.odesktop.StopSimulations(clean_stop)
+        else:
+            self.logger.error("It works only for AEDT >= `2023.2`.")
+        return False

@@ -495,6 +495,14 @@ class TestClass(BasisTest, object):
     def test_19A_validate(self):
         assert self.aedtapp.validate_full_design()
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
+    def test_19A_analyze_setup(self):
+        self.aedtapp.save_project()
+        assert self.aedtapp.analyze_setup("RFBoardSetup", blocking=False)
+        assert self.aedtapp.are_there_simulations_running
+        # assert self.aedtapp.get_monitor_data()
+        assert self.aedtapp.stop_simulations()
+
     def test_19B_analyze_setup(self):
         self.aedtapp.save_project()
         assert self.aedtapp.mesh.generate_mesh("RFBoardSetup3")
@@ -514,6 +522,7 @@ class TestClass(BasisTest, object):
         sweep_name = None
         assert self.aedtapp.export_touchstone(solution_name, sweep_name)
 
+    @pytest.mark.skipif(is_ironpython, reason="Not supported with IronPython")
     def test_19D_export_to_hfss(self):
         filename = "export_to_hfss_test"
         filename2 = "export_to_hfss_test2"
@@ -529,7 +538,7 @@ class TestClass(BasisTest, object):
         setup = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
         assert setup.export_to_q3d(file_fullname)
 
-    def test_19_F_export_results(self):
+    def test_19F_export_results(self):
         files = self.aedtapp.export_results()
         assert len(files) > 0
 
@@ -746,3 +755,6 @@ class TestClass(BasisTest, object):
     def test_97_mesh_settings(self):
         assert self.aedtapp.set_meshing_settings(mesh_method="PhiPlus", enable_intersections_check=False)
         assert self.aedtapp.set_meshing_settings(mesh_method="Classic", enable_intersections_check=True)
+
+    def test_98_geom_check(self):
+        assert self.aedtapp.modeler.geometry_check_and_fix_all()

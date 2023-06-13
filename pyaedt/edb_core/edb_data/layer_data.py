@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import re
 
-from pyaedt import property
+# from pyaedt import property
 from pyaedt import pyaedt_function_handler
 
 
@@ -70,7 +70,7 @@ class LayerEdbClass(object):
 
     @property
     def _edb(self):
-        return self._pclass._pedb.edb
+        return self._pclass._pedb.edb_api
 
     @property
     def _edb_layer(self):
@@ -169,10 +169,10 @@ class LayerEdbClass(object):
         if new_type == self.type:
             return
         if new_type == "signal":
-            self._edb_layer.SetLayerType(self._edb.Cell.LayerType.SignalLayer)
+            self._edb_layer.SetLayerType(self._edb.cell.layer_type.SignalLayer)
             self._type = new_type
         elif new_type == "dielectric":
-            self._edb_layer.SetLayerType(self._edb.Cell.LayerType.DielectricLayer)
+            self._edb_layer.SetLayerType(self._edb.cell.layer_type.DielectricLayer)
             self._type = new_type
         else:
             return
@@ -417,11 +417,11 @@ class LayerEdbClass(object):
         if not self.is_stackup_layer:  # pragma: no cover
             return
         if surface == "top":
-            return self._edb_layer.GetRoughnessModel(self._pclass._pedb.edb.Cell.RoughnessModel.Region.Top)
+            return self._edb_layer.GetRoughnessModel(self._pclass._pedb.edb_api.Cell.RoughnessModel.Region.Top)
         elif surface == "bottom":
-            return self._edb_layer.GetRoughnessModel(self._pclass._pedb.edb.Cell.RoughnessModel.Region.Bottom)
+            return self._edb_layer.GetRoughnessModel(self._pclass._pedb.edb_api.Cell.RoughnessModel.Region.Bottom)
         elif surface == "side":
-            return self._edb_layer.GetRoughnessModel(self._pclass._pedb.edb.Cell.RoughnessModel.Region.Side)
+            return self._edb_layer.GetRoughnessModel(self._pclass._pedb.edb_api.Cell.RoughnessModel.Region.Side)
 
     @pyaedt_function_handler()
     def assign_roughness_model(
@@ -463,27 +463,27 @@ class LayerEdbClass(object):
         if apply_on_surface == "all":
             self._side_roughness = "all"
             regions = [
-                self._pclass._pedb.edb.Cell.RoughnessModel.Region.Top,
-                self._pclass._pedb.edb.Cell.RoughnessModel.Region.Side,
-                self._pclass._pedb.edb.Cell.RoughnessModel.Region.Bottom,
+                self._pclass._pedb.edb_api.Cell.RoughnessModel.Region.Top,
+                self._pclass._pedb.edb_api.Cell.RoughnessModel.Region.Side,
+                self._pclass._pedb.edb_api.Cell.RoughnessModel.Region.Bottom,
             ]
         elif apply_on_surface == "top":
             self._side_roughness = "top"
-            regions = [self._pclass._pedb.edb.Cell.RoughnessModel.Region.Top]
+            regions = [self._pclass._pedb.edb_api.Cell.RoughnessModel.Region.Top]
         elif apply_on_surface == "bottom":
             self._side_roughness = "bottom"
-            regions = [self._pclass._pedb.edb.Cell.RoughnessModel.Region.Bottom]
+            regions = [self._pclass._pedb.edb_api.Cell.RoughnessModel.Region.Bottom]
         elif apply_on_surface == "side":
             self._side_roughness = "side"
-            regions = [self._pclass._pedb.edb.Cell.RoughnessModel.Region.Side]
+            regions = [self._pclass._pedb.edb_api.Cell.RoughnessModel.Region.Side]
 
         layer_clone = self._edb_layer
         layer_clone.SetRoughnessEnabled(True)
         for r in regions:
             if model_type == "huray":
-                model = self._pclass._pedb.edb.Cell.HurrayRoughnessModel(radius, surface_ratio)
+                model = self._pclass._pedb.edb_api.Cell.HurrayRoughnessModel(radius, surface_ratio)
             else:
-                model = self._pclass._pedb.edb.Cell.GroisseRoughnessModel(groisse_roughness)
+                model = self._pclass._pedb.edb_api.Cell.GroisseRoughnessModel(groisse_roughness)
             layer_clone.SetRoughnessModel(r, model)
         return self._pclass._set_layout_stackup(layer_clone, "change_attribute")
 
