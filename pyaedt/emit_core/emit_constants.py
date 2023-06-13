@@ -1,7 +1,7 @@
 """
-Enums from EmitApiPython are defined as none until the EmitApiPython module initializes.
-This allows IDE auto-complete to find them and emit_constants to import before the
-EmitApiPython module has loaded (typically when a pyaedt.Emit() object is created).
+Enums from the ``EmitApiPython`` module are defined as ``None`` until this module initializes.
+This allows IDE auto-complete to find them and ``emit_constants`` to import before the
+``EmitApiPython`` module has loaded (typically when a ``pyaedt.Emit()`` object is created).
 """
 
 

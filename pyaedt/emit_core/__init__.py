@@ -14,9 +14,9 @@ EMIT_API_PYTHON = None
 
 def emit_api_python():
     """
-    Get the Emit backend API.
+    Get the EMIT backend API.
 
-    The backend API is available once a pyaedt.Emit() object has been created. An Exception is raised if this method is called before a pyaedt.Emit() object has been created.
+    The backend API is available once a pyaedt.Emit() object has been created. An exception is raised if this method is called before a ``pyaedt.Emit()`` object has been created.
     """
     if not EMIT_API_PYTHON:
         raise Exception("A pyaedt.Emit() object must be initialized before using the EMIT API.")
