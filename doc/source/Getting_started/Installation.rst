@@ -18,8 +18,15 @@ Install from a Python file
 AEDT already includes CPython 3.7, which can be used to run PyAEDT.
 It is also possible to use CPython 3.7 (3.10 from AEDT 2023R2) as a virtual environment to run PyAEDT.
 In order to do that you can download the following file
-:download:`PyAEDT Installer python file <../Resources/PyAEDTInstallerFromDesktop.py>`
+:download:`PyAEDT Installer Python file <../Resources/PyAEDTInstallerFromDesktop.py>`
 Open an Electronics Desktop Session and click on Tools->Run Script and execute the file.
+Offline install is also possible using wheelhouses.
+A wheelhouse is a zip containing all needed packages that can be installed offline.
+PyAEDT wheelhouse can be found at `Releases <https://github.com/ansys/pyaedt/releases>`_.
+After downloading the wheelhouse zip specific for your distribution and Python release,
+run the script from Electronics Desktop using the zip full path as argument.
+Please note that AEDT 2023 R1 and lower requires Python 3.7 wheelhouse while AEDT 2023 R2
+and higher requires the Python 3.10 wheelhouse.
 
 After installation a new menu appears in AEDT Menu as in the image below.
 

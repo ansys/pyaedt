@@ -219,6 +219,7 @@ class TestClass(BasisTest, object):
         assert self.edbapp.nets.find_or_create_net(start_with="g", end_with="d")
         assert self.edbapp.nets.find_or_create_net(end_with="d")
         assert self.edbapp.nets.find_or_create_net(contain="usb")
+        self.edbapp.nets["BST_V3P3_S5"].get_extended_net()
 
     def test_011_assign_rlc(self):
         assert self.edbapp.components.set_component_rlc("C3B14", res_value=1e-3, cap_value="10e-6", isparallel=False)
@@ -381,7 +382,7 @@ class TestClass(BasisTest, object):
 
         self.edbapp.siwave.create_pin_group(reference_designator="U3A1", pin_numbers=[14, 15], group_name="sink_pos")
 
-        self.edbapp.siwave.create_voltage_source_on_pin_group("sink_pos", "gnd", "vrm_voltage_source")
+        self.edbapp.siwave.create_voltage_source_on_pin_group("sink_pos", "gnd", name="vrm_voltage_source")
 
     def test_043_create_dc_terminal(self):
         assert self.edbapp.siwave.create_dc_terminal("U2A5", "DDR3_DM1", "dc_terminal1") == "dc_terminal1"
