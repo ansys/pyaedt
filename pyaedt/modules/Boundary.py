@@ -3700,8 +3700,8 @@ class NetworkObject(BoundaryObject):
             if thermal_resistance == "Specified":
                 if material is not None or thickness is not None:
                     self._app.logger.warning(
-                        "``material`` and ``thickness`` assignment is incompatible with"
-                        '``thermal_resistance="Specified"`` and they are ignored.'
+                        "Because ``material`` and ``thickness`` assignments are incompatible with"
+                        '``thermal_resistance="Specified"``, they are ignored.'
                     )
                 if resistance is not None:
                     props_dict["ThermalResistance"] = thermal_resistance
