@@ -4100,7 +4100,7 @@ class Icepak(FieldAnalysis3D):
         if thermal_condition is None:
             self.logger.add_error_message(
                 'Valid options for assignment type are "Total Power", "Heat Flux",'
-                '"Temperature" and "Heat Transfer Coefficient".'
+                '"Temperature", and "Heat Transfer Coefficient".'
                 "{} not recognized.".format(assignment_type)
             )
             return None
