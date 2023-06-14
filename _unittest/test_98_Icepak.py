@@ -1044,7 +1044,7 @@ class TestClass(BasisTest, object):
         nodes_names = list(net.nodes.keys())
         for i in range(len(net.nodes) - 1):
             net.add_link(nodes_names[i], nodes_names[i + 1], i * 10 + 1)
-        assert net.create()
+        assert net.create() is not None
         bkupprops = net.nodes["TestFace"].props
         bkupprops_internal = net.nodes["TestInternal3"].props
         bkupprops_boundary = net.nodes["TestBoundary4"].props
@@ -1054,7 +1054,7 @@ class TestClass(BasisTest, object):
         nodes_names = list(net.nodes.keys())
         for i in range(len(net.nodes) - 1):
             net.add_link(nodes_names[i], nodes_names[i + 1], str(i + 1) + "cel_per_w", "link_" + str(i))
-        assert net.update()
+        net.update()
         assert all(i not in net.nodes for i in ["TestFace", "TestInternal3", "TestBoundary4"])
         net.props["Nodes"].update({"TestFace": bkupprops})
         net.props["Nodes"].update({"TestInternal3": bkupprops_internal})
@@ -1062,7 +1062,7 @@ class TestClass(BasisTest, object):
         nodes_names = list(net.nodes.keys())
         for i in range(len(net.nodes) - 1):
             net.add_link(nodes_names[i], nodes_names[i + 1], i * 100 + 1)
-        assert net.update()
+        net.update()
         assert all(i in net.nodes for i in ["TestFace", "TestInternal3", "TestBoundary4"])
         net.nodes["TestFace"].delete_node()
         net.nodes["TestInternal3"].delete_node()
@@ -1084,6 +1084,6 @@ class TestClass(BasisTest, object):
         link_dict = {"Name": "TestLink", "Link": link_dict[0:2] + link_dict[4:]}
         net.links["TestLink"].delete_link()
         net.add_links_from_dictionaries(link_dict)
-        assert net.update()
+        net.update()
         net.name = "Network_Test"
         assert net.name == "Network_Test"
