@@ -307,8 +307,7 @@ class Revision:
         band_name : str
            Name of the band.
         tx_rx : :class:`emit_constants.TxRxMode`
-            Specifies whether to get ``tx`` or ``rx`` radio freqs. The default
-            is ``None``, in which case both ``tx`` and ``rx`` freqs are returned.
+            Specifies whether to get ``tx`` or ``rx`` radio freqs. 
         units : str, optional
             Units for the frequencies. The default is ``None`` which uses the units
             specified globally for the project.
