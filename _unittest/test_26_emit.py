@@ -763,7 +763,7 @@ class TestClass(BasisTest, object):
             interaction3 = rev2.run(domain2)
             assert interaction3 is not None
             assert interaction3.is_valid()
-            worst_domain = interaction3.get_worst_instance(modeEmi).get_domain()
+            worst_domain = interaction3.get_worst_instance(ResultType.EMI).get_domain()
             assert worst_domain.receiver_name == rad3.name
             assert worst_domain.interferer_names[0] == rad2.name
 
