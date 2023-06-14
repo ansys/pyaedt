@@ -3450,12 +3450,12 @@ class NetworkObject(BoundaryObject):
     @property
     def r_links(self):
         self._update_from_props()
-        return {link.name: link for link in self._links if link.link_type[0] == "R-Link"}
+        return {link.name: link for link in self._links if link._link_type[0] == "R-Link"}
 
     @property
     def c_links(self):
         self._update_from_props()
-        return {link.name: link for link in self._links if link.link_type[0] == "C-Link"}
+        return {link.name: link for link in self._links if link._link_type[0] == "C-Link"}
 
     @property
     def nodes(self):
@@ -3957,6 +3957,9 @@ class NetworkObject(BoundaryObject):
 
     @pyaedt_function_handler()
     def update_assignment(self):
+        """
+        Update assignments of the network.
+        """
         return self.update()
 
     class _Link:
@@ -3974,7 +3977,7 @@ class NetworkObject(BoundaryObject):
             self._network = network
 
         @property
-        def link_type(self):
+        def _link_type(self):
             unit2type_conversion = {
                 "g_per_s": ["C-Link", "Node1ToNode2"],
                 "kg_per_s": ["C-Link", "Node1ToNode2"],
@@ -3997,10 +4000,23 @@ class NetworkObject(BoundaryObject):
 
         @property
         def props(self):
-            return [self.node_1, self.node_2] + self.link_type + [self.value]
+            """
+            Get link properties.
+
+            Returns
+            -------
+            list
+                First two elements of the list are the node names that the link connects,
+                the third element is the link type while the fourth contains the value
+                associated with the link.
+            """
+            return [self.node_1, self.node_2] + self._link_type + [self.value]
 
         @pyaedt_function_handler
         def delete_link(self):
+            """
+            Delete link from network.
+            """
             self._network.props["Links"].pop(self.name)
             self._network._links.remove(self)
 
@@ -4015,11 +4031,22 @@ class NetworkObject(BoundaryObject):
 
         @pyaedt_function_handler
         def delete_node(self):
+            """
+            Delete node from network.
+            """
             self._network.props["Nodes"].pop(self.name)
             self._network._nodes.remove(self)
 
         @property
         def node_type(self):
+            """
+            Get node type.
+
+            Returns
+            -------
+            str
+                Node type.
+            """
             if self._type is None:  # pragma: no cover
                 if self.props is None:
                     self._app.logger.error(
@@ -4036,10 +4063,26 @@ class NetworkObject(BoundaryObject):
 
         @property
         def props(self):
+            """
+            Get properties of the node.
+
+            Returns
+            -------
+            dict
+                Node properties.
+            """
             return self._props
 
         @props.setter
         def props(self, props):
+            """
+            Set properties of the node.
+
+            Parameters
+            -------
+            props: dict
+                Node properties.
+            """
             self._props = props
             self._node_props()
 
