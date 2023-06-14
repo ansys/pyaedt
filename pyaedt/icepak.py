@@ -3921,7 +3921,7 @@ class Icepak(FieldAnalysis3D):
             boundary name is automatically generated.
         htc : float, str, or dict, optional
             String with the value and units of the heat transfer coefficient for the
-            external conditions. If a float is provided, ``"w_per_m2kel"`` unit is used.
+            external conditions. If a float is provided, the ``"w_per_m2kel"`` unit is used.
             For a temperature-dependent or transient
             assignment, a dictionary can be used. For more information, see the
             description for the preceding ``power_assignment`` parameter. The
