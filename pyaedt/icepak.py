@@ -3690,8 +3690,7 @@ class Icepak(FieldAnalysis3D):
             each ``Function`` option is in Icepak documentation. The parameters must contain the
             units where needed.
         boundary_name : str, optional
-            Name of the source boundary. The default is ``None`` and the boundary name is
-            generated automatically.
+            Name of the source boundary. The default is ``None``, in which case the boundary name is generated automatically.
         radiate : bool, optional
             Whether to enable radiation. The default is ``False``.
         voltage_current_choice : str or bool, optional
