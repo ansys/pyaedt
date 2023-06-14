@@ -3891,12 +3891,11 @@ class NetworkObject(BoundaryObject):
             Dictionary or list of dictionaries containing the links between nodes. Each dictionary
             consists of these elements:
 
-            - ``"Link"``: a three-item list consisting of the two nodes that the link is connecting and the value and
-               unit of the link. The node of the connection can be referred to with the name (str) or
-               face ID (int). The link type (resistance, heat transfer coefficient, or mass flow) is
-               determined automatically from the unit.
-            - Optional key:
-            - ``"Name"``: a string specifying the name of the link.
+            - ``"Link"``: a three-item list consisting of the two nodes that the link is connecting and
+               the value with unit of the link. The node of the connection can be referred to with the
+               name (str) or face ID (int). The link type (resistance, heat transfer coefficient, or
+               mass flow) is determined automatically from the unit.
+            - ``"Name"`` (optional): a string specifying the name of the link.
 
 
         Returns
