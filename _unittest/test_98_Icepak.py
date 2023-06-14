@@ -1046,7 +1046,7 @@ class TestClass(BasisTest, object):
         for i in range(len(net.nodes) - 1):
             net.add_link(nodes_names[i], nodes_names[i + 1], i * 10 + 1)
         net.add_link(ids[0], ids[4], 9)
-        assert net.create() is not None
+        assert net.create()
         bkupprops = net.nodes["TestFace"].props
         bkupprops_internal = net.nodes["TestInternal3"].props
         bkupprops_boundary = net.nodes["TestBoundary4"].props
