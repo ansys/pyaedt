@@ -3521,19 +3521,21 @@ class NetworkObject(BoundaryObject):
         Parameters
         ----------
         name : str
-            String containing the name of the node.
+            Name of the node.
         power : str or float or dict
-            String or float or dict containing the value of the assignment. If a float is passed ``"W"``
-            units is used. A dictionary can be passed to use temperature dependent or transient
-            assignment.
+            String, float, or dictionary containing the value of the assignment.
+            If a float is passed, the ``"W"`` unit is used. A dictionary can be
+            passed to use temperature-dependent or transient
+            assignments.
         mass : str or float, optional
-            String or float containing the value of the mass assignment. The assignment is relevant only
-            if the solution is transient. If a float is passed ``"Kg"`` units is used. Default is
-            ``None`` and  ``"0.001kg"`` is used.
+            Value of the mass assignment. This parameter is relevant only
+            if the solution is transient. If a float is passed, the ``"Kg"`` unit
+            is used. The default is ``None``, in which case ``"0.001kg"`` is used.
         specific_heat : str or float, optional
-            String or float containing the value of the specific heat assignment. The assignment is
-            relevant only if the solution is transient. If a float is passed ``"J_per_Kelkg"`` units is
-            used. Default is ``None`` and  ``"1000J_per_Kelkg"`` is used.
+            Value of the specific heat assignment. This parameter is
+            relevant only if the solution is transient. If a float is passed,
+            the ``"J_per_Kelkg"`` unit is used. The default is ``None`, in
+            which case ``"1000J_per_Kelkg"`` is used.
 
         Returns
         -------
