@@ -4023,7 +4023,7 @@ class NetworkObject(BoundaryObject):
             if self._type is None:  # pragma: no cover
                 if self.props is None:
                     self._app.logger.error(
-                        "Cannot define node_type. Both its assignment and props assignment are missing."
+                        "Cannot define node_type. Both its assignment and properties assignment are missing."
                     )
                     return None
                 else:
