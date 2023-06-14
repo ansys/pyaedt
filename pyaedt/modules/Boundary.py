@@ -3557,7 +3557,7 @@ class NetworkObject(BoundaryObject):
             mass is not None or specific_heat is not None
         ):  # pragma: no cover
             self._app.logger.warning(
-                "The solution is steady state so neither mass nor specific heat assignment is relevant."
+                "Because the solution is steady state, neither mass nor specific heat assignment is relevant."
             )
         if isinstance(power, (int, float)):
             power = str(power) + "W"
