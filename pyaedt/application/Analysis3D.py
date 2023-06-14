@@ -1034,3 +1034,59 @@ class FieldAnalysis3D(Analysis, object):
         if not self.design_type == "Icepak":
             self.mesh._refresh_mesh_operations()
         return True
+
+    def identify_touching_conductors(self):
+        # type: () -> dict
+        """Identify all the touching components and group in a dictionary. It requires `pyvista`.
+
+        Returns
+        -------
+        dict
+
+        """
+
+        plt_obj = self.plot(show=False, objects=self.get_all_conductors_names())
+        import pyvista as pv
+
+        nets = {}
+        inputs = []
+        for cad in plt_obj.objects:
+            # if (self.modeler[cad.name].is_conductor):
+            filedata = pv.read(cad.path)
+            cad._cached_polydata = filedata
+            inputs.append(cad)
+        touching_list = [inputs[0]]
+        cad_to_investigate = touching_list[0]
+        inputs = inputs[1:]
+
+        def check_intersections(output, input_list, cad_in=None):
+            if cad_in is None:
+                cad_in = output[-1]
+            temp_out = []
+            for cad in input_list:
+                if cad != cad_in and cad not in output:
+                    col, n_contacts = cad_in._cached_polydata.collision(cad._cached_polydata, 1)
+                    if n_contacts > 0:
+                        output.append(cad)
+                        temp_out.append(cad)
+                        input_list = [i for i in input_list if i != cad]
+            for cad in temp_out:
+                check_intersections(output, input_list, cad)
+                list(set(output))
+            return output
+
+        k = 0
+        while len(inputs) > 0:
+            net = [cad_to_investigate]
+            check_intersections(net, inputs)
+            inputs = [i for i in inputs if i not in net]
+            nets["Net{}".format(k)] = [i.name for i in net]
+            if inputs:
+                cad_to_investigate = inputs[0]
+                inputs = inputs[1:]
+                k += 1
+                if len(inputs) == 0:
+                    nets["Net{}".format(k)] = [cad_to_investigate.name]
+                    break
+
+        return nets

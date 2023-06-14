@@ -625,3 +625,11 @@ class TestClass(BasisTest, object):
                     assert subtract_child[child].props["Height"] == "20meter"
                     subtract_child[child].props["Height"] = "24meter"
                     assert subtract_child[child].props["Height"] == "24meter"
+
+    def test_29_test_nets(self):
+        self.aedtapp.insert_design("nets")
+        self.aedtapp.modeler.create_box([0, 0, 0], [5, 10, 10], matname="copper")
+        self.aedtapp.modeler.create_box([30, 0, 0], [5, 10, 10], matname="copper")
+        self.aedtapp.modeler.create_box([60, 0, 0], [5, 10, 10], matname="vacuum")
+        nets = self.aedtapp.identify_touching_conductors()
+        assert len(nets) == 2

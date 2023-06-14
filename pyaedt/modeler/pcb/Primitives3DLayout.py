@@ -881,6 +881,7 @@ class Primitives3DLayout(object):
         name=None,
         netname=None,
     ):
+        # type: (str, float | str, float | str, float, float, str, str, str, str) -> Pins3DLayout
         """Create a via based on an existing padstack.
 
         Parameters
@@ -1214,6 +1215,7 @@ class Primitives3DLayout(object):
     def create_line(
         self, layername, center_line_list, lw=1, start_style=0, end_style=0, name=None, net_name=None, **kwargs
     ):
+        # type: (str, list, float|str, int, int, str, str, any) -> Line3dLayout
         """Create a line based on a list of points.
 
         Parameters

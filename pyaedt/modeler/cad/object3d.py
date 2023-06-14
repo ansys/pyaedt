@@ -866,6 +866,13 @@ class Object3d(object):
             self._m_groupName = name
 
     @property
+    def is_conductor(self):
+        """Check if the object is a conductor or not."""
+        if self.material_name and self._primitives._materials[self.material_name].is_conductor():
+            return True
+        return False
+
+    @property
     def material_name(self):
         """Material name of the object.
 
