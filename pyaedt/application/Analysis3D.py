@@ -1044,7 +1044,9 @@ class FieldAnalysis3D(Analysis, object):
         dict
 
         """
-
+        if is_ironpython:
+            self.logger.error("This method requires CPython and Pyvista.")
+            return False
         plt_obj = self.plot(show=False, objects=self.get_all_conductors_names())
         import pyvista as pv
 

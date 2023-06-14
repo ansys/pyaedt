@@ -626,6 +626,7 @@ class TestClass(BasisTest, object):
                     subtract_child[child].props["Height"] = "24meter"
                     assert subtract_child[child].props["Height"] == "24meter"
 
+    @pytest.mark.skipif(is_ironpython, reason="requires pyvista")
     def test_29_test_nets(self):
         self.aedtapp.insert_design("nets")
         self.aedtapp.modeler.create_box([0, 0, 0], [5, 10, 10], matname="copper")
