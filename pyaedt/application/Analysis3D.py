@@ -1035,18 +1035,33 @@ class FieldAnalysis3D(Analysis, object):
             self.mesh._refresh_mesh_operations()
         return True
 
-    def identify_touching_conductors(self):
-        # type: () -> dict
+    def identify_touching_conductors(self, object_name=None):
+        # type: (str) -> dict
         """Identify all the touching components and group in a dictionary. It requires `pyvista`.
 
+        Parameters
+        ----------
+        object_name : str
+            Starting object to check for touching elements. Optional.
         Returns
         -------
         dict
 
         """
-        if is_ironpython:
+        if is_ironpython and settings.aedt_version < "2023.2":  # pragma: no cover
             self.logger.error("This method requires CPython and Pyvista.")
             return False
+        if settings.aedt_version >= "2023.2" and self.design_type == "HFSS":  # pragma: no cover
+            nets_aedt = self.oboundary.IdentifyNets(True)
+            nets = {}
+            for net in nets_aedt[1:]:
+                nets[net[0].split(":")[1]] = list(net[1][1:])
+            if object_name:
+                for net, net_vals in nets.items():
+                    if object_name in net_vals:
+                        output = {"Net1": net_vals}
+                        return output
+            return nets
         plt_obj = self.plot(show=False, objects=self.get_all_conductors_names())
         import pyvista as pv
 
@@ -1057,9 +1072,17 @@ class FieldAnalysis3D(Analysis, object):
             filedata = pv.read(cad.path)
             cad._cached_polydata = filedata
             inputs.append(cad)
-        touching_list = [inputs[0]]
-        cad_to_investigate = touching_list[0]
-        inputs = inputs[1:]
+
+        if object_name:
+            cad_to_investigate = [i for i in inputs if i.name == object_name][0]
+            inputs = [i for i in inputs if i.name != object_name]
+
+        else:
+            cad_to_investigate = inputs[0]
+            inputs = inputs[1:]
+        if not inputs:
+            self.logger.error("At least one conductor is needed.")
+            return {}
 
         def check_intersections(output, input_list, cad_in=None):
             if cad_in is None:
@@ -1077,12 +1100,14 @@ class FieldAnalysis3D(Analysis, object):
                 list(set(output))
             return output
 
-        k = 0
+        k = 1
         while len(inputs) > 0:
             net = [cad_to_investigate]
             check_intersections(net, inputs)
             inputs = [i for i in inputs if i not in net]
             nets["Net{}".format(k)] = [i.name for i in net]
+            if object_name:
+                break
             if inputs:
                 cad_to_investigate = inputs[0]
                 inputs = inputs[1:]
@@ -1090,5 +1115,4 @@ class FieldAnalysis3D(Analysis, object):
                 if len(inputs) == 0:
                     nets["Net{}".format(k)] = [cad_to_investigate.name]
                     break
-
         return nets

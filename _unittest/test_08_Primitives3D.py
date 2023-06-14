@@ -1553,8 +1553,8 @@ class TestClass(BasisTest, object):
             assert False
 
     def test_78_get_touching_objects(self):
-        box1 = self.aedtapp.modeler.create_box([-20, -20, -20], [1, 1, 1])
-        box2 = self.aedtapp.modeler.create_box([-20, -20, -19], [0.2, 0.2, 0.2])
+        box1 = self.aedtapp.modeler.create_box([-20, -20, -20], [1, 1, 1], matname="copper")
+        box2 = self.aedtapp.modeler.create_box([-20, -20, -19], [0.2, 0.2, 0.2], matname="copper")
         assert box2.name in box1.touching_objects
         assert box1.name in box2.touching_objects
         assert box2.name in box1.faces[0].touching_objects
