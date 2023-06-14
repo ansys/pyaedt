@@ -17,7 +17,7 @@ import sys
 import subprocess
 import pyaedt
 from pyaedt import Emit
-import pyaedt.emit_core.EmitConstants as econsts
+from pyaedt.emit_core.emit_constants import TxRxMode, ResultType, InterfererType
 
 # Check to see which Python libraries have been installed
 reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
@@ -136,11 +136,6 @@ for band in bands:
 # Create a results revision and load it for analysis.
 
 rev = emitapp.results.analyze()
-modeRx = econsts.tx_rx_mode().rx
-modeTx = econsts.tx_rx_mode().tx
-mode_power = econsts.result_type().powerAtRx
-mode_emi = econsts.result_type().emi
-tx_interferer = econsts.interferer_type().transmitters
 
 ###############################################################################
 # Generate a legend
@@ -230,7 +225,7 @@ def create_scenario_view(emis, colors, tx_radios, rx_radios):
 # Get lists of all transmitters and receivers in the project.
 rev = emitapp.results.current_revision
 rx_radios = rev.get_receiver_names()
-tx_radios = rev.get_interferer_names(tx_interferer)
+tx_radios = rev.get_interferer_names(InterfererType.TRANSMITTERS)
 domain = emitapp.results.interaction_domain()
 
 ###############################################################################
@@ -248,7 +243,7 @@ for tx_radio in tx_radios:
     for rx_radio in rx_radios:
         # powerAtRx is the same for all Rx bands, so just
         # use the first one
-        rx_band = rev.get_band_names(rx_radio, modeRx)[0]
+        rx_band = rev.get_band_names(rx_radio, TxRxMode.RX)[0]
         if tx_radio == rx_radio:
             # skip self-interaction
             rx_powers.append('N/A')
@@ -256,22 +251,22 @@ for tx_radio in tx_radios:
             continue
         print("Power Thresholds for {tx} vs {rx}".format(tx=tx_radio,rx=rx_radio))        
         max_power = -200
-        for tx_band in rev.get_band_names(tx_radio, modeTx): 
+        for tx_band in rev.get_band_names(tx_radio, TxRxMode.TX): 
             # Find the highest power level at the Rx input due to each Tx Radio.
             # Can look at any Rx freq since susceptibility won't impact
             # powerAtRx, but need to look at all tx channels since coupling
             # can change over a transmitter's bandwidth
-            rx_freq = rev.get_active_frequencies(rx_radio, rx_band, modeRx)
+            rx_freq = rev.get_active_frequencies(rx_radio, rx_band, TxRxMode.RX)
             domain.set_receiver(rx_radio, rx_band, rx_freq[0])            
             domain.set_interferer(tx_radio, tx_band)
             interaction = rev.run(domain)
-            tx_freqs = rev.get_active_frequencies(tx_radio, tx_band, modeTx)
+            tx_freqs = rev.get_active_frequencies(tx_radio, tx_band, TxRxMode.TX)
             for tx_freq in tx_freqs:
                 domain.set_interferer(tx_radio, tx_band, tx_freq)
                 #interaction = rev.run(domain)
                 instance = interaction.get_instance(domain)
-                if instance.get_value(mode_power) > max_power:
-                    max_power = instance.get_value(mode_power)
+                if instance.get_value(ResultType.POWER_AT_RX) > max_power:
+                    max_power = instance.get_value(ResultType.POWER_AT_RX)
                     
         # If the worst case for the band-pair is below the power thresholds, then
         # there are no interference issues and no offset is required.
