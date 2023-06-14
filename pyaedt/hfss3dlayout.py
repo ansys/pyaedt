@@ -16,6 +16,7 @@ from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import tech_to_control_file
+from pyaedt.modeler.pcb.object3dlayout import Line3dLayout  # noqa: F401
 from pyaedt.modules.Boundary import BoundaryObject3dLayout
 
 
@@ -160,11 +161,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         ref_primitive_name=None,
         ref_edge_number=0,
     ):
+        # type: (str | Line3dLayout,int,bool, bool,float,float, str, str, str | int) -> BoundaryObject3dLayout | bool
         """Create an edge port.
 
         Parameters
         ----------
-        primivitivename : str or :class:`pyaedt.modeler.object3dlayout.Line3dLayout`
+        primivitivename : str or :class:`pyaedt.modeler.pcb.object3dlayout.Line3dLayout`
             Name of the primitive to create the edge port on.
         edgenumber :
             Edge number to create the edge port on.
