@@ -3830,18 +3830,18 @@ class NetworkObject(BoundaryObject):
         Parameters
         ----------
         node1 : str or int
-            String containing one of the node name that the link is connecting or integer containing
-            the id of the face. If id is used and the node associated to the corresponding face is not
-            created yet, it is added atuomatically.
+            String containing one of the node names that the link is connecting or an integer
+            containing the ID of the face. If an ID is used and the node associated with the
+            corresponding face is not created yet, it is added automatically.
         node2 : str or int
-            String containing one of the node name that the link is connecting or integer containing
-            the id of the face. If id is used and the node associated to the corresponding face is not
-            created yet, it is added atuomatically.
+            String containing one of the node names that the link is connecting or an integer
+            containing the ID of the face. If an ID is used and the node associated with the
+            corresponding face is not created yet, it is added atuomatically.
         value : str or float
-            String containing the value and unit of the connection. If a float is passed, by default an
+            String containing the value and unit of the connection. If a float is passed, an
             R-Link is added to the network and the ``"cel_per_w"`` unit is used.
         name : str, optional
-            String containing the name of the link. Default is ``None`` and a name is
+            Name of the link. The default is ``None``, in which case a name is
             automatically generated.
 
         Returns
