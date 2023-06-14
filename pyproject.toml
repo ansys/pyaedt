@@ -89,7 +89,7 @@ doc = [
     "openpyxl==3.1.2",
 ]
 full = [
-    "imageio==2.31.1",
+    "imageio",
     "matplotlib==3.5.3; python_version <= '3.7'",
     "matplotlib==3.7.1; python_version > '3.7'",
     "numpy==1.21.6; python_version <= '3.7'",
@@ -105,7 +105,7 @@ full = [
     "openpyxl==3.1.2",
 ]
 all = [
-    "imageio==2.31.1",
+    "imageio",
     "matplotlib==3.5.3; python_version <= '3.7'",
     "matplotlib==3.7.1; python_version > '3.7'",
     "numpy==1.21.6; python_version <= '3.7'",
