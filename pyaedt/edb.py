@@ -639,7 +639,7 @@ class Edb(Database):
 
         Returns
         -------
-        :class:`pyaedt.edb_core.Components.Components`
+        :class:`pyaedt.edb_core.components.Components`
 
         Examples
         --------
@@ -2816,11 +2816,12 @@ class Edb(Database):
 
     @pyaedt_function_handler()
     def build_simulation_project(self, simulation_setup):
+        # type: (SimulationConfiguration) -> bool
         """Build a ready-to-solve simulation project.
 
         Parameters
         ----------
-        simulation_setup : edb_data.SimulationConfiguratiom object.
+        simulation_setup : :class:`pyaedt.edb_core.edb_data.simulation_configuration.SimulationConfiguration` object.
             SimulationConfiguration object that can be instantiated or directly loaded with a
             configuration file.
 
@@ -3054,6 +3055,7 @@ class Edb(Database):
 
     @pyaedt_function_handler()
     def new_simulation_configuration(self, filename=None):
+        # type: (str) -> SimulationConfiguration
         """New SimulationConfiguration Object.
 
         Parameters
