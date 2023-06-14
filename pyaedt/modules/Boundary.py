@@ -3725,19 +3725,22 @@ class NetworkObject(BoundaryObject):
         """
         nodes_dict : list or dict
             A dictionary or list of dictionaries containing nodes to add to the network. Different
-            node types requires different key and value pairs:
-            - Face nodes must contain the ``"ID"`` key associated with an int containing the face id
-              Optional keys and values pairs:
-              - ``"ThermalResistance"``: a string specifying the type of thermal resistance -
-              ``"NoResistance"`` (default), ``"Compute"``, or ``"Specified"``
+            node types require different key and value pairs:
+            
+            - Face nodes must contain the ``"ID"`` key associated with an integer containing the face ID.
+              Optional keys and values pairs are:
+              
+              - ``"ThermalResistance"``: a string specifying the type of thermal resistance.
+                 Options are ``"NoResistance"`` (default), ``"Compute"``, and ``"Specified"``.
               - ``"Thickness"``: a string with the thickness value and unit (required if ``"Compute"``
-              is used for ``"ThermalResistance"``)
+              is selected for ``"ThermalResistance"``).
               - ``"Material"``: a string with the name of the material (required if ``"Compute"`` is
-              used for ``"ThermalResistance"``)
+              selected for ``"ThermalResistance"``).
               - ``"Resistance"``: a string with the resistance value and unit (required if
-              ``"Specified"`` is used for ``"ThermalResistance"``)
-              - ``"Name"``: a string with the name of the node (generated automatically if not
-              specified)
+                 ``"Specified"`` is selected for ``"ThermalResistance"``).
+              - ``"Name"``: a string with the name of the node. If not
+                 specified, a name is generated automatically.
+
 
             - Internal nodes must contain the following keys and values pairs:
               - ``"Name"``: a string with the node name
