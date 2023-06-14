@@ -3879,14 +3879,16 @@ class NetworkObject(BoundaryObject):
         Parameters
         ----------
         connections : dict or list of dict
-            Dictionary or list of dictionaries containing the links between nodes. Each dictionary is
-            composed by:
-            - ``"Link"``: a 3-item list with the two node that the link is connecting and the value and
-            unit of the link. The node of the connection can be referred to with their name (str) or
-            face id (int). The link type (resistance, heat transfer coefficient, or mass flow) is
-            determined automatically from the unit.
-            Optional key:
-            - ``"Name"``: a string that prescribes the name of the link.
+            Dictionary or list of dictionaries containing the links between nodes. Each dictionary
+            consists of these elements:
+            
+            - ``"Link"``: a three-item list consisting of the two nodes that the link is connecting and the value and
+               unit of the link. The node of the connection can be referred to with the name (str) or
+               face ID (int). The link type (resistance, heat transfer coefficient, or mass flow) is
+               determined automatically from the unit.
+            - Optional key:
+            - ``"Name"``: a string specifying the name of the link.
+
 
         Returns
         -------
