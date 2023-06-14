@@ -2256,7 +2256,7 @@ class Icepak(FieldAnalysis3D):
         source_design : str
             Name of the source design.
         source_project_name : str, optional
-            Name of the source project. The default is ``None`` in which case, the current active project is used.
+            Name of the source project. The default is ``None``, in which case the current active project is used.
         source_project_path : str, optional
             Path to the source project. The default is ``None``.
 
