@@ -3582,13 +3582,15 @@ class NetworkObject(BoundaryObject):
         Parameters
         ----------
         name: str
-            String containing the name of the node.
+            Name of the node.
         assignment_type: str
-            String containing the type assignment. It can be ``"Power"`` or ``"Temperature"``.
+            Type assignment. Options are ``"Power"`` and ``"Temperature"``.
         value: str or float or dict
-            String or float or dict containing the value of the assignment. If a float is passed ``"W"``
-             or ``"cel"`` is used according to ``assignment_type``. If ``type`` is ``"Power"`, a
-             dictionary can be passed to use temperature dependent or transient assignment.
+            String, float, or dictionary containing the value of the assignment.
+            If a float is passed the ``"W"`` or ``"cel"`` unit is used, depending on
+            the selection for the ``assignment_type`` parameter. If ``"Power"`
+            is selected for the type, a dictionary can be passed to use
+            temperature-dependent or transient assignment.
 
         Returns
         -------
