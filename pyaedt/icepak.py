@@ -3785,12 +3785,15 @@ class Icepak(FieldAnalysis3D):
         Parameters
         ----------
         name : str, optional
-            String with the name of the network object. Default is ``None``.
+           Name of the network object. The default is ``None``, in which case
+           the name is generated autotmatically.
         props : dict, optional
-            Dictionary with information required by oModule.AssignNetworkBoundary. Default is ``None``.
+            Dictionary with information required by the ``oModule.AssignNetworkBoundary``
+            object. The default is ``None``.
         create : bool, optional
-            Whether to create immediately the network inside AEDT or not. Default is ``False`` and the user
-            can modify the network from pyAEDT functions and create the network only afterwards.
+            Whether to create immediately the network inside AEDT. The
+            default is ``False``, which means the network can be modified
+            from PyAEDT functions and the network created only afterwards.
 
         Returns
         -------
