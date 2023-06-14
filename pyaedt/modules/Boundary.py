@@ -3618,7 +3618,7 @@ class NetworkObject(BoundaryObject):
                 value = str(value) + "cel"
         if isinstance(value, dict) and assignment_type == "Temperature":  # pragma: no cover
             raise AttributeError(
-                "Temperature dependent or transient assignment is not supported in a temperature boundary node."
+                "Temperature-dependent or transient assignment is not supported in a temperature boundary node."
             )
         new_node = self._Node(
             name,
