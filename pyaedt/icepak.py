@@ -3822,21 +3822,24 @@ class Icepak(FieldAnalysis3D):
         Parameters
         ----------
         sources_power : list of str or list of float
-            List containing all the power value of the internal nodes. If the element of the list
-            is a float, "W" unit is assigned.
+            List containing all the power value of the internal nodes. If the element of
+            the list is a float, the ``W`` unit is used.  Otherwise, the
+            unit specified in the string is used. 
         faces_ids :  list of int
-            List containing all the face ids that are network nodes.
+            All the face IDs that are network nodes.
         matrix : list of list
-            Strict lower square triangular matrix containing the links value between the nodes of the network.
-            If the element of the matrix is a float "cel_per_w" unit is automatically assigned,
-            else the unit prescribed in the string is used. The element of the matrix in the i-th row
-            and j-th column is the link value between the i-th node and j-th node. The list of nodes is
-            automatically created from sources_power and faces_ids list (in this order).
+            Strict lower-square triangular matrix containing the link values between
+            the nodes of the network. If the element of the matrix is a float, the
+            ``cel_per_w`` unit is used. Otherwise, the unit specified
+            in the string is used. The element of the matrix in the i-th row
+            and j-th column is the link value between the i-th node and j-th node.
+            The list of nodes is automatically created from the lists for the
+            ``sources_power`` and ``faces_ids`` parameters (in this order).
         network_name : str, optional
-            Name of the network boundary. The default is ``None`` and the boundary name will
-            be generated automatically.
+            Name of the network boundary. The default is ``None``, in which
+            case the boundary name is generated automatically.
         node_names : list of str, optional
-            List of the name of all the nodes in the network.
+            Name of all the nodes in the network.
 
         Returns
         -------
