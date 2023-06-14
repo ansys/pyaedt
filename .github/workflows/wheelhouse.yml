@@ -61,7 +61,6 @@ jobs:
       - name: Generate wheelhouse
         run: |
           testenv\Scripts\Activate.ps1
-          pip install wheel setuptools -U
           $packages=$(pip freeze)
           # Iterate over the packages and generate wheels
           foreach ($package in $packages) {
