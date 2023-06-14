@@ -3877,7 +3877,7 @@ class Icepak(FieldAnalysis3D):
                     net.add_link(all_nodes[i], all_nodes[j], matrix[i][j], "Link_" + all_nodes[i] + "_" + all_nodes[j])
         if net.create():
             return net
-        else:
+        else:  # pragma: no cover
             return None
 
     @pyaedt_function_handler

@@ -10,6 +10,7 @@ from pyaedt import Hfss
 from pyaedt import Icepak
 from pyaedt import settings
 from pyaedt.modules.Boundary import NativeComponentObject
+from pyaedt.modules.Boundary import NetworkObject
 
 try:
     import pytest  # noqa: F401
@@ -1044,6 +1045,7 @@ class TestClass(BasisTest, object):
         nodes_names = list(net.nodes.keys())
         for i in range(len(net.nodes) - 1):
             net.add_link(nodes_names[i], nodes_names[i + 1], i * 10 + 1)
+        net.add_link(ids[0], ids[4], 9)
         assert net.create() is not None
         bkupprops = net.nodes["TestFace"].props
         bkupprops_internal = net.nodes["TestInternal3"].props
@@ -1052,17 +1054,21 @@ class TestClass(BasisTest, object):
         net.nodes["TestInternal3"].delete_node()
         net.nodes["TestBoundary4"].delete_node()
         nodes_names = list(net.nodes.keys())
+        for j in net.links.values():
+            j.delete_link()
         for i in range(len(net.nodes) - 1):
             net.add_link(nodes_names[i], nodes_names[i + 1], str(i + 1) + "cel_per_w", "link_" + str(i))
-        net.update()
+        assert net.update()
         assert all(i not in net.nodes for i in ["TestFace", "TestInternal3", "TestBoundary4"])
         net.props["Nodes"].update({"TestFace": bkupprops})
         net.props["Nodes"].update({"TestInternal3": bkupprops_internal})
         net.props["Nodes"].update({"TestBoundary4": bkupprops_boundary})
         nodes_names = list(net.nodes.keys())
+        for j in net.links.values():
+            j.delete_link()
         for i in range(len(net.nodes) - 1):
             net.add_link(nodes_names[i], nodes_names[i + 1], i * 100 + 1)
-        net.update()
+        assert net.update()
         assert all(i in net.nodes for i in ["TestFace", "TestInternal3", "TestBoundary4"])
         net.nodes["TestFace"].delete_node()
         net.nodes["TestInternal3"].delete_node()
@@ -1076,6 +1082,8 @@ class TestClass(BasisTest, object):
         bkupprops_boundary_input["ValueType"] = bkupprops_boundary_input["ValueType"].replace("Value", "")
         net.add_nodes_from_dictionaries([bkupprops_input, bkupprops_internal_input, bkupprops_boundary_input])
         nodes_names = list(net.nodes.keys())
+        for j in net.links.values():
+            j.delete_link()
         net.add_link(nodes_names[0], nodes_names[1], 50, "TestLink")
         linkvalue = ["cel_per_w", "g_per_s"]
         for i in range(len(net.nodes) - 2):
@@ -1084,6 +1092,25 @@ class TestClass(BasisTest, object):
         link_dict = {"Name": "TestLink", "Link": link_dict[0:2] + link_dict[4:]}
         net.links["TestLink"].delete_link()
         net.add_links_from_dictionaries(link_dict)
-        net.update()
+        assert net.update()
         net.name = "Network_Test"
         assert net.name == "Network_Test"
+        p = net.props
+        net.delete()
+        net = NetworkObject(self.aedtapp, "newNet", p, create=True)
+        net.auto_update = True
+        assert net.auto_update == False
+        assert isinstance(net.r_links, dict)
+        assert isinstance(net.c_links, dict)
+        assert isinstance(net.faces_ids_in_network, list)
+        assert isinstance(net.objects_in_network, list)
+        assert isinstance(net.boundary_nodes, dict)
+        net.update_assignment()
+        nodes_list = list(net.nodes.values())
+        nodes_list[0].node_type
+        nodes_list[0].props
+        for i in nodes_list:
+            try:
+                i._props = None
+            except KeyError:
+                pass

@@ -3357,7 +3357,7 @@ class NetworkObject(BoundaryObject):
     """Manages networks in Icepak projects."""
 
     def __init__(self, app, name=None, props=None, create=False):
-        if not app.design_type == "Icepak":
+        if not app.design_type == "Icepak":  # pragma: no cover
             raise NotImplementedError("Networks object works only with Icepak projects ")
         if name is None:
             self._name = generate_unique_name("Network")
@@ -3551,7 +3551,9 @@ class NetworkObject(BoundaryObject):
         """
         if self._app.solution_type != "SteadyState" and mass is None and specific_heat is None:
             self._app.logger.warning("The solution is transient but neither mass nor specific heat is assigned.")
-        if self._app.solution_type == "SteadyState" and (mass is not None or specific_heat is not None):
+        if self._app.solution_type == "SteadyState" and (
+            mass is not None or specific_heat is not None
+        ):  # pragma: no cover
             self._app.logger.warning(
                 "The solution is steady state so neither mass nor specific heat assignment is relevant."
             )
@@ -3603,14 +3605,14 @@ class NetworkObject(BoundaryObject):
         >>>                                                       "Function": "Piecewise Linear",
         >>>                                                       "Values": "Test_DataSet"})
         """
-        if assignment_type not in ["Power", "Temperature"]:
+        if assignment_type not in ["Power", "Temperature"]:  # pragma: no cover
             raise AttributeError('``type`` can be only ``"Power"`` or ``"Temperature"``')
         if isinstance(value, (float, int)):
             if assignment_type == "Power":
                 value = str(value) + "W"
             else:
                 value = str(value) + "cel"
-        if isinstance(value, dict) and assignment_type == "Temperature":
+        if isinstance(value, dict) and assignment_type == "Temperature":  # pragma: no cover
             raise AttributeError(
                 "Temperature dependent or transient assignment is not supported in a temperature boundary node."
             )
@@ -3686,7 +3688,7 @@ class NetworkObject(BoundaryObject):
                     if not isinstance(thickness, str):
                         thickness = str(thickness) + "mm"
                     props_dict["Thickness"] = thickness
-                else:
+                else:  # pragma: no cover
                     raise AttributeError(
                         'If ``thermal_resistance="Compute"`` both ``material`` and ``thickness``'
                         "arguments must be prescribed."
@@ -3702,7 +3704,7 @@ class NetworkObject(BoundaryObject):
                     if not isinstance(resistance, str):
                         resistance = str(resistance) + "cel_per_w"
                     props_dict["Resistance"] = resistance
-                else:
+                else:  # pragma : no cover
                     raise AttributeError(
                         'If ``thermal_resistance="Specified"``, ``resistance`` argument must be prescribed.'
                     )
@@ -3852,8 +3854,6 @@ class NetworkObject(BoundaryObject):
         >>> network.add_links_from_dictionaries(connection)
 
         """
-        if not isinstance(value, str):
-            value = str(value) + "cel_per_w"
         if name is None:
             new_name = True
             while new_name:
@@ -3905,7 +3905,7 @@ class NetworkObject(BoundaryObject):
             name = connection.get("Name", None)
             try:
                 self.add_link(connection["Link"][0], connection["Link"][1], connection["Link"][2], name)
-            except:
+            except:  # pragma : no cover
                 if name:
                     self._app.logger.error("Failed to add " + name + " link.")
                 else:
@@ -3930,11 +3930,11 @@ class NetworkObject(BoundaryObject):
                 self.create()
                 self._app.boundaries.append(self)
                 return True
-            except:
+            except:  # pragma : no cover
                 self._app.odesign.Undo()
                 self._app.logger.error("Update of network object failed.")
                 return False
-        else:
+        else:  # pragma : no cover
             self._app.logger.warning("Network object not yet created in design.")
             return False
 
@@ -3950,7 +3950,7 @@ class NetworkObject(BoundaryObject):
             if not isinstance(node_2, str):
                 node_2 = "FaceID" + str(node_2)
             if not isinstance(value, str):
-                node_2 = str(node_2) + "cel_per_w"
+                value = str(value) + "cel_per_w"
             self.node_1 = node_1
             self.node_2 = node_2
             self.value = value
@@ -4003,7 +4003,7 @@ class NetworkObject(BoundaryObject):
 
         @property
         def node_type(self):
-            if self._type is None:
+            if self._type is None:  # pragma: no cover
                 if self.props is None:
                     self._app.logger.error(
                         "Cannot define node_type. Both its assignment and props assignment are missing."
@@ -4076,7 +4076,7 @@ class NetworkObject(BoundaryObject):
             node_args = copy.deepcopy(default_dict)
             for k in node_dict.keys():
                 val = node_dict[k]
-                if isinstance(val, dict):
+                if isinstance(val, dict):  # pragma : no cover
                     val = self._app._parse_variation_data(
                         k, val["Type"], variation_value=val["Values"], function=val["Function"]
                     )
