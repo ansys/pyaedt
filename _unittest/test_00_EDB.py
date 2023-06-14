@@ -1319,6 +1319,11 @@ class TestClass(BasisTest, object):
         sim_setup.open_edb_after_build = False
         sim_setup.batch_solve_settings.output_aedb = os.path.join(self.local_scratch.path, "build.aedb")
         original_path = edb.edbpath
+        assert not sim_setup.batch_solve_settings.use_pyaedt_cutout
+        assert sim_setup.batch_solve_settings.use_default_cutout
+        sim_setup.batch_solve_settings.use_pyaedt_cutout = True
+        assert sim_setup.batch_solve_settings.use_pyaedt_cutout
+        assert not sim_setup.batch_solve_settings.use_default_cutout
         assert sim_setup.build_simulation_project()
         assert edb.edbpath == original_path
         sim_setup.open_edb_after_build = True

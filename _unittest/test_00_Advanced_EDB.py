@@ -917,7 +917,7 @@ class TestClass(BasisTest, object):
         self.local_scratch.copyfolder(target_path, out_edb)
         edbapp = Edb(out_edb, edbversion=desktop_version)
         sim_setup = SimulationConfiguration()
-        sim_setup.signal_nets = [
+        sim_setup.batch_solve_settings.signal_nets = [
             "M_DQ<0>",
             "M_DQ<1>",
             "M_DQ<2>",
@@ -927,15 +927,15 @@ class TestClass(BasisTest, object):
             "M_DQ<6>",
             "M_DQ<7>",
         ]
-        sim_setup.power_nets = ["GND"]
-        sim_setup.do_cutout_subdesign = True
-        sim_setup.components = ["U2A5", "U1B5"]
-        sim_setup.use_default_coax_port_radial_extension = False
-        sim_setup.cutout_subdesign_expansion = 0.001
-        sim_setup.start_freq = 0
-        sim_setup.stop_freq = 20e9
-        sim_setup.step_freq = 10e6
-        sim_setup.use_default_cutout = False
+        sim_setup.batch_solve_settings.power_nets = ["GND"]
+        sim_setup.batch_solve_settings.do_cutout_subdesign = True
+        sim_setup.batch_solve_settings.components = ["U2A5", "U1B5"]
+        sim_setup.batch_solve_settings.use_default_coax_port_radial_extension = False
+        sim_setup.batch_solve_settings.cutout_subdesign_expansion = 0.001
+        sim_setup.batch_solve_settings.start_freq = 0
+        sim_setup.batch_solve_settings.stop_freq = 20e9
+        sim_setup.batch_solve_settings.step_freq = 10e6
+        sim_setup.batch_solve_settings.use_pyaedt_cutout = True
         assert edbapp.build_simulation_project(sim_setup)
         assert edbapp.are_port_reference_terminals_connected()
         port1 = list(edbapp.excitations.values())[0]
