@@ -4081,7 +4081,7 @@ class Icepak(FieldAnalysis3D):
         """
         if self.modeler.get_object_from_name(object_name).solve_inside:
             self.logger.add_error_message(
-                "Use ``assign_solid_block`` method with this object as" "``solve_inside`` is ``True``."
+                "Use ``assign_solid_block`` method with this object as "``solve_inside`` is ``True``."
             )
             return None
         if assignment_value == "Joule Heating" and assignment_type != "Total Power":
