@@ -3726,10 +3726,10 @@ class NetworkObject(BoundaryObject):
         nodes_dict : list or dict
             A dictionary or list of dictionaries containing nodes to add to the network. Different
             node types require different key and value pairs:
-            
+
             - Face nodes must contain the ``"ID"`` key associated with an integer containing the face ID.
               Optional keys and values pairs are:
-              
+
               - ``"ThermalResistance"``: a string specifying the type of thermal resistance.
                  Options are ``"NoResistance"`` (default), ``"Compute"``, and ``"Specified"``.
               - ``"Thickness"``: a string with the thickness value and unit (required if ``"Compute"``
@@ -3881,7 +3881,7 @@ class NetworkObject(BoundaryObject):
         connections : dict or list of dict
             Dictionary or list of dictionaries containing the links between nodes. Each dictionary
             consists of these elements:
-            
+
             - ``"Link"``: a three-item list consisting of the two nodes that the link is connecting and the value and
                unit of the link. The node of the connection can be referred to with the name (str) or
                face ID (int). The link type (resistance, heat transfer coefficient, or mass flow) is

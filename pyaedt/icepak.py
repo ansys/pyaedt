@@ -3824,7 +3824,7 @@ class Icepak(FieldAnalysis3D):
         sources_power : list of str or list of float
             List containing all the power value of the internal nodes. If the element of
             the list is a float, the ``W`` unit is used.  Otherwise, the
-            unit specified in the string is used. 
+            unit specified in the string is used.
         faces_ids :  list of int
             All the face IDs that are network nodes.
         matrix : list of list
