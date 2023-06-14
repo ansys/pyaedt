@@ -3640,7 +3640,7 @@ class NetworkObject(BoundaryObject):
 
     @pyaedt_function_handler()
     def add_face_node(
-        self, face_id, name=None, thermal_resistance=None, material=None, thickness=None, resistance=None
+        self, face_id, name=None, thermal_resistance="NoResistance", material=None, thickness=None, resistance=None
     ):
         """
         Create a face node in the network.
