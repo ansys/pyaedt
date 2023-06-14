@@ -3847,7 +3847,7 @@ class NetworkObject(BoundaryObject):
         Returns
         -------
         bool
-            ``True`` if successful. ``False`` otherwise.
+            ``True`` when successful, ``False`` when failed.
 
         Examples
         --------
