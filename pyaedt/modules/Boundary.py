@@ -3610,7 +3610,7 @@ class NetworkObject(BoundaryObject):
         >>>                                                       "Values": "Test_DataSet"})
         """
         if assignment_type not in ["Power", "Temperature"]:  # pragma: no cover
-            raise AttributeError('``type`` can be only ``"Power"`` or ``"Temperature"``')
+            raise AttributeError('``type`` can be only ``"Power"`` or ``"Temperature"``.')
         if isinstance(value, (float, int)):
             if assignment_type == "Power":
                 value = str(value) + "W"
@@ -3643,20 +3643,24 @@ class NetworkObject(BoundaryObject):
         self, face_id, name=None, thermal_resistance=None, material=None, thickness=None, resistance=None
     ):
         """
+        Create a face node in the network.
 
         Parameters
         ----------
         face_id : int
+            Face ID.
         name : str, optional
-        thermal_resistance : str, optional
-            String
+            Name of the node. Default is ``None``.
+        thermal_resistance : str
+            Thermal resistance value and unit. Default is ``"NoResistance"``.
         material : str, optional
-            String with the material specification (required if ``thermal_resistance="Compute"``).
-        thickness : str or float, optional Default is ``None``.
-            String with the thickness value and unit (required if ``thermal_resistance="Compute"``).
+            Material specification (required if ``thermal_resistance="Compute"``).
+            Default is ``None``.
+        thickness : str or float, optional
+            Thickness value and unit (required if ``thermal_resistance="Compute"``).
             If a float is passed, ``"mm"`` unit is automatically used. Default is ``None``.
         resistance : str or float, optional
-            String with the resistance value and unit (required if ``thermal_resistance="Specified"``).
+            Resistance value and unit (required if ``thermal_resistance="Specified"``).
             If a float is passed, ``"cel_per_w"`` unit is automatically used. Default is ``None``.
 
         Returns
@@ -3723,6 +3727,10 @@ class NetworkObject(BoundaryObject):
     @pyaedt_function_handler()
     def add_nodes_from_dictionaries(self, nodes_dict):
         """
+        Add nodes to the network from dictionary.
+
+        Parameters
+        -------
         nodes_dict : list or dict
             A dictionary or list of dictionaries containing nodes to add to the network. Different
             node types require different key and value pairs:
@@ -3743,6 +3751,7 @@ class NetworkObject(BoundaryObject):
 
 
             - Internal nodes must contain the following keys and values pairs:
+
               - ``"Name"``: a string with the node name
               - ``"Power"``: a string with the assigned power or a dictionary for transient or
               temperature-dependent assignment
@@ -3765,9 +3774,9 @@ class NetworkObject(BoundaryObject):
               a dictionary for transient or temperature dependent assignment.
 
             All the temperature dependent or thermal dictionaries should contain three keys:
-            ``"Type"``, ``"Function"`` and ``"Values"``. Accepted ``"Type"`` values are:
+            ``"Type"``, ``"Function"``, and ``"Values"``. Accepted ``"Type"`` values are:
             ``"Temp Dep"`` and ``"Transient"``. Accepted ``"Function"`` are: ``"Linear"``,
-            ``"Power Law"``, ``"Exponential"``, ``"Sinusoidal"``, ``"Square Wave"`` and
+            ``"Power Law"``, ``"Exponential"``, ``"Sinusoidal"``, ``"Square Wave"``, and
             ``"Piecewise Linear"``. ``"Temp Dep"`` only support the latter. ``"Values"``
             contains a list of strings containing the parameters required by the ``"Function"``
             selection (e.g. ``"Linear"`` requires two parameters: the value of the variable at t=0
