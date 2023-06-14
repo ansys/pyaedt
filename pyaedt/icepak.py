@@ -3928,7 +3928,7 @@ class Icepak(FieldAnalysis3D):
             default is ``None``, in which case no external condition is applied.
         ext_temperature : float, str or dict, optional
             String with the value and units of temperature for the external conditions.
-            If a float is provided, ``"cel"`` unit is used.
+            If a float is provided, the ``"cel"`` unit is used.
             For a transient assignment, a dictionary can be used. For more information,
             see the description for the preceding ``power_assignment`` parameter. The
             default is ``"AmbientTemp"``, which is used if the ``htc`` parameter is not
