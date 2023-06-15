@@ -1026,6 +1026,7 @@ class TestClass(BasisTest, object):
         assert boundary
 
     def test_61_assign_network(self):
+        self.aedtapp.insert_design("test_61")
         box = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20])
         ids = [f.id for f in box.faces]
         net = self.aedtapp.create_network_object()
