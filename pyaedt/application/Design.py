@@ -296,9 +296,15 @@ class Design(AedtObjects):
         -------
         List of :class:`pyaedt.modules.Boundary.BoundaryObject`
         """
-        if not self._boundaries:
-            self._boundaries = self._get_boundaries_data()
-        return self._boundaries
+        if self._aedt_version < "2023.1":
+            if not self._boundaries:
+                self._boundaries = self._get_boundaries_data()
+            return self._boundaries
+        else:
+            current_boundaries = self.oboundary.GetNumBoundaries() + self.oboundary.GetNumExcitations()
+            if len(self._boundaries) != current_boundaries:
+                self._boundaries = self._get_boundaries_object()
+            return self._boundaries
 
     @property
     def odesktop(self):
@@ -2065,6 +2071,22 @@ class Design(AedtObjects):
                 bound = self._update_port_info(port)
                 if bound:
                     boundaries.append(bound)
+        return boundaries
+
+    @pyaedt_function_handler()
+    def _get_boundaries_object(self):
+        """Retrieve boundary objects.
+
+        Returns
+        -------
+        list
+            Boundary objects.
+        """
+        boundaries = []
+        boundaries_names = list(self.get_oo_name(self.odesign, "Boundaries"))
+        if boundaries_names:
+            boundaries = self.get_oo_object(self.odesign, "Boundaries")
+
         return boundaries
 
     @pyaedt_function_handler()
