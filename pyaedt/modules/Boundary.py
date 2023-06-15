@@ -3751,7 +3751,7 @@ class NetworkObject(BoundaryObject):
     def _add_to_props(self, new_node, type_dict="Nodes"):
         try:
             self.props[type_dict].update({new_node.name: new_node.props})
-        except:
+        except KeyError:
             self.props[type_dict] = {new_node.name: new_node.props}
 
     @pyaedt_function_handler()
@@ -4063,7 +4063,7 @@ class NetworkObject(BoundaryObject):
                 self.create()
                 self._app.boundaries.append(self)
                 return True
-            except:  # pragma : no cover
+            except Exception:  # pragma : no cover
                 self._app.odesign.Undo()
                 self._app.logger.error("Update of network object failed.")
                 return False
