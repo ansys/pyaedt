@@ -670,6 +670,11 @@ class TestClass(BasisTest, object):
         ) == ["monitor_vertex_123", "monitor_vertex_124"]
         assert self.aedtapp.monitor.get_monitor_object_assignment("monitor_vertex_123") == "box"
         assert self.aedtapp.monitor.assign_point_monitor_to_vertex(vertex1.id)
+        self.aedtapp.modeler.create_point([1, 2, 3], name="testPoint")
+        self.aedtapp.modeler.create_point([1, 3, 3], name="testPoint2")
+        self.aedtapp.modeler.create_point([1, 2, 2], name="testPoint3")
+        assert self.aedtapp.monitor.assign_point_monitor("testPoint", monitor_name="T1")
+        assert self.aedtapp.monitor.assign_point_monitor(["testPoint2", "testPoint2"])
 
     def test_47_face_monitor(self):
         self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], "box3", "copper")
