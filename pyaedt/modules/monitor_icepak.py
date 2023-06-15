@@ -218,14 +218,14 @@ class Monitor:
         ['monitor1', 'monitor2']
 
         """
-        point_names = []
         if isinstance(point_position[0], str):
-            if isinstance(point_position[0], list):
+            if isinstance(point_position, list):
                 point_names = point_position
             else:
                 point_names = [point_position]
             point_position = []
         else:
+            point_names = []
             if not isinstance(point_position[0], list):
                 point_position = [point_position]
 
