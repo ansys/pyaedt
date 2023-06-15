@@ -3378,6 +3378,14 @@ class NetworkObject(BoundaryObject):
 
     @pyaedt_function_handler
     def create(self):
+        """
+        Create network in AEDT.
+
+        Returns
+        -------
+        bool:
+            True if successful.
+        """
         if not self.props.get("Faces", None):
             self.props["Faces"] = [node.props["FaceID"] for _, node in self.face_nodes.items()]
         if not self.props.get("SchematicData", None):
@@ -3433,10 +3441,27 @@ class NetworkObject(BoundaryObject):
 
     @property
     def auto_update(self):
+        """
+        Get if auto-update is enabled.
+
+        Returns
+        -------
+        bool:
+            Whether auto-update is enabled.
+        """
         return False
 
     @auto_update.setter
     def auto_update(self, b):
+        """
+        Set auto-update on or off.
+
+        Parameters
+        ----------
+        b: bool
+            Whether to enable auto-update.
+
+        """
         if b:
             self._app.logger.warning(
                 "Network objects auto_update property is False by default" " and cannot be set to True."
@@ -3444,31 +3469,85 @@ class NetworkObject(BoundaryObject):
 
     @property
     def links(self):
+        """
+        Get links of the network.
+
+        Returns
+        -------
+        dict:
+            Links dictionary.
+
+        """
         self._update_from_props()
         return {link.name: link for link in self._links}
 
     @property
     def r_links(self):
+        """
+        Get r-links of the network.
+
+        Returns
+        -------
+        dict:
+            R-links dictionary.
+
+        """
         self._update_from_props()
         return {link.name: link for link in self._links if link._link_type[0] == "R-Link"}
 
     @property
     def c_links(self):
+        """
+        Get c-links of the network.
+
+        Returns
+        -------
+        dict:
+            C-links dictionary.
+
+        """
         self._update_from_props()
         return {link.name: link for link in self._links if link._link_type[0] == "C-Link"}
 
     @property
     def nodes(self):
+        """
+        Get nodes of the network.
+
+        Returns
+        -------
+        dict:
+            Nodes dictionary.
+
+        """
         self._update_from_props()
         return {node.name: node for node in self._nodes}
 
     @property
     def face_nodes(self):
+        """
+        Get face nodes of the network.
+
+        Returns
+        -------
+        dict:
+            Face nodes dictionary.
+
+        """
         self._update_from_props()
         return {node.name: node for node in self._nodes if node.node_type == "FaceNode"}
 
     @property
     def faces_ids_in_network(self):
+        """
+        Get ID of faces included in the network.
+
+        Returns
+        -------
+        list:
+            Face IDs.
+
+        """
         out_arr = []
         for _, node_dict in self.face_nodes.items():
             out_arr.append(node_dict.props["FaceID"])
@@ -3476,6 +3555,15 @@ class NetworkObject(BoundaryObject):
 
     @property
     def objects_in_network(self):
+        """
+        Get objects included in the network.
+
+        Returns
+        -------
+        list:
+            Objects names.
+
+        """
         out_arr = []
         for face_id in self.faces_ids_in_network:
             out_arr.append(self._app.oeditor.GetObjectNameByFaceID(face_id))
@@ -3483,26 +3571,54 @@ class NetworkObject(BoundaryObject):
 
     @property
     def internal_nodes(self):
+        """
+        Get internal nodes.
+
+        Returns
+        -------
+        dict:
+            Internal nodes.
+
+        """
         self._update_from_props()
         return {node.name: node for node in self._nodes if node.node_type == "InternalNode"}
 
     @property
     def boundary_nodes(self):
+        """
+        Get boundary nodes.
+
+        Returns
+        -------
+        dict:
+            Boundary nodes.
+
+        """
         self._update_from_props()
         return {node.name: node for node in self._nodes if node.node_type == "BoundaryNode"}
 
     @property
     def name(self):
-        """Network name.
+        """
+        Get network name.
 
         Returns
         -------
         str
+            Network name.
         """
         return self._name
 
     @name.setter
     def name(self, new_network_name):
+        """
+        Set new name of the network.
+
+        Parameters
+        ----------
+        new_network_name: str
+            New name of the network.
+        """
         bound_names = [b.name for b in self._app.boundaries]
         if self.name in bound_names:
             if new_network_name not in bound_names:
