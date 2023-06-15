@@ -285,7 +285,6 @@ class AedtLogger(object):
         -------
 
         """
-        """Reset actual timer from now."""
         if time_val:
             self._timer = time_val
         else:
