@@ -674,7 +674,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.modeler.create_point([1, 3, 3], name="testPoint2")
         self.aedtapp.modeler.create_point([1, 2, 2], name="testPoint3")
         assert self.aedtapp.monitor.assign_point_monitor("testPoint", monitor_name="T1")
-        assert self.aedtapp.monitor.assign_point_monitor(["testPoint2", "testPoint2"])
+        assert self.aedtapp.monitor.assign_point_monitor(["testPoint2", "testPoint3"])
 
     def test_47_face_monitor(self):
         self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], "box3", "copper")
