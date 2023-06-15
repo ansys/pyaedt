@@ -83,6 +83,9 @@ def launch_aedt(full_path, non_graphical, port, first_run=True):
             ) as p:
                 p.wait()
 
+    active = grpc_active_sessions(
+        settings.aedt_version, non_graphical=settings.non_graphical, student_version=settings.is_student
+    )
     _aedt_process_thread = threading.Thread(target=launch_desktop_on_port)
     _aedt_process_thread.daemon = True
     _aedt_process_thread.start()
@@ -95,6 +98,19 @@ def launch_aedt(full_path, non_graphical, port, first_run=True):
                 return launch_aedt(full_path, non_graphical, port, first_run=False)
             return False, port
         time.sleep(1)
+        k += 1
+    active_after = grpc_active_sessions(
+        settings.aedt_version, non_graphical=settings.non_graphical, student_version=settings.is_student
+    )
+    k = 0
+    time.sleep(1)
+    while len(active_after) == len(active):  # pragma: no cover
+        time.sleep(1)
+        active_after = grpc_active_sessions(
+            settings.aedt_version, non_graphical=settings.non_graphical, student_version=settings.is_student
+        )
+        if k > timeout:
+            return False, port
         k += 1
     return True, port
 
@@ -411,6 +427,14 @@ def get_version_env_variable(version_id):
     return version_env_var
 
 
+def is_student_version(oDesktop):
+    edt_root = os.path.normpath(oDesktop.GetExeDir())
+    if is_windows and os.path.isdir(edt_root):
+        if any("ansysedtsv" in fn.lower() for fn in os.listdir(edt_root)):
+            return True
+    return False
+
+
 class Desktop(object):
     """Provides the Ansys Electronics Desktop (AEDT) interface.
 
@@ -512,18 +536,24 @@ class Desktop(object):
                 settings.non_graphical = oDesktop.GetIsNonGraphical()
             except:
                 settings.non_graphical = non_graphical
+            settings.aedt_version = self._main.oDesktop.GetVersion()[0:6]
+            settings.is_student = is_student_version(self._main.oDesktop)
         elif "oDesktop" in dir(self._main) and self._main.oDesktop is not None:  # pragma: no cover
             self.release_on_exit = False
             try:
                 settings.non_graphical = self._main.oDesktop.GetIsNonGraphical()
             except:
                 settings.non_graphical = non_graphical
+            settings.aedt_version = self._main.oDesktop.GetVersion()[0:6]
+            settings.is_student = is_student_version(self._main.oDesktop)
         else:
             settings.non_graphical = non_graphical
 
             if "oDesktop" in dir(self._main):
                 del self._main.oDesktop
             self._main.student_version, version_key, version = self._set_version(specified_version, student_version)
+            settings.aedt_version = version_key
+            settings.is_student = self._main.student_version
             if not new_desktop_session and not is_ironpython:  # pragma: no cover
                 sessions = active_sessions(
                     version=version_key, student_version=student_version, non_graphical=non_graphical
@@ -580,7 +610,6 @@ class Desktop(object):
         if not settings.remote_api:
             self._logger.info("Python version %s", sys.version)
         self.odesktop = self._main.oDesktop
-        settings.aedt_version = self.odesktop.GetVersion()[0:6]
         settings.machine = self.machine
         settings.port = self.port
         self.aedt_process_id = self.odesktop.GetProcessID()  # bit of cleanup for consistency if used in future
