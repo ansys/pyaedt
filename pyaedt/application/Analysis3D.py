@@ -1041,8 +1041,8 @@ class FieldAnalysis3D(Analysis, object):
 
         Parameters
         ----------
-        object_name : str
-            Starting object to check for touching elements. Optional.
+        object_name : str, optional
+            Starting object to check for touching elements. The default is ``None``.
         Returns
         -------
         dict
