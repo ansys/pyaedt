@@ -1037,7 +1037,8 @@ class FieldAnalysis3D(Analysis, object):
 
     def identify_touching_conductors(self, object_name=None):
         # type: (str) -> dict
-        """Identify all the touching components and group in a dictionary. It requires `pyvista`.
+        """Identify all touching components and group in a dictionary. This method requires that
+        the ``pyvista`` package is installed.
 
         Parameters
         ----------
