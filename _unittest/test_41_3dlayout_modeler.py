@@ -8,6 +8,7 @@ from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
 
 from pyaedt import Hfss3dLayout
+from pyaedt import Maxwell3d
 
 try:
     import pytest  # noqa: F401
@@ -20,6 +21,7 @@ test_subfolder = "T41"
 # Input Data and version for the test
 test_project_name = "Test_RadioBoard"
 test_rigid_flex = "demo_flex"
+test_post = "test_post_processing"
 
 if config["desktopVersion"] > "2022.2":
     diff_proj_name = "differential_pairs_t41_231"
@@ -40,6 +42,9 @@ class TestClass(BasisTest, object):
         example_project = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
         self.target_path = os.path.join(self.local_scratch.path, "Package_test_41.aedb")
         self.local_scratch.copyfolder(example_project, self.target_path)
+        self.test_post = BasisTest.add_app(
+            self, project_name=test_post, application=Maxwell3d, subfolder=test_subfolder
+        )
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -348,6 +353,7 @@ class TestClass(BasisTest, object):
         setup_name = "RFBoardSetup3"
         setup3 = self.aedtapp.create_setup(setupname=setup_name)
         setup3.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 1
+        setup3.props["SaveAdaptiveCurrents"] = True
         assert setup3.update()
         assert setup3.disable()
         assert setup3.enable()
@@ -684,6 +690,16 @@ class TestClass(BasisTest, object):
 
         assert p2.name == "poly_test_41_void"
         assert not self.aedtapp.modeler.create_polygon_void("Top", points2, "another_object", name="poly_43_void")
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
+    def test_42_post_processing(self):
+        intrinsics = {"Time": "1ms"}
+        assert self.test_post.post.create_fieldplot_layers_nets(
+            [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
+            "Mag_Volume_Force_Density",
+            intrinsics=intrinsics,
+            plot_name="Test_Layers",
+        )
 
     @pytest.mark.skipif(is_linux, reason="Bug on linux")
     def test_90_set_differential_pairs(self):

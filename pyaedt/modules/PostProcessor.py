@@ -2600,7 +2600,8 @@ class PostProcessor(PostProcessorCommon, object):
 
     @pyaedt_function_handler()
     def _create_fieldplot(self, objlist, quantityName, setup_name, intrinsics, listtype, plot_name=None):
-        objlist = self._app.modeler.convert_to_selections(objlist, True)
+        if not listtype.startswith("Layer"):
+            objlist = self._app.modeler.convert_to_selections(objlist, True)
         if not setup_name:
             setup_name = self._app.existing_analysis_sweeps[0]
         if not intrinsics:
@@ -2650,11 +2651,20 @@ class PostProcessor(PostProcessorCommon, object):
                 quantityName=quantityName,
                 intrinsincList=intrinsics,
             )
+        elif listtype.startswith("Layer"):
+            plot = FieldPlot(
+                self,
+                layers_nets=objlist,
+                solutionName=setup_name,
+                quantityName=quantityName,
+                intrinsincList=intrinsics,
+                layers_plot_type=listtype,
+            )
         plot.name = plot_name
         plot.plotFolder = plot_name
 
         plt = plot.create()
-        if "Maxwell" in self._app.design_type and self.post_solution_type == "Transient":
+        if "Maxwell" in self._app.design_type and "Transient" in self.post_solution_type:
             self.ofieldsreporter.SetPlotsViewSolutionContext([plot_name], setup_name, "Time:" + intrinsics["Time"])
         if plt:
             self.field_plots[plot_name] = plot
@@ -2851,6 +2861,56 @@ class PostProcessor(PostProcessorCommon, object):
             intrinsinc_dict,
             plot_name,
         )
+
+    @pyaedt_function_handler()
+    def create_fieldplot_layers_nets(
+        self, layers_nets, quantity_name, setup_name=None, intrinsics=None, plot_on_surface=True, plot_name=None
+    ):
+        # type: (list, str, str, dict, bool, str) -> FieldPlot
+        """Create a field plot of stacked layer plot.
+        This plot is valid from AEDT 2023 R2 in Hfss3d Layout and any Modeler where a layout component is used.
+
+        Parameters
+        ----------
+        layers_nets : list
+            List of layers and nets on which plot. Example: [["Layer1", "GND", "PWR"], ["Layer2", "VCC"], ...].
+        quantity_name : str
+            Name of the quantity to plot.
+        setup_name : str, optional
+            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
+            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
+            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+        intrinsics : dict, optional
+            Dictionary containing all intrinsic variables. The default
+            is ``{}``.
+        plot_on_surface : bool, optional
+            Whether if the plot will be on surface or volume of traces.
+        plot_name : str, optional
+            Name of the fieldplot to create.
+
+        Returns
+        -------
+        :class:``pyaedt.modules.solutions.FieldPlot``
+            Plot object.
+
+        References
+        ----------
+
+        >>> oModule.CreateFieldPlot
+        """
+        if not ("APhi" in self.post_solution_type and settings.aedt_version >= "2023.2"):
+            self.logger.error("This method requires AEDT 2023 R2 and Maxwell 3D Transient APhi Formulation.")
+            return False
+        if intrinsics is None:
+            intrinsics = {}
+        if plot_name and plot_name in list(self.field_plots.keys()):
+            self.logger.info("Plot {} exists. returning the object.".format(plot_name))
+            return self.field_plots[plot_name]
+        if plot_on_surface:
+            plot_type = "LayerNetsExtFace"
+        else:
+            plot_type = "LayerNets"
+        return self._create_fieldplot(layers_nets, quantity_name, setup_name, intrinsics, plot_type, plot_name)
 
     @pyaedt_function_handler()
     def create_fieldplot_surface(self, objlist, quantityName, setup_name=None, intrinsincDict=None, plot_name=None):
