@@ -4038,7 +4038,7 @@ class NetworkObject(BoundaryObject):
             name = connection.get("Name", None)
             try:
                 self.add_link(connection["Link"][0], connection["Link"][1], connection["Link"][2], name)
-            except:  # pragma : no cover
+            except Exception:  # pragma : no cover
                 if name:
                     self._app.logger.error("Failed to add " + name + " link.")
                 else:
@@ -4111,7 +4111,7 @@ class NetworkObject(BoundaryObject):
                 "btu_per_fahSecFt2": ["R-Link", "HTC"],
                 "w_per_cm2kel": ["R-Link", "HTC"],
             }
-            value, unit = decompose_variable_value(self.value)
+            _, unit = decompose_variable_value(self.value)
             return unit2type_conversion[unit]
 
         @property
