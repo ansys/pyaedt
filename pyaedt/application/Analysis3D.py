@@ -1034,3 +1034,154 @@ class FieldAnalysis3D(Analysis, object):
         if not self.design_type == "Icepak":
             self.mesh._refresh_mesh_operations()
         return True
+
+    @pyaedt_function_handler()
+    def get_dxf_layers(self, file_path):
+        """Read a dxf file and return all layer names.
+
+        Parameters
+        ----------
+        file_path : str
+            Full path to the dxf file.
+
+        Returns
+        -------
+        list
+            List of layers in dxf.
+        """
+        layer_names = []
+        with open_file(file_path) as f:
+            lines = f.readlines()
+            indices = self._find_indices(lines, "AcDbLayerTableRecord\n")
+            for idx in indices:
+                if "2" in lines[idx + 1]:
+                    layer_names.append(lines[idx + 2].replace("\n", ""))
+            return layer_names
+
+    @pyaedt_function_handler
+    def import_dxf(
+        self,
+        file_path,
+        layers_list,
+        auto_detect_close=True,
+        self_stitch=True,
+        self_stitch_tolerance=0,
+        scale=0.001,
+        defeature_geometry=False,
+        defeature_distance=0,
+        round_coordinates=False,
+        round_num_digits=4,
+        write_poly_with_width_as_filled_poly=False,
+        import_method=1,
+        sheet_bodies_2d=True,
+    ):
+        """Import dxf file
+
+        Parameters
+        ----------
+        file_path : str
+            dxf file path.
+        layers_list : list
+            List of layer names to import.
+            If the user wants to know the layers in dxf, the method ``get_dxf_layers`` has to be called.
+        auto_detect_close : bool, optional
+            Causes polylines to be checked to see whether they are closed.
+            If a polyline is closed, the modeler creates a polygon in the design.
+            Default value is ``True``.
+        self_stitch : bool, optional
+            Causes multiple straight line segments to be joined to form polylines.
+            If the resulting polyline is closed, a polygon is created in the modeler.
+            Default value is ``True``.
+        self_stitch_tolerance : float, optional
+            Self stitch tolerance value.
+            Default value is ``0``.
+        scale : float, optional
+            Scaling factor.
+            Default value is ``0.001`` which means ``mm``.
+        defeature_geometry : bool, optional
+            Removes certain small features in the imported geometry to reduce complexity.
+            The features that are removed include: multiple points placed within the
+            specified distance; thin or narrow regions (“thins” and “spikes”);
+            and extraneous points along straight line segments.
+            Default value is ``False``.
+        defeature_distance : float, optional
+            Defeature tolerance distance.
+            Default value is ``0``.
+        round_coordinates : bool, optional
+            Rounds all imported data to the specified number of decimal points.
+            Default value is ``False``.
+        round_num_digits : int, optional
+            Number of digits.
+            Default value is ``4``.
+        write_poly_with_width_as_filled_poly : bool, optional
+            Imports wide polylines as polygons.
+            Default value is ``False``.
+        import_method : int, bool
+            ``Script`` or ``Acis``.
+            Default value is ``1`` which refers to ``Acis``.
+        sheet_bodies_2d : bool, optional
+            Import as 2D sheet bodies causes imported objects to be organized in terms of 2D sheets.
+            Default value is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.ImportDXF
+
+        """
+        for ly in layers_list:
+            if ly not in self.get_dxf_layers(file_path):
+                raise ValueError("{} does not exist in specified dxf.".format(ly))
+
+        vArg1 = ["NAME:options"]
+        vArg1.append("FileName:="), vArg1.append(file_path)
+        vArg1.append("Scale:="), vArg1.append(scale)
+        vArg1.append("AutoDetectClosed:="), vArg1.append(auto_detect_close)
+        vArg1.append("SelfStitch:="), vArg1.append(self_stitch)
+        vArg1.append("SelfStitchTolerance:="), vArg1.append(self_stitch_tolerance)
+        vArg1.append("DefeatureGeometry:="), vArg1.append(defeature_geometry)
+        vArg1.append("DefeatureDistance:="), vArg1.append(defeature_distance)
+        vArg1.append("RoundCoordinates:="), vArg1.append(round_coordinates)
+        vArg1.append("RoundNumDigits:="), vArg1.append(round_num_digits)
+        vArg1.append("WritePolyWithWidthAsFilledPoly:="), vArg1.append(write_poly_with_width_as_filled_poly)
+        vArg1.append("ImportMethod:="), vArg1.append(import_method)
+        vArg1.append("2DSheetBodies:="), vArg1.append(sheet_bodies_2d)
+        vArg2 = ["NAME:LayerInfo"]
+        for layer in layers_list:
+            vArg3 = ["Name:" + layer]
+            vArg3.append("source:="), vArg3.append(layer)
+            vArg3.append("display_source:="), vArg3.append(layer)
+            vArg3.append("import:="), vArg3.append("True")
+            vArg3.append("dest:="), vArg3.append(layer)
+            vArg3.append("dest_selected:="), vArg3.append("False")
+            vArg3.append("layer_type:="), vArg3.append("signal")
+            vArg2.append(vArg3)
+        vArg1.append(vArg2)
+        self.oeditor.ImportDXF(vArg1)
+
+    @pyaedt_function_handler()
+    def _find_indices(self, list_to_check, item_to_find):
+        """Given a list returns the list of indices for all occurrences of a given element.
+
+        Parameters
+        ----------
+        list_to_check: list
+            List to check.
+        item_to_find: str, int
+            Element to search for in the list.
+
+        Returns
+        -------
+        list
+            Indices of the occurrences of a given element.
+        """
+        indices = []
+        for idx, value in enumerate(list_to_check):
+            if value == item_to_find:
+                indices.append(idx)
+        return indices
