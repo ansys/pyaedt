@@ -152,7 +152,7 @@ class EDBNetsData(NetDotNet):
         >>> app.nets["BST_V3P3_S5"].get_extended_net()
         """
         all_nets = self._app.nets.nets
-        nets = {}
+        nets = {self.name: all_nets[self.name]}
         rlc_serial = {}
         comps = {}
 

@@ -1296,6 +1296,20 @@ class EdbSiwave(object):
         return True
 
     @pyaedt_function_handler
+    def create_voltage_probe_on_pin_group(self, probe_name, pos_pin_group_name, neg_pin_group_name, impedance=1000000):
+        pos_pin_group = self.pin_groups[pos_pin_group_name]
+        pos_terminal = pos_pin_group.create_voltage_probe_terminal(impedance)
+        if probe_name:
+            pos_terminal.SetName(probe_name)
+        else:
+            probe_name = generate_unique_name("vprobe")
+            pos_terminal.SetName(probe_name)
+        neg_pin_group_name = self.pin_groups[neg_pin_group_name]
+        neg_terminal = neg_pin_group_name.create_voltage_probe_terminal()
+        neg_terminal.SetName(probe_name + "_ref")
+        pos_terminal.SetReferenceTerminal(neg_terminal)
+
+    @pyaedt_function_handler
     def create_circuit_port_on_pin_group(self, pos_pin_group_name, neg_pin_group_name, impedance=50, name=None):
         """Create a port between two pin groups.
 

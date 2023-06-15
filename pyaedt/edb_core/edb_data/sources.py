@@ -236,6 +236,10 @@ class PinGroup(object):
         self._node_pins = []
         self._net = ""
 
+        self._current_terminal = ""
+        self._voltage_terminal = ""
+        self.probe_terminal = ""
+
     @property
     def _active_layout(self):
         return self._pedb.active_layout
@@ -280,8 +284,12 @@ class PinGroup(object):
     def net_name(self):
         return self._edb_pin_group.GetNet().GetName()
 
+    @property
+    def current_terminal(self):
+        return
+
     @pyaedt_function_handler()
-    def _create_terminal(self, is_reference=False):
+    def _create_pin_group_terminal(self, is_reference=False):
         pg_term = self._edb_pin_group.GetPinGroupTerminal()
         pin_group_net = self._edb_pin_group.GetNet()
         if pin_group_net.IsNull():  # pragma: no cover
@@ -299,7 +307,7 @@ class PinGroup(object):
 
     @pyaedt_function_handler()
     def create_current_source_terminal(self, magnitude=1, phase=0):
-        terminal = self._create_terminal()
+        terminal = self._create_pin_group_terminal()
         terminal.SetBoundaryType(self._pedb.edb_api.cell.terminal.BoundaryType.kCurrentSource)
         terminal.SetSourceAmplitude(self._pedb.edb_value(magnitude))
         terminal.SetSourcePhase(self._pedb.edb_api.utility.value(phase))
@@ -307,7 +315,7 @@ class PinGroup(object):
 
     @pyaedt_function_handler()
     def create_voltage_source_terminal(self, magnitude=1, phase=0, impedance=0.001):
-        terminal = self._create_terminal()
+        terminal = self._create_pin_group_terminal()
         terminal.SetBoundaryType(self._pedb.edb_api.cell.terminal.BoundaryType.kVoltageSource)
         terminal.SetSourceAmplitude(self._pedb.edb_value(magnitude))
         terminal.SetSourcePhase(self._pedb.edb_api.utility.value(phase))
@@ -315,8 +323,15 @@ class PinGroup(object):
         return terminal
 
     @pyaedt_function_handler()
+    def create_voltage_probe_terminal(self, impedance=1000000):
+        terminal = self._create_pin_group_terminal()
+        terminal.SetBoundaryType(self._pedb.edb_api.cell.terminal.BoundaryType.kVoltageProbe)
+        terminal.SetImpedance(self._pedb.edb_value(impedance))
+        return terminal
+
+    @pyaedt_function_handler()
     def create_port_terminal(self, impedance=50):
-        terminal = self._create_terminal()
+        terminal = self._create_pin_group_terminal()
         terminal.SetBoundaryType(self._pedb.edb_api.cell.terminal.BoundaryType.PortBoundary)
         terminal.SetImpedance(self._pedb.edb_value(impedance))
         terminal.SetIsCircuitPort(True)
