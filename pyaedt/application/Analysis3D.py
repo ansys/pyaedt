@@ -1034,3 +1034,87 @@ class FieldAnalysis3D(Analysis, object):
         if not self.design_type == "Icepak":
             self.mesh._refresh_mesh_operations()
         return True
+
+    def identify_touching_conductors(self, object_name=None):
+        # type: (str) -> dict
+        """Identify all touching components and group in a dictionary. This method requires that
+        the ``pyvista`` package is installed.
+
+        Parameters
+        ----------
+        object_name : str, optional
+            Starting object to check for touching elements. The default is ``None``.
+
+        Returns
+        -------
+        dict
+
+        """
+        if is_ironpython and settings.aedt_version < "2023.2":  # pragma: no cover
+            self.logger.error("This method requires CPython and PyVista.")
+            return False
+        if settings.aedt_version >= "2023.2" and self.design_type == "HFSS":  # pragma: no cover
+            nets_aedt = self.oboundary.IdentifyNets(True)
+            nets = {}
+            for net in nets_aedt[1:]:
+                nets[net[0].split(":")[1]] = list(net[1][1:])
+            if object_name:
+                for net, net_vals in nets.items():
+                    if object_name in net_vals:
+                        output = {"Net1": net_vals}
+                        return output
+            return nets
+        plt_obj = self.plot(show=False, objects=self.get_all_conductors_names())
+        import pyvista as pv
+
+        nets = {}
+        inputs = []
+        for cad in plt_obj.objects:
+            # if (self.modeler[cad.name].is_conductor):
+            filedata = pv.read(cad.path)
+            cad._cached_polydata = filedata
+            inputs.append(cad)
+
+        if object_name:
+            cad_to_investigate = [i for i in inputs if i.name == object_name][0]
+            inputs = [i for i in inputs if i.name != object_name]
+
+        else:
+            cad_to_investigate = inputs[0]
+            inputs = inputs[1:]
+        if not inputs:
+            self.logger.error("At least one conductor is needed.")
+            return {}
+
+        def check_intersections(output, input_list, cad_in=None):
+            if cad_in is None:
+                cad_in = output[-1]
+            temp_out = []
+            for cad in input_list:
+                if cad != cad_in and cad not in output:
+                    col, n_contacts = cad_in._cached_polydata.collision(cad._cached_polydata, 1)
+                    if n_contacts > 0:
+                        output.append(cad)
+                        temp_out.append(cad)
+                        input_list = [i for i in input_list if i != cad]
+            for cad in temp_out:
+                check_intersections(output, input_list, cad)
+                list(set(output))
+            return output
+
+        k = 1
+        while len(inputs) > 0:
+            net = [cad_to_investigate]
+            check_intersections(net, inputs)
+            inputs = [i for i in inputs if i not in net]
+            nets["Net{}".format(k)] = [i.name for i in net]
+            if object_name:
+                break
+            if inputs:
+                cad_to_investigate = inputs[0]
+                inputs = inputs[1:]
+                k += 1
+                if len(inputs) == 0:
+                    nets["Net{}".format(k)] = [cad_to_investigate.name]
+                    break
+        return nets
