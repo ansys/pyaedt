@@ -1188,7 +1188,7 @@ class FieldAnalysis3D(Analysis, object):
         defeature_geometry : bool, optional
             Removes certain small features in the imported geometry to reduce complexity.
             The features that are removed include: multiple points placed within the
-            specified distance; thin or narrow regions (“thins” and “spikes”);
+            specified distance, thin or narrow regions (“thins” and “spikes”),
             and extraneous points along straight line segments.
             Default value is ``False``.
         defeature_distance : float, optional
