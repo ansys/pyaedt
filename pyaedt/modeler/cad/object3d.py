@@ -293,7 +293,7 @@ class Object3d(object):
                 return model_obj.image_file
         return False
 
-    @property
+    @pyaedt_function_handler()
     def touching_objects(self):
         """Get the objects that touch one of the vertex, edge midpoint or face of the object."""
         if not is_ironpython or settings.aedt_version > "2023.2":  # pragma: no cover
