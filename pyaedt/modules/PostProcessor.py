@@ -2873,20 +2873,22 @@ class PostProcessor(PostProcessorCommon, object):
         Parameters
         ----------
         layers_nets : list
-            List of layers and nets on which plot. Example: [["Layer1", "GND", "PWR"], ["Layer2", "VCC"], ...].
+            List of layers and nets to plot. For example:
+            ``[["Layer1", "GND", "PWR"], ["Layer2", "VCC"], ...]``.
         quantity_name : str
             Name of the quantity to plot.
         setup_name : str, optional
-            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
-            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
-            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Make sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
         intrinsics : dict, optional
             Dictionary containing all intrinsic variables. The default
             is ``{}``.
         plot_on_surface : bool, optional
-            Whether if the plot will be on surface or volume of traces.
+            Whether the plot is to be on the surface or volume of traces.
         plot_name : str, optional
-            Name of the fieldplot to create.
+            Name of the field plot to create.
 
         Returns
         -------
