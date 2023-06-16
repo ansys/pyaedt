@@ -1161,7 +1161,7 @@ class FieldAnalysis3D(Analysis, object):
         sheet_bodies_2d=True,
     ):
         # type: (str, list, bool, bool, float, float, bool, float, bool, int, bool, int, bool) -> bool
-        """Import dxf file
+        """Import dxf file.
 
         Parameters
         ----------
