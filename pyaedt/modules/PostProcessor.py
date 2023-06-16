@@ -2868,7 +2868,7 @@ class PostProcessor(PostProcessorCommon, object):
     ):
         # type: (list, str, str, dict, bool, str) -> FieldPlot
         """Create a field plot of stacked layer plot.
-        This plot is valid from AEDT 2023 R2 in Hfss3d Layout and any Modeler where a layout component is used.
+        This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout and any modeler where a layout component is used.
 
         Parameters
         ----------
