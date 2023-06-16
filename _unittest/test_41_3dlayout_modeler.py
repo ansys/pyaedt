@@ -693,11 +693,10 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
     def test_42_post_processing(self):
-        intrinsics = {"Time": "1ms"}
         assert self.test_post.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
             "Mag_Volume_Force_Density",
-            intrinsics=intrinsics,
+            intrinsics={"Time": "1ms"},
             plot_name="Test_Layers",
         )
 
