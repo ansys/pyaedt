@@ -295,7 +295,7 @@ class Object3d(object):
 
     @pyaedt_function_handler()
     def touching_objects(self):
-        """Get the objects that touch one of the vertex, edge midpoint or face of the object."""
+        """Get the objects that touch a vertex, edge midpoint, or face of the object."""
         if not is_ironpython or settings.aedt_version > "2023.2":  # pragma: no cover
             return [i for i in self._primitives._app.identify_touching_conductors(self.name)["Net1"] if i != self.name]
         if self.object_type == "Unclassified":
