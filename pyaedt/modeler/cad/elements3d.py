@@ -597,7 +597,7 @@ class FacePrimitive(object):
 
         """
         try:
-            self.oeditor.GetFaceCenter(self.id)
+            return [float(i) for i in self.oeditor.GetFaceCenter(self.id)]
         except:  # pragma: no cover
             vtx = self.vertices
             if len(vtx) > 1:
