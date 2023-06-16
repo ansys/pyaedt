@@ -1037,19 +1037,20 @@ class FieldAnalysis3D(Analysis, object):
 
     def identify_touching_conductors(self, object_name=None):
         # type: (str) -> dict
-        """Identify all the touching components and group in a dictionary. It requires `pyvista`.
+        """Identify all touching components and group in a dictionary. This method requires that
+        the ``pyvista`` package is installed.
 
         Parameters
         ----------
-        object_name : str
-            Starting object to check for touching elements. Optional.
+        object_name : str, optional
+            Starting object to check for touching elements. The default is ``None``.
         Returns
         -------
         dict
 
         """
         if is_ironpython and settings.aedt_version < "2023.2":  # pragma: no cover
-            self.logger.error("This method requires CPython and Pyvista.")
+            self.logger.error("This method requires CPython and PyVista.")
             return False
         if settings.aedt_version >= "2023.2" and self.design_type == "HFSS":  # pragma: no cover
             nets_aedt = self.oboundary.IdentifyNets(True)
