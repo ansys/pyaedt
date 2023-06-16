@@ -187,7 +187,7 @@ class Design(AedtObjects):
         self._design_dictionary = None
         # Get Desktop from global Desktop Environment
         self._project_dictionary = OrderedDict()
-        self._boundaries = []
+        self._boundaries = {}
         self._project_datasets = {}
         self._design_datasets = {}
         main_module = sys.modules["__main__"]
@@ -297,16 +297,14 @@ class Design(AedtObjects):
         -------
         List of :class:`pyaedt.modules.Boundary.BoundaryObject`
         """
-        if self._aedt_version < "2023.1":
-            if not self._boundaries:
-                self._boundaries = self._get_boundaries_data()
-            return self._boundaries
-        else:
-            current_boundaries = self.oboundary.GetNumBoundaries() + self.oboundary.GetNumExcitations()
-            if len(self._boundaries) != current_boundaries:
-                self._boundaries = self._get_boundaries_object()
-                # self._boundaries = self._get_boundaries_data()
-            return self._boundaries
+        current_boundaries = list(self.oboundary.GetBoundaries()[::2]) + [
+            i.split(":")[0] for i in self.oboundary.GetExcitations()[::2]
+        ]
+        for boundary in current_boundaries:
+            if boundary in self._boundaries:
+                continue
+            self._boundaries[boundary] = BoundaryObject(self, boundary)
+        return list(self._boundaries.values())
 
     @property
     def odesktop(self):

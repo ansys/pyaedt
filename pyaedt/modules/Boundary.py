@@ -315,14 +315,51 @@ class BoundaryObject(BoundaryCommon, object):
     >>> coat = hfss.assign_coating([inner_id], "copper", usethickness=True, thickness="0.2mm")
     """
 
-    def __init__(self, app, name, props, boundarytype, auto_update=True):
+    def __init__(self, app, name, props=None, boundarytype=None, auto_update=True):
         self.auto_update = False
         self._app = app
         self._name = name
-        self.props = BoundaryProps(self, OrderedDict(props))
+        self._props = None
+        if props:
+            self._props = BoundaryProps(self, OrderedDict(props))
         self._type = boundarytype
         self._boundary_name = self.name
         self.auto_update = auto_update
+
+    @property
+    def object_properties(self):
+        from pyaedt.modeler.cad.elements3d import BinaryTreeNode
+
+        cc = self._app.odesign.GetChildObject("Boundaries")
+        child_object = None
+        if self.name in cc.GetChildNames():
+            child_object = self._app.odesign.GetChildObject("Boundaries").GetChildObject(self.name)
+        elif self.name in self._app.odesign.GetChildObject("Excitations").GetChildNames():
+            child_object = self._app.odesign.GetChildObject("Excitations").GetChildObject(self.name)
+        if child_object:
+            return BinaryTreeNode(self.name, child_object, False)
+        return False
+
+    @property
+    def props(self):
+        """Retrieve boundary data.
+
+        Returns
+        -------
+        :class:BoundaryProps
+        """
+        if (
+            self._app.design_properties
+            and "BoundarySetup" in self._app.design_properties
+            and isinstance(
+                self._app.design_properties["BoundarySetup"]["Boundaries"].get(self.name, None), (OrderedDict, dict)
+            )
+        ):
+            self._props = BoundaryProps(
+                self, OrderedDict(self._app.design_properties["BoundarySetup"]["Boundaries"][self.name])
+            )
+            self._type = self._app.design_properties["BoundarySetup"]["Boundaries"][self._name]["BoundType"]
+        return self._props
 
     @property
     def type(self):
