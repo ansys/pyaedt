@@ -1186,7 +1186,7 @@ class FieldAnalysis3D(Analysis, object):
             Scaling factor.
             Default value is ``0.001`` which means ``mm``.
         defeature_geometry : bool, optional
-            Removes certain small features in the imported geometry to reduce complexity.
+            Defeature geometry to reduce complexity.
             Default value is ``False``.
         defeature_distance : float, optional
             Defeature tolerance distance.
