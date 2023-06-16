@@ -1218,9 +1218,9 @@ class FieldAnalysis3D(Analysis, object):
         >>> oEditor.ImportDXF
 
         """
-        for ly in layers_list:
-            if ly not in self.get_dxf_layers(file_path):
-                self.logger.error("{} does not exist in specified dxf.".format(ly))
+        for layer in layers_list:
+            if layer not in self.get_dxf_layers(file_path):
+                self.logger.error("{} does not exist in specified dxf.".format(layer))
                 return False
 
         if self.is3d:
