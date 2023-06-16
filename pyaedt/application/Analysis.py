@@ -408,7 +408,7 @@ class Analysis(Design, object):
         return SOLUTIONS()
 
     @property
-    def excitations(self):
+    def excitation_names(self):
         """Get all excitation names.
 
         Returns

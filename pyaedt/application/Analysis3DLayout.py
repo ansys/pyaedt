@@ -126,7 +126,7 @@ class FieldAnalysis3DLayout(Analysis):
         return self._mesh
 
     @property
-    def excitations(self):
+    def excitation_names(self):
         """Excitation names.
 
         Returns

@@ -297,14 +297,60 @@ class Design(AedtObjects):
         -------
         List of :class:`pyaedt.modules.Boundary.BoundaryObject`
         """
-        current_boundaries = list(self.oboundary.GetBoundaries()[::2]) + [
-            i.split(":")[0] for i in self.oboundary.GetExcitations()[::2]
-        ]
-        for boundary in current_boundaries:
+        bb = list(self.oboundary.GetBoundaries())
+
+        current_boundaries = bb[::2]
+        current_types = bb[1::2]
+        for boundary, boundarytype in zip(current_boundaries, current_types):
             if boundary in self._boundaries:
                 continue
-            self._boundaries[boundary] = BoundaryObject(self, boundary)
-        return list(self._boundaries.values())
+            self._boundaries[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
+
+        return list(self._boundaries.values()) + self.excitations
+
+    @property
+    def boundaries_by_type(self):
+        _dict_out = {}
+        for bound in self.boundaries:
+            if bound.type in _dict_out:
+                _dict_out[bound.type].append(bound)
+            else:
+                _dict_out[bound.type] = [bound]
+        return _dict_out
+
+    @property
+    def excitations_by_type(self):
+        _dict_out = {}
+        for bound in self.excitations:
+            if bound.type in _dict_out:
+                _dict_out[bound.type].append(bound)
+            else:
+                _dict_out[bound.type] = [bound]
+        return _dict_out
+
+    @property
+    def excitations(self):
+        """Design excitations.
+
+        Returns
+        -------
+        List of :class:`pyaedt.modules.Boundary.BoundaryObject`
+        """
+        self._excitations = {}
+        ee = list(self.oboundary.GetExcitations())
+        current_boundaries = [i.split(":")[0] for i in ee[::2]]
+        current_types = ee[1::2]
+        for i in set(current_types):
+            new_port = list(self.oboundary.GetExcitationsOfType(i))
+            if new_port:
+                current_boundaries = current_boundaries + new_port
+                current_types = current_types + [i] * len(new_port)
+        for boundary, boundarytype in zip(current_boundaries, current_types):
+            if boundary in self._excitations:
+                continue
+            self._excitations[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
+
+        return list(self._excitations.values())
 
     @property
     def odesktop(self):

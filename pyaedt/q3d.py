@@ -88,7 +88,7 @@ class QExtractor(FieldAnalysis3D, object):
         return self
 
     @property
-    def excitations(self):
+    def excitation_names(self):
         """Get all excitation names.
 
         Returns

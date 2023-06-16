@@ -370,6 +370,8 @@ class BoundaryObject(BoundaryCommon, object):
         str
             Returns Type of the boundary
         """
+        if self._type is None and self.available_properties:
+            self._type = self.available_properties.props["Type"]
         if self._app.design_type == "Icepak" and self._type == "Source":
             return "SourceIcepak"
         else:
