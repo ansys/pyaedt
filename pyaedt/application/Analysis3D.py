@@ -1050,7 +1050,7 @@ class FieldAnalysis3D(Analysis, object):
 
         """
         if is_ironpython and settings.aedt_version < "2023.2":  # pragma: no cover
-            self.logger.error("This method requires CPython and Pyvista.")
+            self.logger.error("This method requires CPython and PyVista.")
             return False
         if settings.aedt_version >= "2023.2" and self.design_type == "HFSS":  # pragma: no cover
             nets_aedt = self.oboundary.IdentifyNets(True)
