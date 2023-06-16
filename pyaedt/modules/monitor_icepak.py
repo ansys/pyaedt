@@ -191,8 +191,10 @@ class Monitor:
 
         Parameters
         ----------
-        point_position : list
-            List of the ``[x, y, z]`` coordinates for the point or list of list of coordinates.
+        point_position : list or str
+            List of the ``[x, y, z]`` coordinates for the point or name of the point.
+            Also, multiple monitor assignment with list of list with coordinates or list
+            of strings with points names.
         monitor_quantity : str or list, optional
             Quantity being monitored.  The default is ``"Temperature"``.
         monitor_name : str, optional
@@ -216,9 +218,17 @@ class Monitor:
         ['monitor1', 'monitor2']
 
         """
-        point_names = []
-        if not isinstance(point_position[0], list):
-            point_position = [point_position]
+        if isinstance(point_position[0], str):
+            if isinstance(point_position, list):
+                point_names = point_position
+            else:
+                point_names = [point_position]
+            point_position = []
+        else:
+            point_names = []
+            if not isinstance(point_position[0], list):
+                point_position = [point_position]
+
         if not isinstance(monitor_quantity, list):
             monitor_quantity = [monitor_quantity]
         for p_p in point_position:
@@ -242,7 +252,7 @@ class Monitor:
             ["NAME:" + monitor_name, "Quantities:=", monitor_quantity, "Points:=", point_names]
         )
         try:
-            monitor_names = self._generate_monitor_names(monitor_name, len(point_position))
+            monitor_names = self._generate_monitor_names(monitor_name, len(point_names))
             for i, mn in enumerate(monitor_names):
                 self._point_monitors[mn] = PointMonitor(mn, "Point", point_names[i], monitor_quantity, self._app)
         except:  # pragma: no cover
