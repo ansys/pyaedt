@@ -42,9 +42,6 @@ class TestClass(BasisTest, object):
         example_project = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
         self.target_path = os.path.join(self.local_scratch.path, "Package_test_41.aedb")
         self.local_scratch.copyfolder(example_project, self.target_path)
-        self.test_post = BasisTest.add_app(
-            self, project_name=test_post, application=Maxwell3d, subfolder=test_subfolder
-        )
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -353,7 +350,6 @@ class TestClass(BasisTest, object):
         setup_name = "RFBoardSetup3"
         setup3 = self.aedtapp.create_setup(setupname=setup_name)
         setup3.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 1
-        setup3.props["SaveAdaptiveCurrents"] = True
         assert setup3.update()
         assert setup3.disable()
         assert setup3.enable()
@@ -693,6 +689,9 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
     def test_42_post_processing(self):
+        self.test_post = BasisTest.add_app(
+            self, project_name=test_post, application=Maxwell3d, subfolder=test_subfolder
+        )
         assert self.test_post.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
             "Mag_Volume_Force_Density",
