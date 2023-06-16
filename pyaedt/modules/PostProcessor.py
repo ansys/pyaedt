@@ -2865,10 +2865,11 @@ class PostProcessor(PostProcessorCommon, object):
     @pyaedt_function_handler()
     def create_fieldplot_layers_nets(
         self, layers_nets, quantity_name, setup_name=None, intrinsics=None, plot_on_surface=True, plot_name=None
-    ):
+    ):  # pragma: no cover
         # type: (list, str, str, dict, bool, str) -> FieldPlot
         """Create a field plot of stacked layer plot.
-        This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout and any modeler where a layout component is used.
+        This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout
+        and any modeler where a layout component is used.
 
         Parameters
         ----------
