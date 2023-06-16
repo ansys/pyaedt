@@ -1323,7 +1323,6 @@ class Primitives3D(Primitives, object):
                 for cs in set(self._app.modeler.coordinate_systems) - old_cs:
                     if cs.ref_cs == "Global":
                         cs.ref_cs = targetCS
-                        cs.update()
             if aux_dict.get("monitor", None):
                 temp_proj_name = self._app._generate_unique_project_name()
                 ipkapp_temp = Icepak(projectname=os.path.join(self._app.toolkit_directory, temp_proj_name))

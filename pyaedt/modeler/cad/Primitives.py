@@ -1524,7 +1524,7 @@ class Primitives(object):
         obj_lst = []
         if materialname is not None:
             for obj in self.object_list:
-                if obj and ("[" in obj.material_name or "(" in obj.material_name):
+                if obj and ("[" in obj.material_name or "(" in obj.material_name) and obj.object_type == "Solid":
                     material = (
                         self._app.odesign.GetChildObject("3D Modeler")
                         .GetChildObject(obj.name)
