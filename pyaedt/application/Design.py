@@ -305,6 +305,7 @@ class Design(AedtObjects):
             current_boundaries = self.oboundary.GetNumBoundaries() + self.oboundary.GetNumExcitations()
             if len(self._boundaries) != current_boundaries:
                 self._boundaries = self._get_boundaries_object()
+                # self._boundaries = self._get_boundaries_data()
             return self._boundaries
 
     @property
