@@ -1037,6 +1037,7 @@ class FieldAnalysis3D(Analysis, object):
 
     @pyaedt_function_handler()
     def get_dxf_layers(self, file_path):
+        # type: (str) -> list
         """Read a dxf file and return all layer names.
 
         Parameters
@@ -1075,6 +1076,7 @@ class FieldAnalysis3D(Analysis, object):
         import_method=1,
         sheet_bodies_2d=True,
     ):
+        # type: (str, list, bool, bool, float, float, bool, float, bool, int, bool, int, bool) -> bool
         """Import dxf file
 
         Parameters
@@ -1094,6 +1096,7 @@ class FieldAnalysis3D(Analysis, object):
             Default value is ``True``.
         self_stitch_tolerance : float, optional
             Self stitch tolerance value.
+            If not provided by the user the default tolerance value is used.
             Default value is ``0``.
         scale : float, optional
             Scaling factor.
@@ -1136,10 +1139,14 @@ class FieldAnalysis3D(Analysis, object):
         """
         for ly in layers_list:
             if ly not in self.get_dxf_layers(file_path):
-                raise ValueError("{} does not exist in specified dxf.".format(ly))
+                self.logger.error("{} does not exist in specified dxf.".format(ly))
+                return False
+
+        if self.is3d:
+            sheet_bodies_2d = False
 
         vArg1 = ["NAME:options"]
-        vArg1.append("FileName:="), vArg1.append(file_path)
+        vArg1.append("FileName:="), vArg1.append(file_path.replace(os.sep, "/"))
         vArg1.append("Scale:="), vArg1.append(scale)
         vArg1.append("AutoDetectClosed:="), vArg1.append(auto_detect_close)
         vArg1.append("SelfStitch:="), vArg1.append(self_stitch)
@@ -1156,16 +1163,18 @@ class FieldAnalysis3D(Analysis, object):
             vArg3 = ["Name:" + layer]
             vArg3.append("source:="), vArg3.append(layer)
             vArg3.append("display_source:="), vArg3.append(layer)
-            vArg3.append("import:="), vArg3.append("True")
+            vArg3.append("import:="), vArg3.append(True)
             vArg3.append("dest:="), vArg3.append(layer)
-            vArg3.append("dest_selected:="), vArg3.append("False")
+            vArg3.append("dest_selected:="), vArg3.append(False)
             vArg3.append("layer_type:="), vArg3.append("signal")
             vArg2.append(vArg3)
         vArg1.append(vArg2)
         self.oeditor.ImportDXF(vArg1)
+        return True
 
     @pyaedt_function_handler()
     def _find_indices(self, list_to_check, item_to_find):
+        # type: (list, str|int) -> list
         """Given a list returns the list of indices for all occurrences of a given element.
 
         Parameters
