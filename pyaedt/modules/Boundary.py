@@ -100,6 +100,55 @@ class BoundaryCommon(PropsManager):
                 self._app.boundaries.remove(el)
         return True
 
+    def _get_boundary_data(self):
+        dict_out = {}
+        if self._app.design_properties and "BoundarySetup" in self._app.design_properties:
+            for ds in self._app.design_properties["BoundarySetup"]["Boundaries"]:
+                try:
+                    if isinstance(self._app.design_properties["BoundarySetup"]["Boundaries"][ds], (OrderedDict, dict)):
+                        if (
+                            self._app.design_properties["BoundarySetup"]["Boundaries"][ds]["BoundType"] == "Network"
+                            and self._app.design_type == "Icepak"
+                        ):
+                            dict_out[ds] = [self._app.design_properties["BoundarySetup"]["Boundaries"][ds], ""]
+                        else:
+                            dict_out[ds] = [
+                                self._app.design_properties["BoundarySetup"]["Boundaries"][ds],
+                                self._app.design_properties["BoundarySetup"]["Boundaries"][ds]["BoundType"],
+                            ]
+
+                except:
+                    pass
+        if self._app.design_properties and "MaxwellParameterSetup" in self._app.design_properties:
+            for ds in self._app.design_properties["MaxwellParameterSetup"]["MaxwellParameters"]:
+                try:
+                    param = "MaxwellParameters"
+                    setup = "MaxwellParameterSetup"
+                    if isinstance(self._app.design_properties[setup][param][ds], (OrderedDict, dict)):
+                        dict_out[ds] = [
+                            self._app.design_properties["MaxwellParameterSetup"]["MaxwellParameters"][ds],
+                            self._app.design_properties["MaxwellParameterSetup"]["MaxwellParameters"][ds][
+                                "MaxwellParameterType"
+                            ],
+                        ]
+                except:
+                    pass
+        if self._app.design_properties and "ModelSetup" in self._app.design_properties:
+            if "MotionSetupList" in self._app.design_properties["ModelSetup"]:
+                for ds in self._app.design_properties["ModelSetup"]["MotionSetupList"]:
+                    try:
+                        motion_list = "MotionSetupList"
+                        setup = "ModelSetup"
+                        # check moving part
+                        if isinstance(self._app.design_properties[setup][motion_list][ds], (OrderedDict, dict)):
+                            dict_out[ds] = [
+                                self._app.design_properties["ModelSetup"]["MotionSetupList"][ds],
+                                self._app.design_properties["ModelSetup"]["MotionSetupList"][ds]["MotionType"],
+                            ]
+                    except:
+                        pass
+        return dict_out
+
 
 class NativeComponentObject(BoundaryCommon, object):
     """Manages Native Component data and execution.
@@ -132,7 +181,7 @@ class NativeComponentObject(BoundaryCommon, object):
         self._app = app
         self.name = "InsertNativeComponentData"
         self.component_name = component_name
-        self.props = BoundaryProps(
+        self._props = BoundaryProps(
             self,
             OrderedDict(
                 {
@@ -174,8 +223,8 @@ class NativeComponentObject(BoundaryCommon, object):
             ),
         )
         if props:
-            self._update_props(self.props, props)
-        self.native_properties = self.props["NativeComponentDefinitionProvider"]
+            self._update_props(self._props, props)
+        self.native_properties = self._props["NativeComponentDefinitionProvider"]
         self.auto_update = True
 
     @property
@@ -348,17 +397,11 @@ class BoundaryObject(BoundaryCommon, object):
         -------
         :class:BoundaryProps
         """
-        if (
-            self._app.design_properties
-            and "BoundarySetup" in self._app.design_properties
-            and isinstance(
-                self._app.design_properties["BoundarySetup"]["Boundaries"].get(self.name, None), (OrderedDict, dict)
-            )
-        ):
-            self._props = BoundaryProps(
-                self, OrderedDict(self._app.design_properties["BoundarySetup"]["Boundaries"][self.name])
-            )
-            self._type = self._app.design_properties["BoundarySetup"]["Boundaries"][self._name]["BoundType"]
+        props = self._get_boundary_data()
+
+        if self.name in props:
+            self._props = BoundaryProps(self, OrderedDict(props[self.name][0]))
+            self._type = props[self.name][1]
         return self._props
 
     @property
@@ -785,7 +828,6 @@ class MaxwellParameters(BoundaryCommon, object):
         self.auto_update = False
         self._app = app
         self._name = name
-        self.props = BoundaryProps(self, OrderedDict(props))
         self.type = boundarytype
         self._boundary_name = self.name
         self.auto_update = True
@@ -1651,7 +1693,6 @@ class BoundaryObject3dLayout(BoundaryCommon, object):
         self.auto_update = False
         self._app = app
         self._name = name
-        self.props = BoundaryProps(self, OrderedDict(props))
         self.type = boundarytype
         self._boundary_name = self.name
         self.auto_update = True
@@ -1698,7 +1739,7 @@ class BoundaryObject3dLayout(BoundaryCommon, object):
             props = OrderedDict()
             for prop in propnames:
                 props[prop] = self._app.oeditor.GetPropertyValue("EM Design", "Excitations:{}".format(self.name), prop)
-            self.props = BoundaryProps(self, props)
+            self._props = BoundaryProps(self, props)
 
     @pyaedt_function_handler()
     def update(self):
