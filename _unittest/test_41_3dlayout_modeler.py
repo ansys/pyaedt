@@ -34,9 +34,6 @@ class TestClass(BasisTest, object):
         self.hfss3dl = BasisTest.add_app(
             self, project_name=diff_proj_name, application=Hfss3dLayout, subfolder=test_subfolder
         )
-        self.flex = BasisTest.add_app(
-            self, project_name=test_rigid_flex, application=Hfss3dLayout, subfolder=test_subfolder
-        )
         example_project = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
         self.target_path = os.path.join(self.local_scratch.path, "Package_test_41.aedb")
         self.local_scratch.copyfolder(example_project, self.target_path)
@@ -671,7 +668,8 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(config["desktopVersion"] < "2022.2", reason="Not working on AEDT 22R1")
     def test_40_test_flex(self):
-        assert self.flex.enable_rigid_flex()
+        flex = BasisTest.add_app(self, project_name=test_rigid_flex, application=Hfss3dLayout, subfolder=test_subfolder)
+        assert flex.enable_rigid_flex()
         pass
 
     def test_41_test_create_polygon(self):
