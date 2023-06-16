@@ -1044,6 +1044,7 @@ class FieldAnalysis3D(Analysis, object):
         ----------
         object_name : str, optional
             Starting object to check for touching elements. The default is ``None``.
+            
         Returns
         -------
         dict
