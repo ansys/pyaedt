@@ -1326,7 +1326,7 @@ class EdbSiwave(object):
         neg_terminal = neg_pin_group_name.create_voltage_probe_terminal()
         neg_terminal.SetName(probe_name + "_ref")
         pos_terminal.SetReferenceTerminal(neg_terminal)
-        return pos_terminal.IsNull()
+        return not pos_terminal.IsNull()
 
     @pyaedt_function_handler
     def create_circuit_port_on_pin_group(self, pos_pin_group_name, neg_pin_group_name, impedance=50, name=None):

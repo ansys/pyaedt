@@ -383,7 +383,9 @@ class TestClass(BasisTest, object):
         self.edbapp.siwave.create_pin_group(reference_designator="U3A1", pin_numbers=[14, 15], group_name="sink_pos")
 
         assert self.edbapp.siwave.create_voltage_source_on_pin_group("sink_pos", "gnd", name="vrm_voltage_source")
-        assert self.edbapp.siwave.create_voltage_probe_on_pin_group("vprobe", "sink_pos", "gnd")
+        self.edbapp.siwave.create_pin_group(reference_designator="U3A1", pin_numbers=[16, 17], group_name="vp_pos")
+        self.edbapp.siwave.create_pin_group(reference_designator="U3A1", pin_numbers=[14, 15], group_name="vp_neg")
+        assert self.edbapp.siwave.create_voltage_probe_on_pin_group("vprobe", "vp_pos", "vp_neg")
 
     def test_043_create_dc_terminal(self):
         assert self.edbapp.siwave.create_dc_terminal("U2A5", "DDR3_DM1", "dc_terminal1") == "dc_terminal1"
