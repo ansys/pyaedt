@@ -280,10 +280,6 @@ class PinGroup(object):
     def net_name(self):
         return self._edb_pin_group.GetNet().GetName()
 
-    @property
-    def current_terminal(self):
-        return
-
     @pyaedt_function_handler()
     def _create_pin_group_terminal(self, is_reference=False):
         pg_term = self._edb_pin_group.GetPinGroupTerminal()
