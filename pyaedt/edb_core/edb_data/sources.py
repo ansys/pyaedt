@@ -236,10 +236,6 @@ class PinGroup(object):
         self._node_pins = []
         self._net = ""
 
-        self._current_terminal = ""
-        self._voltage_terminal = ""
-        self.probe_terminal = ""
-
     @property
     def _active_layout(self):
         return self._pedb.active_layout
