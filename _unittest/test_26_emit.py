@@ -751,6 +751,7 @@ class TestClass(BasisTest, object):
             rev2 = self.aedtapp.results.analyze()
             domain2 = self.aedtapp.results.interaction_domain()
             domain2.set_receiver("MD400C")
+            rev2.max_n_to_1_instances = 0
             assert rev2.is_domain_valid(domain2)
             interaction3 = rev2.run(domain2)
             assert interaction3 is not None
