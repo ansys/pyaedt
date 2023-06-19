@@ -214,6 +214,8 @@ class Components(object):
             data = json.load(f)
             for part_name, p in data["Definitions"].items():
                 model_type = p["Model_type"]
+                if part_name not in self.definitions:
+                    continue
                 comp_definition = self.definitions[part_name]
                 comp_definition.type = p["Component_type"]
 
