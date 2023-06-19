@@ -42,7 +42,7 @@ class IcepakMesh(object):
         Returns
         -------
         dict
-            Dictionary with mesh regions names as keys and mesh regions object as value.
+            Dictionary with mesh region names as keys and mesh region objects as values.
         """
         return {mr.name: mr for mr in self.meshregions}
 
