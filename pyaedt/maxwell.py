@@ -2515,6 +2515,54 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         except:
             return False, False
 
+    @pyaedt_function_handler
+    def assign_flux_tangential(self, objects_list, flux_name=None):
+        # type : (list, str = None) -> pyaedt.modules.Boundary.BoundaryObject
+        """Assign a Flux Tangential Boundary for a Transient A-Phi Solver.
+
+        Parameters
+        ----------
+        objects_list : list
+            List of objects to assign the flux tangential boundary condition to.
+        flux_name : str, optional
+            Name of the flux tangential boundary.
+            If not provided a random name will be generated.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object if successful, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oModule.AssignFluxTangential
+
+        Examples
+        --------
+
+        Create a box and assign flux tangential boundary to one of its faces.
+
+        >>> box = maxwell3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="Box")
+        >>> flux_tangential = maxwell3d_app.assign_flux_tangential(box.faces[0], "FluxExample")
+        """
+        if self.solution_type != "TransientAPhiFormulation":
+            self.logger.error("Flux tangential can only be assigned to Transient APhi solutions type.")
+            return False
+
+        objects_list = self.modeler.convert_to_selections(objects_list, True)
+
+        if not flux_name:
+            flux_name = generate_unique_name("Insulation")
+        elif flux_name in self.modeler.get_boundaries_name():
+            flux_name = generate_unique_name(flux_name)
+
+        props = {"NAME": flux_name, "Faces": []}
+        for sel in objects_list:
+            props["Faces"].append(sel)
+
+        return self._create_boundary(flux_name, props, "FluxTangential")
+
 
 class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     """Provides the Maxwell 2D application interface.
