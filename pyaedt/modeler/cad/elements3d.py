@@ -456,7 +456,7 @@ class FacePrimitive(object):
     def _units(self):
         return self._object3d.object_units
 
-    @pyaedt_function_handler()
+    @property
     def touching_objects(self):
         """Get the objects that touch one of the vertex, edge midpoint or the actual face.
 

@@ -1052,7 +1052,7 @@ class FieldAnalysis3D(Analysis, object):
         """
         if is_ironpython and settings.aedt_version < "2023.2":  # pragma: no cover
             self.logger.error("This method requires CPython and PyVista.")
-            return False
+            return {}
         if settings.aedt_version >= "2023.2" and self.design_type == "HFSS":  # pragma: no cover
             nets_aedt = self.oboundary.IdentifyNets(True)
             nets = {}
@@ -1118,3 +1118,155 @@ class FieldAnalysis3D(Analysis, object):
                     nets["Net{}".format(k)] = [cad_to_investigate.name]
                     break
         return nets
+
+    @pyaedt_function_handler()
+    def get_dxf_layers(self, file_path):
+        # type: (str) -> list[str]
+        """Read a DXF file and return all layer names.
+
+        Parameters
+        ----------
+        file_path : str
+            Full path to the DXF file.
+
+        Returns
+        -------
+        list
+            List of layers in the DXF file.
+        """
+        layer_names = []
+        with open_file(file_path) as f:
+            lines = f.readlines()
+            indices = self._find_indices(lines, "AcDbLayerTableRecord\n")
+            for idx in indices:
+                if "2" in lines[idx + 1]:
+                    layer_names.append(lines[idx + 2].replace("\n", ""))
+            return layer_names
+
+    @pyaedt_function_handler
+    def import_dxf(
+        self,
+        file_path,
+        layers_list,
+        auto_detect_close=True,
+        self_stitch=True,
+        self_stitch_tolerance=0,
+        scale=0.001,
+        defeature_geometry=False,
+        defeature_distance=0,
+        round_coordinates=False,
+        round_num_digits=4,
+        write_poly_with_width_as_filled_poly=False,
+        import_method=1,
+        sheet_bodies_2d=True,
+    ):
+        # type: (str, list, bool, bool, float, float, bool, float, bool, int, bool, int, bool) -> bool
+        """Import a DXF file.
+
+        Parameters
+        ----------
+        file_path : str
+            Path to the DXF file.
+        layers_list : list
+            List of layer names to import. To get the layers in the DXF file,
+            you can call the ``get_dxf_layers`` method.
+        auto_detect_close : bool, optional
+            Whether to check polylines to see if they are closed.
+            The default is ``True``. If a polyline is closed, the modeler
+            creates a polygon in the design.
+        self_stitch : bool, optional
+            Whether to join multiple straight line segments to form polylines.
+            The default is ``True``.
+        self_stitch_tolerance : float, optional
+            Self stitch tolerance value. The default is ``0``.
+        scale : float, optional
+            Scaling factor. The default is ``0.001``. The units are ``mm``.
+        defeature_geometry : bool, optional
+            Whether to defeature the geometry to reduce complexity.
+            The default is ``False``.
+        defeature_distance : float, optional
+            Defeature tolerance distance. The default is ``0``.
+        round_coordinates : bool, optional
+            Whether to rounds all imported data to the number
+            of decimal points specified by the next parameter.
+            The default is ``False``.
+        round_num_digits : int, optional
+            Number of digits to which to round all imported data.
+            The default is ``4``.
+        write_poly_with_width_as_filled_poly : bool, optional
+            Imports wide polylines as polygons. The default is ``False``.
+        import_method : int, bool
+            Whether the import method is ``Script`` or ``Acis``.
+            The default is ``1``, which means that the ``Acis`` is used.
+        sheet_bodies_2d : bool, optional
+            Whether importing as 2D sheet bodies causes imported objects to
+            be organized in terms of 2D sheets. The default is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.ImportDXF
+
+        """
+        for layer in layers_list:
+            if layer not in self.get_dxf_layers(file_path):
+                self.logger.error("{} does not exist in specified dxf.".format(layer))
+                return False
+
+        if self.is3d:
+            sheet_bodies_2d = False
+
+        vArg1 = ["NAME:options"]
+        vArg1.append("FileName:="), vArg1.append(file_path.replace(os.sep, "/"))
+        vArg1.append("Scale:="), vArg1.append(scale)
+        vArg1.append("AutoDetectClosed:="), vArg1.append(auto_detect_close)
+        vArg1.append("SelfStitch:="), vArg1.append(self_stitch)
+        vArg1.append("SelfStitchTolerance:="), vArg1.append(self_stitch_tolerance)
+        vArg1.append("DefeatureGeometry:="), vArg1.append(defeature_geometry)
+        vArg1.append("DefeatureDistance:="), vArg1.append(defeature_distance)
+        vArg1.append("RoundCoordinates:="), vArg1.append(round_coordinates)
+        vArg1.append("RoundNumDigits:="), vArg1.append(round_num_digits)
+        vArg1.append("WritePolyWithWidthAsFilledPoly:="), vArg1.append(write_poly_with_width_as_filled_poly)
+        vArg1.append("ImportMethod:="), vArg1.append(import_method)
+        vArg1.append("2DSheetBodies:="), vArg1.append(sheet_bodies_2d)
+        vArg2 = ["NAME:LayerInfo"]
+        for layer in layers_list:
+            vArg3 = ["Name:" + layer]
+            vArg3.append("source:="), vArg3.append(layer)
+            vArg3.append("display_source:="), vArg3.append(layer)
+            vArg3.append("import:="), vArg3.append(True)
+            vArg3.append("dest:="), vArg3.append(layer)
+            vArg3.append("dest_selected:="), vArg3.append(False)
+            vArg3.append("layer_type:="), vArg3.append("signal")
+            vArg2.append(vArg3)
+        vArg1.append(vArg2)
+        self.oeditor.ImportDXF(vArg1)
+        return True
+
+    @pyaedt_function_handler()
+    def _find_indices(self, list_to_check, item_to_find):
+        # type: (list, str|int) -> list
+        """Given a list, returns the list of indices for all occurrences of a given element.
+
+        Parameters
+        ----------
+        list_to_check: list
+            List to check.
+        item_to_find: str, int
+            Element to search for in the list.
+
+        Returns
+        -------
+        list
+            Indices of the occurrences of a given element.
+        """
+        indices = []
+        for idx, value in enumerate(list_to_check):
+            if value == item_to_find:
+                indices.append(idx)
+        return indices
