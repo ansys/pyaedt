@@ -133,6 +133,10 @@ class BasisTest(object):
             self._main.desktop_pid = self.desktop.odesktop.GetProcessID()
 
     def my_teardown(self):
+        try:
+            logger.remove_all_project_file_logger()
+        except:
+            pass
         for edbapp in self.edbapps[::-1]:
             try:
                 edbapp.close_edb()
@@ -167,7 +171,6 @@ class BasisTest(object):
         del self.aedtapps
         self.desktop = None
         try:
-            logger.remove_all_project_file_logger()
             shutil.rmtree(self.local_scratch.path, ignore_errors=True)
         except:
             pass
