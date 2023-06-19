@@ -1555,13 +1555,14 @@ class TestClass(BasisTest, object):
     def test_78_get_touching_objects(self):
         box1 = self.aedtapp.modeler.create_box([-20, -20, -20], [1, 1, 1], matname="copper")
         box2 = self.aedtapp.modeler.create_box([-20, -20, -19], [0.2, 0.2, 0.2], matname="copper")
-        assert box2.name in box1.touching_objects()
-        assert box1.name in box2.touching_objects()
-        assert box2.name in box1.faces[0].touching_objects()
+        assert box2.name in box1.touching_objects
+        assert box2.name in box1.touching_conductors()
+        assert box1.name in box2.touching_objects
+        assert box2.name in box1.faces[0].touching_objects
         if config["desktopVersion"] > "2022.2":
-            assert box2.name not in box1.faces[3].touching_objects()
+            assert box2.name not in box1.faces[3].touching_objects
         else:
-            assert box2.name not in box1.faces[1].touching_objects()
+            assert box2.name not in box1.faces[1].touching_objects
         assert box2.get_touching_faces(box1)
 
     @pytest.mark.skipif(config["desktopVersion"] > "2022.2", reason="Method failing in version higher than 2022.2")
