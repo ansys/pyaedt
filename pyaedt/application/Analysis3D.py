@@ -1122,17 +1122,17 @@ class FieldAnalysis3D(Analysis, object):
     @pyaedt_function_handler()
     def get_dxf_layers(self, file_path):
         # type: (str) -> list[str]
-        """Read a dxf file and return all layer names.
+        """Read a DXF file and return all layer names.
 
         Parameters
         ----------
         file_path : str
-            Full path to the dxf file.
+            Full path to the DXF file.
 
         Returns
         -------
         list
-            List of layers in dxf.
+            List of layers in the DXF file.
         """
         layer_names = []
         with open_file(file_path) as f:
@@ -1161,51 +1161,47 @@ class FieldAnalysis3D(Analysis, object):
         sheet_bodies_2d=True,
     ):
         # type: (str, list, bool, bool, float, float, bool, float, bool, int, bool, int, bool) -> bool
-        """Import dxf file.
+        """Import a DXF file.
 
         Parameters
         ----------
         file_path : str
-            dxf file path.
+            Path to the DXF file.
         layers_list : list
-            List of layer names to import.
-            If the user wants to know the layers in dxf, the method ``get_dxf_layers`` has to be called.
+            List of layer names to import. To get the layers in the DXF file,
+            you can call the ``get_dxf_layers`` method.
         auto_detect_close : bool, optional
-            Causes polylines to be checked to see whether they are closed.
-            If a polyline is closed, the modeler creates a polygon in the design.
-            Default value is ``True``.
+            Whether to check polylines to see if they are closed.
+            The default is ``True``. If a polyline is closed, the modeler
+            creates a polygon in the design.
         self_stitch : bool, optional
-            Causes multiple straight line segments to be joined to form polylines.
-            If the resulting polyline is closed, a polygon is created in the modeler.
-            Default value is ``True``.
+            Whether to join multiple straight line segments to form polylines.
+            The default is ``True``.
         self_stitch_tolerance : float, optional
-            Self stitch tolerance value.
-            If not provided by the user the default tolerance value is used.
-            Default value is ``0``.
+            Self stitch tolerance value. The default is ``0``.
+            If no value is provided by the user, the default tolerance value is used.
         scale : float, optional
-            Scaling factor.
-            Default value is ``0.001`` which means ``mm``.
+            Scaling factor. The default is ``0.001``. The units are ``mm``.
         defeature_geometry : bool, optional
-            Defeature geometry to reduce complexity.
-            Default value is ``False``.
+            Whether to defeature the geometry to reduce complexity.
+            The default is ``False``.
         defeature_distance : float, optional
-            Defeature tolerance distance.
-            Default value is ``0``.
+            Defeature tolerance distance. The default is ``0``.
         round_coordinates : bool, optional
-            Rounds all imported data to the specified number of decimal points.
-            Default value is ``False``.
+            Whether to rounds all imported data to the number
+            of decimal points specified by the next parameter.
+            The default is ``False``.
         round_num_digits : int, optional
-            Number of digits.
-            Default value is ``4``.
+            Number of digits to which to round all imported data.
+            The default is ``4``.
         write_poly_with_width_as_filled_poly : bool, optional
-            Imports wide polylines as polygons.
-            Default value is ``False``.
+            Imports wide polylines as polygons. The default is ``False``.
         import_method : int, bool
-            ``Script`` or ``Acis``.
-            Default value is ``1`` which refers to ``Acis``.
+            Whether the import method is ``Script`` or ``Acis``.
+            The default is ``1``, which means that the ``Acis`` is used.
         sheet_bodies_2d : bool, optional
-            Import as 2D sheet bodies causes imported objects to be organized in terms of 2D sheets.
-            Default value is ``True``.
+            Whether importing as 2D sheet bodies causes imported objects to
+            be organized in terms of 2D sheets. The default is ``True``.
 
         Returns
         -------
@@ -1256,7 +1252,7 @@ class FieldAnalysis3D(Analysis, object):
     @pyaedt_function_handler()
     def _find_indices(self, list_to_check, item_to_find):
         # type: (list, str|int) -> list
-        """Given a list returns the list of indices for all occurrences of a given element.
+        """Given a list, returns the list of indices for all occurrences of a given element.
 
         Parameters
         ----------
