@@ -67,8 +67,10 @@ class IcepakMesh(object):
     class MeshRegion(object):
         """Manages Icepak mesh region settings."""
 
-        def __init__(self, meshmodule, dimension, units, app):
-            self.name = "Settings"
+        def __init__(self, meshmodule, dimension, units, app, name=None):
+            if name is None:
+                name = "Settings"
+            self.name = name
             self.meshmodule = meshmodule
             self.model_units = units
             self.UserSpecifiedSettings = False
@@ -350,11 +352,12 @@ class IcepakMesh(object):
                 if isinstance(
                     self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"][ds], (OrderedDict, dict)
                 ):
-                    meshop = self.MeshRegion(
-                        self.omeshmodule, self.boundingdimension, self.modeler.model_units, self._app
-                    )
                     dict_prop = self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"][ds]
-                    self.name = ds
+                    if ds == "Global":
+                        ds = "Settings"
+                    meshop = self.MeshRegion(
+                        self.omeshmodule, self.boundingdimension, self.modeler.model_units, self._app, ds
+                    )
                     for el in dict_prop:
                         if el in meshop.__dict__:
                             meshop.__dict__[el] = dict_prop[el]
