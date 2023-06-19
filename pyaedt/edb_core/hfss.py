@@ -1586,8 +1586,8 @@ class EdbHfss(object):
         """
 
         if positive_pin and negative_pin:
-            positive_pin_term = self._pedb.components._create_pin_group_terminal(positive_pin)
-            negative_pin_term = self._pedb.components._create_pin_group_terminal(negative_pin)
+            positive_pin_term = self._pedb.components._create_terminal(positive_pin)
+            negative_pin_term = self._pedb.components._create_terminal(negative_pin)
             positive_pin_term.SetBoundaryType(self._edb.cell.terminal.BoundaryType.RlcBoundary)
             negative_pin_term.SetBoundaryType(self._edb.cell.terminal.BoundaryType.RlcBoundary)
             rlc = self._edb.utility.utility.Rlc()
