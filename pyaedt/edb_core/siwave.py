@@ -1308,7 +1308,7 @@ class EdbSiwave(object):
         neg_pin_group_name : str
             Name of the negative pin group.
         impedance : int, float, optional
-            Phase of the source
+            Phase of the source.
 
         Returns
         -------
