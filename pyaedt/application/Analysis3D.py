@@ -1127,7 +1127,7 @@ class FieldAnalysis3D(Analysis, object):
         Parameters
         ----------
         file_path : str
-            Full path to the dxf file.
+            Full path to the DXF file.
 
         Returns
         -------
