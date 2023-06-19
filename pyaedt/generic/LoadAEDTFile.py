@@ -63,7 +63,7 @@ _begin_search = re.compile(r"\$begin '(.+)'")
 
 # set recognized keywords
 _recognized_keywords = ["CurvesInfo", "Sweep Operations"]
-_recognized_subkeys = ["simple("]
+_recognized_subkeys = ["simple(", "IDMap("]
 
 # global variables
 _all_lines = []
@@ -149,6 +149,12 @@ def _decode_recognized_subkeys(sk, d):
             if elems[0] == "thermal_expansion_coeffcient":
                 elems[0] = "thermal_expansion_coefficient"  # fix a typo in the amat files. AEDT supports both strings!
             d[elems[0]] = str(elems[1])  # convert to string as it is dedicated to material props
+            return True
+    elif sk.endswith(_recognized_subkeys[1]):
+        m = _round_bracket_list.search(sk)
+        if m and "IDMap" in m.group("SKEY1"):  # extra verification. SKEY2 is with spaces, so it's not considered here.
+            elems = m.group("LIST1").split(",")
+            d[m.group("SKEY1")] = elems  # convert to string as it is dedicated to material props
             return True
     return False
 
