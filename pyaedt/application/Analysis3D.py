@@ -1179,7 +1179,6 @@ class FieldAnalysis3D(Analysis, object):
             The default is ``True``.
         self_stitch_tolerance : float, optional
             Self stitch tolerance value. The default is ``0``.
-            If no value is provided by the user, the default tolerance value is used.
         scale : float, optional
             Scaling factor. The default is ``0.001``. The units are ``mm``.
         defeature_geometry : bool, optional
