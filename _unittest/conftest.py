@@ -139,11 +139,11 @@ class BasisTest(object):
             except:
                 pass
         if self.desktop and not is_ironpython:
+            self.desktop.release_desktop(False, True)
             try:
                 os.kill(self._main.desktop_pid, 9)
             except:
                 pass
-            self.desktop.release_desktop(False, True)
             try:
                 del self._main.desktop_pid
             except:
