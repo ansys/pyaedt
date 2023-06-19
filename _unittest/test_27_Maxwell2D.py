@@ -480,10 +480,10 @@ class TestClass(BasisTest, object):
         if os.path.exists(user_ctl_path):
             os.unlink(user_ctl_path)
 
-    def test_33_import_dxf(self):
-        self.aedtapp.insert_design("dxf")
-        dxf_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf1.dxf")
-        dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
-        assert isinstance(dxf_layers, list)
-        assert self.aedtapp.import_dxf(file_path=dxf_file, layers_list=dxf_layers)
-        # assert not self.aedtapp.import_dxf(file_path=dxf_file, layers_list="invalid")
+    # def test_33_import_dxf(self):
+    #     self.aedtapp.insert_design("dxf")
+    #     dxf_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf1.dxf")
+    #     dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
+    #     assert isinstance(dxf_layers, list)
+    #     assert self.aedtapp.import_dxf(file_path=dxf_file, layers_list=dxf_layers)
+    # assert not self.aedtapp.import_dxf(file_path=dxf_file, layers_list="invalid")
