@@ -1132,7 +1132,7 @@ class FieldAnalysis3D(Analysis, object):
         Returns
         -------
         list
-            List of layers in dxf.
+            List of layers in the DXF file.
         """
         layer_names = []
         with open_file(file_path) as f:
