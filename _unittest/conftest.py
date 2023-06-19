@@ -21,6 +21,7 @@ import datetime
 import gc
 import json
 import os
+import random
 import shutil
 import sys
 import tempfile
@@ -127,7 +128,7 @@ class BasisTest(object):
         self.desktop = None
         self._main.desktop_pid = 0
         if launch_desktop:
-            self.desktop = Desktop(desktop_version, NONGRAPHICAL, new_thread)
+            self.desktop = Desktop(desktop_version, NONGRAPHICAL, new_thread, port=random.randint(50000, 60000))
             self.desktop.disable_autosave()
             self._main.desktop_pid = self.desktop.odesktop.GetProcessID()
 
