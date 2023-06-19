@@ -8,6 +8,7 @@ from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
 
 from pyaedt import Hfss3dLayout
+from pyaedt import Maxwell3d
 
 try:
     import pytest  # noqa: F401
@@ -20,6 +21,7 @@ test_subfolder = "T41"
 # Input Data and version for the test
 test_project_name = "Test_RadioBoard"
 test_rigid_flex = "demo_flex"
+test_post = "test_post_processing"
 
 if config["desktopVersion"] > "2022.2":
     diff_proj_name = "differential_pairs_t41_231"
@@ -682,6 +684,18 @@ class TestClass(BasisTest, object):
 
         assert p2.name == "poly_test_41_void"
         assert not self.aedtapp.modeler.create_polygon_void("Top", points2, "another_object", name="poly_43_void")
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
+    def test_42_post_processing(self):
+        self.test_post = BasisTest.add_app(
+            self, project_name=test_post, application=Maxwell3d, subfolder=test_subfolder
+        )
+        assert self.test_post.post.create_fieldplot_layers_nets(
+            [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
+            "Mag_Volume_Force_Density",
+            intrinsics={"Time": "1ms"},
+            plot_name="Test_Layers",
+        )
 
     @pytest.mark.skipif(is_linux, reason="Bug on linux")
     def test_90_set_differential_pairs(self):
