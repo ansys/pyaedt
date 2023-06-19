@@ -96,7 +96,7 @@ class TestClass(BasisTest, object):
         pcb_mesh_region.Objects = ["Component_Region"]
         assert pcb_mesh_region.create()
         assert pcb_mesh_region.update()
-        assert self.aedtapp.meshregions_dict
+        assert self.aedtapp.mesh.meshregions_dict
 
     def test_04_ImportGroup(self):
         project_path = os.path.join(self.local_scratch.path, src_project_name + ".aedt")
