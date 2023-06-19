@@ -1122,7 +1122,7 @@ class FieldAnalysis3D(Analysis, object):
     @pyaedt_function_handler()
     def get_dxf_layers(self, file_path):
         # type: (str) -> list[str]
-        """Read a dxf file and return all layer names.
+        """Read a DXF file and return all layer names.
 
         Parameters
         ----------
