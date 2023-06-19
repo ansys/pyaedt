@@ -34,6 +34,18 @@ class IcepakMesh(object):
         self.meshregions = self._get_design_mesh_regions()
         self._priorities_args = []
 
+    @property
+    def meshregions_dict(self):
+        """
+        Get mesh regions in the design.
+
+        Returns
+        -------
+        dict
+            Dictionary with mesh regions names as keys and mesh regions object as value.
+        """
+        return {mr.name: mr for mr in self.meshregions}
+
     @pyaedt_function_handler()
     def _refresh_mesh_operations(self):
         """Refresh all mesh operations."""
