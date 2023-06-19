@@ -1252,7 +1252,7 @@ class FieldAnalysis3D(Analysis, object):
     @pyaedt_function_handler()
     def _find_indices(self, list_to_check, item_to_find):
         # type: (list, str|int) -> list
-        """Given a list returns the list of indices for all occurrences of a given element.
+        """Given a list, returns the list of indices for all occurrences of a given element.
 
         Parameters
         ----------
