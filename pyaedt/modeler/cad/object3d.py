@@ -294,10 +294,20 @@ class Object3d(object):
         return False
 
     @pyaedt_function_handler()
+    def touching_conductors(self):
+        """Get the conductors of given object.
+        See :func:`pyaedt.application.Analysis3D.FieldAnalysis3D.identify_touching_conductors`.
+
+        Returns
+        -------
+        list
+            Name of all touching conductors.
+        """
+        return [i for i in self._primitives._app.identify_touching_conductors(self.name)["Net1"] if i != self.name]
+
+    @property
     def touching_objects(self):
         """Get the objects that touch a vertex, edge midpoint, or face of the object."""
-        if not is_ironpython or settings.aedt_version > "2023.2":  # pragma: no cover
-            return [i for i in self._primitives._app.identify_touching_conductors(self.name)["Net1"] if i != self.name]
         if self.object_type == "Unclassified":
             return []
         list_names = []

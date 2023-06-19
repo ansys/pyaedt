@@ -1,7 +1,7 @@
 name: CI
 
 env:
-  python.version: 3.8
+  python.version: '3.10'
   python.venv: 'testvenv'
   # Following env vars when changed will "reset" the mentioned cache,
   # by changing the cache file name. It is rendered as ...-v%RESET_XXX%-...
@@ -33,7 +33,7 @@ jobs:
     runs-on: [windows-latest, pyaedt]
     strategy:
       matrix:
-        python-version: [3.8]
+        python-version: ['3.10']
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - uses: actions/checkout@v3
@@ -73,7 +73,7 @@ jobs:
           pytest --tx 8*popen --durations=50 --dist loadfile -v --cov=pyaedt  --cov-report=xml --junitxml=junit/test-results.xml --cov-report=html _unittest
 
       - uses: codecov/codecov-action@v3
-        if: matrix.python-version == '3.8'
+        if: matrix.python-version == '3.10'
         name: 'Upload coverage to Codecov'
 
       - name: Upload pytest test results
