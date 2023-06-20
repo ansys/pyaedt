@@ -151,10 +151,14 @@ def _decode_recognized_subkeys(sk, d):
             d[elems[0]] = str(elems[1])  # convert to string as it is dedicated to material props
             return True
     elif re.search(r"^\w+IDMap\(.*\)$", sk, re.IGNORECASE):  # check if the format is AAKeyIDMap('10'=56802, '7'=56803)
-        m = _round_bracket_list.search(sk)
-        if m and "IDMap" in m.group("SKEY1"):  # extra verification. SKEY2 is with spaces, so it's not considered here.
-            elems = m.group("LIST1").split(",")
-            d[m.group("SKEY1")] = elems  # convert to string as it is dedicated to material props
+        m = re.search(r"^(?P<SKEY>[^\s=]+?)\((?P<LIST>.*)\)", sk)
+        if m and "idmap" in m.group("SKEY").lower():  # extra verification.
+            k = m.group("SKEY")
+            if m.group("LIST"):
+                elems = m.group("LIST").split(",")
+            else:
+                elems = None
+            d[k] = elems
             return True
     return False
 
