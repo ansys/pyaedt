@@ -345,9 +345,9 @@ class BoundaryObject(BoundaryCommon, object):
         An AEDT application from ``pyaedt.application``.
     name : str
         Name of the boundary.
-    props : dict
+    props : dict, optional
         Properties of the boundary.
-    boundarytype : str
+    boundarytype : str, optional
         Type of the boundary.
 
     Examples
@@ -379,14 +379,28 @@ class BoundaryObject(BoundaryCommon, object):
     def object_properties(self):
         from pyaedt.modeler.cad.elements3d import BinaryTreeNode
 
-        cc = self._app.odesign.GetChildObject("Boundaries")
-        child_object = None
-        if self.name in cc.GetChildNames():
-            child_object = self._app.odesign.GetChildObject("Boundaries").GetChildObject(self.name)
-        elif self.name in self._app.odesign.GetChildObject("Excitations").GetChildNames():
-            child_object = self._app.odesign.GetChildObject("Excitations").GetChildObject(self.name)
-        if child_object:
-            return BinaryTreeNode(self.name, child_object, False)
+        if "Thermal" in self._app.odesign.GetChildNames():
+            cc = self._app.odesign.GetChildObject("Thermal")
+            child_object = None
+            if self.name in cc.GetChildNames():
+                child_object = self._app.odesign.GetChildObject("Thermal").GetChildObject(self.name)
+            if child_object:
+                return BinaryTreeNode(self.name, child_object, False)
+        elif "Boundaries" in self._app.odesign.GetChildNames():
+            cc = self._app.odesign.GetChildObject("Boundaries")
+            child_object = None
+            if self.name in cc.GetChildNames():
+                child_object = self._app.odesign.GetChildObject("Boundaries").GetChildObject(self.name)
+            elif self.name in self._app.odesign.GetChildObject("Excitations").GetChildNames():
+                child_object = self._app.odesign.GetChildObject("Excitations").GetChildObject(self.name)
+
+            if child_object:
+                return BinaryTreeNode(self.name, child_object, False)
+
+            if self._app.design_type in ["Maxwell 3D", "Maxwell 2D"] and "Model" in self._app.odesign.GetChildNames():
+                child_object = self._app.odesign.GetChildObject("Model").GetChildObject(self.name)
+                return BinaryTreeNode(self.name, child_object, False, root_name=self.name)
+
         return False
 
     @property
@@ -807,9 +821,9 @@ class MaxwellParameters(BoundaryCommon, object):
         Either ``Maxwell3d`` or ``Maxwell2d`` application.
     name : str
         Name of the boundary.
-    props : dict
+    props : dict, optional
         Properties of the boundary.
-    boundarytype : str
+    boundarytype : str, optional
         Type of the boundary.
 
     Examples
@@ -824,13 +838,45 @@ class MaxwellParameters(BoundaryCommon, object):
     >>> maxwell_2d.assign_matrix(["Coil_1", "Coil_2"])
     """
 
-    def __init__(self, app, name, props, boundarytype):
+    def __init__(self, app, name, props=None, boundarytype=None):
         self.auto_update = False
         self._app = app
         self._name = name
+        self._props = None
+        if props:
+            self._props = BoundaryProps(self, OrderedDict(props))
         self.type = boundarytype
         self._boundary_name = self.name
         self.auto_update = True
+
+    @property
+    def object_properties(self):
+        from pyaedt.modeler.cad.elements3d import BinaryTreeNode
+
+        cc = self._app.odesign.GetChildObject("Parameters")
+        child_object = None
+        if self.name in cc.GetChildNames():
+            child_object = self._app.odesign.GetChildObject("Parameters").GetChildObject(self.name)
+        elif self.name in self._app.odesign.GetChildObject("Parameters").GetChildNames():
+            child_object = self._app.odesign.GetChildObject("Parameters").GetChildObject(self.name)
+        if child_object:
+            return BinaryTreeNode(self.name, child_object, False)
+        return False
+
+    @property
+    def props(self):
+        """Retrieve maxwell parameters data.
+
+        Returns
+        -------
+        :class:BoundaryProps
+        """
+        props = self._get_boundary_data()
+
+        if self.name in props:
+            self._props = BoundaryProps(self, OrderedDict(props[self.name][0]))
+            self._type = props[self.name][1]
+        return self._props
 
     @property
     def name(self):
@@ -1693,9 +1739,26 @@ class BoundaryObject3dLayout(BoundaryCommon, object):
         self.auto_update = False
         self._app = app
         self._name = name
+        self._props = None
+        if props:
+            self._props = BoundaryProps(self, OrderedDict(props))
         self.type = boundarytype
         self._boundary_name = self.name
         self.auto_update = True
+
+    @property
+    def object_properties(self):
+        from pyaedt.modeler.cad.elements3d import BinaryTreeNode
+
+        cc = self._app.odesign.GetChildObject("Excitations")
+        child_object = None
+        if self.name in cc.GetChildNames():
+            child_object = self._app.odesign.GetChildObject("Excitations").GetChildObject(self.name)
+        elif self.name in self._app.odesign.GetChildObject("Excitations").GetChildNames():
+            child_object = self._app.odesign.GetChildObject("Excitations").GetChildObject(self.name)
+        if child_object:
+            return BinaryTreeNode(self.name, child_object, False)
+        return False
 
     @property
     def name(self):
@@ -1710,6 +1773,21 @@ class BoundaryObject3dLayout(BoundaryCommon, object):
             self.auto_update = True
         self.update()
         self._name = value
+
+    @property
+    def props(self):
+        """Retrieve excitation data.
+
+        Returns
+        -------
+        :class:BoundaryProps
+        """
+        props = self._get_boundary_data()
+
+        if self.name in props:
+            self._props = BoundaryProps(self, OrderedDict(props[self.name][0]))
+            self._type = props[self.name][1]
+        return self._props
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):
@@ -3443,11 +3521,12 @@ class NetworkObject(BoundaryObject):
             self._name = generate_unique_name("Network")
         else:
             self._name = name
+
         if props is None:
             props_arg = OrderedDict({})
         else:
             props_arg = props
-        # super().__init__(app, self._name, props_arg, "Network", False)
+
         super(NetworkObject, self).__init__(app, self._name, props_arg, "Network", False)
         self._nodes = []
         self._links = []

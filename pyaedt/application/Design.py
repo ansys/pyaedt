@@ -297,14 +297,50 @@ class Design(AedtObjects):
         -------
         List of :class:`pyaedt.modules.Boundary.BoundaryObject`
         """
-        bb = list(self.oboundary.GetBoundaries())
+        bb = []
+
+        if "GetBoundaries" in self.oboundary.__dir__():
+            bb = list(self.oboundary.GetBoundaries())
+
+        # Parameters and Motion definitions
+        if self.design_type in ["Maxwell 3D", "Maxwell 2D"]:
+            maxwell_parameters = list(self.odesign.GetChildObject("Parameters").GetChildNames())
+            for parameter in maxwell_parameters:
+                bb.append(parameter)
+                bb.append("MaxwellParameters")
+            if "Model" in list(self.odesign.GetChildNames()):
+                maxwell_model = list(self.odesign.GetChildObject("Model").GetChildNames())
+                for parameter in maxwell_model:
+                    if self.odesign.GetChildObject("Model").GetChildObject(parameter).GetPropValue("Type") == "Band":
+                        bb.append(parameter)
+                        bb.append("MotionSetup")
+
+        # Icepak definition
+        if self.design_type == "Icepak":
+            othermal = self.odesign.GetChildObject("Thermal")
+            thermal_definitions = list(othermal.GetChildNames())
+            for thermal in thermal_definitions:
+                bb.append(thermal)
+                bb.append(othermal.GetChildObject(thermal).GetPropValue("Type"))
 
         current_boundaries = bb[::2]
         current_types = bb[1::2]
+
         for boundary, boundarytype in zip(current_boundaries, current_types):
             if boundary in self._boundaries:
                 continue
-            self._boundaries[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
+            if boundarytype == "MaxwellParameters":
+                maxwell_parameter_type = (
+                    self.odesign.GetChildObject("Parameters").GetChildObject(boundary).GetPropValue("Type")
+                )
+                self._boundaries[boundary] = MaxwellParameters(self, boundary, boundarytype=maxwell_parameter_type)
+            elif boundarytype == "MotionSetup":
+                maxwell_motion_type = self.odesign.GetChildObject("Model").GetChildObject(boundary).GetPropValue("Type")
+                self._boundaries[boundary] = BoundaryObject(self, boundary, boundarytype=maxwell_motion_type)
+            elif boundarytype == "Network":
+                self._boundaries[boundary] = NetworkObject(self, boundary)
+            else:
+                self._boundaries[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
 
         return list(self._boundaries.values()) + self.excitations
 
@@ -337,20 +373,31 @@ class Design(AedtObjects):
         List of :class:`pyaedt.modules.Boundary.BoundaryObject`
         """
         self._excitations = {}
-        ee = list(self.oboundary.GetExcitations())
-        current_boundaries = [i.split(":")[0] for i in ee[::2]]
-        current_types = ee[1::2]
-        for i in set(current_types):
-            new_port = list(self.oboundary.GetExcitationsOfType(i))
-            if new_port:
-                current_boundaries = current_boundaries + new_port
-                current_types = current_types + [i] * len(new_port)
-        for boundary, boundarytype in zip(current_boundaries, current_types):
-            if boundary in self._excitations:
-                continue
-            self._excitations[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
 
-        return list(self._excitations.values())
+        if "GetExcitations" in self.oboundary.__dir__():
+            ee = list(self.oboundary.GetExcitations())
+            current_boundaries = [i.split(":")[0] for i in ee[::2]]
+            current_types = ee[1::2]
+            for i in set(current_types):
+                new_port = list(self.oboundary.GetExcitationsOfType(i))
+                if new_port:
+                    current_boundaries = current_boundaries + new_port
+                    current_types = current_types + [i] * len(new_port)
+            for boundary, boundarytype in zip(current_boundaries, current_types):
+                if boundary in self._excitations:
+                    continue
+                self._excitations[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
+
+        elif "GetAllPortsList" in self.oboundary.__dir__() and self.design_type in ["HFSS 3D Layout Design"]:
+            for port in self.oboundary.GetAllPortsList():
+                bound = self._update_port_info(port)
+                if bound:
+                    self._excitations[port] = bound
+
+        if self._excitations:
+            return list(self._excitations.values())
+
+        return []
 
     @property
     def odesktop(self):
