@@ -150,7 +150,7 @@ def _decode_recognized_subkeys(sk, d):
                 elems[0] = "thermal_expansion_coefficient"  # fix a typo in the amat files. AEDT supports both strings!
             d[elems[0]] = str(elems[1])  # convert to string as it is dedicated to material props
             return True
-    elif sk.endswith(_recognized_subkeys[1]):
+    elif "KeyIDMap(" in sk:
         m = _round_bracket_list.search(sk)
         if m and "IDMap" in m.group("SKEY1"):  # extra verification. SKEY2 is with spaces, so it's not considered here.
             elems = m.group("LIST1").split(",")
