@@ -885,4 +885,3 @@ class TestClass(BasisTest, object):
         self.aedtapp.solution_type = "TransientAPhiFormulation"
         assert self.aedtapp.assign_flux_tangential(box.faces[0], "FluxExample")
         assert self.aedtapp.assign_flux_tangential(box.faces[0].id, "FluxExample")
-  
