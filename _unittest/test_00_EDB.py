@@ -43,9 +43,6 @@ class TestClass(BasisTest, object):
         example_project2 = os.path.join(local_path, "example_models", test_subfolder, "simple.aedb")
         self.target_path2 = os.path.join(self.local_scratch.path, "simple_00.aedb")
         self.local_scratch.copyfolder(example_project2, self.target_path2)
-        example_project3 = os.path.join(local_path, "example_models", test_subfolder, "Galileo_edb_plot.aedb")
-        self.target_path3 = os.path.join(self.local_scratch.path, "Galileo_edb_plot_00.aedb")
-        self.local_scratch.copyfolder(example_project3, self.target_path3)
         example_project4 = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
         self.target_path4 = os.path.join(self.local_scratch.path, "Package_00.aedb")
         self.local_scratch.copyfolder(example_project4, self.target_path4)
@@ -57,13 +54,18 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(is_ironpython, reason="Method not supported anymore in Ironpython")
     def test_000_export_ipc2581(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1_cut.aedb")
+        target_path = os.path.join(self.local_scratch.path, "ANSYS-HSD_V1_ipc.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, edbversion=desktop_version)
         ipc_path = os.path.join(self.local_scratch.path, "test.xml")
-        self.edbapp.export_to_ipc2581(ipc_path)
+        edbapp.export_to_ipc2581(ipc_path)
         assert os.path.exists(ipc_path)
 
         # Export should be made with units set to default -millimeter-.
-        self.edbapp.export_to_ipc2581(ipc_path, "mm")
+        edbapp.export_to_ipc2581(ipc_path, "mm")
         assert os.path.exists(ipc_path)
+        edbapp.close()
 
     def test_001_find_by_name(self):
         comp = self.edbapp.components.get_component_by_name("J1")
@@ -375,16 +377,18 @@ class TestClass(BasisTest, object):
         assert "I22" == self.edbapp.siwave.create_current_source_on_pin(pins[301], pins[10], 0.1, 0, "I22")
 
         assert self.edbapp.siwave.create_pin_group_on_net(reference_designator="U1", net_name="GND", group_name="gnd")
-        self.edbapp.siwave.create_pin_group(reference_designator="U1", pin_numbers=[16, 17], group_name="vrm_pos")
+        self.edbapp.siwave.create_pin_group(reference_designator="U1", pin_numbers=["A27", "A28"], group_name="vrm_pos")
         self.edbapp.siwave.create_current_source_on_pin_group(
             pos_pin_group_name="vrm_pos", neg_pin_group_name="gnd", name="vrm_current_source"
         )
 
-        self.edbapp.siwave.create_pin_group(reference_designator="U1", pin_numbers=[14, 15], group_name="sink_pos")
+        self.edbapp.siwave.create_pin_group(
+            reference_designator="U1", pin_numbers=["A14", "A15"], group_name="sink_pos"
+        )
 
         assert self.edbapp.siwave.create_voltage_source_on_pin_group("sink_pos", "gnd", name="vrm_voltage_source")
-        self.edbapp.siwave.create_pin_group(reference_designator="U1", pin_numbers=[16, 17], group_name="vp_pos")
-        self.edbapp.siwave.create_pin_group(reference_designator="U1", pin_numbers=[14, 15], group_name="vp_neg")
+        self.edbapp.siwave.create_pin_group(reference_designator="U1", pin_numbers=["A27", "A28"], group_name="vp_pos")
+        self.edbapp.siwave.create_pin_group(reference_designator="U1", pin_numbers=["A14", "A15"], group_name="vp_neg")
         assert self.edbapp.siwave.create_voltage_probe_on_pin_group("vprobe", "vp_pos", "vp_neg")
 
     def test_043_create_dc_terminal(self):
@@ -561,16 +565,18 @@ class TestClass(BasisTest, object):
             comptype="Prod name",
             refdes="RefDes",
         )
-        assert not self.edbapp.components.components["R2L2"].is_enabled
-        self.edbapp.components.components["R2L2"].is_enabled = True
-        assert self.edbapp.components.components["R2L2"].is_enabled
+        assert not self.edbapp.components.components["R2"].is_enabled
+        self.edbapp.components.components["R2"].is_enabled = True
+        assert self.edbapp.components.components["R2"].is_enabled
 
     def test_060_import_bom(self):
-        target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "ANSYS-HSD_V1_bom.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
         edbapp.components.import_bom(os.path.join(local_path, "example_models", test_subfolder, "bom_example_2.csv"))
-        assert not edbapp.components.instances["R2L2"].is_enabled
-        assert edbapp.components.instances["U1"].partname == "IPD031-201x"
+        assert not edbapp.components.instances["R2"].is_enabled
+        assert edbapp.components.instances["U13"].partname == "SLAB-QFN-24-2550x2550TP_V"
 
         export_bom_path = os.path.join(self.local_scratch.path, "export_bom.csv")
         assert edbapp.components.export_bom(export_bom_path)
@@ -584,13 +590,13 @@ class TestClass(BasisTest, object):
         assert len(component.pins) == 2
 
     def test_062_create_cutout(self):
-        source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-        target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_1.aedb")
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1_cut.aedb")
+        target_path = os.path.join(self.local_scratch.path, "ANSYS-HSD_V1_cutou1.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
         output = os.path.join(self.local_scratch.path, "cutout.aedb")
         assert edbapp.cutout(
-            ["A0_N", "A0_P"],
+            ["DDR4_DQS0_P", "DDR4_DQS0_N"],
             ["GND"],
             output_aedb_path=output,
             open_cutout_at_end=False,
@@ -598,7 +604,7 @@ class TestClass(BasisTest, object):
             use_pyaedt_cutout=False,
         )
         assert edbapp.cutout(
-            ["A0_N", "A0_P"],
+            ["DDR4_DQS0_P", "DDR4_DQS0_N"],
             ["GND"],
             output_aedb_path=output,
             open_cutout_at_end=False,
@@ -618,7 +624,7 @@ class TestClass(BasisTest, object):
 
         assert edbapp.cutout(
             custom_extent=points,
-            signal_list=["GND", "V3P3_S0"],
+            signal_list=["GND", "1V0"],
             output_aedb_path=output,
             open_cutout_at_end=False,
             include_partial_instances=True,
@@ -629,7 +635,7 @@ class TestClass(BasisTest, object):
 
         assert edbapp.cutout(
             custom_extent=points,
-            signal_list=["GND", "V3P3_S0"],
+            signal_list=["GND", "1V0"],
             output_aedb_path=output,
             open_cutout_at_end=False,
             include_partial_instances=True,
@@ -639,21 +645,21 @@ class TestClass(BasisTest, object):
         edbapp.close()
 
     def test_063_create_custom_cutout(self):
-        source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-        target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_2.aedb")
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "ANSYS-HSD_V1_cutou2.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
         edbapp.nets.nets
         if is_ironpython:
             assert not edbapp.cutout(
-                signal_list=["V3P3_S0"],
+                signal_list=["1V0"],
                 reference_list=["GND"],
                 extent_type="Bounding",
                 number_of_threads=4,
             )
         else:
             assert edbapp.cutout(
-                signal_list=["V3P3_S0"],
+                signal_list=["1V0"],
                 reference_list=["GND"],
                 extent_type="Bounding",
                 number_of_threads=4,
@@ -664,13 +670,11 @@ class TestClass(BasisTest, object):
             assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND", keep_only_main_net=True), list)
             assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND", clean_disjoints_less_than=0.005), list)
         edbapp.close()
-        target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_3.aedb")
-        self.local_scratch.copyfolder(source_path, target_path)
 
     @pytest.mark.skipif(sys.version_info < (3, 8), reason="Method works in CPython only")
     def test_064_create_custom_cutout(self):
-        source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-        target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_3.aedb")
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "ANSYS-HSD_V1_cutou3.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
 
         edbapp = Edb(target_path, edbversion=desktop_version)
@@ -683,7 +687,7 @@ class TestClass(BasisTest, object):
         points.append([bounding[0][0], cutout_line_y])
         points.append([bounding[0][0], bounding[0][1]])
         assert edbapp.cutout(
-            signal_list=["V3P3_S0"],
+            signal_list=["1V0"],
             reference_list=["GND"],
             number_of_threads=4,
             extent_type="ConvexHull",
@@ -693,22 +697,22 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(sys.version_info < (3, 8), reason="Method works in CPython only")
     def test_065_create_custom_cutout(self):
-        source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-        target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_4.aedb")
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "ANSYS-HSD_V1_cutou5.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
 
         edbapp = Edb(target_path, edbversion=desktop_version)
         edbapp.components.create_port_on_component(
             "U1",
-            ["V3P3_S0"],
+            ["5V"],
             reference_net="GND",
             port_type=SourceType.CircPort,
         )
-        edbapp.components.create_port_on_component("U1", ["VREF"], reference_net="GND")
-        edbapp.hfss.create_voltage_source_on_net("U1B5", "VREF", "U1B5", "GND")
+        edbapp.components.create_port_on_component("U2", ["5V"], reference_net="GND")
+        edbapp.hfss.create_voltage_source_on_net("U4", "5V", "U4", "GND")
         legacy_name = edbapp.edbpath
         assert edbapp.cutout(
-            signal_list=["V3P3_S0", "VREF"],
+            signal_list=["5V"],
             reference_list=["GND"],
             number_of_threads=4,
             extent_type="ConvexHull",
@@ -722,14 +726,14 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(sys.version_info < (3, 8), reason="Method works in CPython only")
     def test_065B_smart_cutout(self):
-        source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo_JTAG.aedb")
-        target_path = os.path.join(self.local_scratch.path, "Galileo_JTAG.aedb")
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1_cut.aedb")
+        target_path = os.path.join(self.local_scratch.path, "ANSYS-HSD_V1_cut_smart.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
 
         edbapp = Edb(target_path, edbversion=desktop_version)
 
         assert edbapp.cutout(
-            signal_list=["JTAG_TDO"],
+            signal_list=["DDR4_DQS0_P", "DDR4_DQS0_N"],
             reference_list=["GND"],
             number_of_threads=4,
             extent_type="ConvexHull",
@@ -1340,8 +1344,8 @@ class TestClass(BasisTest, object):
         edb.close()
 
     def test_109_add_soure(self):
-        example_project = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-        target_path = os.path.join(self.local_scratch.path, "test_0create_source", "Galileo.aedb")
+        example_project = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_0create_source", "ANSYS-HSD_V1_add_source.aedb")
         self.local_scratch.copyfolder(example_project, target_path)
         sim_config = SimulationConfiguration()
         sim_config.add_voltage_source(
@@ -1365,8 +1369,8 @@ class TestClass(BasisTest, object):
         assert self.edbapp.stackup.get_layout_thickness()
 
     def test_112_edb_stats(self):
-        example_project = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-        target_path = os.path.join(self.local_scratch.path, "Galileo_110.aedb")
+        example_project = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "ANSYS-HSD_V1_110.aedb")
         self.local_scratch.copyfolder(example_project, target_path)
         edb = Edb(target_path, edbversion=desktop_version)
         edb_stats = edb.get_statistics(compute_area=True)
@@ -1428,11 +1432,11 @@ class TestClass(BasisTest, object):
         assert sim_config.sources[0].c_value == 1e-13
 
     def test_116_create_rlc_component(self):
-        example_project = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-        target_path = os.path.join(self.local_scratch.path, "Galileo_114.aedb")
+        example_project = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "ANSYS_114.aedb")
         self.local_scratch.copyfolder(example_project, target_path)
         edb = Edb(target_path, edbversion=desktop_version)
-        pins = edb.components.get_pin_from_component("U1", "V1P5_S0")
+        pins = edb.components.get_pin_from_component("U1", "1V0")
         ref_pins = edb.components.get_pin_from_component("U1", "GND")
         assert edb.components.create([pins[0], ref_pins[0]], "test_0rlc", r_value=1.67, l_value=1e-13, c_value=1e-11)
         assert edb.components.create([pins[0], ref_pins[0]], "test_1rlc", r_value=None, l_value=1e-13, c_value=1e-11)
@@ -1440,13 +1444,13 @@ class TestClass(BasisTest, object):
         edb.close()
 
     def test_117_create_rlc_boundary(self):
-        example_project = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-        target_path = os.path.join(self.local_scratch.path, "Galileo_115.aedb")
+        example_project = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "ANSYS-HSD_V1_115.aedb")
         if not os.path.exists(self.local_scratch.path):
             os.mkdir(self.local_scratch.path)
         self.local_scratch.copyfolder(example_project, target_path)
         edb = Edb(target_path, edbversion=desktop_version)
-        pins = edb.components.get_pin_from_component("U1", "V1P5_S0")
+        pins = edb.components.get_pin_from_component("U1", "1V0")
         ref_pins = edb.components.get_pin_from_component("U1", "GND")
         assert edb.hfss.create_rlc_boundary_on_pins(pins[0], ref_pins[0], rvalue=1.05, lvalue=1.05e-12, cvalue=1.78e-13)
         edb.close()
@@ -1475,7 +1479,7 @@ class TestClass(BasisTest, object):
         assert not sweep.EnforceCausality
 
     def test_119_add_hfss_config(self):
-        source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
         target_path = os.path.join(self.local_scratch.path, "test_0117.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edb = Edb(target_path, edbversion=desktop_version)
@@ -1597,7 +1601,7 @@ class TestClass(BasisTest, object):
         edb.close()
 
     def test_122_build_hfss_project_from_config_file(self):
-        source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
         target_path = os.path.join(self.local_scratch.path, "test_0122.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
@@ -1605,14 +1609,14 @@ class TestClass(BasisTest, object):
         with open(cfg_file, "w") as f:
             f.writelines("SolverType = 'Hfss3dLayout'\n")
             f.writelines("PowerNets = ['GND']\n")
-            f.writelines("Components = ['U1', 'U1B5']")
+            f.writelines("Components = ['U1', 'U2']")
 
         sim_config = SimulationConfiguration(cfg_file)
         assert edbapp.build_simulation_project(sim_config)
         edbapp.close()
 
     def test_123_set_all_antipad_values(self):
-        source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
         target_path = os.path.join(self.local_scratch.path, "test_0120.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
@@ -1621,7 +1625,7 @@ class TestClass(BasisTest, object):
 
     def test_124_stackup(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
-        target_path = os.path.join(self.local_scratch.path, "test_0122.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_0124.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
         assert isinstance(edbapp.stackup.layers, dict)
@@ -1631,7 +1635,7 @@ class TestClass(BasisTest, object):
         assert isinstance(edbapp.stackup.non_stackup_layers, dict)
         assert not edbapp.stackup["Outline"].is_stackup_layer
         assert edbapp.stackup["1_Top"].conductivity
-        assert edbapp.stackup["UNNAMED_002"].permittivity
+        assert edbapp.stackup["DE1"].permittivity
         assert edbapp.stackup.add_layer("new_layer")
         new_layer = edbapp.stackup["new_layer"]
         assert new_layer.is_stackup_layer
@@ -1684,9 +1688,9 @@ class TestClass(BasisTest, object):
         export_method = edbapp.stackup.export
         assert edbapp.stackup.add_layer("1_Top", None, "add_on_top", material="iron")
         assert import_method(os.path.join(local_path, "example_models", test_subfolder, "galileo_stackup.csv"))
-        assert "1_Top" in edbapp.stackup.layers.keys()
-        assert edbapp.stackup.layers["1_Top"].material == "COPPER"
-        assert edbapp.stackup.layers["1_Top"].thickness == 6e-5
+        assert "TOP" in edbapp.stackup.layers.keys()
+        assert edbapp.stackup.layers["TOP"].material == "copper"
+        assert edbapp.stackup.layers["TOP"].thickness == 6e-5
         export_stackup_path = os.path.join(self.local_scratch.path, "export_galileo_stackup.csv")
         assert export_method(export_stackup_path)
         assert os.path.exists(export_stackup_path)
@@ -1704,9 +1708,9 @@ class TestClass(BasisTest, object):
         export_method = edbapp.stackup.export_stackup
         assert edbapp.stackup.add_layer("1_Top", None, "add_on_top", material="iron")
         assert import_method(os.path.join(local_path, "example_models", test_subfolder, "galileo_stackup.csv"))
-        assert "1_Top" in edbapp.stackup.layers.keys()
-        assert edbapp.stackup.layers["1_Top"].material == "COPPER"
-        assert edbapp.stackup.layers["1_Top"].thickness == 6e-5
+        assert "TOP" in edbapp.stackup.layers.keys()
+        assert edbapp.stackup.layers["TOP"].material == "copper"
+        assert edbapp.stackup.layers["TOP"].thickness == 6e-5
         export_stackup_path = os.path.join(self.local_scratch.path, "export_galileo_stackup.csv")
         assert export_method(export_stackup_path)
         assert os.path.exists(export_stackup_path)
@@ -1719,18 +1723,18 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(is_ironpython, reason="Requires Numpy")
     def test_126_comp_def(self):
-        source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
         target_path = os.path.join(self.local_scratch.path, "test_0126.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
         assert edbapp.components.components
         assert edbapp.components.definitions
-        comp_def = edbapp.components.definitions["G83568-001"]
+        comp_def = edbapp.components.definitions["CAPC2012X12N"]
         assert comp_def
-        comp_def.part_name = "G83568-001x"
-        assert comp_def.part_name == "G83568-001x"
+        comp_def.part_name = "CAPC2012X12N_new"
+        assert comp_def.part_name == "CAPC2012X12N_new"
         assert len(comp_def.components) > 0
-        cap = edbapp.components.definitions["602431-005"]
+        cap = edbapp.components.definitions["CAPC2012X12N_new"]
         assert cap.type == "Capacitor"
         cap.type = "Resistor"
         assert cap.type == "Resistor"
@@ -1739,16 +1743,16 @@ class TestClass(BasisTest, object):
         assert edbapp.components.export_definition(export_path)
         assert edbapp.components.import_definition(export_path)
 
-        assert edbapp.components.definitions["602431-005"].assign_rlc_model(1, 2, 3)
+        assert edbapp.components.definitions["CAPC3216X180X20ML20"].assign_rlc_model(1, 2, 3)
         sparam_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC_series.s2p")
-        assert edbapp.components.definitions["602433-026"].assign_s_param_model(sparam_path)
+        assert edbapp.components.definitions["CAPC3216X180X55ML20T25"].assign_s_param_model(sparam_path)
         spice_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC.mod")
-        assert edbapp.components.definitions["602433-038"].assign_spice_model(spice_path)
+        assert edbapp.components.definitions["CAPMP7343X31N"].assign_spice_model(spice_path)
         edbapp.close()
 
     def test_127_material(self):
-        source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-        target_path = os.path.join(self.local_scratch.path, "test_0122.aedb")
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_0127.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
         assert isinstance(edbapp.materials.materials, dict)
@@ -1819,7 +1823,7 @@ class TestClass(BasisTest, object):
         edbapp.close()
 
     def test_129_hfss_simulation_setup(self):
-        source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
         target_path = os.path.join(self.local_scratch.path, "test_0129.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
@@ -2225,12 +2229,12 @@ class TestClass(BasisTest, object):
         assert edbapp.siwave_ac_setups[simconfig.setup_name].mesh_frequency == simconfig.mesh_freq
 
     def test_134_create_port_between_pin_and_layer(self):
-        source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
         target_path = os.path.join(self.local_scratch.path, "test_0134.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
         edbapp.siwave.create_port_between_pin_and_layer(
-            component_name="U1", pins_name="AJ30", layer_name="16_Bottom", reference_net="GND"
+            component_name="U1", pins_name="A27", layer_name="16_Bottom", reference_net="GND"
         )
 
     def test_134_siwave_source_setter(self):
@@ -2257,7 +2261,7 @@ class TestClass(BasisTest, object):
         assert not edbapp.siwave.pin_groups
 
     def test_136_rlc_component_values_getter_setter(self):
-        source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
         target_path = os.path.join(self.local_scratch.path, "test_0136.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
@@ -2444,11 +2448,11 @@ class TestClass(BasisTest, object):
                 assert j == config[i]
 
     def test_134_create_port_on_pin(self):
-        source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
         target_path = os.path.join(self.local_scratch.path, "test_0134b.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
-        pin = "AJ6"
+        pin = "A27"
         ref_pins = [pin for pin in list(edbapp.components["U1"].pins.values()) if pin.net_name == "GND"]
         term = edbapp.components.create_port_on_pins(refdes="U1", pins=pin, reference_pins=ref_pins)
         edbapp.close()
