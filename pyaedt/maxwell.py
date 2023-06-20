@@ -2541,7 +2541,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Examples
         --------
 
-        Create a box and assign flux tangential boundary to one of its faces.
+        Create a box and assign a flux tangential boundary to one of its faces.
 
         >>> box = maxwell3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="Box")
         >>> flux_tangential = maxwell3d_app.assign_flux_tangential(box.faces[0], "FluxExample")
