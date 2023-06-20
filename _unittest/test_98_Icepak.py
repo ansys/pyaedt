@@ -96,6 +96,7 @@ class TestClass(BasisTest, object):
         pcb_mesh_region.Objects = ["Component_Region"]
         assert pcb_mesh_region.create()
         assert pcb_mesh_region.update()
+        assert self.aedtapp.mesh.meshregions_dict
 
     def test_04_ImportGroup(self):
         project_path = os.path.join(self.local_scratch.path, src_project_name + ".aedt")
@@ -1122,18 +1123,13 @@ class TestClass(BasisTest, object):
                 pass
 
     def test_62_get_fans_operating_point(self):
-        self.aedtapp.insert_design("get_fan_op_point")
-        self.aedtapp.create_fan()
-        self.aedtapp.create_fan(origin=[1, 1, 1])
-        my_setup = self.aedtapp.create_setup("test_setup")
-        my_setup.props["Convergence Criteria - Max Iterations"] = 1
-        my_setup.analyze()
-        filename, vol_flow_name, p_rise_name, op_dict = self.aedtapp.get_fans_operating_point()
+        app = Icepak(
+            os.path.join(local_path, "example_models", test_subfolder, "Fan_op_point_231.aedt"),
+            specified_version=desktop_version,
+            designname="get_fan_op_point",
+        )
+        filename, vol_flow_name, p_rise_name, op_dict = app.get_fans_operating_point()
         assert len(list(op_dict.keys())) == 2
-        self.aedtapp.get_fans_operating_point(timestep="1s")
-        self.aedtapp.solution_type = "Transient"
-        my_setup = self.aedtapp.create_setup("transient_setup")
-        my_setup["Start Time"] = "0s"
-        my_setup["Stop Time"] = "1s"
-        my_setup["Time Step"] = "1s"
-        self.aedtapp.get_fans_operating_point()
+        app.set_active_design("get_fan_op_point1")
+        app.get_fans_operating_point()
+        app.close_project()
