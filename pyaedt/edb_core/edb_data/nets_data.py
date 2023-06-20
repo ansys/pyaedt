@@ -126,6 +126,7 @@ class EDBNetsData(NetDotNet):
 
     @pyaedt_function_handler
     def get_extended_net(self, resistor_below=10, inductor_below=1, capacitor_above=1, exception_list=[]):
+        # type: (int | float, int | float, int |float, list) -> dict
         """Get extended net and associated components.
 
         Parameters
