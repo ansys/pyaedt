@@ -1408,6 +1408,7 @@ class Cable:
         file_path_export = os.path.join(working_dir, "export_cable_library_test.txt")
         omodule.ExportCableLibrary(file_path_export)
         file_path_export_as_json = os.path.join(working_dir, "export_cable_library_as_json_test.json")
+        data = load_entire_aedt_file(file_path_export)
         with open(file_path_export_as_json, "w") as f:
-            json.dump(load_entire_aedt_file(file_path_export), f)
-        return load_entire_aedt_file(file_path_export)
+            json.dump(data, f)
+        return data
