@@ -531,6 +531,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignEndConnection(self._get_args())
         elif self.type == "Hybrid":
             self._app.oboundary.AssignHybridRegion(self._get_args())
+        elif self.type == "FluxTangential":
+            self._app.oboundary.AssignFluxTangential(self._get_args())
         else:
             return False
         return True
