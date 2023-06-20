@@ -877,3 +877,11 @@ class TestClass(BasisTest, object):
     #     assert isinstance(dxf_layers, list)
     #     assert self.aedtapp.import_dxf(file_path=dxf_file, layers_list=dxf_layers)
     #     assert not self.aedtapp.import_dxf(file_path=dxf_file, layers_list="invalid")
+
+    def test_52_assign_flux_tangential(self):
+        self.aedtapp.insert_design("flux_tangential")
+        box = self.aedtapp.modeler.create_box([50, 0, 50], [294, 294, 19], name="Box")
+        assert not self.aedtapp.assign_flux_tangential(box.faces[0])
+        self.aedtapp.solution_type = "TransientAPhiFormulation"
+        assert self.aedtapp.assign_flux_tangential(box.faces[0], "FluxExample")
+        assert self.aedtapp.assign_flux_tangential(box.faces[0].id, "FluxExample")
