@@ -2525,8 +2525,8 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         objects_list : list
             List of objects to assign the flux tangential boundary condition to.
         flux_name : str, optional
-            Name of the flux tangential boundary.
-            If not provided a random name will be generated.
+            Name of the flux tangential boundary. The default is ``None``,
+            in which case a random name is automatically generated.
 
         Returns
         -------
