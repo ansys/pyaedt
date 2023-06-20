@@ -870,7 +870,6 @@ class TestClass(BasisTest, object):
         assert isinstance(sheets[object_name], list)
         assert len(sheets[object_name]) == segments_number - 1
 
-    @pytest.mark.skipif(config["NonGraphical"], reason="Not running in non-graphical mode")
     def test_51_import_dxf(self):
         self.aedtapp.insert_design("dxf")
         dxf_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf1.dxf")
