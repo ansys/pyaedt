@@ -159,22 +159,6 @@ def _decode_recognized_subkeys(sk, d):
     return False
 
 
-def _decode_value_and_save(k, v, d):
-    """
-
-    Parameters
-    ----------
-    k : key
-
-    v : value
-
-    d : dictionary
-
-    """
-    # save key 'k', value 'v' in dict 'd'
-    d[k] = _parse_value(v)
-
-
 def _decode_recognized_key(keyword, line, d):
     """Special decodings for keys belonging to  _recognized_keywords
 
@@ -212,7 +196,7 @@ def _decode_recognized_key(keyword, line, d):
         raise AttributeError("Keyword {} is supposed to be in the recognized_keywords list".format(keyword))
 
 
-def _decode_key(line, d):
+def _decode_subkey(line, d):
     """
 
     Parameters
@@ -261,39 +245,34 @@ def _decode_key(line, d):
     # search for equal sign
     m = _key_parse.search(line)
     if m and m.group("KEY1"):  # key btw ''
-        value = m.group("VAL1")
-        if "\\'" in value:
-            value2 = value.replace("\\'", '"')
+        v = m.group("VAL1")
+        if "\\'" in v:
+            v2 = v.replace("\\'", '"')
         else:
-            value2 = value
+            v2 = v
         # if there are no spaces in value   or   values with spaces are between quotes
-        if not _value_parse1.search(value2) or _value_parse2.search(value2):
-            key = m.group("KEY1")
-            _decode_value_and_save(key, value, d)
+        if not _value_parse1.search(v2) or _value_parse2.search(v2):
+            k = m.group("KEY1")
+            d[k] = _parse_value(v)
         else:  # spaces in value without quotes
-            # it should not go here
-            key = line
-            value = None
-            _decode_value_and_save(key, value, d)
+            k = line  # save the line as a whole
+            d[k] = None
     elif m and m.group("KEY2"):  # key without ''
-        value = m.group("VAL2")
-        if "\\'" in value:
-            value2 = value.replace("\\'", '"')
+        v = m.group("VAL2")
+        if "\\'" in v:
+            v2 = v.replace("\\'", '"')
         else:
-            value2 = value
+            v2 = v
         # if there are no spaces in value   or   values with spaces are between quotes
-        if not _value_parse1.search(value2) or _value_parse2.search(value2):
-            key = m.group("KEY2")
-            _decode_value_and_save(key, value, d)
+        if not _value_parse1.search(v2) or _value_parse2.search(v2):
+            k = m.group("KEY2")
+            d[k] = _parse_value(v)
         else:  # spaces in value without quotes
-            # it should not go here
-            key = line
-            value = None
-            _decode_value_and_save(key, value, d)
+            k = line  # save the line as a whole
+            d[k] = None
     else:  # no = sign found
-        key = line
-        value = None
-        _decode_value_and_save(key, value, d)
+        k = line  # save the line as a whole
+        d[k] = None
 
 
 def _walk_through_structure(keyword, save_dict):
@@ -336,7 +315,7 @@ def _walk_through_structure(keyword, save_dict):
             elif keyword in _recognized_keywords:
                 _decode_recognized_key(keyword, line, save_dict[keyword])
             else:  # decode key
-                _decode_key(line, save_dict[keyword])
+                _decode_subkey(line, save_dict[keyword])
         _count += 1
     # recompose value if list
     if saved_value:
