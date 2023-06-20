@@ -133,17 +133,21 @@ class BasisTest(object):
             self._main.desktop_pid = self.desktop.odesktop.GetProcessID()
 
     def my_teardown(self):
+        try:
+            logger.remove_all_project_file_logger()
+        except:
+            pass
         for edbapp in self.edbapps[::-1]:
             try:
                 edbapp.close_edb()
             except:
                 pass
         if self.desktop and not is_ironpython:
+            self.desktop.release_desktop(False, True)
             try:
                 os.kill(self._main.desktop_pid, 9)
             except:
                 pass
-            self.desktop.release_desktop(False, True)
             try:
                 del self._main.desktop_pid
             except:
@@ -167,7 +171,6 @@ class BasisTest(object):
         del self.aedtapps
         self.desktop = None
         try:
-            logger.remove_all_project_file_logger()
             shutil.rmtree(self.local_scratch.path, ignore_errors=True)
         except:
             pass
@@ -251,6 +254,12 @@ def desktop_init():
         del desktop
     try:
         os.kill(_main.desktop_pid, 9)
+    except:
+        pass
+    try:
+        import pythonnet
+
+        pythonnet.unload()
     except:
         pass
     gc.collect()

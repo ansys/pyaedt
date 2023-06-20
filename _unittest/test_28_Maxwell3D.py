@@ -875,5 +875,24 @@ class TestClass(BasisTest, object):
         dxf_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf1.dxf")
         dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
         assert isinstance(dxf_layers, list)
-        assert self.aedtapp.import_dxf(file_path=dxf_file, layers_list=dxf_layers)
-        assert not self.aedtapp.import_dxf(file_path=dxf_file, layers_list="invalid")
+
+    def test_52_assign_flux_tangential(self):
+        self.aedtapp.insert_design("flux_tangential")
+        box = self.aedtapp.modeler.create_box([50, 0, 50], [294, 294, 19], name="Box")
+        assert not self.aedtapp.assign_flux_tangential(box.faces[0])
+        self.aedtapp.solution_type = "TransientAPhiFormulation"
+        assert self.aedtapp.assign_flux_tangential(box.faces[0], "FluxExample")
+        assert self.aedtapp.assign_flux_tangential(box.faces[0].id, "FluxExample")
+
+    @pytest.mark.skipif(desktop_version < "2023.2", reason="Method available in beta from 2023.2")
+    def test_53_assign_layout_force(self):
+        self.aedtapp.insert_design("layout_component")
+        nets_layers = {
+            "1V0": ["Bottom Solder", "Top Overlay", "Top Solder"],
+            "5V": ["DE2", "DE3", "Inner2(PWR1)", "Inner3(Sig1)"],
+            "<no-net>": ["1_Top", "<no-layer>", "DE1"],
+        }
+        assert self.aedtapp.assign_layout_force(nets_layers, "LC1_1")
+        assert not self.aedtapp.assign_layout_force(nets_layers, "LC1_3")
+        nets_layers = {"1V0": "Bottom Solder"}
+        assert self.aedtapp.assign_layout_force(nets_layers, "LC1_1")
