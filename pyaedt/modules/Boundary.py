@@ -800,6 +800,8 @@ class MaxwellParameters(BoundaryCommon, object):
             self._app.o_maxwell_parameters.AssignTorque(self._get_args())
         elif self.type == "Force":
             self._app.o_maxwell_parameters.AssignForce(self._get_args())
+        elif self.type == "LayoutForce":
+            self._app.o_maxwell_parameters.AssignLayoutForce(self._get_args())
         else:
             return False
         return True
