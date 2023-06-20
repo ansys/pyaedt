@@ -256,6 +256,9 @@ def desktop_init():
         os.kill(_main.desktop_pid, 9)
     except:
         pass
+    import pythonnet
+
+    pythonnet.unload()
     gc.collect()
 
 
