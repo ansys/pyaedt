@@ -421,6 +421,7 @@ class TestClass(BasisTest, object):
             "C10",
             modelpath=os.path.join(
                 local_path,
+                "example_models",
                 test_subfolder,
                 "GRM32ER72A225KA35_25C_0V.sp",
             ),
@@ -568,8 +569,8 @@ class TestClass(BasisTest, object):
         target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
         edbapp = Edb(target_path, edbversion=desktop_version)
         edbapp.components.import_bom(os.path.join(local_path, "example_models", test_subfolder, "bom_example_2.csv"))
-        assert not edbapp.components.components["R2L2"].is_enabled
-        assert edbapp.components.components["U1"].partname == "IPD031-201x"
+        assert not edbapp.components.instances["R2L2"].is_enabled
+        assert edbapp.components.instances["U1"].partname == "IPD031-201x"
 
         export_bom_path = os.path.join(self.local_scratch.path, "export_bom.csv")
         assert edbapp.components.export_bom(export_bom_path)
@@ -881,7 +882,7 @@ class TestClass(BasisTest, object):
         assert self.edbapp.modeler.unite_polygons_on_layer("1_Top")
 
     def test_076_create_solder_ball_on_component(self):
-        assert self.edbapp.components.set_solder_ball("U1A1")
+        assert self.edbapp.components.set_solder_ball("U1")
 
     def test_077_add_void(self):
         plane_shape = self.edbapp.modeler.Shape("rectangle", pointA=["-5mm", "-5mm"], pointB=["5mm", "5mm"])
@@ -938,7 +939,7 @@ class TestClass(BasisTest, object):
         assert self.edbapp.components.short_component_pins("U10", ["2", "5"])
 
     def test_086_set_component_type(self):
-        comp = self.edbapp.components["R5"]
+        comp = self.edbapp.components["R4"]
         comp.type = "Resistor"
         assert comp.type == "Resistor"
         comp.type = "Inductor"
