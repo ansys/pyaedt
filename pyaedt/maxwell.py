@@ -2515,9 +2515,57 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         except:
             return False, False
 
+    @pyaedt_function_handler
+    def assign_flux_tangential(self, objects_list, flux_name=None):
+        # type : (list, str = None) -> pyaedt.modules.Boundary.BoundaryObject
+        """Assign a flux tangential boundary for a transient A-Phi solver.
+
+        Parameters
+        ----------
+        objects_list : list
+            List of objects to assign the flux tangential boundary condition to.
+        flux_name : str, optional
+            Name of the flux tangential boundary. The default is ``None``,
+            in which case a random name is automatically generated.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object if successful, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oModule.AssignFluxTangential
+
+        Examples
+        --------
+
+        Create a box and assign a flux tangential boundary to one of its faces.
+
+        >>> box = maxwell3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="Box")
+        >>> flux_tangential = maxwell3d_app.assign_flux_tangential(box.faces[0], "FluxExample")
+        """
+        if self.solution_type != "TransientAPhiFormulation":
+            self.logger.error("Flux tangential boundary can only be assigned to a transient APhi solution type.")
+            return False
+
+        objects_list = self.modeler.convert_to_selections(objects_list, True)
+
+        if not flux_name:
+            flux_name = generate_unique_name("Insulation")
+        elif flux_name in self.modeler.get_boundaries_name():
+            flux_name = generate_unique_name(flux_name)
+
+        props = {"NAME": flux_name, "Faces": []}
+        for sel in objects_list:
+            props["Faces"].append(sel)
+
+        return self._create_boundary(flux_name, props, "FluxTangential")
+
 
 class Maxwell2d(Maxwell, FieldAnalysis3D, object):
-    """Provides the Maxwell 2D application interface.
+    """Provides the Maxwell 2D app interface.
 
     This class allows you to connect to an existing Maxwell 2D design or create a
     new Maxwell 2D design if one does not exist.
