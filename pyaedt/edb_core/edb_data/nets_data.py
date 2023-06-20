@@ -125,7 +125,7 @@ class EDBNetsData(NetDotNet):
         return current_value
 
     @pyaedt_function_handler
-    def get_extended_net(self, resistor_below=10, inductor_below=1, capacitor_above=1):
+    def get_extended_net(self, resistor_below=10, inductor_below=1, capacitor_above=1, exception_list=[]):
         """Get extended net and associated components.
 
         Parameters
@@ -138,6 +138,8 @@ class EDBNetsData(NetDotNet):
         capacitor_above : int, float, optional
             Threshold of capacitor value. Search extended net across capacitors which has value higher than the
             threshold.
+        exception_list : list, optinal
+            List of components which bypass threshold check.
         Returns
         -------
         list[
@@ -156,13 +158,15 @@ class EDBNetsData(NetDotNet):
         rlc_serial = {}
         comps = {}
 
-        def get_net_list(net_name, _net_list, _rlc_serial, _comp):
+        def get_net_list(net_name, _net_list, _rlc_serial, _comp, exception_list):
             edb_net = all_nets[net_name]
             for refdes, val in edb_net.components.items():
                 if not val.is_enabled:
                     continue
 
-                if val.type == "Inductor" and val.value < inductor_below and val.is_enabled:
+                if refdes in exception_list:
+                    pass
+                elif val.type == "Inductor" and val.value < inductor_below and val.is_enabled:
                     pass
                 elif val.type == "Resistor" and val.value < resistor_below and val.is_enabled:
                     pass
@@ -176,8 +180,8 @@ class EDBNetsData(NetDotNet):
                 for net in val.nets:
                     if net not in _net_list:
                         _net_list[net] = all_nets[net]
-                        get_net_list(net, _net_list, _rlc_serial, _comp)
+                        get_net_list(net, _net_list, _rlc_serial, _comp, exception_list)
 
-        get_net_list(self.name, nets, rlc_serial, comps)
+        get_net_list(self.name, nets, rlc_serial, comps, exception_list)
 
         return [nets, rlc_serial, comps]
