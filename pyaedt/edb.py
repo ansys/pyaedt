@@ -354,7 +354,9 @@ class Edb(Database):
     @property
     def excitations_nets(self):
         """Get all excitations net names."""
-        return list(set([i.GetNet().GetName() for i in self.layout.terminals]))
+        names = list(set([i.GetNet().GetName() for i in self.layout.terminals]))
+        names = [i for i in names if i]
+        return names
 
     @property
     def sources(self):

@@ -132,6 +132,8 @@ class EdbLayout(object):
             _primitives_by_layer[lay] = []
         for i in self._layout.primitives:
             lay = i.GetLayer().GetName()
+            if not lay:
+                continue
             _primitives_by_layer[lay].append(cast(i, self._pedb))
         return _primitives_by_layer
 
