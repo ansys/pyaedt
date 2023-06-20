@@ -1075,7 +1075,7 @@ class Design(AedtObjects):
         aedt_object : object
             AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
         object_name : str
-            Path to the object list. Example ``"DesginName\Boundaries"``.
+            Path to the object list. Example ``"DesignName\\Boundaries"``.
 
         Returns
         -------
@@ -1096,7 +1096,7 @@ class Design(AedtObjects):
         aedt_object : object
             AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
         object_name : str
-            Path to the object list. Example ``"DesginName\Boundaries"``.
+            Path to the object list. Example ``"DesignName\\Boundaries"``.
 
         Returns
         -------
