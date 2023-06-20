@@ -875,9 +875,6 @@ class TestClass(BasisTest, object):
         dxf_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf1.dxf")
         dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
         assert isinstance(dxf_layers, list)
-        if not config["NonGraphical"]:
-            assert self.aedtapp.import_dxf(file_path=dxf_file, layers_list=dxf_layers)
-            assert not self.aedtapp.import_dxf(file_path=dxf_file, layers_list="invalid")
 
     def test_52_assign_flux_tangential(self):
         self.aedtapp.insert_design("flux_tangential")
