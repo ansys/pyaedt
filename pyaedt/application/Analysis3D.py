@@ -1159,7 +1159,7 @@ class FieldAnalysis3D(Analysis, object):
         write_poly_with_width_as_filled_poly=False,
         import_method=1,
         sheet_bodies_2d=True,
-    ):
+    ):  # pragma: no cover
         # type: (str, list, bool, bool, float, float, bool, float, bool, int, bool, int, bool) -> bool
         """Import a DXF file.
 
@@ -1213,8 +1213,12 @@ class FieldAnalysis3D(Analysis, object):
         >>> oEditor.ImportDXF
 
         """
+        if settings.non_graphical:
+            self.logger.error("Method is supported only in graphical mode")
+            return False
+        layers = self.get_dxf_layers(file_path)
         for layer in layers_list:
-            if layer not in self.get_dxf_layers(file_path):
+            if layer not in layers:
                 self.logger.error("{} does not exist in specified dxf.".format(layer))
                 return False
 
