@@ -1,0 +1,354 @@
+Transcript Start Time:  10:45:11, 20 Jun 2023 ora legale Europa occidentale 
+Current Directory: "C:\Users\lvecchie\AppData\Local\Temp\icepak_AAPitTegtDhimv2.win.ansys.com_30132.pjt"
+
+Build Time: Oct 24 2022 13:31:47 EDT  Build Id: 196 Revision: aa48256ffd  Branch: releases/release-23.1 
+Executable Path: C:/PROGRA~1/AnsysEM/v231/Win64/fluent/ntbin/win64/fluent.exe
+
+--------------------------------------------------------------------------------------------------
+ID    Hostname         Core  O.S.         PID    Vendor                                          
+--------------------------------------------------------------------------------------------------
+n0*   AAPitTegtDhimv2  1/16  Windows-x64  24816  11th Gen Intel(R) Core(TM) i7-11850H @ 2.50GHz  
+host  AAPitTegtDhimv2        Windows-x64  36896  11th Gen Intel(R) Core(TM) i7-11850H @ 2.50GHz  
+
+MPI Option Selected: intel
+Selected system interconnect: default
+--------------------------------------------------------------------------------------------------
+
+Cortex Process ID: 38368 
+License Server Path: 1055@127.0.0.1 
+
+> (define t0)
+t0
+
+
+> (set! t0 (cpu-time))
+t0
+
+
+> (define wt0)
+wt0
+
+
+> (set! wt0 (time))
+wt0
+
+
+> (ti-menu-load-string "file hdf-files? no")
+file hdf-files? no#t
+
+
+> (if (err-protect (%enable-dynamic-mesh-node-ids #t)) (pp "Ok") (begin (close-output-port (open-output-file "test_setup.uns_out")) (close-output-port (open-output-file "test_setup.uns_err"))))
+"Ok"
+
+
+> (if (err-protect (ti-menu-load-string "rc test_setup.cas")) (pp "Ok") (begin (close-output-port (open-output-file "test_setup.uns_out")) (close-output-port (open-output-file "test_setup.cas_err"))))
+rc test_setup.casMulticore SMT processors detected. Processor affinity set!
+
+Reading "test_setup.cas"...
+
+Buffering for file scan...
+
+Icepak
+
+
+   10522 nodes.
+      78 mixed cells, zone  1.
+    8863 mixed cells, zone  2.
+     171 mixed interior faces, zone  3.
+   25536 mixed interior faces, zone  4.
+     122 mixed wall faces, zone  5.
+     122 mixed wall faces, zone  6.
+     122 shadow face pairs. 
+    2478 mixed wall faces, zone  7.
+       4 mixed wall faces, zone  8.
+       4 mixed wall faces, zone  9.
+       4 shadow face pairs. 
+       2 mixed interior faces, zone 10.
+       1 mixed jump faces, zone 11.
+
+Building...
+     mesh
+     materials,
+     interface,
+     domains,
+     zones,
+	fan_6kgngq_surface_side
+	fan_ghx2y1_passage_side_1
+	fan_ghx2y1_passage_side_shadow
+	fan_ghx2y1_passage_side
+	region_side
+	fan_ghx2y1_case_side_shadow
+	fan_ghx2y1_case_side
+	fan_6kgngq_passage_fluid
+	fan_6kgngq_case_solid
+	interior-4
+	interior-3
+     parallel,
+
+Note: 3d, pressure-based, laminar case read into
+      3d, double precision, pressure-based, laminar solver.
+
+
+
+Done.
+"Ok"
+
+
+> (if (err-protect (ti-menu-load-string "def mesh-interfaces one-to-one-pairing? no")) (pp "Ok") (begin (close-output-port (open-output-file "test_setup.uns_out")) (close-output-port (open-output-file "test_setup.uns_err"))))
+def mesh-interfaces one-to-one-pairing? no "Ok"
+
+
+> (begin (define g_c (car (%grid-check))) (if g_c (begin (define port (open-output-file "GRID_FAIL")) (exit))))
+
+ Domain Extents:
+   x-coordinate: min (m) = -7.325000e-04, max (m) = 1.597500e-03
+   y-coordinate: min (m) = -7.325000e-04, max (m) = 1.597500e-03
+   z-coordinate: min (m) = -5.025000e-04, max (m) = 1.507500e-03
+ Volume statistics:
+   minimum volume (m3): 1.480512e-15
+   maximum volume (m3): 1.515568e-12
+     total volume (m3): 1.091209e-08
+ Face area statistics:
+   minimum face area (m2): 1.776615e-10
+   maximum face area (m2): 1.357225e-08
+ Checking mesh............................
+Done.
+#f
+
+
+> (load "C:\Program Files\AnsysEM\v231\Win64/icepak/lib/icepak/icepak.scm")
+Loading "C:\Program Files\AnsysEM\v231\Win64/icepak/lib/icepak/icepak.scm"
+Done.
+#f
+
+
+> (load "C:\Program Files\AnsysEM\v231\Win64/icepak/lib/icepak/benchmark.scm")
+Loading "C:\Program Files\AnsysEM\v231\Win64/icepak/lib/icepak/benchmark.scm"
+Done.
+#f
+
+
+> (if (err-protect (ti-menu-load-string "def mo rad s2s? no")) (pp "Ok") (begin (close-output-port (open-output-file "test_setup.uns_out")) (close-output-port (open-output-file "test_setup.uns_err"))))
+def mo rad s2s? no"Ok"
+
+
+> (if (err-protect (ti-menu-load-string "s i i")) (pp "Ok") (begin (close-output-port (open-output-file "test_setup.uns_out")) (close-output-port (open-output-file "test_setup.init_err"))))
+s i i"Ok"
+
+
+> (set! suffix-expand-filename (lambda (fn suffix) fn))
+suffix-expand-filename
+
+
+> (if (err-protect (%set-void-dynamic-mesh-node-ids)) (pp "Ok") (begin (close-output-port (open-output-file "test_setup.uns_out")) (close-output-port (open-output-file "test_setup.uns_err"))))
+"Ok"
+
+
+> wc test_setup.nc_cas
+
+Writing "test_setup.nc_cas"...
+
+      78 mixed cells, zone  1, binary.
+    8863 mixed cells, zone  2, binary.
+     171 mixed interior faces, zone  3, binary.
+   25536 mixed interior faces, zone  4, binary.
+     122 mixed wall faces, zone  5, binary.
+     122 mixed wall faces, zone  6, binary.
+    2478 quadrilateral wall faces, zone  7, binary.
+       4 triangular wall faces, zone  8, binary.
+       4 triangular wall faces, zone  9, binary.
+       2 triangular interior faces, zone 10, binary.
+       1 quadrilateral jump faces, zone 11, binary.
+     122 shadow face pairs, binary.
+       4 shadow face pairs, binary.
+   10522 nodes, binary.
+   10522 node flags, binary.
+   10522 node sids, binary.
+Done.
+
+
+> (if (err-protect (%write-nodemap "test_setup.nodemap")) (pp "Ok") (begin (close-output-port (open-output-file "test_setup.uns_out")) (close-output-port (open-output-file "test_setup.uns_err"))))
+999999: Wrote nodemap for 10522 nodes
+0: Using dynamic mesh id
+"Ok"
+
+
+> (define ps-port)
+ps-port
+
+
+> (set! ps-port (open-file "init_proc_stats" "wl"))
+ps-port
+
+
+> (set-echo-ports! *console-output-port* (cons ps-port (echo-ports *console-output-port*)))
+(#[port 0x154ab900] #[port 0x10453d60] #[port 0xce1f040])
+
+
+> (proc-stats)
+
+----------------------------------------------
+       | Virtual Mem Usage (GB)|            
+ID     | Current    Peak       | Page Faults
+----------------------------------------------
+host   | 0.884617   0.9025     | 2.419e+05  
+n0     | 0.338139   0.338139   | 9.833e+04  
+----------------------------------------------
+Total  | 1.22276    1.24064    | 3.403e+05  
+----------------------------------------------
+
+-----------------------------------------------------------------
+                    | Virtual Mem Usage (GB)    | System Mem (GB)          
+Hostname            | Current      Peak         |                          
+-----------------------------------------------------------------
+AAPitTegtDhimv2     | 1.22278      1.24066      | 31.7264      
+-----------------------------------------------------------------
+Total               | 1.22278      1.24066      |            
+-----------------------------------------------------------------
+()
+
+
+> (set-echo-ports! *console-output-port* (delete ps-port (echo-ports *console-output-port*)))
+(#[port 0x10453d60] #[port 0xce1f040])
+
+
+> (flush-output-port ps-port)
+#f
+
+
+> (close-output-port ps-port)
+#f
+
+
+> (define t1)
+t1
+
+
+> (set! t1 (cpu-time))
+t1
+
+
+> (define wt1)
+wt1
+
+
+> (set! wt1 (time))
+wt1
+
+
+> (format "Solver Initialization: cpu=~a real=~a~%" (- t1 t0) (- wt1 wt0))
+Solver Initialization: cpu=6.0965002 real=6
+
+
+> (if (err-protect (benchmark-aedt '(icepak-iterate 2 "test_setup" "test_setup.res" 2 1 1))) (pp "Ok") (begin (close-output-port (open-output-file "test_setup.uns_out")) (close-output-port (open-output-file "test_setup.soln_err"))))
+
+  iter  continuity  x-velocity  y-velocity  z-velocity      energy     time/iter
+        Stabilizing temperature to enhance linear solver robustness.
+     1  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  0.0000e+00  0:00:00    1
+
+Writing "test_setup.resd"...
+
+Writing elements...
+Wrote 20 triangles.
+Wrote 2711 quads.
+Writing face results...
+Wrote Heat Flow Rate on 2731 faces. 
+Wrote Heat Flux on 2731 faces. 
+Wrote Temperature on 2731 faces. 
+Wrote Mass Flux on 2731 faces. 
+Wrote X Velocity on 2731 faces. 
+Wrote Y Velocity on 2731 faces. 
+Wrote Z Velocity on 2731 faces. 
+Wrote Pressure on 2731 faces. 
+
+Writing node results...
+Writing ICEM domain scalar "Pressure"
+Wrote Pressure on 10522 nodes.
+Writing ICEM domain scalar "Temperature"
+Wrote Temperature on 10522 nodes.
+Writing ICEM domain scalar "X Velocity"
+Wrote X Velocity on 10522 nodes.
+Writing ICEM domain scalar "Y Velocity"
+Wrote Y Velocity on 10522 nodes.
+Writing ICEM domain scalar "Z Velocity"
+Wrote Z Velocity on 10522 nodes.
+0: Using dynamic mesh id
+Done.
+
+
+Writing "test_setup.fdat"...
+
+Done.
+
+Writing data to test_setup.dat ...
+	x-coord
+	y-coord
+	z-coord
+	pressure
+	x-velocity
+	y-velocity
+	z-velocity
+	temperature
+Done.
+Solve: cpu=0.953125 real=1
+"Ok"
+
+
+> (define ps-port)
+ps-port
+
+
+> (set! ps-port (open-file "solve_proc_stats" "wl"))
+ps-port
+
+
+> (set-echo-ports! *console-output-port* (cons ps-port (echo-ports *console-output-port*)))
+(#[port 0x159db4e0] #[port 0x10453d60] #[port 0xce1f040])
+
+
+> (proc-stats)
+
+----------------------------------------------
+       | Virtual Mem Usage (GB)|            
+ID     | Current    Peak       | Page Faults
+----------------------------------------------
+host   | 0.885731   0.9025     | 2.422e+05  
+n0     | 0.400444   0.400444   | 1.147e+05  
+----------------------------------------------
+Total  | 1.28617    1.30294    | 3.569e+05  
+----------------------------------------------
+
+-----------------------------------------------------------------
+                    | Virtual Mem Usage (GB)    | System Mem (GB)          
+Hostname            | Current      Peak         |                          
+-----------------------------------------------------------------
+AAPitTegtDhimv2     | 1.28617      1.30294      | 31.7264      
+-----------------------------------------------------------------
+Total               | 1.28617      1.30294      |            
+-----------------------------------------------------------------
+()
+
+
+> (set-echo-ports! *console-output-port* (delete ps-port (echo-ports *console-output-port*)))
+(#[port 0x10453d60] #[port 0xce1f040])
+
+
+> (flush-output-port ps-port)
+#f
+
+
+> (close-output-port ps-port)
+#f
+
+
+> (if (not (pair? (zone-id->surface-id '(11)))) (ti-menu-load-string "surface zone fan_6kgngq_surface_side 11"))
+#f
+
+
+> (if (err-protect (ti-menu-load-string "report s-i f-r fan_6kgngq_surface_side , enthalpy y test_setup.srp")) (pp "Ok") (begin (close-output-port (open-output-file "test_setup.uns_out")) (close-output-port (open-output-file "test_setup.uns_err"))))
+report s-i f-r fan_6kgngq_surface_side , enthalpy y test_setup.srp"Ok"
+
+
+> (err-protect (stop-transcript))
+Transcript Stop Time:  10:45:18, 20 Jun 2023 ora legale Europa occidentale 
+Total Transcript Time: 0 Minute 7 Second.
