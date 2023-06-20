@@ -883,3 +883,16 @@ class TestClass(BasisTest, object):
         self.aedtapp.solution_type = "TransientAPhiFormulation"
         assert self.aedtapp.assign_flux_tangential(box.faces[0], "FluxExample")
         assert self.aedtapp.assign_flux_tangential(box.faces[0].id, "FluxExample")
+
+    @pytest.mark.skipif(desktop_version < "2023.2", reason="Method available in beta from 2023.2")
+    def test_53_assign_layout_force(self):
+        self.aedtapp.insert_design("layout_component")
+        nets_layers = {
+            "1V0": ["Bottom Solder", "Top Overlay", "Top Solder"],
+            "5V": ["DE2", "DE3", "Inner2(PWR1)", "Inner3(Sig1)"],
+            "<no-net>": ["1_Top", "<no-layer>", "DE1"],
+        }
+        assert self.aedtapp.assign_layout_force(nets_layers, "LC1_1")
+        assert not self.aedtapp.assign_layout_force(nets_layers, "LC1_3")
+        nets_layers = {"1V0": "Bottom Solder"}
+        assert self.aedtapp.assign_layout_force(nets_layers, "LC1_1")
