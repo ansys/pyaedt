@@ -627,6 +627,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignEndConnection(self._get_args())
         elif self.type == "Hybrid":
             self._app.oboundary.AssignHybridRegion(self._get_args())
+        elif self.type == "FluxTangential":
+            self._app.oboundary.AssignFluxTangential(self._get_args())
         else:
             return False
         return True
@@ -925,6 +927,8 @@ class MaxwellParameters(BoundaryCommon, object):
             self._app.o_maxwell_parameters.AssignTorque(self._get_args())
         elif self.type == "Force":
             self._app.o_maxwell_parameters.AssignForce(self._get_args())
+        elif self.type == "LayoutForce":
+            self._app.o_maxwell_parameters.AssignLayoutForce(self._get_args())
         else:
             return False
         return True

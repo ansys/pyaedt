@@ -4146,3 +4146,89 @@ class Icepak(FieldAnalysis3D):
         if bound.create():
             self.boundaries.append(bound)
             return bound
+
+    @pyaedt_function_handler()
+    def get_fans_operating_point(self, export_file=None, setup_name=None, timestep=None, design_variation=None):
+        """
+        Get operating point of the fans in the design.
+
+        Parameters
+        ----------
+        export_file : str, optional
+            Name of the file in which the fans' operating point is saved. The default is
+            ``None``, in which case the filename is automatically generated.
+        setup_name : str, optional
+            Setup name from which to determine the fans' operating point. The default is
+            ``None``, in which case the first available setup is used.
+        timestep : str, optional
+            Time, with units, at which to determine the fans' operating point. The default
+            is ``None``, in which case the first available timestep is used. This argument is
+            only relevant in transient simulations.
+        design_variation : str, optional
+            Design variation from which to determine the fans' operating point. The default is
+            ``None``, in which case the nominal variation is used.
+
+        Returns
+        -------
+        list
+            First element of the list is the csv filename, the second and third element of
+            the list are the quantities with units describing the fan operating point,
+            the fourth element contains the dictionary with the name of the fan instances
+            as keys and list with volumetric flow rates and pressure rise floats associated
+            with the operating points.
+
+        References
+        ----------
+
+        >>> oModule.ExportFanOperatingPoint
+
+        Examples
+        --------
+        >>> from pyaedt import Icepak
+        >>> ipk = Icepak()
+        >>> ipk.create_fan()
+        >>> filename, vol_flow_name, p_rise_name, op_dict= ipk.get_fans_operating_point()
+        """
+
+        if export_file is None:
+            path = self.temp_directory
+            base_name = "{}_{}_FanOpPoint".format(self.project_name, self.design_name)
+            export_file = os.path.join(path, base_name + ".csv")
+            while os.path.exists(export_file):
+                file_name = generate_unique_name(base_name)
+                export_file = os.path.join(path, file_name + ".csv")
+        if setup_name is None:
+            setup_name = "{} : {}".format(self.get_setups()[0], self.solution_type)
+        if timestep is None:
+            timestep = ""
+            if self.solution_type == "Transient":
+                self.logger.warning("No timestep specified. First timestep will be exported.")
+        else:
+            if not self.solution_type == "Transient":
+                self.logger.warning("Simulation is steady-state, timestep argument is ignored.")
+                timestep = ""
+        if design_variation is None:
+            design_variation = ""
+        self.osolution.ExportFanOperatingPoint(
+            [
+                "SolutionName:=",
+                setup_name,
+                "DesignVariationKey:=",
+                design_variation,
+                "ExportFilePath:=",
+                export_file,
+                "Overwrite:=",
+                True,
+                "TimeStep:=",
+                timestep,
+            ]
+        )
+        with open(export_file, "r") as f:
+            reader = csv.reader(f)
+            for line in reader:
+                if "Fan Instances" in line:
+                    vol_flow = line[1]
+                    p_rise = line[2]
+                    break
+            var = {line[0]: [float(line[1]), float(line[2])] for line in reader}
+        return [export_file, vol_flow, p_rise, var]
