@@ -23,8 +23,6 @@ from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.DataHandlers import random_string
 from pyaedt.generic.configurations import ConfigurationsIcepak
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -32,6 +30,7 @@ from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import NativeComponentObject
+from pyaedt.modules.Boundary import NetworkObject
 from pyaedt.modules.monitor_icepak import Monitor
 
 
@@ -2257,7 +2256,7 @@ class Icepak(FieldAnalysis3D):
         source_design : str
             Name of the source design.
         source_project_name : str, optional
-            Name of the source project. The default is ``None`` in which case, the current active project will be used.
+            Name of the source project. The default is ``None``, in which case the current active project is used.
         source_project_path : str, optional
             Path to the source project. The default is ``None``.
 
@@ -3691,8 +3690,8 @@ class Icepak(FieldAnalysis3D):
             each ``Function`` option is in Icepak documentation. The parameters must contain the
             units where needed.
         boundary_name : str, optional
-            Name of the source boundary. The default is ``None`` and the boundary name will be
-            generated automatically.
+            Name of the source boundary. The default is ``None``, in which case the boundary name
+            is generated automatically.
         radiate : bool, optional
             Whether to enable radiation. The default is ``False``.
         voltage_current_choice : str or bool, optional
@@ -3779,6 +3778,114 @@ class Icepak(FieldAnalysis3D):
             self.boundaries.append(bound)
             return bound
 
+    @pyaedt_function_handler()
+    def create_network_object(self, name=None, props=None, create=False):
+        """Create a thermal network.
+
+        Parameters
+        ----------
+        name : str, optional
+           Name of the network object. The default is ``None``, in which case
+           the name is generated autotmatically.
+        props : dict, optional
+            Dictionary with information required by the ``oModule.AssignNetworkBoundary``
+            object. The default is ``None``.
+        create : bool, optional
+            Whether to create immediately the network inside AEDT. The
+            default is ``False``, which means the network can be modified
+            from PyAEDT functions and the network created only afterwards.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryNetwork`
+            Boundary network object when successful or ``None`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignNetworkBoundary
+
+        Examples
+        --------
+
+        >>> from pyaedt import Icepak
+        >>> app = Icepak()
+        >>> network = app.create_network_object()
+        """
+        bound = NetworkObject(self, name, props, create)
+        self.boundaries.append(bound)
+        return bound
+
+    @pyaedt_function_handler()
+    def create_resistor_network_from_matrix(self, sources_power, faces_ids, matrix, network_name=None, node_names=None):
+        """Create a thermal network.
+
+        Parameters
+        ----------
+        sources_power : list of str or list of float
+            List containing all the power value of the internal nodes. If the element of
+            the list is a float, the ``W`` unit is used.  Otherwise, the
+            unit specified in the string is used.
+        faces_ids :  list of int
+            All the face IDs that are network nodes.
+        matrix : list of list
+            Strict lower-square triangular matrix containing the link values between
+            the nodes of the network. If the element of the matrix is a float, the
+            ``cel_per_w`` unit is used. Otherwise, the unit specified
+            in the string is used. The element of the matrix in the i-th row
+            and j-th column is the link value between the i-th node and j-th node.
+            The list of nodes is automatically created from the lists for the
+            ``sources_power`` and ``faces_ids`` parameters (in this order).
+        network_name : str, optional
+            Name of the network boundary. The default is ``None``, in which
+            case the boundary name is generated automatically.
+        node_names : list of str, optional
+            Name of all the nodes in the network.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryNetwork`
+            Boundary network object when successful or ``None`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignNetworkBoundary
+
+        Examples
+        --------
+
+        >>> from pyaedt import Icepak
+        >>> app = Icepak()
+        >>> box = app.modeler.create_box([0, 0, 0], [20, 50, 80])
+        >>> faces_ids = [face.id for face in box.faces][0, 1]
+        >>> sources_power = [3, "4mW"]
+        >>> matrix = [[0, 0, 0, 0],
+        >>>           [1, 0, 0, 0],
+        >>>           [0, 3, 0, 0],
+        >>>           [1, 2, 4, 0]]
+        >>> boundary = app.assign_resistor_network_from_matrix(sources_power, faces_ids, matrix)
+        """
+
+        net = self.create_network_object(name=network_name)
+        all_nodes = []
+        for i, source in enumerate(sources_power):
+            node_name = "Source" + str(i) if not node_names else node_names[i]
+            net.add_internal_node(name=node_name, power=source)
+            all_nodes.append(node_name)
+        for i, id in enumerate(faces_ids):
+            node_name = None if not node_names else node_names[i + len(sources_power)]
+            second = net.add_face_node(id, name=node_name)
+            all_nodes.append(second.name)
+        for i in range(len(matrix)):
+            for j in range(len(matrix[0])):
+                if matrix[i][j] > 0:
+                    net.add_link(all_nodes[i], all_nodes[j], matrix[i][j], "Link_" + all_nodes[i] + "_" + all_nodes[j])
+        if net.create():
+            return net
+        else:  # pragma: no cover
+            return None
+
     @pyaedt_function_handler
     def assign_solid_block(
         self, object_name, power_assignment, boundary_name=None, htc=None, ext_temperature="AmbientTemp"
@@ -3807,7 +3914,7 @@ class Icepak(FieldAnalysis3D):
               the ``"Function"`` key selection. For example, whn``"Linear"`` is set as the
               ``"Function"`` key, two parameters are required: the value of the variable
               at t=0 and the slope of the line. For the parameters required by each
-              ``"Function"`` key selection, see the Icepack documentation (). The parameters
+              ``"Function"`` key selection, see the Icepak documentation. The parameters
               must contain the units where needed.
 
         boundary_name : str, optional
@@ -3815,14 +3922,14 @@ class Icepak(FieldAnalysis3D):
             boundary name is automatically generated.
         htc : float, str, or dict, optional
             String with the value and units of the heat transfer coefficient for the
-            external conditions. If a float is provided, ``"w_per_m2kel"`` unit will be used.
+            external conditions. If a float is provided, the ``"w_per_m2kel"`` unit is used.
             For a temperature-dependent or transient
             assignment, a dictionary can be used. For more information, see the
             description for the preceding ``power_assignment`` parameter. The
-            default is ``None``, in which case no external condition will be applied.
+            default is ``None``, in which case no external condition is applied.
         ext_temperature : float, str or dict, optional
             String with the value and units of temperature for the external conditions.
-            If a float is provided, ``"cel"`` unit will be used.
+            If a float is provided, the ``"cel"`` unit is used.
             For a transient assignment, a dictionary can be used. For more information,
             see the description for the preceding ``power_assignment`` parameter. The
             default is ``"AmbientTemp"``, which is used if the ``htc`` parameter is not
@@ -3922,7 +4029,7 @@ class Icepak(FieldAnalysis3D):
             ``"Heat Flux"``, ``"Temperature"``, and ``"Total Power"``.
         assignment_value : str or dict
             String with value and units of the assignment. If ``"Total Power"`` is
-            assignment_type, ``"Joule Heating"`` can be used.
+            the assignment type, ``"Joule Heating"`` can be used.
             For a temperature-dependent or transient assignment, a dictionary can be used.
             The dictionary should contain three keys:
             ``"Type"``, ``"Function"``, and ``"Values"``.
@@ -3938,7 +4045,7 @@ class Icepak(FieldAnalysis3D):
               the ``"Function"`` key selection. For example, whn``"Linear"`` is set as the
               ``"Function"`` key, two parameters are required: the value of the variable
               at t=0 and the slope of the line. For the parameters required by each
-              ``"Function"`` key selection, see the Icepack documentation (). The parameters
+              ``"Function"`` key selection, see the Icepak documentation. The parameters
               must contain the units where needed.
 
         boundary_name : str, optional
@@ -3949,7 +4056,7 @@ class Icepak(FieldAnalysis3D):
             coefficient. If a float value is specified, the ``"cel"`` unit is automatically
             added.
             For a transient assignment, a dictionary can be used as described for the
-            assignment_value argument. Temperature dependent assignment is not supported.
+            ``assignment_value argument``. Temperature dependent assignment is not supported.
             The default is ``"AmbientTemp"``.
 
 
@@ -3975,7 +4082,7 @@ class Icepak(FieldAnalysis3D):
         """
         if self.modeler.get_object_from_name(object_name).solve_inside:
             self.logger.add_error_message(
-                "Use ``assign_solid_block`` function with this object as" "``solve_inside`` is ``True``."
+                "Use ``assign_solid_block`` method with this object as ``solve_inside`` is ``True``."
             )
             return None
         if assignment_value == "Joule Heating" and assignment_type != "Total Power":
@@ -3993,8 +4100,8 @@ class Icepak(FieldAnalysis3D):
         thermal_condition = assignment_dict.get(assignment_type, None)
         if thermal_condition is None:
             self.logger.add_error_message(
-                'Available assignment_type are "Total Power", "Heat Flux",'
-                '"Temperature" and "Heat Transfer Coefficient".'
+                'Valid options for assignment type are "Total Power", "Heat Flux",'
+                '"Temperature", and "Heat Transfer Coefficient".'
                 "{} not recognized.".format(assignment_type)
             )
             return None
@@ -4020,9 +4127,7 @@ class Icepak(FieldAnalysis3D):
         if thermal_condition[0] == "Internal Conditions":
             if isinstance(external_temperature, dict):
                 if external_temperature["Type"] == "Temp Dep":
-                    self.logger.add_error_message(
-                        'It is not possible to use a "Temp Dep" assignment for a temperature assignment.'
-                    )
+                    self.logger.add_error_message('It is not possible to use "Temp Dep" for a temperature assignment.')
                     return None
                 assignment_value_dict = self._parse_variation_data(
                     "Temperature",
@@ -4041,3 +4146,89 @@ class Icepak(FieldAnalysis3D):
         if bound.create():
             self.boundaries.append(bound)
             return bound
+
+    @pyaedt_function_handler()
+    def get_fans_operating_point(self, export_file=None, setup_name=None, timestep=None, design_variation=None):
+        """
+        Get operating point of the fans in the design.
+
+        Parameters
+        ----------
+        export_file : str, optional
+            Name of the file in which the fans' operating point is saved. The default is
+            ``None``, in which case the filename is automatically generated.
+        setup_name : str, optional
+            Setup name from which to determine the fans' operating point. The default is
+            ``None``, in which case the first available setup is used.
+        timestep : str, optional
+            Time, with units, at which to determine the fans' operating point. The default
+            is ``None``, in which case the first available timestep is used. This argument is
+            only relevant in transient simulations.
+        design_variation : str, optional
+            Design variation from which to determine the fans' operating point. The default is
+            ``None``, in which case the nominal variation is used.
+
+        Returns
+        -------
+        list
+            First element of the list is the csv filename, the second and third element of
+            the list are the quantities with units describing the fan operating point,
+            the fourth element contains the dictionary with the name of the fan instances
+            as keys and list with volumetric flow rates and pressure rise floats associated
+            with the operating points.
+
+        References
+        ----------
+
+        >>> oModule.ExportFanOperatingPoint
+
+        Examples
+        --------
+        >>> from pyaedt import Icepak
+        >>> ipk = Icepak()
+        >>> ipk.create_fan()
+        >>> filename, vol_flow_name, p_rise_name, op_dict= ipk.get_fans_operating_point()
+        """
+
+        if export_file is None:
+            path = self.temp_directory
+            base_name = "{}_{}_FanOpPoint".format(self.project_name, self.design_name)
+            export_file = os.path.join(path, base_name + ".csv")
+            while os.path.exists(export_file):
+                file_name = generate_unique_name(base_name)
+                export_file = os.path.join(path, file_name + ".csv")
+        if setup_name is None:
+            setup_name = "{} : {}".format(self.get_setups()[0], self.solution_type)
+        if timestep is None:
+            timestep = ""
+            if self.solution_type == "Transient":
+                self.logger.warning("No timestep specified. First timestep will be exported.")
+        else:
+            if not self.solution_type == "Transient":
+                self.logger.warning("Simulation is steady-state, timestep argument is ignored.")
+                timestep = ""
+        if design_variation is None:
+            design_variation = ""
+        self.osolution.ExportFanOperatingPoint(
+            [
+                "SolutionName:=",
+                setup_name,
+                "DesignVariationKey:=",
+                design_variation,
+                "ExportFilePath:=",
+                export_file,
+                "Overwrite:=",
+                True,
+                "TimeStep:=",
+                timestep,
+            ]
+        )
+        with open(export_file, "r") as f:
+            reader = csv.reader(f)
+            for line in reader:
+                if "Fan Instances" in line:
+                    vol_flow = line[1]
+                    p_rise = line[2]
+                    break
+            var = {line[0]: [float(line[1]), float(line[2])] for line in reader}
+        return [export_file, vol_flow, p_rise, var]

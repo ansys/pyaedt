@@ -18,8 +18,8 @@ import pyaedt
 # Setup project files and path
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download of needed project file and setup of temporary project directory.
-project_dir = tempfile.gettempdir()
-aedb_project = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb')
+project_dir =  pyaedt.generate_unique_folder_name()
+aedb_project = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb',destination=project_dir)
 
 project_name = pyaedt.generate_unique_name("HSD")
 output_edb = os.path.join(project_dir, project_name + '.aedb')
