@@ -1361,6 +1361,8 @@ class BinaryTreeNode:
     """Manages an object's history structure."""
 
     def __init__(self, node, child_object, first_level=False, get_child_obj_arg=None, root_name=None):
+        if not root_name:
+            root_name = node
         saved_root_name = node if first_level else root_name
         self.node = node
         self.child_object = child_object

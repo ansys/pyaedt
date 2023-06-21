@@ -384,12 +384,14 @@ class Design(AedtObjects):
                     current_boundaries = current_boundaries + new_port
                     current_types = current_types + [i] * len(new_port)
             for boundary, boundarytype in zip(current_boundaries, current_types):
-                if boundary in design_excitations:
+                if boundary in self._boundaries:
                     continue
                 design_excitations[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
 
         elif "GetAllPortsList" in self.oboundary.__dir__() and self.design_type in ["HFSS 3D Layout Design"]:
             for port in self.oboundary.GetAllPortsList():
+                if port in self._boundaries:
+                    continue
                 bound = self._update_port_info(port)
                 if bound:
                     design_excitations[port] = bound

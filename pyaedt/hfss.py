@@ -326,6 +326,8 @@ class Hfss(FieldAnalysis3D, object):
         bound = BoundaryObject(self, name, props, boundary_type)
         result = bound.create()
         if result:
+            self._boundaries[bound.name] = bound
+            self.logger.info("Boundary %s %s has been correctly created.", boundary_type, name)
             return bound
         self.logger.error("Error in boundary creation for %s %s.", boundary_type, name)
 

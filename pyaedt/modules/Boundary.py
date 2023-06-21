@@ -379,27 +379,25 @@ class BoundaryObject(BoundaryCommon, object):
     def object_properties(self):
         from pyaedt.modeler.cad.elements3d import BinaryTreeNode
 
+        child_object = None
         if "Thermal" in self._app.odesign.GetChildNames():
             cc = self._app.odesign.GetChildObject("Thermal")
-            child_object = None
             if self.name in cc.GetChildNames():
                 child_object = self._app.odesign.GetChildObject("Thermal").GetChildObject(self.name)
             if child_object:
                 return BinaryTreeNode(self.name, child_object, False)
         elif "Boundaries" in self._app.odesign.GetChildNames():
             cc = self._app.odesign.GetChildObject("Boundaries")
-            child_object = None
             if self.name in cc.GetChildNames():
                 child_object = self._app.odesign.GetChildObject("Boundaries").GetChildObject(self.name)
             elif self.name in self._app.odesign.GetChildObject("Excitations").GetChildNames():
                 child_object = self._app.odesign.GetChildObject("Excitations").GetChildObject(self.name)
 
-            if child_object:
-                return BinaryTreeNode(self.name, child_object, False)
-
             if self._app.design_type in ["Maxwell 3D", "Maxwell 2D"] and "Model" in self._app.odesign.GetChildNames():
                 child_object = self._app.odesign.GetChildObject("Model").GetChildObject(self.name)
-                return BinaryTreeNode(self.name, child_object, False, root_name=self.name)
+
+        if child_object:
+            return BinaryTreeNode(self.name, child_object, False)
 
         return False
 
@@ -769,7 +767,10 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.EditTerminal(self._boundary_name, self._get_args())
         else:
             return False  # pragma: no cover
+
+        self._app._boundaries[self.name] = self._app._boundaries.pop(self._boundary_name)
         self._boundary_name = self.name
+
         return True
 
     @pyaedt_function_handler()
