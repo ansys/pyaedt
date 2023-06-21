@@ -1138,3 +1138,7 @@ class TestClass(BasisTest, object):
         app.set_active_design("get_fan_op_point1")
         app.get_fans_operating_point()
         app.close_project()
+
+    def test_63_generate_mesh(self):
+        self.aedtapp.insert_design("empty_mesh")
+        self.aedtapp.mesh.generate_mesh()
