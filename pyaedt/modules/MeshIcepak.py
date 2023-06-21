@@ -673,13 +673,13 @@ class IcepakMesh(object):
         return meshregion
 
     @pyaedt_function_handler()
-    def generate_mesh(self, name):
+    def generate_mesh(self, name=None):
         """Generate the mesh for a given setup name.
 
         Parameters
         ----------
-        name : str
-            Name of the design to mesh.
+        name : str, optional
+            Name of the design to mesh. Default is ``None`` in which case the first available setup will be selected.
 
         Returns
         -------
@@ -691,6 +691,8 @@ class IcepakMesh(object):
 
         >>> oDesign.GenerateMesh
         """
+        if name is None:
+            name = []
         return self._odesign.GenerateMesh(name) == 0
 
     @pyaedt_function_handler()
