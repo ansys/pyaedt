@@ -313,8 +313,10 @@ class IcepakMesh(object):
                 args += self.autosettings
             if self.virtual_region and self._app.check_beta_option_enabled("S544753_ICEPAK_VIRTUALMESHREGION_PARADIGM"):
                 self.meshmodule.AssignVirtualMeshRegion(args)
+                self._app.mesh.meshregions.append(self)
             else:
                 self.meshmodule.AssignMeshRegion(args)
+                self._app.mesh.meshregions.append(self)
             return True
 
         @pyaedt_function_handler()
