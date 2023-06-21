@@ -435,6 +435,8 @@ class BoundaryObject(BoundaryCommon, object):
         """
         if self._type is None and self.available_properties:
             self._type = self.available_properties.props["Type"]
+        elif self.object_properties and self.object_properties.props["Type"]:
+            self._type = self.object_properties.props["Type"]
         if self._app.design_type == "Icepak" and self._type == "Source":
             return "SourceIcepak"
         else:

@@ -1414,7 +1414,9 @@ class PropsManager(object):
         -------
         list
         """
-        return self._recursive_list(self.props)
+        if self.props:
+            return self._recursive_list(self.props)
+        return []
 
     @pyaedt_function_handler()
     def update(self):
