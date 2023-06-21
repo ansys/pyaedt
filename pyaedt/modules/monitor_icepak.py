@@ -148,7 +148,7 @@ class Monitor:
 
     @property
     def face_monitors(self):
-        """Get face monitor objects.
+        """Get point monitor objects.
 
         Returns
         -------
