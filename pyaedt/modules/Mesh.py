@@ -9,7 +9,7 @@ import shutil
 
 from pyaedt.application.design_solutions import model_names
 from pyaedt.generic.DataHandlers import _dict2arg
-from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
+from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 
 # from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import MethodNotSupportedError
@@ -468,7 +468,8 @@ class Mesh(object):
             oproject_target.InsertDesign(self._app.design_type, temp_name, sol, "")
             oproject_target.SaveAs(temp_proj, True)
             self._app.odesktop.CloseProject(temp_name)
-            _project_dictionary = load_entire_aedt_file(temp_proj)
+            # _project_dictionary = load_entire_aedt_file(temp_proj)
+            _project_dictionary = load_keyword_in_aedt_file(temp_proj, "AnsoftProject")
             try:
                 props = _project_dictionary["AnsoftProject"][model_names[self._app.design_type]]["MeshSetup"][
                     "MeshSettings"
