@@ -139,7 +139,7 @@ class EDBNetsData(NetDotNet):
         capacitor_above : int, float, optional
             Threshold of capacitor value. Search extended net across capacitors which has value higher than the
             threshold.
-        exception_list : list, optinal
+        exception_list : list, optional
             List of components which bypass threshold check.
         Returns
         -------
