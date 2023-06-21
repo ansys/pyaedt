@@ -392,9 +392,17 @@ class BoundaryObject(BoundaryCommon, object):
                 child_object = self._app.odesign.GetChildObject("Boundaries").GetChildObject(self.name)
             elif self.name in self._app.odesign.GetChildObject("Excitations").GetChildNames():
                 child_object = self._app.odesign.GetChildObject("Excitations").GetChildObject(self.name)
-
-            if self._app.design_type in ["Maxwell 3D", "Maxwell 2D"] and "Model" in self._app.odesign.GetChildNames():
+            elif self._app.design_type in ["Maxwell 3D", "Maxwell 2D"] and "Model" in self._app.odesign.GetChildNames():
                 child_object = self._app.odesign.GetChildObject("Model").GetChildObject(self.name)
+            elif self._app.odesign.GetChildObject("Excitations").GetChildNames():
+                for port in self._app.odesign.GetChildObject("Excitations").GetChildNames():
+                    terminals = self._app.odesign.GetChildObject("Excitations").GetChildObject(port).GetChildNames()
+                    if self.name in terminals:
+                        child_object = (
+                            self._app.odesign.GetChildObject("Excitations")
+                            .GetChildObject(port)
+                            .GetChildObject(self.name)
+                        )
 
         if child_object:
             return BinaryTreeNode(self.name, child_object, False)
