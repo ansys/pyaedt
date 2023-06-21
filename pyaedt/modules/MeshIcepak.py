@@ -317,6 +317,23 @@ class IcepakMesh(object):
                 self.meshmodule.AssignMeshRegion(args)
             return True
 
+        @pyaedt_function_handler()
+        def delete(self):
+            """Delete mesh region.
+
+            Returns
+            -------
+            bool
+                ``True`` when successful, ``False`` when failed.
+
+            References
+            ----------
+
+            >>> oModule.DeleteMeshRegions()
+            """
+            self.meshmodule.DeleteMeshRegions([self.name])
+            return True
+
     @property
     def boundingdimension(self):
         """Bounding dimension."""
