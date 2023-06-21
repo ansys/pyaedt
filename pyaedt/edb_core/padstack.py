@@ -1028,7 +1028,7 @@ class EdbPadstacks(object):
             The default is ``None``.
         solderlayer :
             The default is ``None``.
-        is_pin : bool, optiona
+        is_pin : bool, optional
             Whether if the padstack is a pin or not. Default is `False`.
 
         Returns

@@ -2053,7 +2053,7 @@ class Analysis(Design, object):
         # 7=Matlab (.m), 8=Terminal Z0 spreadsheet
         FileFormat = 3
         OutFile = filename  # full path of output file
-        # array containin the frequencies to export, use ["all"] for all frequencies
+        # array containing the frequencies to export, use ["all"] for all frequencies
         FreqsArray = ["all"]
         DoRenorm = True  # perform renormalization before export
         RenormImped = 50  # Real impedance value in ohm, for renormalization
