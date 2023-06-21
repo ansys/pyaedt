@@ -19,8 +19,17 @@ import pyaedt
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
+
+###############################################################################
+# Set debugger mode
+# ~~~~~~~~~~~~~~~~~
+# PyAEDT allows to enable a debug logger which logs all methods called and argument passed.
+# This example shows how to enable it.
+
 pyaedt.settings.enable_debug_logger = True
 pyaedt.settings.enable_debug_methods_argument_logger = True
+pyaedt.settings.enable_debug_internal_methods_logger = False
+
 
 ###############################################################################
 # Launch AEDT and Q3D Extractor
