@@ -91,6 +91,15 @@ def launch_aedt(full_path, non_graphical, port, first_run=True):
     while not _check_grpc_port(port):
         if k > timeout:  # pragma: no cover
             if first_run:
+                active_s = active_sessions(
+                    settings.aedt_version, non_graphical=settings.non_graphical, student_version=settings.is_student
+                )
+                for p in active_s:
+                    if port == p[1]:
+                        try:
+                            os.kill(p[0], 9)
+                        except (OSError, PermissionError):
+                            pass
                 port = _find_free_port()
                 return launch_aedt(full_path, non_graphical, port, first_run=False)
             return False, port
@@ -178,9 +187,6 @@ def _find_free_port():
         s.bind(("", 0))
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         return s.getsockname()[1]
-    # with socket.socket() as s:
-    #     s.bind(("", 0))  # Bind to a free port provided by the host.
-    #     return s.getsockname()[1]  # Return the port number assigned.
 
 
 def exception_to_desktop(ex_value, tb_data):  # pragma: no cover

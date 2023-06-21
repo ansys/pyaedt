@@ -19,6 +19,8 @@ import pyaedt
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
+pyaedt.settings.enable_debug_logger = True
+pyaedt.settings.enable_debug_methods_argument_logger = True
 
 ###############################################################################
 # Launch AEDT and Q3D Extractor
