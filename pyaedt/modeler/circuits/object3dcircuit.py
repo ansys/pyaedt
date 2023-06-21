@@ -541,12 +541,11 @@ class CircuitComponent(object):
 
         try:
             pins = _retry_ntimes(10, self._oeditor.GetComponentPins, self.composed_name)
-
-            if not pins:
-                return []
-            elif pins is True:
+            if "Port@" in self.composed_name and pins == []:
                 self._pins.append(CircuitPins(self, self.composed_name))
                 return self._pins
+            elif not pins:
+                return []
             for pin in pins:
                 if self._circuit_components._app.design_type != "Twin Builder":
                     self._pins.append(CircuitPins(self, pin))
