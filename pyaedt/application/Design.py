@@ -342,7 +342,7 @@ class Design(AedtObjects):
             else:
                 self._boundaries[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
 
-        return list(self._boundaries.values()) + self.excitations
+        return list(self._boundaries.values()) + self.design_excitations
 
     @property
     def boundaries_by_type(self):
@@ -357,7 +357,7 @@ class Design(AedtObjects):
     @property
     def excitations_by_type(self):
         _dict_out = {}
-        for bound in self.excitations:
+        for bound in self._excitations:
             if bound.type in _dict_out:
                 _dict_out[bound.type].append(bound)
             else:
@@ -365,14 +365,14 @@ class Design(AedtObjects):
         return _dict_out
 
     @property
-    def excitations(self):
+    def design_excitations(self):
         """Design excitations.
 
         Returns
         -------
         List of :class:`pyaedt.modules.Boundary.BoundaryObject`
         """
-        self._excitations = {}
+        design_excitations = {}
 
         if "GetExcitations" in self.oboundary.__dir__():
             ee = list(self.oboundary.GetExcitations())
@@ -384,18 +384,18 @@ class Design(AedtObjects):
                     current_boundaries = current_boundaries + new_port
                     current_types = current_types + [i] * len(new_port)
             for boundary, boundarytype in zip(current_boundaries, current_types):
-                if boundary in self._excitations:
+                if boundary in design_excitations:
                     continue
-                self._excitations[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
+                design_excitations[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
 
         elif "GetAllPortsList" in self.oboundary.__dir__() and self.design_type in ["HFSS 3D Layout Design"]:
             for port in self.oboundary.GetAllPortsList():
                 bound = self._update_port_info(port)
                 if bound:
-                    self._excitations[port] = bound
+                    design_excitations[port] = bound
 
-        if self._excitations:
-            return list(self._excitations.values())
+        if design_excitations:
+            return list(design_excitations.values())
 
         return []
 

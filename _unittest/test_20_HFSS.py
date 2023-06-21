@@ -110,6 +110,7 @@ class TestClass(BasisTest, object):
             reference=["outer"],
             terminals_rename=False,
         )
+        self.aedtapp.boundaries
         assert port.name == "sheet1_Port"
         assert port.name in [i.name for i in self.aedtapp.boundaries]
         assert port.props["RenormalizeAllTerminals"] is False
