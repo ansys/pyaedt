@@ -125,7 +125,7 @@ class EDBNetsData(NetDotNet):
         return current_value
 
     @pyaedt_function_handler
-    def get_extended_net(self, resistor_below=10, inductor_below=1, capacitor_above=1, exception_list=[]):
+    def get_extended_net(self, resistor_below=10, inductor_below=1, capacitor_above=1, exception_list=None):
         """Get extended net and associated components.
 
         Parameters
@@ -153,6 +153,8 @@ class EDBNetsData(NetDotNet):
         >>> app = Edb()
         >>> app.nets["BST_V3P3_S5"].get_extended_net()
         """
+        if exception_list is None:
+            exception_list = []
         all_nets = self._app.nets.nets
         nets = {self.name: all_nets[self.name]}
         rlc_serial = {}
