@@ -52,7 +52,7 @@ def load_keyword_in_aedt_file(filename, keyword):
 # precompile all Regular expressions
 _remove_quotes = re.compile(r"^'(.*?)'$")
 _split_list_elements = re.compile(",(?=(?:[^']*'[^']*')*[^']*$)")
-_round_bracket_list = re.compile(r"^(?P<SKEY1>\S+?)\((?P<LIST1>.+)\)|^'(?P<SKEY2>.+?\s.+)'(?<=')\((?P<LIST2>.+)\)")
+_round_bracket_list = re.compile(r"^(?P<SKEY1>[^\s=]+?)\((?P<LIST1>.+)\)|^'(?P<SKEY2>.+?\s.+)'(?<=')\((?P<LIST2>.+)\)")
 _square_bracket_list = re.compile(
     r"^(?P<SKEY1>\S+?)\[\d+:(?P<LIST1>.+)\]|^'(?P<SKEY2>.+?\s.+)'(?<=')\[\d+:(?P<LIST2>.+)\]"
 )
@@ -150,56 +150,17 @@ def _decode_recognized_subkeys(sk, d):
                 elems[0] = "thermal_expansion_coefficient"  # fix a typo in the amat files. AEDT supports both strings!
             d[elems[0]] = str(elems[1])  # convert to string as it is dedicated to material props
             return True
-    elif "KeyIDMap(" in sk:
-        m = _round_bracket_list.search(sk)
-        if m and "IDMap" in m.group("SKEY1"):  # extra verification. SKEY2 is with spaces, so it's not considered here.
-            elems = m.group("LIST1").split(",")
-            d[m.group("SKEY1")] = elems  # convert to string as it is dedicated to material props
+    elif re.search(r"^\w+IDMap\(.*\)$", sk, re.IGNORECASE):  # check if the format is AAKeyIDMap('10'=56802, '7'=56803)
+        m = re.search(r"^(?P<SKEY>[^\s=]+?)\((?P<LIST>.*)\)", sk)
+        if m and "idmap" in m.group("SKEY").lower():  # extra verification.
+            k = m.group("SKEY")
+            if m.group("LIST"):
+                elems = m.group("LIST").split(",")
+            else:
+                elems = None
+            d[k] = elems
             return True
     return False
-
-
-def _decode_value_and_save(k, v, d):
-    """
-
-    Parameters
-    ----------
-    k :
-
-    v :
-
-    d :
-
-    """
-    # save key 'k', value 'v' in dict 'd'
-    # create a list for subkey(l1, l2, l3)
-    # create a list for subkey[n: 1, 2, ...n]
-    # send recognized sub-keys to _decode_recognized_subkeys
-    for rsk in _recognized_subkeys:
-        if rsk in k:  # here we simply search if one of the _recognized_subkeys is in k
-            if _decode_recognized_subkeys(k, d):  # the exact search is done inside the _decode_recognized_subkeys
-                return  # if there is a match we stop the _decode_value_and_save, otherwise we keep going
-    m = _round_bracket_list.search(k)
-    if m and m.group("SKEY1"):
-        v = _separate_list_elements(m.group("LIST1"))
-        k = m.group("SKEY1")
-        d[k] = v
-    elif m and m.group("SKEY2"):
-        v = _separate_list_elements(m.group("LIST2"))
-        k = m.group("SKEY2")
-        d[k] = v
-    else:
-        m = _square_bracket_list.search(k)
-        if m and m.group("SKEY1"):
-            v = _separate_list_elements(m.group("LIST1"))
-            k = m.group("SKEY1")
-            d[k] = v
-        elif m and m.group("SKEY2"):
-            v = _separate_list_elements(m.group("LIST2"))
-            k = m.group("SKEY2")
-            d[k] = v
-        else:
-            d[k] = _parse_value(v)
 
 
 def _decode_recognized_key(keyword, line, d):
@@ -239,7 +200,7 @@ def _decode_recognized_key(keyword, line, d):
         raise AttributeError("Keyword {} is supposed to be in the recognized_keywords list".format(keyword))
 
 
-def _decode_key(line, d):
+def _decode_subkey(line, d):
     """
 
     Parameters
@@ -253,40 +214,69 @@ def _decode_key(line, d):
     -------
 
     """
+    # send recognized sub-keys to _decode_recognized_subkeys (Case insensitive search, detailed search is inside)
+    for rsk in _recognized_subkeys:
+        if rsk.lower() in line.lower():  # here we simply search if one of the _recognized_subkeys is in line
+            if _decode_recognized_subkeys(line, d):  # the exact search is done inside the _decode_recognized_subkeys
+                return  # if there is a match we stop the _decode_key, otherwise we keep going
+
+    # create a list for subkey(l1, l2, l3)
+    m = _round_bracket_list.search(line)
+    if m and m.group("SKEY1"):
+        v = _separate_list_elements(m.group("LIST1"))
+        k = m.group("SKEY1")
+        d[k] = v
+        return  # if there is a match we stop the _decode_key, otherwise we keep going
+    elif m and m.group("SKEY2"):
+        v = _separate_list_elements(m.group("LIST2"))
+        k = m.group("SKEY2")
+        d[k] = v
+        return  # if there is a match we stop the _decode_key, otherwise we keep going
+
+    # create a list for subkey[n: 1, 2, ...n]
+    m = _square_bracket_list.search(line)
+    if m and m.group("SKEY1"):
+        v = _separate_list_elements(m.group("LIST1"))
+        k = m.group("SKEY1")
+        d[k] = v
+        return  # if there is a match we stop the _decode_key, otherwise we keep going
+    elif m and m.group("SKEY2"):
+        v = _separate_list_elements(m.group("LIST2"))
+        k = m.group("SKEY2")
+        d[k] = v
+        return  # if there is a match we stop the _decode_key, otherwise we keep going
+
+    # search for equal sign
     m = _key_parse.search(line)
     if m and m.group("KEY1"):  # key btw ''
-        value = m.group("VAL1")
-        if "\\'" in value:
-            value2 = value.replace("\\'", '"')
+        v = m.group("VAL1")
+        if "\\'" in v:
+            v2 = v.replace("\\'", '"')
         else:
-            value2 = value
-        # if there are no spaces in value
-        if not _value_parse1.search(value2) or _value_parse2.search(value2):
-            # or values with spaces are between quote
-            key = m.group("KEY1")
-            _decode_value_and_save(key, value, d)
-        else:  # spaces in value without quotes
-            key = line
-            value = None
-            _decode_value_and_save(key, value, d)
-    elif m and m.group("KEY2"):  # key without ''
-        value = m.group("VAL2")
-        if "\\'" in value:
-            value2 = value.replace("\\'", '"')
-        else:
-            value2 = value
+            v2 = v
         # if there are no spaces in value   or   values with spaces are between quotes
-        if not _value_parse1.search(value2) or _value_parse2.search(value2):
-            key = m.group("KEY2")
-            _decode_value_and_save(key, value, d)
+        if not _value_parse1.search(v2) or _value_parse2.search(v2):
+            k = m.group("KEY1")
+            d[k] = _parse_value(v)
         else:  # spaces in value without quotes
-            key = line
-            value = None
-            _decode_value_and_save(key, value, d)
+            k = line  # save the line as a whole
+            d[k] = None
+    elif m and m.group("KEY2"):  # key without ''
+        v = m.group("VAL2")
+        if "\\'" in v:
+            v2 = v.replace("\\'", '"')
+        else:
+            v2 = v
+        # if there are no spaces in value   or   values with spaces are between quotes
+        if not _value_parse1.search(v2) or _value_parse2.search(v2):
+            k = m.group("KEY2")
+            d[k] = _parse_value(v)
+        else:  # spaces in value without quotes
+            k = line  # save the line as a whole
+            d[k] = None
     else:  # no = sign found
-        key = line
-        value = None
-        _decode_value_and_save(key, value, d)
+        k = line  # save the line as a whole
+        d[k] = None
 
 
 def _walk_through_structure(keyword, save_dict):
@@ -313,10 +303,7 @@ def _walk_through_structure(keyword, save_dict):
         # begin_key is found
         if begin_key == line:
             found = True
-            saved_value = save_dict.get(keyword)  # if the keyword is already present
-            # makes the value a list, if it's not already
-            if saved_value and type(saved_value) is not list:
-                saved_value = [saved_value]
+            saved_value = save_dict.get(keyword)  # if the keyword is already present, save it
             save_dict[keyword] = {}
             _count += 1
             continue
@@ -332,10 +319,13 @@ def _walk_through_structure(keyword, save_dict):
             elif keyword in _recognized_keywords:
                 _decode_recognized_key(keyword, line, save_dict[keyword])
             else:  # decode key
-                _decode_key(line, save_dict[keyword])
+                _decode_subkey(line, save_dict[keyword])
         _count += 1
     # recompose value if list
     if saved_value:
+        # makes the value a list, if it's not already
+        if type(saved_value) is not list:
+            saved_value = [saved_value]
         saved_value.append(save_dict[keyword])
         save_dict[keyword] = saved_value
     return _count
