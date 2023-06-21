@@ -313,10 +313,9 @@ class IcepakMesh(object):
                 args += self.autosettings
             if self.virtual_region and self._app.check_beta_option_enabled("S544753_ICEPAK_VIRTUALMESHREGION_PARADIGM"):
                 self.meshmodule.AssignVirtualMeshRegion(args)
-                self._app.mesh.meshregions.append(self)
             else:
                 self.meshmodule.AssignMeshRegion(args)
-                self._app.mesh.meshregions.append(self)
+            self._app.mesh.meshregions.append(self)
             return True
 
         @pyaedt_function_handler()
@@ -669,7 +668,7 @@ class IcepakMesh(object):
             added_obj = [i for i in objectlist2 if i not in all_objs or i in objectlist]
         meshregion.Objects = added_obj
         meshregion.SubModels = None
-        self.meshregions.append(meshregion)
+        meshregion.update()
         return meshregion
 
     @pyaedt_function_handler()

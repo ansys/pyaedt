@@ -193,12 +193,15 @@ class TestClass(BasisTest, object):
         # assert self.aedtapp.mesh.assignMeshLevel2Component(mesh_level_RadioPCB, component_name)
         test = self.aedtapp.mesh.assign_mesh_region(component_name, mesh_level_RadioPCB, is_submodel=True)
         assert test
+        assert test.delete()
         test = self.aedtapp.mesh.assign_mesh_region(["USB_ID"], mesh_level_RadioPCB)
         assert test
+        assert test.delete()
         b = self.aedtapp.modeler.create_box([0, 0, 0], [1, 1, 1])
         b.model = False
         test = self.aedtapp.mesh.assign_mesh_region([b.name])
         assert test
+        assert test.delete()
 
     def test_12b_AssignVirtualMeshOperation(self):
         self.aedtapp.oproject = test_project_name
@@ -214,6 +217,7 @@ class TestClass(BasisTest, object):
             component_name, mesh_level_RadioPCB, is_submodel=True, virtual_region=True
         )
         assert test
+        assert test.delete()
         test = self.aedtapp.mesh.assign_mesh_region(["USB_ID"], mesh_level_RadioPCB, virtual_region=True)
         assert test
 
