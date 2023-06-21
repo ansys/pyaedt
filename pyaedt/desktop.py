@@ -83,9 +83,6 @@ def launch_aedt(full_path, non_graphical, port, first_run=True):
             ) as p:
                 p.wait()
 
-    active = grpc_active_sessions(
-        settings.aedt_version, non_graphical=settings.non_graphical, student_version=settings.is_student
-    )
     _aedt_process_thread = threading.Thread(target=launch_desktop_on_port)
     _aedt_process_thread.daemon = True
     _aedt_process_thread.start()
@@ -94,23 +91,26 @@ def launch_aedt(full_path, non_graphical, port, first_run=True):
     while not _check_grpc_port(port):
         if k > timeout:  # pragma: no cover
             if first_run:
+                active_s = active_sessions(
+                    settings.aedt_version, non_graphical=settings.non_graphical, student_version=settings.is_student
+                )
+                for p in active_s:
+                    if port == p[1]:
+                        try:
+                            os.kill(p[0], 9)
+                        except (OSError, PermissionError):
+                            pass
                 port = _find_free_port()
                 return launch_aedt(full_path, non_graphical, port, first_run=False)
             return False, port
         time.sleep(1)
         k += 1
-    active_after = grpc_active_sessions(
-        settings.aedt_version, non_graphical=settings.non_graphical, student_version=settings.is_student
-    )
     k = 0
     time.sleep(1)
-    while len(active_after) == len(active):  # pragma: no cover
-        time.sleep(1)
-        active_after = grpc_active_sessions(
-            settings.aedt_version, non_graphical=settings.non_graphical, student_version=settings.is_student
-        )
-        if k > timeout:
-            return False, port
+    if port not in grpc_active_sessions(
+        settings.aedt_version, non_graphical=settings.non_graphical, student_version=settings.is_student
+    ):  # pragma: no cover
+        return False, port
         k += 1
     return True, port
 
@@ -181,9 +181,12 @@ def _check_grpc_port(port, machine_name=""):
 
 
 def _find_free_port():
-    with socket.socket() as s:
-        s.bind(("", 0))  # Bind to a free port provided by the host.
-        return s.getsockname()[1]  # Return the port number assigned.
+    from contextlib import closing
+
+    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
+        s.bind(("", 0))
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        return s.getsockname()[1]
 
 
 def exception_to_desktop(ex_value, tb_data):  # pragma: no cover
