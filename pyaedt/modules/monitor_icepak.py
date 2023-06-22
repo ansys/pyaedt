@@ -76,7 +76,7 @@ class Monitor:
 
     @pyaedt_function_handler
     def _generate_monitor_names(self, name, n):
-        """Create list of names for monitor objects following Icepak naming rules.
+        """Create a list of names for monitor objects following Icepak naming rules.
 
         Parameters
         ----------
