@@ -1501,7 +1501,7 @@ class Edb(Database):
             Default is `10`.
         preserve_components_with_model : bool, optional
             Whether to preserve all pins of components that have associated models (Spice or NPort).
-            It works only in pyaedt cutout (except point list).
+            This parameter is applicable only for a PyAEDT cutout (except point list).
 
 
         Returns
