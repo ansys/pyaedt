@@ -1437,7 +1437,7 @@ class Edb(Database):
         preserve_components_with_model=False,
     ):
         """Create a cutout using an approach entirely based on PyAEDT.
-        This new method replaces all legacy cutout methods in pyaedt.
+        This method replaces all legacy cutout methods in PyAEDT.
         It does in sequence:
         - delete all nets not in list,
         - create a extent of the nets,
