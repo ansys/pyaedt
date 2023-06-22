@@ -1516,7 +1516,8 @@ class Components(object):
         Parameters
         ----------
         deactivate_only : bool, optional
-            Whether to delete the components or keep them and deactivate only. Default is ``False`` to delete them.
+            Whether to only deactivate RLC components with a single point rather than
+            delete them. The default is ``False``, in which case they are deleted.
 
         Returns
         -------
