@@ -440,7 +440,7 @@ class Monitor:
             else:
                 return monitor_names
         else:
-            False
+            return False
 
     @pyaedt_function_handler()
     def assign_point_monitor_in_object(self, name, monitor_quantity="Temperature", monitor_name=None):
