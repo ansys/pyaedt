@@ -69,7 +69,7 @@ class Monitor:
     @pyaedt_function_handler
     def _check_quantities(self, quantities):
         if all(q in quantities_dict.values() for q in quantities):
-            return [quantities_type_dict[q] for q in quantities]
+            return [monitor_type for q in quantities for monitor_type in quantities_type_dict[q]]
         else:
             self._app.logger.error("Invalid quantities selected.")
             return []
