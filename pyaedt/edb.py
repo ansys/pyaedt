@@ -1950,16 +1950,6 @@ class Edb(Database):
                             for prim in list_prims:
                                 if not prim.IsNull():
                                     poly_to_create.append([prim, prim_1.layer_name, net, list_void])
-                            #
-                            # list_voids = intersect(p, voids_data)
-                            # for void_intersected in list_voids:
-                            #     if not void_intersected.IsNull():
-                            #         int_data_2 = p.GetIntersectionType(void_intersected)
-                            #         if int_data_2 == 2:
-                            #             list_void.append(void_intersected)
-                            #         elif int_data == 1 or int_data_2 > 2:
-                            #             p = subtract(p, void_intersected)[0]
-                            # poly_to_create.append([p, prim_1.layer_name, net, list_void])
                         else:
                             poly_to_create.append([p, prim_1.layer_name, net, list_void])
 
