@@ -1434,6 +1434,7 @@ class Edb(Database):
         include_pingroups=False,
         expansion_factor=0,
         maximum_iterations=10,
+        preserve_components_with_model=False,
     ):
         """Create a cutout using an approach entirely based on pyaedt.
         This new method replaces all legacy cutout methods in pyaedt.
@@ -1498,6 +1499,10 @@ class Edb(Database):
         maximum_iterations : int, optional
             Maximum number of iterations before stopping in searching for a cutout with an error.
             Default is `10`.
+        preserve_components_with_model : bool, optional
+            Whether to preserve all pins of components that have associated models (Spice or NPort).
+            It works only in pyaedt cutout (except point list).
+
 
         Returns
         -------
@@ -1584,6 +1589,7 @@ class Edb(Database):
                         custom_extent_units=custom_extent_units,
                         check_terminals=check_terminals,
                         include_pingroups=include_pingroups,
+                        preserve_components_with_model=preserve_components_with_model,
                     )
                     if self.are_port_reference_terminals_connected():
                         if output_aedb_path:
@@ -1620,6 +1626,7 @@ class Edb(Database):
                     custom_extent_units=custom_extent_units,
                     check_terminals=check_terminals,
                     include_pingroups=include_pingroups,
+                    preserve_components_with_model=preserve_components_with_model,
                 )
             if result and not open_cutout_at_end and self.edbpath != legacy_path:
                 self.save_edb()
@@ -1822,6 +1829,7 @@ class Edb(Database):
         custom_extent_units="mm",
         check_terminals=False,
         include_pingroups=True,
+        preserve_components_with_model=False,
     ):
         if is_ironpython:  # pragma: no cover
             self.logger.error("Method working only in Cpython")
@@ -1843,16 +1851,28 @@ class Edb(Database):
                 all_list = reference_list
         else:
             all_list = signal_list + reference_list
+        pins_to_preserve = []
+        nets_to_preserve = []
+        if preserve_components_with_model:
+            for el in self.components.instances.values():
+                if el.model_type in ["SPICEModel", "SParameterModel", "NetlistModel"] and list(
+                    set(el.nets[:]) & set(signal_list[:])
+                ):
+                    pins_to_preserve.extend([i.id for i in el.pins.values()])
+                    nets_to_preserve.extend(el.nets)
+
         for i in self.nets.nets.values():
-            if i.name not in all_list:
+            name = i.name
+            if name not in all_list and name not in nets_to_preserve:
                 i.net_object.Delete()
         reference_pinsts = []
         reference_prims = []
         for i in self.padstacks.instances.values():
             net_name = i.net_name
-            if net_name not in all_list:
+            id = i.id
+            if net_name not in all_list and id not in pins_to_preserve:
                 i.delete()
-            elif net_name in reference_list:
+            elif net_name in reference_list and id not in pins_to_preserve:
                 reference_pinsts.append(i)
         for i in self.modeler.primitives:
             net_name = i.net_name
