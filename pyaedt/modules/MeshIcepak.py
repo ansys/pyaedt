@@ -285,10 +285,17 @@ class IcepakMesh(object):
             else:
                 args += self.autosettings
             if self.name == "Settings":
-                self.meshmodule.EditGlobalMeshRegion(args)
+                try:
+                    self.meshmodule.EditGlobalMeshRegion(args)
+                    return True
+                except Exception:
+                    return False
             else:
-                self.meshmodule.EditMeshRegion(self.name, args)
-            return True
+                try:
+                    self.meshmodule.EditMeshRegion(self.name, args)
+                    return True
+                except Exception:
+                    return False
 
         @pyaedt_function_handler()
         def create(self):
@@ -661,15 +668,22 @@ class IcepakMesh(object):
         else:
             meshregion.Objects = objectlist
         all_objs = [i for i in self.modeler.object_names]
-        meshregion.create()
-        objectlist2 = self.modeler.object_names
-        added_obj = [i for i in objectlist2 if i not in all_objs]
-        if not added_obj:
-            added_obj = [i for i in objectlist2 if i not in all_objs or i in objectlist]
-        meshregion.Objects = added_obj
-        meshregion.SubModels = None
-        meshregion.update()
-        return meshregion
+        try:
+            meshregion.create()
+            created = True
+        except Exception:
+            created = False
+        if created:
+            objectlist2 = self.modeler.object_names
+            added_obj = [i for i in objectlist2 if i not in all_objs]
+            if not added_obj:
+                added_obj = [i for i in objectlist2 if i not in all_objs or i in objectlist]
+            meshregion.Objects = added_obj
+            meshregion.SubModels = None
+            meshregion.update()
+            return meshregion
+        else:
+            return False
 
     @pyaedt_function_handler()
     def generate_mesh(self, name=None):
