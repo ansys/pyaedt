@@ -25,6 +25,23 @@ quantities_dict = {  # pragma: no cover
     31: "HeatFlowRate",
 }
 
+quantities_type_dict = {  # pragma: no cover
+    "Speed": ["Point"],
+    "Pressure": ["Point"],
+    "TKE": ["Point"],
+    "Epsilon": ["Point"],
+    "ViscosityRatio": ["Point"],
+    "MassFlow": ["Face"],
+    "VolumeFlow": ["Face"],
+    "WallYPlus": ["Point"],
+    "Temperature": ["Point", "Face"],
+    "K_X": ["Point"],
+    "K_Y": ["Point"],
+    "K_Z": ["Point"],
+    "HeatFlux": ["Point"],
+    "HeatFlowRate": ["Face"],
+}
+
 
 class Monitor:
     """Provides Icepak monitor methods."""
@@ -52,10 +69,10 @@ class Monitor:
     @pyaedt_function_handler
     def _check_quantities(self, quantities):
         if all(q in quantities_dict.values() for q in quantities):
-            return True
+            return [quantities_type_dict[q] for q in quantities]
         else:
             self._app.logger.error("Invalid quantities selected.")
-            return False
+            return []
 
     @pyaedt_function_handler
     def _generate_monitor_names(self, name, n):
@@ -240,7 +257,7 @@ class Monitor:
 
         if not isinstance(monitor_quantity, list):
             monitor_quantity = [monitor_quantity]
-        if self._check_quantities(monitor_quantity):
+        if "Point" in self._check_quantities(monitor_quantity):
             for p_p in point_position:
                 point_name = generate_unique_name("Point")
                 self._app.modeler.oeditor.CreatePoint(
@@ -305,7 +322,7 @@ class Monitor:
             monitor_quantity = [monitor_quantity]
         if not monitor_name:
             monitor_name = generate_unique_name("Monitor")
-        if self._check_quantities(monitor_quantity):
+        if "Point" in self._check_quantities(monitor_quantity):
             self._omonitor.AssignPointMonitor(
                 ["NAME:" + monitor_name, "Quantities:=", monitor_quantity, "Vertices:=", vertex_id]
             )
@@ -361,7 +378,7 @@ class Monitor:
             monitor_quantity = [monitor_quantity]
         if not monitor_name:
             monitor_name = generate_unique_name("Monitor")
-        if self._check_quantities(monitor_quantity):
+        if "Face" in self._check_quantities(monitor_quantity):
             self._omonitor.AssignFaceMonitor(
                 ["NAME:" + monitor_name, "Quantities:=", monitor_quantity, "Objects:=", surface_name]
             )
@@ -408,7 +425,7 @@ class Monitor:
             monitor_quantity = [monitor_quantity]
         if not monitor_name:
             monitor_name = generate_unique_name("Monitor")
-        if self._check_quantities(monitor_quantity):
+        if "Face" in self._check_quantities(monitor_quantity):
             self._omonitor.AssignFaceMonitor(
                 ["NAME:" + monitor_name, "Quantities:=", monitor_quantity, "Faces:=", face_id]
             )
@@ -468,7 +485,7 @@ class Monitor:
             monitor_name = generate_unique_name("Monitor")
         elif monitor_name in original_monitors:
             monitor_name = generate_unique_name(monitor_name)
-        if self._check_quantities(monitor_quantity):
+        if "Point" in self._check_quantities(monitor_quantity):
             existing_names = list(set(name_sel).intersection(self._app.modeler.object_names))
             if existing_names:
                 self._omonitor.AssignPointMonitor(
