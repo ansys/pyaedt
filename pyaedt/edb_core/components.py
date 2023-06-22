@@ -1510,6 +1510,7 @@ class Components(object):
 
     @pyaedt_function_handler()
     def delete_single_pin_rlc(self, deactivate_only=False):
+        # type: (bool) -> list
         """Delete all RLC components with a single pin.
 
         Parameters
