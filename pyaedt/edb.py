@@ -1497,7 +1497,7 @@ class Edb(Database):
             The trace width search is limited to nets with ports attached. Works only if `use_pyaedt_cutout`.
             Default is `0` to disable the search.
         maximum_iterations : int, optional
-            Maximum number of iterations before stopping in searching for a cutout with an error.
+            Maximum number of iterations before stopping a search for a cutout with an error.
             Default is `10`.
         preserve_components_with_model : bool, optional
             Whether to preserve all pins of components that have associated models (Spice or NPort).
