@@ -747,7 +747,9 @@ class TestClass(BasisTest, object):
     def test_92_import_edb(self):
         assert self.aedtapp.import_edb(self.target_path)
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2022.2", reason="Not Working on Version earlier than 2022R2.")
+    @pytest.mark.skipif(
+        config["desktopVersion"] < "2022.2", reason="This test does not work on versions earlier than 2022 R2."
+    )
     def test_93_clip_plane(self):
         cp_name = self.aedtapp.modeler.clip_plane()
         assert cp_name in self.aedtapp.modeler.clip_planes
