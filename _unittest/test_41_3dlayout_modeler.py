@@ -7,6 +7,7 @@ from _unittest.conftest import desktop_version
 from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
 
+from pyaedt import Hfss
 from pyaedt import Hfss3dLayout
 from pyaedt import Maxwell3d
 
@@ -687,15 +688,34 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
     def test_42_post_processing(self):
-        self.test_post = BasisTest.add_app(
-            self, project_name=test_post, application=Maxwell3d, subfolder=test_subfolder
-        )
-        assert self.test_post.post.create_fieldplot_layers_nets(
+        test_post1 = BasisTest.add_app(self, project_name=test_post, application=Maxwell3d, subfolder=test_subfolder)
+        assert test_post1.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
             "Mag_Volume_Force_Density",
             intrinsics={"Time": "1ms"},
             plot_name="Test_Layers",
         )
+        test_post2 = Hfss(projectname=test_post1.project_name)
+        assert test_post2.post.create_fieldplot_layers_nets(
+            [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
+            "Mag_E",
+            intrinsics={"Freq": "1GHz", "Phase": "0deg"},
+            plot_name="Test_Layers",
+        )
+        self.aedtapp.close_project(test_post2.project_name)
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
+    def test_42_post_processing_3d_layout(self):
+        test = BasisTest.add_app(
+            self, project_name="test_post_3d_layout_solved_23R2", application=Hfss3dLayout, subfolder=test_subfolder
+        )
+        assert test.post.create_fieldplot_layers_nets(
+            [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
+            "Mag_Volume_Force_Density",
+            intrinsics={"Time": "1ms"},
+            plot_name="Test_Layers",
+        )
+        self.aedtapp.close_project(test.project_name)
 
     @pytest.mark.skipif(is_linux, reason="Bug on linux")
     def test_90_set_differential_pairs(self):
@@ -729,8 +749,8 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(config["desktopVersion"] < "2022.2", reason="Not Working on Version earlier than 2022R2.")
     def test_93_clip_plane(self):
-        assert self.aedtapp.modeler.clip_plane() == "VCP_1"
-        assert "VCP_1" in self.aedtapp.modeler.clip_planes
+        cp_name = self.aedtapp.modeler.clip_plane()
+        assert cp_name in self.aedtapp.modeler.clip_planes
 
     def test_94_edit_3dlayout_extents(self):
         assert self.aedtapp.edit_hfss_extents(
