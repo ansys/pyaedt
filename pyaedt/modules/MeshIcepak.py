@@ -288,13 +288,13 @@ class IcepakMesh(object):
                 try:
                     self.meshmodule.EditGlobalMeshRegion(args)
                     return True
-                except Exception:
+                except Exception:  # pragma : no cover
                     return False
             else:
                 try:
                     self.meshmodule.EditMeshRegion(self.name, args)
                     return True
-                except Exception:
+                except Exception:  # pragma : no cover
                     return False
 
         @pyaedt_function_handler()
@@ -671,7 +671,7 @@ class IcepakMesh(object):
         try:
             meshregion.create()
             created = True
-        except Exception:
+        except Exception:  # pragma : no cover
             created = False
         if created:
             objectlist2 = self.modeler.object_names
