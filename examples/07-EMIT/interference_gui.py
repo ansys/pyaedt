@@ -7,9 +7,7 @@ from openpyxl.styles import PatternFill
 import openpyxl
 import os
 import pyaedt.generic.constants as consts
-import pandas as pd
 
-# App crashing fix
 sys.path.append('C:\\Program Files\\AnsysEM\\v232\\Win64\\Delcross')
 import EmitApiPython
 api = EmitApiPython.EmitApi()
@@ -69,10 +67,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.overload_check.stateChanged.connect(self.protection_results)
         self.intermodulation_check.stateChanged.connect(self.protection_results)
         self.desensitization_check.stateChanged.connect(self.protection_results)
-        # self.damage_check.stateChanged.connect(self.check_changed)
-        # self.overload_check.stateChanged.connect(self.check_changed)
-        # self.intermodulation_check.stateChanged.connect(self.check_changed)
-        # self.desensitization_check.stateChanged.connect(self.check_changed)
         self.protection_legend_table.setEditTriggers(QtWidgets.QTableWidget.DoubleClicked)
         self.global_protection_level = True
         self.protection_levels = {}
@@ -110,7 +104,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.interference_save_img_btn.clicked.connect(self.save_image)
 
         # Color definition dictionary and previous project/design names
-        self.color_dict = {"green": [QtGui.QColor(125, 115, 202),'#7d73ca'], "yellow":[QtGui.QColor(211, 89, 162), '#d359a2'], "orange": [QtGui.QColor(255, 99, 97), '#ff6361'], "red": [QtGui.QColor(255, 166, 0), '#ffa600'], "white": [QtGui.QColor("white"),'#ffffff']}
+        self.color_dict = {"green": [QtGui.QColor(125, 115, 202),'#7d73ca'], 
+                           "yellow":[QtGui.QColor(211, 89, 162), '#d359a2'], 
+                           "orange": [QtGui.QColor(255, 99, 97), '#ff6361'], 
+                           "red": [QtGui.QColor(255, 166, 0), '#ffa600'], 
+                           "white": [QtGui.QColor("white"),'#ffffff']}
         self.previous_design = ''
         self.previous_project = ''
 
@@ -146,7 +144,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def open_file_dialog(self):
         'Open the file dialog and open the corresponging EMIT Project/Design'
-
         fname = QtWidgets.QFileDialog.getOpenFileName(self, "Select EMIT Project", "", "All Files (*);;Ansys Electronics Desktop Files (*.aedt)", )
         if fname: 
             self.file_path_box.setText(fname[0])
@@ -175,6 +172,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.radio_specific_levels.setEnabled(True)
     
     def radio_specific(self):
+        'Enable radio specific proteciton levels'
         self.radio_dropdown.setEnabled(self.radio_specific_levels.isChecked())
         self.radio_dropdown.clear()
         if self.radio_dropdown.isEnabled():
@@ -192,6 +190,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.global_protection_level = not self.radio_specific_levels.isChecked()
     
     def radio_dropdown_changed(self):
+        'Update table when radio changes'
         if self.radio_dropdown.isEnabled():
             self.changing = True
             for row in range(self.protection_legend_table.rowCount()):
@@ -200,6 +199,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.changing = False
 
     def table_changed(self):
+        'Save new table values'
         if self.changing == False:
             values = [float(self.protection_legend_table.item(row, 0).text()) for row in range(self.protection_legend_table.rowCount())]
             if self.radio_dropdown.currentText() == '':
@@ -209,7 +209,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.protection_levels[index] = values
 
     def save_image(self):
-
+        'Save scenario matrix as png'
         if self.tab_widget.currentIndex() == 0:
             table = self.protection_matrix
         else:
@@ -222,7 +222,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def save_results_excel(self):
         ' Save interference/protection matrix as an excel file'
-
         fname = QtWidgets.QFileDialog.getSaveFileName(self, "Save Scenario Matrix", "Protection Level Classification", "xlsx (*.xlsx)")
         
         if self.tab_widget.currentIndex() == 0:
@@ -387,8 +386,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.domain = self.emitapp.results.interaction_domain()
                 self.radios = self.emitapp.modeler.components.get_radios()
 
-                # self.protection_results_df = pd.DataFrame(index = self.rx_radios, columns = self.tx_radios)
-
             if self.tx_radios is None or self.rx_radios is None:
                 return
 
@@ -416,10 +413,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                         continue
                 
                     max_power = -200
-                    
                     tx_bands = self.rev.get_band_names(tx_radio, self.modeTx)
 
-                    # self.protection_results_df[tx_radio][rx_radio] = pd.DataFrame(columns = tx_bands)
 
                     for tx_band in tx_bands: 
                         # Find the highest power level at the Rx input due to each Tx Radio.
@@ -455,13 +450,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                             if instance.get_value(self.mode_power) > max_power and classification in filter:
                                 max_power = instance.get_value(self.mode_power)
 
-                        # self.protection_results_df[tx_radio][rx_radio][tx_band] = power_list 
-                        # self.protection_results_df[tx_radio][rx_radio]["Freqs"] = tx_freqs
-                        # self.protection_results_df[tx_radio][rx_radio] = self.protection_results_df[tx_radio][rx_radio].set_index("Freqs")       
                     # If the worst case for the band-pair is below the power thresholds, then
                     # there are no interference issues and no offset is required.
-
-
                     if max_power > -200:
                         rx_powers.append(max_power)
                         if (max_power > damage_threshold):
@@ -480,74 +470,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.power_matrix.append(rx_powers)
 
             self.populate_table()
-    
-    def check_changed(self):
-
-        if self.protection_results_df is None:
-            return
-
-        self.power_matrix=[]
-        self.all_colors=[]
-
-        damage_threshold = 30
-        overload_threshold = -4
-        intermod_threshold = -30
-        desense_threshold = -104
-
-        self.protection_checks = [self.damage_check.isChecked(), self.overload_check.isChecked(),
-                                  self.intermodulation_check.isChecked(), self.desensitization_check.isChecked()]
-
-        self.protection_filters = ['damage', 'overload', 'intermodulation', 'desensitization']
-
-        filter = [i for (i,v) in zip(self.protection_filters, self.protection_checks) if v]
-        
-        for tx_radio in self.tx_radios:
-            rx_powers = []
-            rx_colors = []
-            for rx_radio in self.rx_radios: 
-                if tx_radio == rx_radio:
-                        # skip self-interaction
-                        rx_powers.append('N/A')
-                        rx_colors.append('white')
-                        continue
-                
-                max_power = -200
-                df = self.protection_results_df[tx_radio][rx_radio]
-
-                for tx_band in df.columns:
-                    power_list = []
-                    for tx_freq in df.index:
-                            power = df[tx_band][tx_freq]
-                            if power > damage_threshold:
-                                classification = 'damage'
-                            elif power > overload_threshold:
-                                classification = 'overload'
-                            elif power > intermod_threshold:
-                                classification = 'intermodulation'
-                            else:
-                                classification = 'desensitization'
-                            power_list.append(power)
-
-                            if power > max_power and classification in filter:
-                                max_power = power
-                if max_power > -200:
-                    rx_powers.append(max_power)
-                    if (max_power > damage_threshold):
-                        rx_colors.append('red')
-                    elif (max_power > overload_threshold):
-                        rx_colors.append('orange')
-                    elif (max_power > intermod_threshold):
-                        rx_colors.append('yellow')
-                    else:
-                        rx_colors.append('green')
-                else:
-                    rx_powers.append("< -200")
-                    rx_colors.append('white')
-
-            self.all_colors.append(rx_colors)
-            self.power_matrix.append(rx_powers)
-
-        self.populate_table()
     
     def populate_table(self):
         ' Populate the scenario matrix table widget '
