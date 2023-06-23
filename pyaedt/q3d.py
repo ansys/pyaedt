@@ -1501,7 +1501,7 @@ class Q3d(QExtractor, object):
             type_bound = "FloatingNet"
         bound = BoundaryObject(self, net_name, props, type_bound)
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -1603,7 +1603,7 @@ class Q3d(QExtractor, object):
             props["Net"] = net_name
         bound = BoundaryObject(self, name, props, exc_type)
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -1720,7 +1720,7 @@ class Q3d(QExtractor, object):
             )
             bound = BoundaryObject(self, sink_name, props, "Sink")
             if bound.create():
-                self.boundaries.append(bound)
+                self._boundaries[bound.name] = bound
                 return bound
         return False
 
@@ -1773,7 +1773,7 @@ class Q3d(QExtractor, object):
 
         bound = BoundaryObject(self, sinkname, props, "Sink")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -2241,7 +2241,7 @@ class Q2d(QExtractor, object):
 
         bound = BoundaryObject(self, name, props, conductor_type)
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -2284,7 +2284,7 @@ class Q2d(QExtractor, object):
 
         bound = BoundaryObject(self, name, props, "Finite Conductivity")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 

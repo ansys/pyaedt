@@ -1507,7 +1507,6 @@ class TestClass(BasisTest, object):
             "BoxLumped1", "BoxLumped2", self.aedtapp.AxisDir.XNeg, 50, "Lump1xx", True, False
         )
 
-        self.aedtapp.boundaries[1].type
         term = [term for term in self.aedtapp.boundaries if term.type == "Terminal"][0]
         assert self.aedtapp.boundaries[1].type == "Terminal"
         term.name = "test"

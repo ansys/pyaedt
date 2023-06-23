@@ -468,7 +468,9 @@ class Hfss(FieldAnalysis3D, object):
             props["RenormalizeAllTerminals"] = renorm
             props["ShowReporterFilter"] = False
             props["UseAnalyticAlignment"] = False
+            boundary.auto_update = False
             boundary.props.update(props)
+            boundary.auto_update = True
             boundary.update()
         return boundary
 
@@ -5056,7 +5058,7 @@ class Hfss(FieldAnalysis3D, object):
             props["CoordSystem"] = ""
         bound = FarFieldSetup(self, name, props, "FarFieldSphere", units)
         if bound.create():
-            self.field_setups.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -5139,7 +5141,7 @@ class Hfss(FieldAnalysis3D, object):
             props["CoordSystem"] = ""
         bound = NearFieldSetup(self, name, props, "NearFieldSphere")
         if bound.create():
-            self.field_setups.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -5214,7 +5216,7 @@ class Hfss(FieldAnalysis3D, object):
             props["CoordSystem"] = "Global"
         bound = NearFieldSetup(self, name, props, "NearFieldBox")
         if bound.create():
-            self.field_setups.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -5281,7 +5283,7 @@ class Hfss(FieldAnalysis3D, object):
             props["CoordSystem"] = "Global"
         bound = NearFieldSetup(self, name, props, "NearFieldRectangle")
         if bound.create():
-            self.field_setups.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -5329,7 +5331,7 @@ class Hfss(FieldAnalysis3D, object):
 
         bound = NearFieldSetup(self, name, props, "NearFieldLine")
         if bound.create():
-            self.field_setups.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 

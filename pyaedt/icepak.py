@@ -277,7 +277,7 @@ class Icepak(FieldAnalysis3D):
         props["Y"] = y_curve
         bound = BoundaryObject(self, boundary_name, props, "Grille")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             self.logger.info("Grille Assigned")
             return bound
         return None
@@ -324,7 +324,7 @@ class Icepak(FieldAnalysis3D):
         props["Total Pressure"] = "AmbientPressure"
         bound = BoundaryObject(self, boundary_name, props, "Opening")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             self.logger.info("Opening Assigned")
             return bound
         return None
@@ -509,7 +509,7 @@ class Icepak(FieldAnalysis3D):
 
         bound = BoundaryObject(self, boundary_name, props, "Block")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             self.logger.info("Block on {} with {} power created correctly.".format(object_name, input_power))
             return bound
         return None
@@ -616,7 +616,7 @@ class Icepak(FieldAnalysis3D):
         props["Shell Conduction"] = shell_conduction
         bound = BoundaryObject(self, bc_name, props, "Conducting Plate")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
 
     @pyaedt_function_handler()
@@ -708,7 +708,7 @@ class Icepak(FieldAnalysis3D):
         props["Radiation"] = OrderedDict({"Radiate": radiate})
         bound = BoundaryObject(self, source_name, props, "SourceIcepak")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
 
     @pyaedt_function_handler()
@@ -819,7 +819,7 @@ class Icepak(FieldAnalysis3D):
             props["SchematicData"] = OrderedDict({})
             bound = BoundaryObject(self, boundary_name, props, "Network")
             if bound.create():
-                self.boundaries.append(bound)
+                self._boundaries[bound.name] = bound
                 self.modeler[object_name].solve_inside = False
                 return bound
             return None
@@ -1555,7 +1555,7 @@ class Icepak(FieldAnalysis3D):
         name = generate_unique_name("EMLoss")
         bound = BoundaryObject(self, name, props, "EMLoss")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             self.logger.info("EM losses mapped from design: %s.", designname)
             return bound
         return False
@@ -3308,7 +3308,7 @@ class Icepak(FieldAnalysis3D):
         props["External Radiation View Factor"] = ext_surf_rad_view_factor
         bound = BoundaryObject(self, name, props, "Stationary Wall")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
         return bound
 
     @pyaedt_function_handler()
@@ -3775,7 +3775,7 @@ class Icepak(FieldAnalysis3D):
 
         bound = BoundaryObject(self, boundary_name, props, "SourceIcepak")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
 
     @pyaedt_function_handler()
@@ -4010,7 +4010,7 @@ class Icepak(FieldAnalysis3D):
 
         bound = BoundaryObject(self, boundary_name, props, "Block")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
 
     @pyaedt_function_handler
@@ -4144,7 +4144,7 @@ class Icepak(FieldAnalysis3D):
 
         bound = BoundaryObject(self, boundary_name, props, "Block")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
 
     @pyaedt_function_handler()
