@@ -4280,7 +4280,7 @@ class Icepak(FieldAnalysis3D):
             the unit ``'Pa'`` is automatically added. Also, a dictionary containing the keys ``'Function'``
             and ``'Values'`` can be passed to set a transient behaviour. The acceptable values associated
             with those keys can be found in the Icepak documentation. Default is ``"AmbientPressure"``.
-        no_reverse_flow: bool, optional
+        no_reverse_flow : bool, optional
             Option to block reverse flow at the boundary. Default is ``False``.
         velocity : list, optional
             Prescribed velocity at the boundary. If a list of strings is set, a variable name or a number
@@ -4289,7 +4289,7 @@ class Icepak(FieldAnalysis3D):
             ``'Values'`` can be passed in one or more vector element to set a transient behaviour.
             The acceptable values associated with those keys can be found in the Icepak documentation.
             Default is ``["0m_per_sec", "0m_per_sec", "0m_per_sec"]``.
-        mass_flow_rate: float or str or dict, optional
+        mass_flow_rate : float or str or dict, optional
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
             string is set, a variable name or a number with the unit is expected. If a float is set,
             the unit ``'kg_per_s'`` is automatically added. Also, a dictionary containing the keys
@@ -4442,7 +4442,7 @@ class Icepak(FieldAnalysis3D):
             is automatically added. Also, a dictionary containing the keys ``'Function'`` and
             ``'Values'`` can be passed to set a transient behaviour. The acceptable values associated
             with those keys can be found in the Icepak documentation. Default is ``"AmbientPressure"``.
-        no_reverse_flow: bool, optional
+        no_reverse_flow : bool, optional
             Option to block reverse flow at the boundary. Default is ``False``.
 
 
@@ -4518,6 +4518,7 @@ class Icepak(FieldAnalysis3D):
             The acceptable values associated with those keys can be found in the Icepak documentation.
             Default is ``["0m_per_sec", "0m_per_sec", "0m_per_sec"]``.
 
+
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
@@ -4584,7 +4585,7 @@ class Icepak(FieldAnalysis3D):
             is automatically added. Also, a dictionary containing the keys ``'Function'`` and
             ``'Values'`` can be passed to set a transient behaviour. The acceptable values associated
             with those keys can be found in the Icepak documentation. Default is ``"AmbientPressure"``.
-        mass_flow_rate: float or str or dict, optional
+        mass_flow_rate : float or str or dict, optional
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
             string is set, a variable name or a number with the unit is expected. If a float is set,
             the unit ``'kg_per_s'`` is automatically added. Also, a dictionary containing the keys
