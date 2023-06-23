@@ -191,7 +191,6 @@ class TestClass(BasisTest, object):
         test = self.aedtapp.mesh.assign_mesh_level_to_group(mesh_level_Filter, group_name)
         assert test
         # assert self.aedtapp.mesh.assignMeshLevel2Component(mesh_level_RadioPCB, component_name)
-        assert not self.aedtapp.mesh.assign_mesh_region("N0C0MP", mesh_level_RadioPCB, is_submodel=True)
         test = self.aedtapp.mesh.assign_mesh_region(component_name, mesh_level_RadioPCB, is_submodel=True)
         assert test
         assert test.delete()
@@ -202,11 +201,21 @@ class TestClass(BasisTest, object):
         b.model = False
         test = self.aedtapp.mesh.assign_mesh_region([b.name])
         assert test
+        assert test.delete()
+
+    @pytest.mark.skipif(config["use_grpc"], reason="GRPC usage leads to SystemExit.")
+    def test_12b_failing_AssignMeshOperation(self):
+        assert not self.aedtapp.mesh.assign_mesh_region("N0C0MP", 1, is_submodel=True)
+        test = self.aedtapp.mesh.assign_mesh_region(["USB_ID"], 1)
+        b = self.aedtapp.modeler.create_box([0, 0, 0], [1, 1, 1])
+        b.model = False
+        test = self.aedtapp.mesh.assign_mesh_region([b.name])
+        assert test
         test.Objects = ["US8_1D"]
         assert not test.update()
         assert test.delete()
 
-    def test_12b_AssignVirtualMeshOperation(self):
+    def test_12c_AssignVirtualMeshOperation(self):
         self.aedtapp.oproject = test_project_name
         self.aedtapp.odesign = "IcepakDesign1"
         group_name = "Group1"
