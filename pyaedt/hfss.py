@@ -5058,7 +5058,7 @@ class Hfss(FieldAnalysis3D, object):
             props["CoordSystem"] = ""
         bound = FarFieldSetup(self, name, props, "FarFieldSphere", units)
         if bound.create():
-            self._boundaries[bound.name] = bound
+            self.field_setups.append(bound)
             return bound
         return False
 
@@ -5141,7 +5141,7 @@ class Hfss(FieldAnalysis3D, object):
             props["CoordSystem"] = ""
         bound = NearFieldSetup(self, name, props, "NearFieldSphere")
         if bound.create():
-            self._boundaries[bound.name] = bound
+            self.field_setups.append(bound)
             return bound
         return False
 
@@ -5216,7 +5216,7 @@ class Hfss(FieldAnalysis3D, object):
             props["CoordSystem"] = "Global"
         bound = NearFieldSetup(self, name, props, "NearFieldBox")
         if bound.create():
-            self._boundaries[bound.name] = bound
+            self.field_setups.append(bound)
             return bound
         return False
 
@@ -5283,7 +5283,7 @@ class Hfss(FieldAnalysis3D, object):
             props["CoordSystem"] = "Global"
         bound = NearFieldSetup(self, name, props, "NearFieldRectangle")
         if bound.create():
-            self._boundaries[bound.name] = bound
+            self.field_setups.append(bound)
             return bound
         return False
 
@@ -5331,7 +5331,7 @@ class Hfss(FieldAnalysis3D, object):
 
         bound = NearFieldSetup(self, name, props, "NearFieldLine")
         if bound.create():
-            self._boundaries[bound.name] = bound
+            self.field_setups.append(bound)
             return bound
         return False
 
