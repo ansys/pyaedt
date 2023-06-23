@@ -1428,6 +1428,63 @@ class Primitives3D(Primitives, object):
             return udm_obj
 
     @pyaedt_function_handler()
+    def change_layout_component_visibility(
+        self, component_name, show_dielectric=False, display_mode=0, layers_attributes=None, nets_attributes=None
+    ):
+        """Change Layout component visibility.
+
+        Parameters
+        ----------
+        component_name : str
+            Layout component name.
+        show_dielectric : bool
+            Whether to show or hide dielectrics. Default is ``False``.
+        display_mode : int, optional
+            Display mode. Options are ``0`` for Layers, ``1`` for Nets, ``2`` for objects.
+        layers_attributes : dict, optional
+            Dictionary of layers with their attributes. Attribute is a list of 3 values [bool,bool, int].
+            First attribute is to show or hide layer, second attribute to display wireframe or not
+            and third is transparency (0.100).
+        nets_attributes : dict, optional
+            Dictionary of nets with their attributes. Attribute is a list of 3 values [bool,bool, int].
+            First attribute is to show or hide net, second attribute to display wireframe or not
+            and third is transparency (0.100).
+
+        Returns
+        -------
+        bool
+        """
+        layer_attrs = ["NAME:ObjectAttributesInLayerMode"]
+        for el, val in layers_attributes.items():
+            layer_attrs.append(el)
+            layer_attrs.append(val)
+        nets_attrs = ["NAME:ObjectAttributesInNetMode"]
+        for el, val in nets_attributes.items():
+            nets_attrs.append(el)
+            nets_attrs.append(val)
+        args = [
+            "NAME:AllTabs",
+            [
+                "NAME:Visualization",
+                ["NAME:PropServers", component_name],
+                [
+                    "NAME:ChangedProps",
+                    [
+                        "NAME:Object Attributes",
+                        "ShowDielectric:=",
+                        show_dielectric,
+                        "DisplayMode:=",
+                        display_mode,
+                        layer_attrs,
+                        nets_attrs,
+                        ["NAME:ObjectAttributesInObjectMode"],
+                    ],
+                ],
+            ],
+        ]
+        self.oeditor.ChangeProperty(args)
+
+    @pyaedt_function_handler()
     def insert_layout_component(
         self,
         comp_file,

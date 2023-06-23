@@ -190,13 +190,16 @@ class MeshOperation(object):
         >>> oModule.EditSBRCurvatureExtractionOp
         """
         if key_name and settings.aedt_version > "2022.2":
-            mesh_obj = self._mesh._app.odesign.GetChildObject("Mesh").GetChildObject(self.name)
-            if key_name in mesh_props.keys():
-                if key_name == "SurfaceRepPriority":
-                    value = "Normal" if value == 0 else "High"
-                key_name = mesh_props[key_name]
-            mesh_obj.SetPropValue(key_name, value)
-            return True
+            try:
+                mesh_obj = self._mesh._app.odesign.GetChildObject("Mesh").GetChildObject(self.name)
+                if key_name in mesh_props.keys():
+                    if key_name == "SurfaceRepPriority":
+                        value = "Normal" if value == 0 else "High"
+                    key_name = mesh_props[key_name]
+                mesh_obj.SetPropValue(key_name, value)
+                return True
+            except:
+                self._app.logger.info("Failed to use Child Object. Trying with legacy update.")
 
         if self.type == "SurfApproxBased":
             self._mesh.omeshmodule.EditTrueSurfOp(self.name, self._get_args())
@@ -218,7 +221,7 @@ class MeshOperation(object):
             self._mesh.omeshmodule.EditMeshOperation(self.name, self._get_args())
         elif self.type == "CurvatureExtraction":
             self._mesh.omeshmodule.EditSBRCurvatureExtractionOp(self.name, self._get_args())
-        elif self.type == "InitialMeshSettings":
+        elif self.type in ["InitialMeshSettings", "MeshSettings"]:
             self._mesh.omeshmodule.InitialMeshSettings(self._get_args())
         elif self.type == "CylindricalGap":
             self._mesh.omeshmodule.EditCylindricalGapOp(self.name, self._get_args())
