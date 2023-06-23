@@ -2028,18 +2028,18 @@ class Icepak(FieldAnalysis3D):
     @pyaedt_function_handler()
     def create_ipk_3dcomponent_pcb(
         self,
-        compName,
-        setupLinkInfo,
-        solutionFreq,
-        resolution,
-        PCB_CS="Global",
-        rad="Nothing",
-        extent_type="Bounding Box",
-        outline_polygon="",
-        powerin="0W",
-        custom_x_resolution=None,
-        custom_y_resolution=None,
-        **kwargs  # fmt: skip
+            compName,
+            setupLinkInfo,
+            solutionFreq,
+            resolution,
+            PCB_CS="Global",
+            rad="Nothing",
+            extent_type="Bounding Box",
+            outline_polygon="",
+            powerin="0W",
+            custom_x_resolution=None,
+            custom_y_resolution=None,
+            **kwargs  # fmt: skip
     ):
         """Create a PCB component in Icepak that is linked to an HFSS 3D Layout object.
 
@@ -2159,17 +2159,17 @@ class Icepak(FieldAnalysis3D):
     @pyaedt_function_handler()
     def create_pcb_from_3dlayout(
         self,
-        component_name,
-        project_name,
-        design_name,
-        resolution=2,
-        extent_type="Bounding Box",
-        outline_polygon="",
-        close_linked_project_after_import=True,
-        custom_x_resolution=None,
-        custom_y_resolution=None,
-        power_in=0,
-        **kwargs  # fmt: skip
+            component_name,
+            project_name,
+            design_name,
+            resolution=2,
+            extent_type="Bounding Box",
+            outline_polygon="",
+            close_linked_project_after_import=True,
+            custom_x_resolution=None,
+            custom_y_resolution=None,
+            power_in=0,
+            **kwargs  # fmt: skip
     ):
         """Create a PCB component in Icepak that is linked to an HFSS 3DLayout object linking only to the geometry file.
 
@@ -4232,3 +4232,397 @@ class Icepak(FieldAnalysis3D):
                     break
             var = {line[0]: [float(line[1]), float(line[2])] for line in reader}
         return [export_file, vol_flow, p_rise, var]
+
+    @pyaedt_function_handler()
+    def assign_free_opening(
+        self,
+        assignment,
+        boundary_name=None,
+        temperature="AmbientTemp",
+        radiation_temperature="AmbientRadTemp",
+        flow_type=0,
+        pressure="AmbientPressure",
+        no_reverse_flow=False,
+        velocity=["0m_per_sec", "0m_per_sec", "0m_per_sec"],
+        mass_flow_rate="0kg_per_s",
+        inflow=True,
+        direction_vector=None,
+    ):
+        """
+        Assign free opening boundary condition.
+
+        Parameters
+        ----------
+        assignment : int or str
+            Integer indicating face ID or object name string.
+        boundary_name : str, optional
+            Boundary name. Default is ``None``, in which case the name is generated automatically.
+        temperature : str or float or dict, optional
+            Prescribed temperature at the boundary. If a string is set,  a variable name or a
+            number with the unit is expected. If a float is set, the unit ``'cel'`` is
+            automatically added. Also, a dictionary containing the keys ``'Function'`` and ``'Values'``
+            can be passed to set a transient behaviour. The acceptable values associated with those
+            keys can be found in the Icepak documentation. Default is ``"AmbientTemp"``.
+        radiation_temperature : str or float, optional
+            Prescribed radiation temperature at the boundary. If a string is set,  a variable name
+            or a number with the unit is expected. If a float is set, the unit ``'cel'`` is
+            automatically added. Also, a dictionary containing the keys ``'Function'`` and
+            ``'Values'`` can be passed to set a transient behaviour.
+            The acceptable values associated with those keys can be found in the Icepak documentation.
+            Default is ``"AmbientRadTemp"``.
+        flow_type : int or str, optional
+            Prescribed radiation flow type at the boundary. Available options are ``"Pressure"``,
+            ``"Velocity"`` and ``"Mass Flow"``.  Also, integers can be used, respectively 0,1 and 2.
+            Default is ``0``.
+        pressure : float or str or dict, optional
+            Prescribed pressure (static or total coherently with flow type) at the boundary. If a
+            string is set, a variable name or a number with the unit is expected. If a float is set,
+            the unit ``'Pa'`` is automatically added. Also, a dictionary containing the keys ``'Function'``
+            and ``'Values'`` can be passed to set a transient behaviour. The acceptable values associated
+            with those keys can be found in the Icepak documentation. Default is ``"AmbientPressure"``.
+        no_reverse_flow: bool, optional
+            Option to block reverse flow at the boundary. Default is ``False``.
+        velocity : list, optional
+            Prescribed velocity at the boundary. If a list of strings is set, a variable name or a number
+             with the unit is expected for each element. If list of floats is set, the unit ``'m_per_sec'``
+            is automatically added. Also, a dictionary containing the keys ``'Function'`` and
+            ``'Values'`` can be passed in one or more vector element to set a transient behaviour.
+            The acceptable values associated with those keys can be found in the Icepak documentation.
+            Default is ``["0m_per_sec", "0m_per_sec", "0m_per_sec"]``.
+        mass_flow_rate: float or str or dict, optional
+            Prescribed pressure (static or total coherently with flow type) at the boundary. If a
+            string is set, a variable name or a number with the unit is expected. If a float is set,
+            the unit ``'kg_per_s'`` is automatically added. Also, a dictionary containing the keys
+            ``'Function'`` and ``'Values'`` can be passed to set a transient behaviour. The acceptable
+            values associated with those keys can be found in the Icepak documentation.
+            Default is ``"0kg_per_s"``.
+        inflow : bool, optional
+            Prescribe if the imposed mass flow is an inflow or an outflow. Default is ``"True"``,
+            in which case an inflow is prescribed.
+        direction_vector : list, optional
+            Prescribe the direction of the massflow. Default is ``"None"``, in which case a
+            massflow normal to the boundary is prescribed.
+
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        References
+        ----------
+        oModule.AssignOpeningBoundary
+
+        Examples
+        ----------
+        >>> import pyaedt
+        >>> icepak = pyaedt.Icepak()
+        >>> f_id = icepak.modeler["Region"].faces[0].id
+        >>> icepak.assign_free_opening(f_id)
+        """
+        # Sanitize input
+        if flow_type == "Pressure":
+            flow_type = 0
+        if flow_type == "Velocity":
+            flow_type = 1
+        if flow_type == "Mass Flow":
+            flow_type = 2
+        for i in range(len(velocity)):
+            if not isinstance(velocity[i], str) and not isinstance(velocity[i], dict):
+                velocity[i] = str(velocity[i]) + "m_per_sec"
+        if not isinstance(mass_flow_rate, str) and not isinstance(mass_flow_rate, dict):
+            mass_flow_rate = str(mass_flow_rate) + "kg_per_s"
+        if not isinstance(temperature, str) and not isinstance(temperature, dict):
+            temperature = str(temperature) + "cel"
+        if not isinstance(radiation_temperature, str) and not isinstance(radiation_temperature, dict):
+            radiation_temperature = str(radiation_temperature) + "cel"
+        if not isinstance(pressure, str) and not isinstance(pressure, dict):
+            pressure = str(pressure) + "Pa"
+        # Dict creation
+        props = {}
+        if not isinstance(assignment, list):
+            assignment = [assignment]
+        if isinstance(assignment[0], int):
+            props["Faces"] = assignment
+        else:
+            props["Objects"] = assignment
+        possible_transient_properties = [
+            ("Temperature", temperature),
+            ("External Rad. Temperature", radiation_temperature),
+        ]
+        if flow_type == 0:
+            props["Inlet Type"] = "Pressure"
+            props["No Reverse Flow"] = no_reverse_flow
+            possible_transient_properties += [("Total Pressure", pressure)]
+        elif flow_type == 1:
+            props["Inlet Type"] = "Velocity"
+            possible_transient_properties += [
+                ("Static Pressure", pressure),
+                ("X Velocity", velocity[0]),
+                ("Y Velocity", velocity[1]),
+                ("Z Velocity", velocity[2]),
+            ]
+        elif flow_type == 2:
+            props["Inlet Type"] = "Mass Flow"
+            if direction_vector is None:
+                props["Mass Flow Direction"] = ("Normal to Boundary",)
+            else:
+                props["X"] = str(direction_vector[0])
+                props["Y"] = str(direction_vector[1])
+                props["Z"] = str(direction_vector[2])
+            props["Mass Flow Condition"] = ["Out Flow", "In Flow"][int(inflow)]
+            possible_transient_properties += [
+                ("Total Pressure", pressure),
+                ("Mass Flow Rate", mass_flow_rate),
+                ("Y Velocity", velocity[1]),
+                ("Z Velocity", velocity[2]),
+            ]
+        for quantity, assignment in possible_transient_properties:
+            if isinstance(assignment, dict):
+                if not self.solution_type == "Transient":
+                    self.logger.error("Transient assignment is supported only in transient designs.")
+                    return None
+                assignment = self._parse_variation_data(
+                    quantity,
+                    "Transient",
+                    variation_value=assignment["Values"],
+                    function=assignment["Function"],
+                )
+                if assignment is None:
+                    return None
+                props.update(assignment)
+            else:
+                props[quantity] = assignment
+
+        if not boundary_name:
+            boundary_name = generate_unique_name("Opening")
+
+        bound = BoundaryObject(self, boundary_name, props, "Opening")
+        if bound.create():
+            self.boundaries.append(bound)
+            return bound
+        else:
+            return None
+
+    @pyaedt_function_handler()
+    def assign_pressure_free_opening(
+        self,
+        assignment,
+        boundary_name=None,
+        temperature="AmbientTemp",
+        radiation_temperature="AmbientRadTemp",
+        pressure="AmbientPressure",
+        no_reverse_flow=False,
+    ):
+        """
+        Assign free opening boundary condition.
+
+        Parameters
+        ----------
+        assignment : int or str
+            Integer indicating face ID or object name string.
+        boundary_name : str, optional
+            Boundary name. Default is ``None``, in which case the name is generated automatically.
+        temperature : str or float or dict, optional
+            Prescribed temperature at the boundary. If a string is set,  a variable name or a
+            number with the unit is expected. If a float is set, the unit ``'cel'`` is
+            automatically added. Also, a dictionary containing the keys ``'Function'`` and ``'Values'``
+            can be passed to set a transient behaviour. The acceptable values associated with those
+            keys can be found in the Icepak documentation. Default is ``"AmbientTemp"``.
+        radiation_temperature : str or float, optional
+            Prescribed radiation temperature at the boundary. If a string is set,  a variable name
+            or a number with the unit is expected. If a float is set, the unit ``'cel'`` is
+            automatically added. Also, a dictionary containing the keys ``'Function'`` and
+            ``'Values'`` can be passed to set a transient behaviour.
+            The acceptable values associated with those keys can be found in the Icepak documentation.
+            Default is ``"AmbientRadTemp"``.
+        pressure : float or str or dict, optional
+            Prescribed pressure (static or total coherently with flow type) at the boundary. If a
+            string is set, a variable name or a number with the unit is expected. If a float is set, the unit ``'Pa'``
+            is automatically added. Also, a dictionary containing the keys ``'Function'`` and
+            ``'Values'`` can be passed to set a transient behaviour. The acceptable values associated
+            with those keys can be found in the Icepak documentation. Default is ``"AmbientPressure"``.
+        no_reverse_flow: bool, optional
+            Option to block reverse flow at the boundary. Default is ``False``.
+
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        References
+        ----------
+        oModule.AssignOpeningBoundary
+
+        Examples
+        ----------
+        >>> import pyaedt
+        >>> icepak = pyaedt.Icepak()
+        >>> f_id = icepak.modeler["Region"].faces[0].id
+        >>> icepak.assign_pressure_free_opening(f_id)
+        """
+        return self.assign_free_opening(
+            assignment,
+            boundary_name=boundary_name,
+            temperature=temperature,
+            radiation_temperature=radiation_temperature,
+            flow_type=0,
+            pressure=pressure,
+            no_reverse_flow=no_reverse_flow,
+        )
+
+    @pyaedt_function_handler()
+    def assign_velocity_free_opening(
+        self,
+        assignment,
+        boundary_name=None,
+        temperature="AmbientTemp",
+        radiation_temperature="AmbientRadTemp",
+        pressure="AmbientPressure",
+        velocity=["0m_per_sec", "0m_per_sec", "0m_per_sec"],
+    ):
+        """
+        Assign free opening boundary condition.
+
+        Parameters
+        ----------
+        assignment : int or str
+            Integer indicating face ID or object name string.
+        boundary_name : str, optional
+            Boundary name. Default is ``None``, in which case the name is generated automatically.
+        temperature : str or float or dict, optional
+            Prescribed temperature at the boundary. If a string is set,  a variable name or a
+            number with the unit is expected. If a float is set, the unit ``'cel'`` is
+            automatically added. Also, a dictionary containing the keys ``'Function'`` and ``'Values'``
+            can be passed to set a transient behaviour. The acceptable values associated with those
+            keys can be found in the Icepak documentation. Default is ``"AmbientTemp"``.
+        radiation_temperature : str or float, optional
+            Prescribed radiation temperature at the boundary. If a string is set,  a variable name
+            or a number with the unit is expected. If a float is set, the unit ``'cel'`` is
+            automatically added. Also, a dictionary containing the keys ``'Function'`` and
+            ``'Values'`` can be passed to set a transient behaviour.
+            The acceptable values associated with those keys can be found in the Icepak documentation.
+            Default is ``"AmbientRadTemp"``.
+        pressure : float or str or dict, optional
+            Prescribed pressure (static or total coherently with flow type) at the boundary. If a
+            string is set, a variable name or a number with the unit is expected. If a float is set, the unit ``'Pa'``
+            is automatically added. Also, a dictionary containing the keys ``'Function'`` and
+            ``'Values'`` can be passed to set a transient behaviour. The acceptable values associated
+            with those keys can be found in the Icepak documentation. Default is ``"AmbientPressure"``.
+        velocity : list, optional
+            Prescribed velocity at the boundary. If a list of strings is set, a variable name or a number
+             with the unit is expected for each element. If list of floats is set, the unit ``'m_per_sec'``
+            is automatically added. Also, a dictionary containing the keys ``'Function'`` and
+            ``'Values'`` can be passed in one or more vector element to set a transient behaviour.
+            The acceptable values associated with those keys can be found in the Icepak documentation.
+            Default is ``["0m_per_sec", "0m_per_sec", "0m_per_sec"]``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        References
+        ----------
+        oModule.AssignOpeningBoundary
+
+        Examples
+        ----------
+        >>> import pyaedt
+        >>> icepak = pyaedt.Icepak()
+        >>> f_id = icepak.modeler["Region"].faces[0].id
+        >>> icepak.assign_velocity_free_opening(f_id)
+        """
+        return self.assign_free_opening(
+            assignment,
+            boundary_name=boundary_name,
+            temperature=temperature,
+            radiation_temperature=radiation_temperature,
+            flow_type=1,
+            pressure=pressure,
+            velocity=velocity,
+        )
+
+    @pyaedt_function_handler()
+    def assign_mass_flow_free_opening(
+        self,
+        assignment,
+        boundary_name=None,
+        temperature="AmbientTemp",
+        radiation_temperature="AmbientRadTemp",
+        pressure="AmbientPressure",
+        mass_flow_rate="0kg_per_s",
+        inflow=True,
+        direction_vector=None,
+    ):
+        """
+        Assign free opening boundary condition.
+
+        Parameters
+        ----------
+        assignment : int or str
+            Integer indicating face ID or object name string.
+        boundary_name : str, optional
+            Boundary name. Default is ``None``, in which case the name is generated automatically.
+        temperature : str or float or dict, optional
+            Prescribed temperature at the boundary. If a string is set,  a variable name or a
+            number with the unit is expected. If a float is set, the unit ``'cel'`` is
+            automatically added. Also, a dictionary containing the keys ``'Function'`` and ``'Values'``
+            can be passed to set a transient behaviour. The acceptable values associated with those
+            keys can be found in the Icepak documentation. Default is ``"AmbientTemp"``.
+        radiation_temperature : str or float, optional
+            Prescribed radiation temperature at the boundary. If a string is set,  a variable name
+            or a number with the unit is expected. If a float is set, the unit ``'cel'`` is
+            automatically added. Also, a dictionary containing the keys ``'Function'`` and
+            ``'Values'`` can be passed to set a transient behaviour.
+            The acceptable values associated with those keys can be found in the Icepak documentation.
+            Default is ``"AmbientRadTemp"``.
+        pressure : float or str or dict, optional
+            Prescribed pressure (static or total coherently with flow type) at the boundary. If a
+            string is set, a variable name or a number with the unit is expected. If a float is set, the unit ``'Pa'``
+            is automatically added. Also, a dictionary containing the keys ``'Function'`` and
+            ``'Values'`` can be passed to set a transient behaviour. The acceptable values associated
+            with those keys can be found in the Icepak documentation. Default is ``"AmbientPressure"``.
+        mass_flow_rate: float or str or dict, optional
+            Prescribed pressure (static or total coherently with flow type) at the boundary. If a
+            string is set, a variable name or a number with the unit is expected. If a float is set,
+            the unit ``'kg_per_s'`` is automatically added. Also, a dictionary containing the keys
+            ``'Function'`` and ``'Values'`` can be passed to set a transient behaviour. The acceptable
+            values associated with those keys can be found in the Icepak documentation.
+            Default is ``"0kg_per_s"``.
+        inflow : bool, optional
+            Prescribe if the imposed mass flow is an inflow or an outflow. Default is ``"True"``,
+            in which case an inflow is prescribed.
+        direction_vector : list, optional
+            Prescribe the direction of the massflow. Default is ``"None"``, in which case a
+            massflow normal to the boundary is prescribed.
+
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        References
+        ----------
+        oModule.AssignOpeningBoundary
+
+        Examples
+        ----------
+        >>> import pyaedt
+        >>> icepak = pyaedt.Icepak()
+        >>> f_id = icepak.modeler["Region"].faces[0].id
+        >>> icepak.assign_mass_flow_free_opening(f_id)
+        """
+        return self.assign_free_opening(
+            assignment,
+            boundary_name=boundary_name,
+            temperature=temperature,
+            radiation_temperature=radiation_temperature,
+            flow_type=2,
+            pressure=pressure,
+            mass_flow_rate=mass_flow_rate,
+            inflow=inflow,
+            direction_vector=direction_vector,
+        )

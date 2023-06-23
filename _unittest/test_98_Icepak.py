@@ -1142,3 +1142,52 @@ class TestClass(BasisTest, object):
     def test_63_generate_mesh(self):
         self.aedtapp.insert_design("empty_mesh")
         self.aedtapp.mesh.generate_mesh()
+
+    def test_64_assign_free_opening(self):
+        velocity_transient = {"Function": "Sinusoidal", "Values": ["0m_per_sec", 1, 1, "1s"]}
+        self.aedtapp.solution_type = "Transient"
+        assert self.aedtapp.assign_pressure_free_opening(
+            self.aedtapp.modeler["Region"].faces[0].id,
+            boundary_name=None,
+            temperature=20,
+            radiation_temperature=30,
+            pressure=0,
+            no_reverse_flow=False,
+        )
+        assert self.aedtapp.assign_mass_flow_free_opening(
+            self.aedtapp.modeler["Region"].faces[2].id,
+            boundary_name=None,
+            temperature="AmbientTemp",
+            radiation_temperature="AmbientRadTemp",
+            pressure="AmbientPressure",
+            mass_flow_rate=0,
+            inflow=True,
+            direction_vector=None,
+        )
+        assert self.aedtapp.assign_mass_flow_free_opening(
+            self.aedtapp.modeler["Region"].faces[3].id,
+            boundary_name=None,
+            temperature="AmbientTemp",
+            radiation_temperature="AmbientRadTemp",
+            pressure="AmbientPressure",
+            mass_flow_rate=0,
+            inflow=False,
+            direction_vector=[1, 0, 0],
+        )
+        assert self.aedtapp.assign_velocity_free_opening(
+            self.aedtapp.modeler["Region"].faces[1].id,
+            boundary_name="Test",
+            temperature="AmbientTemp",
+            radiation_temperature="AmbientRadTemp",
+            pressure="AmbientPressure",
+            velocity=[velocity_transient, 0, "0m_per_sec"],
+        )
+        self.aedtapp.solution_type = "SteadyState"
+        assert not self.aedtapp.assign_velocity_free_opening(
+            self.aedtapp.modeler["Region"].faces[1].id,
+            boundary_name="Test",
+            temperature="AmbientTemp",
+            radiation_temperature="AmbientRadTemp",
+            pressure="AmbientPressure",
+            velocity=[velocity_transient, 0, "0m_per_sec"],
+        )
