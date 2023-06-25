@@ -1448,7 +1448,7 @@ class Q3d(QExtractor, object):
             )
             props = OrderedDict({"Objects": objects})
             bound = BoundaryObject(self, net, props, "SignalNet")
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
         if new_nets:
             self.logger.info("{} Nets have been identified: {}".format(len(new_nets), ", ".join(new_nets)))
         else:
@@ -2307,7 +2307,7 @@ class Q2d(QExtractor, object):
             )
             props = OrderedDict({"Objects": objects})
             bound = BoundaryObject(self, new_nets[i], props, new_nets[i + 1])
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             i += 2
         if new_nets:
             self.logger.info("{} Nets have been identified: {}".format(len(new_nets), ", ".join(new_nets)))

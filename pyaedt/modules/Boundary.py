@@ -381,31 +381,37 @@ class BoundaryObject(BoundaryCommon, object):
         from pyaedt.modeler.cad.elements3d import BinaryTreeNode
 
         child_object = None
-        if "Thermal" in self._app.odesign.GetChildNames():
-            cc = self._app.odesign.GetChildObject("Thermal")
+        design_childs = self._app.get_oo_name(self._app.odesign)
+
+        if "Thermal" in design_childs:
+            cc = self._app.get_oo_object(self._app.odesign, "Thermal")
             if self.name in cc.GetChildNames():
-                child_object = self._app.odesign.GetChildObject("Thermal").GetChildObject(self.name)
+                child_object = cc.GetChildObject(self.name)
             if child_object:
                 return BinaryTreeNode(self.name, child_object, False)
-        elif "Boundaries" in self._app.odesign.GetChildNames():
-            cc = self._app.odesign.GetChildObject("Boundaries")
+        elif "Boundaries" in design_childs:
+            cc = self._app.get_oo_object(self._app.odesign, "Boundaries")
             if self.name in cc.GetChildNames():
-                child_object = self._app.odesign.GetChildObject("Boundaries").GetChildObject(self.name)
-            elif self.name in self._app.odesign.GetChildObject("Excitations").GetChildNames():
-                child_object = self._app.odesign.GetChildObject("Excitations").GetChildObject(self.name)
-            elif self._app.design_type in ["Maxwell 3D", "Maxwell 2D"] and "Model" in self._app.odesign.GetChildNames():
-                model = self._app.odesign.GetChildObject("Model")
+                child_object = cc.GetChildObject(self.name)
+            elif "Excitations" in design_childs and self.name in self._app.get_oo_name(
+                self._app.odesign, "Excitations"
+            ):
+                child_object = self._app.get_oo_object(self._app.odesign, "Excitations").GetChildObject(self.name)
+            elif self._app.design_type in ["Maxwell 3D", "Maxwell 2D"] and "Model" in design_childs:
+                model = self._app.get_oo_object(self._app.odesign, "Model")
                 if self.name in model.GetChildNames():
-                    child_object = self._app.odesign.GetChildObject("Model").GetChildObject(self.name)
-            elif self._app.odesign.GetChildObject("Excitations").GetChildNames():
-                for port in self._app.odesign.GetChildObject("Excitations").GetChildNames():
-                    terminals = self._app.odesign.GetChildObject("Excitations").GetChildObject(port).GetChildNames()
+                    child_object = model.GetChildObject(self.name)
+            elif "Excitations" in design_childs and self._app.get_oo_name(self._app.odesign, "Excitations"):
+                for port in self._app.get_oo_name(self._app.odesign, "Excitations"):
+                    terminals = self._app.get_oo_name(self._app.odesign, "Excitations\\{}".format(port))
                     if self.name in terminals:
-                        child_object = (
-                            self._app.odesign.GetChildObject("Excitations")
-                            .GetChildObject(port)
-                            .GetChildObject(self.name)
+                        child_object = self._app.get_oo_object(
+                            self._app.odesign, "Excitations\\{}\\{}".format(port, self.name)
                         )
+            elif "Conductors" in design_childs and self._app.get_oo_name(self._app.odesign, "Conductors"):
+                for port in self._app.get_oo_name(self._app.odesign, "Conductors"):
+                    if self.name == port:
+                        child_object = self._app.get_oo_object(self._app.odesign, "Conductors\\{}".format(port))
 
         if child_object:
             return BinaryTreeNode(self.name, child_object, False)

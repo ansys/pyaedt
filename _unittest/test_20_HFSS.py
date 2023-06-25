@@ -1508,7 +1508,7 @@ class TestClass(BasisTest, object):
         )
 
         term = [term for term in self.aedtapp.boundaries if term.type == "Terminal"][0]
-        assert self.aedtapp.boundaries[1].type == "Terminal"
+        assert self.aedtapp.boundaries[0].type == "Terminal"
         term.name = "test"
         assert term.name == "test"
         term.props["TerminalResistance"] = "1ohm"
