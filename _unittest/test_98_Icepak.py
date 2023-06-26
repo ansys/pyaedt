@@ -97,6 +97,7 @@ class TestClass(BasisTest, object):
         assert pcb_mesh_region.create()
         assert pcb_mesh_region.update()
         assert self.aedtapp.mesh.meshregions_dict
+        assert pcb_mesh_region.delete()
 
     def test_04_ImportGroup(self):
         project_path = os.path.join(self.local_scratch.path, src_project_name + ".aedt")
@@ -192,12 +193,15 @@ class TestClass(BasisTest, object):
         # assert self.aedtapp.mesh.assignMeshLevel2Component(mesh_level_RadioPCB, component_name)
         test = self.aedtapp.mesh.assign_mesh_region(component_name, mesh_level_RadioPCB, is_submodel=True)
         assert test
+        assert test.delete()
         test = self.aedtapp.mesh.assign_mesh_region(["USB_ID"], mesh_level_RadioPCB)
         assert test
+        assert test.delete()
         b = self.aedtapp.modeler.create_box([0, 0, 0], [1, 1, 1])
         b.model = False
         test = self.aedtapp.mesh.assign_mesh_region([b.name])
         assert test
+        assert test.delete()
 
     def test_12b_AssignVirtualMeshOperation(self):
         self.aedtapp.oproject = test_project_name
@@ -213,6 +217,7 @@ class TestClass(BasisTest, object):
             component_name, mesh_level_RadioPCB, is_submodel=True, virtual_region=True
         )
         assert test
+        assert test.delete()
         test = self.aedtapp.mesh.assign_mesh_region(["USB_ID"], mesh_level_RadioPCB, virtual_region=True)
         assert test
 
@@ -1127,3 +1132,56 @@ class TestClass(BasisTest, object):
         app.set_active_design("get_fan_op_point1")
         app.get_fans_operating_point()
         app.close_project()
+
+    def test_63_generate_mesh(self):
+        self.aedtapp.insert_design("empty_mesh")
+        self.aedtapp.mesh.generate_mesh()
+
+    def test_64_assign_free_opening(self):
+        velocity_transient = {"Function": "Sinusoidal", "Values": ["0m_per_sec", 1, 1, "1s"]}
+        self.aedtapp.solution_type = "Transient"
+        assert self.aedtapp.assign_pressure_free_opening(
+            self.aedtapp.modeler["Region"].faces[0].id,
+            boundary_name=None,
+            temperature=20,
+            radiation_temperature=30,
+            pressure=0,
+            no_reverse_flow=False,
+        )
+        assert self.aedtapp.assign_mass_flow_free_opening(
+            self.aedtapp.modeler["Region"].faces[2].id,
+            boundary_name=None,
+            temperature="AmbientTemp",
+            radiation_temperature="AmbientRadTemp",
+            pressure="AmbientPressure",
+            mass_flow_rate=0,
+            inflow=True,
+            direction_vector=None,
+        )
+        assert self.aedtapp.assign_mass_flow_free_opening(
+            self.aedtapp.modeler["Region"].faces[3].id,
+            boundary_name=None,
+            temperature="AmbientTemp",
+            radiation_temperature="AmbientRadTemp",
+            pressure="AmbientPressure",
+            mass_flow_rate=0,
+            inflow=False,
+            direction_vector=[1, 0, 0],
+        )
+        assert self.aedtapp.assign_velocity_free_opening(
+            self.aedtapp.modeler["Region"].faces[1].id,
+            boundary_name="Test",
+            temperature="AmbientTemp",
+            radiation_temperature="AmbientRadTemp",
+            pressure="AmbientPressure",
+            velocity=[velocity_transient, 0, "0m_per_sec"],
+        )
+        self.aedtapp.solution_type = "SteadyState"
+        assert not self.aedtapp.assign_velocity_free_opening(
+            self.aedtapp.modeler["Region"].faces[1].id,
+            boundary_name="Test",
+            temperature="AmbientTemp",
+            radiation_temperature="AmbientRadTemp",
+            pressure="AmbientPressure",
+            velocity=[velocity_transient, 0, "0m_per_sec"],
+        )

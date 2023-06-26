@@ -315,6 +315,24 @@ class IcepakMesh(object):
                 self.meshmodule.AssignVirtualMeshRegion(args)
             else:
                 self.meshmodule.AssignMeshRegion(args)
+            self._app.mesh.meshregions.append(self)
+            return True
+
+        @pyaedt_function_handler()
+        def delete(self):
+            """Delete mesh region.
+
+            Returns
+            -------
+            bool
+                ``True`` when successful, ``False`` when failed.
+
+            References
+            ----------
+
+            >>> oModule.DeleteMeshRegions()
+            """
+            self.meshmodule.DeleteMeshRegions([self.name])
             return True
 
     @property
@@ -650,17 +668,17 @@ class IcepakMesh(object):
             added_obj = [i for i in objectlist2 if i not in all_objs or i in objectlist]
         meshregion.Objects = added_obj
         meshregion.SubModels = None
-        self.meshregions.append(meshregion)
+        meshregion.update()
         return meshregion
 
     @pyaedt_function_handler()
-    def generate_mesh(self, name):
+    def generate_mesh(self, name=None):
         """Generate the mesh for a given setup name.
 
         Parameters
         ----------
-        name : str
-            Name of the design to mesh.
+        name : str, optional
+            Name of the design to mesh. Default is ``None`` in which case the first available setup will be selected.
 
         Returns
         -------
@@ -672,6 +690,8 @@ class IcepakMesh(object):
 
         >>> oDesign.GenerateMesh
         """
+        if name is None:
+            name = []
         return self._odesign.GenerateMesh(name) == 0
 
     @pyaedt_function_handler()

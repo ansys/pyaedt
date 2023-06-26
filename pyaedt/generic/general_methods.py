@@ -651,7 +651,8 @@ def _retry_ntimes(n, function, *args, **kwargs):
     while retry < n:
         try:
             ret_val = function(*args, **kwargs)
-            if not ret_val and type(ret_val) is not float and type(ret_val) is not int:
+            if ret_val is None:
+                # if not ret_val and type(ret_val) not in [float, int, str, tuple, list]:
                 ret_val = True
         except:
             retry += 1
@@ -1785,6 +1786,8 @@ class Settings(object):
             "ANSYSEM_FEATURE_SF222134_CABLE_MODELING_ENHANCEMENTS_ENABLE": "1",
             "ANSYSEM_FEATURE_F395486_RIGID_FLEX_BENDING_ENABLE": "1",
             "ANSYSEM_FEATURE_S432616_LAYOUT_COMPONENT_IN_3D_ENABLE": "1",
+            "ANSYSEM_FEATURE_F545177_ECAD_INTEGRATION_WITH_APHI_ENABLE": "1",
+            "ANSYSEM_FEATURE_F650636_MECH_LAYOUT_COMPONENT_ENABLE": "1",
         }
         if is_linux:
             self._aedt_environment_variables["ANS_NODEPCHECK"] = "1"

@@ -2600,7 +2600,7 @@ class PostProcessor(PostProcessorCommon, object):
 
     @pyaedt_function_handler()
     def _create_fieldplot(self, objlist, quantityName, setup_name, intrinsics, listtype, plot_name=None):
-        if not listtype.startswith("Layer"):
+        if not listtype.startswith("Layer") and self._app.design_type != "HFSS 3D Layout Design":
             objlist = self._app.modeler.convert_to_selections(objlist, True)
         if not setup_name:
             setup_name = self._app.existing_analysis_sweeps[0]
@@ -2901,7 +2901,9 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oModule.CreateFieldPlot
         """
-        if not ("APhi" in self.post_solution_type and settings.aedt_version >= "2023.2"):
+        if not (
+            "APhi" in self.post_solution_type and settings.aedt_version >= "2023.2"
+        ) and not self._app.design_type in ["HFSS", "HFSS 3D Layout Design"]:
             self.logger.error("This method requires AEDT 2023 R2 and Maxwell 3D Transient APhi Formulation.")
             return False
         if intrinsics is None:
@@ -2909,6 +2911,16 @@ class PostProcessor(PostProcessorCommon, object):
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
+        if self._app.design_type == "HFSS 3D Layout Design":
+            if not setup_name:
+                setup_name = self._app.existing_analysis_sweeps[0]
+            lst = []
+            for layer in layers_nets:
+                for el in layer[1:]:
+                    get_ids = self._odesign.GetGeometryIdsForNetLayerCombination(el, layer[0], setup_name)
+                    if isinstance(get_ids, (tuple, list)) and len(get_ids) > 2:
+                        lst.extend([int(i) for i in get_ids[2:]])
+            return self._create_fieldplot(lst, quantity_name, setup_name, intrinsics, "FacesList", plot_name)
         if plot_on_surface:
             plot_type = "LayerNetsExtFace"
         else:
