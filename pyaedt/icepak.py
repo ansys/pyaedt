@@ -4280,7 +4280,7 @@ class Icepak(FieldAnalysis3D):
             the unit ``'pascal'`` is automatically added. Also, a dictionary containing the keys
             ``'Function'`` and ``'Values'`` can be passed to set a transient behavior. The acceptable
             values associated with those keys can be found in the Icepak documentation.
-            Default is ``"AmbientPressure"``.
+            The default is ``"AmbientPressure"``.
         no_reverse_flow : bool, optional
             Option to block reverse flow at the boundary. Default is ``False``.
         velocity : list, optional
