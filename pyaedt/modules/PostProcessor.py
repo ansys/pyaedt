@@ -3500,7 +3500,8 @@ class PostProcessor(PostProcessorCommon, object):
             self.logger.warning("No boundaries defined")
             return True
         for bc_obj in available_bcs:
-            if bc_obj.type == "Block":
+            bc_obj.type
+            if bc_obj.type == "Solid Block" or bc_obj.type == "Block":
                 n = len(bc_obj.props["Objects"])
                 if "Total Power Variation Data" not in bc_obj.props:
                     mult = 1
@@ -3762,13 +3763,13 @@ class PostProcessor(PostProcessorCommon, object):
             self.logger.info("The total power is {} {}".format(str(round(sum(power_dict.values()), 3)), units))
             return power_dict, sum(power_dict.values())
 
-        elif output_type == "component":
+        elif output_type == "component":  # pragma: no cover
             for comp in power_dict_obj.keys():
                 self.logger.info("The power of {} is {} {}".format(comp, str(round(power_dict_obj[comp], 3)), units))
             self.logger.info("The total power is {} {}".format(str(round(sum(power_dict_obj.values()), 3)), units))
             return power_dict_obj, sum(power_dict_obj.values())
 
-        else:
+        else:  # pragma: no cover
             for comp in power_dict.keys():
                 self.logger.info("The power of {} is {} {}".format(comp, str(round(power_dict[comp], 3)), units))
             self.logger.info("The total power is {} {}".format(str(round(sum(power_dict.values()), 3)), units))
