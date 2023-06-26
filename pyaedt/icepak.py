@@ -4586,9 +4586,9 @@ class Icepak(FieldAnalysis3D):
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
             string is set, a variable name or a number with the unit is expected. If a float is set,
             the unit ``'pascal'`` is automatically added. Also, a dictionary containing the keys
-            ``'Function'`` and ``'Values'`` can be passed to set a transient behaviour. The acceptable
-            values associated with those keys can be found in the Icepak documentation.
-            Default is ``"AmbientPressure"``.
+            ``'Function'`` and ``'Values'`` can be passed to set a transient behavior. The
+            acceptable values associated with those keys can be found in the Icepak
+            documentation. The default is ``"AmbientPressure"``.
         mass_flow_rate : float or str or dict, optional
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
             string is set, a variable name or a number with the unit is expected. If a float is set,
