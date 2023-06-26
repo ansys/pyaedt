@@ -20,7 +20,7 @@ for package in required_packages:
     if package not in installed_packages:
         install(package)
 
-# Import required modules
+# Import plotly library (if needed) to displa legend and scenario matrix results
 import plotly.graph_objects as go
 
 # Define colors for tables
