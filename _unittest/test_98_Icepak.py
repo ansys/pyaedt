@@ -641,6 +641,7 @@ class TestClass(BasisTest, object):
             ["surf1", "surf2"], monitor_quantity=["Temperature", "HeatFlowRate"], monitor_name="monitor_surfs"
         ) == ["monitor_surfs", "monitor_surfs1"]
         assert self.aedtapp.monitor.assign_surface_monitor("surf1")
+        assert not self.aedtapp.monitor.assign_surface_monitor("surf1", monitor_quantity=["T3mp3ratur3"])
 
     def test_46_point_monitors(self):
         self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], "box", "copper")
@@ -681,6 +682,9 @@ class TestClass(BasisTest, object):
         self.aedtapp.modeler.create_point([1, 2, 2], name="testPoint3")
         assert self.aedtapp.monitor.assign_point_monitor("testPoint", monitor_name="T1")
         assert self.aedtapp.monitor.assign_point_monitor(["testPoint2", "testPoint3"])
+        assert not self.aedtapp.monitor.assign_point_monitor("testPoint", monitor_quantity="Sp33d")
+        assert not self.aedtapp.monitor.assign_point_monitor_to_vertex(vertex1.id, monitor_quantity="T3mp3ratur3")
+        assert not self.aedtapp.monitor.assign_point_monitor_in_object("box2", monitor_quantity="T3mp3ratur3")
 
     def test_47_face_monitor(self):
         self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], "box3", "copper")
@@ -698,6 +702,7 @@ class TestClass(BasisTest, object):
             [face_1.id, face_2.id], monitor_quantity=["Temperature", "HeatFlowRate"], monitor_name="monitor_faces"
         ) == ["monitor_faces", "monitor_faces3"]
         assert isinstance(self.aedtapp.monitor.face_monitors["monitor_faces1"].properties, dict)
+        assert not self.aedtapp.monitor.assign_face_monitor(face_1.id, monitor_quantity="Thermogen")
 
     def test_49_delete_monitors(self):
         for _, mon_obj in self.aedtapp.monitor.all_monitors.items():
