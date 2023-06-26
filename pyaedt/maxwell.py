@@ -2335,9 +2335,9 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                 if bound.create():
                     self._boundaries[bound.name] = bound
                     return bound
-                return True
+                return False
             except:
-                pass
+                return False
         else:
             self.logger.error("Current density can only be applied to Eddy current or magnetostatic solution types.")
             return False
@@ -2508,7 +2508,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                 )
                 bound2 = BoundaryObject(self, bound_name_s, props2, "Dependent")
                 if bound2.create():
-                    self.boundaries.append(bound2)
+                    self._boundaries[bound2.name] = bound2
                     return bound, bound2
                 else:
                     return bound, False
@@ -2991,7 +2991,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
             )
             bound2 = BoundaryObject(self, bound_name_s, props2, "Dependent")
             if bound2.create():
-                self.boundaries.append(bound2)
+                self._boundaries[bound2.name] = bound2
                 return bound, bound2
             else:
                 return bound, False

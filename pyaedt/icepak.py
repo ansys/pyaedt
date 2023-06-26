@@ -3090,9 +3090,9 @@ class Icepak(FieldAnalysis3D):
         }
 
         self.modeler.primitives[object_name].material_name = "Ceramic_material"
-        boundary = BoundaryObject(self, object_name, props, "Network")
+        boundary = NetworkObject(self, object_name, props, "Network")
         if boundary.create():
-            self.boundaries.append(boundary)
+            self._boundaries[boundary.name] = boundary
             self.modeler.primitives[object_name].solve_inside = False
             return boundary
         return None
@@ -3813,7 +3813,8 @@ class Icepak(FieldAnalysis3D):
         >>> network = app.create_network_object()
         """
         bound = NetworkObject(self, name, props, create)
-        self.boundaries.append(bound)
+        if create:
+            self._boundaries[bound.name] = bound
         return bound
 
     @pyaedt_function_handler()
@@ -3882,6 +3883,7 @@ class Icepak(FieldAnalysis3D):
                 if matrix[i][j] > 0:
                     net.add_link(all_nodes[i], all_nodes[j], matrix[i][j], "Link_" + all_nodes[i] + "_" + all_nodes[j])
         if net.create():
+            self._boundaries[net.name] = net
             return net
         else:  # pragma: no cover
             return None
