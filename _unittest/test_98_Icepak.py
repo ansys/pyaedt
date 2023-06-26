@@ -203,7 +203,19 @@ class TestClass(BasisTest, object):
         assert test
         assert test.delete()
 
-    def test_12b_AssignVirtualMeshOperation(self):
+    @pytest.mark.skipif(config["use_grpc"], reason="GRPC usage leads to SystemExit.")
+    def test_12b_failing_AssignMeshOperation(self):
+        assert not self.aedtapp.mesh.assign_mesh_region("N0C0MP", 1, is_submodel=True)
+        test = self.aedtapp.mesh.assign_mesh_region(["USB_ID"], 1)
+        b = self.aedtapp.modeler.create_box([0, 0, 0], [1, 1, 1])
+        b.model = False
+        test = self.aedtapp.mesh.assign_mesh_region([b.name])
+        assert test
+        test.Objects = ["US8_1D"]
+        assert not test.update()
+        assert test.delete()
+
+    def test_12c_AssignVirtualMeshOperation(self):
         self.aedtapp.oproject = test_project_name
         self.aedtapp.odesign = "IcepakDesign1"
         group_name = "Group1"
