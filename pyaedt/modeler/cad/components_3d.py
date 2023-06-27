@@ -956,22 +956,23 @@ class LayoutComponent(object):
            Show dielectric check box.
 
         """
-        key = "Show Dielectric"
+        key = "Object Attributes/ShowDielectric"
+
         if key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self._name):
-            show_layout = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self._name, key)
-            self._show_layout = show_layout
-            return show_layout
+            show_dielectric = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self._name, key)
+            self._show_dielectric = show_dielectric
+            return show_dielectric
         else:
             return None
 
     @show_dielectric.setter
-    def show_dielectric(self, show_layout):
-        key = "Show Dielectric"
-        if isinstance(show_layout, bool) and key in self._primitives._app.get_oo_properties(
+    def show_dielectric(self, show_dielectric):
+        key = "Object Attributes/ShowDielectric"
+        if isinstance(show_dielectric, bool) and key in self._primitives._app.get_oo_properties(
             self._primitives.oeditor, self._name
         ):
-            self._primitives.oeditor.GetChildObject(self._name).SetPropValue(key, show_layout)
-            self._show_layout = show_layout
+            self._primitives.oeditor.GetChildObject(self._name).SetPropValue(key, show_dielectric)
+            self._show_dielectric = show_dielectric
 
     @property
     def display_mode(self):
@@ -979,26 +980,30 @@ class LayoutComponent(object):
 
         Returns
         -------
-        str
-           Display mode.
+        int
+           Layout display mode. Available modes are:
+            * 0 : Layer.
+            * 1 : Net.
+            * 2 : Object.
 
         """
-        key = "Display mode"
+        key = "Object Attributes/DisplayMode"
+
         if key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self._name):
-            show_layout = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self._name, key)
-            self._show_layout = show_layout
-            return show_layout
+            display_mode = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self._name, key)
+            self._display_mode = display_mode
+            return display_mode
         else:
             return None
 
     @display_mode.setter
-    def display_mode(self, show_layout):
-        key = "Display mode"
-        if isinstance(show_layout, bool) and key in self._primitives._app.get_oo_properties(
+    def display_mode(self, display_mode):
+        key = "Object Attributes/DisplayMode"
+        if isinstance(display_mode, int) and key in self._primitives._app.get_oo_properties(
             self._primitives.oeditor, self._name
         ):
-            self._primitives.oeditor.GetChildObject(self._name).SetPropValue(key, show_layout)
-            self._show_layout = show_layout
+            self._primitives.oeditor.GetChildObject(self._name).SetPropValue(key, display_mode)
+            self._display_mode = display_mode
 
     @pyaedt_function_handler()
     def _get_edb_info(self):
@@ -1053,6 +1058,26 @@ class LayoutComponent(object):
             "DisplayMode:=",
             self.display_mode,
         ]
+
+        if self.layers:
+            layer_mode = ["NAME:ObjectAttributesInLayerMode"]
+            for layer in self.layers:
+                layer_mode.append(layer + ":=")
+                layer_mode.append(self.layers[layer])
+            vPropChange.append(layer_mode)
+        if self.nets:
+            net_mode = ["NAME:ObjectAttributesInNetMode"]
+            for net in self.nets:
+                net_mode.append(layer + ":=")
+                net_mode.append(self.nets[net])
+            vPropChange.append(net_mode)
+        if self.objects:
+            objects_mode = ["NAME:ObjectAttributesInObjectMode"]
+            for objects in self.objects:
+                objects_mode.append(objects + ":=")
+                objects_mode.append(self.objects[objects])
+            vPropChange.append(objects_mode)
+
         vChangedProps = ["NAME:ChangedProps", vPropChange]
         vPropServers = ["NAME:PropServers", self._name]
         vGeo3d = ["NAME:Visualization", vPropServers, vChangedProps]
