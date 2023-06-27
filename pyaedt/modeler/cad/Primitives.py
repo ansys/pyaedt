@@ -2766,7 +2766,7 @@ class Primitives(object):
     @pyaedt_function_handler()
     def _refresh_solids(self):
         try:
-            test = _retry_ntimes(self.oeditor.GetObjectsInGroup, "Solids")
+            test = _retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Solids")
         except TypeError:
             test = []
         if test is None or test is False:
@@ -2780,7 +2780,7 @@ class Primitives(object):
     @pyaedt_function_handler()
     def _refresh_sheets(self):
         try:
-            test = _retry_ntimes(self.oeditor.GetObjectsInGroup, "Sheets")
+            test = _retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Sheets")
         except TypeError:
             test = []
         if test is None or test is False:
@@ -2794,7 +2794,7 @@ class Primitives(object):
     @pyaedt_function_handler()
     def _refresh_lines(self):
         try:
-            test = _retry_ntimes(self.oeditor.GetObjectsInGroup, "Lines")
+            test = _retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Lines")
         except TypeError:
             test = []
         if test is None or test is False:
