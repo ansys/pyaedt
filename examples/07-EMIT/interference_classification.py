@@ -3,32 +3,35 @@ from pyaedt import Emit
 import pyaedt
 import sys
 
-def interference_classification(tx_radios, rx_radios, radios, emitapp, rev, domain, use_filter, filter):
+def interference_classification(emitapp, use_filter, filter):
     """
     Classisify interference type as according to inband/inband, 
     out of band/in band, inband/out of band, and out of band/out of band.
 
     Parameters
-        ----------
-        tx_radios : string list of tx radio names
-        rx_radios : string list of rx radio names
-        radios : list of radio objects
+    ----------
         emitapp : instance of Emit
-        rev : emitapp results
-        domain : interaction domain of emit results
         use_filter : boolean value, True if filtering is being used
         filter : list of filter values if filtering is in use
 
         Returns
         -------
-        all_colors : list of colors for classification of interterference types
         power_matrix : list of worst case interference power at Rx
+        all_colors : color classification of interterference types
     """
     power_matrix = []
     all_colors = []
+
+    # Get project results and radios
+    rev = emitapp.results.analyze()
     modeRx = TxRxMode.RX
     modeTx = TxRxMode.TX
     mode_power = ResultType.POWER_AT_RX
+    tx_interferer = InterfererType().TRANSMITTERS
+    rx_radios = rev.get_receiver_names()
+    tx_radios = rev.get_interferer_names(tx_interferer)
+    domain = emitapp.results.interaction_domain()
+    radios = emitapp.modeler.components.get_radios()
 
     for tx_radio in tx_radios:
         rx_powers = []
@@ -53,6 +56,10 @@ def interference_classification(tx_radios, rx_radios, radios, emitapp, rev, doma
                 # powerAtRx, but need to look at all tx channels since coupling
                 # can change over a transmitter's bandwidth
                 rx_freq = rev.get_active_frequencies(rx_radio, rx_bands[i], modeRx)[0]
+
+                # The start and stop frequencies define the Band's extents, 
+                # while the active frequencies are a subset of the Band's frequencies 
+                # being used for this specific project as defined in the Radio's Sampling.
                 rx_start_freq = radios[rx_radio].band_start_frequency(rx_band_objects[i])
                 rx_stop_freq = radios[rx_radio].band_stop_frequency(rx_band_objects[i])
                 rx_channel_bandwidth = radios[rx_radio].band_channel_bandwidth(rx_band_objects[i])

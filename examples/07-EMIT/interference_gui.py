@@ -274,19 +274,22 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             
                 # Get results and radios
                 self.rev = emitapp.results.analyze()
+                self.tx_interferer = InterfererType().TRANSMITTERS
                 self.rx_radios = self.rev.get_receiver_names()
                 self.tx_radios = self.rev.get_interferer_names(self.tx_interferer)
-                self.domain = emitapp.results.interaction_domain()
-                self.radios = emitapp.modeler.components.get_radios()
 
+                # Check if design is valid
                 if self.tx_radios is None or self.rx_radios is None:
                     return
 
-            # Initialize results arrays
-            self.all_colors, self.power_matrix = interference_classification(self.tx_radios, self.rx_radios, 
-                                                                             self.radios, emitapp, self.rev, 
-                                                                             self.domain, use_filter = True, 
-                                                                             filter = filter)
+            # Classify the interference
+            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            # Iterate over all the transmitters and receivers and compute the power
+            # at the input to each receiver due to each of the transmitters. Computes
+            # which, if any, type of interference occured.
+            self.all_colors, self.power_matrix = interference_classification(emitapp, use_filter = True, filter = filter)
+
+            # Save project and plot results on table widget
             emitapp.save_project()
             self.populate_table()
 

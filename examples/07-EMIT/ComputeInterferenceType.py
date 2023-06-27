@@ -44,20 +44,13 @@ path_to_desktop_project = sys.argv[1]
 emit_design_name        = sys.argv[2]
 emitapp = Emit(non_graphical=False, new_desktop_session=False, projectname=path_to_desktop_project, designname=emit_design_name)
 
-
-
 # Get all the radios in the project
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Get lists of all transmitters and receivers in the project.
 rev = emitapp.results.analyze()
-modeRx = TxRxMode().RX
-modeTx = TxRxMode().TX
-mode_power = ResultType().POWER_AT_RX
 tx_interferer = InterfererType().TRANSMITTERS
 rx_radios = rev.get_receiver_names()
 tx_radios = rev.get_interferer_names(tx_interferer)
-domain = emitapp.results.interaction_domain()
-radios = emitapp.modeler.components.get_radios()
 
 if tx_radios is None or rx_radios is None:
     print("No recievers or transmitters in design.")
@@ -72,7 +65,7 @@ all_colors=[]
 # Iterate over all the transmitters and receivers and compute the power
 # at the input to each receiver due to each of the transmitters. Computes
 # which, if any, type of interference occured.
-all_colors, power_matrix = interference_classification(tx_radios, rx_radios, radios, emitapp, rev, domain, use_filter = False, filter = [])
+all_colors, power_matrix = interference_classification(emitapp, use_filter = False, filter = [])
 
 # Save project and release the emit desktop
 emitapp.save_project()
