@@ -216,6 +216,7 @@ class Icepak(FieldAnalysis3D):
         expternal_pressure="AmbientPressure",
         x_curve=["0", "1", "2"],
         y_curve=["0", "1", "2"],
+        boundary_name=None,
     ):
         """Assign grille to a face or list of faces.
 
@@ -244,7 +245,9 @@ class Icepak(FieldAnalysis3D):
             List of X curves in m_per_sec. The default is ``["0", "1", "2"]``.
         y_curve : list
             List of Y curves in n_per_meter_q. The default is ``["0", "1", "2"]``.
-
+        boundary_name : str, optional
+            Boundary name. The default is ``None``, in which case the name will
+            be generated automatically.
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
@@ -255,7 +258,8 @@ class Icepak(FieldAnalysis3D):
 
         >>> oModule.AssignGrilleBoundary
         """
-        boundary_name = generate_unique_name("Grille")
+        if boundary_name is None:
+            boundary_name = generate_unique_name("Grille")
 
         self.modeler.create_face_list(air_faces, "boundary_faces" + boundary_name)
         props = {}
