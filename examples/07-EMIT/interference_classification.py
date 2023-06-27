@@ -3,7 +3,7 @@ from pyaedt import Emit
 import pyaedt
 import sys
 
-def interference_classification(emitapp, use_filter, filter):
+def interference_classification(emitapp, use_filter = False, filter = []):
     """
     Classisify interference type as according to inband/inband, 
     out of band/in band, inband/out of band, and out of band/out of band.
@@ -13,7 +13,7 @@ def interference_classification(emitapp, use_filter, filter):
         emitapp : instance of Emit
         use_filter : bool, optional
             Whether filtering is being used. The default is ``False``.
-        filter : list
+        filter : list, optional
             List of filter values if filtering is in use.
 
         Returns
