@@ -4627,3 +4627,45 @@ class Icepak(FieldAnalysis3D):
             inflow=inflow,
             direction_vector=direction_vector,
         )
+
+    @pyaedt_function_handler()
+    def assign_symmetry_wall(
+        self,
+        geometry,
+        name=None,
+    ):
+        """Assign symmetry wall boundary condition.
+
+        Parameters
+        ----------
+        geometry : str or int
+            Name of the surface object or ID of the face.
+        name : str, optional
+            Name of the boundary condition. The default is ``None``.
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+
+        >>> oModule.AssignSymmetryWallBoundary
+        """
+        if not name:
+            name = generate_unique_name("StationaryWall")
+        if isinstance(geometry, str):
+            geometry = [geometry]
+        elif isinstance(geometry, int):
+            geometry = [geometry]
+
+        props = {}
+        if isinstance(geometry[0], int):
+            props["Faces"] = geometry
+        else:
+            props["Objects"] = geometry
+        
+        bound = BoundaryObject(self, name, props, "Symmetry Wall")
+        if bound.create():
+            self.boundaries.append(bound)
+        return bound
