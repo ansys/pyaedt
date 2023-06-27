@@ -203,7 +203,19 @@ class TestClass(BasisTest, object):
         assert test
         assert test.delete()
 
-    def test_12b_AssignVirtualMeshOperation(self):
+    @pytest.mark.skipif(config["use_grpc"], reason="GRPC usage leads to SystemExit.")
+    def test_12b_failing_AssignMeshOperation(self):
+        assert not self.aedtapp.mesh.assign_mesh_region("N0C0MP", 1, is_submodel=True)
+        test = self.aedtapp.mesh.assign_mesh_region(["USB_ID"], 1)
+        b = self.aedtapp.modeler.create_box([0, 0, 0], [1, 1, 1])
+        b.model = False
+        test = self.aedtapp.mesh.assign_mesh_region([b.name])
+        assert test
+        test.Objects = ["US8_1D"]
+        assert not test.update()
+        assert test.delete()
+
+    def test_12c_AssignVirtualMeshOperation(self):
         self.aedtapp.oproject = test_project_name
         self.aedtapp.odesign = "IcepakDesign1"
         group_name = "Group1"
@@ -641,6 +653,7 @@ class TestClass(BasisTest, object):
             ["surf1", "surf2"], monitor_quantity=["Temperature", "HeatFlowRate"], monitor_name="monitor_surfs"
         ) == ["monitor_surfs", "monitor_surfs1"]
         assert self.aedtapp.monitor.assign_surface_monitor("surf1")
+        assert not self.aedtapp.monitor.assign_surface_monitor("surf1", monitor_quantity=["T3mp3ratur3"])
 
     def test_46_point_monitors(self):
         self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], "box", "copper")
@@ -681,6 +694,9 @@ class TestClass(BasisTest, object):
         self.aedtapp.modeler.create_point([1, 2, 2], name="testPoint3")
         assert self.aedtapp.monitor.assign_point_monitor("testPoint", monitor_name="T1")
         assert self.aedtapp.monitor.assign_point_monitor(["testPoint2", "testPoint3"])
+        assert not self.aedtapp.monitor.assign_point_monitor("testPoint", monitor_quantity="Sp33d")
+        assert not self.aedtapp.monitor.assign_point_monitor_to_vertex(vertex1.id, monitor_quantity="T3mp3ratur3")
+        assert not self.aedtapp.monitor.assign_point_monitor_in_object("box2", monitor_quantity="T3mp3ratur3")
 
     def test_47_face_monitor(self):
         self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], "box3", "copper")
@@ -698,6 +714,7 @@ class TestClass(BasisTest, object):
             [face_1.id, face_2.id], monitor_quantity=["Temperature", "HeatFlowRate"], monitor_name="monitor_faces"
         ) == ["monitor_faces", "monitor_faces3"]
         assert isinstance(self.aedtapp.monitor.face_monitors["monitor_faces1"].properties, dict)
+        assert not self.aedtapp.monitor.assign_face_monitor(face_1.id, monitor_quantity="Thermogen")
 
     def test_49_delete_monitors(self):
         for _, mon_obj in self.aedtapp.monitor.all_monitors.items():

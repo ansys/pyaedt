@@ -649,6 +649,8 @@ class TestClass(BasisTest, object):
         target_path = os.path.join(self.local_scratch.path, "ANSYS-HSD_V1_cutou2.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
+        spice_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC.mod")
+        edbapp.components.instances["R8"].assign_spice_model(spice_path)
         edbapp.nets.nets
         if is_ironpython:
             assert not edbapp.cutout(
@@ -664,6 +666,7 @@ class TestClass(BasisTest, object):
                 extent_type="Bounding",
                 number_of_threads=4,
                 extent_defeature=0.001,
+                preserve_components_with_model=True,
             )
             assert "A0_N" not in edbapp.nets.nets
             assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND", order_by_area=True), list)
