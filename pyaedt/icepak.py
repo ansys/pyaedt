@@ -3672,8 +3672,9 @@ class Icepak(FieldAnalysis3D):
 
         Parameters
         ----------
-        assignment : int or str
-            If int, Face ID. If str, object name.
+        assignment : int or str or list
+            If int, Face ID. If str, object name. It is also possible to provide a list of Face IDs
+            and object names.
         thermal_condition : str
             Thermal condition. Accepted values are ``"Total Power"``, ``"Surface Heat"``,
             ``"Temperature"``.
@@ -3728,10 +3729,12 @@ class Icepak(FieldAnalysis3D):
         if not boundary_name:
             boundary_name = generate_unique_name("Source")
         props = {}
-        if isinstance(assignment, int):
-            props["Faces"] = [assignment]
-        elif isinstance(assignment, str):
-            props["Objects"] = [assignment]
+        if not isinstance(assignment, list):
+            assignment = [assignment]
+        if isinstance(assignment[0], int):
+            props["Faces"] = assignment
+        elif isinstance(assignment[0], str):
+            props["Objects"] = assignment
         props["Thermal Condition"] = thermal_condition
         for quantity, value in default_values.items():
             if quantity == thermal_condition:
@@ -3895,8 +3898,8 @@ class Icepak(FieldAnalysis3D):
 
         Parameters
         ----------
-        object_name : str
-            Name of the object.
+        object_name : str or list
+            Name of the object or list of names.
         power_assignment : str or dict
             String with the value and units of the power assignment or with
             ``"Joule Heating"``. For a temperature-dependent or transient
@@ -3968,7 +3971,9 @@ class Icepak(FieldAnalysis3D):
                 'It is not possible to use a "Temp Dep" assignment for ' "temperature assignment."
             )
             return None
-        props = {"Block Type": "Solid", "Objects": [object_name]}
+        if not isinstance(object_name, list):
+            object_name = [object_name]
+        props = {"Block Type": "Solid", "Objects": object_name}
         if isinstance(power_assignment, dict):
             assignment_value = self._parse_variation_data(
                 "Total Power",
@@ -4022,8 +4027,8 @@ class Icepak(FieldAnalysis3D):
 
         Parameters
         ----------
-        object_name : str
-            Name of the object.
+        object_name : str or list
+            Name of the object or list of names.
         assignment_type : str
             Type of the boundary assignment. Options are ``"Heat Transfer Coefficient"``,
             ``"Heat Flux"``, ``"Temperature"``, and ``"Total Power"``.
@@ -4106,7 +4111,10 @@ class Icepak(FieldAnalysis3D):
             )
             return None
 
-        props = {"Block Type": "Hollow", "Objects": [object_name], "Thermal Condition": thermal_condition[0]}
+        if not isinstance(object_name, list):
+            object_name = [object_name]
+
+        props = {"Block Type": "Hollow", "Objects": object_name, "Thermal Condition": thermal_condition[0]}
         if thermal_condition[0] == "Fixed Heat":
             props["Use Total Power"] = thermal_condition[1] == "Total Power"
         if isinstance(assignment_value, dict):
@@ -4254,7 +4262,8 @@ class Icepak(FieldAnalysis3D):
         Parameters
         ----------
         assignment : int or str
-            Integer indicating face ID or object name string.
+            Integer indicating face ID or object name string. Also list of Face IDs or object names
+            is accepted.
         boundary_name : str, optional
             Boundary name. Default is ``None``, in which case the name is generated automatically.
         temperature : str or float or dict, optional
@@ -4420,7 +4429,8 @@ class Icepak(FieldAnalysis3D):
         Parameters
         ----------
         assignment : int or str
-            Integer indicating face ID or object name string.
+            Integer indicating face ID or object name string. Also list of Face IDs or object names
+            is accepted.
         boundary_name : str, optional
             Boundary name. Default is ``None``, in which case the name is generated automatically.
         temperature : str or float or dict, optional
@@ -4488,7 +4498,8 @@ class Icepak(FieldAnalysis3D):
         Parameters
         ----------
         assignment : int or str
-            Integer indicating face ID or object name string.
+            Integer indicating face ID or object name string. Also list of Face IDs or object names
+            is accepted.
         boundary_name : str, optional
             Boundary name. Default is ``None``, in which case the name is generated automatically.
         temperature : str or float or dict, optional
@@ -4563,7 +4574,8 @@ class Icepak(FieldAnalysis3D):
         Parameters
         ----------
         assignment : int or str
-            Integer indicating face ID or object name string.
+            Integer indicating face ID or object name string. Also list of Face IDs or object names
+            is accepted.
         boundary_name : str, optional
             Boundary name. Default is ``None``, in which case the name is generated automatically.
         temperature : str or float or dict, optional
