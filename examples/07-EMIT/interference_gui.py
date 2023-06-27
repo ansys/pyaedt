@@ -285,7 +285,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             # Classify the interference
             # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
             # Iterate over all the transmitters and receivers and compute the power
-            # at the input to each receiver due to each of the transmitters. Computes
+            # at the input to each receiver due to each of the transmitters. Compute
             # which, if any, type of interference occured.
             self.all_colors, self.power_matrix = interference_classification(emitapp, use_filter = True, filter = filter)
 

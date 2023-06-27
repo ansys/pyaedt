@@ -11,13 +11,17 @@ def interference_classification(emitapp, use_filter, filter):
     Parameters
     ----------
         emitapp : instance of Emit
-        use_filter : boolean value, True if filtering is being used
-        filter : list of filter values if filtering is in use
+        use_filter : bool, optional
+            Whether filtering is being used. The default is ``False``.
+        filter : list
+            List of filter values if filtering is in use.
 
         Returns
         -------
-        power_matrix : list of worst case interference power at Rx
-        all_colors : color classification of interterference types
+        power_matrix : list
+            List of worst case interference power at Rx.
+        all_colors : list
+            List of color classification of interference types.
     """
     power_matrix = []
     all_colors = []
