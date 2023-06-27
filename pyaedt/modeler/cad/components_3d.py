@@ -9,6 +9,7 @@ import warnings
 # from pyaedt import property
 from pyaedt import Edb
 from pyaedt import pyaedt_function_handler
+from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import _uname
 from pyaedt.modeler.cad.elements3d import BinaryTreeNode
 from pyaedt.modeler.cad.elements3d import _dict2arg
@@ -863,9 +864,11 @@ class LayoutComponent(object):
         self._edb_definition = None
         self._show_layout = None
         self._fast_transformation = None
-        self.layers = []
-        self.nets = []
-        self.objects = []
+        self._show_dielectric = None
+        self._display_mode = None
+        self.layers = {}
+        self.nets = {}
+        self.objects = {}
         if self.edb_definition:
             self._get_edb_info()
 
@@ -896,8 +899,7 @@ class LayoutComponent(object):
         Returns
         -------
         bool
-           ``True`` if show layout is checked and if the component is a Layout Component,
-           ``None`` if other cases.
+           `Show layout check box.
 
         """
         key = "Show Layout"
@@ -924,8 +926,7 @@ class LayoutComponent(object):
         Returns
         -------
         bool
-           ``True`` if fast transformation is checked and if the component is a Layout Component,
-           ``None`` if other cases.
+           Fast transformation check box.
 
         """
         key = "Fast Transformation"
@@ -944,6 +945,60 @@ class LayoutComponent(object):
         ):
             self._primitives.oeditor.GetChildObject(self._name).SetPropValue(key, fast_transformation)
             self._fast_transformation = fast_transformation
+
+    @property
+    def show_dielectric(self):
+        """Show dielectric flag.
+
+        Returns
+        -------
+        bool
+           Show dielectric check box.
+
+        """
+        key = "Show Dielectric"
+        if key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self._name):
+            show_layout = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self._name, key)
+            self._show_layout = show_layout
+            return show_layout
+        else:
+            return None
+
+    @show_dielectric.setter
+    def show_dielectric(self, show_layout):
+        key = "Show Dielectric"
+        if isinstance(show_layout, bool) and key in self._primitives._app.get_oo_properties(
+            self._primitives.oeditor, self._name
+        ):
+            self._primitives.oeditor.GetChildObject(self._name).SetPropValue(key, show_layout)
+            self._show_layout = show_layout
+
+    @property
+    def display_mode(self):
+        """Show layout flag.
+
+        Returns
+        -------
+        str
+           Display mode.
+
+        """
+        key = "Display mode"
+        if key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self._name):
+            show_layout = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self._name, key)
+            self._show_layout = show_layout
+            return show_layout
+        else:
+            return None
+
+    @display_mode.setter
+    def display_mode(self, show_layout):
+        key = "Display mode"
+        if isinstance(show_layout, bool) and key in self._primitives._app.get_oo_properties(
+            self._primitives.oeditor, self._name
+        ):
+            self._primitives.oeditor.GetChildObject(self._name).SetPropValue(key, show_layout)
+            self._show_layout = show_layout
 
     @pyaedt_function_handler()
     def _get_edb_info(self):
@@ -968,9 +1023,40 @@ class LayoutComponent(object):
         )
 
         # Get objects, nets and layers
-        self.nets = component_obj.nets.netlist
-        self.layers = list(component_obj.stackup.stackup_layers.keys())
-        self.objects = list(component_obj.components.components.keys())
+        self.nets = {key: [True, False, 60] for key in component_obj.nets.netlist}
+        self.layers = {key: [True, False, 60] for key in list(component_obj.stackup.stackup_layers.keys())}
+        self.objects = {key: [True, False, 60] for key in list(component_obj.components.instances.keys())}
+
         component_obj.close_edb()
+
+        return True
+
+    @pyaedt_function_handler()
+    def change_visibility(self):
+        """Change layer visibility.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
+        """
+
+        vPropChange = [
+            "NAME:Object Attributes",
+            "ShowDielectric:=",
+            self.show_dielectric,
+            "DisplayMode:=",
+            self.display_mode,
+        ]
+        vChangedProps = ["NAME:ChangedProps", vPropChange]
+        vPropServers = ["NAME:PropServers", self._name]
+        vGeo3d = ["NAME:Visualization", vPropServers, vChangedProps]
+        vOut = ["NAME:AllTabs", vGeo3d]
+        _retry_ntimes(10, self.oeditor.ChangeProperty, vOut)
 
         return True
