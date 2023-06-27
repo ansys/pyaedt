@@ -4632,15 +4632,15 @@ class Icepak(FieldAnalysis3D):
     def assign_symmetry_wall(
         self,
         geometry,
-        name=None,
+        boundary_name=None,
     ):
         """Assign symmetry wall boundary condition.
 
         Parameters
         ----------
-        geometry : str or int
+        geometry : str or int or list of str/int
             Name of the surface object or ID of the face.
-        name : str, optional
+        boundary_name : str, optional
             Name of the boundary condition. The default is ``None``.
         Returns
         -------
@@ -4652,8 +4652,8 @@ class Icepak(FieldAnalysis3D):
 
         >>> oModule.AssignSymmetryWallBoundary
         """
-        if not name:
-            name = generate_unique_name("StationaryWall")
+        if not boundary_name:
+            boundary_name = generate_unique_name("StationaryWall")
         if isinstance(geometry, str):
             geometry = [geometry]
         elif isinstance(geometry, int):
@@ -4665,7 +4665,7 @@ class Icepak(FieldAnalysis3D):
         else:
             props["Objects"] = geometry
         
-        bound = BoundaryObject(self, name, props, "Symmetry Wall")
+        bound = BoundaryObject(self, boundary_name, props, "Symmetry Wall")
         if bound.create():
             self.boundaries.append(bound)
         return bound
