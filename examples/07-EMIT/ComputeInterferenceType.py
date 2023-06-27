@@ -5,6 +5,7 @@ import pyaedt
 import os
 import pyaedt.generic.constants as consts
 import subprocess
+from interference_classification import interference_classification
 
 # Check to see which Python libraries have been installed
 reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
@@ -14,29 +15,36 @@ installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
 def install(package):
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', package])
 
-# Install any missing libraries
+# Install plotly library (if needed) to display legend and scenario matrix results (internet connection needed)
 required_packages = ['plotly']
 for package in required_packages:
     if package not in installed_packages:
         install(package)
 
-# Import plotly library (if needed) to displa legend and scenario matrix results
+# Import plotly library 
 import plotly.graph_objects as go
 
 # Define colors for tables
-table_colors = {"out-out":'#7d73ca', "in-out":'#d359a2', "out-in": '#ff6361', "in-in": '#ffa600', "white": '#ffffff'}
+table_colors = {"green":'#7d73ca', "yellow":'#d359a2', "orange": '#ff6361', "red": '#ffa600', "white": '#ffffff'}
 header_color = 'grey'
 
+# Check for if emit version is compatible
+desktop_version = "2023.2"
+if desktop_version <= "2023.1":
+    print("Warning: this example requires AEDT 2023.2 or later.")
+    sys.exit()
+
+# Launch desktop
 non_graphical = False
 new_thread = True
-desktop_version = "2023.2"
 desktop = pyaedt.launch_desktop(desktop_version, non_graphical=non_graphical, new_desktop_session=new_thread)
 
+# Read project file path and design name, open project
 path_to_desktop_project = sys.argv[1]
 emit_design_name        = sys.argv[2]
-
 emitapp = Emit(non_graphical=False, new_desktop_session=False, projectname=path_to_desktop_project, designname=emit_design_name)
 
+# Check for if emit version is compatible
 if desktop_version <= "2023.1":
     print("Warning: this example requires AEDT 2023.2 or later.")
     sys.exit()
@@ -63,73 +71,14 @@ if tx_radios is None or rx_radios is None:
 power_matrix=[]
 all_colors=[]
 
-
 # Iterate over all the radios
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Iterate over all the transmitters and receivers and compute the power
 # at the input to each receiver due to each of the transmitters. Computes
 # which, if any, type of interference occured.
+all_colors, power_matrix = interference_classification(tx_radios, rx_radios, radios, emitapp, rev, domain, use_filter = False, filter = [])
 
-for tx_radio in tx_radios:
-    rx_powers = []
-    rx_colors = []
-    for rx_radio in rx_radios:
-        # powerAtRx is the same for all Rx bands, so just use first one
-        rx_bands = rev.get_band_names(rx_radio, modeRx)
-        rx_band_objects = radios[rx_radio].bands()
-        if tx_radio == rx_radio:
-            # skip self-interaction
-            rx_powers.append('N/A')
-            rx_colors.append(table_colors['white'])
-            continue    
-
-        max_power = -200
-        tx_bands = rev.get_band_names(tx_radio, modeTx)
-        tx_band_objects = radios[tx_radio].bands()
-
-        for i in range(len(rx_bands)):
-            
-            rx_freq = rev.get_active_frequencies(rx_radio, rx_bands[i], modeRx)
-            rx_start_freq = radios[rx_radio].band_start_frequency(rx_band_objects[i])
-            rx_stop_freq = consts.unit_converter(float(rx_band_objects[i].props["StopFrequency"]), "Freq", "Hz", "MHz")
-            rx_channel_bandwidth = consts.unit_converter(float(rx_band_objects[i].props["ChannelBandwidth"]), "Freq", "Hz", "MHz")
-            
-            for j in range(len(tx_bands)):
-                domain.set_receiver(rx_radio, rx_bands[i])            
-                domain.set_interferer(tx_radio, tx_bands[j])
-                interaction = rev.run(domain)
-                domain.set_receiver(rx_radio, rx_bands[i], rx_freq[0])
-                tx_freqs = rev.get_active_frequencies(tx_radio, tx_bands[j], modeTx)
-                for tx_freq in tx_freqs:
-                    domain.set_interferer(tx_radio, tx_bands[j], tx_freq)
-                    instance = interaction.get_instance(domain)
-                    if instance.get_value(mode_power) > max_power:
-                        tx_prob = instance.get_largest_problem_type(mode_power)
-                        max_power = instance.get_value(mode_power)
-                        tx_prob = instance.get_largest_problem_type(mode_power).replace(" ","").split(":")[1]
-                        if rx_start_freq-rx_channel_bandwidth/2 <= tx_freq <= rx_stop_freq+rx_channel_bandwidth/2:
-                            rx_prob = "In-band"
-                        else:
-                            rx_prob = 'Out-of-band'
-
-        if max_power > -200:
-            rx_powers.append(max_power)
-            
-            if tx_prob == "TxFundamental" and rx_prob == 'In-band':
-                rx_colors.append(table_colors["in-in"])
-            elif tx_prob != "TxFundamental" and rx_prob == 'In-band':
-                rx_colors.append(table_colors["out-in"])
-            elif tx_prob == "TxFundamental" and not(rx_prob == 'In-band'):
-                rx_colors.append(table_colors["in-out"])
-            elif tx_prob != "TxFundamental" and not(rx_prob == 'In-band'):
-                rx_colors.append(table_colors["out-out"])
-        else:
-            rx_powers.append('<-200')
-            rx_colors.append('white')
-            
-    all_colors.append(rx_colors)
-    power_matrix.append(rx_powers)
-
+# Save project and release the emit desktop
 emitapp.save_project()
 emitapp.release_desktop()
 
@@ -137,6 +86,14 @@ def create_scenario_view(emis, colors, tx_radios, rx_radios):
     """Create a scenario matrix-like table with the higher received
     power for each Tx-Rx radio combination. The colors
     used for the scenario matrix view are based on the interference type."""
+    
+    all_colors = []
+    for color in colors:
+        col = []
+        for cell in color:
+            col.append(table_colors[cell])
+        all_colors.append(col)
+            
     fig = go.Figure(data=[go.Table(
         header=dict(
             values=['<b>Tx/Rx</b>','<b>{}</b>'.format(tx_radios[0]),'<b>{}</b>'.format(tx_radios[1])],
@@ -151,7 +108,7 @@ def create_scenario_view(emis, colors, tx_radios, rx_radios):
                 emis[0],
                 emis[1]],
             line_color='darkslategray',
-            fill_color=['white',colors[0], colors[1]],
+            fill_color=['white',all_colors[0], all_colors[1]],
             align = ['left', 'center'],
             height = 25,
             font = dict(
@@ -184,7 +141,7 @@ def create_legend_table():
         cells=dict(
             values=[classifications],
             line_color='darkslategray',
-            fill_color= [[table_colors['in-in'], table_colors['out-in'], table_colors['in-out'], table_colors['out-out']]],
+            fill_color= [[table_colors['red'], table_colors['orange'], table_colors['yellow'], table_colors['green']]],
             align = ['center'],
             height = 25,
             font = dict(

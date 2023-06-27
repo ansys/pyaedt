@@ -7,8 +7,23 @@ from openpyxl.styles import PatternFill
 import openpyxl
 import os
 import pyaedt.generic.constants as consts
+from interference_classification import interference_classification
 
-sys.path.append('C:\\Program Files\\AnsysEM\\v232\\Win64\\Delcross')
+# Check that emit is a compatible version
+emitapp_desktop_version = "2023.2"
+if emitapp_desktop_version < "2023.2":
+    print("Must have v2023.2 or later")
+    sys.exit()
+
+# Launch emit
+non_graphical = False
+new_thread = True
+d = pyaedt.launch_desktop(emitapp_desktop_version, non_graphical, new_thread)
+emitapp = Emit(pyaedt.generate_unique_project_name())
+
+# Add emitapi to system path
+emit_path = emitapp._desktop_install_dir + "/Delcross"
+sys.path.append(emit_path)
 import EmitApiPython
 api = EmitApiPython.EmitApi()
 
@@ -88,7 +103,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.interference_export_btn = self.findChild(QtWidgets.QPushButton, "interference_export_btn")
         self.interference_save_img_btn = self.findChild(QtWidgets.QPushButton, 'interference_save_img_btn')
         
-
         # Setup for interference type buttons and table
         self.interference_export_btn.setEnabled(False)
         self.interference_save_img_btn.setEnabled(False)
@@ -111,13 +125,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                            "white": [QtGui.QColor("white"),'#ffffff']}
         self.previous_design = ''
         self.previous_project = ''
-
-        # Open Emit on startup
-        non_graphical = False
-        new_thread = False
-        desktop_version = "2023.2"
-        desktop = pyaedt.launch_desktop(desktop_version, non_graphical=non_graphical, new_desktop_session=True)
-        self.emitapp = Emit(pyaedt.generate_unique_project_name())
 
         # Set the legend tables to strech resize mode
         header = self.protection_legend_table.horizontalHeader()
@@ -144,17 +151,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def open_file_dialog(self):
         'Open the file dialog and open the corresponging EMIT Project/Design'
-        fname = QtWidgets.QFileDialog.getOpenFileName(self, "Select EMIT Project", "", "All Files (*);;Ansys Electronics Desktop Files (*.aedt)", )
+        fname = QtWidgets.QFileDialog.getOpenFileName(self, "Select EMIT Project", "", "Ansys Electronics Desktop Files (*.aedt)", )
         if fname: 
             self.file_path_box.setText(fname[0])
 
             # Close previous project and open specified one
-            self.emitapp.close_project()
-            self.emitapp = Emit(non_graphical=False, new_desktop_session=False,                
-                            projectname=self.file_path_box.text())
-            designs = self.emitapp.design_list
-
+            emitapp.close_project()       
+            emitapp.load_project(self.file_path_box.text())
+            
             # Populate design dropdown with all design names
+            designs = emitapp.design_list
             self.design_name_dropdown.clear()
             for i in designs:
                 self.design_name_dropdown.addItem(i)
@@ -176,8 +182,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.radio_dropdown.setEnabled(self.radio_specific_levels.isChecked())
         self.radio_dropdown.clear()
         if self.radio_dropdown.isEnabled():
-            self.emitapp.set_active_design(self.design_name_dropdown.currentText())
-            radios = self.emitapp.modeler.components.get_radios()
+            emitapp.set_active_design(self.design_name_dropdown.currentText())
+            radios = emitapp.modeler.components.get_radios()
             values = [float(self.protection_legend_table.item(row, 0).text()) for row in range(self.protection_legend_table.rowCount())]
             for radio in radios:
                 if radios[radio].has_rx_channels():
@@ -261,97 +267,27 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         if self.file_path_box.text() != "" and self.design_name_dropdown.currentText() != "":
             if self.previous_design != self.design_name_dropdown.currentText() or self.previous_project != self.file_path_box.text():
-                # self.emitapp.close_project()
+                # emitapp.close_project()
                 self.previous_design = self.design_name_dropdown.currentText()
                 self.previous_project = self.file_path_box.text()
-                self.emitapp.set_active_design(self.design_name_dropdown.currentText())
+                emitapp.set_active_design(self.design_name_dropdown.currentText())
             
-                self.rev = self.emitapp.results.analyze()
-                self.modeRx = TxRxMode().RX
-                self.modeTx = TxRxMode().TX
-                self.mode_power = ResultType().POWER_AT_RX
-                self.tx_interferer = InterfererType().TRANSMITTERS
-
+                # Get results and radios
+                self.rev = emitapp.results.analyze()
                 self.rx_radios = self.rev.get_receiver_names()
                 self.tx_radios = self.rev.get_interferer_names(self.tx_interferer)
-                self.domain = self.emitapp.results.interaction_domain()
-                self.radios = self.emitapp.modeler.components.get_radios()
+                self.domain = emitapp.results.interaction_domain()
+                self.radios = emitapp.modeler.components.get_radios()
 
                 if self.tx_radios is None or self.rx_radios is None:
                     return
 
             # Initialize results arrays
-            self.power_matrix=[]
-            self.all_colors=[]
-            
-            for tx_radio in self.tx_radios:
-                rx_powers = []
-                rx_colors = []
-                for rx_radio in self.rx_radios:
-                    # powerAtRx is the same for all Rx bands, so just use first one
-                    rx_bands = self.rev.get_band_names(rx_radio, self.modeRx)
-                    rx_band_objects = self.radios[rx_radio].bands()
-                    if tx_radio == rx_radio:
-                        # skip self-interaction
-                        rx_powers.append('N/A')
-                        rx_colors.append('white')
-                        continue       
-
-                    max_power = -200
-                    tx_bands = self.rev.get_band_names(tx_radio, self.modeTx)
-                    tx_band_objects = self.radios[tx_radio].bands()
-
-                    for i in range(len(rx_bands)):
-                        
-                        rx_freq = self.rev.get_active_frequencies(rx_radio, rx_bands[i], self.modeRx)
-                        rx_start_freq = self.radios[rx_radio].band_start_frequency(rx_band_objects[i])
-                        rx_stop_freq = consts.unit_converter(float(rx_band_objects[i].props["StopFrequency"]), "Freq", "Hz", "MHz")
-                        rx_channel_bandwidth = consts.unit_converter(float(rx_band_objects[i].props["ChannelBandwidth"]), "Freq", "Hz", "MHz")
-                        
-                        for j in range(len(tx_bands)):
-                            self.domain.set_receiver(rx_radio, rx_bands[i])            
-                            self.domain.set_interferer(tx_radio, tx_bands[j])
-                            interaction = self.rev.run(self.domain)
-                            self.domain.set_receiver(rx_radio, rx_bands[i], rx_freq[0])
-                            tx_freqs = self.rev.get_active_frequencies(tx_radio, tx_bands[j], self.modeTx)
-                            for tx_freq in tx_freqs:
-                                self.domain.set_interferer(tx_radio, tx_bands[j], tx_freq)
-                                instance = interaction.get_instance(self.domain)
-                                tx_prob = instance.get_largest_problem_type(self.mode_power).replace(" ","").split(":")[1]
-                                if rx_start_freq-rx_channel_bandwidth/2 <= tx_freq <= rx_stop_freq+rx_channel_bandwidth/2:
-                                    rx_prob = "In-band"
-                                else:
-                                    rx_prob = 'Out-of-band'
-                                prob_filter_val = tx_prob + ":" + rx_prob
-
-                                # Check if problem type is in filtered list of problem types to analyze
-                                in_filters = any(prob_filter_val in sublist for sublist in filter)
-
-                                if instance.get_value(self.mode_power) > max_power and in_filters:
-                                    prob = instance.get_largest_problem_type(self.mode_power)
-                                    max_power = instance.get_value(self.mode_power)
-                                    largest_rx_prob = rx_prob
-                                    largest_tx_prob = prob.replace(" ", "").split(":")
-
-                    if max_power > -200:
-                        rx_powers.append(max_power)
-                        
-                        if largest_tx_prob[-1] == "TxFundamental" and largest_rx_prob == 'In-band':
-                            rx_colors.append("red")
-                        elif largest_tx_prob[-1] != "TxFundamental" and largest_rx_prob == 'In-band':
-                            rx_colors.append("orange")
-                        elif largest_tx_prob[-1] == "TxFundamental" and not(largest_rx_prob == 'In-band'):
-                            rx_colors.append("yellow")
-                        elif largest_tx_prob[-1] != "TxFundamental" and not(largest_rx_prob == 'In-band'):
-                            rx_colors.append("green")
-                    else:
-                        rx_powers.append("<= -200")
-                        rx_colors.append('white')
-                        
-                self.all_colors.append(rx_colors)
-                self.power_matrix.append(rx_powers)
-
-            self.emitapp.save_project()
+            self.all_colors, self.power_matrix = interference_classification(self.tx_radios, self.rx_radios, 
+                                                                             self.radios, emitapp, self.rev, 
+                                                                             self.domain, use_filter = True, 
+                                                                             filter = filter)
+            emitapp.save_project()
             self.populate_table()
 
     def protection_results(self):
@@ -373,18 +309,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if self.previous_design != self.design_name_dropdown.currentText() or self.previous_project != self.file_path_box.text():
                 self.previous_design = self.design_name_dropdown.currentText()
                 self.previous_project = self.file_path_box.text()
-                self.emitapp.set_active_design(self.design_name_dropdown.currentText())
+                emitapp.set_active_design(self.design_name_dropdown.currentText())
 
-                self.rev = self.emitapp.results.analyze()
+                # Get results and design radios
                 self.modeRx = TxRxMode().RX
                 self.modeTx = TxRxMode().TX
                 self.mode_power = ResultType().POWER_AT_RX
                 self.tx_interferer = InterfererType().TRANSMITTERS
-
+                self.rev = emitapp.results.analyze()
                 self.rx_radios = self.rev.get_receiver_names()
                 self.tx_radios = self.rev.get_interferer_names(self.tx_interferer)
-                self.domain = self.emitapp.results.interaction_domain()
-                self.radios = self.emitapp.modeler.components.get_radios()
+                self.domain = emitapp.results.interaction_domain()
+                self.radios = emitapp.modeler.components.get_radios()
 
             if self.tx_radios is None or self.rx_radios is None:
                 return
@@ -421,18 +357,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                         # Can look at any Rx freq since susceptibility won't impact
                         # powerAtRx, but need to look at all tx channels since coupling
                         # can change over a transmitter's bandwidth
-                        rx_freq = self.rev.get_active_frequencies(rx_radio, rx_band, self.modeRx)
+                        rx_freq = self.rev.get_active_frequencies(rx_radio, rx_band, self.modeRx)[0]
                         self.domain.set_receiver(rx_radio, rx_band)            
                         self.domain.set_interferer(tx_radio, tx_band)
                         interaction = self.rev.run(self.domain)
-                        self.domain.set_receiver(rx_radio, rx_band, rx_freq[0])
+                        self.domain.set_receiver(rx_radio, rx_band, rx_freq)
                         tx_freqs = self.rev.get_active_frequencies(tx_radio, tx_band, self.modeTx)
                         
                         power_list = []
 
                         for tx_freq in tx_freqs:
                             self.domain.set_interferer(tx_radio, tx_band, tx_freq)
-                            #interaction = rev.run(domain)
                             instance = interaction.get_instance(self.domain)
                             power = instance.get_value(self.mode_power)
 
@@ -500,7 +435,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         img_btn.setEnabled(True)
     
     def closeEvent(self, event):
-        self.emitapp.close_desktop()
+        emitapp.close_desktop()
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication([])
