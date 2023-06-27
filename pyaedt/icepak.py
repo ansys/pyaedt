@@ -248,6 +248,7 @@ class Icepak(FieldAnalysis3D):
         boundary_name : str, optional
             Boundary name. The default is ``None``, in which case the name will
             be generated automatically.
+
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
