@@ -44,10 +44,6 @@ path_to_desktop_project = sys.argv[1]
 emit_design_name        = sys.argv[2]
 emitapp = Emit(non_graphical=False, new_desktop_session=False, projectname=path_to_desktop_project, designname=emit_design_name)
 
-# Check for if emit version is compatible
-if desktop_version <= "2023.1":
-    print("Warning: this example requires AEDT 2023.2 or later.")
-    sys.exit()
 
 
 # Get all the radios in the project
