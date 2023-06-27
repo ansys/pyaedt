@@ -71,7 +71,7 @@ if tx_radios is None or rx_radios is None:
 power_matrix=[]
 all_colors=[]
 
-# Iterate over all the radios
+# Classify the interference
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Iterate over all the transmitters and receivers and compute the power
 # at the input to each receiver due to each of the transmitters. Computes
