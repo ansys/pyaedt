@@ -1,11 +1,13 @@
 from __future__ import absolute_import
 
 from collections import OrderedDict
+import os
 import random
 import re
 import warnings
 
 # from pyaedt import property
+from pyaedt import Edb
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.general_methods import _uname
 from pyaedt.modeler.cad.elements3d import BinaryTreeNode
@@ -103,8 +105,7 @@ class UserDefinedComponent(object):
         self._group_name = None
         self._is3dcomponent = None
         self._mesh_assembly = None
-        self._show_layout = None
-        self._fast_transformation = None
+
         if name:
             self._m_name = name
         else:
@@ -166,6 +167,30 @@ class UserDefinedComponent(object):
                 self._update_props(self._props["NativeComponentDefinitionProvider"], props)
             self.native_properties = self._props["NativeComponentDefinitionProvider"]
             self.auto_update = True
+
+        self._layout_component = None
+
+    @property
+    def layout_component(self):
+        """Layout component object.
+
+        Returns
+        -------
+        :class:`LayoutComponent`
+            Layout Component.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
+        """
+        if not self._layout_component and "Show Layout" in self._primitives._app.get_oo_properties(
+            self._primitives.oeditor, self.name
+        ):
+            self._layout_component = LayoutComponent(self)
+        return self._layout_component
 
     @pyaedt_function_handler()
     def history(self):
@@ -302,66 +327,6 @@ class UserDefinedComponent(object):
         ):
             self._primitives.oeditor.GetChildObject(self.name).SetPropValue(key, ma)
             self._mesh_assembly = ma
-
-    @property
-    def show_layout(self):
-        """Show layout flag.
-
-        Returns
-        -------
-        bool
-           ``True`` if show layout is checked and if the component is a Layout Component,
-           ``None`` if other cases.
-
-        """
-        key = "Show Layout"
-        if self.is3dcomponent and key in self._primitives.oeditor.GetChildObject(self.name).GetPropNames():
-            show_layout = self._primitives.oeditor.GetChildObject(self.name).GetPropValue(key)
-            self._show_layout = show_layout
-            return show_layout
-        else:
-            return None
-
-    @show_layout.setter
-    def show_layout(self, show_layout):
-        key = "Show Layout"
-        if (
-            self.is3dcomponent
-            and isinstance(show_layout, bool)
-            and key in self._primitives.oeditor.GetChildObject(self.name).GetPropNames()
-        ):
-            self._primitives.oeditor.GetChildObject(self.name).SetPropValue(key, show_layout)
-            self._show_layout = show_layout
-
-    @property
-    def fast_transformation(self):
-        """Show layout flag.
-
-        Returns
-        -------
-        bool
-           ``True`` if fast transformation is checked and if the component is a Layout Component,
-           ``None`` if other cases.
-
-        """
-        key = "Fast Transformation"
-        if self.is3dcomponent and key in self._primitives.oeditor.GetChildObject(self.name).GetPropNames():
-            fast_transformation = self._primitives.oeditor.GetChildObject(self.name).GetPropValue(key)
-            self._fast_transformation = fast_transformation
-            return fast_transformation
-        else:
-            return None
-
-    @fast_transformation.setter
-    def fast_transformation(self, fast_transformation):
-        key = "Fast Transformation"
-        if (
-            self.is3dcomponent
-            and isinstance(fast_transformation, bool)
-            and key in self._primitives.oeditor.GetChildObject(self.name).GetPropNames()
-        ):
-            self._primitives.oeditor.GetChildObject(self.name).SetPropValue(key, fast_transformation)
-            self._fast_transformation = fast_transformation
 
     @property
     def name(self):
@@ -877,3 +842,135 @@ class UserDefinedComponent(object):
                 design_name = project.GetActiveDesign().GetName()
             return get_pyaedt_app(project_name, design_name)
         return False
+
+
+class LayoutComponent(object):
+    """Manages object attributes for Layout components.
+
+    Parameters
+    ----------
+    primitives : :class:`pyaedt.modeler.Primitives3D.Primitives3D`
+        Inherited parent object.
+    name : str, optional
+        Name of the component. The default value is ``None``.
+
+    """
+
+    def __init__(self, component):
+        self._primitives = component._primitives
+        self._name = component.name
+        self._component = component
+        self._edb_definition = None
+        self._show_layout = None
+        self._fast_transformation = None
+        self.layers = []
+        self.nets = []
+        self.objects = []
+        if self.edb_definition:
+            self._get_edb_info()
+
+    @property
+    def edb_definition(self):
+        """Edb definition.
+
+        Returns
+        -------
+        str
+           EDB definition.
+
+        """
+        key = "EDB Definition"
+        if key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self._component.definition_name):
+            edb_definition = self._primitives._app.get_oo_property_value(
+                self._primitives.oeditor, self._component.definition_name, key
+            )
+            self._edb_definition = edb_definition
+            return edb_definition
+        else:
+            return None
+
+    @property
+    def show_layout(self):
+        """Show layout flag.
+
+        Returns
+        -------
+        bool
+           ``True`` if show layout is checked and if the component is a Layout Component,
+           ``None`` if other cases.
+
+        """
+        key = "Show Layout"
+        if key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self._name):
+            show_layout = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self._name, key)
+            self._show_layout = show_layout
+            return show_layout
+        else:
+            return None
+
+    @show_layout.setter
+    def show_layout(self, show_layout):
+        key = "Show Layout"
+        if isinstance(show_layout, bool) and key in self._primitives._app.get_oo_properties(
+            self._primitives.oeditor, self._name
+        ):
+            self._primitives.oeditor.GetChildObject(self._name).SetPropValue(key, show_layout)
+            self._show_layout = show_layout
+
+    @property
+    def fast_transformation(self):
+        """Show layout flag.
+
+        Returns
+        -------
+        bool
+           ``True`` if fast transformation is checked and if the component is a Layout Component,
+           ``None`` if other cases.
+
+        """
+        key = "Fast Transformation"
+        if key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self._name):
+            fast_transformation = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self._name, key)
+            self._fast_transformation = fast_transformation
+            return fast_transformation
+        else:
+            return None
+
+    @fast_transformation.setter
+    def fast_transformation(self, fast_transformation):
+        key = "Fast Transformation"
+        if isinstance(fast_transformation, bool) and key in self._primitives._app.get_oo_properties(
+            self._primitives.oeditor, self._name
+        ):
+            self._primitives.oeditor.GetChildObject(self._name).SetPropValue(key, fast_transformation)
+            self._fast_transformation = fast_transformation
+
+    @pyaedt_function_handler()
+    def _get_edb_info(self):
+        """Get Edb information."""
+
+        # Open Layout component and get information
+        aedb_component_path = os.path.join(
+            self._primitives._app.project_file[:-1] + "b",
+            "LayoutComponents",
+            self._edb_definition,
+            self._edb_definition + ".aedb",
+        )
+
+        if not os.path.exists(aedb_component_path):
+            return False
+
+        component_obj = Edb(
+            edbpath=aedb_component_path,
+            isreadonly=True,
+            edbversion=self._primitives._app._aedt_version,
+            student_version=self._primitives._app.student_version,
+        )
+
+        # Get objects, nets and layers
+        self.nets = component_obj.nets.netlist
+        self.layers = list(component_obj.stackup.stackup_layers.keys())
+        self.objects = list(component_obj.components.components.keys())
+        component_obj.close_edb()
+
+        return True

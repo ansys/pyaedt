@@ -1582,7 +1582,15 @@ class Primitives3D(Primitives, object):
                 self._app[param + "_" + name] = component_obj.design_variables[param].value_string
 
         # Get coordinate systems
-        component_cs = list(component_obj.components.components.keys())
+        component_cs = list(component_obj.components.instances.keys())
+
+        # Get nets and layers
+        nets = []
+        for net in component_obj.nets.netlist:
+            if component_obj.nets[net].primitives:
+                nets.append(net)
+        layers = list(component_obj.stackup.stackup_layers.keys())
+
         component_obj.close_edb()
 
         vArg1 = ["NAME:InsertNativeComponentData"]
@@ -1713,8 +1721,13 @@ class Primitives3D(Primitives, object):
                     self._create_object(new_name)
 
                 udm_obj = self._create_user_defined_component(new_object_name)
+
                 if name:
                     udm_obj.name = name
+                if layers:
+                    udm_obj.layers = layers
+                if nets:
+                    udm_obj.nets = nets
         except Exception:  # pragma: no cover
             udm_obj = False
         return udm_obj
