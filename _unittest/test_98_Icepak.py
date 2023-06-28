@@ -487,6 +487,13 @@ class TestClass(BasisTest, object):
             voltage_current_choice="Current",
             voltage_current_value="1A",
         )
+        assert self.aedtapp.assign_source(
+            "boxSource",
+            "Total Power",
+            "10W",
+            voltage_current_choice="Current",
+            voltage_current_value="1A",
+        )
         assert not self.aedtapp.assign_source(
             self.aedtapp.modeler["boxSource"].top_face_x.id,
             "Total Power",
@@ -1009,8 +1016,10 @@ class TestClass(BasisTest, object):
         block = self.aedtapp.assign_hollow_block("BlockBox5", "Total Power", power_dict, "Test")
         assert block
         block.delete()
-        block = self.aedtapp.assign_hollow_block("BlockBox5", "Total Power", "1W")
+        block = self.aedtapp.assign_hollow_block("BlockBox5", "Total Power", "1W", boundary_name="TestH")
         assert block
+        if not is_ironpython:
+            assert not self.aedtapp.assign_hollow_block("BlockBox5", "Total Power", "1W", boundary_name="TestH")
 
     def test_59_assign_solid_block(self):
         self.aedtapp.solution_type = "Transient"
@@ -1031,9 +1040,10 @@ class TestClass(BasisTest, object):
         block = self.aedtapp.assign_solid_block("BlockBox3", "Joule Heating")
         assert block
         block.delete()
-        block = self.aedtapp.assign_solid_block("BlockBox3", "1W")
+        block = self.aedtapp.assign_solid_block("BlockBox3", "1W", boundary_name="Test")
         assert block
-        block.delete()
+        if not is_ironpython:
+            assert not self.aedtapp.assign_solid_block("BlockBox3", "1W", boundary_name="Test")
 
     def test_60_assign_network_from_matrix(self):
         box = self.aedtapp.modeler.create_box([0, 0, 0], [20, 50, 80])
@@ -1240,3 +1250,5 @@ class TestClass(BasisTest, object):
             boundary_name="sym_bc03",
         )
         assert self.aedtapp.assign_symmetry_wall(geometry=region_fc_ids[1:4])
+        if not is_ironpython:
+            assert not self.aedtapp.assign_symmetry_wall(geometry="surf01")

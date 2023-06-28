@@ -619,7 +619,7 @@ class Icepak(FieldAnalysis3D):
             if bound.create():
                 self.boundaries.append(bound)
                 return bound
-            else:
+            else:  # pragma : no cover
                 raise SystemExit
         except SystemExit:
             return None
@@ -3318,7 +3318,7 @@ class Icepak(FieldAnalysis3D):
             if bound.create():
                 self.boundaries.append(bound)
                 return bound
-            else:
+            else:  # pragma : no cover
                 raise SystemExit
         except SystemExit:
             return None
@@ -4028,10 +4028,13 @@ class Icepak(FieldAnalysis3D):
             boundary_name = generate_unique_name("Block")
 
         bound = BoundaryObject(self, boundary_name, props, "Block")
-        if bound.create():
-            self.boundaries.append(bound)
-            return bound
-        else:
+        try:
+            if bound.create():
+                self.boundaries.append(bound)
+                return bound
+            else:  # pragma : no cover
+                raise SystemExit
+        except SystemExit:
             return None
 
     @pyaedt_function_handler
@@ -4167,10 +4170,13 @@ class Icepak(FieldAnalysis3D):
             boundary_name = generate_unique_name("Block")
 
         bound = BoundaryObject(self, boundary_name, props, "Block")
-        if bound.create():
-            self.boundaries.append(bound)
-            return bound
-        else:
+        try:
+            if bound.create():
+                self.boundaries.append(bound)
+                return bound
+            else:  # pragma : no cover
+                raise SystemExit
+        except SystemExit:
             return None
 
     @pyaedt_function_handler()
@@ -4699,8 +4705,11 @@ class Icepak(FieldAnalysis3D):
             props["Objects"] = geometry
 
         bound = BoundaryObject(self, boundary_name, props, "Symmetry Wall")
-        if bound.create():
-            self.boundaries.append(bound)
-            return bound
-        else:
+        try:
+            if bound.create():
+                self.boundaries.append(bound)
+                return bound
+            else:  # pragma : no cover
+                raise SystemExit
+        except SystemExit:
             return None
