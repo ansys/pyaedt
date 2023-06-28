@@ -4261,7 +4261,7 @@ class Icepak(FieldAnalysis3D):
 
         Parameters
         ----------
-        assignment : int or str
+        assignment : int or str or list
             Integer indicating a face ID or a string indicating an object name. A list of face
             IDs or object names is also accepted.
         boundary_name : str, optional
