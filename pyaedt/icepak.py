@@ -3673,8 +3673,8 @@ class Icepak(FieldAnalysis3D):
         Parameters
         ----------
         assignment : int or str or list
-            If int, Face ID. If str, object name. It is also possible to provide a list of Face IDs
-            and object names.
+            Integer indicating a face ID or a string indicating an object name. A list of face
+            IDs or object names is also accepted.
         thermal_condition : str
             Thermal condition. Accepted values are ``"Total Power"``, ``"Surface Heat"``,
             ``"Temperature"``.
