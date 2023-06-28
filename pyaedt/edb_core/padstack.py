@@ -470,7 +470,7 @@ class EdbPadstacks(object):
         ----------
         padstackinstance : `Edb.Cell.Primitive.PadstackInstance` or int
             Padstack instance object.
-        use_dot_separator : bool
+        use_dot_separator : bool, optional
             When ``True`` will use the ``.`` as separator for the naming convention [component][net][pin]. If ``False``
             will use ``_`` instead.
         user_defined_port_name : str
