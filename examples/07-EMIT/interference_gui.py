@@ -7,7 +7,7 @@ from openpyxl.styles import PatternFill
 import openpyxl
 import os
 import pyaedt.generic.constants as consts
-from interference_classification import interference_classification
+from interference_classification import interference_type_classification, protection_level_classification
 
 # Check that emit is a compatible version
 emitapp_desktop_version = "2023.2"
@@ -287,19 +287,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             # Iterate over all the transmitters and receivers and compute the power
             # at the input to each receiver due to each of the transmitters. Compute
             # which, if any, type of interference occured.
-            self.all_colors, self.power_matrix = interference_classification(emitapp, use_filter = True, filter = filter)
+            self.all_colors, self.power_matrix = interference_type_classification(emitapp, use_filter = True, filter = filter)
 
             # Save project and plot results on table widget
             emitapp.save_project()
             self.populate_table()
 
     def protection_results(self):
-
-        if self.global_protection_level:
-            damage_threshold = self.protection_levels['Global'][0]
-            overload_threshold = self.protection_levels['Global'][1]
-            intermod_threshold = self.protection_levels['Global'][2]
-            desense_threshold = self.protection_levels['Global'][3]
 
         self.protection_checks = [self.damage_check.isChecked(), self.overload_check.isChecked(),
                                   self.intermodulation_check.isChecked(), self.desensitization_check.isChecked()]
@@ -315,97 +309,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 emitapp.set_active_design(self.design_name_dropdown.currentText())
 
                 # Get results and design radios
-                self.modeRx = TxRxMode().RX
-                self.modeTx = TxRxMode().TX
-                self.mode_power = ResultType().POWER_AT_RX
                 self.tx_interferer = InterfererType().TRANSMITTERS
                 self.rev = emitapp.results.analyze()
                 self.rx_radios = self.rev.get_receiver_names()
                 self.tx_radios = self.rev.get_interferer_names(self.tx_interferer)
-                self.domain = emitapp.results.interaction_domain()
-                self.radios = emitapp.modeler.components.get_radios()
 
+            # Check if there are radios in the design
             if self.tx_radios is None or self.rx_radios is None:
                 return
 
-            self.power_matrix=[]
-            self.all_colors=[]
-            
-            for tx_radio in self.tx_radios:
-                rx_powers = []
-                rx_colors = []
-                for rx_radio in self.rx_radios:
-                    # powerAtRx is the same for all Rx bands, so just
-                    # use the first one
-
-                    if not (self.global_protection_level):
-                        damage_threshold = self.protection_levels[rx_radio][0]
-                        overload_threshold = self.protection_levels[rx_radio][1]
-                        intermod_threshold = self.protection_levels[rx_radio][2]
-                        desense_threshold = self.protection_levels[rx_radio][3]
-                    
-                    rx_band = self.rev.get_band_names(rx_radio, self.modeRx)[0]
-                    if tx_radio == rx_radio:
-                        # skip self-interaction
-                        rx_powers.append('N/A')
-                        rx_colors.append('white')
-                        continue
-                
-                    max_power = -200
-                    tx_bands = self.rev.get_band_names(tx_radio, self.modeTx)
-
-
-                    for tx_band in tx_bands: 
-                        # Find the highest power level at the Rx input due to each Tx Radio.
-                        # Can look at any Rx freq since susceptibility won't impact
-                        # powerAtRx, but need to look at all tx channels since coupling
-                        # can change over a transmitter's bandwidth
-                        rx_freq = self.rev.get_active_frequencies(rx_radio, rx_band, self.modeRx)[0]
-                        self.domain.set_receiver(rx_radio, rx_band)            
-                        self.domain.set_interferer(tx_radio, tx_band)
-                        interaction = self.rev.run(self.domain)
-                        self.domain.set_receiver(rx_radio, rx_band, rx_freq)
-                        tx_freqs = self.rev.get_active_frequencies(tx_radio, tx_band, self.modeTx)
-                        
-                        power_list = []
-
-                        for tx_freq in tx_freqs:
-                            self.domain.set_interferer(tx_radio, tx_band, tx_freq)
-                            instance = interaction.get_instance(self.domain)
-                            power = instance.get_value(self.mode_power)
-
-                            if power > damage_threshold:
-                                classification = 'damage'
-                            elif power > overload_threshold:
-                                classification = 'overload'
-                            elif power > intermod_threshold:
-                                classification = 'intermodulation'
-                            else:
-                                classification = 'desensitization'
-
-                            power_list.append(power)
-
-                            if instance.get_value(self.mode_power) > max_power and classification in filter:
-                                max_power = instance.get_value(self.mode_power)
-
-                    # If the worst case for the band-pair is below the power thresholds, then
-                    # there are no interference issues and no offset is required.
-                    if max_power > -200:
-                        rx_powers.append(max_power)
-                        if (max_power > damage_threshold):
-                            rx_colors.append('red')
-                        elif (max_power > overload_threshold):
-                            rx_colors.append('orange')
-                        elif (max_power > intermod_threshold):
-                            rx_colors.append('yellow')
-                        else:
-                            rx_colors.append('green')
-                    else:
-                        rx_powers.append("< -200")
-                        rx_colors.append('white')
-
-                self.all_colors.append(rx_colors)
-                self.power_matrix.append(rx_powers)
+            self.all_colors, self.power_matrix = protection_level_classification(emitapp, 
+                                                                                 self.global_protection_level, 
+                                                                                 self.protection_levels['Global'], 
+                                                                                 self.protection_levels, use_filter = True, 
+                                                                                 filter = filter)
 
             self.populate_table()
     
