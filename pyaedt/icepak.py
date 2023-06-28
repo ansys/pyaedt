@@ -3895,7 +3895,7 @@ class Icepak(FieldAnalysis3D):
 
         Parameters
         ----------
-        object_name : str
+        object_name : str or list of str
             Name of the object.
         power_assignment : str or dict
             String with the value and units of the power assignment or with
@@ -3968,7 +3968,13 @@ class Icepak(FieldAnalysis3D):
                 'It is not possible to use a "Temp Dep" assignment for ' "temperature assignment."
             )
             return None
-        props = {"Block Type": "Solid", "Objects": [object_name]}
+        props = {"Block Type": "Solid"}
+        if isinstance(object_name, str):
+            props["Objects"] = [object_name]
+        elif isinstance(object_name, list):
+            props["Objects"] = object_name
+        else:
+            props["Objects"] = []
         if isinstance(power_assignment, dict):
             assignment_value = self._parse_variation_data(
                 "Total Power",
