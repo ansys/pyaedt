@@ -4349,7 +4349,7 @@ class Icepak(FieldAnalysis3D):
             ("External Rad. Temperature", radiation_temperature),
         ]
         if flow_type == "Pressure":
-            props["Inlet Type"] = "Pressure"
+            props["Inlet Type"] = flow_type
             props["No Reverse Flow"] = no_reverse_flow
             possible_transient_properties += [("Total Pressure", pressure)]
         elif flow_type == "Velocity":
