@@ -4361,7 +4361,7 @@ class Icepak(FieldAnalysis3D):
                 ("Z Velocity", velocity[2]),
             ]
         elif flow_type == "Mass Flow":
-            props["Inlet Type"] = "Mass Flow"
+            props["Inlet Type"] = flow_type
             if direction_vector is None:
                 props["Mass Flow Direction"] = ("Normal to Boundary",)
             else:
