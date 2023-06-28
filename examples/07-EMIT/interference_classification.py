@@ -139,7 +139,7 @@ def protection_level_classification(emitapp, global_protection_level = True, glo
         Returns
         -------
         power_matrix : list
-            List of worst case interference power at Rx.
+            List of worst case interference according to power at each Rx radio.
         all_colors : list
             List of color classification of protection level.
     """
