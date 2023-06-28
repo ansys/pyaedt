@@ -189,7 +189,8 @@ class MeshOperation(object):
         >>> oModule.EditMeshOperation
         >>> oModule.EditSBRCurvatureExtractionOp
         """
-        if key_name and settings.aedt_version > "2022.2":
+        mesh_names = self._mesh._app.odesign.GetChildObject("Mesh").GetChildNames()
+        if key_name and settings.aedt_version > "2022.2" and self.name in mesh_names:
             try:
                 mesh_obj = self._mesh._app.odesign.GetChildObject("Mesh").GetChildObject(self.name)
                 if key_name in mesh_props.keys():

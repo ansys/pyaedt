@@ -1694,7 +1694,7 @@ class Maxwell(object):
         str
             Path to the export directory.
         """
-        if self.solution_type != "Transient":
+        if self.solution_type != "Transient" and self.solution_type != "TransientAPhiFormulation":
             self.logger.error("This methods work only with Maxwell Transient Analysis.")
             return False
         if not output_directory:

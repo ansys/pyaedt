@@ -1037,8 +1037,8 @@ class LayoutComponent(object):
         return True
 
     @pyaedt_function_handler()
-    def change_visibility(self):
-        """Change layer visibility.
+    def update_visibility(self):
+        """Update layer visibility.
 
         Returns
         -------
@@ -1082,6 +1082,6 @@ class LayoutComponent(object):
         vPropServers = ["NAME:PropServers", self._name]
         vGeo3d = ["NAME:Visualization", vPropServers, vChangedProps]
         vOut = ["NAME:AllTabs", vGeo3d]
-        _retry_ntimes(10, self.oeditor.ChangeProperty, vOut)
+        _retry_ntimes(10, self._primitives.oeditor.ChangeProperty, vOut)
 
         return True
