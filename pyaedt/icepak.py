@@ -3899,7 +3899,7 @@ class Icepak(FieldAnalysis3D):
         Parameters
         ----------
         object_name : str or list
-            Name of the object or list of names.
+            Object name or a list of object names.
         power_assignment : str or dict
             String with the value and units of the power assignment or with
             ``"Joule Heating"``. For a temperature-dependent or transient
