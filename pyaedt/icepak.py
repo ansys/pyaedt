@@ -4577,7 +4577,7 @@ class Icepak(FieldAnalysis3D):
             Integer indicating face ID or object name string. Also list of Face IDs or object names
             is accepted.
         boundary_name : str, optional
-            Boundary name. Default is ``None``, in which case the name is generated automatically.
+            Boundary name. The default is ``None``, in which case the name is generated automatically.
         temperature : str or float or dict, optional
             Prescribed temperature at the boundary. If a string is set,  a variable name or a
             number with the unit is expected. If a float is set, the unit ``'cel'`` is
