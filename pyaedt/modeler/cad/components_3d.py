@@ -907,7 +907,7 @@ class LayoutComponent(object):
             show_layout = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self._name, key)
             self._show_layout = show_layout
             return show_layout
-        else:
+        else:  # pragma: no cover
             return None
 
     @show_layout.setter
@@ -934,7 +934,7 @@ class LayoutComponent(object):
             fast_transformation = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self._name, key)
             self._fast_transformation = fast_transformation
             return fast_transformation
-        else:
+        else:  # pragma: no cover
             return None
 
     @fast_transformation.setter
@@ -962,7 +962,7 @@ class LayoutComponent(object):
             show_dielectric = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self._name, key)
             self._show_dielectric = show_dielectric
             return show_dielectric
-        else:
+        else:  # pragma: no cover
             return None
 
     @show_dielectric.setter
@@ -993,7 +993,7 @@ class LayoutComponent(object):
             display_mode = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self._name, key)
             self._display_mode = display_mode
             return display_mode
-        else:
+        else:  # pragma: no cover
             return None
 
     @display_mode.setter
@@ -1017,7 +1017,7 @@ class LayoutComponent(object):
             self._edb_definition + ".aedb",
         )
 
-        if not os.path.exists(aedb_component_path):
+        if not os.path.exists(aedb_component_path):  # pragma: no cover
             return False
 
         component_obj = Edb(

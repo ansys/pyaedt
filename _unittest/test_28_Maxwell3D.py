@@ -919,3 +919,7 @@ class TestClass(BasisTest, object):
             use_number_of_cycles_for_stop_time=True,
             number_of_cycles_for_stop_time=1,
         )
+        self.layout_comp.solution_type = "Magnetostatic"
+        assert not self.layout_comp.enable_harmonic_force_on_layout_component(
+            comp.name, {nets[0]: layers[1::2], nets[1]: layers[1::2]}
+        )

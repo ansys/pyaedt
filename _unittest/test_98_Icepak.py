@@ -480,7 +480,7 @@ class TestClass(BasisTest, object):
         y = [3, 4, 5]
         self.aedtapp.create_dataset1d_design("Test_DataSet", x, y)
         assert self.aedtapp.assign_source(
-            self.aedtapp.modeler["boxSource"].top_face_z.id,
+            self.aedtapp.modeler["boxSource"].name,
             "Total Power",
             "10W",
             voltage_current_choice="Current",
