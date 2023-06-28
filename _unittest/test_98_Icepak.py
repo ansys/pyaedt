@@ -1208,3 +1208,24 @@ class TestClass(BasisTest, object):
             pressure="AmbientPressure",
             velocity=[velocity_transient, 0, "0m_per_sec"],
         )
+    def test_65_assign_symmetry_wall(self):
+        self.aedtapp.insert_design("test_65")
+        region_fc_ids = self.aedtapp.modeler.get_object_faces("Region")
+        self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
+        self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, 0, 0], [10, 20], name="surf2")
+        assert self.aedtapp.assign_symmetry_wall(
+            geometry="surf1",
+            boundary_name="sym_bc01",
+        ) 
+        assert self.aedtapp.assign_symmetry_wall(
+            geometry=["surf1","surf2"],
+            boundary_name="sym_bc02",
+        ) 
+        assert self.aedtapp.assign_symmetry_wall(
+            geometry=region_fc_ids[0],
+            boundary_name="sym_bc03",
+        ) 
+        assert self.aedtapp.assign_symmetry_wall(
+            geometry=region_fc_ids[1:4],
+            boundary_name="sym_bc04",
+        )
