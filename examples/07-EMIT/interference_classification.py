@@ -14,7 +14,7 @@ def interference_type_classification(emitapp, use_filter = False, filter = []):
         use_filter : bool, optional
             Whether filtering is being used. The default is ``False``.
         filter : list, optional
-            List of filter values selected by the user via the gui, if filtering is in use.
+            List of filter values selected by the user via the GUI if filtering is in use.
 
         Returns
         -------
@@ -119,22 +119,24 @@ def interference_type_classification(emitapp, use_filter = False, filter = []):
 
 def protection_level_classification(emitapp, global_protection_level = True, global_levels = [], protection_levels = {}, use_filter = False, filter = []):
     """
-    Classify interference type as according to inband/inband, 
-    out of band/in band, inband/out of band, and out of band/out of band.
+    Classify worst-case power at each Rx radio according to interference type.
+    
+    Options for interference type are `inband/inband, out of band/in band,
+    inband/out of band, and out of band/out of band.
 
     Parameters
     ----------
         emitapp : instance of Emit
         global_protection_level : bool, optional
-            Whether the same protection levels are being used for all radios. The default is ``True``.
+            Whether to use the same protection levels for all radios. The default is ``True``.
         global_levels : list, optional
-            List of protection levels to be used for all radios.
-        protection_levels : dictionary, optional
-            Dictionary of protection levels for each rx radio.
+            List of protection levels to use for all radios.
+        protection_levels : dict, optional
+            Dictionary of protection levels for each Rx radio.
         use_filter : bool, optional
-            Whether filtering is being used. The default is ``False``.
+            Whether to use filtering. The default is ``False``.
         filter : list, optional
-            List of filter values selected by the user via the gui, if filtering is in use.
+            List of filter values selected by the user via the GUI if filtering is in use.
 
         Returns
         -------
