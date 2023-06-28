@@ -618,6 +618,8 @@ class Icepak(FieldAnalysis3D):
         if bound.create():
             self.boundaries.append(bound)
             return bound
+        else:
+            return None
 
     @pyaedt_function_handler()
     def create_source_power(
@@ -710,6 +712,8 @@ class Icepak(FieldAnalysis3D):
         if bound.create():
             self.boundaries.append(bound)
             return bound
+        else:
+            return None
 
     @pyaedt_function_handler()
     def create_network_block(
@@ -3226,7 +3230,7 @@ class Icepak(FieldAnalysis3D):
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object.
+            Boundary object when successful or ``None`` when failed.
 
         References
         ----------
@@ -3309,7 +3313,9 @@ class Icepak(FieldAnalysis3D):
         bound = BoundaryObject(self, name, props, "Stationary Wall")
         if bound.create():
             self.boundaries.append(bound)
-        return bound
+            return bound
+        else:
+            return None
 
     @pyaedt_function_handler()
     def assign_stationary_wall_with_heat_flux(
@@ -3780,6 +3786,8 @@ class Icepak(FieldAnalysis3D):
         if bound.create():
             self.boundaries.append(bound)
             return bound
+        else:
+            return None
 
     @pyaedt_function_handler()
     def create_network_object(self, name=None, props=None, create=False):
@@ -4017,6 +4025,8 @@ class Icepak(FieldAnalysis3D):
         if bound.create():
             self.boundaries.append(bound)
             return bound
+        else:
+            return None
 
     @pyaedt_function_handler
     def assign_hollow_block(
@@ -4154,6 +4164,8 @@ class Icepak(FieldAnalysis3D):
         if bound.create():
             self.boundaries.append(bound)
             return bound
+        else:
+            return None
 
     @pyaedt_function_handler()
     def get_fans_operating_point(self, export_file=None, setup_name=None, timestep=None, design_variation=None):
@@ -4662,7 +4674,7 @@ class Icepak(FieldAnalysis3D):
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object.
+            Boundary object when successful or ``None`` when failed.
 
         References
         ----------
@@ -4685,4 +4697,6 @@ class Icepak(FieldAnalysis3D):
         bound = BoundaryObject(self, boundary_name, props, "Symmetry Wall")
         if bound.create():
             self.boundaries.append(bound)
-        return bound
+            return bound
+        else:
+            return None
