@@ -3958,12 +3958,6 @@ class Icepak(FieldAnalysis3D):
         >>> power_dict = {"Type": "Transient", "Function": "Sinusoidal", "Values": ["0W", 1, 1, "1s"]}
         >>> block = ipk.assign_solid_block("BlockBox3", power_dict)
         """
-        if not self.modeler.get_object_from_name(object_name).solve_inside:
-            self.logger.add_error_message(
-                "Use the ``assign_hollow_block()`` method with this object as ``solve_inside`` is ``False``."
-            )
-            return None
-
         if ext_temperature != "AmbientTemp" and ext_temperature is not None and not htc:
             self.logger.add_error_message("Set an argument for ``htc`` or remove the ``ext_temperature`` argument.")
             return None
