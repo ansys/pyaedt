@@ -942,9 +942,8 @@ class EdbHfss(object):
     def create_lumped_port_on_net(
         self, nets=None, reference_layer=None, return_points_only=False, digit_resolution=6, at_bounding_box=True
     ):
-        """Create an edge port on nets. Only ports on traces (e.g. Path) are currently supported.
-        The command will look for traces on the nets and will try to assign vertical lumped port on first and last
-        point from the trace. To be used with cautious.
+        """Create an edge port on nets. The command will look for traces and polygons on the nets and will try to
+        assign vertical lumped port.
 
         Parameters
         ----------
@@ -984,6 +983,7 @@ class EdbHfss(object):
                 elif isinstance(nn, self._edb.cell.net.net):
                     temp_nets.append(nn)
             nets = temp_nets
+        port_created = False
         if nets:
             edges_pts = []
             if isinstance(reference_layer, str):
@@ -994,14 +994,22 @@ class EdbHfss(object):
             if not isinstance(reference_layer, self._edb.Cell.ILayerReadOnly):
                 return False
             layout = nets[0].GetLayout()
-            layout_bbox = self.get_layout_bounding_box(layout, digit_resolution)
+            layout_bbox = self._pedb.get_conformal_polygon_from_netlist(self._pedb.nets.netlist)
+            layout_extent_segments = [pt for pt in list(layout_bbox.GetArcData()) if pt.IsSegment()]
+            first_pt = layout_extent_segments[0]
+            layout_extent_points = [
+                [first_pt.Start.X.ToDouble(), first_pt.End.X.ToDouble()],
+                [first_pt.Start.Y.ToDouble(), first_pt.End.Y.ToDouble()],
+            ]
+            for segment in layout_extent_segments[1:]:
+                end_point = (segment.End.X.ToDouble(), segment.End.Y.ToDouble())
+                layout_extent_points[0].append(end_point[0])
+                layout_extent_points[1].append(end_point[1])
             for net in nets:
-                net_primitives = list(net.Primitives)
-                net_paths = [
-                    pp for pp in net_primitives if pp.GetPrimitiveType() == self._edb.cell.primitive.PrimitiveType.Path
-                ]
+                net_primitives = self._pedb.nets[net.name].primitives
+                net_paths = [pp for pp in net_primitives if pp.type == "Path"]
                 for path in net_paths:
-                    trace_path_pts = list(path.GetCenterLine().Points)
+                    trace_path_pts = list(path.center_line.Points)
                     port_name = "{}_{}".format(net.name, path.GetId())
                     for pt in trace_path_pts:
                         _pt = [
@@ -1009,22 +1017,42 @@ class EdbHfss(object):
                             round(pt.Y.ToDouble(), digit_resolution),
                         ]
                         if at_bounding_box:
-                            if not set(layout_bbox).isdisjoint(_pt):
+                            if GeometryOperators.point_in_polygon(_pt, layout_extent_points) == 0:
                                 if return_points_only:
                                     edges_pts.append(_pt)
                                 else:
-                                    term = self._create_edge_terminal(path, pt, port_name)  # pragma no cover
+                                    term = self._create_edge_terminal(path.id, pt, port_name)  # pragma no cover
                                     term.SetReferenceLayer(reference_layer)  # pragma no cover
+                                    port_created = True
                         else:
                             if return_points_only:  # pragma: no cover
                                 edges_pts.append(_pt)
                             else:
-                                term = self._create_edge_terminal(path, pt, port_name)
+                                term = self._create_edge_terminal(path.id, pt, port_name)
                                 term.SetReferenceLayer(reference_layer)
-
+                                port_created = True
+                net_poly = [pp for pp in net_primitives if pp.type == "Polygon"]
+                for poly in net_poly:
+                    poly_segment = [aa for aa in poly.arcs if aa.is_segment]
+                    for segment in poly_segment:
+                        if (
+                            GeometryOperators.point_in_polygon(
+                                [segment.mid_point.X.ToDouble(), segment.mid_point.Y.ToDouble()], layout_extent_points
+                            )
+                            == 0
+                        ):
+                            if return_points_only:
+                                edges_pts.append(segment.mid_point)
+                            else:
+                                port_name = "{}_{}".format(net.name, poly.GetId())
+                                term = self._create_edge_terminal(
+                                    poly.id, segment.mid_point, port_name
+                                )  # pragma no cover
+                                term.SetReferenceLayer(reference_layer)  # pragma no cover
+                                port_created = True
             if return_points_only:
                 return edges_pts
-        return True
+        return port_created
 
     @pyaedt_function_handler()
     def create_vertical_circuit_port_on_clipped_traces(self, nets=None, reference_net=None, user_defined_extent=None):

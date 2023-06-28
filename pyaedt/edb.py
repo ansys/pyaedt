@@ -2102,7 +2102,7 @@ class Edb(Database):
         for via in list(temp_edb.padstacks.instances.values()):
             via.pin.Delete()
         if netlist:
-            nets = [net for net in temp_edb.layout.nets if net.name in netlist]
+            nets = [net.net_obj for net in temp_edb.layout.nets if net.name in netlist]
             _poly = temp_edb.layout.expanded_extent(
                 nets, self.edb_api.geometry.extent_type.Conforming, 0.0, True, True, 1
             )
@@ -2222,10 +2222,10 @@ class Edb(Database):
                 voids_to_add.append(circle)
 
         _netsClip = convert_py_list_to_net_list(_ref_nets)
-        net_signals = convert_py_list_to_net_list([], type(_ref_nets[0]))
+        # net_signals = convert_py_list_to_net_list([], type(_ref_nets[0]))
 
         # Create new cutout cell/design
-        _cutout = self.active_cell.CutOut(net_signals, _netsClip, polygonData)
+        _cutout = self.active_cell.CutOut(_netsClip, _netsClip, polygonData)
         layout = _cutout.GetLayout()
         cutout_obj_coll = list(layout.PadstackInstances)
         ids = []
