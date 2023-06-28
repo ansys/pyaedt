@@ -1211,9 +1211,9 @@ class TestClass(BasisTest, object):
 
     def test_65_assign_symmetry_wall(self):
         self.aedtapp.insert_design("test_65")
-        region_fc_ids = self.aedtapp.modeler.get_object_faces("Region")
         self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
         self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, 0, 0], [10, 20], name="surf2")
+        region_fc_ids = self.aedtapp.modeler.get_object_faces("Region")
         assert self.aedtapp.assign_symmetry_wall(
             geometry="surf1",
             boundary_name="sym_bc01",
