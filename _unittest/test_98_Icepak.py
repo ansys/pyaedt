@@ -1226,7 +1226,4 @@ class TestClass(BasisTest, object):
             geometry=region_fc_ids[0],
             boundary_name="sym_bc03",
         )
-        assert self.aedtapp.assign_symmetry_wall(
-            geometry=region_fc_ids[1:4],
-            boundary_name="sym_bc04",
-        )
+        assert self.aedtapp.assign_symmetry_wall(geometry=region_fc_ids[1:4])
