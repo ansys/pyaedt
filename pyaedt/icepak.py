@@ -3672,8 +3672,9 @@ class Icepak(FieldAnalysis3D):
 
         Parameters
         ----------
-        assignment : int or str
-            If int, Face ID. If str, object name.
+        assignment : int or str or list
+            Integer indicating a face ID or a string indicating an object name. A list of face
+            IDs or object names is also accepted.
         thermal_condition : str
             Thermal condition. Accepted values are ``"Total Power"``, ``"Surface Heat"``,
             ``"Temperature"``.
@@ -3728,10 +3729,12 @@ class Icepak(FieldAnalysis3D):
         if not boundary_name:
             boundary_name = generate_unique_name("Source")
         props = {}
-        if isinstance(assignment, int):
-            props["Faces"] = [assignment]
-        elif isinstance(assignment, str):
-            props["Objects"] = [assignment]
+        if not isinstance(assignment, list):
+            assignment = [assignment]
+        if isinstance(assignment[0], int):
+            props["Faces"] = assignment
+        elif isinstance(assignment[0], str):
+            props["Objects"] = assignment
         props["Thermal Condition"] = thermal_condition
         for quantity, value in default_values.items():
             if quantity == thermal_condition:
@@ -3895,8 +3898,8 @@ class Icepak(FieldAnalysis3D):
 
         Parameters
         ----------
-        object_name : str
-            Name of the object.
+        object_name : str or list
+            Object name or a list of object names.
         power_assignment : str or dict
             String with the value and units of the power assignment or with
             ``"Joule Heating"``. For a temperature-dependent or transient
@@ -3968,7 +3971,9 @@ class Icepak(FieldAnalysis3D):
                 'It is not possible to use a "Temp Dep" assignment for ' "temperature assignment."
             )
             return None
-        props = {"Block Type": "Solid", "Objects": [object_name]}
+        if not isinstance(object_name, list):
+            object_name = [object_name]
+        props = {"Block Type": "Solid", "Objects": object_name}
         if isinstance(power_assignment, dict):
             assignment_value = self._parse_variation_data(
                 "Total Power",
@@ -4006,7 +4011,7 @@ class Icepak(FieldAnalysis3D):
             props["Use External Conditions"] = False
 
         if not boundary_name:
-            boundary_name = generate_unique_name(object_name + "_Block")
+            boundary_name = generate_unique_name("Block")
 
         bound = BoundaryObject(self, boundary_name, props, "Block")
         if bound.create():
@@ -4022,8 +4027,8 @@ class Icepak(FieldAnalysis3D):
 
         Parameters
         ----------
-        object_name : str
-            Name of the object.
+        object_name : str or list
+            Object name or a list of object names.
         assignment_type : str
             Type of the boundary assignment. Options are ``"Heat Transfer Coefficient"``,
             ``"Heat Flux"``, ``"Temperature"``, and ``"Total Power"``.
@@ -4106,7 +4111,10 @@ class Icepak(FieldAnalysis3D):
             )
             return None
 
-        props = {"Block Type": "Hollow", "Objects": [object_name], "Thermal Condition": thermal_condition[0]}
+        if not isinstance(object_name, list):
+            object_name = [object_name]
+
+        props = {"Block Type": "Hollow", "Objects": object_name, "Thermal Condition": thermal_condition[0]}
         if thermal_condition[0] == "Fixed Heat":
             props["Use Total Power"] = thermal_condition[1] == "Total Power"
         if isinstance(assignment_value, dict):
@@ -4140,7 +4148,7 @@ class Icepak(FieldAnalysis3D):
                 props["Temperature"] = external_temperature
 
         if not boundary_name:
-            boundary_name = generate_unique_name(object_name + "_Block")
+            boundary_name = generate_unique_name("Block")
 
         bound = BoundaryObject(self, boundary_name, props, "Block")
         if bound.create():
@@ -4253,8 +4261,9 @@ class Icepak(FieldAnalysis3D):
 
         Parameters
         ----------
-        assignment : int or str
-            Integer indicating face ID or object name string.
+        assignment : int or str or list
+            Integer indicating a face ID or a string indicating an object name. A list of face
+            IDs or object names is also accepted.
         boundary_name : str, optional
             Boundary name. Default is ``None``, in which case the name is generated automatically.
         temperature : str or float or dict, optional
@@ -4277,9 +4286,10 @@ class Icepak(FieldAnalysis3D):
         pressure : float or str or dict, optional
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
             string is set, a variable name or a number with the unit is expected. If a float is set,
-            the unit ``'Pa'`` is automatically added. Also, a dictionary containing the keys ``'Function'``
-            and ``'Values'`` can be passed to set a transient behaviour. The acceptable values associated
-            with those keys can be found in the Icepak documentation. Default is ``"AmbientPressure"``.
+            the unit ``'pascal'`` is automatically added. Also, a dictionary containing the keys
+            ``'Function'`` and ``'Values'`` can be passed to set a transient behavior. The acceptable
+            values associated with those keys can be found in the Icepak documentation.
+            The default is ``"AmbientPressure"``.
         no_reverse_flow : bool, optional
             Option to block reverse flow at the boundary. Default is ``False``.
         velocity : list, optional
@@ -4337,7 +4347,7 @@ class Icepak(FieldAnalysis3D):
         if not isinstance(radiation_temperature, str) and not isinstance(radiation_temperature, dict):
             radiation_temperature = str(radiation_temperature) + "cel"
         if not isinstance(pressure, str) and not isinstance(pressure, dict):
-            pressure = str(pressure) + "Pa"
+            pressure = str(pressure) + "pascal"
         # Dict creation
         props = {}
         if not isinstance(assignment, list):
@@ -4419,8 +4429,9 @@ class Icepak(FieldAnalysis3D):
 
         Parameters
         ----------
-        assignment : int or str
-            Integer indicating face ID or object name string.
+        assignment : int or str or list
+           Integer indicating a face ID or a string indicating an object name. A list of face
+           IDs or object names is also accepted.
         boundary_name : str, optional
             Boundary name. Default is ``None``, in which case the name is generated automatically.
         temperature : str or float or dict, optional
@@ -4438,10 +4449,11 @@ class Icepak(FieldAnalysis3D):
             Default is ``"AmbientRadTemp"``.
         pressure : float or str or dict, optional
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
-            string is set, a variable name or a number with the unit is expected. If a float is set, the unit ``'Pa'``
-            is automatically added. Also, a dictionary containing the keys ``'Function'`` and
-            ``'Values'`` can be passed to set a transient behaviour. The acceptable values associated
-            with those keys can be found in the Icepak documentation. Default is ``"AmbientPressure"``.
+            string is set, a variable name or a number with the unit is expected. If a float is set,
+            the unit ``'pascal'`` is automatically added. Also, a dictionary containing the keys
+            ``'Function'`` and ``'Values'`` can be passed to set a transient behavior. The
+            acceptable values associated with those keys can be found in the Icepak
+            documentation. The default is ``"AmbientPressure"``.
         no_reverse_flow : bool, optional
             Option to block reverse flow at the boundary. Default is ``False``.
 
@@ -4487,8 +4499,9 @@ class Icepak(FieldAnalysis3D):
 
         Parameters
         ----------
-        assignment : int or str
-            Integer indicating face ID or object name string.
+        assignment : int or str or list
+            Integer indicating a face ID or a string indicating an object name. A list of face
+            IDs or object names is also accepted.
         boundary_name : str, optional
             Boundary name. Default is ``None``, in which case the name is generated automatically.
         temperature : str or float or dict, optional
@@ -4506,10 +4519,11 @@ class Icepak(FieldAnalysis3D):
             Default is ``"AmbientRadTemp"``.
         pressure : float or str or dict, optional
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
-            string is set, a variable name or a number with the unit is expected. If a float is set, the unit ``'Pa'``
-            is automatically added. Also, a dictionary containing the keys ``'Function'`` and
-            ``'Values'`` can be passed to set a transient behaviour. The acceptable values associated
-            with those keys can be found in the Icepak documentation. Default is ``"AmbientPressure"``.
+            string is set, a variable name or a number with the unit is expected. If a float is set,
+            the unit ``'pascal'`` is automatically added. Also, a dictionary containing the keys
+            ``'Function'`` and ``'Values'`` can be passed to set a transient behavior. The
+            acceptable values associated with those keys can be found in the Icepak
+            documentation. The default is ``"AmbientPressure"``.
         velocity : list, optional
             Prescribed velocity at the boundary. If a list of strings is set, a variable name or a number
              with the unit is expected for each element. If list of floats is set, the unit ``'m_per_sec'``
@@ -4562,10 +4576,11 @@ class Icepak(FieldAnalysis3D):
 
         Parameters
         ----------
-        assignment : int or str
-            Integer indicating face ID or object name string.
+        assignment : int or str or list
+           Integer indicating a face ID or a string indicating an object name. A list of face
+           IDs or object names is also accepted.
         boundary_name : str, optional
-            Boundary name. Default is ``None``, in which case the name is generated automatically.
+            Boundary name. The default is ``None``, in which case the name is generated automatically.
         temperature : str or float or dict, optional
             Prescribed temperature at the boundary. If a string is set,  a variable name or a
             number with the unit is expected. If a float is set, the unit ``'cel'`` is
@@ -4581,10 +4596,11 @@ class Icepak(FieldAnalysis3D):
             Default is ``"AmbientRadTemp"``.
         pressure : float or str or dict, optional
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
-            string is set, a variable name or a number with the unit is expected. If a float is set, the unit ``'Pa'``
-            is automatically added. Also, a dictionary containing the keys ``'Function'`` and
-            ``'Values'`` can be passed to set a transient behaviour. The acceptable values associated
-            with those keys can be found in the Icepak documentation. Default is ``"AmbientPressure"``.
+            string is set, a variable name or a number with the unit is expected. If a float is set,
+            the unit ``'pascal'`` is automatically added. Also, a dictionary containing the keys
+            ``'Function'`` and ``'Values'`` can be passed to set a transient behavior. The
+            acceptable values associated with those keys can be found in the Icepak
+            documentation. The default is ``"AmbientPressure"``.
         mass_flow_rate : float or str or dict, optional
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
             string is set, a variable name or a number with the unit is expected. If a float is set,
