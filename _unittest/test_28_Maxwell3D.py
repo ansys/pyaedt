@@ -25,6 +25,7 @@ else:
     core_loss_file = "PlanarTransformer"
 transient = "Transient_StrandedWindings"
 cyl_gap = "Motor3D_cyl_gap"
+layout_component = "LayoutForce"
 
 
 class TestClass(BasisTest, object):
@@ -37,6 +38,9 @@ class TestClass(BasisTest, object):
             self, application=Maxwell3d, project_name=transient, subfolder=test_subfolder
         )
         self.cyl_gap = BasisTest.add_app(self, application=Maxwell3d, project_name=cyl_gap, subfolder=test_subfolder)
+        self.layout_comp = BasisTest.add_app(
+            self, application=Maxwell3d, project_name=layout_component, subfolder=test_subfolder
+        )
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -886,13 +890,10 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(desktop_version < "2023.2", reason="Method available in beta from 2023.2")
     def test_53_assign_layout_force(self):
-        self.aedtapp.insert_design("layout_component")
         nets_layers = {
-            "1V0": ["Bottom Solder", "Top Overlay", "Top Solder"],
-            "5V": ["DE2", "DE3", "Inner2(PWR1)", "Inner3(Sig1)"],
-            "<no-net>": ["1_Top", "<no-layer>", "DE1"],
+            "<no-net>": ["<no-layer>", "TOP", "UNNAMED_000", "UNNAMED_002"],
+            "GND": ["BOTTOM", "Region", "UNNAMED_010", "UNNAMED_012"],
+            "V3P3_S5": ["LYR_1", "LYR_2", "UNNAMED_006", "UNNAMED_008"],
         }
-        assert self.aedtapp.assign_layout_force(nets_layers, "LC1_1")
-        assert not self.aedtapp.assign_layout_force(nets_layers, "LC1_3")
-        nets_layers = {"1V0": "Bottom Solder"}
-        assert self.aedtapp.assign_layout_force(nets_layers, "LC1_1")
+        assert self.layout_comp.assign_layout_force(nets_layers, "LC1_1")
+        assert not self.layout_comp.assign_layout_force(nets_layers, "LC1_3")
