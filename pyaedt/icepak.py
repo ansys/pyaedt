@@ -4028,7 +4028,7 @@ class Icepak(FieldAnalysis3D):
         Parameters
         ----------
         object_name : str or list
-            Name of the object or list of names.
+            Object name or a list of object names.
         assignment_type : str
             Type of the boundary assignment. Options are ``"Heat Transfer Coefficient"``,
             ``"Heat Flux"``, ``"Temperature"``, and ``"Total Power"``.
