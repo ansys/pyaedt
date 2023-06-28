@@ -4353,7 +4353,7 @@ class Icepak(FieldAnalysis3D):
             props["No Reverse Flow"] = no_reverse_flow
             possible_transient_properties += [("Total Pressure", pressure)]
         elif flow_type == "Velocity":
-            props["Inlet Type"] = "Velocity"
+            props["Inlet Type"] = flow_type
             possible_transient_properties += [
                 ("Static Pressure", pressure),
                 ("X Velocity", velocity[0]),
