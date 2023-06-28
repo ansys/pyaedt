@@ -4148,7 +4148,7 @@ class Icepak(FieldAnalysis3D):
                 props["Temperature"] = external_temperature
 
         if not boundary_name:
-            boundary_name = generate_unique_name(object_name + "_Block")
+            boundary_name = generate_unique_name("Block")
 
         bound = BoundaryObject(self, boundary_name, props, "Block")
         if bound.create():
