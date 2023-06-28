@@ -4286,9 +4286,10 @@ class Icepak(FieldAnalysis3D):
         pressure : float or str or dict, optional
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
             string is set, a variable name or a number with the unit is expected. If a float is set,
-            the unit ``'Pa'`` is automatically added. Also, a dictionary containing the keys ``'Function'``
-            and ``'Values'`` can be passed to set a transient behaviour. The acceptable values associated
-            with those keys can be found in the Icepak documentation. Default is ``"AmbientPressure"``.
+            the unit ``'pascal'`` is automatically added. Also, a dictionary containing the keys
+            ``'Function'`` and ``'Values'`` can be passed to set a transient behavior. The acceptable
+            values associated with those keys can be found in the Icepak documentation.
+            The default is ``"AmbientPressure"``.
         no_reverse_flow : bool, optional
             Option to block reverse flow at the boundary. Default is ``False``.
         velocity : list, optional
@@ -4346,7 +4347,7 @@ class Icepak(FieldAnalysis3D):
         if not isinstance(radiation_temperature, str) and not isinstance(radiation_temperature, dict):
             radiation_temperature = str(radiation_temperature) + "cel"
         if not isinstance(pressure, str) and not isinstance(pressure, dict):
-            pressure = str(pressure) + "Pa"
+            pressure = str(pressure) + "pascal"
         # Dict creation
         props = {}
         if not isinstance(assignment, list):
@@ -4448,10 +4449,11 @@ class Icepak(FieldAnalysis3D):
             Default is ``"AmbientRadTemp"``.
         pressure : float or str or dict, optional
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
-            string is set, a variable name or a number with the unit is expected. If a float is set, the unit ``'Pa'``
-            is automatically added. Also, a dictionary containing the keys ``'Function'`` and
-            ``'Values'`` can be passed to set a transient behaviour. The acceptable values associated
-            with those keys can be found in the Icepak documentation. Default is ``"AmbientPressure"``.
+            string is set, a variable name or a number with the unit is expected. If a float is set,
+            the unit ``'pascal'`` is automatically added. Also, a dictionary containing the keys
+            ``'Function'`` and ``'Values'`` can be passed to set a transient behavior. The
+            acceptable values associated with those keys can be found in the Icepak
+            documentation. The default is ``"AmbientPressure"``.
         no_reverse_flow : bool, optional
             Option to block reverse flow at the boundary. Default is ``False``.
 
@@ -4517,10 +4519,11 @@ class Icepak(FieldAnalysis3D):
             Default is ``"AmbientRadTemp"``.
         pressure : float or str or dict, optional
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
-            string is set, a variable name or a number with the unit is expected. If a float is set, the unit ``'Pa'``
-            is automatically added. Also, a dictionary containing the keys ``'Function'`` and
-            ``'Values'`` can be passed to set a transient behaviour. The acceptable values associated
-            with those keys can be found in the Icepak documentation. Default is ``"AmbientPressure"``.
+            string is set, a variable name or a number with the unit is expected. If a float is set,
+            the unit ``'pascal'`` is automatically added. Also, a dictionary containing the keys
+            ``'Function'`` and ``'Values'`` can be passed to set a transient behavior. The
+            acceptable values associated with those keys can be found in the Icepak
+            documentation. The default is ``"AmbientPressure"``.
         velocity : list, optional
             Prescribed velocity at the boundary. If a list of strings is set, a variable name or a number
              with the unit is expected for each element. If list of floats is set, the unit ``'m_per_sec'``
@@ -4593,10 +4596,11 @@ class Icepak(FieldAnalysis3D):
             Default is ``"AmbientRadTemp"``.
         pressure : float or str or dict, optional
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
-            string is set, a variable name or a number with the unit is expected. If a float is set, the unit ``'Pa'``
-            is automatically added. Also, a dictionary containing the keys ``'Function'`` and
-            ``'Values'`` can be passed to set a transient behaviour. The acceptable values associated
-            with those keys can be found in the Icepak documentation. Default is ``"AmbientPressure"``.
+            string is set, a variable name or a number with the unit is expected. If a float is set,
+            the unit ``'pascal'`` is automatically added. Also, a dictionary containing the keys
+            ``'Function'`` and ``'Values'`` can be passed to set a transient behavior. The
+            acceptable values associated with those keys can be found in the Icepak
+            documentation. The default is ``"AmbientPressure"``.
         mass_flow_rate : float or str or dict, optional
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
             string is set, a variable name or a number with the unit is expected. If a float is set,
