@@ -346,7 +346,7 @@ healthchecksdb
 
 # virtual environment
 /venv/
-
+/.venv/
 # sphinx build
 doc/_build/
 doc/source/examples
