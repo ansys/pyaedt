@@ -615,10 +615,13 @@ class Icepak(FieldAnalysis3D):
             )
         props["Shell Conduction"] = shell_conduction
         bound = BoundaryObject(self, bc_name, props, "Conducting Plate")
-        if bound.create():
-            self.boundaries.append(bound)
-            return bound
-        else:
+        try:
+            if bound.create():
+                self.boundaries.append(bound)
+                return bound
+            else:
+                raise SystemExit
+        except SystemExit:
             return None
 
     @pyaedt_function_handler()
@@ -3311,10 +3314,13 @@ class Icepak(FieldAnalysis3D):
         props["External Radiation Reference Temperature"] = ext_surf_rad_ref_temp
         props["External Radiation View Factor"] = ext_surf_rad_view_factor
         bound = BoundaryObject(self, name, props, "Stationary Wall")
-        if bound.create():
-            self.boundaries.append(bound)
-            return bound
-        else:
+        try:
+            if bound.create():
+                self.boundaries.append(bound)
+                return bound
+            else:
+                raise SystemExit
+        except SystemExit:
             return None
 
     @pyaedt_function_handler()

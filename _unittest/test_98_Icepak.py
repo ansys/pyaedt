@@ -885,6 +885,9 @@ class TestClass(BasisTest, object):
             input_power="1W",
             thickness="1mm",
         )
+        assert not self.aedtapp.create_conduting_plate(
+            None, thermal_specification="Thickness", input_power="1W", thickness="1mm", radiate_low=True
+        )
 
     def test_54_assign_stationary_wall(self):
         self.aedtapp.insert_design("test_54")
@@ -929,6 +932,13 @@ class TestClass(BasisTest, object):
         )
         assert self.aedtapp.assign_stationary_wall_with_htc(
             "surf1",
+            ext_surf_rad=True,
+            ext_surf_rad_material="Stainless-steel-cleaned",
+            ext_surf_rad_ref_temp=0,
+            ext_surf_rad_view_factor=0.5,
+        )
+        assert not self.aedtapp.assign_stationary_wall_with_htc(
+            "surf01",
             ext_surf_rad=True,
             ext_surf_rad_material="Stainless-steel-cleaned",
             ext_surf_rad_ref_temp=0,
