@@ -318,12 +318,30 @@ class Design(AedtObjects):
                         bb.append("MotionSetup")
 
         # Icepak definition
-        if self.design_type == "Icepak":
+        elif self.design_type == "Icepak":
             othermal = self.get_oo_object(self.odesign, "Thermal")
             thermal_definitions = list(self.get_oo_name(othermal))
             for thermal in thermal_definitions:
                 bb.append(thermal)
                 bb.append(self.get_oo_property_value(othermal, thermal, "Type"))
+            if self.modeler.user_defined_components:
+                for component in self.modeler.user_defined_components:
+                    thermal_properties = self.get_oo_properties(othermal, thermal)
+                    if (
+                        "native_properties" not in self.modeler.user_defined_components[component].__dict__.keys()
+                        and "Type" not in thermal_properties
+                        and thermal_properties[-1] != "Icepak"
+                    ):
+                        try:
+                            app = self.modeler.user_defined_components[component].edit_definition()
+                            othermal = app.get_oo_object(app.odesign, "Thermal")
+                            thermal_definitions = list(app.get_oo_name(othermal))
+                            for thermal in thermal_definitions:
+                                bb.append(thermal)
+                                bb.append(app.get_oo_property_value(othermal, thermal, "Type"))
+                            app.oproject.Close()
+                        except:
+                            pass
 
         current_boundaries = bb[::2]
         current_types = bb[1::2]
