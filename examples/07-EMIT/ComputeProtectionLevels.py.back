@@ -233,7 +233,7 @@ domain = emitapp.results.interaction_domain()
 
 ###############################################################################
 # Classify the results
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~
 # Iterate over all the transmitters and receivers and compute the power
 # at the input to each receiver due to each of the transmitters. Computes
 # which, if any, protection levels are exceeded by these power levels.
