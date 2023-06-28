@@ -4682,7 +4682,7 @@ class Icepak(FieldAnalysis3D):
         >>> oModule.AssignSymmetryWallBoundary
         """
         if not boundary_name:
-            boundary_name = generate_unique_name("StationaryWall")
+            boundary_name = generate_unique_name("SymmetryWall")
         if isinstance(geometry, (str, int)):
             geometry = [geometry]
 
