@@ -4683,9 +4683,7 @@ class Icepak(FieldAnalysis3D):
         """
         if not boundary_name:
             boundary_name = generate_unique_name("StationaryWall")
-        if isinstance(geometry, str):
-            geometry = [geometry]
-        elif isinstance(geometry, int):
+        if isinstance(geometry, (str, int)):
             geometry = [geometry]
 
         props = {}
