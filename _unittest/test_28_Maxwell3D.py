@@ -38,9 +38,10 @@ class TestClass(BasisTest, object):
             self, application=Maxwell3d, project_name=transient, subfolder=test_subfolder
         )
         self.cyl_gap = BasisTest.add_app(self, application=Maxwell3d, project_name=cyl_gap, subfolder=test_subfolder)
-        self.layout_comp = BasisTest.add_app(
-            self, application=Maxwell3d, project_name=layout_component, subfolder=test_subfolder
-        )
+        if desktop_version > "2023.1":
+            self.layout_comp = BasisTest.add_app(
+                self, application=Maxwell3d, project_name=layout_component, subfolder=test_subfolder
+            )
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
