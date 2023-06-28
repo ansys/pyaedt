@@ -4277,7 +4277,7 @@ class Icepak(FieldAnalysis3D):
             Default is ``"AmbientRadTemp"``.
         flow_type : int or str, optional
             Prescribed radiation flow type at the boundary. Available options are ``"Pressure"``,
-            ``"Velocity"`` and ``"Mass Flow"``.
+            ``"Velocity"``, and ``"Mass Flow"``. The default is ``"Pressure"``.
         pressure : float or str or dict, optional
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
             string is set, a variable name or a number with the unit is expected. If a float is set,
