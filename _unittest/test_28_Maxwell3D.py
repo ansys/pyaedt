@@ -897,3 +897,24 @@ class TestClass(BasisTest, object):
         }
         assert self.layout_comp.assign_layout_force(nets_layers, "LC1_1")
         assert not self.layout_comp.assign_layout_force(nets_layers, "LC1_3")
+        nets_layers = {"1V0": "Bottom Solder"}
+        assert self.layout_comp.assign_layout_force(nets_layers, "LC1_1")
+
+    @pytest.mark.skipif(desktop_version < "2023.2", reason="Method available in beta from 2023.2")
+    def test_54_enable_harmonic_force_layout(self):
+        comp = self.layout_comp.modeler.user_defined_components["LC1_1"]
+        layers = list(comp.layout_component.layers.keys())
+        nets = list(comp.layout_component.nets.keys())
+        self.layout_comp.enable_harmonic_force_on_layout_component(
+            comp.name,
+            {nets[0]: layers[1::2], nets[1]: layers[1::2]},
+            force_type=2,
+            window_function="Rectangular",
+            use_number_of_last_cycles=True,
+            last_cycles_number=1,
+            calculate_force="Harmonic",
+            start_time="10us",
+            stop_time="20us",
+            use_number_of_cycles_for_stop_time=True,
+            number_of_cycles_for_stop_time=1,
+        )

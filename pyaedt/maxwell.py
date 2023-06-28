@@ -2703,10 +2703,9 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         nets_layers_props = None
         for key, valy in nets_layers_mapping.items():
             if nets_layers_props:
-                nets_layers_props = [nets_layers_props]
                 nets_layers_props.append(OrderedDict({key: OrderedDict({"LayerSet": valy})}))
             else:
-                nets_layers_props = OrderedDict({key: OrderedDict({"LayerSet": valy})})
+                nets_layers_props = [OrderedDict({key: OrderedDict({"LayerSet": valy})})]
 
         props = OrderedDict(
             {
