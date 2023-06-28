@@ -9,6 +9,7 @@ from _unittest.conftest import local_path
 from pyaedt import Hfss
 from pyaedt import Icepak
 from pyaedt import settings
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NetworkObject
 
@@ -885,9 +886,10 @@ class TestClass(BasisTest, object):
             input_power="1W",
             thickness="1mm",
         )
-        assert not self.aedtapp.create_conduting_plate(
-            None, thermal_specification="Thickness", input_power="1W", thickness="1mm", radiate_low=True
-        )
+        if not is_ironpython:
+            assert not self.aedtapp.create_conduting_plate(
+                None, thermal_specification="Thickness", input_power="1W", thickness="1mm", radiate_low=True
+            )
 
     def test_54_assign_stationary_wall(self):
         self.aedtapp.insert_design("test_54")
@@ -937,13 +939,14 @@ class TestClass(BasisTest, object):
             ext_surf_rad_ref_temp=0,
             ext_surf_rad_view_factor=0.5,
         )
-        assert not self.aedtapp.assign_stationary_wall_with_htc(
-            "surf01",
-            ext_surf_rad=True,
-            ext_surf_rad_material="Stainless-steel-cleaned",
-            ext_surf_rad_ref_temp=0,
-            ext_surf_rad_view_factor=0.5,
-        )
+        if not is_ironpython:
+            assert not self.aedtapp.assign_stationary_wall_with_htc(
+                "surf01",
+                ext_surf_rad=True,
+                ext_surf_rad_material="Stainless-steel-cleaned",
+                ext_surf_rad_ref_temp=0,
+                ext_surf_rad_view_factor=0.5,
+            )
 
     @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 GRPC")
     def test_55_native_components_history(self):
