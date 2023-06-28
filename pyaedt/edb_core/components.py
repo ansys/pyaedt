@@ -834,9 +834,11 @@ class Components(object):
         refnet : string or list of string.
             list of the reference net.
         port_name : string
-            will overwrite the default port naming convention which is [component][net][pin]. Port name must be
-            unique and if a port is already defined with the same name, default naming convention will be applied to
-            prevent port creation failure.
+            Port name for overwriting the default port naming convention,
+            which is ``[component][net][pin]``. The port name must be unique.
+            If a port is already with the specified name already exists, the
+            default naming convention is used so that port creation does
+            not fail.
 
         Returns
         -------
