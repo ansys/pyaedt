@@ -4664,7 +4664,7 @@ class Icepak(FieldAnalysis3D):
             props["Faces"] = geometry
         else:
             props["Objects"] = geometry
-        
+
         bound = BoundaryObject(self, boundary_name, props, "Symmetry Wall")
         if bound.create():
             self.boundaries.append(bound)
