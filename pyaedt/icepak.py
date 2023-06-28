@@ -3963,6 +3963,7 @@ class Icepak(FieldAnalysis3D):
                 "Use the ``assign_hollow_block()`` method with this object as ``solve_inside`` is ``False``."
             )
             return None
+
         if ext_temperature != "AmbientTemp" and ext_temperature is not None and not htc:
             self.logger.add_error_message("Set an argument for ``htc`` or remove the ``ext_temperature`` argument.")
             return None
@@ -3973,6 +3974,12 @@ class Icepak(FieldAnalysis3D):
             return None
         if not isinstance(object_name, list):
             object_name = [object_name]
+        for o_n in object_name:
+            if not self.modeler.get_object_from_name(o_n).solve_inside:
+                self.logger.add_error_message(
+                    "Use the ``assign_hollow_block()`` method with this object as ``solve_inside`` is ``False``."
+                )
+                return None
         props = {"Block Type": "Solid", "Objects": object_name}
         if isinstance(power_assignment, dict):
             assignment_value = self._parse_variation_data(
@@ -4085,11 +4092,6 @@ class Icepak(FieldAnalysis3D):
         >>> temp_dict = {"Type": "Transient", "Function": "Square Wave", "Values": ["1cel", "0s", "1s", "0.5s", "0cel"]}
         >>> block = ipk.assign_hollow_block("BlockBox5", "Heat Transfer Coefficient", "1w_per_m2kel", "Test", temp_dict)
         """
-        if self.modeler.get_object_from_name(object_name).solve_inside:
-            self.logger.add_error_message(
-                "Use ``assign_solid_block`` method with this object as ``solve_inside`` is ``True``."
-            )
-            return None
         if assignment_value == "Joule Heating" and assignment_type != "Total Power":
             self.logger.add_error_message(
                 '``"Joule Heating"`` assignment is supported only if ``assignment_type``' 'is ``"Total Power"``.'
@@ -4113,7 +4115,12 @@ class Icepak(FieldAnalysis3D):
 
         if not isinstance(object_name, list):
             object_name = [object_name]
-
+        for o_n in object_name:
+            if self.modeler.get_object_from_name(o_n).solve_inside:
+                self.logger.add_error_message(
+                    "Use ``assign_solid_block`` method with this object as ``solve_inside`` is ``True``."
+                )
+                return None
         props = {"Block Type": "Hollow", "Objects": object_name, "Thermal Condition": thermal_condition[0]}
         if thermal_condition[0] == "Fixed Heat":
             props["Use Total Power"] = thermal_condition[1] == "Total Power"

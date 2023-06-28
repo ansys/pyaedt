@@ -971,6 +971,7 @@ class TestClass(BasisTest, object):
         settings.enable_desktop_logs = True
         self.aedtapp.solution_type = "Transient"
         box = self.aedtapp.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox5", "copper")
+        self.aedtapp.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox5.1", "copper")
         box.solve_inside = False
         temp_dict = {"Type": "Transient", "Function": "Square Wave", "Values": ["1cel", "0s", "1s", "0.5s", "0cel"]}
         power_dict = {"Type": "Transient", "Function": "Sinusoidal", "Values": ["0W", 1, 1, "1s"]}
@@ -981,7 +982,7 @@ class TestClass(BasisTest, object):
         block.delete()
         box.solve_inside = True
         assert not self.aedtapp.assign_hollow_block(
-            "BlockBox5", "Heat Transfer Coefficient", "1w_per_m2kel", "Test", "1cel"
+            ["BlockBox5", "BlockBox5.1"], "Heat Transfer Coefficient", "1w_per_m2kel", "Test", "1cel"
         )
         box.solve_inside = False
         temp_dict["Type"] = "Temp Dep"
@@ -1002,12 +1003,13 @@ class TestClass(BasisTest, object):
     def test_59_assign_solid_block(self):
         self.aedtapp.solution_type = "Transient"
         box = self.aedtapp.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox3", "copper")
+        self.aedtapp.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox3.1", "copper")
         power_dict = {"Type": "Transient", "Function": "Sinusoidal", "Values": ["0W", 1, 1, "1s"]}
         block = self.aedtapp.assign_solid_block("BlockBox3", power_dict)
         assert block
         block.delete()
         box.solve_inside = False
-        assert not self.aedtapp.assign_solid_block("BlockBox3", power_dict)
+        assert not self.aedtapp.assign_solid_block(["BlockBox3", "BlockBox3.1"], power_dict)
         box.solve_inside = True
         assert not self.aedtapp.assign_solid_block("BlockBox3", power_dict, ext_temperature="1cel")
         assert not self.aedtapp.assign_solid_block("BlockBox3", power_dict, htc=5, ext_temperature={"Type": "Temp Dep"})
