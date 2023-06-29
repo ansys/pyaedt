@@ -907,7 +907,7 @@ class TestClass(BasisTest, object):
             thermal_specification="Thickness",
             input_power="1W",
             thickness="1mm",
-            bc_name = "cond_plate_test",
+            bc_name="cond_plate_test",
         )
         assert self.aedtapp.create_conduting_plate(
             "surf1",
@@ -916,7 +916,7 @@ class TestClass(BasisTest, object):
             thermal_impedance="1.5celm2_per_w",
         )
         assert self.aedtapp.create_conduting_plate(
-            ["surf1","surf2"],
+            ["surf1", "surf2"],
             thermal_specification="Thermal Resistance",
             input_power="1W",
             thermal_resistance="2.5Kel_per_W",
