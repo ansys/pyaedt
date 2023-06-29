@@ -588,7 +588,7 @@ class Icepak(FieldAnalysis3D):
             bc_name = generate_unique_name("Source")
         props = {}
         if not isinstance(face_id, list):
-            assignment = [face_id]
+            face_id = [face_id]
         if isinstance(face_id[0], int):
             props["Faces"] = face_id
         elif isinstance(face_id[0], str):
