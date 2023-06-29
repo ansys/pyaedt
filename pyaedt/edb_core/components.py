@@ -789,7 +789,7 @@ class Components(object):
             term = self._create_terminal(pins[0])
         term.SetIsCircuitPort(True)
         if len(reference_pins) > 1:
-            ref_group_name = "group_{}_{}_ref".format(pins[0].net_name, pins[0].name)
+            ref_group_name = "group_{}_{}_ref".format(reference_pins[0].net_name, reference_pins[0].name)
             ref_pin_group = self.create_pingroup_from_pins(reference_pins, ref_group_name)
             ref_term = self._create_pin_group_terminal(pingroup=ref_pin_group)
         else:
@@ -1492,7 +1492,22 @@ class Components(object):
         group_name = group_name.translate({ord(i): "_" for i in forbiden_car})
         for pgroup in list(self._pedb.active_layout.PinGroups):
             if pgroup.GetName() == group_name:
-                return pgroup
+                pin_group_exists = True
+                if len(pgroup.GetPins()) == len(pins):
+                    pnames = [i.GetName() for i in pins]
+                    for p in pgroup.GetPins():
+                        if p.GetName() in pnames:
+                            continue
+                        else:
+                            group_name = self._edb.cell.hierarchy.pin_group.GetUniqueName(
+                                self._active_layout, group_name
+                            )
+                            pin_group_exists = False
+                else:
+                    group_name = self._edb.cell.hierarchy.pin_group.GetUniqueName(self._active_layout, group_name)
+                    pin_group_exists = False
+                if pin_group_exists:
+                    return pgroup
         pingroup = _retry_ntimes(
             10,
             self._edb.cell.hierarchy.pin_group.Create,
