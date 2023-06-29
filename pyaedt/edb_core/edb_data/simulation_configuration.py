@@ -246,6 +246,20 @@ class SimulationConfigurationBatch(object):
             self._use_airbox_positive_vertical_extent_multiple = value
 
     @property
+    def use_pyaedt_cutout(self):
+        """Whether the default EDB cutout or a new PyAEDT cutout is used.
+
+        Returns
+        -------
+        bool
+        """
+        return not self._use_default_cutout
+
+    @use_pyaedt_cutout.setter
+    def use_pyaedt_cutout(self, value):
+        self._use_default_cutout = not value
+
+    @property
     def use_default_cutout(self):  # pragma: no cover
         """Whether the default EDB cutout or a new PyAEDT cutout is used.
 
@@ -253,6 +267,7 @@ class SimulationConfigurationBatch(object):
         -------
         bool
         """
+
         return self._use_default_cutout
 
     @use_default_cutout.setter
@@ -1887,8 +1902,6 @@ class SimulationConfiguration(object):
     >>> from pyaedt import Edb
     >>> edb = Edb()
     >>> sim_setup = edb.new_simulation_configuration()
-    >>> edb = Edb()
-    >>> sim_setup = edb.new_simulation_configuration()
 
     The returned object sim_setup is a SimulationConfiguration object.
     From this class you can assign a lot of parameters related the project configuration but also solver options.
@@ -2242,37 +2255,44 @@ class SimulationConfiguration(object):
 
     @property
     def dc_settings(self):
+        # type: () -> SimulationConfigurationDc
         """DC Settings class.
 
         Returns
         -------
-        :class:`pyaedt.edb_core_edb_data.simulationconfiguration.SimulationConfigurationDc`
+        :class:`pyaedt.edb_core.edb_data.simulation_configuration.SimulationConfigurationDc`
         """
         return self._dc_settings
 
     @property
     def ac_settings(self):
+        # type: () -> SimulationConfigurationAc
         """AC Settings class.
 
         Returns
         -------
-        :class:`pyaedt.edb_core_edb_data.simulationconfiguration.SimulationConfigurationAc`
+        :class:`pyaedt.edb_core.edb_data.simulation_configuration.SimulationConfigurationAc`
         """
         return self._ac_settings
 
     @property
     def batch_solve_settings(self):
+        # type: () -> SimulationConfigurationBatch
         """Cutout and Batch Settings class.
 
         Returns
         -------
-        :class:`pyaedt.edb_core_edb_data.simulationconfiguration.SimulationConfigurationBatch`
+        :class:`pyaedt.edb_core.edb_data.simulation_configuration.SimulationConfigurationBatch`
         """
         return self._batch_solve_settings
 
     @pyaedt_function_handler()
     def build_simulation_project(self):
-        """Build active simulation project. This method requires to be run inside Edb Class."""
+        """Build active simulation project. This method requires to be run inside Edb Class.
+
+        Returns
+        -------
+        bool"""
         return self._pedb.build_simulation_project(self)
 
     @property
@@ -2281,7 +2301,7 @@ class SimulationConfiguration(object):
 
         Returns
         -------
-            SolverType
+        :class:`pyaedt.generic.constants.SolverType`
             selections are supported, Hfss3dLayout and Siwave.
         """
         return self._solver_type

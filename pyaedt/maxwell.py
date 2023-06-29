@@ -1582,6 +1582,90 @@ class Maxwell(object):
         return True
 
     @pyaedt_function_handler()
+    def enable_harmonic_force_on_layout_component(
+        self,
+        layout_component_name,
+        nets,
+        force_type=0,
+        window_function="Rectangular",
+        use_number_of_last_cycles=True,
+        last_cycles_number=1,
+        calculate_force="Harmonic",
+        start_time="0s",
+        stop_time="2ms",
+        use_number_of_cycles_for_stop_time=True,
+        number_of_cycles_for_stop_time=1,
+    ):
+        """Enable the harmonic force calculation for the transient analysis.
+
+        Parameters
+        ----------
+        layout_component_name : str
+            Name of layout component to apply harmonic forces.
+        nets : dict
+            Dictionary containing nets and layers on which enable harmonic forces.
+        force_type : int, optional
+            Force Type. ``0`` for Objects, ``1`` for Surface, ``2`` for volumetric.
+        window_function : str, optional
+            Windowing function. Default is ``"Rectangular"``.
+            Available options are: ``"Rectangular"``, ``"Tri"``, ``"Van Hann"``, ``"Hamming"``,
+            ``"Blackman"``, ``"Lanczos"``, ``"Welch"``.
+        use_number_of_last_cycles : bool, optional
+            Use number Of last cycles for force calculations. Default is ``True``.
+        last_cycles_number : int, optional
+            Defines the number of cycles to compute if `use_number_of_last_cycle` is ``True``.
+        calculate_force : sr, optional
+            How to calculate force. The default is ``"Harmonic"``.
+            Options are ``"Harmonic"`` and ``"Transient"``.
+
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        if self.solution_type != "TransientAPhiFormulation":
+            self.logger.error("This methods work only with Maxwell TransientAPhiFormulation Analysis.")
+            return False
+        args = [
+            "ForceType:=",
+            force_type,
+            "WindowFunctionType:=",
+            window_function,
+            "UseNumberOfLastCycles:=",
+            use_number_of_last_cycles,
+            "NumberOfLastCycles:=",
+            last_cycles_number,
+            "StartTime:=",
+            start_time,
+            "UseNumberOfCyclesForStopTime:=",
+            use_number_of_cycles_for_stop_time,
+            "NumberOfCyclesForStopTime:=",
+            number_of_cycles_for_stop_time,
+            "StopTime:=",
+            stop_time,
+            "OutputFreqRangeType:=",
+            "Use All",
+            "CaculateForceType:=",
+            calculate_force + " Force",
+        ]
+        args2 = [
+            "NAME:NetsAndLayersChoices",
+            [
+                "NAME:" + layout_component_name,
+                [
+                    "NAME:NetLayerSetMap",
+                ],
+            ],
+        ]
+        for net, layers in nets.items():
+            args2[1][1].append(["Name:" + net, "LayerSet:=", ["<no-layer>"] + layers])
+        args.append(args2)
+        self.odesign.EnableHarmonicForceCalculation(args)
+        return True
+
+    @pyaedt_function_handler()
     def export_element_based_harmonic_force(
         self,
         output_directory=None,
@@ -1610,7 +1694,7 @@ class Maxwell(object):
         str
             Path to the export directory.
         """
-        if self.solution_type != "Transient":
+        if self.solution_type != "Transient" and self.solution_type != "TransientAPhiFormulation":
             self.logger.error("This methods work only with Maxwell Transient Analysis.")
             return False
         if not output_directory:
@@ -2515,9 +2599,130 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         except:
             return False, False
 
+    @pyaedt_function_handler
+    def assign_flux_tangential(self, objects_list, flux_name=None):
+        # type : (list, str = None) -> pyaedt.modules.Boundary.BoundaryObject
+        """Assign a flux tangential boundary for a transient A-Phi solver.
+
+        Parameters
+        ----------
+        objects_list : list
+            List of objects to assign the flux tangential boundary condition to.
+        flux_name : str, optional
+            Name of the flux tangential boundary. The default is ``None``,
+            in which case a random name is automatically generated.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object if successful, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oModule.AssignFluxTangential
+
+        Examples
+        --------
+
+        Create a box and assign a flux tangential boundary to one of its faces.
+
+        >>> box = maxwell3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="Box")
+        >>> flux_tangential = maxwell3d_app.assign_flux_tangential(box.faces[0], "FluxExample")
+        """
+        if self.solution_type != "TransientAPhiFormulation":
+            self.logger.error("Flux tangential boundary can only be assigned to a transient APhi solution type.")
+            return False
+
+        objects_list = self.modeler.convert_to_selections(objects_list, True)
+
+        if not flux_name:
+            flux_name = generate_unique_name("FluxTangential")
+        elif flux_name in self.modeler.get_boundaries_name():
+            flux_name = generate_unique_name(flux_name)
+
+        props = {"NAME": flux_name, "Faces": []}
+        for sel in objects_list:
+            props["Faces"].append(sel)
+
+        return self._create_boundary(flux_name, props, "FluxTangential")
+
+    @pyaedt_function_handler
+    def assign_layout_force(self, nets_layers_mapping, component_name, reference_cs="Global", force_name=None):
+        # type: (dict, str, str, str) -> bool
+        """Assign the layout force to a component in a Transient A-Phi solver.
+        To access layout component features the Beta option has to be enabled first.
+
+        Parameters
+        ----------
+        nets_layers_mapping : dict
+            Each <layer, net> pair represents the object(s) in the intersection of corresponding layer and net.
+            Net name is dictionary's key, layers name is the list of layer names.
+        component_name : str
+            Name of the 3d component to assign the layout force to.
+        reference_cs : str, optional
+            Reference coordinate system.
+            If not provided the global one will be set.
+        force_name : str, optional
+            Name of the layout force.
+            If not provided a random name will be generated.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignLayoutForce
+
+        Examples
+        --------
+
+        Create a dictionary to give as an input to assign_layout_force method.
+        >>> nets_layers = {}
+        >>> nets_layers["<no-net>"] = ["PWR","TOP","UNNAMED_000","UNNAMED_002"]
+        >>> nets_layers["GND"] = ["LYR_1","LYR_2","UNNAMED_006"]
+
+        Assign layout force to a component.
+        >>> m3d = Maxwell3d()
+        >>> m3d.assign_layout_force(nets_layers_mapping=nets_layers, component_name="LC1_1")
+        """
+        for key in nets_layers_mapping.keys():
+            if not isinstance(nets_layers_mapping[key], list):
+                nets_layers_mapping[key] = list(nets_layers_mapping[key])
+
+        if component_name not in self.modeler.user_defined_component_names:
+            self.logger.error("Provided component name doesn't exist in current design.")
+            return False
+
+        if not force_name:
+            force_name = generate_unique_name("Layout_Force")
+
+        nets_layers_props = None
+        for key, valy in nets_layers_mapping.items():
+            if nets_layers_props:
+                nets_layers_props.append(OrderedDict({key: OrderedDict({"LayerSet": valy})}))
+            else:
+                nets_layers_props = [OrderedDict({key: OrderedDict({"LayerSet": valy})})]
+
+        props = OrderedDict(
+            {
+                "Reference CS": reference_cs,
+                "NetsAndLayersChoices": OrderedDict(
+                    {component_name: OrderedDict({"NetLayerSetMap": nets_layers_props})}
+                ),
+            }
+        )
+        bound = MaxwellParameters(self, force_name, props, "LayoutForce")
+        if bound.create():
+            self.boundaries.append(bound)
+            return bound
+
 
 class Maxwell2d(Maxwell, FieldAnalysis3D, object):
-    """Provides the Maxwell 2D application interface.
+    """Provides the Maxwell 2D app interface.
 
     This class allows you to connect to an existing Maxwell 2D design or create a
     new Maxwell 2D design if one does not exist.

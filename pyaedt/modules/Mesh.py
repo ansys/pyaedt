@@ -9,7 +9,7 @@ import shutil
 
 from pyaedt.application.design_solutions import model_names
 from pyaedt.generic.DataHandlers import _dict2arg
-from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
+from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 
 # from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import MethodNotSupportedError
@@ -189,14 +189,18 @@ class MeshOperation(object):
         >>> oModule.EditMeshOperation
         >>> oModule.EditSBRCurvatureExtractionOp
         """
-        if key_name and settings.aedt_version > "2022.2":
-            mesh_obj = self._mesh._app.odesign.GetChildObject("Mesh").GetChildObject(self.name)
-            if key_name in mesh_props.keys():
-                if key_name == "SurfaceRepPriority":
-                    value = "Normal" if value == 0 else "High"
-                key_name = mesh_props[key_name]
-            mesh_obj.SetPropValue(key_name, value)
-            return True
+        mesh_names = self._mesh._app.odesign.GetChildObject("Mesh").GetChildNames()
+        if key_name and settings.aedt_version > "2022.2" and self.name in mesh_names:
+            try:
+                mesh_obj = self._mesh._app.odesign.GetChildObject("Mesh").GetChildObject(self.name)
+                if key_name in mesh_props.keys():
+                    if key_name == "SurfaceRepPriority":
+                        value = "Normal" if value == 0 else "High"
+                    key_name = mesh_props[key_name]
+                mesh_obj.SetPropValue(key_name, value)
+                return True
+            except:
+                self._app.logger.info("Failed to use Child Object. Trying with legacy update.")
 
         if self.type == "SurfApproxBased":
             self._mesh.omeshmodule.EditTrueSurfOp(self.name, self._get_args())
@@ -218,7 +222,7 @@ class MeshOperation(object):
             self._mesh.omeshmodule.EditMeshOperation(self.name, self._get_args())
         elif self.type == "CurvatureExtraction":
             self._mesh.omeshmodule.EditSBRCurvatureExtractionOp(self.name, self._get_args())
-        elif self.type == "InitialMeshSettings":
+        elif self.type in ["InitialMeshSettings", "MeshSettings"]:
             self._mesh.omeshmodule.InitialMeshSettings(self._get_args())
         elif self.type == "CylindricalGap":
             self._mesh.omeshmodule.EditCylindricalGapOp(self.name, self._get_args())
@@ -468,7 +472,8 @@ class Mesh(object):
             oproject_target.InsertDesign(self._app.design_type, temp_name, sol, "")
             oproject_target.SaveAs(temp_proj, True)
             self._app.odesktop.CloseProject(temp_name)
-            _project_dictionary = load_entire_aedt_file(temp_proj)
+            # _project_dictionary = load_entire_aedt_file(temp_proj)
+            _project_dictionary = load_keyword_in_aedt_file(temp_proj, "AnsoftProject")
             try:
                 props = _project_dictionary["AnsoftProject"][model_names[self._app.design_type]]["MeshSetup"][
                     "MeshSettings"

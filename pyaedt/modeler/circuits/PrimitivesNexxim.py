@@ -5,7 +5,7 @@ import re
 import warnings
 
 from pyaedt.application.Variables import decompose_variable_value
-from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
+from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 from pyaedt.generic.constants import AEDT_UNITS
 
 # from pyaedt.generic.general_methods import property
@@ -1858,7 +1858,8 @@ class NexximComponents(CircuitComponents):
         comp_name = os.path.splitext(os.path.basename(model_path))[0]
         results_path = model_path + "averesults"
         solution = os.path.join(results_path, comp_name + ".asol")
-        out = load_entire_aedt_file(solution)
+        # out = load_entire_aedt_file(solution)
+        out = load_keyword_in_aedt_file(solution, "Solutions")
         if not solution_name:
             solution_name = list(out["Solutions"]["SYZSolutions"].keys())[0]
         results_folder = os.path.join(

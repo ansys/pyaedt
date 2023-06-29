@@ -293,9 +293,21 @@ class Object3d(object):
                 return model_obj.image_file
         return False
 
+    @pyaedt_function_handler()
+    def touching_conductors(self):
+        """Get the conductors of given object.
+        See :func:`pyaedt.application.Analysis3D.FieldAnalysis3D.identify_touching_conductors`.
+
+        Returns
+        -------
+        list
+            Name of all touching conductors.
+        """
+        return [i for i in self._primitives._app.identify_touching_conductors(self.name)["Net1"] if i != self.name]
+
     @property
     def touching_objects(self):
-        """Get the objects that touch one of the vertex, edge midpoint or face of the object."""
+        """Get the objects that touch a vertex, edge midpoint, or face of the object."""
         if self.object_type == "Unclassified":
             return []
         list_names = []
@@ -864,6 +876,13 @@ class Object3d(object):
             vgroup = ["NAME:Group", "Value:=", name]
             self._change_property(vgroup)
             self._m_groupName = name
+
+    @property
+    def is_conductor(self):
+        """Check if the object is a conductor."""
+        if self.material_name and self._primitives._materials[self.material_name].is_conductor():
+            return True
+        return False
 
     @property
     def material_name(self):

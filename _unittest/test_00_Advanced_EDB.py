@@ -9,7 +9,7 @@ from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfigur
 # Setup paths for module imports
 # Import required modules
 
-test_project_name = "Galileo_edb"
+test_project_name = "ANSYS-HSD_V1"
 bom_example = "bom_example.csv"
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
@@ -38,8 +38,8 @@ class TestClass(BasisTest, object):
         example_project2 = os.path.join(local_path, "example_models", test_subfolder, "simple.aedb")
         self.target_path2 = os.path.join(self.local_scratch.path, "simple_00.aedb")
         self.local_scratch.copyfolder(example_project2, self.target_path2)
-        example_project3 = os.path.join(local_path, "example_models", test_subfolder, "Galileo_edb_plot.aedb")
-        self.target_path3 = os.path.join(self.local_scratch.path, "Galileo_edb_plot_00.aedb")
+        example_project3 = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1_cut.aedb")
+        self.target_path3 = os.path.join(self.local_scratch.path, "test_plot.aedb")
         self.local_scratch.copyfolder(example_project3, self.target_path3)
         example_project4 = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
         self.target_path4 = os.path.join(self.local_scratch.path, "Package_00.aedb")
@@ -158,10 +158,10 @@ class TestClass(BasisTest, object):
 
     def test_03_get_placement_vector(self):
         edb2 = Edb(self.target_path4, edbversion=desktop_version)
-        for cmpname, cmp in edb2.components.components.items():
+        for cmpname, cmp in edb2.components.instances.items():
             assert isinstance(cmp.solder_ball_placement, int)
         mounted_cmp = edb2.components.get_component_by_name("BGA")
-        hosting_cmp = self.edbapp.components.get_component_by_name("U2A5")
+        hosting_cmp = self.edbapp.components.get_component_by_name("U1")
         (
             result,
             vector,
@@ -737,40 +737,41 @@ class TestClass(BasisTest, object):
             laminateEdb.close()
 
     def test_15_build_siwave_project_from_config_file(self):
-        example_project = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-        target_path = os.path.join(self.local_scratch.path, "Galileo.aedb")
+        example_project = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "ANSYS-HSD_V1_15.aedb")
         self.local_scratch.copyfolder(example_project, target_path)
         cfg_file = os.path.join(target_path, "test.cfg")
         with open(cfg_file, "w") as f:
             f.writelines("SolverType = 'SiwaveSYZ'\n")
             f.writelines("PowerNets = ['GND']\n")
-            f.writelines("Components = ['U2A5', 'U1B5']")
+            f.writelines("Components = ['U1', 'U2']")
         sim_config = SimulationConfiguration(cfg_file)
         assert Edb(target_path, edbversion=desktop_version).build_simulation_project(sim_config)
 
     @pytest.mark.skipif(is_ironpython or is_linux, reason="Not supported in IPY")
     def test_16_solve(self):
-        target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo_to_be_solved.aedb")
-        out_edb = os.path.join(self.local_scratch.path, "Galileo_to_be_solved.aedb")
+        target_path = os.path.join(local_path, "example_models", "T40", "ANSYS-HSD_V1_DCIR.aedb")
+        out_edb = os.path.join(self.local_scratch.path, "to_be_solved.aedb")
         self.local_scratch.copyfolder(target_path, out_edb)
         edbapp = Edb(out_edb, edbversion=desktop_version)
         edbapp.siwave.create_exec_file(add_dc=True)
         out = edbapp.solve_siwave()
         assert os.path.exists(out)
-        res = edbapp.export_siwave_dc_results(out, "myDCIR_4")
+        res = edbapp.export_siwave_dc_results(out, "SIwaveDCIR1")
         for i in res:
             assert os.path.exists(i)
+        edbapp.close()
 
     @pytest.mark.skipif(is_ironpython, reason="Not supported in Ironpython because of numpy.")
     def test_17_component(self):
-        source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-        target_path = os.path.join(self.local_scratch.path, "test_122.aedb")
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_17.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         sparam_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC_series.s2p")
         spice_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC.mod")
 
         edbapp = Edb(target_path, edbversion=desktop_version)
-        comp = edbapp.components.components["R6"]
+        comp = edbapp.components.instances["R2"]
         assert not comp.assign_rlc_model()
         comp.assign_rlc_model(1, None, 3, False)
         assert (
@@ -797,6 +798,7 @@ class TestClass(BasisTest, object):
         comp.type = "Inductor"
         comp.value = 10  # This command set the model back to ideal RLC
         assert comp.type == "Inductor" and comp.value == 10 and float(comp.ind_value) == 10
+        edbapp.close()
 
     @pytest.mark.skipif(is_ironpython, reason="Failing")
     def test_18_stackup(self):
@@ -836,8 +838,8 @@ class TestClass(BasisTest, object):
                 assert pedb_mat.permittivity_at_frequency == material["permittivity_at_frequency"]
             return 0
 
-        target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-        out_edb = os.path.join(self.local_scratch.path, "Galileo_test.aedb")
+        target_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        out_edb = os.path.join(self.local_scratch.path, "ANSYS-HSD_V1_test.aedb")
         self.local_scratch.copyfolder(target_path, out_edb)
         json_path = os.path.join(local_path, "example_models", test_subfolder, "test_mat.json")
         edbapp = Edb(out_edb, edbversion=desktop_version)
@@ -886,56 +888,53 @@ class TestClass(BasisTest, object):
         edbapp.close()
 
     def test_19_build_project(self):
-        target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-        out_edb = os.path.join(self.local_scratch.path, "Galileo_build_project.aedb")
+        target_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        out_edb = os.path.join(self.local_scratch.path, "Build_project.aedb")
         self.local_scratch.copyfolder(target_path, out_edb)
         edbapp = Edb(out_edb, edbversion=desktop_version)
         sim_setup = SimulationConfiguration()
         sim_setup.signal_nets = [
-            "M_DQ<0>",
-            "M_DQ<1>",
-            "M_DQ<2>",
-            "M_DQ<3>",
-            "M_DQ<4>",
-            "M_DQ<5>",
-            "M_DQ<6>",
-            "M_DQ<7>",
+            "DDR4_A0",
+            "DDR4_A1",
+            "DDR4_A2",
+            "DDR4_A3",
+            "DDR4_A4",
+            "DDR4_A5",
         ]
         sim_setup.power_nets = ["GND"]
         sim_setup.do_cutout_subdesign = True
-        sim_setup.components = ["U2A5", "U1B5"]
+        sim_setup.components = ["U1", "U15"]
         sim_setup.use_default_coax_port_radial_extension = False
         sim_setup.cutout_subdesign_expansion = 0.001
         sim_setup.start_freq = 0
         sim_setup.stop_freq = 20e9
         sim_setup.step_freq = 10e6
         assert edbapp.build_simulation_project(sim_setup)
+        edbapp.close()
 
     def test_20_build_project(self):
-        target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-        out_edb = os.path.join(self.local_scratch.path, "Galileo_build_project2.aedb")
+        target_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        out_edb = os.path.join(self.local_scratch.path, "build_project2.aedb")
         self.local_scratch.copyfolder(target_path, out_edb)
         edbapp = Edb(out_edb, edbversion=desktop_version)
         sim_setup = SimulationConfiguration()
-        sim_setup.signal_nets = [
-            "M_DQ<0>",
-            "M_DQ<1>",
-            "M_DQ<2>",
-            "M_DQ<3>",
-            "M_DQ<4>",
-            "M_DQ<5>",
-            "M_DQ<6>",
-            "M_DQ<7>",
+        sim_setup.batch_solve_settings.signal_nets = [
+            "DDR4_A0",
+            "DDR4_A1",
+            "DDR4_A2",
+            "DDR4_A3",
+            "DDR4_A4",
+            "DDR4_A5",
         ]
-        sim_setup.power_nets = ["GND"]
-        sim_setup.do_cutout_subdesign = True
-        sim_setup.components = ["U2A5", "U1B5"]
-        sim_setup.use_default_coax_port_radial_extension = False
-        sim_setup.cutout_subdesign_expansion = 0.001
-        sim_setup.start_freq = 0
-        sim_setup.stop_freq = 20e9
-        sim_setup.step_freq = 10e6
-        sim_setup.use_default_cutout = False
+        sim_setup.batch_solve_settings.power_nets = ["GND"]
+        sim_setup.batch_solve_settings.do_cutout_subdesign = True
+        sim_setup.batch_solve_settings.components = ["U1", "U15"]
+        sim_setup.batch_solve_settings.use_default_coax_port_radial_extension = False
+        sim_setup.batch_solve_settings.cutout_subdesign_expansion = 0.001
+        sim_setup.batch_solve_settings.start_freq = 0
+        sim_setup.batch_solve_settings.stop_freq = 20e9
+        sim_setup.batch_solve_settings.step_freq = 10e6
+        sim_setup.batch_solve_settings.use_pyaedt_cutout = True
         assert edbapp.build_simulation_project(sim_setup)
         assert edbapp.are_port_reference_terminals_connected()
         port1 = list(edbapp.excitations.values())[0]
@@ -950,15 +949,17 @@ class TestClass(BasisTest, object):
         assert port1.renormalize_z0 == (50.0, 0.0)
         assert not port1.get_pin_group_terminal_reference_pin()
         assert not port1.get_pad_edge_terminal_reference_pin()
+        edbapp.close()
 
     def test_21_get_component_bounding_box(self):
-        target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-        out_edb = os.path.join(self.local_scratch.path, "Galileo_get_comp_bbox.aedb")
+        target_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        out_edb = os.path.join(self.local_scratch.path, "get_comp_bbox.aedb")
         self.local_scratch.copyfolder(target_path, out_edb)
         edbapp = Edb(out_edb, edbversion=desktop_version)
-        component = edbapp.components.components["U2A5"]
+        component = edbapp.components.instances["U1"]
         assert component.bounding_box
         assert isinstance(component.rotation, float)
+        edbapp.close()
 
     def test_22_eligible_power_nets(self):
         assert "GND" in [i.name for i in self.edbapp.nets.eligible_power_nets()]
@@ -1013,6 +1014,7 @@ class TestClass(BasisTest, object):
             plot_definitions=list(edb_plot.padstacks.definitions.keys())[0],
         )
         assert os.path.exists(local_png4)
+        edb_plot.close()
 
     def test_24_convert_net_to_polygon(self):
         target_path = os.path.join(local_path, "example_models", "convert_and_merge_path.aedb")
@@ -1020,3 +1022,4 @@ class TestClass(BasisTest, object):
         for path in edb.modeler.paths:
             assert path.convert_to_polygon()
         assert edb.nets.merge_nets_polygons("test")
+        edb.close()

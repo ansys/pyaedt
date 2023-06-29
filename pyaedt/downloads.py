@@ -92,8 +92,8 @@ def _retrieve_folder(url, directory, destination=None):
     if not destination:
         destination = EXAMPLES_PATH
     local_path = os.path.join(destination, directory)
-    if os.path.isdir(local_path):
-        return local_path
+    # if os.path.isdir(local_path):
+    #     return local_path
 
     if is_ironpython:
         return False

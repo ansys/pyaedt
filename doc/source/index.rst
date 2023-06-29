@@ -137,12 +137,12 @@ To reach the project support team, email `pyansys.core@ansys.com <pyansys.core@a
 Dependencies
 ------------
 To run PyAEDT, you must have a local licensed copy of AEDT.
-PyAEDT supports AEDT versions 2022 R1 and later.
+PyAEDT supports AEDT versions 2022 R2 and later.
 
 Student version
 ---------------
 
-PyAEDT supports AEDT Student versions 2022 R1 and later. For more information, see
+PyAEDT supports AEDT Student versions 2022 R2 and later. For more information, see
 `Ansys Electronics Desktop Student  - Free Software Download <https://www.ansys.com/academic/students/ansys-e
 lectronics-desktop-student>`_ on the Ansys website.
 

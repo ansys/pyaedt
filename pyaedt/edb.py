@@ -354,7 +354,9 @@ class Edb(Database):
     @property
     def excitations_nets(self):
         """Get all excitations net names."""
-        return list(set([i.GetNet().GetName() for i in self.layout.terminals]))
+        names = list(set([i.GetNet().GetName() for i in self.layout.terminals]))
+        names = [i for i in names if i]
+        return names
 
     @property
     def sources(self):
@@ -639,7 +641,7 @@ class Edb(Database):
 
         Returns
         -------
-        :class:`pyaedt.edb_core.Components.Components`
+        :class:`pyaedt.edb_core.components.Components`
 
         Examples
         --------
@@ -1432,9 +1434,10 @@ class Edb(Database):
         include_pingroups=False,
         expansion_factor=0,
         maximum_iterations=10,
+        preserve_components_with_model=False,
     ):
-        """Create a cutout using an approach entirely based on pyaedt.
-        This new method replaces all legacy cutout methods in pyaedt.
+        """Create a cutout using an approach entirely based on PyAEDT.
+        This method replaces all legacy cutout methods in PyAEDT.
         It does in sequence:
         - delete all nets not in list,
         - create a extent of the nets,
@@ -1494,8 +1497,12 @@ class Edb(Database):
             The trace width search is limited to nets with ports attached. Works only if `use_pyaedt_cutout`.
             Default is `0` to disable the search.
         maximum_iterations : int, optional
-            Maximum number of iterations before stopping in searching for a cutout with an error.
+            Maximum number of iterations before stopping a search for a cutout with an error.
             Default is `10`.
+        preserve_components_with_model : bool, optional
+            Whether to preserve all pins of components that have associated models (Spice or NPort).
+            This parameter is applicable only for a PyAEDT cutout (except point list).
+
 
         Returns
         -------
@@ -1582,6 +1589,7 @@ class Edb(Database):
                         custom_extent_units=custom_extent_units,
                         check_terminals=check_terminals,
                         include_pingroups=include_pingroups,
+                        preserve_components_with_model=preserve_components_with_model,
                     )
                     if self.are_port_reference_terminals_connected():
                         if output_aedb_path:
@@ -1618,6 +1626,7 @@ class Edb(Database):
                     custom_extent_units=custom_extent_units,
                     check_terminals=check_terminals,
                     include_pingroups=include_pingroups,
+                    preserve_components_with_model=preserve_components_with_model,
                 )
             if result and not open_cutout_at_end and self.edbpath != legacy_path:
                 self.save_edb()
@@ -1820,6 +1829,7 @@ class Edb(Database):
         custom_extent_units="mm",
         check_terminals=False,
         include_pingroups=True,
+        preserve_components_with_model=False,
     ):
         if is_ironpython:  # pragma: no cover
             self.logger.error("Method working only in Cpython")
@@ -1841,16 +1851,28 @@ class Edb(Database):
                 all_list = reference_list
         else:
             all_list = signal_list + reference_list
+        pins_to_preserve = []
+        nets_to_preserve = []
+        if preserve_components_with_model:
+            for el in self.components.instances.values():
+                if el.model_type in ["SPICEModel", "SParameterModel", "NetlistModel"] and list(
+                    set(el.nets[:]) & set(signal_list[:])
+                ):
+                    pins_to_preserve.extend([i.id for i in el.pins.values()])
+                    nets_to_preserve.extend(el.nets)
+
         for i in self.nets.nets.values():
-            if i.name not in all_list:
+            name = i.name
+            if name not in all_list and name not in nets_to_preserve:
                 i.net_object.Delete()
         reference_pinsts = []
         reference_prims = []
         for i in self.padstacks.instances.values():
             net_name = i.net_name
-            if net_name not in all_list:
+            id = i.id
+            if net_name not in all_list and id not in pins_to_preserve:
                 i.delete()
-            elif net_name in reference_list:
+            elif net_name in reference_list and id not in pins_to_preserve:
                 reference_pinsts.append(i)
         for i in self.modeler.primitives:
             net_name = i.net_name
@@ -1928,16 +1950,6 @@ class Edb(Database):
                             for prim in list_prims:
                                 if not prim.IsNull():
                                     poly_to_create.append([prim, prim_1.layer_name, net, list_void])
-                            #
-                            # list_voids = intersect(p, voids_data)
-                            # for void_intersected in list_voids:
-                            #     if not void_intersected.IsNull():
-                            #         int_data_2 = p.GetIntersectionType(void_intersected)
-                            #         if int_data_2 == 2:
-                            #             list_void.append(void_intersected)
-                            #         elif int_data == 1 or int_data_2 > 2:
-                            #             p = subtract(p, void_intersected)[0]
-                            # poly_to_create.append([p, prim_1.layer_name, net, list_void])
                         else:
                             poly_to_create.append([p, prim_1.layer_name, net, list_void])
 
@@ -2816,11 +2828,12 @@ class Edb(Database):
 
     @pyaedt_function_handler()
     def build_simulation_project(self, simulation_setup):
+        # type: (SimulationConfiguration) -> bool
         """Build a ready-to-solve simulation project.
 
         Parameters
         ----------
-        simulation_setup : edb_data.SimulationConfiguratiom object.
+        simulation_setup : :class:`pyaedt.edb_core.edb_data.simulation_configuration.SimulationConfiguration` object.
             SimulationConfiguration object that can be instantiated or directly loaded with a
             configuration file.
 
@@ -3054,6 +3067,7 @@ class Edb(Database):
 
     @pyaedt_function_handler()
     def new_simulation_configuration(self, filename=None):
+        # type: (str) -> SimulationConfiguration
         """New SimulationConfiguration Object.
 
         Parameters

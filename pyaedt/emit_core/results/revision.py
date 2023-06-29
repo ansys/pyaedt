@@ -147,6 +147,12 @@ class Revision:
         >>> rev.run(domain)
 
         """
+        if domain.receiver_channel_frequency > 0:
+            raise ValueError("The domain must not have channels specified.")
+        if len(domain.interferer_channel_frequencies) != 0:
+            for freq in domain.interferer_channel_frequencies:
+                if freq > 0:
+                    raise ValueError("The domain must not have channels specified.")
         self._load_revision()
         engine = self.emit_project._emit_api.get_engine()
         interaction = engine.run(domain)
@@ -272,7 +278,7 @@ class Revision:
         ----------
         radio_name : str
             Name of the radio/emitter.
-        tx_rx : :class:`emit_constants.TxRxMode`, optional
+        tx_rx_mode : :class:`emit_constants.TxRxMode`, optional
             Specifies whether to get ``tx`` or ``rx`` band names. The default
             is ``None``, in which case the names of all enabled bands are returned.
 
@@ -306,9 +312,8 @@ class Revision:
             Name of the radio/emitter.
         band_name : str
            Name of the band.
-        tx_rx : :class:`emit_constants.TxRxMode`
-            Specifies whether to get ``tx`` or ``rx`` radio freqs. The default
-            is ``None``, in which case both ``tx`` and ``rx`` freqs are returned.
+        tx_rx_mode : :class:`emit_constants.TxRxMode`
+            Specifies whether to get ``tx`` or ``rx`` radio frequencies.
         units : str, optional
             Units for the frequencies. The default is ``None`` which uses the units
             specified globally for the project.
