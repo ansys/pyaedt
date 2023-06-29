@@ -396,9 +396,12 @@ class EDBPrimitives(EDBPrimitivesMain):
         if not isinstance(primitives, list):
             primitives = [primitives]
         primi_polys = []
+        voids_of_prims = []
         for prim in primitives:
             if isinstance(prim, EDBPrimitives):
                 primi_polys.append(prim.primitive_object.GetPolygonData())
+                for void in prim.voids:
+                    voids_of_prims.append(void.polygon_data)
             else:
                 try:
                     primi_polys.append(prim.GetPolygonData())
@@ -407,7 +410,8 @@ class EDBPrimitives(EDBPrimitivesMain):
         for v in self.voids[:]:
             primi_polys.append(v.polygon_data)
         primi_polys = poly.Unite(convert_py_list_to_net_list(primi_polys))
-        list_poly = poly.Subtract(convert_py_list_to_net_list([poly]), primi_polys)
+        p_to_sub = poly.Unite(convert_py_list_to_net_list([poly] + voids_of_prims))
+        list_poly = poly.Subtract(p_to_sub, primi_polys)
         new_polys = []
         if list_poly:
             for p in list_poly:
@@ -419,7 +423,6 @@ class EDBPrimitives(EDBPrimitivesMain):
                     self._app,
                 )
             )
-
         self.delete()
         for prim in primitives:
             if isinstance(prim, EDBPrimitives):
