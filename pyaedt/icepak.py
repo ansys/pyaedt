@@ -216,6 +216,7 @@ class Icepak(FieldAnalysis3D):
         expternal_pressure="AmbientPressure",
         x_curve=["0", "1", "2"],
         y_curve=["0", "1", "2"],
+        boundary_name=None,
     ):
         """Assign grille to a face or list of faces.
 
@@ -244,6 +245,9 @@ class Icepak(FieldAnalysis3D):
             List of X curves in m_per_sec. The default is ``["0", "1", "2"]``.
         y_curve : list
             List of Y curves in n_per_meter_q. The default is ``["0", "1", "2"]``.
+        boundary_name : str, optional
+            Boundary name. The default is ``None``, in which case the name will
+            be generated automatically.
 
         Returns
         -------
@@ -255,7 +259,8 @@ class Icepak(FieldAnalysis3D):
 
         >>> oModule.AssignGrilleBoundary
         """
-        boundary_name = generate_unique_name("Grille")
+        if boundary_name is None:
+            boundary_name = generate_unique_name("Grille")
 
         self.modeler.create_face_list(air_faces, "boundary_faces" + boundary_name)
         props = {}
@@ -3975,11 +3980,6 @@ class Icepak(FieldAnalysis3D):
         >>> power_dict = {"Type": "Transient", "Function": "Sinusoidal", "Values": ["0W", 1, 1, "1s"]}
         >>> block = ipk.assign_solid_block("BlockBox3", power_dict)
         """
-        if not self.modeler.get_object_from_name(object_name).solve_inside:
-            self.logger.add_error_message(
-                "Use the ``assign_hollow_block()`` method with this object as ``solve_inside`` is ``False``."
-            )
-            return None
         if ext_temperature != "AmbientTemp" and ext_temperature is not None and not htc:
             self.logger.add_error_message("Set an argument for ``htc`` or remove the ``ext_temperature`` argument.")
             return None
@@ -3990,6 +3990,12 @@ class Icepak(FieldAnalysis3D):
             return None
         if not isinstance(object_name, list):
             object_name = [object_name]
+        for o_n in object_name:
+            if not self.modeler.get_object_from_name(o_n).solve_inside:
+                self.logger.add_error_message(
+                    "Use the ``assign_hollow_block()`` method with this object as ``solve_inside`` is ``False``."
+                )
+                return None
         props = {"Block Type": "Solid", "Objects": object_name}
         if isinstance(power_assignment, dict):
             assignment_value = self._parse_variation_data(
@@ -4107,11 +4113,6 @@ class Icepak(FieldAnalysis3D):
         >>> temp_dict = {"Type": "Transient", "Function": "Square Wave", "Values": ["1cel", "0s", "1s", "0.5s", "0cel"]}
         >>> block = ipk.assign_hollow_block("BlockBox5", "Heat Transfer Coefficient", "1w_per_m2kel", "Test", temp_dict)
         """
-        if self.modeler.get_object_from_name(object_name).solve_inside:
-            self.logger.add_error_message(
-                "Use ``assign_solid_block`` method with this object as ``solve_inside`` is ``True``."
-            )
-            return None
         if assignment_value == "Joule Heating" and assignment_type != "Total Power":
             self.logger.add_error_message(
                 '``"Joule Heating"`` assignment is supported only if ``assignment_type``' 'is ``"Total Power"``.'
@@ -4135,7 +4136,12 @@ class Icepak(FieldAnalysis3D):
 
         if not isinstance(object_name, list):
             object_name = [object_name]
-
+        for o_n in object_name:
+            if self.modeler.get_object_from_name(o_n).solve_inside:
+                self.logger.add_error_message(
+                    "Use ``assign_solid_block`` method with this object as ``solve_inside`` is ``True``."
+                )
+                return None
         props = {"Block Type": "Hollow", "Objects": object_name, "Thermal Condition": thermal_condition[0]}
         if thermal_condition[0] == "Fixed Heat":
             props["Use Total Power"] = thermal_condition[1] == "Total Power"
@@ -4275,7 +4281,7 @@ class Icepak(FieldAnalysis3D):
         boundary_name=None,
         temperature="AmbientTemp",
         radiation_temperature="AmbientRadTemp",
-        flow_type=0,
+        flow_type="Pressure",
         pressure="AmbientPressure",
         no_reverse_flow=False,
         velocity=["0m_per_sec", "0m_per_sec", "0m_per_sec"],
@@ -4308,8 +4314,7 @@ class Icepak(FieldAnalysis3D):
             Default is ``"AmbientRadTemp"``.
         flow_type : int or str, optional
             Prescribed radiation flow type at the boundary. Available options are ``"Pressure"``,
-            ``"Velocity"`` and ``"Mass Flow"``.  Also, integers can be used, respectively 0,1 and 2.
-            Default is ``0``.
+            ``"Velocity"``, and ``"Mass Flow"``. The default is ``"Pressure"``.
         pressure : float or str or dict, optional
             Prescribed pressure (static or total coherently with flow type) at the boundary. If a
             string is set, a variable name or a number with the unit is expected. If a float is set,
@@ -4358,12 +4363,6 @@ class Icepak(FieldAnalysis3D):
         >>> icepak.assign_free_opening(f_id)
         """
         # Sanitize input
-        if flow_type == "Pressure":
-            flow_type = 0
-        if flow_type == "Velocity":
-            flow_type = 1
-        if flow_type == "Mass Flow":
-            flow_type = 2
         for i in range(len(velocity)):
             if not isinstance(velocity[i], str) and not isinstance(velocity[i], dict):
                 velocity[i] = str(velocity[i]) + "m_per_sec"
@@ -4387,20 +4386,20 @@ class Icepak(FieldAnalysis3D):
             ("Temperature", temperature),
             ("External Rad. Temperature", radiation_temperature),
         ]
-        if flow_type == 0:
-            props["Inlet Type"] = "Pressure"
+        if flow_type == "Pressure":
+            props["Inlet Type"] = flow_type
             props["No Reverse Flow"] = no_reverse_flow
             possible_transient_properties += [("Total Pressure", pressure)]
-        elif flow_type == 1:
-            props["Inlet Type"] = "Velocity"
+        elif flow_type == "Velocity":
+            props["Inlet Type"] = flow_type
             possible_transient_properties += [
                 ("Static Pressure", pressure),
                 ("X Velocity", velocity[0]),
                 ("Y Velocity", velocity[1]),
                 ("Z Velocity", velocity[2]),
             ]
-        elif flow_type == 2:
-            props["Inlet Type"] = "Mass Flow"
+        elif flow_type == "Mass Flow":
+            props["Inlet Type"] = flow_type
             if direction_vector is None:
                 props["Mass Flow Direction"] = ("Normal to Boundary",)
             else:
@@ -4506,7 +4505,7 @@ class Icepak(FieldAnalysis3D):
             boundary_name=boundary_name,
             temperature=temperature,
             radiation_temperature=radiation_temperature,
-            flow_type=0,
+            flow_type="Pressure",
             pressure=pressure,
             no_reverse_flow=no_reverse_flow,
         )
@@ -4581,7 +4580,7 @@ class Icepak(FieldAnalysis3D):
             boundary_name=boundary_name,
             temperature=temperature,
             radiation_temperature=radiation_temperature,
-            flow_type=1,
+            flow_type="Velocity",
             pressure=pressure,
             velocity=velocity,
         )
@@ -4664,7 +4663,7 @@ class Icepak(FieldAnalysis3D):
             boundary_name=boundary_name,
             temperature=temperature,
             radiation_temperature=radiation_temperature,
-            flow_type=2,
+            flow_type="Mass Flow",
             pressure=pressure,
             mass_flow_rate=mass_flow_rate,
             inflow=inflow,

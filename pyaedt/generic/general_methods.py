@@ -1049,9 +1049,9 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
         List of gRPC ports.
     """
     if student_version:
-        keys = ["ansysedtsv.exe"]
+        keys = ["ansysedtsv.exe", "ansysedtsv"]
     else:
-        keys = ["ansysedt.exe"]
+        keys = ["ansysedt.exe", "ansysedt"]
     if version and "." in version:
         version = version[-4:].replace(".", "")
     sessions = []
@@ -1093,12 +1093,12 @@ def active_sessions(version=None, student_version=False, non_graphical=False):
         List of AEDT PIDs.
     """
     if student_version:
-        keys = ["ansysedtsv.exe"]
+        keys = ["ansysedtsv.exe", "ansysedtsv"]
     else:
-        keys = ["ansysedt.exe"]
+        keys = ["ansysedt.exe", "ansysedt"]
     if version and "." in version:
         version = version[-4:].replace(".", "")
-    if version < "222":
+    if version and version < "222":
         version = version[:2] + "." + version[2]
     sessions = []
     for p in psutil.process_iter():
