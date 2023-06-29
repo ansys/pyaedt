@@ -1702,10 +1702,18 @@ class TestClass(BasisTest, object):
         )
         assert isinstance(comp2, UserDefinedComponent)
         assert len(comp2.parameters) == 2
-        assert comp2.show_layout
-        comp2.show_layout = False
-        assert not comp2.show_layout
-        comp2.show_layout = True
-        assert comp2.fast_transformation
-        comp2.fast_transformation = False
-        assert not comp2.fast_transformation
+        assert comp2.layout_component.show_layout
+        comp2.layout_component.show_layout = False
+        assert not comp2.layout_component.show_layout
+        comp2.layout_component.show_layout = True
+        comp2.layout_component.fast_transformation = True
+        assert comp2.layout_component.fast_transformation
+        comp2.layout_component.fast_transformation = False
+        assert comp2.layout_component.show_dielectric
+        comp2.layout_component.show_dielectric = False
+        assert not comp2.layout_component.show_dielectric
+        assert comp2.layout_component.display_mode == 0
+        comp2.layout_component.display_mode = 1
+        assert comp2.layout_component.display_mode == 1
+        comp2.layout_component.layers["Trace"] = [True, True, 90]
+        assert comp2.layout_component.update_visibility()

@@ -3186,7 +3186,7 @@ class Primitives(object):
                             native_comp_properties = data
                             break
             except:
-                self.logger.info("Native component properties were not retrieved from the AEDT file.")
+                return native_comp_properties
 
         return native_comp_properties
 
