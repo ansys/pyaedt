@@ -455,6 +455,7 @@ class Primitives3D(Primitives, object):
         name=None,
         matname=None,
     ):
+        # type : (list, list, float|str, float|str, float, float, int, float|str, int, str, str) -> Object3d
         """Create a bondwire.
 
         Parameters
@@ -465,10 +466,10 @@ class Primitives3D(Primitives, object):
         end_position :  list
             List of ``[x, y, z]`` coordinates for the ending position
             of the bond pad.
-        h1 : float, optional
+        h1 : float|str optional
             Height between the IC die I/O pad and the top of the bondwire.
             The default is ``0.2``.
-        h2 : float, optional
+        h2 : float|str optional
             Height of the IC die I/O pad above the lead frame. The default
             is ``0``. A negative value indicates that the I/O pad is below
             the lead frame.
@@ -486,7 +487,7 @@ class Primitives3D(Primitives, object):
             * ''2`` for Low
 
             The default is ''0``.
-        diameter : float, optional
+        diameter : float|str optional
             Diameter of the wire. The default is ``0.025``.
         facets : int, optional
             Number of wire facets. The default is ``6``.
@@ -514,8 +515,8 @@ class Primitives3D(Primitives, object):
         >>> origin = [0,0,0]
         >>> endpos = [10,5,20]
         >>> #Material and name are not mandatory fields
-        >>> object_id = hfss.modeler.primivites.create_bondwire(origin, endpos,h1=0.5, h2=0.1, alpha=75, beta=4,
-        ...                                                     bond_type=0, name="mybox", matname="copper")
+        >>> object_id = hfss.modeler.create_bondwire(origin, endpos,h1=0.5, h2=0.1, alpha=75, beta=4,
+        ...                                          bond_type=0, name="mybox", matname="copper")
         """
         x_position, y_position, z_position = self._pos_with_arg(start_position)
         x_position_end, y_position_end, z_position_end = self._pos_with_arg(end_position)
