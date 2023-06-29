@@ -36,9 +36,13 @@ class ModelerCircuit(Modeler):
     def __init__(self, app):
         self._app = app
         self._schematic_units = "meter"
-        self.o_def_manager = self._app.odefinition_manager
         Modeler.__init__(self, app)
         self.wire = Wire(self)
+
+    @property
+    def o_def_manager(self):
+        """AEDT Definition manager."""
+        return self._app.odefinition_manager
 
     @property
     def schematic_units(self):
