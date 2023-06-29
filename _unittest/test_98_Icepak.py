@@ -905,7 +905,7 @@ class TestClass(BasisTest, object):
         if not is_ironpython:
             assert not self.aedtapp.create_conduting_plate(
                 None, thermal_specification="Thickness", input_power="1W", thickness="1mm", radiate_low=True
-            )       
+            )
         assert self.aedtapp.create_conduting_plate(
             box_fc_ids,
             thermal_specification="Thickness",
@@ -925,11 +925,6 @@ class TestClass(BasisTest, object):
             input_power="1W",
             thermal_resistance="2.5Kel_per_W",
         )
-        x = 0
-        if not is_ironpython:
-            assert not self.aedtapp.create_conduting_plate(
-                None, thermal_specification="Thickness", input_power="1W", thickness="1mm", radiate_low=True
-            )
 
     def test_54_assign_stationary_wall(self):
         self.aedtapp.insert_design("test_54")
