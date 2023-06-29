@@ -892,7 +892,7 @@ class TestClass(BasisTest, object):
         if not is_ironpython:
             assert not self.aedtapp.create_conduting_plate(
                 None, thermal_specification="Thickness", input_power="1W", thickness="1mm", radiate_low=True
-            )       
+            )
         assert self.aedtapp.create_conduting_plate(
             box_fc_ids,
             thermal_specification="Thickness",
