@@ -455,6 +455,8 @@ class Primitives3D(Primitives, object):
         name=None,
         matname=None,
     ):
+        # type : (list, list, float|str=0.2, float|str=0, float=80, float=5, int=0, float|str=0.025, int=6, str=None,
+        # str=None) -> Object3d
         """Create a bondwire.
 
         Parameters
@@ -465,12 +467,14 @@ class Primitives3D(Primitives, object):
         end_position :  list
             List of ``[x, y, z]`` coordinates for the ending position
             of the bond pad.
-        h1 : float, optional
+        h1 : float|str optional
             Height between the IC die I/O pad and the top of the bondwire.
+            If the height is provided as a parameter, its value has to be provided as value + unit.
             The default is ``0.2``.
-        h2 : float, optional
-            Height of the IC die I/O pad above the lead frame. The default
-            is ``0``. A negative value indicates that the I/O pad is below
+        h2 : float|str optional
+            Height of the IC die I/O pad above the lead frame.
+            If the height is provided as a parameter, its value has to be provided as value + unit.
+            The default is ``0``. A negative value indicates that the I/O pad is below
             the lead frame.
         alpha : float, optional
             Angle in degrees between the xy plane and the wire bond at the
@@ -486,7 +490,7 @@ class Primitives3D(Primitives, object):
             * ''2`` for Low
 
             The default is ''0``.
-        diameter : float, optional
+        diameter : float|str optional
             Diameter of the wire. The default is ``0.025``.
         facets : int, optional
             Number of wire facets. The default is ``6``.
@@ -514,13 +518,33 @@ class Primitives3D(Primitives, object):
         >>> origin = [0,0,0]
         >>> endpos = [10,5,20]
         >>> #Material and name are not mandatory fields
-        >>> object_id = hfss.modeler.primivites.create_bondwire(origin, endpos,h1=0.5, h2=0.1, alpha=75, beta=4,
-        ...                                                     bond_type=0, name="mybox", matname="copper")
+        >>> object_id = hfss.modeler.create_bondwire(origin, endpos,h1=0.5, h2=0.1, alpha=75, beta=4,
+        ...                                          bond_type=0, name="mybox", matname="copper")
         """
         x_position, y_position, z_position = self._pos_with_arg(start_position)
+        x_position_end, y_position_end, z_position_end = self._pos_with_arg(end_position)
+
         if x_position is None or y_position is None or z_position is None:
             raise AttributeError("Position Argument must be a valid 3 Element List")
-        x_length, y_length, z_length = self._pos_with_arg([n - m for m, n in zip(start_position, end_position)])
+
+        cont = 0
+        x_length = None
+        y_length = None
+        z_length = None
+
+        for m, n in zip(start_position, end_position):
+            if not isinstance(m, str):
+                m = self._arg_with_dim(m)
+            if not isinstance(n, str):
+                n = self._arg_with_dim(n)
+            if cont == 0:
+                x_length = "(" + str(n) + ") - (" + str(m) + ")"
+            elif cont == 1:
+                y_length = "(" + str(n) + ") - (" + str(m) + ")"
+            elif cont == 2:
+                z_length = "(" + str(n) + ") - (" + str(m) + ")"
+            cont += 1
+
         if x_length is None or y_length is None or z_length is None:
             raise AttributeError("Dimension Argument must be a valid 3 Element List")
         if bond_type == 0:
@@ -542,9 +566,24 @@ class Primitives3D(Primitives, object):
         first_argument.append("XDir:="), first_argument.append(x_length)
         first_argument.append("YDir:="), first_argument.append(y_length)
         first_argument.append("ZDir:="), first_argument.append(z_length)
-        first_argument.append("Distance:="), first_argument.append(
-            self._arg_with_dim(GeometryOperators.points_distance(start_position, end_position))
+        distance = (
+            "sqrt(("
+            + str(x_position_end)
+            + "-("
+            + str(x_position)
+            + ")) ** 2 + ("
+            + str(y_position_end)
+            + "-("
+            + str(y_position)
+            + ")) ** 2 + ( "
+            + str(z_position_end)
+            + "-("
+            + str(z_position)
+            + ")) ** 2) meter"
         )
+
+        first_argument.append("Distance:="), first_argument.append(distance)
+
         first_argument.append("h1:="), first_argument.append(self._arg_with_dim(h1))
         first_argument.append("h2:="), first_argument.append(self._arg_with_dim(h2))
         first_argument.append("alpha:="), first_argument.append(self._arg_with_dim(alpha, "deg"))
