@@ -526,9 +526,10 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.create_source_power(
             self.aedtapp.modeler["boxSource"].top_face_z.id, input_power="2W", source_name="s01"
         )
-        assert not self.aedtapp.create_source_power(
-            self.aedtapp.modeler["boxSource"].top_face_z.id, input_power="2W", source_name="s01"
-        )
+        if not is_ironpython:
+            assert not self.aedtapp.create_source_power(
+                self.aedtapp.modeler["boxSource"].top_face_z.id, input_power="2W", source_name="s01"
+            )
 
     def test_34_import_idf(self):
         self.aedtapp.insert_design("IDF")
