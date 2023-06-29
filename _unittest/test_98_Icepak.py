@@ -515,6 +515,7 @@ class TestClass(BasisTest, object):
             voltage_current_choice="Current",
             voltage_current_value={"Type": "Transient", "Function": "Sinusoidal", "Values": ["0A", 1, 1, "1s"]},
         )
+        assert not self.aedtapp.create_source_power(None, input_power="2W")
 
     def test_34_import_idf(self):
         self.aedtapp.insert_design("IDF")
