@@ -2567,3 +2567,15 @@ class TestClass(BasisTest, object):
             layer_name="foo", main_shape=[[-15.0, 5.0], [15.0, 5.0], [15.0, 6.0], [-15.0, 6.0]]
         )
         assert y.intersect(z)
+
+        edb.stackup.add_layer(layer_name="test2")
+        x = edb.modeler.create_polygon(
+            layer_name="test2", main_shape=[[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0]]
+        )
+        x_hole = edb.modeler.create_polygon(
+            layer_name="test2", main_shape=[[1.0, 1.0], [9.0, 1.0], [9.0, 9.0], [1.0, 9.0]]
+        )
+        y = x.subtract(x_hole)[0]
+        assert y.voids
+        y_clone = y.clone()
+        assert y_clone.voids

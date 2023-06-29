@@ -821,6 +821,12 @@ class EdbPolygon(EDBPrimitives, PolygonDotNet):
             self._app.active_layout, self.layer_name, self.net, self.polygon_data
         )
         if cloned_poly:
+            for void in self.voids:
+                cloned_void = self._app.edb_api.cell.primitive.polygon.create(
+                    self._app.active_layout, self.layer_name, self.net, void.polygon_data
+                )
+                # cloned_void
+                cloned_poly.prim_obj.AddVoid(cloned_void.prim_obj)
             return cloned_poly
         return False
 
