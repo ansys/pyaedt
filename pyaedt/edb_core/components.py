@@ -671,11 +671,9 @@ class Components(object):
                 return False
             if source.source_type == SourceType.Vsource:  # pragma: no cover
                 positive_pin_group_term = self._create_pin_group_terminal(
-                    positive_pin_group, source.positive_node.component
+                    positive_pin_group,
                 )
-                negative_pin_group_term = self._create_pin_group_terminal(
-                    negative_pin_group, source.negative_node.component, isref=True
-                )
+                negative_pin_group_term = self._create_pin_group_terminal(negative_pin_group, isref=True)
                 positive_pin_group_term.SetBoundaryType(self._edb.cell.terminal.BoundaryType.kVoltageSource)
                 negative_pin_group_term.SetBoundaryType(self._edb.cell.terminal.BoundaryType.kVoltageSource)
                 term_name = source.name
@@ -690,11 +688,9 @@ class Components(object):
                 positive_pin_group_term.SetReferenceTerminal(negative_pin_group_term)
             elif source.source_type == SourceType.Isource:  # pragma: no cover
                 positive_pin_group_term = self._create_pin_group_terminal(
-                    positive_pin_group, source.positive_node.component
+                    positive_pin_group,
                 )
-                negative_pin_group_term = self._create_pin_group_terminal(
-                    negative_pin_group, source.negative_node.component, isref=True
-                )
+                negative_pin_group_term = self._create_pin_group_terminal(negative_pin_group, isref=True)
                 positive_pin_group_term.SetBoundaryType(self._edb.cell.terminal.BoundaryType.kCurrentSource)
                 negative_pin_group_term.SetBoundaryType(self._edb.cell.terminal.BoundaryType.kCurrentSource)
                 term_name = source.name
@@ -784,13 +780,20 @@ class Components(object):
             reference_pins = ref_cmp_pins
         if not len([pin for pin in reference_pins if isinstance(pin, EDBPadstackInstance)]) == len(reference_pins):
             return
-        group_name = "group_{}_{}".format(pins[0].net_name, pins[0].name)
-        ref_group_name = "group_{}_{}_ref".format(pins[0].net_name, pins[0].name)
-        pin_group = self.create_pingroup_from_pins(pins, group_name)
-        ref_pin_group = self.create_pingroup_from_pins(reference_pins, ref_group_name)
-        term = self._create_pin_group_terminal(pingroup=pin_group, component=refdes.refdes)
+        if len(pins) > 1:
+            group_name = "group_{}_{}".format(pins[0].net_name, pins[0].name)
+            pin_group = self.create_pingroup_from_pins(pins, group_name)
+            term = self._create_pin_group_terminal(pingroup=pin_group)
+
+        else:
+            term = self._create_terminal(pins[0])
         term.SetIsCircuitPort(True)
-        ref_term = self._create_pin_group_terminal(pingroup=ref_pin_group, component=refdes.refdes)
+        if len(reference_pins) > 1:
+            ref_group_name = "group_{}_{}_ref".format(pins[0].net_name, pins[0].name)
+            ref_pin_group = self.create_pingroup_from_pins(reference_pins, ref_group_name)
+            ref_term = self._create_pin_group_terminal(pingroup=ref_pin_group)
+        else:
+            ref_term = self._create_terminal(reference_pins[0])
         ref_term.SetIsCircuitPort(True)
         term.SetImpedance(self._edb.utility.value(impedance))
         term.SetReferenceTerminal(ref_term)
@@ -899,7 +902,7 @@ class Components(object):
                     ref_pin_group = self.create_pingroup_from_pins(ref_pins)
                     if not ref_pin_group:
                         return False
-                    ref_pin_group_term = self._create_pin_group_terminal(ref_pin_group, component, isref=True)
+                    ref_pin_group_term = self._create_pin_group_terminal(ref_pin_group, isref=True)
                     if not ref_pin_group_term:
                         return False
                 for net in net_list:
@@ -913,7 +916,7 @@ class Components(object):
                             pin_group = self.create_pingroup_from_pins(pins)
                             if not pin_group:
                                 return False
-                            pin_group_term = self._create_pin_group_terminal(pin_group, component)
+                            pin_group_term = self._create_pin_group_terminal(pin_group)
                             if pin_group_term:
                                 pin_group_term.SetReferenceTerminal(ref_pin_group_term)
                     else:
@@ -923,12 +926,12 @@ class Components(object):
                 if not ref_pin_group:
                     self._logger.warning("failed to create reference pin group")
                     return False
-                ref_pin_group_term = self._create_pin_group_terminal(ref_pin_group, component, isref=True)
+                ref_pin_group_term = self._create_pin_group_terminal(ref_pin_group, isref=True)
                 for net in net_list:
                     pins = [pin for pin in cmp_pins if pin.GetNet().GetName() == net]
                     for pin in pins:
                         pin_group = self.create_pingroup_from_pins([pin])
-                        pin_group_term = self._create_pin_group_terminal(pin_group, component, isref=False)
+                        pin_group_term = self._create_pin_group_terminal(pin_group, isref=False)
                         pin_group_term.SetReferenceTerminal(ref_pin_group_term)
         return True
 
@@ -952,6 +955,9 @@ class Components(object):
         net_name = pin.GetNet().GetName()
         pin_name = pin.GetName()
         term_name = "{}.{}.{}".format(cmp_name, pin_name, net_name)
+        for term in list(self._pedb.active_layout.Terminals):
+            if term.GetName() == term_name:
+                return term
         term = self._edb.cell.terminal.PointTerminal.Create(
             pin.GetLayout(), pin.GetNet(), term_name, pin_pos, from_layer
         )
@@ -1094,14 +1100,12 @@ class Components(object):
             return True
 
     @pyaedt_function_handler()
-    def _create_pin_group_terminal(self, pingroup, component=None, isref=False):
+    def _create_pin_group_terminal(self, pingroup, isref=False):
         """Creates an EDB pin group terminal from a given EDB pin group.
 
         Parameters
         ----------
         pingroup : Edb pin group.
-
-        component : str or EdbComponent
 
         isref : bool
 
@@ -1109,19 +1113,10 @@ class Components(object):
         -------
         Edb pin group terminal.
         """
-        if component:
-            if not isinstance(component, self._pedb.edb_api.cell.hierarchy.component):
-                cmp_name = component
-            else:
-                cmp_name = component.GetName()
-        else:
-            cmp_name = pingroup.GetComponent().GetName()
-        net_name = pingroup.GetNet().GetName()
-        pin_name = list(pingroup.GetPins())[0].GetName()  # taking first pin name as convention.
-        if cmp_name:
-            term_name = "{0}.{1}.{2}".format(cmp_name, pin_name, net_name)
-        else:
-            term_name = "{0}.{1}".format(pin_name, net_name)
+        term_name = "{}_T".format(pingroup.GetName())
+        for t in list(self._pedb.active_layout.Terminals):
+            if t.GetName() == term_name:
+                return t
         pingroup_term = self._edb.cell.terminal.PinGroupTerminal.Create(
             self._active_layout, pingroup.GetNet(), term_name, pingroup, isref
         )
@@ -1495,6 +1490,9 @@ class Components(object):
             pin.SetIsLayoutPin(True)
         forbiden_car = "-><"
         group_name = group_name.translate({ord(i): "_" for i in forbiden_car})
+        for pgroup in list(self._pedb.active_layout.PinGroups):
+            if pgroup.GetName() == group_name:
+                return pgroup
         pingroup = _retry_ntimes(
             10,
             self._edb.cell.hierarchy.pin_group.Create,

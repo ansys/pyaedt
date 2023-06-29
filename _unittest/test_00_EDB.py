@@ -2455,11 +2455,13 @@ class TestClass(BasisTest, object):
         target_path = os.path.join(self.local_scratch.path, "test_0134b.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
-        pin = "A27"
+        pin = "A24"
         ref_pins = [pin for pin in list(edbapp.components["U1"].pins.values()) if pin.net_name == "GND"]
-        term = edbapp.components.create_port_on_pins(refdes="U1", pins=pin, reference_pins=ref_pins)
+        assert edbapp.components.create_port_on_pins(refdes="U1", pins=pin, reference_pins=ref_pins)
+        assert edbapp.components.create_port_on_pins(refdes="U1", pins="A26", reference_pins=ref_pins)
+        assert edbapp.components.create_port_on_pins(refdes="U1", pins="C1", reference_pins=["A11"])
+        assert edbapp.components.create_port_on_pins(refdes="U1", pins="C2", reference_pins=["A11"])
         edbapp.close()
-        assert term
 
     def test_138_import_gds_from_tech(self):
         c_file_in = os.path.join(
