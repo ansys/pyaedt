@@ -90,10 +90,17 @@ def launch_aedt(full_path, non_graphical, port, first_run=True):
     k = 0
     while not _check_grpc_port(port):
         if k > timeout:  # pragma: no cover
+            active_s = active_sessions(student_version=settings.is_student)
+            for p in active_s:
+                if port == p[1]:
+                    try:
+                        os.kill(p[0], 9)
+                    except (OSError, PermissionError):
+                        pass
             if first_run:
                 port = _find_free_port()
                 return launch_aedt(full_path, non_graphical, port, first_run=False)
-            return False, port
+            return False, _find_free_port()
         time.sleep(1)
         k += 1
     return True, port
@@ -149,11 +156,9 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
     return False, err
 
 
-def _check_grpc_port(port, machine_name=""):
+def _check_grpc_port(port, machine_name="127.0.0.1"):
     s = socket.socket()
     try:
-        if not machine_name:
-            machine_name = "127.0.0.1"
         s.connect((machine_name, port))
     except socket.error:
         success = False
@@ -165,9 +170,12 @@ def _check_grpc_port(port, machine_name=""):
 
 
 def _find_free_port():
-    with socket.socket() as s:
-        s.bind(("", 0))  # Bind to a free port provided by the host.
-        return s.getsockname()[1]  # Return the port number assigned.
+    from contextlib import closing
+
+    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
+        s.bind(("127.0.0.1", 0))
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        return s.getsockname()[1]
 
 
 def exception_to_desktop(ex_value, tb_data):  # pragma: no cover
@@ -411,6 +419,14 @@ def get_version_env_variable(version_id):
     return version_env_var
 
 
+def is_student_version(oDesktop):
+    edt_root = os.path.normpath(oDesktop.GetExeDir())
+    if is_windows and os.path.isdir(edt_root):
+        if any("ansysedtsv" in fn.lower() for fn in os.listdir(edt_root)):
+            return True
+    return False
+
+
 class Desktop(object):
     """Provides the Ansys Electronics Desktop (AEDT) interface.
 
@@ -512,18 +528,24 @@ class Desktop(object):
                 settings.non_graphical = oDesktop.GetIsNonGraphical()
             except:
                 settings.non_graphical = non_graphical
+            settings.aedt_version = self._main.oDesktop.GetVersion()[0:6]
+            settings.is_student = is_student_version(self._main.oDesktop)
         elif "oDesktop" in dir(self._main) and self._main.oDesktop is not None:  # pragma: no cover
             self.release_on_exit = False
             try:
                 settings.non_graphical = self._main.oDesktop.GetIsNonGraphical()
             except:
                 settings.non_graphical = non_graphical
+            settings.aedt_version = self._main.oDesktop.GetVersion()[0:6]
+            settings.is_student = is_student_version(self._main.oDesktop)
         else:
             settings.non_graphical = non_graphical
 
             if "oDesktop" in dir(self._main):
                 del self._main.oDesktop
             self._main.student_version, version_key, version = self._set_version(specified_version, student_version)
+            settings.aedt_version = version_key
+            settings.is_student = self._main.student_version
             if not new_desktop_session and not is_ironpython:  # pragma: no cover
                 sessions = active_sessions(
                     version=version_key, student_version=student_version, non_graphical=non_graphical
@@ -580,7 +602,6 @@ class Desktop(object):
         if not settings.remote_api:
             self._logger.info("Python version %s", sys.version)
         self.odesktop = self._main.oDesktop
-        settings.aedt_version = self.odesktop.GetVersion()[0:6]
         settings.machine = self.machine
         settings.port = self.port
         self.aedt_process_id = self.odesktop.GetProcessID()  # bit of cleanup for consistency if used in future
@@ -936,14 +957,9 @@ class Desktop(object):
             if not is_linux:
                 installer = os.path.join(base_path, "ansysedt.exe")
             out, self.port = launch_aedt(installer, non_graphical, self.port)
-            if out:
-                ScriptEnv._doInitialize(version, None, False, non_graphical, self.machine, self.port)
-            else:
-                self.logger.error("Failed to start AEDT on port %s.", self.port)
-                return
+            ScriptEnv._doInitialize(version, None, not out, non_graphical, self.machine, self.port)
         else:
             ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, self.machine, self.port)
-
         if "oAnsoftApplication" in dir(self._main):
             self._main.isoutsideDesktop = True
             self._main.oDesktop = self._main.oAnsoftApplication.GetAppDesktop()
@@ -955,7 +971,8 @@ class Desktop(object):
                 self.logger.info(message)
 
         else:
-            self.logger.warning("The gRPC plugin is not supported in AEDT versions earlier than 2022 R2.")
+            self.logger.error("Failed to connect to AEDT using gRPC plugin.")
+            self.logger.error("Check installation, license and environment variables.")
 
     def _set_logger_file(self):
         # Set up the log file in the AEDT project directory

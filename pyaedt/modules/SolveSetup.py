@@ -11,6 +11,7 @@ from collections import OrderedDict
 import logging
 import os.path
 from random import randrange
+import re
 import time
 import warnings
 
@@ -1438,13 +1439,22 @@ class Setup3DLayout(CommonSetup):
                                         obj_dict[pad_ind] = aedtapp.modeler.objects[pad_ind]
             obj_list = list(obj_dict.values())
             if len(obj_list) == 1:
-                obj_list[0].name = net.replace(".", "_").replace("/", "_")
+                net = net.replace("-", "m")
+                net = net.replace("+", "p")
+                net_name = re.sub("[^a-zA-Z0-9 \n\.]", "_", net)
+                obj_list[0].name = net_name
                 obj_list[0].color = [randrange(255), randrange(255), randrange(255)]
             elif len(obj_list) > 1:
                 united_object = aedtapp.modeler.unite(obj_list, purge=True)
                 obj_ind = aedtapp.modeler._object_names_to_ids[united_object]
-                aedtapp.modeler.objects[obj_ind].name = net.replace(".", "_").replace("/", "_")
-                aedtapp.modeler.objects[obj_ind].color = [randrange(255), randrange(255), randrange(255)]
+                try:
+                    net = net.replace("-", "m")
+                    net = net.replace("+", "p")
+                    net_name = re.sub("[^a-zA-Z0-9 \n\.]", "_", net)
+                    aedtapp.modeler.objects[obj_ind].name = net_name
+                    aedtapp.modeler.objects[obj_ind].color = [randrange(255), randrange(255), randrange(255)]
+                except:
+                    pass
         if aedtapp.design_type == "Q3D Extractor":
             aedtapp.auto_identify_nets()
         aedtapp.close_project(save_project=True)
@@ -1460,7 +1470,7 @@ class Setup3DLayout(CommonSetup):
             while len(primitive_dict[net]) < len(net_primitives[net]):
                 if n > 1000:  # adding 1000 as maximum value to prevent infinite loop
                     return
-                n += 10
+                n += 20
                 primitive_dict[net] = []
                 for prim in primitives:
                     layer = edb.stackup.signal_layers[prim.layer_name]

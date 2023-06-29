@@ -34,6 +34,18 @@ class IcepakMesh(object):
         self.meshregions = self._get_design_mesh_regions()
         self._priorities_args = []
 
+    @property
+    def meshregions_dict(self):
+        """
+        Get mesh regions in the design.
+
+        Returns
+        -------
+        dict
+            Dictionary with mesh region names as keys and mesh region objects as values.
+        """
+        return {mr.name: mr for mr in self.meshregions}
+
     @pyaedt_function_handler()
     def _refresh_mesh_operations(self):
         """Refresh all mesh operations."""
@@ -55,8 +67,10 @@ class IcepakMesh(object):
     class MeshRegion(object):
         """Manages Icepak mesh region settings."""
 
-        def __init__(self, meshmodule, dimension, units, app):
-            self.name = "Settings"
+        def __init__(self, meshmodule, dimension, units, app, name=None):
+            if name is None:
+                name = "Settings"
+            self.name = name
             self.meshmodule = meshmodule
             self.model_units = units
             self.UserSpecifiedSettings = False
@@ -271,10 +285,17 @@ class IcepakMesh(object):
             else:
                 args += self.autosettings
             if self.name == "Settings":
-                self.meshmodule.EditGlobalMeshRegion(args)
+                try:
+                    self.meshmodule.EditGlobalMeshRegion(args)
+                    return True
+                except Exception:  # pragma : no cover
+                    return False
             else:
-                self.meshmodule.EditMeshRegion(self.name, args)
-            return True
+                try:
+                    self.meshmodule.EditMeshRegion(self.name, args)
+                    return True
+                except Exception:  # pragma : no cover
+                    return False
 
         @pyaedt_function_handler()
         def create(self):
@@ -301,6 +322,24 @@ class IcepakMesh(object):
                 self.meshmodule.AssignVirtualMeshRegion(args)
             else:
                 self.meshmodule.AssignMeshRegion(args)
+            self._app.mesh.meshregions.append(self)
+            return True
+
+        @pyaedt_function_handler()
+        def delete(self):
+            """Delete mesh region.
+
+            Returns
+            -------
+            bool
+                ``True`` when successful, ``False`` when failed.
+
+            References
+            ----------
+
+            >>> oModule.DeleteMeshRegions()
+            """
+            self.meshmodule.DeleteMeshRegions([self.name])
             return True
 
     @property
@@ -338,11 +377,12 @@ class IcepakMesh(object):
                 if isinstance(
                     self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"][ds], (OrderedDict, dict)
                 ):
-                    meshop = self.MeshRegion(
-                        self.omeshmodule, self.boundingdimension, self.modeler.model_units, self._app
-                    )
                     dict_prop = self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"][ds]
-                    self.name = ds
+                    if ds == "Global":
+                        ds = "Settings"
+                    meshop = self.MeshRegion(
+                        self.omeshmodule, self.boundingdimension, self.modeler.model_units, self._app, ds
+                    )
                     for el in dict_prop:
                         if el in meshop.__dict__:
                             meshop.__dict__[el] = dict_prop[el]
@@ -628,24 +668,31 @@ class IcepakMesh(object):
         else:
             meshregion.Objects = objectlist
         all_objs = [i for i in self.modeler.object_names]
-        meshregion.create()
-        objectlist2 = self.modeler.object_names
-        added_obj = [i for i in objectlist2 if i not in all_objs]
-        if not added_obj:
-            added_obj = [i for i in objectlist2 if i not in all_objs or i in objectlist]
-        meshregion.Objects = added_obj
-        meshregion.SubModels = None
-        self.meshregions.append(meshregion)
-        return meshregion
+        try:
+            meshregion.create()
+            created = True
+        except Exception:  # pragma : no cover
+            created = False
+        if created:
+            objectlist2 = self.modeler.object_names
+            added_obj = [i for i in objectlist2 if i not in all_objs]
+            if not added_obj:
+                added_obj = [i for i in objectlist2 if i not in all_objs or i in objectlist]
+            meshregion.Objects = added_obj
+            meshregion.SubModels = None
+            meshregion.update()
+            return meshregion
+        else:
+            return False
 
     @pyaedt_function_handler()
-    def generate_mesh(self, name):
+    def generate_mesh(self, name=None):
         """Generate the mesh for a given setup name.
 
         Parameters
         ----------
-        name : str
-            Name of the design to mesh.
+        name : str, optional
+            Name of the design to mesh. Default is ``None`` in which case the first available setup will be selected.
 
         Returns
         -------
@@ -657,6 +704,8 @@ class IcepakMesh(object):
 
         >>> oDesign.GenerateMesh
         """
+        if name is None:
+            name = []
         return self._odesign.GenerateMesh(name) == 0
 
     @pyaedt_function_handler()
