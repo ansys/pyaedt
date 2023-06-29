@@ -1008,8 +1008,8 @@ class TestClass(BasisTest, object):
         self.aedtapp["$Endx"] = 10
         self.aedtapp["$Endy"] = 10
         self.aedtapp["$Endz"] = 2
-        self.aedtapp["$bondHeight1"] = 0.15
-        self.aedtapp["$bondHeight2"] = 0
+        self.aedtapp["$bondHeight1"] = "0.15mm"
+        self.aedtapp["$bondHeight2"] = "0mm"
         b0 = self.aedtapp.modeler.create_bondwire(
             [0, 0, 0], [10, 10, 2], h1=0.15, h2=0, diameter=0.034, facets=8, matname="copper", name="jedec51"
         )

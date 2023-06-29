@@ -469,10 +469,12 @@ class Primitives3D(Primitives, object):
             of the bond pad.
         h1 : float|str optional
             Height between the IC die I/O pad and the top of the bondwire.
+            If the height is provided as a parameter, its value has to be provided as value + unit.
             The default is ``0.2``.
         h2 : float|str optional
-            Height of the IC die I/O pad above the lead frame. The default
-            is ``0``. A negative value indicates that the I/O pad is below
+            Height of the IC die I/O pad above the lead frame.
+            If the height is provided as a parameter, its value has to be provided as value + unit.
+            The default is ``0``. A negative value indicates that the I/O pad is below
             the lead frame.
         alpha : float, optional
             Angle in degrees between the xy plane and the wire bond at the
