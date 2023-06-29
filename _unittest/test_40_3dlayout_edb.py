@@ -35,7 +35,13 @@ class TestClass(BasisTest, object):
         self.target_path = os.path.join(self.local_scratch.path, "Package_test_40.aedb")
         self.local_scratch.copyfolder(example_project, self.target_path)
         self.package_file = self.local_scratch.copyfile(src_file, dest_file)
-
+        self.flipchip = BasisTest.add_app(
+            self,
+            project_name=self.package_file,
+            design_name="FlipChip_TopBot",
+            application=Hfss3dLayout,
+            subfolder=test_subfolder,
+        )
         self.dcir_example_project = BasisTest.add_app(
             self, project_name="ANSYS-HSD_V1_dcir", application=Hfss3dLayout, subfolder=test_subfolder
         )
@@ -220,9 +226,8 @@ class TestClass(BasisTest, object):
 
     def test_08_merge(self):
         tol = 1e-12
-        hfss3d = Hfss3dLayout(self.package_file, "FlipChip_TopBot", specified_version=desktop_version)
-        brd = Hfss3dLayout(hfss3d.project_name, "Dummy_Board", specified_version=desktop_version)
-        comp = brd.modeler.merge_design(hfss3d, rotation=90)
+        brd = Hfss3dLayout(self.flipchip.project_name, "Dummy_Board", specified_version=desktop_version)
+        comp = brd.modeler.merge_design(self.flipchip, rotation=90)
         assert comp.location[0] == 0.0
         assert comp.rotation_axis == "Z"
         comp.rotation_axis = "X"
@@ -244,7 +249,6 @@ class TestClass(BasisTest, object):
         else:
             assert (comp.location[0] - 0.1) < tol
             assert (comp.location[1] - 0.2) < tol
-        hfss3d.close_project(save_project=False)
 
     def test_10_change_stackup(self):
         assert self.aedtapp.modeler.layers.change_stackup_type("Multizone", 4)
