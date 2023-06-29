@@ -139,16 +139,19 @@ class EDBPrimitivesMain:
 
     @layer_name.setter
     def layer_name(self, val):
-        if val in self._core_stackup.stackup_layers.layers:
-            lay = self._core_stackup.stackup_layers.layers[val]._edb_layer
-            self.primitive_object.SetLayer(lay)
-        elif not isinstance(val, str):
+        if isinstance(val, str) and val in list(self._core_stackup.layers.keys()):
+            lay = self._core_stackup.layers["TOP"]._edb_layer
+            if lay:
+                self.primitive_object.SetLayer(lay)
+            else:
+                raise AttributeError("Layer {} not found in layer".format(val))
+        elif isinstance(val, type(self._core_stackup.layers["TOP"])):
             try:
-                self.primitive_object.SetLayer(val)
+                self.primitive_object.SetLayer(val._edb_layer)
             except:
-                raise AttributeError("Value inserted not found. Input has to be layer name or layer object.")
+                raise AttributeError("Failed to assign new layer on primitive.")
         else:
-            raise AttributeError("Value inserted not found. Input has to be layer name or layer object.")
+            raise AttributeError("Invalid input value")
 
 
 class EDBPrimitives(EDBPrimitivesMain):
