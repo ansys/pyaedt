@@ -455,8 +455,8 @@ class Primitives3D(Primitives, object):
         name=None,
         matname=None,
     ):
-        # type : (list, list, float|str=0.2, float|str=0, float=80, float=5, int=0,
-        # float|str=0.025, int=6, str=None, str=None) -> Object3d
+        # type : (list, list, float|str=0.2, float|str=0, float=80, float=5, int=0, float|str=0.025, int=6, str=None,
+        # str=None) -> Object3d
         """Create a bondwire.
 
         Parameters
