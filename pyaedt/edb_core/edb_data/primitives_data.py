@@ -469,7 +469,7 @@ class EDBPrimitives(EDBPrimitivesMain):
                 void_to_subtract = []
                 if voids:
                     for void in voids:
-                        void_pdata = void.primitive_object.GetPolygonData()
+                        void_pdata = void.prim_obj.GetPolygonData()
                         int_data2 = p.GetIntersectionType(void_pdata)
                         if int_data2 > 2 or int_data2 == 1:
                             void_to_subtract.append(void_pdata)
@@ -787,6 +787,12 @@ class EdbPolygon(EDBPrimitives, PolygonDotNet):
             self._app.active_layout, self.layer_name, self.net, self.polygon_data
         )
         if cloned_poly:
+            for void in self.voids:
+                cloned_void = self._app.edb_api.cell.primitive.polygon.create(
+                    self._app.active_layout, self.layer_name, self.net, void.polygon_data
+                )
+                # cloned_void
+                cloned_poly.prim_obj.AddVoid(cloned_void.prim_obj)
             return cloned_poly
         return False
 
