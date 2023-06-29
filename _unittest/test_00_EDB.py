@@ -2321,6 +2321,22 @@ class TestClass(BasisTest, object):
         assert pad_instance2.start_layer == "1_Top"
         assert pad_instance2.stop_layer == "1_Top"
 
+        assert edb.padstacks.create(
+            pad_shape="Circle",
+            padstackname="test2",
+            paddiam="400um",
+            holediam="200um",
+            antipad_shape="Rectangle",
+            anti_pad_x_size="700um",
+            anti_pad_y_size="800um",
+            start_layer="1_Top",
+            stop_layer="1_Top",
+        )
+
+        pad_instance3 = edb.padstacks.place(position=["-1.65mm", "-1.665mm"], definition_name="test2")
+        assert pad_instance3.start_layer == "1_Top"
+        assert pad_instance3.stop_layer == "1_Top"
+
     def test_131_assign_hfss_extent_non_multiple_with_simconfig(self):
         edb = Edb()
         edb.stackup.add_layer(layer_name="GND", fillMaterial="AIR", thickness="30um")
