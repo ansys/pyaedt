@@ -239,6 +239,7 @@ class BasisTest(object):
 # Define desktopVersion explicitly since this is imported by other modules
 desktop_version = config["desktopVersion"]
 new_thread = config["NewThread"]
+settings.desktop_launch_timeout = 180
 
 
 @pytest.fixture(scope="session", autouse=True)
