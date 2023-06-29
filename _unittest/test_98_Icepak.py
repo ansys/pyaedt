@@ -893,12 +893,35 @@ class TestClass(BasisTest, object):
 
     def test_53_create_conduting_plate(self):
         box = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 10], name="box1")
+        self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
+        self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, 0, 0], [10, 20], name="surf2")
+        box_fc_ids = self.aedtapp.modeler.get_object_faces("box1")
         assert self.aedtapp.create_conduting_plate(
             self.aedtapp.modeler.get_object_from_name("box1").faces[0].id,
             thermal_specification="Thickness",
             input_power="1W",
             thickness="1mm",
         )
+        assert self.aedtapp.create_conduting_plate(
+            box_fc_ids,
+            thermal_specification="Thickness",
+            input_power="1W",
+            thickness="1mm",
+            bc_name="cond_plate_test",
+        )
+        assert self.aedtapp.create_conduting_plate(
+            "surf1",
+            thermal_specification="Thermal Impedance",
+            input_power="1W",
+            thermal_impedance="1.5celm2_per_w",
+        )
+        assert self.aedtapp.create_conduting_plate(
+            ["surf1", "surf2"],
+            thermal_specification="Thermal Resistance",
+            input_power="1W",
+            thermal_resistance="2.5Kel_per_W",
+        )
+        x = 0
         if not is_ironpython:
             assert not self.aedtapp.create_conduting_plate(
                 None, thermal_specification="Thickness", input_power="1W", thickness="1mm", radiate_low=True
