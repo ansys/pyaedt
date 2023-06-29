@@ -1002,6 +1002,14 @@ class TestClass(BasisTest, object):
         aedtapp.close_project(save_project=False)
 
     def test_55_create_bond_wires(self):
+        self.aedtapp["$Ox"] = 0
+        self.aedtapp["$Oy"] = 0
+        self.aedtapp["$Oz"] = 0
+        self.aedtapp["$Endx"] = 10
+        self.aedtapp["$Endy"] = 10
+        self.aedtapp["$Endz"] = 2
+        self.aedtapp["$bondHeight1"] = "0.15mm"
+        self.aedtapp["$bondHeight2"] = "0mm"
         b0 = self.aedtapp.modeler.create_bondwire(
             [0, 0, 0], [10, 10, 2], h1=0.15, h2=0, diameter=0.034, facets=8, matname="copper", name="jedec51"
         )
@@ -1022,6 +1030,28 @@ class TestClass(BasisTest, object):
             (2, 2, 0), (0, 0, 0), h1=0.15, h2=0, diameter=0.034, bond_type=1, matname="copper", name="jedec41"
         )
         assert b4
+        b5 = self.aedtapp.modeler.create_bondwire(
+            ("$Ox", "$Oy", "$Oz"),
+            ("$Endx", "$Endy", "$Endz"),
+            h1=0.15,
+            h2=0,
+            diameter=0.034,
+            bond_type=1,
+            matname="copper",
+            name="jedec41",
+        )
+        assert b5
+        b6 = self.aedtapp.modeler.create_bondwire(
+            [0, 0, 0],
+            [10, 10, 2],
+            h1="$bondHeight1",
+            h2="$bondHeight2",
+            diameter=0.034,
+            bond_type=2,
+            matname="copper",
+            name="low",
+        )
+        assert b6
 
     def test_56_create_group(self):
         assert self.aedtapp.modeler.create_group(["jedec51", "jedec41"], "mygroup")
