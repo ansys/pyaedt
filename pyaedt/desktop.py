@@ -156,9 +156,11 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
     return False, err
 
 
-def _check_grpc_port(port, machine_name="127.0.0.1"):
+def _check_grpc_port(port, machine_name=""):
     s = socket.socket()
     try:
+        if not machine_name:
+            machine_name = "127.0.0.1"
         s.connect((machine_name, port))
     except socket.error:
         success = False
