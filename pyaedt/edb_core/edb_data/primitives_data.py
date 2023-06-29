@@ -396,64 +396,33 @@ class EDBPrimitives(EDBPrimitivesMain):
         if not isinstance(primitives, list):
             primitives = [primitives]
         primi_polys = []
+        voids_of_prims = []
         for prim in primitives:
             if isinstance(prim, EDBPrimitives):
                 primi_polys.append(prim.primitive_object.GetPolygonData())
+                for void in prim.voids:
+                    voids_of_prims.append(void.polygon_data)
             else:
                 try:
                     primi_polys.append(prim.GetPolygonData())
                 except:
                     primi_polys.append(prim)
-        list_poly = poly.Subtract(convert_py_list_to_net_list([poly]), convert_py_list_to_net_list(primi_polys))
+        for v in self.voids[:]:
+            primi_polys.append(v.polygon_data)
+        primi_polys = poly.Unite(convert_py_list_to_net_list(primi_polys))
+        p_to_sub = poly.Unite(convert_py_list_to_net_list([poly] + voids_of_prims))
+        list_poly = poly.Subtract(p_to_sub, primi_polys)
         new_polys = []
         if list_poly:
-            voids = self.voids
             for p in list_poly:
                 if p.IsNull():
                     continue
-                list_void = []
-                void_to_subtract = []
-                if voids:
-                    for void in voids:
-                        void_pdata = void.polygon_data
-                        int_data2 = p.GetIntersectionType(void_pdata)
-                        if int_data2 > 2 or int_data2 == 1:
-                            void_to_subtract.append(void_pdata)
-                        elif int_data2 == 2:
-                            list_void.append(void_pdata)
-                    if void_to_subtract:
-                        polys_cleans = p.Subtract(
-                            convert_py_list_to_net_list(p), convert_py_list_to_net_list(void_to_subtract)
-                        )
-                        for polys_clean in polys_cleans:
-                            if not polys_clean.IsNull():
-                                void_to_append = [v for v in list_void if polys_clean.GetIntersectionType(v) == 2]
-                                new_polys.append(
-                                    cast(
-                                        self._app.modeler.create_polygon(
-                                            polys_clean, self.layer_name, net_name=self.net_name, voids=void_to_append
-                                        ),
-                                        self._app,
-                                    )
-                                )
-                    else:
-                        new_polys.append(
-                            cast(
-                                self._app.modeler.create_polygon(
-                                    p, self.layer_name, net_name=self.net_name, voids=list_void
-                                ),
-                                self._app,
-                            )
-                        )
-                else:
-                    new_polys.append(
-                        cast(
-                            self._app.modeler.create_polygon(
-                                p, self.layer_name, net_name=self.net_name, voids=list_void
-                            ),
-                            self._app,
-                        )
-                    )
+            new_polys.append(
+                cast(
+                    self._app.modeler.create_polygon(p, self.layer_name, net_name=self.net_name, voids=[]),
+                    self._app,
+                )
+            )
         self.delete()
         for prim in primitives:
             if isinstance(prim, EDBPrimitives):

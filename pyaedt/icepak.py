@@ -542,8 +542,9 @@ class Icepak(FieldAnalysis3D):
 
         Parameters
         ----------
-        face_id : int or str
-            If int, Face ID. If str, object name.
+        face_id : int or str or list
+            Integer indicating a face ID or a string indicating an object name. A list of face
+            IDs or object names is also accepted.
         thermal_specification : str
             Select what thermal specification is to be applied. The possible choices are ``"Thickness"``,
             ``"Conductance"``, ``"Thermal Impedance"`` and ``"Thermal Resistance"``
@@ -586,10 +587,12 @@ class Icepak(FieldAnalysis3D):
         if not bc_name:
             bc_name = generate_unique_name("Source")
         props = {}
-        if isinstance(face_id, int):
-            props["Faces"] = [face_id]
-        elif isinstance(face_id, str):
-            props["Objects"] = [face_id]
+        if not isinstance(face_id, list):
+            face_id = [face_id]
+        if isinstance(face_id[0], int):
+            props["Faces"] = face_id
+        elif isinstance(face_id[0], str):
+            props["Objects"] = face_id
         if radiate_low:
             props["LowSide"] = OrderedDict(
                 {"Radiate": True, "RadiateTo": "AllObjects", "Surface Material": low_surf_material}
