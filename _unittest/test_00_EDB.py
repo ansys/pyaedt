@@ -2536,3 +2536,34 @@ class TestClass(BasisTest, object):
 
     def test_140_defeature(self):
         assert self.edbapp.modeler.defeature_polygon(self.edbapp.modeler.primitives_by_net["GND"][-1], 0.01)
+
+    def test_141_primitives_boolean_operation(self):
+        edb = Edb()
+        edb.stackup.add_layer(layer_name="test")
+        x = edb.modeler.create_polygon(
+            layer_name="test", main_shape=[[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0]]
+        )
+        assert x
+        x_hole1 = edb.modeler.create_polygon(
+            layer_name="test", main_shape=[[1.0, 1.0], [4.5, 1.0], [4.5, 9.0], [1.0, 9.0]]
+        )
+        x_hole2 = edb.modeler.create_polygon(
+            layer_name="test", main_shape=[[4.5, 1.0], [9.0, 1.0], [9.0, 9.0], [4.5, 9.0]]
+        )
+        x = x.subtract([x_hole1, x_hole2])[0]
+        assert x
+        y = edb.modeler.create_polygon(layer_name="foo", main_shape=[[4.0, 3.0], [6.0, 3.0], [6.0, 6.0], [4.0, 6.0]])
+        z = x.subtract(y)
+        assert z
+        edb.stackup.add_layer(layer_name="foo")
+        x = edb.modeler.create_polygon(
+            layer_name="foo", main_shape=[[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0]]
+        )
+        x_hole = edb.modeler.create_polygon(
+            layer_name="foo", main_shape=[[1.0, 1.0], [9.0, 1.0], [9.0, 9.0], [1.0, 9.0]]
+        )
+        y = x.subtract(x_hole)[0]
+        z = edb.modeler.create_polygon(
+            layer_name="foo", main_shape=[[-15.0, 5.0], [15.0, 5.0], [15.0, 6.0], [-15.0, 6.0]]
+        )
+        assert y.intersect(z)
