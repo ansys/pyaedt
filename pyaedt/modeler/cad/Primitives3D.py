@@ -1525,7 +1525,8 @@ class Primitives3D(Primitives, object):
                 self._app[param + "_" + name] = component_obj.design_variables[param].value_string
 
         # Get coordinate systems
-        component_cs = list(component_obj.components.components.keys())
+        component_cs = list(component_obj.components.instances.keys())
+
         component_obj.close_edb()
 
         vArg1 = ["NAME:InsertNativeComponentData"]
@@ -1656,8 +1657,10 @@ class Primitives3D(Primitives, object):
                     self._create_object(new_name)
 
                 udm_obj = self._create_user_defined_component(new_object_name)
+
                 if name:
                     udm_obj.name = name
+
         except Exception:  # pragma: no cover
             udm_obj = False
         return udm_obj

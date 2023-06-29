@@ -96,7 +96,7 @@ solutions_types = {
             "name": "TransientAPhiFormulation",
             "options": None,
             "report_type": "Transient",
-            "default_setup": 5,
+            "default_setup": 56,
             "default_adaptive": "Transient",
             "intrinsics": ["Time"],
         },
