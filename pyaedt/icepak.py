@@ -712,10 +712,13 @@ class Icepak(FieldAnalysis3D):
         props["Temperature"] = temperature
         props["Radiation"] = OrderedDict({"Radiate": radiate})
         bound = BoundaryObject(self, source_name, props, "SourceIcepak")
-        if bound.create():
-            self.boundaries.append(bound)
-            return bound
-        else:
+        try:
+            if bound.create():
+                self.boundaries.append(bound)
+                return bound
+            else:  # pragma : no cover
+                raise SystemExit
+        except SystemExit:
             return None
 
     @pyaedt_function_handler()
