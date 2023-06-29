@@ -1509,8 +1509,15 @@ class Components(object):
             return pingroup
 
     @pyaedt_function_handler()
-    def delete_single_pin_rlc(self):
+    def delete_single_pin_rlc(self, deactivate_only=False):
+        # type: (bool) -> list
         """Delete all RLC components with a single pin.
+
+        Parameters
+        ----------
+        deactivate_only : bool, optional
+            Whether to only deactivate RLC components with a single point rather than
+            delete them. The default is ``False``, in which case they are deleted.
 
         Returns
         -------
@@ -1530,9 +1537,13 @@ class Components(object):
         deleted_comps = []
         for comp, val in self.instances.items():
             if val.numpins < 2 and val.type in ["Resistor", "Capacitor", "Inductor"]:
-                val.edbcomponent.Delete()
-                deleted_comps.append(comp)
-        self.refresh_components()
+                if deactivate_only:
+                    val.is_enabled = False
+                else:
+                    val.edbcomponent.Delete()
+                    deleted_comps.append(comp)
+        if not deactivate_only:
+            self.refresh_components()
         self._pedb._logger.info("Deleted {} components".format(len(deleted_comps)))
 
         return deleted_comps
