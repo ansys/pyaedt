@@ -9,6 +9,7 @@ from _unittest.conftest import local_path
 from pyaedt import Hfss
 from pyaedt import Icepak
 from pyaedt import settings
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NetworkObject
 
@@ -888,6 +889,10 @@ class TestClass(BasisTest, object):
             input_power="1W",
             thickness="1mm",
         )
+        if not is_ironpython:
+            assert not self.aedtapp.create_conduting_plate(
+                None, thermal_specification="Thickness", input_power="1W", thickness="1mm", radiate_low=True
+            )       
         assert self.aedtapp.create_conduting_plate(
             box_fc_ids,
             thermal_specification="Thickness",
