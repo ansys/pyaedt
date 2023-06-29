@@ -28,7 +28,8 @@ import EmitApiPython
 api = EmitApiPython.EmitApi()
 
 # Define .ui file for GUI
-Ui_MainWindow, _ = QtUiTools.loadUiType("gui.ui")
+cwd = os.getcwd()
+Ui_MainWindow, _ = QtUiTools.loadUiType(cwd + "\\interference_gui.ui")
 
 class DoubleDelegate(QtWidgets.QStyledItemDelegate):
     def __init__(self, decimals):
@@ -160,10 +161,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             emitapp.load_project(self.file_path_box.text())
             
             # Populate design dropdown with all design names
-            designs = emitapp.design_list
+            designs = emitapp.oproject.GetDesigns()
+            emit_designs = [d for d in designs if d.GetDesignType() == "EMIT"]
             self.design_name_dropdown.clear()
-            for i in designs:
-                self.design_name_dropdown.addItem(i)
+            for d in emit_designs:
+                self.design_name_dropdown.addItem(d.GetName())
                 
             self.design_name_dropdown.setEnabled(True)
 
