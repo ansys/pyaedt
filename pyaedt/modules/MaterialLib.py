@@ -46,8 +46,6 @@ class Materials(object):
     def __init__(self, app):
         self._app = app
         self._color_id = 0
-        self.odefinition_manager = self._app.odefinition_manager
-        self.omaterial_manager = self._app.omaterial_manager
         self._mats = []
         self._mats_lower = []
         self._desktop = self._app.odesktop
@@ -58,6 +56,16 @@ class Materials(object):
         self.material_keys = {}
         self._surface_material_keys = {}
         self._load_from_project()
+
+    @property
+    def odefinition_manager(self):
+        """Definition Manager from AEDT."""
+        return self._app.odefinition_manager
+
+    @property
+    def omaterial_manager(self):
+        """Material Manager from AEDT."""
+        return self._app.omaterial_manager
 
     def __len__(self):
         return len(self.material_keys)
