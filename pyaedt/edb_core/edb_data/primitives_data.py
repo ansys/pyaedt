@@ -404,7 +404,10 @@ class EDBPrimitives(EDBPrimitivesMain):
         list_poly = poly.Subtract(convert_py_list_to_net_list([poly]), convert_py_list_to_net_list(primi_polys))
         new_polys = []
         if list_poly:
-            voids = self.voids
+            voids = self.voids[:]
+            for prim in primitives:
+                if isinstance(prim, EDBPrimitives):
+                    voids.extend(prim.voids[:])
             for p in list_poly:
                 if p.IsNull():
                     continue
@@ -497,7 +500,7 @@ class EDBPrimitives(EDBPrimitivesMain):
                 void_to_subtract = []
                 if voids:
                     for void in voids:
-                        void_pdata = void.primitive_object.GetPolygonData()
+                        void_pdata = void.prim_obj.GetPolygonData()
                         int_data2 = p.GetIntersectionType(void_pdata)
                         if int_data2 > 2 or int_data2 == 1:
                             void_to_subtract.append(void_pdata)
