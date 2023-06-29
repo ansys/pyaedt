@@ -4681,8 +4681,9 @@ class Icepak(FieldAnalysis3D):
 
         Parameters
         ----------
-        geometry : str or int or list of str/int
-            Name of the surface object or ID of the face.
+        geometry : str or int or list
+            Surface object name or face ID. A list of surface object names
+            or face IDs is also acceptable.
         boundary_name : str, optional
             Name of the boundary condition. The default is ``None``.
 
