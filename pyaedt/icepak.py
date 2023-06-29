@@ -542,8 +542,9 @@ class Icepak(FieldAnalysis3D):
 
         Parameters
         ----------
-        face_id : int or str
-            If int, Face ID. If str, object name.
+        face_id : int or str or list
+            Integer indicating a face ID or a string indicating an object name. A list of face
+            IDs or object names is also accepted.
         thermal_specification : str
             Select what thermal specification is to be applied. The possible choices are ``"Thickness"``,
             ``"Conductance"``, ``"Thermal Impedance"`` and ``"Thermal Resistance"``
@@ -586,10 +587,12 @@ class Icepak(FieldAnalysis3D):
         if not bc_name:
             bc_name = generate_unique_name("Source")
         props = {}
-        if isinstance(face_id, int):
-            props["Faces"] = [face_id]
-        elif isinstance(face_id, str):
-            props["Objects"] = [face_id]
+        if not isinstance(face_id, list):
+            face_id = [face_id]
+        if isinstance(face_id[0], int):
+            props["Faces"] = face_id
+        elif isinstance(face_id[0], str):
+            props["Objects"] = face_id
         if radiate_low:
             props["LowSide"] = OrderedDict(
                 {"Radiate": True, "RadiateTo": "AllObjects", "Surface Material": low_surf_material}
@@ -620,9 +623,14 @@ class Icepak(FieldAnalysis3D):
             )
         props["Shell Conduction"] = shell_conduction
         bound = BoundaryObject(self, bc_name, props, "Conducting Plate")
-        if bound.create():
-            self.boundaries.append(bound)
-            return bound
+        try:
+            if bound.create():
+                self.boundaries.append(bound)
+                return bound
+            else:  # pragma : no cover
+                raise SystemExit
+        except SystemExit:
+            return None
 
     @pyaedt_function_handler()
     def create_source_power(
@@ -712,9 +720,14 @@ class Icepak(FieldAnalysis3D):
         props["Temperature"] = temperature
         props["Radiation"] = OrderedDict({"Radiate": radiate})
         bound = BoundaryObject(self, source_name, props, "SourceIcepak")
-        if bound.create():
-            self.boundaries.append(bound)
-            return bound
+        try:
+            if bound.create():
+                self.boundaries.append(bound)
+                return bound
+            else:  # pragma : no cover
+                raise SystemExit
+        except SystemExit:
+            return None
 
     @pyaedt_function_handler()
     def create_network_block(
@@ -3231,7 +3244,7 @@ class Icepak(FieldAnalysis3D):
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object.
+            Boundary object when successful or ``None`` when failed.
 
         References
         ----------
@@ -3312,9 +3325,14 @@ class Icepak(FieldAnalysis3D):
         props["External Radiation Reference Temperature"] = ext_surf_rad_ref_temp
         props["External Radiation View Factor"] = ext_surf_rad_view_factor
         bound = BoundaryObject(self, name, props, "Stationary Wall")
-        if bound.create():
-            self.boundaries.append(bound)
-        return bound
+        try:
+            if bound.create():
+                self.boundaries.append(bound)
+                return bound
+            else:  # pragma : no cover
+                raise SystemExit
+        except SystemExit:
+            return None
 
     @pyaedt_function_handler()
     def assign_stationary_wall_with_heat_flux(
@@ -3785,6 +3803,8 @@ class Icepak(FieldAnalysis3D):
         if bound.create():
             self.boundaries.append(bound)
             return bound
+        else:
+            return None
 
     @pyaedt_function_handler()
     def create_network_object(self, name=None, props=None, create=False):
@@ -4020,9 +4040,14 @@ class Icepak(FieldAnalysis3D):
             boundary_name = generate_unique_name("Block")
 
         bound = BoundaryObject(self, boundary_name, props, "Block")
-        if bound.create():
-            self.boundaries.append(bound)
-            return bound
+        try:
+            if bound.create():
+                self.boundaries.append(bound)
+                return bound
+            else:  # pragma : no cover
+                raise SystemExit
+        except SystemExit:
+            return None
 
     @pyaedt_function_handler
     def assign_hollow_block(
@@ -4157,9 +4182,14 @@ class Icepak(FieldAnalysis3D):
             boundary_name = generate_unique_name("Block")
 
         bound = BoundaryObject(self, boundary_name, props, "Block")
-        if bound.create():
-            self.boundaries.append(bound)
-            return bound
+        try:
+            if bound.create():
+                self.boundaries.append(bound)
+                return bound
+            else:  # pragma : no cover
+                raise SystemExit
+        except SystemExit:
+            return None
 
     @pyaedt_function_handler()
     def get_fans_operating_point(self, export_file=None, setup_name=None, timestep=None, design_variation=None):
@@ -4642,3 +4672,50 @@ class Icepak(FieldAnalysis3D):
             inflow=inflow,
             direction_vector=direction_vector,
         )
+
+    @pyaedt_function_handler()
+    def assign_symmetry_wall(
+        self,
+        geometry,
+        boundary_name=None,
+    ):
+        """Assign symmetry wall boundary condition.
+
+        Parameters
+        ----------
+        geometry : str or int or list
+            Surface object name or face ID. A list of surface object names
+            or face IDs is also acceptable.
+        boundary_name : str, optional
+            Name of the boundary condition. The default is ``None``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object when successful or ``None`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignSymmetryWallBoundary
+        """
+        if not boundary_name:
+            boundary_name = generate_unique_name("SymmetryWall")
+        if isinstance(geometry, (str, int)):
+            geometry = [geometry]
+
+        props = {}
+        if isinstance(geometry[0], int):
+            props["Faces"] = geometry
+        else:
+            props["Objects"] = geometry
+
+        bound = BoundaryObject(self, boundary_name, props, "Symmetry Wall")
+        try:
+            if bound.create():
+                self.boundaries.append(bound)
+                return bound
+            else:  # pragma : no cover
+                raise SystemExit
+        except SystemExit:
+            return None
