@@ -942,8 +942,8 @@ class EdbHfss(object):
     def create_lumped_port_on_net(
         self, nets=None, reference_layer=None, return_points_only=False, digit_resolution=6, at_bounding_box=True
     ):
-        """Create an edge port on nets. The command will look for traces and polygons on the nets and will try to
-        assign vertical lumped port.
+        """Create an edge port on nets. This command looks for traces and polygons on the
+        nets and tries to assign vertical lumped port.
 
         Parameters
         ----------
