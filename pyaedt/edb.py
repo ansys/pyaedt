@@ -339,6 +339,11 @@ class Edb(Database):
         return all_vars
 
     @property
+    def terminals(self):
+        """Get terminals belonging to active layout."""
+        return {i.GetName(): ExcitationPorts(self, i) for i in self.layout.terminals}
+
+    @property
     def excitations(self):
         """Get all layout excitations."""
         terms = [term for term in self.layout.terminals if int(term.GetBoundaryType()) == 0]

@@ -355,6 +355,7 @@ class TestClass(BasisTest, object):
         p4 = self.edbapp.hfss.create_circuit_port_on_net("U1", "USB3_D_P")
         assert len(self.edbapp.padstacks.pingroups) == initial_len + 6
         assert "GND" in p4 and "USB3_D_P" in p4
+        assert "test" in self.edbapp.terminals
         assert self.edbapp.siwave.create_pin_group_on_net("U1", "1V0", "PG_V1P0_S0")
         assert self.edbapp.siwave.create_circuit_port_on_pin_group(
             "PG_V1P0_S0", "PinGroup_2", impedance=50, name="test_port"
@@ -2474,9 +2475,12 @@ class TestClass(BasisTest, object):
         pin = "A24"
         ref_pins = [pin for pin in list(edbapp.components["U1"].pins.values()) if pin.net_name == "GND"]
         assert edbapp.components.create_port_on_pins(refdes="U1", pins=pin, reference_pins=ref_pins)
-        assert edbapp.components.create_port_on_pins(refdes="U1", pins="A26", reference_pins=ref_pins)
         assert edbapp.components.create_port_on_pins(refdes="U1", pins="C1", reference_pins=["A11"])
         assert edbapp.components.create_port_on_pins(refdes="U1", pins="C2", reference_pins=["A11"])
+        assert edbapp.components.create_port_on_pins(refdes="U1", pins=["A24"], reference_pins=["A11", "A16"])
+        assert edbapp.components.create_port_on_pins(refdes="U1", pins=["A26"], reference_pins=["A11", "A16", "A17"])
+        assert edbapp.components.create_port_on_pins(refdes="U1", pins=["A28"], reference_pins=["A11", "A16"])
+
         edbapp.close()
 
     def test_138_import_gds_from_tech(self):
@@ -2536,3 +2540,46 @@ class TestClass(BasisTest, object):
 
     def test_140_defeature(self):
         assert self.edbapp.modeler.defeature_polygon(self.edbapp.modeler.primitives_by_net["GND"][-1], 0.01)
+
+    def test_141_primitives_boolean_operation(self):
+        edb = Edb()
+        edb.stackup.add_layer(layer_name="test")
+        x = edb.modeler.create_polygon(
+            layer_name="test", main_shape=[[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0]]
+        )
+        assert x
+        x_hole1 = edb.modeler.create_polygon(
+            layer_name="test", main_shape=[[1.0, 1.0], [4.5, 1.0], [4.5, 9.0], [1.0, 9.0]]
+        )
+        x_hole2 = edb.modeler.create_polygon(
+            layer_name="test", main_shape=[[4.5, 1.0], [9.0, 1.0], [9.0, 9.0], [4.5, 9.0]]
+        )
+        x = x.subtract([x_hole1, x_hole2])[0]
+        assert x
+        y = edb.modeler.create_polygon(layer_name="foo", main_shape=[[4.0, 3.0], [6.0, 3.0], [6.0, 6.0], [4.0, 6.0]])
+        z = x.subtract(y)
+        assert z
+        edb.stackup.add_layer(layer_name="foo")
+        x = edb.modeler.create_polygon(
+            layer_name="foo", main_shape=[[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0]]
+        )
+        x_hole = edb.modeler.create_polygon(
+            layer_name="foo", main_shape=[[1.0, 1.0], [9.0, 1.0], [9.0, 9.0], [1.0, 9.0]]
+        )
+        y = x.subtract(x_hole)[0]
+        z = edb.modeler.create_polygon(
+            layer_name="foo", main_shape=[[-15.0, 5.0], [15.0, 5.0], [15.0, 6.0], [-15.0, 6.0]]
+        )
+        assert y.intersect(z)
+
+        edb.stackup.add_layer(layer_name="test2")
+        x = edb.modeler.create_polygon(
+            layer_name="test2", main_shape=[[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0]]
+        )
+        x_hole = edb.modeler.create_polygon(
+            layer_name="test2", main_shape=[[1.0, 1.0], [9.0, 1.0], [9.0, 9.0], [1.0, 9.0]]
+        )
+        y = x.subtract(x_hole)[0]
+        assert y.voids
+        y_clone = y.clone()
+        assert y_clone.voids
