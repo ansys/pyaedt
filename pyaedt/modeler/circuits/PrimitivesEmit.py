@@ -223,7 +223,7 @@ class EmitComponents(object):
             design.
         """
         return {k: v for k, v in self.components.items() if v.get_type() == "RadioNode"}
-    
+
     @pyaedt_function_handler()
     def get_antennas(self):
         """Get all antennas in the design.
