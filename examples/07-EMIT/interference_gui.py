@@ -1,11 +1,9 @@
 import sys
-from PySide2 import QtWidgets, QtUiTools, QtGui
 from pyaedt.emit_core.emit_constants import InterfererType, ResultType, TxRxMode
 from pyaedt import Emit
 import pyaedt
-from openpyxl.styles import PatternFill
-import openpyxl
 import os
+import subprocess
 import pyaedt.generic.constants as consts
 from interference_classification import interference_type_classification, protection_level_classification
 
@@ -14,6 +12,25 @@ emitapp_desktop_version = "2023.2"
 if emitapp_desktop_version < "2023.2":
     print("Must have v2023.2 or later")
     sys.exit()
+
+# Check to see which Python libraries have been installed
+reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
+installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
+
+# Install required packages if they are not installed
+def install(package):
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', package])
+
+# Install required libraries for GUI and Excel exporting (internet connection needed)
+required_packages = ['PySide2', 'openpyxl']
+for package in required_packages:
+    if package not in installed_packages:
+        install(package)
+
+# Import PySide2 and openpyxl libraries
+from PySide2 import QtWidgets, QtUiTools, QtGui
+from openpyxl.styles import PatternFill
+import openpyxl
 
 # Launch emit
 non_graphical = False
