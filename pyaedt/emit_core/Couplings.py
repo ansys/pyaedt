@@ -9,12 +9,12 @@ class CouplingsEmit(object):
     """Provides for interaction with the EMIT ```coupling`` folder,
     This class is accessible through the EMIT application results variable
     object (``emit.couplings``).
-    
+
     Parameters
     ----------
     app :
         Inherited parent object.
-        
+
     Examples
     --------
     >>> from pyaedt import Emit
@@ -49,7 +49,7 @@ class CouplingsEmit(object):
     @property
     def coupling_names(self):
         """List of existing link names.
-        
+
         Parameters
         ----------
         None
@@ -61,7 +61,7 @@ class CouplingsEmit(object):
 
         Examples
         --------
-        >>> app = Emit()    
+        >>> app = Emit()
         >>> my_couplings = app.couplings
         >>> coupling_names = my_couplings.coupling_names
         """
@@ -69,11 +69,11 @@ class CouplingsEmit(object):
 
     def add_link(self, new_coupling_name):
         """Add a new link if it's not already there.
-        
+
         Parameters
         ----------
         new_coupling_name : str
-            Name of the design to link. The design must be 
+            Name of the design to link. The design must be
             within the same project as the EMIT design.
 
         Returns
@@ -82,15 +82,15 @@ class CouplingsEmit(object):
 
         Examples
         --------
-        >>> app = Emit()    
-        >>> app.couplings.add_link("HFSS_Design")        
+        >>> app = Emit()
+        >>> app.couplings.add_link("HFSS_Design")
         """
         if new_coupling_name not in self._odesign.GetLinkNames():
             self._odesign.AddLink(new_coupling_name)
-            
+
     def delete_link(self, coupling_link_name):
         """Delete a link from the EMIT design.
-        
+
         Parameters
         ----------
         coupling_link_name : str
@@ -102,20 +102,20 @@ class CouplingsEmit(object):
 
         Examples
         --------
-        >>> app = Emit()    
-        >>> app.couplings.delete_link("HFSS_Design")        
+        >>> app = Emit()
+        >>> app.couplings.delete_link("HFSS_Design")
         """
         self._odesign.DeleteLink(coupling_link_name)
 
     def update_link(self, coupling_name):
         """Update the link if it's a valid link. Check if anything
-        in the linked design has changed and retrieve updated 
+        in the linked design has changed and retrieve updated
         data if it has.
-        
+
         Parameters
         ----------
         coupling_name : str
-            Name of the linked design. 
+            Name of the linked design.
 
         Returns
         -------
@@ -123,8 +123,8 @@ class CouplingsEmit(object):
 
         Examples
         --------
-        >>> app = Emit()    
-        >>> app.update_link("HFSS_Design")   
+        >>> app = Emit()
+        >>> app.update_link("HFSS_Design")
         """
         if coupling_name in self._odesign.GetLinkNames():
             self._odesign.UpdateLink(coupling_name)
@@ -132,17 +132,17 @@ class CouplingsEmit(object):
     @property
     def linkable_design_names(self):
         """List the available link names.
-        
+
         Parameters
         ----------
         None
-        
+
         Returns
         -------
         linkable_design_names : list str
             List of all existing, non-EMIT designs in the active project.
             If a design is already linked, it is excluded from the list.
-            
+
         Examples
         --------
         >>> app = Emit("Apache with multiple links")
@@ -158,17 +158,17 @@ class CouplingsEmit(object):
     @property
     def cad_nodes(self):
         """Dictionary of the CAD nodes.
-        
+
         Parameters
         ----------
         None
-        
+
         Returns
         -------
         cad_nodes : dict
             A dict containing all of the CAD nodes with their
             properties for the given design.
-            
+
         Examples
         --------
         >>> app = Emit()
@@ -186,17 +186,17 @@ class CouplingsEmit(object):
     @property
     def antenna_nodes(self):
         """Dictionary of the antenna nodes.
-        
+
         Parameters
         ----------
         None
-        
+
         Returns
         -------
         antenna_nodes : dict
             A dict containing all of the antenna nodes with their
             properties for the given design.
-            
+
         Examples
         --------
         >>> app = Emit()
@@ -205,7 +205,7 @@ class CouplingsEmit(object):
         antenna_nodes_list = self._app.modeler.components.get_antennas()
         # osch = self._odesign.SetActiveEditor("SchematicEditor")
         # comps = osch.GetAllComponents()
-        
+
         # coupling_node_name = "CouplingNodeTree@EMIT"
         # antenna_nodes_list = {}
         # for coupling in self._odesign.GetComponentNodeNames(coupling_node_name):
