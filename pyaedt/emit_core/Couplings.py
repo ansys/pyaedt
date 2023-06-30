@@ -6,9 +6,10 @@ import warnings
 
 
 class CouplingsEmit(object):
-    """Provides for interaction with the EMIT ```coupling`` folder,
-    This class is accessible through the EMIT application results variable
-    object (``emit.couplings``).
+    """Provides for interaction with the EMIT ```coupling`` folder.
+    
+    This class is accessible through the results variable
+    object (``emit.couplings``) for the EMIT app.
 
     Parameters
     ----------
@@ -194,7 +195,7 @@ class CouplingsEmit(object):
         Returns
         -------
         antenna_nodes : dict
-            A dict containing all of the antenna nodes with their
+            A dictionary containing all of the antenna nodes with their
             properties for the given design.
 
         Examples
