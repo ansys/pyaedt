@@ -223,6 +223,18 @@ class EmitComponents(object):
             design.
         """
         return {k: v for k, v in self.components.items() if v.get_type() == "RadioNode"}
+    
+    @pyaedt_function_handler()
+    def get_antennas(self):
+        """Get all antennas in the design.
+
+        Returns
+        -------
+        Dict : antenna_name : EmitAntennaComponents
+            Dict of all the antenna_name and EmitAntennaComponents in the
+            design.
+        """
+        return {k: v for k, v in self.components.items() if v.get_type() == "AntennaNode"}
 
     @pyaedt_function_handler()
     def refresh_all_ids(self):
@@ -465,37 +477,6 @@ class EmitComponent(object):
         props_list = self.odesign.GetComponentNodeProperties(self.name, node_name)
         props = dict(p.split("=", 1) for p in props_list)
         return props
-
-    @pyaedt_function_handler()
-    def set_property(self, property_name, property_value):
-        """Set part property
-
-        Parameters
-        ----------
-        property_name : str
-            property name
-        property_value : str
-            property value
-
-        Returns
-        -------
-        bool
-
-        References
-        ----------
-
-        >>> oEditor.ChangeProperty
-        """
-        if type(property_name) is list:
-            for p, v in zip(property_name, property_value):
-                v_prop = ["NAME:" + p, "Value:=", v]
-                self.change_property(v_prop)
-                self.__dict__[p] = v
-        else:
-            v_prop = ["NAME:" + property_name, "Value:=", property_value]
-            self.change_property(v_prop)
-            self.__dict__[property_name] = property_value
-        return True
 
     @pyaedt_function_handler()
     def _add_property(self, property_name, property_value):
