@@ -49,7 +49,6 @@ class TestClass(BasisTest, object):
 
     def test_03_assign_initial_mesh_from_slider(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(4)
-        self.aedtapp.set_active_design("Basis_Model_For_Test")
 
     def test_04_create_winding(self):
         bounds = self.aedtapp.assign_winding(current_value=20e-3, coil_terminals=["Coil"])

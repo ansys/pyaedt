@@ -2765,7 +2765,10 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _refresh_solids(self):
-        test = list(self.oeditor.GetObjectsInGroup("Solids"))
+        try:
+            test = _retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Solids")
+        except TypeError:
+            test = []
         if test is None or test is False:
             assert False, "Get Solids is failing"
         elif test is True:
@@ -2776,7 +2779,10 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _refresh_sheets(self):
-        test = list(self.oeditor.GetObjectsInGroup("Sheets"))
+        try:
+            test = _retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Sheets")
+        except TypeError:
+            test = []
         if test is None or test is False:
             assert False, "Get Sheets is failing"
         elif test is True:
@@ -2787,7 +2793,10 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _refresh_lines(self):
-        test = list(self.oeditor.GetObjectsInGroup("Lines"))
+        try:
+            test = _retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Lines")
+        except TypeError:
+            test = []
         if test is None or test is False:
             assert False, "Get Lines is failing"
         elif test is True:
@@ -2798,7 +2807,10 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _refresh_points(self):
-        test = list(self.oeditor.GetPoints())
+        try:
+            test = _retry_ntimes(10, self.oeditor.GetPoints)
+        except TypeError:
+            test = []
         if test is None or test is False:
             assert False, "Get Points is failing"
         elif test is True:
@@ -2821,7 +2833,10 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _refresh_unclassified(self):
-        test = _retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Unclassified")
+        try:
+            test = _retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Unclassified")
+        except TypeError:
+            test = []
         if test is None or test is False:
             self._unclassified = []
             self.logger.debug("Unclassified is failing")
@@ -3171,7 +3186,7 @@ class Primitives(object):
                             native_comp_properties = data
                             break
             except:
-                self.logger.info("Native component properties were not retrieved from the AEDT file.")
+                return native_comp_properties
 
         return native_comp_properties
 

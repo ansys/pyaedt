@@ -814,6 +814,8 @@ class EdbPadstacks(object):
         start_layer=None,
         stop_layer=None,
         add_default_layer=False,
+        anti_pad_x_size="600um",
+        anti_pad_y_size="600um",
     ):
         """Create a padstack.
 
@@ -824,17 +826,18 @@ class EdbPadstacks(object):
         holediam : str, optional
             Diameter of the hole with units. The default is ``"300um"``.
         paddiam : str, optional
-            Diameter of the pad with units. The default is ``"400um"``.
+            Diameter of the pad with units, used with ``"Circle"`` shape. The default is ``"400um"``.
         antipaddiam : str, optional
             Diameter of the antipad with units. The default is ``"600um"``.
         pad_shape : str, optional
             Shape of the pad. The default is ``"Circle``. Options are ``"Circle"`` and ``"Rectangle"``.
         antipad_shape : str, optional
-            Shape of the antipad. The default is ``"Circle"``. Options are ``"Circle"`` and ``"Bullet"``.
+            Shape of the antipad. The default is ``"Circle"``. Options are ``"Circle"`` ``"Rectangle"`` and
+            ``"Bullet"``.
         x_size : str, optional
-            Only applicable to bullet shape. The default is ``"600um"``.
+            Only applicable to bullet and rectangle shape. The default is ``"600um"``.
         y_size : str, optional
-            Only applicable to bullet shape. The default is ``"600um"``.
+            Only applicable to bullet and rectangle shape. The default is ``"600um"``.
         corner_radius :
             Only applicable to bullet shape. The default is ``"300um"``.
         offset_x : str, optional
@@ -857,6 +860,10 @@ class EdbPadstacks(object):
             Stop layer of the padstack definition.
         add_default_layer : bool, optional
             Add ``"Default"`` to padstack definition. Default is ``False``.
+        anti_pad_x_size : str, optional
+            Only applicable to bullet and rectangle shape. The default is ``"600um"``.
+        anti_pad_y_size : str, optional
+            Only applicable to bullet and rectangle shape. The default is ``"600um"``.
 
         Returns
         -------
@@ -887,6 +894,8 @@ class EdbPadstacks(object):
         pad_offset_x = self._get_edb_value(pad_offset_x)
         pad_offset_y = self._get_edb_value(pad_offset_y)
         pad_rotation = self._get_edb_value(pad_rotation)
+        anti_pad_x_size = self._get_edb_value(anti_pad_x_size)
+        anti_pad_y_size = self._get_edb_value(anti_pad_y_size)
 
         padstackData.SetHoleParameters(ptype, holparam, value0, value0, value0)
 
@@ -907,6 +916,9 @@ class EdbPadstacks(object):
         if antipad_shape == "Bullet":
             antipad_array = Array[type(x_size)]([x_size, y_size, corner_radius])
             antipad_shape = self._edb.definition.PadGeometryType.Bullet
+        elif antipad_shape == "Rectangle":
+            antipad_array = Array[type(anti_pad_x_size)]([anti_pad_x_size, anti_pad_y_size])
+            antipad_shape = self._edb.definition.PadGeometryType.Rectangle
         else:
             antipad_array = Array[type(antipaddiam)]([antipaddiam])
             antipad_shape = self._edb.definition.PadGeometryType.Circle
@@ -1028,7 +1040,7 @@ class EdbPadstacks(object):
             The default is ``None``.
         solderlayer :
             The default is ``None``.
-        is_pin : bool, optiona
+        is_pin : bool, optional
             Whether if the padstack is a pin or not. Default is `False`.
 
         Returns

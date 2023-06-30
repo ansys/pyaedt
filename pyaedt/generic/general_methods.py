@@ -55,6 +55,16 @@ def _write_mes(mes_text):
         settings.logger.error(el)
 
 
+def _get_args_dicts(func, args, kwargs):
+    if int(sys.version[0]) > 2:
+        args_name = list(OrderedDict.fromkeys(inspect.getfullargspec(func)[0] + list(kwargs.keys())))
+        args_dict = OrderedDict(list(itertools.zip_longest(args_name, args)) + list(kwargs.items()))
+    else:
+        args_name = list(OrderedDict.fromkeys(inspect.getargspec(func)[0] + list(kwargs.keys())))
+        args_dict = OrderedDict(list(itertools.izip(args_name, args)) + list(kwargs.iteritems()))
+    return args_dict
+
+
 def _exception(ex_info, func, args, kwargs, message="Type Error"):
     """Write the trace stack to the desktop when a Python error occurs.
 
@@ -100,12 +110,7 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
             _write_mes("{}, {}".format(el, message.upper()))
     args_name = []
     try:
-        if int(sys.version[0]) > 2:
-            args_name = list(OrderedDict.fromkeys(inspect.getfullargspec(func)[0] + list(kwargs.keys())))
-            args_dict = OrderedDict(list(itertools.zip_longest(args_name, args)) + list(kwargs.items()))
-        else:
-            args_name = list(OrderedDict.fromkeys(inspect.getargspec(func)[0] + list(kwargs.keys())))
-            args_dict = OrderedDict(list(itertools.izip(args_name, args)) + list(kwargs.iteritems()))
+        args_dict = _get_args_dicts(func, args, kwargs)
         first_time_log = True
 
         for el in args_dict:
@@ -166,7 +171,7 @@ def _function_handler_wrapper(user_function):
             try:
                 settings.time_tick = time.time()
                 out = user_function(*args, **kwargs)
-                if settings.enable_debug_logger:
+                if settings.enable_debug_logger or settings.enable_debug_edb_logger:
                     _log_method(user_function, args, kwargs)
                 return out
             except TypeError:
@@ -283,7 +288,6 @@ def check_and_download_file(local_path, remote_path, overwrite=True):
     return remote_path
 
 
-@pyaedt_function_handler()
 def check_if_path_exists(path):
     """Check whether a path exists or not local or remote machine (for remote sessions only).
 
@@ -326,7 +330,6 @@ def check_and_download_folder(local_path, remote_path, overwrite=True):
     return remote_path
 
 
-@pyaedt_function_handler()
 def open_file(file_path, file_options="r"):
     """Open a file and return the object.
 
@@ -370,8 +373,7 @@ def _log_method(func, new_args, new_kwargs):
         or "edb_core" in str(func) + str(new_args)
     ):
         return
-    line_begin = "    Implicit Arguments: "
-    line_begin2 = "    Explicit Arguments: "
+    line_begin = "ARGUMENTS: "
     message = []
     delta = time.time() - settings.time_tick
     m, s = divmod(delta, 60)
@@ -384,28 +386,21 @@ def _log_method(func, new_args, new_kwargs):
         time_msg = " {}h {}m {}sec.".format(h, m, int(s))
     else:
         time_msg = "  {}m {}sec {}msec.".format(m, int(s), int(msec))
-    if new_args and settings.enable_debug_methods_argument_logger:
-        object_name = str([new_args[0]])[1:-1]
-        id = object_name.find(" object at ")
-        if id >= 0:
+    if settings.enable_debug_methods_argument_logger:
+        args_dict = _get_args_dicts(func, new_args, new_kwargs)
+        id = 0
+        if new_args:
+            object_name = str([new_args[0]])[1:-1]
+            id = object_name.find(" object at ")
+        if id > 0:
             object_name = object_name[1:id]
-            message.append(" '{}' has been executed in {}".format(object_name + "." + str(func.__name__), time_msg))
-            if new_args[1:]:
-                message.append(line_begin + str(new_args[1:])[1:-1])
-            if new_kwargs:
-                message.append(line_begin2 + str(new_kwargs)[1:-1])
-
+            message.append("'{}' was run in {}".format(object_name + "." + str(func.__name__), time_msg))
         else:
-            message.append(" '{}' has been executed in {}".format(str(func.__name__), time_msg))
-            if new_args[1:]:
-                message.append(line_begin + str(new_args[1:])[1:-1])
-            if new_kwargs:
-                message.append(line_begin2 + str(new_kwargs)[1:-1])
-
-    else:
-        message.append(" '{}' has been executed in: {}".format(str(func.__name__), time_msg))
-        if new_kwargs and settings.enable_debug_methods_argument_logger:
-            message.append(line_begin2 + str(new_kwargs)[1:-1])
+            message.append("'{}' was run in {}".format(str(func.__name__), time_msg))
+        message.append(line_begin)
+        for k, v in args_dict.items():
+            if k != "self":
+                message.append("    {} = {}".format(k, v))
     for m in message:
         settings.logger.debug(m)
 
@@ -656,7 +651,8 @@ def _retry_ntimes(n, function, *args, **kwargs):
     while retry < n:
         try:
             ret_val = function(*args, **kwargs)
-            if not ret_val and type(ret_val) is not float and type(ret_val) is not int:
+            if ret_val is None:
+                # if not ret_val and type(ret_val) not in [float, int, str, tuple, list]:
                 ret_val = True
         except:
             retry += 1
@@ -1053,9 +1049,9 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
         List of gRPC ports.
     """
     if student_version:
-        keys = ["ansysedtsv.exe"]
+        keys = ["ansysedtsv.exe", "ansysedtsv"]
     else:
-        keys = ["ansysedt.exe"]
+        keys = ["ansysedt.exe", "ansysedt"]
     if version and "." in version:
         version = version[-4:].replace(".", "")
     sessions = []
@@ -1097,12 +1093,12 @@ def active_sessions(version=None, student_version=False, non_graphical=False):
         List of AEDT PIDs.
     """
     if student_version:
-        keys = ["ansysedtsv.exe"]
+        keys = ["ansysedtsv.exe", "ansysedtsv"]
     else:
-        keys = ["ansysedt.exe"]
+        keys = ["ansysedt.exe", "ansysedt"]
     if version and "." in version:
         version = version[-4:].replace(".", "")
-    if version < "222":
+    if version and version < "222":
         version = version[:2] + "." + version[2]
     sessions = []
     for p in psutil.process_iter():
@@ -1788,6 +1784,8 @@ class Settings(object):
             "ANSYSEM_FEATURE_SF222134_CABLE_MODELING_ENHANCEMENTS_ENABLE": "1",
             "ANSYSEM_FEATURE_F395486_RIGID_FLEX_BENDING_ENABLE": "1",
             "ANSYSEM_FEATURE_S432616_LAYOUT_COMPONENT_IN_3D_ENABLE": "1",
+            "ANSYSEM_FEATURE_F545177_ECAD_INTEGRATION_WITH_APHI_ENABLE": "1",
+            "ANSYSEM_FEATURE_F650636_MECH_LAYOUT_COMPONENT_ENABLE": "1",
         }
         if is_linux:
             self._aedt_environment_variables["ANS_NODEPCHECK"] = "1"
