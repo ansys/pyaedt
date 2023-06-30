@@ -475,8 +475,11 @@ class EdbPadstacks(object):
             is ``[component][net][pin]``. The default is ``True``. If ``False``, ``_`` is 
             used as the separator instead.
         user_defined_port_name : str
-            if a name is provided will overwrite the default naming convention. If a port is already defined with the
-            same name, default naming will be reverted.
+            Port name for overwriting the default port-naming convention,
+            which is ``[component][net][pin]``. The port name must be unique.
+            If a port with the specified name already exists, the
+            default naming convention is used so that port creation does
+            not fail.
 
         Returns
         -------
