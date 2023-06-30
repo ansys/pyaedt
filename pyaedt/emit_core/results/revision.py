@@ -52,7 +52,7 @@ class Revision:
         """Full path of the revision."""
 
         self.emit_project = emit_obj
-        """Emit project."""
+        """EMIT project."""
 
         raw_props = emit_obj.odesign.GetResultProperties(name)
         key = lambda s: s.split("=", 1)[0]
@@ -60,7 +60,7 @@ class Revision:
         props = {key(s): val(s) for s in raw_props}
 
         self.revision_number = int(props["Revision"])
-        """Unique revision number from the Emit design"""
+        """Unique revision number from the EMIT design"""
 
         self.timestamp = props["Timestamp"]
         """Unique timestamp for the revision"""

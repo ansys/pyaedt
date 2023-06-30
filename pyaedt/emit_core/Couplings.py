@@ -74,7 +74,7 @@ class CouplingsEmit(object):
         ----------
         new_coupling_name : str
             Name of the design to link. The design must be 
-            within the same project as the Emit design.
+            within the same project as the EMIT design.
 
         Returns
         -------
@@ -89,7 +89,7 @@ class CouplingsEmit(object):
             self._odesign.AddLink(new_coupling_name)
             
     def delete_link(self, coupling_link_name):
-        """Delete a link from the Emit design.
+        """Delete a link from the EMIT design.
         
         Parameters
         ----------
@@ -140,7 +140,7 @@ class CouplingsEmit(object):
         Returns
         -------
         linkable_design_names : list str
-            List of all existing, non-Emit designs in the active project.
+            List of all existing, non-EMIT designs in the active project.
             If a design is already linked, it is excluded from the list.
             
         Examples

@@ -305,7 +305,7 @@ class EmitComponent(object):
 
     @classmethod
     def create(cls, components, component_name):
-        """Create an Emit component.
+        """Create an EMIT component.
 
         Parameters
         ----------
@@ -644,7 +644,7 @@ class EmitAntennaComponent(EmitComponent):
         # Build a tuple of the position
         parts = position_string.split()
 
-        # Check the units specified are a valid Emit length
+        # Check the units specified are a valid EMIT length
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Length"]:
             units = self.units["Length"]
         position = (
