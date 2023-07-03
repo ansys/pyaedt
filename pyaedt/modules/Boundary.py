@@ -457,6 +457,10 @@ class BoundaryObject(BoundaryCommon, object):
         else:
             return self._type
 
+    @type.setter
+    def type(self, value):
+        self._type = value
+
     @property
     def name(self):
         """Boundary Name."""
