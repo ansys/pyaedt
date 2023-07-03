@@ -508,10 +508,10 @@ class EdbPadstacks(object):
             padstackinstance.SetIsLayoutPin(True)
         res = padstackinstance.GetLayerRange()
         if name:
-            if not self._port_exist(name):
-                port_name = name
-        else:
-            self._logger.info("An existing port already has this same name. Using the default naming convention.")
+            port_name = name
+        if self._port_exist(port_name):
+            port_name = generate_unique_name(port_name, n=2)
+            self._logger.info("An existing port already has this same name. Renaming to {}.".format(port_name))
         self._edb.cell.terminal.PadstackInstanceTerminal.Create(
             self._active_layout,
             padstackinstance.GetNet(),
