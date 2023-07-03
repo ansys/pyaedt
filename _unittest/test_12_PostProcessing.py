@@ -144,7 +144,7 @@ class TestClass(BasisTest, object):
         model_gif2.animate()
         assert os.path.exists(model_gif2.gif_file)
 
-    # @pytest.mark.skipif(config["NonGraphical"] == True, reason="Not running in non-graphical mode")
+    @pytest.mark.skipif(config["NonGraphical"] == True, reason="Not running in non-graphical mode")
     def test_02_export_fields(self):
         quantity_name2 = "ComplexMag_H"
         setup_name = "Setup1 : LastAdaptive"

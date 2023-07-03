@@ -342,14 +342,14 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         >>> oEditor.GetVertexPosition
 
         """
-
-        if len(self.vertices) == 2:
-            midpoint = GeometryOperators.get_mid_point(self.vertices[0].position, self.vertices[1].position)
-            return list(midpoint)
-        elif len(self.vertices) == 1:
-            return self.vertices[0].position
-        else:
-            return [float(i) for i in self.oeditor.GetEdgePositionAtNormalizedParameter(self.id, 0)]
+        return [float(i) for i in self.oeditor.GetEdgePositionAtNormalizedParameter(self.id, 0.5)]
+        # if len(self.vertices) == 2:
+        #     midpoint = GeometryOperators.get_mid_point(self.vertices[0].position, self.vertices[1].position)
+        #     return list(midpoint)
+        # elif len(self.vertices) == 1:
+        #     return self.vertices[0].position
+        # else:
+        #     return [float(i) for i in self.oeditor.GetEdgePositionAtNormalizedParameter(self.id, 0)]
 
     @property
     def length(self):
@@ -378,7 +378,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         return "EdgeId " + str(self.id)
 
     @pyaedt_function_handler()
-    def create_object(self, non_model=False, create_group_for_new_objects=False):
+    def create_object(self, non_model=False):
         """Return a new object from the selected edge.
 
         Returns
@@ -580,11 +580,10 @@ class FacePrimitive(object):
         """Face center in model units.
 
         .. note::
-           It returns the face centroid if number of face vertices is >1.
+           It returns the face center from AEDT.
+           It falls back to get the face centroid if number of face vertices is >1.
            For curved faces returns a point on the surface even if it is
            not properly the center of mass.
-           It falls back to get AEDT Face Center if the efficient methods
-           fail.
 
         Returns
         -------
@@ -597,8 +596,10 @@ class FacePrimitive(object):
         >>> oEditor.GetFaceCenter
 
         """
-        vtx = self.vertices
         try:
+            return [float(i) for i in self.oeditor.GetFaceCenter(self.id)]
+        except:  # pragma: no cover
+            vtx = self.vertices
             if len(vtx) > 1:
                 return GeometryOperators.get_polygon_centroid([pos.position for pos in vtx])
             elif len(vtx) <= 1:
@@ -616,8 +617,6 @@ class FacePrimitive(object):
                     ]
                 )
                 return centroid
-        except:  # pragma: no cover
-            return self.center_from_aedt
 
     @property
     def area(self):

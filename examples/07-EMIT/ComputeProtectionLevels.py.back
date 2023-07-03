@@ -17,7 +17,8 @@ import sys
 import subprocess
 import pyaedt
 from pyaedt import Emit
-import pyaedt.emit_core.EmitConstants as econsts
+from pyaedt.emit_core.emit_constants import TxRxMode, ResultType, InterfererType
+from interference_classification import protection_level_classification
 
 # Check to see which Python libraries have been installed
 reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
@@ -45,8 +46,8 @@ import plotly.graph_objects as go
 # The ``new_thread`` Boolean variable defines whether to create a new instance
 # of AEDT or try to connect to existing instance of it if one is available.
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
-new_thread = False
+non_graphical = False
+new_thread = True
 desktop_version = "2023.2"
 
 ###############################################################################
@@ -79,6 +80,8 @@ damage_threshold = 30
 overload_threshold = -4
 intermod_threshold = -30
 desense_threshold = -104
+
+protection_levels = [damage_threshold, overload_threshold, intermod_threshold, desense_threshold]
 
 ###############################################################################
 # Create and connect EMIT components
@@ -136,11 +139,6 @@ for band in bands:
 # Create a results revision and load it for analysis.
 
 rev = emitapp.results.analyze()
-modeRx = econsts.tx_rx_mode().rx
-modeTx = econsts.tx_rx_mode().tx
-mode_power = econsts.result_type().powerAtRx
-mode_emi = econsts.result_type().emi
-tx_interferer = econsts.interferer_type().transmitters
 
 ###############################################################################
 # Generate a legend
@@ -230,70 +228,20 @@ def create_scenario_view(emis, colors, tx_radios, rx_radios):
 # Get lists of all transmitters and receivers in the project.
 rev = emitapp.results.current_revision
 rx_radios = rev.get_receiver_names()
-tx_radios = rev.get_interferer_names(tx_interferer)
+tx_radios = rev.get_interferer_names(InterfererType.TRANSMITTERS)
 domain = emitapp.results.interaction_domain()
 
 ###############################################################################
-# Iterate over all the radios
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Classify the results
+# ~~~~~~~~~~~~~~~~~~~~
 # Iterate over all the transmitters and receivers and compute the power
 # at the input to each receiver due to each of the transmitters. Computes
 # which, if any, protection levels are exceeded by these power levels.
 
 power_matrix=[]
 all_colors=[]
-for tx_radio in tx_radios:
-    rx_powers = []
-    rx_colors = []
-    for rx_radio in rx_radios:
-        # powerAtRx is the same for all Rx bands, so just
-        # use the first one
-        rx_band = rev.get_band_names(rx_radio, modeRx)[0]
-        if tx_radio == rx_radio:
-            # skip self-interaction
-            rx_powers.append('N/A')
-            rx_colors.append('green')
-            continue
-        print("Power Thresholds for {tx} vs {rx}".format(tx=tx_radio,rx=rx_radio))        
-        max_power = -200
-        for tx_band in rev.get_band_names(tx_radio, modeTx): 
-            # Find the highest power level at the Rx input due to each Tx Radio.
-            # Can look at any Rx freq since susceptibility won't impact
-            # powerAtRx, but need to look at all tx channels since coupling
-            # can change over a transmitter's bandwidth
-            rx_freq = rev.get_active_frequencies(rx_radio, rx_band, modeRx)
-            domain.set_receiver(rx_radio, rx_band, rx_freq[0])            
-            domain.set_interferer(tx_radio, tx_band)
-            interaction = rev.run(domain)
-            tx_freqs = rev.get_active_frequencies(tx_radio, tx_band, modeTx)
-            for tx_freq in tx_freqs:
-                domain.set_interferer(tx_radio, tx_band, tx_freq)
-                #interaction = rev.run(domain)
-                instance = interaction.get_instance(domain)
-                if instance.get_value(mode_power) > max_power:
-                    max_power = instance.get_value(mode_power)
-                    
-        # If the worst case for the band-pair is below the power thresholds, then
-        # there are no interference issues and no offset is required.
-        if max_power > -200:
-            rx_powers.append(max_power)
-            if (max_power > damage_threshold):
-                rx_colors.append('red')
-                print("{} may damage {}".format(tx_radio, rx_radio))
-            elif (max_power > overload_threshold):
-                rx_colors.append('orange')
-                print("{} may overload {}".format(tx_radio, rx_radio))
-            elif (max_power > intermod_threshold):
-                rx_colors.append('yellow')
-                print("{} may cause intermodulation in {}".format(tx_radio, rx_radio))
-            else:
-                rx_colors.append('green')
-                print("{} may cause desensitization in {}".format(tx_radio, rx_radio))
-        else:
-            rx_powers.append(-200)
-            rx_colors.append('red')
-    all_colors.append(rx_colors)
-    power_matrix.append(rx_powers)
+
+all_colors, power_matrix = protection_level_classification(emitapp, global_levels = protection_levels)
 
 # Create a scenario matrix-like view for the protection levels
 create_scenario_view(power_matrix, all_colors, tx_radios, rx_radios)

@@ -58,6 +58,7 @@ from pyaedt.generic.general_methods import settings
 from pyaedt.generic.general_methods import write_csv
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import MaxwellParameters
+from pyaedt.modules.Boundary import NetworkObject
 
 if sys.version_info.major > 2:
     import base64
@@ -1074,7 +1075,7 @@ class Design(AedtObjects):
         aedt_object : object
             AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
         object_name : str
-            Path to the object list. Example ``"DesginName\Boundaries"``.
+            Path to the object list. Example ``"DesignName\\Boundaries"``.
 
         Returns
         -------
@@ -1095,7 +1096,7 @@ class Design(AedtObjects):
         aedt_object : object
             AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
         object_name : str
-            Path to the object list. Example ``"DesginName\Boundaries"``.
+            Path to the object list. Example ``"DesignName\\Boundaries"``.
 
         Returns
         -------
@@ -2014,14 +2015,22 @@ class Design(AedtObjects):
             for ds in self.design_properties["BoundarySetup"]["Boundaries"]:
                 try:
                     if isinstance(self.design_properties["BoundarySetup"]["Boundaries"][ds], (OrderedDict, dict)):
-                        boundaries.append(
-                            BoundaryObject(
-                                self,
-                                ds,
-                                self.design_properties["BoundarySetup"]["Boundaries"][ds],
-                                self.design_properties["BoundarySetup"]["Boundaries"][ds]["BoundType"],
+                        if (
+                            self.design_properties["BoundarySetup"]["Boundaries"][ds]["BoundType"] == "Network"
+                            and self.design_type == "Icepak"
+                        ):
+                            boundaries.append(
+                                NetworkObject(self, ds, self.design_properties["BoundarySetup"]["Boundaries"][ds])
                             )
-                        )
+                        else:
+                            boundaries.append(
+                                BoundaryObject(
+                                    self,
+                                    ds,
+                                    self.design_properties["BoundarySetup"]["Boundaries"][ds],
+                                    self.design_properties["BoundarySetup"]["Boundaries"][ds]["BoundType"],
+                                )
+                            )
                 except:
                     pass
         if self.design_properties and "MaxwellParameterSetup" in self.design_properties:
@@ -2201,10 +2210,24 @@ class Design(AedtObjects):
             ``True`` when successful, ``False`` when failed.
 
         """
+        self.desktop_class.release_desktop(close_projects, close_desktop)
         release_desktop(close_projects, close_desktop)
         props = [a for a in dir(self) if not a.startswith("__")]
         for a in props:
             self.__dict__.pop(a, None)
+
+        dicts = [self, sys.modules["__main__"]]
+        for dict_to_clean in dicts:
+            props = [
+                a
+                for a in dir(dict_to_clean)
+                if "win32com" in str(type(dict_to_clean.__dict__.get(a, None)))
+                or "pyaedt" in str(type(dict_to_clean.__dict__.get(a, None)))
+            ]
+            for a in props:
+                dict_to_clean.__dict__[a] = None
+
+        self._desktop_class = None
         gc.collect()
         return True
 

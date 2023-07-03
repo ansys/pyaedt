@@ -21,6 +21,7 @@ import datetime
 import gc
 import json
 import os
+import random
 import shutil
 import sys
 import tempfile
@@ -90,6 +91,21 @@ settings.non_graphical = config["NonGraphical"]
 settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
 
 test_folder = "unit_test" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+for filename in os.listdir(tempfile.gettempdir()):
+    file_path = os.path.join(tempfile.gettempdir(), filename)
+    try:
+        if os.path.isfile(file_path) and "tmp" in file_path:
+            os.unlink(file_path)
+        if (
+            os.path.isdir(file_path)
+            and "pyaedt" in file_path
+            or "scratch" in file_path
+            or file_path.startswith("_")
+            or ".aedb" in file_path
+        ):
+            shutil.rmtree(file_path, ignore_errors=True)
+    except Exception as e:
+        print("Failed to delete %s. Reason: %s" % (file_path, e))
 scratch_path = os.path.join(tempfile.gettempdir(), test_folder)
 if not os.path.exists(scratch_path):
     try:
@@ -112,22 +128,26 @@ class BasisTest(object):
         self.desktop = None
         self._main.desktop_pid = 0
         if launch_desktop:
-            self.desktop = Desktop(desktop_version, NONGRAPHICAL, new_thread)
+            self.desktop = Desktop(desktop_version, NONGRAPHICAL, new_thread, port=random.randint(50000, 60000))
             self.desktop.disable_autosave()
             self._main.desktop_pid = self.desktop.odesktop.GetProcessID()
 
     def my_teardown(self):
+        try:
+            logger.remove_all_project_file_logger()
+        except:
+            pass
         for edbapp in self.edbapps[::-1]:
             try:
                 edbapp.close_edb()
             except:
                 pass
         if self.desktop and not is_ironpython:
+            self.desktop.release_desktop(False, True)
             try:
                 os.kill(self._main.desktop_pid, 9)
             except:
                 pass
-            self.desktop.release_desktop(False, True)
             try:
                 del self._main.desktop_pid
             except:
@@ -151,7 +171,6 @@ class BasisTest(object):
         del self.aedtapps
         self.desktop = None
         try:
-            logger.remove_all_project_file_logger()
             shutil.rmtree(self.local_scratch.path, ignore_errors=True)
         except:
             pass
@@ -220,6 +239,7 @@ class BasisTest(object):
 # Define desktopVersion explicitly since this is imported by other modules
 desktop_version = config["desktopVersion"]
 new_thread = config["NewThread"]
+settings.desktop_launch_timeout = 180
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -235,6 +255,12 @@ def desktop_init():
         del desktop
     try:
         os.kill(_main.desktop_pid, 9)
+    except:
+        pass
+    try:
+        import pythonnet
+
+        pythonnet.unload()
     except:
         pass
     gc.collect()

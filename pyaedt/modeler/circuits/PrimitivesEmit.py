@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from pyaedt.emit_core import EmitConstants as emit_consts
+from pyaedt.emit_core import emit_constants as emit_consts
 import pyaedt.generic.constants as consts
 
 # from pyaedt.generic.general_methods import property
@@ -746,6 +746,40 @@ class EmitRadioComponent(EmitComponent):
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
             units = self.units["Frequency"]
         return consts.unit_converter(float(band_node.props["StartFrequency"]), "Freq", "Hz", units)
+
+    def band_stop_frequency(self, band_node, units=""):
+        """Get the stop frequency of the band node.
+
+        Parameters
+        ----------
+        band_node : Instance of the band node.
+        units : str, optional
+            If ``None`` specified, global units are used.
+
+        Returns
+        -------
+        Float
+            Stop frequency of the band node."""
+        if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
+            units = self.units["Frequency"]
+        return consts.unit_converter(float(band_node.props["StopFrequency"]), "Freq", "Hz", units)
+
+    def band_channel_bandwidth(self, band_node, units=""):
+        """Get the channel bandwidth of the band node.
+
+        Parameters
+        ----------
+        band_node : Instance of the band node.
+        units : str, optional
+            If ``None`` specified, global units are used.
+
+        Returns
+        -------
+        Float
+            Channel bandwidth of the band node."""
+        if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
+            units = self.units["Frequency"]
+        return consts.unit_converter(float(band_node.props["ChannelBandwidth"]), "Freq", "Hz", units)
 
     def band_tx_power(self, band_node, units=""):
         """Get the transmit power of the band node.

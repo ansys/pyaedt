@@ -321,6 +321,15 @@ class Objec3DLayout(object):
 
     @location.setter
     def location(self, position):
+        if self.prim_type in ["component", "pin", "via"]:
+            props = [
+                "NAME:Location",
+                "X:=",
+                self._primitives.number_with_units(position[0]),
+                "Y:=",
+                self._primitives.number_with_units(position[1]),
+            ]
+            self.change_property(props)
         if self.prim_type == "component":
             info = self._oeditor.GetComponentInfo(self.name)
             bbllx = bblly = bburx = bbury = 0
@@ -333,17 +342,21 @@ class Objec3DLayout(object):
                     bburx = float(i.split("=")[1])
                 elif "BBoxURy" in i:
                     bbury = float(i.split("=")[1])
-            position[0] -= unit_converter((bburx + bbllx) / 2, output_units=self._primitives.model_units)
-            position[1] -= unit_converter((bbury + bblly) / 2, output_units=self._primitives.model_units)
-        if self.prim_type in ["component", "pin", "via"]:
-            props = [
-                "NAME:Location",
-                "X:=",
-                self._primitives.number_with_units(position[0]),
-                "Y:=",
-                self._primitives.number_with_units(position[1]),
-            ]
-            self.change_property(props)
+            position[0] -= self.location[0] - unit_converter(
+                (bburx + bbllx) / 2, output_units=self._primitives.model_units
+            )
+            position[1] -= self.location[1] - unit_converter(
+                (bbury + bblly) / 2, output_units=self._primitives.model_units
+            )
+            if abs(position[0]) > 1e-12 or abs(position[1]) > 1e-12:
+                props = [
+                    "NAME:Location",
+                    "X:=",
+                    self._primitives.number_with_units(position[0]),
+                    "Y:=",
+                    self._primitives.number_with_units(position[1]),
+                ]
+                self.change_property(props)
 
     @property
     def lock_position(self):

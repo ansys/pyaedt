@@ -2600,7 +2600,8 @@ class PostProcessor(PostProcessorCommon, object):
 
     @pyaedt_function_handler()
     def _create_fieldplot(self, objlist, quantityName, setup_name, intrinsics, listtype, plot_name=None):
-        objlist = self._app.modeler.convert_to_selections(objlist, True)
+        if not listtype.startswith("Layer") and self._app.design_type != "HFSS 3D Layout Design":
+            objlist = self._app.modeler.convert_to_selections(objlist, True)
         if not setup_name:
             setup_name = self._app.existing_analysis_sweeps[0]
         if not intrinsics:
@@ -2650,11 +2651,20 @@ class PostProcessor(PostProcessorCommon, object):
                 quantityName=quantityName,
                 intrinsincList=intrinsics,
             )
+        elif listtype.startswith("Layer"):
+            plot = FieldPlot(
+                self,
+                layers_nets=objlist,
+                solutionName=setup_name,
+                quantityName=quantityName,
+                intrinsincList=intrinsics,
+                layers_plot_type=listtype,
+            )
         plot.name = plot_name
         plot.plotFolder = plot_name
 
         plt = plot.create()
-        if "Maxwell" in self._app.design_type and self.post_solution_type == "Transient":
+        if "Maxwell" in self._app.design_type and "Transient" in self.post_solution_type:
             self.ofieldsreporter.SetPlotsViewSolutionContext([plot_name], setup_name, "Time:" + intrinsics["Time"])
         if plt:
             self.field_plots[plot_name] = plot
@@ -2851,6 +2861,71 @@ class PostProcessor(PostProcessorCommon, object):
             intrinsinc_dict,
             plot_name,
         )
+
+    @pyaedt_function_handler()
+    def create_fieldplot_layers_nets(
+        self, layers_nets, quantity_name, setup_name=None, intrinsics=None, plot_on_surface=True, plot_name=None
+    ):  # pragma: no cover
+        # type: (list, str, str, dict, bool, str) -> FieldPlot
+        """Create a field plot of stacked layer plot.
+        This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout
+        and any modeler where a layout component is used.
+
+        Parameters
+        ----------
+        layers_nets : list
+            List of layers and nets to plot. For example:
+            ``[["Layer1", "GND", "PWR"], ["Layer2", "VCC"], ...]``.
+        quantity_name : str
+            Name of the quantity to plot.
+        setup_name : str, optional
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Make sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
+        intrinsics : dict, optional
+            Dictionary containing all intrinsic variables. The default
+            is ``{}``.
+        plot_on_surface : bool, optional
+            Whether the plot is to be on the surface or volume of traces.
+        plot_name : str, optional
+            Name of the field plot to create.
+
+        Returns
+        -------
+        :class:``pyaedt.modules.solutions.FieldPlot``
+            Plot object.
+
+        References
+        ----------
+
+        >>> oModule.CreateFieldPlot
+        """
+        if not (
+            "APhi" in self.post_solution_type and settings.aedt_version >= "2023.2"
+        ) and not self._app.design_type in ["HFSS", "HFSS 3D Layout Design"]:
+            self.logger.error("This method requires AEDT 2023 R2 and Maxwell 3D Transient APhi Formulation.")
+            return False
+        if intrinsics is None:
+            intrinsics = {}
+        if plot_name and plot_name in list(self.field_plots.keys()):
+            self.logger.info("Plot {} exists. returning the object.".format(plot_name))
+            return self.field_plots[plot_name]
+        if self._app.design_type == "HFSS 3D Layout Design":
+            if not setup_name:
+                setup_name = self._app.existing_analysis_sweeps[0]
+            lst = []
+            for layer in layers_nets:
+                for el in layer[1:]:
+                    get_ids = self._odesign.GetGeometryIdsForNetLayerCombination(el, layer[0], setup_name)
+                    if isinstance(get_ids, (tuple, list)) and len(get_ids) > 2:
+                        lst.extend([int(i) for i in get_ids[2:]])
+            return self._create_fieldplot(lst, quantity_name, setup_name, intrinsics, "FacesList", plot_name)
+        if plot_on_surface:
+            plot_type = "LayerNetsExtFace"
+        else:
+            plot_type = "LayerNets"
+        return self._create_fieldplot(layers_nets, quantity_name, setup_name, intrinsics, plot_type, plot_name)
 
     @pyaedt_function_handler()
     def create_fieldplot_surface(self, objlist, quantityName, setup_name=None, intrinsincDict=None, plot_name=None):
@@ -3346,7 +3421,7 @@ class PostProcessor(PostProcessorCommon, object):
         return None
 
     @pyaedt_function_handler()
-    def power_budget(self, units="W", temperature=22):
+    def power_budget(self, units="W", temperature=22, output_type="component"):
         """Power budget calculation.
 
         Parameters
@@ -3355,6 +3430,11 @@ class PostProcessor(PostProcessorCommon, object):
             Output power units. The default is ``"W"``.
         temperature : float, optional
             Temperature to calculate the power. The default is ``22``.
+        output_type : str, optional
+            Output data presentation. The default is ``"component"``.
+            The options are ``"component"``, or ``"boundary"``.
+            ``"component"`` will return the power based on each component.
+            ``"boundary"`` will return the power based on each boundary.
 
         Returns
         -------
@@ -3368,6 +3448,15 @@ class PostProcessor(PostProcessorCommon, object):
         """
         available_bcs = self._app.boundaries
         power_dict = {}
+        power_dict_obj = {}
+        group_hierarchy = {}
+
+        groups = self._app.oeditor.GetChildNames("Groups")
+
+        for g in groups:
+            g1 = self._app.oeditor.GetChildObject(g)
+            if g1:
+                group_hierarchy[g] = list(g1.GetChildNames())
 
         def multiplier_from_dataset(expression, valuein):
             multiplier = 0
@@ -3436,15 +3525,18 @@ class PostProcessor(PostProcessorCommon, object):
                     power_value, exp = extract_dataset_info(bc_obj, units_input=units, boundary="Power")
                     mult = multiplier_from_dataset(exp, temperature)
 
+                for objs in bc_obj.props["Objects"]:
+                    obj_name = self.modeler[objs].name
+                    power_dict_obj[obj_name] = power_value * mult
+
                 power_dict[bc_obj.name] = power_value * n * mult
-                self.logger.info("The power of {} is {} {}".format(bc_obj.name, str(power_dict[bc_obj.name]), units))
 
             elif bc_obj.type == "SourceIcepak":
                 if bc_obj.props["Thermal Condition"] == "Total Power":
                     n = 0
                     if "Faces" in bc_obj.props:
                         n += len(bc_obj.props["Faces"])
-                    if "Objects" in bc_obj.props:
+                    elif "Objects" in bc_obj.props:
                         n += len(bc_obj.props["Objects"])
 
                     if "Total Power Variation Data" not in bc_obj.props:
@@ -3457,10 +3549,17 @@ class PostProcessor(PostProcessorCommon, object):
                         power_value, exp = extract_dataset_info(bc_obj, units_input=units, boundary="Power")
                         mult = multiplier_from_dataset(exp, temperature)
 
+                    if "Objects" in bc_obj.props:
+                        for objs in bc_obj.props["Objects"]:
+                            obj_name = self.modeler[objs].name
+                            power_dict_obj[obj_name] = power_value * mult
+
+                    elif "Faces" in bc_obj.props:
+                        for facs in bc_obj.props["Faces"]:
+                            obj_name = self.modeler.oeditor.GetObjectNameByFaceID(facs) + "_FaceID" + str(facs)
+                            power_dict_obj[obj_name] = power_value * mult
+
                     power_dict[bc_obj.name] = power_value * n * mult
-                    self.logger.info(
-                        "The power of {} is {} {}".format(bc_obj.name, str(power_dict[bc_obj.name]), units)
-                    )
 
                 elif bc_obj.props["Thermal Condition"] == "Surface Flux":
                     if "Surface Heat Variation Data" not in bc_obj.props:
@@ -3476,7 +3575,7 @@ class PostProcessor(PostProcessorCommon, object):
                             output_units="irrad_W_per_m2",
                         )
                     else:
-                        mult = 0
+                        mult = 1
                         if bc_obj.props["Surface Heat Variation Data"]["Variation Type"] == "Temp Dep":
                             heat_value, exp = extract_dataset_info(bc_obj, boundary="SurfaceHeat")
                             mult = multiplier_from_dataset(exp, temperature)
@@ -3494,7 +3593,7 @@ class PostProcessor(PostProcessorCommon, object):
                                 output_units="m2",
                             )
                             power_value += heat_value * area * mult
-                    if "Objects" in bc_obj.props:
+                    elif "Objects" in bc_obj.props:
                         for component in bc_obj.props["Objects"]:
                             object_assigned = self.modeler[component]
                             for f in object_assigned.faces:
@@ -3507,10 +3606,18 @@ class PostProcessor(PostProcessorCommon, object):
                                 power_value += heat_value * area * mult
 
                     power_value = unit_converter(power_value, unit_system="Power", input_units="W", output_units=units)
+
+                    if "Objects" in bc_obj.props:
+                        for objs in bc_obj.props["Objects"]:
+                            obj_name = self.modeler[objs].name
+                            power_dict_obj[obj_name] = power_value
+
+                    elif "Faces" in bc_obj.props:
+                        for facs in bc_obj.props["Faces"]:
+                            obj_name = self.modeler.oeditor.GetObjectNameByFaceID(facs) + "_FaceID" + str(facs)
+                            power_dict_obj[obj_name] = power_value
+
                     power_dict[bc_obj.name] = power_value
-                    self.logger.info(
-                        "The power of {} is {} {}".format(bc_obj.name, str(power_dict[bc_obj.name]), units)
-                    )
 
             elif bc_obj.type == "Network":
                 nodes = bc_obj.props["Nodes"]
@@ -3521,14 +3628,19 @@ class PostProcessor(PostProcessorCommon, object):
                         value = list(decompose_variable_value(value))
                         value = unit_converter(value[0], unit_system="Power", input_units=value[1], output_units=units)
                         power_value += value
+
+                obj_name = self.modeler.oeditor.GetObjectNameByFaceID(bc_obj.props["Faces"][0])
+                for facs in bc_obj.props["Faces"]:
+                    obj_name += "_FaceID" + str(facs)
+                power_dict_obj[obj_name] = power_value
+
                 power_dict[bc_obj.name] = power_value
-                self.logger.info("The power of {} is {} {}".format(bc_obj.name, str(power_dict[bc_obj.name]), units))
 
             elif bc_obj.type == "Conducting Plate":
                 n = 0
                 if "Faces" in bc_obj.props:
                     n += len(bc_obj.props["Faces"])
-                if "Objects" in bc_obj.props:
+                elif "Objects" in bc_obj.props:
                     n += len(bc_obj.props["Objects"])
 
                 if "Total Power Variation Data" not in bc_obj.props:
@@ -3542,8 +3654,17 @@ class PostProcessor(PostProcessorCommon, object):
                     power_value, exp = extract_dataset_info(bc_obj, units_input=units, boundary="Power")
                     mult = multiplier_from_dataset(exp, temperature)
 
+                if "Objects" in bc_obj.props:
+                    for objs in bc_obj.props["Objects"]:
+                        obj_name = self.modeler[objs].name
+                        power_dict_obj[obj_name] = power_value * mult
+
+                elif "Faces" in bc_obj.props:
+                    for facs in bc_obj.props["Faces"]:
+                        obj_name = self.modeler.oeditor.GetObjectNameByFaceID(facs) + "_FaceID" + str(facs)
+                        power_dict_obj[obj_name] = power_value * mult
+
                 power_dict[bc_obj.name] = power_value * n * mult
-                self.logger.info("The power of {} is {} {}".format(bc_obj.name, str(power_dict[bc_obj.name]), units))
 
             elif bc_obj.type == "Stationary Wall":
                 if bc_obj.props["External Condition"] == "Heat Flux":
@@ -3580,10 +3701,18 @@ class PostProcessor(PostProcessorCommon, object):
                                 power_value += heat_value * area * mult
 
                     power_value = unit_converter(power_value, unit_system="Power", input_units="W", output_units=units)
+
+                    if "Objects" in bc_obj.props:
+                        for objs in bc_obj.props["Objects"]:
+                            obj_name = self.modeler[objs].name
+                            power_dict_obj[obj_name] = power_value
+
+                    elif "Faces" in bc_obj.props:
+                        for facs in bc_obj.props["Faces"]:
+                            obj_name = self.modeler.oeditor.GetObjectNameByFaceID(facs) + "_FaceID" + str(facs)
+                            power_dict_obj[obj_name] = power_value
+
                     power_dict[bc_obj.name] = power_value
-                    self.logger.info(
-                        "The power of {} is {} {}".format(bc_obj.name, str(power_dict[bc_obj.name]), units)
-                    )
 
             elif bc_obj.type == "Resistance":
                 n = len(bc_obj.props["Objects"])
@@ -3593,8 +3722,11 @@ class PostProcessor(PostProcessorCommon, object):
                     power_value[0], unit_system="Power", input_units=power_value[1], output_units=units
                 )
 
+                for objs in bc_obj.props["Objects"]:
+                    obj_name = self.modeler[objs].name
+                    power_dict_obj[obj_name] = power_value * mult
+
                 power_dict[bc_obj.name] = power_value * n * mult
-                self.logger.info("The power of {} is {} {}".format(bc_obj.name, str(power_dict[bc_obj.name]), units))
 
             elif bc_obj.type == "Blower":
                 power_value = list(decompose_variable_value(bc_obj.props["Blower Power"]))
@@ -3602,8 +3734,10 @@ class PostProcessor(PostProcessorCommon, object):
                     power_value[0], unit_system="Power", input_units=power_value[1], output_units=units
                 )
 
+                obj_name = bc_obj.name
+                power_dict_obj[obj_name] = power_value
+
                 power_dict[bc_obj.name] = power_value
-                self.logger.info("The power of {} is {} {}".format(bc_obj.name, str(power_dict[bc_obj.name]), units))
 
         for native_comps in self.modeler.user_defined_components:
             if hasattr(self.modeler.user_defined_components[native_comps], "native_properties"):
@@ -3623,13 +3757,37 @@ class PostProcessor(PostProcessorCommon, object):
                         power_value[0], unit_system="Power", input_units=power_value[1], output_units=units
                     )
 
+                    power_dict_obj[native_comps] = power_value
                     power_dict[native_comps] = power_value
-                    self.logger.info(
-                        "The power of {} is {} {}".format(native_comps, str(power_dict[native_comps]), units)
-                    )
 
-        self.logger.info("The total power is {} {}".format(str(sum(power_dict.values())), units))
-        return power_dict, sum(power_dict.values())
+        for group in reversed(list(group_hierarchy.keys())):
+            for comp in group_hierarchy[group]:
+                for power_comp in list(power_dict_obj.keys())[:]:
+                    if power_comp.find(comp) >= 0:
+                        if group not in power_dict_obj.keys():
+                            power_dict_obj[group] = 0.0
+                        power_dict_obj[group] += power_dict_obj[power_comp]
+
+        if output_type == "boundary":
+            for comp in power_dict.keys():
+                self.logger.info("The power of {} is {} {}".format(comp, str(round(power_dict[comp], 3)), units))
+            self.logger.info("The total power is {} {}".format(str(round(sum(power_dict.values()), 3)), units))
+            return power_dict, sum(power_dict.values())
+
+        elif output_type == "component":
+            for comp in power_dict_obj.keys():
+                self.logger.info("The power of {} is {} {}".format(comp, str(round(power_dict_obj[comp], 3)), units))
+            self.logger.info("The total power is {} {}".format(str(round(sum(power_dict_obj.values()), 3)), units))
+            return power_dict_obj, sum(power_dict_obj.values())
+
+        else:
+            for comp in power_dict.keys():
+                self.logger.info("The power of {} is {} {}".format(comp, str(round(power_dict[comp], 3)), units))
+            self.logger.info("The total power is {} {}".format(str(round(sum(power_dict.values()), 3)), units))
+            for comp in power_dict_obj.keys():
+                self.logger.info("The power of {} is {} {}".format(comp, str(round(power_dict_obj[comp], 3)), units))
+            self.logger.info("The total power is {} {}".format(str(round(sum(power_dict_obj.values()), 3)), units))
+            return power_dict_obj, sum(power_dict_obj.values()), power_dict, sum(power_dict.values())
 
     def create_creeping_plane_visual_ray_tracing(
         self,

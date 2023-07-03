@@ -231,12 +231,23 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
     def __init__(self, modeler, props=None, name=None, face_id=None):
         BaseCoordinateSystem.__init__(self, modeler, name)
         self.face_id = face_id
-        self.props = CsProps(self, props)
-        try:  # pragma: no cover
-            if "KernelVersion" in self.props:
-                del self.props["KernelVersion"]
-        except:
-            pass
+        self._props = None
+        if props:
+            self._props = CsProps(self, props)
+            try:  # pragma: no cover
+                if "KernelVersion" in self.props:
+                    del self.props["KernelVersion"]
+            except:
+                pass
+
+    def props(self):
+        """Coordinate System Properties.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Modeler.CSProps`
+        """
+        return self._props
 
     @property
     def _part_name(self):
@@ -400,7 +411,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
 
         self.props = CsProps(self, parameters)
         self._modeler.oeditor.CreateFaceCS(self._face_paramenters, self._attributes)
-        self._modeler.coordinate_systems.insert(0, self)
+        self._modeler._coordinate_systems.insert(0, self)
         return True
 
     @pyaedt_function_handler()
@@ -487,15 +498,94 @@ class CoordinateSystem(BaseCoordinateSystem, object):
     def __init__(self, modeler, props=None, name=None):
         BaseCoordinateSystem.__init__(self, modeler, name)
         self.model_units = self._modeler.model_units
-        self.props = CsProps(self, props)
-        self.ref_cs = None
+        self._props = None
+        if props:
+            self._props = CsProps(self, props)
+            try:  # pragma: no cover
+                if "KernelVersion" in self.props:
+                    del self.props["KernelVersion"]
+            except:
+                pass
+        self._ref_cs = None
         self._quaternion = None
-        self.mode = None
-        try:  # pragma: no cover
-            if "KernelVersion" in self.props:
-                del self.props["KernelVersion"]
+        self._mode = None
+
+    @property
+    def mode(self):
+        """Coordinate System mode."""
+        if self._mode:
+            return self._mode
+        if "Axis" in self.props.get("Mode", ""):
+            self._mode = "axis"
+        elif "ZXZ" in self.props.get("Mode", ""):
+            self._mode = "zxz"
+        elif "ZYZ" in self.props.get("Mode", ""):
+            self._mode == "zyz"
+        return self._mode
+
+    @mode.setter
+    def mode(self, value):
+        self._mode = value
+
+    @property
+    def props(self):
+        """Coordinate System Properties.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Modeler.CSProps`
+        """
+        if self._props or settings.aedt_version <= "2022.2" or self.name is None:
+            return self._props
+        obj1 = self._modeler.oeditor.GetChildObject(self.name)
+        props = {}
+        origin = obj1.GetPropValue("Origin")
+        props["OriginX"] = origin[1]
+        props["OriginY"] = origin[3]
+        props["OriginZ"] = origin[5]
+        axisvec = obj1.GetPropValue("X Axis")
+        props["Mode"] = obj1.GetPropValue("Mode")
+        if props["Mode"] == "Axis/Position":
+            props["XAxisXvec"] = axisvec[1]
+            props["XAxisYvec"] = axisvec[3]
+            props["XAxisZvec"] = axisvec[5]
+            ypoint = obj1.GetPropValue("Y Point")
+
+            props["YAxisXvec"] = ypoint[1]
+            props["YAxisYvec"] = ypoint[3]
+            props["YAxisZvec"] = ypoint[5]
+        else:
+            props["Phi"] = obj1.GetPropValue("Phi")
+            props["Theta"] = obj1.GetPropValue("Theta")
+            props["Psi"] = obj1.GetPropValue("Psi")
+        self._props = CsProps(self, props)
+        return self._props
+
+    @property
+    def ref_cs(self):
+        """Reference coordinate system getter and setter.
+
+        Returns
+        -------
+        str
+        """
+        if self._ref_cs or settings.aedt_version <= "2022.2":
+            return self._ref_cs
+        obj1 = self._modeler.oeditor.GetChildObject(self.name)
+        self._ref_cs = obj1.GetPropValue("Reference CS")
+        return self._ref_cs
+
+    @ref_cs.setter
+    def ref_cs(self, value):
+        if settings.aedt_version <= "2022.2":
+            self._ref_cs = value
+            self.update()
+        obj1 = self._modeler.oeditor.GetChildObject(self.name)
+        try:
+            obj1.SetPropValue("Reference CS", value)
+            self._ref_cs = value
         except:
-            pass
+            self._modeler.logger.error("Failed to set Coordinate CS Reference.")
 
     @pyaedt_function_handler()
     def update(self):
@@ -834,11 +924,11 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         else:  # pragma: no cover
             raise ValueError("Specify the mode = 'view', 'axis', 'zxz', 'zyz', 'axisrotation' ")
 
-        self.props = CsProps(self, orientationParameters)
+        self._props = CsProps(self, orientationParameters)
         self._modeler.oeditor.CreateRelativeCS(self._orientation, self._attributes)
-        self._modeler.coordinate_systems.insert(0, self)
+        self._modeler._coordinate_systems.insert(0, self)
         # this workaround is necessary because the reference CS is ignored at creation, it needs to be modified later
-        self.ref_cs = reference_cs
+        self._ref_cs = reference_cs
         return self.update()
 
     @property
@@ -1175,13 +1265,11 @@ class GeometryModeler(Modeler, object):
 
     def __init__(self, app, is3d=True):
         self._app = app
-        self._odefinition_manager = self._app.odefinition_manager
-        self._omaterial_manager = self._app.omaterial_manager
         Modeler.__init__(self, app)
         # TODO Refactor this as a dictionary with names as key
-        self._coordinate_systems = None
-        self._user_lists = None
-        self._planes = None
+        self._coordinate_systems = []
+        self._user_lists = []
+        self._planes = []
         self._is3d = is3d
         self._solids = []
         self._sheets = []
@@ -1194,9 +1282,25 @@ class GeometryModeler(Modeler, object):
         self._object_names_to_ids = {}
 
     @property
+    def _odefinition_manager(self):
+        return self._app.odefinition_manager
+
+    @property
+    def _omaterial_manager(self):
+        return self._app.omaterial_manager
+
+    @property
     def coordinate_systems(self):
         """Coordinate Systems."""
-        if self._coordinate_systems is None:
+        if settings.aedt_version > "2022.2":
+            cs_names = [i for i in self.oeditor.GetChildNames("CoordinateSystems") if i != "Global"]
+            for cs_name in cs_names:
+                props = {}
+                local_names = [i.name for i in self._coordinate_systems]
+                if cs_name not in local_names:
+                    self._coordinate_systems.append(CoordinateSystem(self, props, cs_name))
+            return self._coordinate_systems
+        if not self._coordinate_systems:
             self._coordinate_systems = self._get_coordinates_data()
         return self._coordinate_systems
 
@@ -1347,7 +1451,7 @@ class GeometryModeler(Modeler, object):
             for cs in coord:
                 if isinstance(cs, CoordinateSystem):
                     try:
-                        cs.ref_cs = id2name[name2refid[cs.name]]
+                        cs._ref_cs = id2name[name2refid[cs.name]]
                     except:
                         pass
         coord.reverse()
@@ -3395,15 +3499,17 @@ class GeometryModeler(Modeler, object):
         return bound
 
     @pyaedt_function_handler()
-    def unite(self, theList, purge=False):
+    def unite(self, unite_list, purge=False, keep_originals=False):
         """Unite objects from a list.
 
         Parameters
         ----------
-        theList : list
+        unite_list : list
             List of objects.
         purge : bool, optional
-            Purge history after unite.
+            Purge history after unite. Default is False.
+        keep_originals : bool, optional
+            Keep original objects used for the operation. Default is False.
 
         Returns
         -------
@@ -3415,15 +3521,15 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.Unite
         """
-        slice = min(100, len(theList))
-        num_objects = len(theList)
+        slice = min(100, len(unite_list))
+        num_objects = len(unite_list)
         remaining = num_objects
         objs_groups = []
         while remaining > 1:
-            objs = theList[:slice]
+            objs = unite_list[:slice]
             szSelections = self.convert_to_selections(objs)
             vArg1 = ["NAME:Selections", "Selections:=", szSelections]
-            vArg2 = ["NAME:UniteParameters", "KeepOriginals:=", False]
+            vArg2 = ["NAME:UniteParameters", "KeepOriginals:=", keep_originals]
             self.oeditor.Unite(vArg1, vArg2)
             if szSelections.split(",")[0] in self.unclassified_names:
                 self.logger.error("Error in uniting objects.")
@@ -3435,14 +3541,14 @@ class GeometryModeler(Modeler, object):
             objs_groups.append(objs[0])
             remaining -= slice
             if remaining > 0:
-                theList = theList[slice:]
+                unite_list = unite_list[slice:]
         if remaining > 0:
-            objs_groups.extend(theList)
+            objs_groups.extend(unite_list)
         self.cleanup_objects()
         if len(objs_groups) > 1:
             return self.unite(objs_groups, purge=purge)
         self.logger.info("Union of {} objects has been executed.".format(num_objects))
-        return self.convert_to_selections(theList[0], False)
+        return self.convert_to_selections(unite_list[0], False)
 
     @pyaedt_function_handler()
     def clone(self, objid):

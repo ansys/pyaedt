@@ -49,7 +49,6 @@ class TestClass(BasisTest, object):
 
     def test_03_assign_initial_mesh_from_slider(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(4)
-        self.aedtapp.set_active_design("Basis_Model_For_Test")
 
     def test_04_create_winding(self):
         bounds = self.aedtapp.assign_winding(current_value=20e-3, coil_terminals=["Coil"])
@@ -479,3 +478,9 @@ class TestClass(BasisTest, object):
         assert not self.m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path)
         if os.path.exists(user_ctl_path):
             os.unlink(user_ctl_path)
+
+    def test_33_import_dxf(self):
+        self.aedtapp.insert_design("dxf")
+        dxf_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf1.dxf")
+        dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
+        assert isinstance(dxf_layers, list)

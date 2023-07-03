@@ -126,11 +126,13 @@ class TestClass(BasisTest, object):
         assert pg1.solve_inside
         assert pg1.model
         assert pg1.material_name == "vacuum"
+        assert not pg1.is_conductor
         assert isclose(pg1.faces[0].area, 10.392304845413264)
 
         assert pg2.solve_inside
         assert pg2.model
         assert pg2.material_name == "copper"
+        assert pg2.is_conductor
         assert isclose(pg2.faces[0].area, 5.196152422706631)
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
