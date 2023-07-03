@@ -761,6 +761,7 @@ class TestClass(BasisTest, object):
             air_extent_type="ConformalExtent",
             air_vertical_positive_padding="10mm",
             air_vertical_negative_padding="10mm",
+            air_horizontal_padding="1mm",
         )
 
     def test_95_create_text(self):
