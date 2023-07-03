@@ -325,6 +325,19 @@ class Design(AedtObjects):
                 bb.append(thermal)
                 bb.append(self.get_oo_property_value(othermal, thermal, "Type"))
 
+            if self.modeler.user_defined_components:
+                for component in self.modeler.user_defined_components:
+                    thermal_properties = self.get_oo_properties(self.oeditor, component)
+                    if thermal_properties and "Type" not in thermal_properties and thermal_properties[-1] != "Icepak":
+                        thermal_boundaries = self.design_properties["BoundarySetup"]["Boundaries"]
+                        for component_boundary in thermal_boundaries:
+                            if component_boundary not in bb and isinstance(
+                                thermal_boundaries[component_boundary], dict
+                            ):
+                                boundarytype = thermal_boundaries[component_boundary]["BoundType"]
+                                bb.append(component_boundary)
+                                bb.append(boundarytype)
+
         current_boundaries = bb[::2]
         current_types = bb[1::2]
 
@@ -345,31 +358,6 @@ class Design(AedtObjects):
                 self._boundaries[boundary] = NetworkObject(self, boundary)
             else:
                 self._boundaries[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
-
-        if self.design_type == "Icepak":
-            if self.modeler.user_defined_components:
-                for component in self.modeler.user_defined_components:
-                    thermal_properties = self.get_oo_properties(self.oeditor, component)
-                    if thermal_properties and "Type" not in thermal_properties and thermal_properties[-1] != "Icepak":
-                        x = 1
-                        # Get info from aedt file
-                        # try:
-                        #     app = self.modeler.user_defined_components[component].edit_definition()
-                        #     othermal = app.get_oo_object(app.odesign, "Thermal")
-                        #     thermal_definitions = list(app.get_oo_name(othermal))
-                        #     for boundary in thermal_definitions:
-                        #         boundarytype = app.get_oo_property_value(othermal, boundary, "Type")
-                        #         if boundarytype == "Network":
-                        #             self._boundaries[thermal + "_" + component] = NetworkObject(app, boundary)
-                        #         else:
-                        #             self._boundaries[thermal + "_" + component] = BoundaryObject(app,
-                        #                                                                          boundary,
-                        #                                                                          boundarytype=boundarytype)
-                        #
-                        #     app.oproject.Close()
-                        #     break
-                        # except:
-                        #     pass
 
         return list(self._boundaries.values()) + self.design_excitations
 

@@ -385,8 +385,9 @@ class BoundaryObject(BoundaryCommon, object):
 
         if "Thermal" in design_childs:
             cc = self._app.get_oo_object(self._app.odesign, "Thermal")
-            if self.name in cc.GetChildNames():
-                child_object = cc.GetChildObject(self.name)
+            cc_names = self._app.get_oo_name(cc)
+            if self.name in cc_names:
+                child_object = cc_names
             if child_object:
                 return BinaryTreeNode(self.name, child_object, False)
         elif "Boundaries" in design_childs:
@@ -443,12 +444,11 @@ class BoundaryObject(BoundaryCommon, object):
             Returns Type of the boundary
         """
         if not self._type:
-            if (
-                self.available_properties
-                and "props" in self.available_properties.__dir__()
-                and "Type" in list(self.available_properties.props.keys())
-            ):
-                self._type = self.available_properties.props["Type"]
+            if self.available_properties and "props" in self.__dir__():
+                if "Type" in self.available_properties:
+                    self._type = self.props["Type"]
+                elif "BoundType" in self.available_properties:
+                    self._type = self.props["BoundType"]
             elif self.object_properties and self.object_properties.props["Type"]:
                 self._type = self.object_properties.props["Type"]
 
@@ -456,10 +456,6 @@ class BoundaryObject(BoundaryCommon, object):
             return "SourceIcepak"
         else:
             return self._type
-
-    @type.setter
-    def type(self, value):
-        self._type = value
 
     @property
     def name(self):
