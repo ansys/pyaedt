@@ -90,27 +90,18 @@ def launch_aedt(full_path, non_graphical, port, first_run=True):
     k = 0
     while not _check_grpc_port(port):
         if k > timeout:  # pragma: no cover
+            active_s = active_sessions(student_version=settings.is_student)
+            for p in active_s:
+                if port == p[1]:
+                    try:
+                        os.kill(p[0], 9)
+                    except (OSError, PermissionError):
+                        pass
             if first_run:
-                active_s = active_sessions(
-                    settings.aedt_version, non_graphical=settings.non_graphical, student_version=settings.is_student
-                )
-                for p in active_s:
-                    if port == p[1]:
-                        try:
-                            os.kill(p[0], 9)
-                        except (OSError, PermissionError):
-                            pass
                 port = _find_free_port()
                 return launch_aedt(full_path, non_graphical, port, first_run=False)
-            return False, port
+            return False, _find_free_port()
         time.sleep(1)
-        k += 1
-    k = 0
-    time.sleep(1)
-    if port not in grpc_active_sessions(
-        settings.aedt_version, non_graphical=settings.non_graphical, student_version=settings.is_student
-    ):  # pragma: no cover
-        return False, port
         k += 1
     return True, port
 
@@ -184,7 +175,7 @@ def _find_free_port():
     from contextlib import closing
 
     with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
-        s.bind(("", 0))
+        s.bind(("127.0.0.1", 0))
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         return s.getsockname()[1]
 
@@ -968,14 +959,9 @@ class Desktop(object):
             if not is_linux:
                 installer = os.path.join(base_path, "ansysedt.exe")
             out, self.port = launch_aedt(installer, non_graphical, self.port)
-            if out:
-                ScriptEnv._doInitialize(version, None, False, non_graphical, self.machine, self.port)
-            else:
-                self.logger.error("Failed to start AEDT on port %s.", self.port)
-                return
+            ScriptEnv._doInitialize(version, None, not out, non_graphical, self.machine, self.port)
         else:
             ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, self.machine, self.port)
-
         if "oAnsoftApplication" in dir(self._main):
             self._main.isoutsideDesktop = True
             self._main.oDesktop = self._main.oAnsoftApplication.GetAppDesktop()
@@ -987,7 +973,8 @@ class Desktop(object):
                 self.logger.info(message)
 
         else:
-            self.logger.warning("The gRPC plugin is not supported in AEDT versions earlier than 2022 R2.")
+            self.logger.error("Failed to connect to AEDT using gRPC plugin.")
+            self.logger.error("Check installation, license and environment variables.")
 
     def _set_logger_file(self):
         # Set up the log file in the AEDT project directory

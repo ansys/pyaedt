@@ -1592,7 +1592,7 @@ list_modules = dir()
 class SetupKeys:
     """Provides setup keys."""
 
-    SetupNames = [  # TODO: HFSSDriven appears twice. Is this correct?
+    SetupNames = [
         "HFSSDrivenAuto",
         "HFSSDriven",
         "HFSSEigen",
@@ -1649,6 +1649,7 @@ class SetupKeys:
         "DCM",
         "CPSM",
         "NSSM",
+        "TransientAPhiFormulation",
     ]
 
     SetupTemplates = {
@@ -1708,6 +1709,7 @@ class SetupKeys:
         53: DCM,
         54: CPSM,
         55: NSSM,
+        56: MaxwellTransient,
     }
 
     SetupTemplates_231 = {

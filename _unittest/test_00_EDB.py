@@ -355,6 +355,7 @@ class TestClass(BasisTest, object):
         p4 = self.edbapp.hfss.create_circuit_port_on_net("U1", "USB3_D_P")
         assert len(self.edbapp.padstacks.pingroups) == initial_len + 6
         assert "GND" in p4 and "USB3_D_P" in p4
+        assert "test" in self.edbapp.terminals
         assert self.edbapp.siwave.create_pin_group_on_net("U1", "1V0", "PG_V1P0_S0")
         assert self.edbapp.siwave.create_circuit_port_on_pin_group(
             "PG_V1P0_S0", "PinGroup_2", impedance=50, name="test_port"
@@ -649,6 +650,8 @@ class TestClass(BasisTest, object):
         target_path = os.path.join(self.local_scratch.path, "ANSYS-HSD_V1_cutou2.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
+        spice_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC.mod")
+        edbapp.components.instances["R8"].assign_spice_model(spice_path)
         edbapp.nets.nets
         if is_ironpython:
             assert not edbapp.cutout(
@@ -664,6 +667,7 @@ class TestClass(BasisTest, object):
                 extent_type="Bounding",
                 number_of_threads=4,
                 extent_defeature=0.001,
+                preserve_components_with_model=True,
             )
             assert "A0_N" not in edbapp.nets.nets
             assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND", order_by_area=True), list)
@@ -2318,6 +2322,22 @@ class TestClass(BasisTest, object):
         assert pad_instance2.start_layer == "1_Top"
         assert pad_instance2.stop_layer == "1_Top"
 
+        assert edb.padstacks.create(
+            pad_shape="Circle",
+            padstackname="test2",
+            paddiam="400um",
+            holediam="200um",
+            antipad_shape="Rectangle",
+            anti_pad_x_size="700um",
+            anti_pad_y_size="800um",
+            start_layer="1_Top",
+            stop_layer="1_Top",
+        )
+
+        pad_instance3 = edb.padstacks.place(position=["-1.65mm", "-1.665mm"], definition_name="test2")
+        assert pad_instance3.start_layer == "1_Top"
+        assert pad_instance3.stop_layer == "1_Top"
+
     def test_131_assign_hfss_extent_non_multiple_with_simconfig(self):
         edb = Edb()
         edb.stackup.add_layer(layer_name="GND", fillMaterial="AIR", thickness="30um")
@@ -2452,11 +2472,16 @@ class TestClass(BasisTest, object):
         target_path = os.path.join(self.local_scratch.path, "test_0134b.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
-        pin = "A27"
+        pin = "A24"
         ref_pins = [pin for pin in list(edbapp.components["U1"].pins.values()) if pin.net_name == "GND"]
-        term = edbapp.components.create_port_on_pins(refdes="U1", pins=pin, reference_pins=ref_pins)
+        assert edbapp.components.create_port_on_pins(refdes="U1", pins=pin, reference_pins=ref_pins)
+        assert edbapp.components.create_port_on_pins(refdes="U1", pins="C1", reference_pins=["A11"])
+        assert edbapp.components.create_port_on_pins(refdes="U1", pins="C2", reference_pins=["A11"])
+        assert edbapp.components.create_port_on_pins(refdes="U1", pins=["A24"], reference_pins=["A11", "A16"])
+        assert edbapp.components.create_port_on_pins(refdes="U1", pins=["A26"], reference_pins=["A11", "A16", "A17"])
+        assert edbapp.components.create_port_on_pins(refdes="U1", pins=["A28"], reference_pins=["A11", "A16"])
+
         edbapp.close()
-        assert term
 
     def test_138_import_gds_from_tech(self):
         c_file_in = os.path.join(
@@ -2515,3 +2540,46 @@ class TestClass(BasisTest, object):
 
     def test_140_defeature(self):
         assert self.edbapp.modeler.defeature_polygon(self.edbapp.modeler.primitives_by_net["GND"][-1], 0.01)
+
+    def test_141_primitives_boolean_operation(self):
+        edb = Edb()
+        edb.stackup.add_layer(layer_name="test")
+        x = edb.modeler.create_polygon(
+            layer_name="test", main_shape=[[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0]]
+        )
+        assert x
+        x_hole1 = edb.modeler.create_polygon(
+            layer_name="test", main_shape=[[1.0, 1.0], [4.5, 1.0], [4.5, 9.0], [1.0, 9.0]]
+        )
+        x_hole2 = edb.modeler.create_polygon(
+            layer_name="test", main_shape=[[4.5, 1.0], [9.0, 1.0], [9.0, 9.0], [4.5, 9.0]]
+        )
+        x = x.subtract([x_hole1, x_hole2])[0]
+        assert x
+        y = edb.modeler.create_polygon(layer_name="foo", main_shape=[[4.0, 3.0], [6.0, 3.0], [6.0, 6.0], [4.0, 6.0]])
+        z = x.subtract(y)
+        assert z
+        edb.stackup.add_layer(layer_name="foo")
+        x = edb.modeler.create_polygon(
+            layer_name="foo", main_shape=[[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0]]
+        )
+        x_hole = edb.modeler.create_polygon(
+            layer_name="foo", main_shape=[[1.0, 1.0], [9.0, 1.0], [9.0, 9.0], [1.0, 9.0]]
+        )
+        y = x.subtract(x_hole)[0]
+        z = edb.modeler.create_polygon(
+            layer_name="foo", main_shape=[[-15.0, 5.0], [15.0, 5.0], [15.0, 6.0], [-15.0, 6.0]]
+        )
+        assert y.intersect(z)
+
+        edb.stackup.add_layer(layer_name="test2")
+        x = edb.modeler.create_polygon(
+            layer_name="test2", main_shape=[[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0]]
+        )
+        x_hole = edb.modeler.create_polygon(
+            layer_name="test2", main_shape=[[1.0, 1.0], [9.0, 1.0], [9.0, 9.0], [1.0, 9.0]]
+        )
+        y = x.subtract(x_hole)[0]
+        assert y.voids
+        y_clone = y.clone()
+        assert y_clone.voids

@@ -1265,8 +1265,6 @@ class GeometryModeler(Modeler, object):
 
     def __init__(self, app, is3d=True):
         self._app = app
-        self._odefinition_manager = self._app.odefinition_manager
-        self._omaterial_manager = self._app.omaterial_manager
         Modeler.__init__(self, app)
         # TODO Refactor this as a dictionary with names as key
         self._coordinate_systems = []
@@ -1282,6 +1280,14 @@ class GeometryModeler(Modeler, object):
         self.objects = {}
         self.user_defined_components = {}
         self._object_names_to_ids = {}
+
+    @property
+    def _odefinition_manager(self):
+        return self._app.odefinition_manager
+
+    @property
+    def _omaterial_manager(self):
+        return self._app.omaterial_manager
 
     @property
     def coordinate_systems(self):

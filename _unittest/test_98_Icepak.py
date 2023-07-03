@@ -9,6 +9,7 @@ from _unittest.conftest import local_path
 from pyaedt import Hfss
 from pyaedt import Icepak
 from pyaedt import settings
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NetworkObject
 
@@ -203,7 +204,19 @@ class TestClass(BasisTest, object):
         assert test
         assert test.delete()
 
-    def test_12b_AssignVirtualMeshOperation(self):
+    @pytest.mark.skipif(config["use_grpc"], reason="GRPC usage leads to SystemExit.")
+    def test_12b_failing_AssignMeshOperation(self):
+        assert not self.aedtapp.mesh.assign_mesh_region("N0C0MP", 1, is_submodel=True)
+        test = self.aedtapp.mesh.assign_mesh_region(["USB_ID"], 1)
+        b = self.aedtapp.modeler.create_box([0, 0, 0], [1, 1, 1])
+        b.model = False
+        test = self.aedtapp.mesh.assign_mesh_region([b.name])
+        assert test
+        test.Objects = ["US8_1D"]
+        assert not test.update()
+        assert test.delete()
+
+    def test_12c_AssignVirtualMeshOperation(self):
         self.aedtapp.oproject = test_project_name
         self.aedtapp.odesign = "IcepakDesign1"
         group_name = "Group1"
@@ -468,7 +481,14 @@ class TestClass(BasisTest, object):
         y = [3, 4, 5]
         self.aedtapp.create_dataset1d_design("Test_DataSet", x, y)
         assert self.aedtapp.assign_source(
-            self.aedtapp.modeler["boxSource"].top_face_z.id,
+            self.aedtapp.modeler["boxSource"].name,
+            "Total Power",
+            "10W",
+            voltage_current_choice="Current",
+            voltage_current_value="1A",
+        )
+        assert self.aedtapp.assign_source(
+            "boxSource",
             "Total Power",
             "10W",
             voltage_current_choice="Current",
@@ -503,6 +523,13 @@ class TestClass(BasisTest, object):
             voltage_current_choice="Current",
             voltage_current_value={"Type": "Transient", "Function": "Sinusoidal", "Values": ["0A", 1, 1, "1s"]},
         )
+        assert self.aedtapp.create_source_power(
+            self.aedtapp.modeler["boxSource"].top_face_z.id, input_power="2W", source_name="s01"
+        )
+        if not is_ironpython:
+            assert not self.aedtapp.create_source_power(
+                self.aedtapp.modeler["boxSource"].top_face_z.id, input_power="2W", source_name="s01"
+            )
 
     def test_34_import_idf(self):
         self.aedtapp.insert_design("IDF")
@@ -635,6 +662,7 @@ class TestClass(BasisTest, object):
             ["surf1", "surf2"], monitor_quantity=["Temperature", "HeatFlowRate"], monitor_name="monitor_surfs"
         ) == ["monitor_surfs", "monitor_surfs1"]
         assert self.aedtapp.monitor.assign_surface_monitor("surf1")
+        assert not self.aedtapp.monitor.assign_surface_monitor("surf1", monitor_quantity=["T3mp3ratur3"])
 
     def test_46_point_monitors(self):
         self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], "box", "copper")
@@ -675,6 +703,9 @@ class TestClass(BasisTest, object):
         self.aedtapp.modeler.create_point([1, 2, 2], name="testPoint3")
         assert self.aedtapp.monitor.assign_point_monitor("testPoint", monitor_name="T1")
         assert self.aedtapp.monitor.assign_point_monitor(["testPoint2", "testPoint3"])
+        assert not self.aedtapp.monitor.assign_point_monitor("testPoint", monitor_quantity="Sp33d")
+        assert not self.aedtapp.monitor.assign_point_monitor_to_vertex(vertex1.id, monitor_quantity="T3mp3ratur3")
+        assert not self.aedtapp.monitor.assign_point_monitor_in_object("box2", monitor_quantity="T3mp3ratur3")
 
     def test_47_face_monitor(self):
         self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], "box3", "copper")
@@ -692,6 +723,7 @@ class TestClass(BasisTest, object):
             [face_1.id, face_2.id], monitor_quantity=["Temperature", "HeatFlowRate"], monitor_name="monitor_faces"
         ) == ["monitor_faces", "monitor_faces3"]
         assert isinstance(self.aedtapp.monitor.face_monitors["monitor_faces1"].properties, dict)
+        assert not self.aedtapp.monitor.assign_face_monitor(face_1.id, monitor_quantity="Thermogen")
 
     def test_49_delete_monitors(self):
         for _, mon_obj in self.aedtapp.monitor.all_monitors.items():
@@ -856,11 +888,37 @@ class TestClass(BasisTest, object):
 
     def test_53_create_conduting_plate(self):
         box = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 10], name="box1")
+        self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
+        self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, 0, 0], [10, 20], name="surf2")
+        box_fc_ids = self.aedtapp.modeler.get_object_faces("box1")
         assert self.aedtapp.create_conduting_plate(
             self.aedtapp.modeler.get_object_from_name("box1").faces[0].id,
             thermal_specification="Thickness",
             input_power="1W",
             thickness="1mm",
+        )
+        if not is_ironpython:
+            assert not self.aedtapp.create_conduting_plate(
+                None, thermal_specification="Thickness", input_power="1W", thickness="1mm", radiate_low=True
+            )
+        assert self.aedtapp.create_conduting_plate(
+            box_fc_ids,
+            thermal_specification="Thickness",
+            input_power="1W",
+            thickness="1mm",
+            bc_name="cond_plate_test",
+        )
+        assert self.aedtapp.create_conduting_plate(
+            "surf1",
+            thermal_specification="Thermal Impedance",
+            input_power="1W",
+            thermal_impedance="1.5celm2_per_w",
+        )
+        assert self.aedtapp.create_conduting_plate(
+            ["surf1", "surf2"],
+            thermal_specification="Thermal Resistance",
+            input_power="1W",
+            thermal_resistance="2.5Kel_per_W",
         )
 
     def test_54_assign_stationary_wall(self):
@@ -911,6 +969,14 @@ class TestClass(BasisTest, object):
             ext_surf_rad_ref_temp=0,
             ext_surf_rad_view_factor=0.5,
         )
+        if not is_ironpython:
+            assert not self.aedtapp.assign_stationary_wall_with_htc(
+                "surf01",
+                ext_surf_rad=True,
+                ext_surf_rad_material="Stainless-steel-cleaned",
+                ext_surf_rad_ref_temp=0,
+                ext_surf_rad_view_factor=0.5,
+            )
 
     @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 GRPC")
     def test_55_native_components_history(self):
@@ -948,6 +1014,7 @@ class TestClass(BasisTest, object):
         settings.enable_desktop_logs = True
         self.aedtapp.solution_type = "Transient"
         box = self.aedtapp.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox5", "copper")
+        self.aedtapp.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox5_1", "copper")
         box.solve_inside = False
         temp_dict = {"Type": "Transient", "Function": "Square Wave", "Values": ["1cel", "0s", "1s", "0.5s", "0cel"]}
         power_dict = {"Type": "Transient", "Function": "Sinusoidal", "Values": ["0W", 1, 1, "1s"]}
@@ -958,7 +1025,7 @@ class TestClass(BasisTest, object):
         block.delete()
         box.solve_inside = True
         assert not self.aedtapp.assign_hollow_block(
-            "BlockBox5", "Heat Transfer Coefficient", "1w_per_m2kel", "Test", "1cel"
+            ["BlockBox5", "BlockBox5_1"], "Heat Transfer Coefficient", "1w_per_m2kel", "Test", "1cel"
         )
         box.solve_inside = False
         temp_dict["Type"] = "Temp Dep"
@@ -973,18 +1040,21 @@ class TestClass(BasisTest, object):
         block = self.aedtapp.assign_hollow_block("BlockBox5", "Total Power", power_dict, "Test")
         assert block
         block.delete()
-        block = self.aedtapp.assign_hollow_block("BlockBox5", "Total Power", "1W")
+        block = self.aedtapp.assign_hollow_block("BlockBox5", "Total Power", "1W", boundary_name="TestH")
         assert block
+        if not is_ironpython:
+            assert not self.aedtapp.assign_hollow_block("BlockBox5", "Total Power", "1W", boundary_name="TestH")
 
     def test_59_assign_solid_block(self):
         self.aedtapp.solution_type = "Transient"
         box = self.aedtapp.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox3", "copper")
+        self.aedtapp.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox3_1", "copper")
         power_dict = {"Type": "Transient", "Function": "Sinusoidal", "Values": ["0W", 1, 1, "1s"]}
         block = self.aedtapp.assign_solid_block("BlockBox3", power_dict)
         assert block
         block.delete()
         box.solve_inside = False
-        assert not self.aedtapp.assign_solid_block("BlockBox3", power_dict)
+        assert not self.aedtapp.assign_solid_block(["BlockBox3", "BlockBox3_1"], power_dict)
         box.solve_inside = True
         assert not self.aedtapp.assign_solid_block("BlockBox3", power_dict, ext_temperature="1cel")
         assert not self.aedtapp.assign_solid_block("BlockBox3", power_dict, htc=5, ext_temperature={"Type": "Temp Dep"})
@@ -995,9 +1065,10 @@ class TestClass(BasisTest, object):
         block = self.aedtapp.assign_solid_block("BlockBox3", "Joule Heating")
         assert block
         block.delete()
-        block = self.aedtapp.assign_solid_block("BlockBox3", "1W")
+        block = self.aedtapp.assign_solid_block("BlockBox3", "1W", boundary_name="Test")
         assert block
-        block.delete()
+        if not is_ironpython:
+            assert not self.aedtapp.assign_solid_block("BlockBox3", "1W", boundary_name="Test")
 
     def test_60_assign_network_from_matrix(self):
         box = self.aedtapp.modeler.create_box([0, 0, 0], [20, 50, 80])
@@ -1185,3 +1256,24 @@ class TestClass(BasisTest, object):
             pressure="AmbientPressure",
             velocity=[velocity_transient, 0, "0m_per_sec"],
         )
+
+    def test_65_assign_symmetry_wall(self):
+        self.aedtapp.insert_design("test_65")
+        self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
+        self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, 0, 0], [10, 20], name="surf2")
+        region_fc_ids = self.aedtapp.modeler.get_object_faces("Region")
+        assert self.aedtapp.assign_symmetry_wall(
+            geometry="surf1",
+            boundary_name="sym_bc01",
+        )
+        assert self.aedtapp.assign_symmetry_wall(
+            geometry=["surf1", "surf2"],
+            boundary_name="sym_bc02",
+        )
+        assert self.aedtapp.assign_symmetry_wall(
+            geometry=region_fc_ids[0],
+            boundary_name="sym_bc03",
+        )
+        assert self.aedtapp.assign_symmetry_wall(geometry=region_fc_ids[1:4])
+        if not is_ironpython:
+            assert not self.aedtapp.assign_symmetry_wall(geometry="surf01")
