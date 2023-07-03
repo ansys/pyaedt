@@ -6255,11 +6255,12 @@ class Hfss(FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def set_radiated_power_calc_method(self, method="Auto"):
-        """
+        """Set the radiated power calculation method in Hfss.
 
         method : str, optional
             Radiated power calculation method.
             The options are ``"Auto"``, ``"Radiation Surface Integral"`` and ``"Far Field Integral"``.
+
         Returns
         -------
         bool
