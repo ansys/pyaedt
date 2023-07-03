@@ -156,6 +156,11 @@ class TestClass(BasisTest, object):
             os.path.join(self.local_scratch.path, "prova2.jpg"),
             plot2.name,
             plot2.plotFolder,
+            selections=["NewObject_IJD39Q"],
+            show_axis=False,
+            show_grid=False,
+            show_ruler=False,
+            show_region=False,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "prova2.jpg"))
         assert os.path.exists(
