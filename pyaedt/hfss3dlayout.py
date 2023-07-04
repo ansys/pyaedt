@@ -1826,7 +1826,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             arg.append(air_truncate_model_at_ground_layer)
         if air_horizontal_padding:
             arg.append("AirHorExt:=")
-            arg.append(["Ext:=", str(air_vertical_positive_padding), "Dim:=", airbox_values_as_dim])
+            arg.append(["Ext:=", str(air_horizontal_padding), "Dim:=", airbox_values_as_dim])
         if air_vertical_positive_padding:
             arg.append("AirPosZExt:=")
             arg.append(["Ext:=", air_vertical_positive_padding, "Dim:=", airbox_values_as_dim])
