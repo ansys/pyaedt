@@ -1507,10 +1507,14 @@ class TestClass(BasisTest, object):
             "BoxLumped1", "BoxLumped2", self.aedtapp.AxisDir.XNeg, 50, "Lump1xx", True, False
         )
 
-        self.aedtapp.boundaries[1].type
         term = [term for term in self.aedtapp.boundaries if term.type == "Terminal"][0]
-        assert self.aedtapp.boundaries[1].type == "Terminal"
+        assert self.aedtapp.boundaries[0].type == "Terminal"
         term.name = "test"
         assert term.name == "test"
         term.props["TerminalResistance"] = "1ohm"
         assert term.props["TerminalResistance"] == "1ohm"
+
+    def test_61_set_power_calc(self):
+        assert self.aedtapp.set_radiated_power_calc_method()
+        assert self.aedtapp.set_radiated_power_calc_method("Radiation Surface Integral")
+        assert self.aedtapp.set_radiated_power_calc_method("Far Field Integral")

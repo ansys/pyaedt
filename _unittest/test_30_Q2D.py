@@ -67,9 +67,10 @@ class TestClass(BasisTest, object):
         o = self.aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", matname="Copper")
         o = self.aedtapp.create_rectangle([0, 0], [5, 3], name="Rectangle2", matname="Copper")
         assert self.aedtapp.auto_assign_conductors()
+        assert self.aedtapp.boundaries[0].object_properties
         assert len(self.aedtapp.boundaries) == 2
 
-    def test_10_toggle_condcutor(self):
+    def test_10_toggle_conductor(self):
         assert self.aedtapp.toggle_conductor_type("Rectangle1", "ReferenceGround")
         assert not self.aedtapp.toggle_conductor_type("Rectangle3", "ReferenceGround")
         assert not self.aedtapp.toggle_conductor_type("Rectangle2", "ReferenceggGround")

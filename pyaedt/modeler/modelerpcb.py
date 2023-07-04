@@ -48,8 +48,12 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         Primitives3DLayout.__init__(self, app)
         self._primitives = self
         self.logger.info("Primitives loaded.")
-        self.o_def_manager = self._app.odefinition_manager
         self.rigid_flex = None
+
+    @property
+    def o_def_manager(self):
+        """AEDT Definition manager."""
+        return self._app.odefinition_manager
 
     @property
     def stackup(self):

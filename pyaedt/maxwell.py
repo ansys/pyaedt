@@ -326,7 +326,7 @@ class Maxwell(object):
 
             bound = MaxwellParameters(self, matrix_name, props, "Matrix")
             if bound.create():
-                self.boundaries.append(bound)
+                self._boundaries[bound.name] = bound
                 return bound
         else:
             self.logger.error("Solution type does not have matrix parameters")
@@ -644,7 +644,7 @@ class Maxwell(object):
                 return False
         bound = BoundaryObject(self, name, props, "Current")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -744,7 +744,7 @@ class Maxwell(object):
         )
         bound = BoundaryObject(self, motion_name, props, "Band")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -842,7 +842,7 @@ class Maxwell(object):
         )
         bound = BoundaryObject(self, motion_name, props, "Band")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -883,7 +883,7 @@ class Maxwell(object):
             props = OrderedDict({"Faces": face_list, "Voltage": amplitude})
         bound = BoundaryObject(self, name, props, "Voltage")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -925,7 +925,7 @@ class Maxwell(object):
         props = OrderedDict({"Faces": face_list, "Voltage Drop": amplitude, "Point out of terminal": swap_direction})
         bound = BoundaryObject(self, name, props, "VoltageDrop")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -996,7 +996,7 @@ class Maxwell(object):
         )
         bound = BoundaryObject(self, name, props, "Winding")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             if coil_terminals is None:
                 coil_terminals = []
             if type(coil_terminals) is not list:
@@ -1102,7 +1102,7 @@ class Maxwell(object):
                 self.logger.warning("Face Selection is not allowed in Maxwell 2D. Provide a 2D object.")
                 return False
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -1162,7 +1162,7 @@ class Maxwell(object):
 
             bound = MaxwellParameters(self, force_name, prop, "Force")
             if bound.create():
-                self.boundaries.append(bound)
+                self._boundaries[bound.name] = bound
                 return bound
         else:
             self.logger.error("Solution Type has not Matrix Parameter")
@@ -1235,7 +1235,7 @@ class Maxwell(object):
 
             bound = MaxwellParameters(self, torque_name, prop, "Torque")
             if bound.create():
-                self.boundaries.append(bound)
+                self._boundaries[bound.name] = bound
                 return bound
         else:
             self.logger.error("Solution Type has not Matrix Parameter")
@@ -1370,7 +1370,7 @@ class Maxwell(object):
 
             bound = BoundaryObject(self, symmetry_name, prop, "Symmetry")
             if bound.create():
-                self.boundaries.append(bound)
+                self._boundaries[bound.name] = bound
                 return bound
             return True
         except:
@@ -1502,7 +1502,7 @@ class Maxwell(object):
                         bound = BoundaryObject(self, current_density_name, props, "CurrentDensity")
 
                 if bound.create():
-                    self.boundaries.append(bound)
+                    self._boundaries[bound.name] = bound
                     return bound
                 return True
             except:
@@ -1582,6 +1582,90 @@ class Maxwell(object):
         return True
 
     @pyaedt_function_handler()
+    def enable_harmonic_force_on_layout_component(
+        self,
+        layout_component_name,
+        nets,
+        force_type=0,
+        window_function="Rectangular",
+        use_number_of_last_cycles=True,
+        last_cycles_number=1,
+        calculate_force="Harmonic",
+        start_time="0s",
+        stop_time="2ms",
+        use_number_of_cycles_for_stop_time=True,
+        number_of_cycles_for_stop_time=1,
+    ):
+        """Enable the harmonic force calculation for the transient analysis.
+
+        Parameters
+        ----------
+        layout_component_name : str
+            Name of layout component to apply harmonic forces.
+        nets : dict
+            Dictionary containing nets and layers on which enable harmonic forces.
+        force_type : int, optional
+            Force Type. ``0`` for Objects, ``1`` for Surface, ``2`` for volumetric.
+        window_function : str, optional
+            Windowing function. Default is ``"Rectangular"``.
+            Available options are: ``"Rectangular"``, ``"Tri"``, ``"Van Hann"``, ``"Hamming"``,
+            ``"Blackman"``, ``"Lanczos"``, ``"Welch"``.
+        use_number_of_last_cycles : bool, optional
+            Use number Of last cycles for force calculations. Default is ``True``.
+        last_cycles_number : int, optional
+            Defines the number of cycles to compute if `use_number_of_last_cycle` is ``True``.
+        calculate_force : sr, optional
+            How to calculate force. The default is ``"Harmonic"``.
+            Options are ``"Harmonic"`` and ``"Transient"``.
+
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        if self.solution_type != "TransientAPhiFormulation":
+            self.logger.error("This methods work only with Maxwell TransientAPhiFormulation Analysis.")
+            return False
+        args = [
+            "ForceType:=",
+            force_type,
+            "WindowFunctionType:=",
+            window_function,
+            "UseNumberOfLastCycles:=",
+            use_number_of_last_cycles,
+            "NumberOfLastCycles:=",
+            last_cycles_number,
+            "StartTime:=",
+            start_time,
+            "UseNumberOfCyclesForStopTime:=",
+            use_number_of_cycles_for_stop_time,
+            "NumberOfCyclesForStopTime:=",
+            number_of_cycles_for_stop_time,
+            "StopTime:=",
+            stop_time,
+            "OutputFreqRangeType:=",
+            "Use All",
+            "CaculateForceType:=",
+            calculate_force + " Force",
+        ]
+        args2 = [
+            "NAME:NetsAndLayersChoices",
+            [
+                "NAME:" + layout_component_name,
+                [
+                    "NAME:NetLayerSetMap",
+                ],
+            ],
+        ]
+        for net, layers in nets.items():
+            args2[1][1].append(["Name:" + net, "LayerSet:=", ["<no-layer>"] + layers])
+        args.append(args2)
+        self.odesign.EnableHarmonicForceCalculation(args)
+        return True
+
+    @pyaedt_function_handler()
     def export_element_based_harmonic_force(
         self,
         output_directory=None,
@@ -1610,7 +1694,7 @@ class Maxwell(object):
         str
             Path to the export directory.
         """
-        if self.solution_type != "Transient":
+        if self.solution_type != "Transient" and self.solution_type != "TransientAPhiFormulation":
             self.logger.error("This methods work only with Maxwell Transient Analysis.")
             return False
         if not output_directory:
@@ -2333,11 +2417,11 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                     bound = BoundaryObject(self, current_density_name, props, "CurrentDensityTerminal")
 
                 if bound.create():
-                    self.boundaries.append(bound)
+                    self._boundaries[bound.name] = bound
                     return bound
-                return True
+                return False
             except:
-                pass
+                return False
         else:
             self.logger.error("Current density can only be applied to Eddy current or magnetostatic solution types.")
             return False
@@ -2365,7 +2449,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         bound = BoundaryObject(self, name, props, boundary_type)
         result = bound.create()
         if result:
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             self.logger.info("Boundary %s %s has been correctly created.", boundary_type, name)
             return bound
 
@@ -2487,7 +2571,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             )
             bound = BoundaryObject(self, bound_name_m, props2, "Independent")
             if bound.create():
-                self.boundaries.append(bound)
+                self._boundaries[bound.name] = bound
 
                 u_slave_vector_coordinates = OrderedDict(
                     {
@@ -2508,7 +2592,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                 )
                 bound2 = BoundaryObject(self, bound_name_s, props2, "Dependent")
                 if bound2.create():
-                    self.boundaries.append(bound2)
+                    self._boundaries[bound2.name] = bound2
                     return bound, bound2
                 else:
                     return bound, False
@@ -2565,7 +2649,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
     @pyaedt_function_handler
     def assign_layout_force(self, nets_layers_mapping, component_name, reference_cs="Global", force_name=None):
-        # type : (dict, str, str, str) -> bool
+        # type: (dict, str, str, str) -> bool
         """Assign the layout force to a component in a Transient A-Phi solver.
         To access layout component features the Beta option has to be enabled first.
 
@@ -2616,23 +2700,24 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         if not force_name:
             force_name = generate_unique_name("Layout_Force")
 
-        nets_layers_props = []
-        for key in nets_layers_mapping.keys():
-            vArg5 = ["NAME:" + key]
-            vArg5.append("LayerSet:="), vArg5.append(nets_layers_mapping[key])
-            nets_layers_props.append(vArg5)
+        nets_layers_props = None
+        for key, valy in nets_layers_mapping.items():
+            if nets_layers_props:
+                nets_layers_props.append(OrderedDict({key: OrderedDict({"LayerSet": valy})}))
+            else:
+                nets_layers_props = [OrderedDict({key: OrderedDict({"LayerSet": valy})})]
 
         props = OrderedDict(
             {
-                "Coordinate System": reference_cs,
+                "Reference CS": reference_cs,
                 "NetsAndLayersChoices": OrderedDict(
-                    {component_name: OrderedDict({"NetLayerSetMap": nets_layers_mapping})}
+                    {component_name: OrderedDict({"NetLayerSetMap": nets_layers_props})}
                 ),
             }
         )
         bound = MaxwellParameters(self, force_name, props, "LayoutForce")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
 
 
@@ -2891,7 +2976,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         bound = BoundaryObject(self, bound_name, props2, "Balloon")
 
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -2932,7 +3017,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         bound = BoundaryObject(self, bound_name, props2, "Vector Potential")
 
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -2979,7 +3064,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         props2 = OrderedDict({"Edges": master_edge, "ReverseV": reverse_master})
         bound = BoundaryObject(self, bound_name_m, props2, "Independent")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
 
             props2 = OrderedDict(
                 {
@@ -2991,7 +3076,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
             )
             bound2 = BoundaryObject(self, bound_name_s, props2, "Dependent")
             if bound2.create():
-                self.boundaries.append(bound2)
+                self._boundaries[bound2.name] = bound2
                 return bound, bound2
             else:
                 return bound, False
@@ -3044,6 +3129,6 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         )
         bound = BoundaryObject(self, bound_name, props, "EndConnection")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False

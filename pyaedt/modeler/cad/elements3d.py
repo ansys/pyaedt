@@ -1397,7 +1397,10 @@ class BinaryTreeNode:
         else:
             self.props = {}
             for p in self.child_object.GetPropNames():
-                self.props[p] = self.child_object.GetPropValue(p)
+                try:
+                    self.props[p] = self.child_object.GetPropValue(p)
+                except:
+                    self.props[p] = None
             self.props = HistoryProps(self, self.props)
         self.command = self.props.get("Command", "")
 

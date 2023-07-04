@@ -2600,7 +2600,7 @@ class PostProcessor(PostProcessorCommon, object):
 
     @pyaedt_function_handler()
     def _create_fieldplot(self, objlist, quantityName, setup_name, intrinsics, listtype, plot_name=None):
-        if not listtype.startswith("Layer"):
+        if not listtype.startswith("Layer") and self._app.design_type != "HFSS 3D Layout Design":
             objlist = self._app.modeler.convert_to_selections(objlist, True)
         if not setup_name:
             setup_name = self._app.existing_analysis_sweeps[0]
@@ -2901,7 +2901,9 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oModule.CreateFieldPlot
         """
-        if not ("APhi" in self.post_solution_type and settings.aedt_version >= "2023.2"):
+        if not (
+            "APhi" in self.post_solution_type and settings.aedt_version >= "2023.2"
+        ) and not self._app.design_type in ["HFSS", "HFSS 3D Layout Design"]:
             self.logger.error("This method requires AEDT 2023 R2 and Maxwell 3D Transient APhi Formulation.")
             return False
         if intrinsics is None:
@@ -2909,6 +2911,16 @@ class PostProcessor(PostProcessorCommon, object):
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
+        if self._app.design_type == "HFSS 3D Layout Design":
+            if not setup_name:
+                setup_name = self._app.existing_analysis_sweeps[0]
+            lst = []
+            for layer in layers_nets:
+                for el in layer[1:]:
+                    get_ids = self._odesign.GetGeometryIdsForNetLayerCombination(el, layer[0], setup_name)
+                    if isinstance(get_ids, (tuple, list)) and len(get_ids) > 2:
+                        lst.extend([int(i) for i in get_ids[2:]])
+            return self._create_fieldplot(lst, quantity_name, setup_name, intrinsics, "FacesList", plot_name)
         if plot_on_surface:
             plot_type = "LayerNetsExtFace"
         else:
@@ -3044,6 +3056,11 @@ class PostProcessor(PostProcessorCommon, object):
         width=1920,
         height=1080,
         display_wireframe=True,
+        selections=None,
+        show_axis=True,
+        show_grid=True,
+        show_ruler=True,
+        show_region="Default",
     ):
         """Export a field plot and coordinate system to a JPG file.
 
@@ -3055,14 +3072,29 @@ class PostProcessor(PostProcessorCommon, object):
             Name of the plot.
         foldername : str
             Name of the folder plot.
-        orientation : str
-            Name of the orientation to apply.
-        width : int
-            Plot Width.
-        height : int
-            Plot Height.
-        display_wireframe : bool
-            Display wireframe.
+        orientation : str, optional
+            Name of the orientation to apply. The default is ``"isometric"``.
+        width : int, optional
+            Plot Width. The default is ``1920``.
+        height : int, optional
+            Plot Height. The default is ``1080``.
+        display_wireframe : bool, optional
+            Display wireframe. The default is ``True``.
+        selections : list, optional
+            List of objects to include in the plot.
+             Supported in 3D Field Plots only starting from 23R1.
+        show_axis : bool, optional
+            Whether to show the axes. The default is ``True``.
+            Supported in 3D Field Plots only starting from 23R1.
+        show_grid : bool, optional
+            Whether to show the grid. The default is ``True``.
+            Supported in 3D Field Plots only starting from 23R1.
+        show_ruler : bool, optional
+            Whether to show the ruler. The default is ``True``.
+            Supported in 3D Field Plots only starting from 23R1.
+        show_region : bool, optional
+            Whether to show the region or not. The default is ``Default``.
+            Supported in 3D Field Plots only starting from 23R1.
 
         Returns
         -------
@@ -3096,7 +3128,16 @@ class PostProcessor(PostProcessorCommon, object):
                 cs.delete()
             else:
                 self.export_model_picture(
-                    full_name=fileName, width=width, height=height, orientation=orientation, field_selections=plotName
+                    full_name=fileName,
+                    width=width,
+                    height=height,
+                    orientation=orientation,
+                    field_selections=plotName,
+                    selections=selections,
+                    show_axis=show_axis,
+                    show_grid=show_grid,
+                    show_ruler=show_ruler,
+                    show_region=show_region,
                 )
 
             for solid in wireframes:
@@ -3500,7 +3541,8 @@ class PostProcessor(PostProcessorCommon, object):
             self.logger.warning("No boundaries defined")
             return True
         for bc_obj in available_bcs:
-            if bc_obj.type == "Block":
+            bc_obj.type
+            if bc_obj.type == "Solid Block" or bc_obj.type == "Block":
                 n = len(bc_obj.props["Objects"])
                 if "Total Power Variation Data" not in bc_obj.props:
                     mult = 1
@@ -3762,13 +3804,13 @@ class PostProcessor(PostProcessorCommon, object):
             self.logger.info("The total power is {} {}".format(str(round(sum(power_dict.values()), 3)), units))
             return power_dict, sum(power_dict.values())
 
-        elif output_type == "component":
+        elif output_type == "component":  # pragma: no cover
             for comp in power_dict_obj.keys():
                 self.logger.info("The power of {} is {} {}".format(comp, str(round(power_dict_obj[comp], 3)), units))
             self.logger.info("The total power is {} {}".format(str(round(sum(power_dict_obj.values()), 3)), units))
             return power_dict_obj, sum(power_dict_obj.values())
 
-        else:
+        else:  # pragma: no cover
             for comp in power_dict.keys():
                 self.logger.info("The power of {} is {} {}".format(comp, str(round(power_dict[comp], 3)), units))
             self.logger.info("The total power is {} {}".format(str(round(sum(power_dict.values()), 3)), units))
