@@ -1776,8 +1776,8 @@ class Desktop(object):
         >>> o1=d.get_ansyscloud_job_info(job_id=job_id)
         >>> o2=d.get_ansyscloud_job_info(job_name=job_name)
         >>> d.download_job_results(job_id=job_id,
-        ...                        project_path=r'c:\ansysdev\Simulation\via_gsg.aedt',
-        ...                        results_folder=r'c:\ansysdev\Simulation\via_gsg_results')
+        ...                        project_path='via_gsg.aedt',
+        ...                        results_folder='via_gsg_results')
         >>> d.release_desktop(False,False)
         """
         project_path = os.path.dirname(project_file)
@@ -1865,8 +1865,8 @@ class Desktop(object):
         >>> o1=d.get_ansyscloud_job_info(job_id=job_id)
         >>> o2=d.get_ansyscloud_job_info(job_name=job_name)
         >>> d.download_job_results(job_id=job_id,
-        ...                        project_path=r'c:\ansysdev\Simulation\via_gsg.aedt',
-        ...                        results_folder=r'c:\ansysdev\Simulation\via_gsg_results')
+        ...                        project_path='via_gsg.aedt',
+        ...                        results_folder='via_gsg_results')
         >>> d.release_desktop(False,False)
         """
         command = os.path.join(self.install_path, "common", "AnsysCloudCLI", "AnsysCloudCli.exe")
@@ -1932,8 +1932,8 @@ class Desktop(object):
         >>> o1=d.get_ansyscloud_job_info(job_id=job_id)
         >>> o2=d.get_ansyscloud_job_info(job_name=job_name)
         >>> d.download_job_results(job_id=job_id,
-        ...                        project_path=r'c:\ansysdev\Simulation\via_gsg.aedt',
-        ...                        results_folder=r'c:\ansysdev\Simulation\via_gsg_results')
+        ...                        project_path='via_gsg.aedt',
+        ...                        results_folder='via_gsg_results')
         >>> d.release_desktop(False,False)
         """
         if not address:
@@ -1974,8 +1974,8 @@ class Desktop(object):
         >>> o1=d.get_ansyscloud_job_info(job_id=job_id)
         >>> o2=d.get_ansyscloud_job_info(job_name=job_name)
         >>> d.download_job_results(job_id=job_id,
-        ...                        project_path=r'c:\ansysdev\Simulation\via_gsg.aedt',
-        ...                        results_folder=r'c:\ansysdev\Simulation\via_gsg_results')
+        ...                        project_path='via_gsg.aedt',
+        ...                        results_folder='via_gsg_results')
         >>> d.release_desktop(False,False)
         """
         command = os.path.join(self.install_path, "common", "AnsysCloudCLI", "AnsysCloudCli.exe")
