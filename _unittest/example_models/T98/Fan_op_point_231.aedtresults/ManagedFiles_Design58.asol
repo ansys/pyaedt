@@ -1,4 +1,4 @@
 IsBigEndian false
 $begin 'ManagedFiles'
-	svcache[2: 'HDR264F2552416872506494.tmp', 'HDR41A8186961688476985101.tmp']
+	svcache[1: 'HDR264F2552416872506494.tmp']
 $end 'ManagedFiles'
