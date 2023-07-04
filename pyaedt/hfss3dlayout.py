@@ -1656,9 +1656,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         return True
 
     @pyaedt_function_handler()
-    def get_ui_defined_diff_pairs(
-        self
-    ):
+    def get_ui_defined_diff_pairs(self):
         """Retrieve a list of differential pairs using existing ports.
 
         Parameters
@@ -1675,12 +1673,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         >>> from pyaedt import Hfss3dLayout
         >>> hfss = Hfss3dLayout(project_path)
         >>> hfss.get_defined_diff_pairs()
-        
+
         References
         ----------
         Under 3D Layout UI, RMB click on Excitations > Differential Pairs... to obtain differential pairs
         """
-        
+
         list_output = []
         if len(self.excitations) != 0:
             tmpfile1 = os.path.join(self.working_directory, generate_unique_name("tmp"))
@@ -1688,17 +1686,17 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             if os.stat(tmpfile1).st_size != 0:
                 with open_file(tmpfile1, "r") as fi:
                     fi_lst = fi.readlines()
-                list_output = [line.split(',')[4] for line in fi_lst]
+                list_output = [line.split(",")[4] for line in fi_lst]
             else:
                 self.logger.warning("ERROR: No differential pairs defined under Excitations > Differential Pairs...")
-            
+
             try:
                 os.remove(tmpfile1)
             except:  # pragma: no cover
                 self.logger.warning("ERROR: Cannot remove temp files.")
-        
+
         return list_output
-    
+
     @pyaedt_function_handler()
     def load_diff_pairs_from_file(self, filename):
         """Load differtential pairs definition from file.

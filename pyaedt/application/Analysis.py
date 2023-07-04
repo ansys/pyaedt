@@ -487,7 +487,7 @@ class Analysis(Design, object):
                         if filter_tuple(value, first_element_filter, second_element_filter):
                             list_output.append(value)
         return list_output
-        
+
     @pyaedt_function_handler()
     def get_diff_traces_for_plot(
         self,
@@ -552,7 +552,7 @@ class Analysis(Design, object):
                         if filter_tuple(value, first_element_filter, second_element_filter):
                             list_output.append(value)
         return list_output
-        
+
     @pyaedt_function_handler()
     def list_of_variations(self, setup_name=None, sweep_name=None):
         """Retrieve a list of active variations for input setup.
