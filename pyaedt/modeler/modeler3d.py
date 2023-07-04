@@ -1334,10 +1334,11 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         segment_objects = {}
         for obj_name in objects_list:
             obj = self[obj_name]
+            obj_axial_length = GeometryOperators.points_distance(obj.top_face_z.center, obj.bottom_face_z.center)
             if segments_number:
-                segmentation_thickness = obj.top_edge_y.length / segments_number
+                segmentation_thickness = obj_axial_length / segments_number
             elif segmentation_thickness:
-                segments_number = round(obj.top_edge_y.length / segmentation_thickness)
+                segments_number = round(obj_axial_length / segmentation_thickness)
             face_object = self.modeler.create_object_from_face(obj.bottom_face_z)
             # segment sheets
             segment_sheets[obj.name] = face_object.duplicate_along_line(
