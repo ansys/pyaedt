@@ -64,8 +64,8 @@ $begin 'AddEntries'
 \	\	\	UseDefaultsForDistributionTypes=true\
 \	\	\	Context()\
 \	\	$end \'DSOJobDistributionInfo\'\
-\	\	EnvVarNames[2: \'ANSOFT_PASS_DEBUG_ENV_TO_REMOTE_ENGINES\']\
-\	\	EnvVarValues[2: \'1\']\
+\	\	EnvVarNames[1: \'ANSOFT_PASS_DEBUG_ENV_TO_REMOTE_ENGINES\']\
+\	\	EnvVarValues[1: \'1\']\
 \	\	$begin \'ArchiveOptions\'\
 \	\	\	OverwriteFiles=false\
 \	\	$end \'ArchiveOptions\'\

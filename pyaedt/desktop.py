@@ -26,6 +26,7 @@ from pyaedt import is_ironpython
 from pyaedt import is_linux
 from pyaedt import is_windows
 from pyaedt import pyaedt_logger
+from pyaedt.generic.general_methods import generate_unique_name
 
 if is_linux:
     os.environ["ANS_NODEPCHECK"] = str(1)
@@ -1727,6 +1728,7 @@ class Desktop(object):
         numcores=32,
         wait_for_license=True,
         setting_file=None,
+        job_name=None,
     ):  # pragma: no cover
         """Submit a job to be solved on a cluster.
 
@@ -1734,11 +1736,12 @@ class Desktop(object):
         ----------
         project_file : str
             Full path to the project.
-        clustername : str
-            Name of the cluster to submit the job to.
-        aedt_full_exe_path : str, optional
-            Full path to the AEDT executable file. The default is ``None``, in which
-            case ``"/clustername/AnsysEM/AnsysEM2x.x/Win64/ansysedt.exe"`` is used.
+        config_name : str
+            Name of the Ansys Cloud machine configuration selected.
+        region : str
+            Name of Ansys Cloud location region.
+            Available regions are: ``"westeurope"``, ``"eastus"``, ``"northcentralus"``, ``"southcentralus"``,
+            ``"northeurope"``, ``"japaneast"``, ``"westus2"``, ``"centralindia"``.
         numnodes : int, optional
             Number of nodes. The default is ``1``.
         numcores : int, optional
@@ -1750,21 +1753,43 @@ class Desktop(object):
 
         Returns
         -------
-        int
-            ID of the job.
+        str, str
+            Job ID, job name.
 
         References
         ----------
 
         >>> oDesktop.SubmitJob
-        """
 
+        Examples
+        --------
+        >>> from pyaedt import Desktop
+
+        >>> d = Desktop(specified_version="2023.1", new_desktop_session=False)
+        >>> d.select_scheduler("Ansys Cloud")
+        >>> out = d.get_available_cloud_config()
+        >>> job_id, job_name = d.submit_ansys_cloud_job(
+        ...                                             r'c:\ansysdev\Simulation\via_gsg.aedt',
+        ...                                             list(out.keys())[0],
+        ...                                             region="westeurope",
+        ...                                             job_name="MyJob"
+        ...                                             )
+        >>> o1=d.get_ansyscloud_job_info(job_id=job_id)
+        >>> o2=d.get_ansyscloud_job_info(job_name=job_name)
+        >>> d.download_job_results(job_id=job_id,
+        ...                        project_path=r'c:\ansysdev\Simulation\via_gsg.aedt',
+        ...                        results_folder=r'c:\ansysdev\Simulation\via_gsg_results')
+        >>> d.release_desktop(False,False)
+        """
         project_path = os.path.dirname(project_file)
         project_name = os.path.basename(project_file).split(".")[0]
+        if not job_name:
+            job_name = generate_unique_name(project_name)
         if project_name in self.project_list():
             self.odesktop.CloseProject(project_name)
         path_file = os.path.dirname(__file__)
-        destination_reg = os.path.join(project_path, "ansys_cloud.areg")
+        reg_name = generate_unique_name("ansys_cloud") + ".areg"
+        destination_reg = os.path.join(project_path, reg_name)
         if not setting_file:
             setting_file = os.path.join(path_file, "misc", "ansys_cloud.areg")
         shutil.copy(setting_file, destination_reg)
@@ -1772,32 +1797,102 @@ class Desktop(object):
         f1 = open_file(destination_reg, "w")
         with open_file(setting_file) as f:
             lines = f.readlines()
-            for i in range(len(lines)):
+            i = 0
+            while i < len(lines):
                 line = lines[i]
                 if "NumTasks" in line:
                     lin = "\\	\\	\\	\\	NumTasks={}\\\n".format(numcores)
                     f1.write(lin)
-                if "NumMaxTasksPerNode" in line:
+                elif "NumMaxTasksPerNode" in line:
                     lin = "\\	\\	\\	\\	NumMaxTasksPerNode={}\\\n".format(numcores)
                     f1.write(lin)
                 elif "NumNodes=1" in line:
                     lin = "\\	\\	\\	\\	NumNodes={}\\\n".format(numnodes)
                     f1.write(lin)
-                elif "Name='Region'" in line:
+                elif "Name=\\'Region\\'" in line:
+                    f1.write(line)
+                    lin = "\\	\\	\\	\\	Value=\\'{}\\'\\\n".format(region)
                     f1.write(lin)
-                    lin = "\\	\\	\\	\\	Value='{}'\n".format(region)
+                    i += 1
+                elif "WaitForLicense" in line:
+                    lin = "\\	\\	WaitForLicense={}\\\n".format(str(wait_for_license).lower())
                     f1.write(lin)
-                elif "Name='Config'" in line:
+                elif "	JobName" in line:
+                    lin = "\\	\\	\\	JobName=\\'{}\\'\\\n".format(job_name)
                     f1.write(lin)
-                    lin = "\\	\\	\\	\\	Value='{}'\n".format(config_name)
+                elif "Name=\\'Config\\'" in line:
+                    f1.write(line)
+                    lin = "\\	\\	\\	\\	Value=\\'{}\\'\\\n".format(config_name)
                     f1.write(lin)
+                    i += 1
                 else:
                     f1.write(line)
+                i += 1
         f1.close()
-        return self.odesktop.SubmitJob(os.path.join(project_path, "ansys_cloud.areg"), project_file)
+        try:
+            id = self.odesktop.SubmitJob(destination_reg, project_file)[0]
+            return id, job_name
+        except:
+            self.logger.error("Failed to submit job. check parameters and credentials and retry")
+            return "", ""
 
     @pyaedt_function_handler()
-    def select_scheduler(self, scheduler_type, address=None, username=None, force_password_entry=False):
+    def get_ansyscloud_job_info(self, job_id=None, job_name=None):  # pragma: no cover
+        """Monitor a job submitted to Ansys Cloud.
+
+        Parameters
+        ----------
+        job_id : str, optional
+            Job Id.  The default value is ``None`` if job name is used.
+        job_name : str, optional
+            Job name.  The default value is ``None`` if job id is used.
+
+        Returns
+        -------
+        dict
+
+                Examples
+        --------
+        >>> from pyaedt import Desktop
+
+        >>> d = Desktop(specified_version="2023.1", new_desktop_session=False)
+        >>> d.select_scheduler("Ansys Cloud")
+        >>> out = d.get_available_cloud_config()
+        >>> job_id, job_name = d.submit_ansys_cloud_job(
+        ...                                             r'c:\ansysdev\Simulation\via_gsg.aedt',
+        ...                                             list(out.keys())[0],
+        ...                                             region="westeurope",
+        ...                                             job_name="MyJob"
+        ...                                             )
+        >>> o1=d.get_ansyscloud_job_info(job_id=job_id)
+        >>> o2=d.get_ansyscloud_job_info(job_name=job_name)
+        >>> d.download_job_results(job_id=job_id,
+        ...                        project_path=r'c:\ansysdev\Simulation\via_gsg.aedt',
+        ...                        results_folder=r'c:\ansysdev\Simulation\via_gsg_results')
+        >>> d.release_desktop(False,False)
+        """
+        command = os.path.join(self.install_path, "common", "AnsysCloudCLI", "AnsysCloudCli.exe")
+        ver = self.aedt_version_id.replace(".", "R")
+        if job_name:
+            command = [command, "jobinfo", "-j", job_name]
+        elif job_id:
+            command = [command, "jobinfo", "-i", job_id]
+        cloud_info = os.path.join(tempfile.gettempdir(), generate_unique_name("job_info"))
+        with open(cloud_info, "w") as outfile:
+            subprocess.Popen(" ".join(command), stdout=outfile).wait()
+        out = {}
+        with open(cloud_info, "r") as infile:
+            lines = infile.readlines()
+            for i in lines:
+                if ":" in i.strip():
+                    strp = i.strip().split(":")
+                    out[strp[0]] = ":".join(strp[1:])
+        return out
+
+    @pyaedt_function_handler()
+    def select_scheduler(
+        self, scheduler_type, address=None, username=None, force_password_entry=False
+    ):  # pragma: no cover
         """Select a scheduler to submit the job.
 
         Parameters
@@ -1823,6 +1918,26 @@ class Desktop(object):
         str
             The selected scheduler (if selection was successful, this string should match the input option string,
             although it could differ in upper/lowercase).
+
+                Examples
+        --------
+        >>> from pyaedt import Desktop
+
+        >>> d = Desktop(specified_version="2023.1", new_desktop_session=False)
+        >>> d.select_scheduler("Ansys Cloud")
+        >>> out = d.get_available_cloud_config()
+        >>> job_id, job_name = d.submit_ansys_cloud_job(
+        ...                                             r'c:\ansysdev\Simulation\via_gsg.aedt',
+        ...                                             list(out.keys())[0],
+        ...                                             region="westeurope",
+        ...                                             job_name="MyJob"
+        ...                                             )
+        >>> o1=d.get_ansyscloud_job_info(job_id=job_id)
+        >>> o2=d.get_ansyscloud_job_info(job_name=job_name)
+        >>> d.download_job_results(job_id=job_id,
+        ...                        project_path=r'c:\ansysdev\Simulation\via_gsg.aedt',
+        ...                        results_folder=r'c:\ansysdev\Simulation\via_gsg_results')
+        >>> d.release_desktop(False,False)
         """
         if not address:
             return self.odesktop.SelectScheduler(scheduler_type)
@@ -1832,9 +1947,41 @@ class Desktop(object):
             return self.odesktop.SelectScheduler(scheduler_type, address, username, str(force_password_entry))
 
     @pyaedt_function_handler()
-    def get_available_cloud_config(self, region="westeurope"):
-        from pyaedt.generic.general_methods import generate_unique_name
+    def get_available_cloud_config(self, region="westeurope"):  # pragma: no cover
+        """Get available Ansys Cloud machines configuration.
 
+        Parameters
+        ----------
+        region : str
+            Name of Ansys Cloud location region.
+            Available regions are: ``"westeurope"``, ``"eastus"``, ``"northcentralus"``, ``"southcentralus"``,
+            ``"northeurope"``, ``"japaneast"``, ``"westus2"``, ``"centralindia"``.
+
+        Returns
+        -------
+        dict
+            Dictionary containing the config name and config details.
+
+        Examples
+        --------
+        >>> from pyaedt import Desktop
+
+        >>> d = Desktop(specified_version="2023.1", new_desktop_session=False)
+        >>> d.select_scheduler("Ansys Cloud")
+        >>> out = d.get_available_cloud_config()
+        >>> job_id, job_name = d.submit_ansys_cloud_job(
+        ...                                             r'c:\ansysdev\Simulation\via_gsg.aedt',
+        ...                                             list(out.keys())[0],
+        ...                                             region="westeurope",
+        ...                                             job_name="MyJob"
+        ...                                             )
+        >>> o1=d.get_ansyscloud_job_info(job_id=job_id)
+        >>> o2=d.get_ansyscloud_job_info(job_name=job_name)
+        >>> d.download_job_results(job_id=job_id,
+        ...                        project_path=r'c:\ansysdev\Simulation\via_gsg.aedt',
+        ...                        results_folder=r'c:\ansysdev\Simulation\via_gsg_results')
+        >>> d.release_desktop(False,False)
+        """
         command = os.path.join(self.install_path, "common", "AnsysCloudCLI", "AnsysCloudCli.exe")
         ver = self.aedt_version_id.replace(".", "R")
         command = [command, "getQueues", "-p", "AEDT", "-v", ver, "--details"]
@@ -1862,7 +2009,7 @@ class Desktop(object):
         return dict_out
 
     @pyaedt_function_handler()
-    def download_job_results(self, job_id, project_path, results_folder, filter="*"):
+    def download_job_results(self, job_id, project_path, results_folder, filter="*"):  # pragma: no cover
         """Download job results to a specific folder from Ansys Cloud.
 
         Parameters
