@@ -1631,7 +1631,7 @@ class Desktop(object):
 
         Parameters
         ----------
-        project : str
+        project_file : str
             Full path to the project.
         clustername : str
             Name of the cluster to submit the job to.
@@ -1682,7 +1682,7 @@ class Desktop(object):
                 self.logger.error("AEDT shared path does not exist. Provide a full path.")
                 return False
             aedt_full_exe_path.replace("\\", "\\\\")
-        if project_name in self.project_list:
+        if project_name in self.project_list():
             self.odesktop.CloseProject(project_name)
         path_file = os.path.dirname(__file__)
         destination_reg = os.path.join(project_path, "Job_settings.areg")
@@ -1716,6 +1716,173 @@ class Desktop(object):
                     f1.write(line)
         f1.close()
         return self.odesktop.SubmitJob(os.path.join(project_path, "Job_settings.areg"), project_file)
+
+    @pyaedt_function_handler()
+    def submit_ansys_cloud_job(
+        self,
+        project_file,
+        config_name,
+        region,
+        numnodes=1,
+        numcores=32,
+        wait_for_license=True,
+        setting_file=None,
+    ):  # pragma: no cover
+        """Submit a job to be solved on a cluster.
+
+        Parameters
+        ----------
+        project_file : str
+            Full path to the project.
+        clustername : str
+            Name of the cluster to submit the job to.
+        aedt_full_exe_path : str, optional
+            Full path to the AEDT executable file. The default is ``None``, in which
+            case ``"/clustername/AnsysEM/AnsysEM2x.x/Win64/ansysedt.exe"`` is used.
+        numnodes : int, optional
+            Number of nodes. The default is ``1``.
+        numcores : int, optional
+            Number of cores. The default is ``32``.
+        wait_for_license : bool, optional
+             Whether to wait for the license to be validated. The default is ``True``.
+        setting_file : str, optional
+            Name of the file to use as a template. The default value is ``None``.
+
+        Returns
+        -------
+        int
+            ID of the job.
+
+        References
+        ----------
+
+        >>> oDesktop.SubmitJob
+        """
+
+        project_path = os.path.dirname(project_file)
+        project_name = os.path.basename(project_file).split(".")[0]
+        if project_name in self.project_list():
+            self.odesktop.CloseProject(project_name)
+        path_file = os.path.dirname(__file__)
+        destination_reg = os.path.join(project_path, "ansys_cloud.areg")
+        if not setting_file:
+            setting_file = os.path.join(path_file, "misc", "ansys_cloud.areg")
+        shutil.copy(setting_file, destination_reg)
+
+        f1 = open_file(destination_reg, "w")
+        with open_file(setting_file) as f:
+            lines = f.readlines()
+            for i in range(len(lines)):
+                line = lines[i]
+                if "NumTasks" in line:
+                    lin = "\\	\\	\\	\\	NumTasks={}\\\n".format(numcores)
+                    f1.write(lin)
+                if "NumMaxTasksPerNode" in line:
+                    lin = "\\	\\	\\	\\	NumMaxTasksPerNode={}\\\n".format(numcores)
+                    f1.write(lin)
+                elif "NumNodes=1" in line:
+                    lin = "\\	\\	\\	\\	NumNodes={}\\\n".format(numnodes)
+                    f1.write(lin)
+                elif "Name='Region'" in line:
+                    f1.write(lin)
+                    lin = "\\	\\	\\	\\	Value='{}'\n".format(region)
+                    f1.write(lin)
+                elif "Name='Config'" in line:
+                    f1.write(lin)
+                    lin = "\\	\\	\\	\\	Value='{}'\n".format(config_name)
+                    f1.write(lin)
+                else:
+                    f1.write(line)
+        f1.close()
+        return self.odesktop.SubmitJob(os.path.join(project_path, "ansys_cloud.areg"), project_file)
+
+    @pyaedt_function_handler()
+    def select_scheduler(self, scheduler_type, address=None, username=None, force_password_entry=False):
+        """Select a scheduler to submit the job.
+
+        Parameters
+        ----------
+        scheduler_type : str
+            Name of the scheduler.
+            Options are `"RSM"``, `""Windows HPC"``, `""LSF``, `""SGE"``, `""PBS"``, `""Ansys Cloud"``.
+        address : str, optional
+            String specifying the IP address or hostname of the head node or for the
+            remote host running the RSM service.
+        username : str, optional
+            Username string to use for remote RSM service (or blank to use username
+            stored in current submission host user settings). If the (non-blank) username doesn't match the
+            username stored in current submission host user
+            settings, then the Select Scheduler dialog is displayed to allow for password entry prior to job submission.
+        force_password_entry : bool, optional
+            Boolean used to force display of the Select Scheduler GUI to allow for
+             password entry prior to job submission.
+
+
+        Returns
+        -------
+        str
+            The selected scheduler (if selection was successful, this string should match the input option string,
+            although it could differ in upper/lowercase).
+        """
+        if not address:
+            return self.odesktop.SelectScheduler(scheduler_type)
+        elif not username:
+            return self.odesktop.SelectScheduler(scheduler_type, address)
+        else:
+            return self.odesktop.SelectScheduler(scheduler_type, address, username, str(force_password_entry))
+
+    @pyaedt_function_handler()
+    def get_available_cloud_config(self, region="westeurope"):
+        from pyaedt.generic.general_methods import generate_unique_name
+
+        command = os.path.join(self.install_path, "common", "AnsysCloudCLI", "AnsysCloudCli.exe")
+        ver = self.aedt_version_id.replace(".", "R")
+        command = [command, "getQueues", "-p", "AEDT", "-v", ver, "--details"]
+        cloud_info = os.path.join(tempfile.gettempdir(), generate_unique_name("cloud_info"))
+        with open(cloud_info, "w") as outfile:
+            subprocess.Popen(" ".join(command), stdout=outfile).wait()
+
+        dict_out = {}
+        with open(cloud_info, "r") as infile:
+            lines = infile.readlines()
+            for i in range(len(lines)):
+                line = lines[i].strip()
+                if line.endswith(ver):
+                    split_line = line.split("_")
+                    if split_line[1] == region:
+                        name = "{} {}".format(split_line[0], split_line[3])
+                        dict_out[name] = {"Name": line}
+                        for k in range(i + 1, i + 8):
+                            spl = lines[k].split(":")
+                            try:
+                                dict_out[name][spl[0].strip()] = int(spl[1].strip())
+                            except ValueError:
+                                dict_out[name][spl[0].strip()] = spl[1].strip()
+        os.unlink(cloud_info)
+        return dict_out
+
+    @pyaedt_function_handler()
+    def download_job_results(self, job_id, project_path, results_folder, filter="*"):
+        """Download job results to a specific folder from Ansys Cloud.
+
+        Parameters
+        ----------
+        job_id : str
+            Job Id of solved project.
+        project_path : str
+            Project path to aedt file. The ".q" file will be created there to monitor download status.
+        results_folder : str
+            Folder where the simulation results will be downloaded.
+        filter : str, optional
+            A string containing filters to download. The delimiter of file types is ";". If no filter
+            specified, the default filter "*" will be applied, which requests all files for download
+
+        Returns
+        -------
+        bool
+        """
+        download_status = self.odesktop.DownloadJobResults(job_id, project_path, results_folder, filter)
+        return True if download_status == 1 else False
 
     @property
     def are_there_simulations_running(self):
