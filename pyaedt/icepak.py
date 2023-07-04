@@ -3108,7 +3108,7 @@ class Icepak(FieldAnalysis3D):
         }
 
         self.modeler.primitives[object_name].material_name = "Ceramic_material"
-        boundary = NetworkObject(self, object_name, props, "Network")
+        boundary = BoundaryObject(self, object_name, props, "Network")
         if boundary.create():
             self._boundaries[boundary.name] = boundary
             self.modeler.primitives[object_name].solve_inside = False
