@@ -3543,6 +3543,10 @@ class NetworkObject(BoundaryObject):
             props_arg = props
 
         super(NetworkObject, self).__init__(app, self._name, props_arg, "Network", False)
+        if self.props is None:
+            self._props = {}
+        else:
+            self._props = self.props
         self._nodes = []
         self._links = []
         self._schematic_data = OrderedDict({})
@@ -3770,6 +3774,10 @@ class NetworkObject(BoundaryObject):
         """
         self._update_from_props()
         return {node.name: node for node in self._nodes if node.node_type == "BoundaryNode"}
+
+    @property
+    def props(self):
+        return self._props
 
     @property
     def name(self):
