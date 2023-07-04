@@ -1768,8 +1768,7 @@ class Desktop(object):
         >>> d = Desktop(specified_version="2023.1", new_desktop_session=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
-        >>> job_id, job_name = d.submit_ansys_cloud_job(
-        ...                                             r'c:\ansysdev\Simulation\via_gsg.aedt',
+        >>> job_id, job_name = d.submit_ansys_cloud_job(r'c:\ansysdev\Simulation\via_gsg.aedt',
         ...                                             list(out.keys())[0],
         ...                                             region="westeurope",
         ...                                             job_name="MyJob"
@@ -1858,8 +1857,7 @@ class Desktop(object):
         >>> d = Desktop(specified_version="2023.1", new_desktop_session=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
-        >>> job_id, job_name = d.submit_ansys_cloud_job(
-        ...                                             r'c:\ansysdev\Simulation\via_gsg.aedt',
+        >>> job_id, job_name = d.submit_ansys_cloud_job(r'c:\ansysdev\Simulation\via_gsg.aedt',
         ...                                             list(out.keys())[0],
         ...                                             region="westeurope",
         ...                                             job_name="MyJob"
@@ -1926,8 +1924,7 @@ class Desktop(object):
         >>> d = Desktop(specified_version="2023.1", new_desktop_session=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
-        >>> job_id, job_name = d.submit_ansys_cloud_job(
-        ...                                             r'c:\ansysdev\Simulation\via_gsg.aedt',
+        >>> job_id, job_name = d.submit_ansys_cloud_job(r'c:\ansysdev\Simulation\via_gsg.aedt',
         ...                                             list(out.keys())[0],
         ...                                             region="westeurope",
         ...                                             job_name="MyJob"
@@ -1969,8 +1966,7 @@ class Desktop(object):
         >>> d = Desktop(specified_version="2023.1", new_desktop_session=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
-        >>> job_id, job_name = d.submit_ansys_cloud_job(
-        ...                                             r'c:\ansysdev\Simulation\via_gsg.aedt',
+        >>> job_id, job_name = d.submit_ansys_cloud_job(r'c:\ansysdev\Simulation\via_gsg.aedt',
         ...                                             list(out.keys())[0],
         ...                                             region="westeurope",
         ...                                             job_name="MyJob"
