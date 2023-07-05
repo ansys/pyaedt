@@ -444,7 +444,7 @@ class BoundaryObject(BoundaryCommon, object):
             Returns Type of the boundary
         """
         if not self._type:
-            if self.available_properties and "props" in self.__dir__():
+            if self.available_properties:
                 if "Type" in self.available_properties:
                     self._type = self.props["Type"]
                 elif "BoundType" in self.available_properties:

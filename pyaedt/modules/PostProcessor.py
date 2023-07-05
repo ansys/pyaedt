@@ -3541,7 +3541,6 @@ class PostProcessor(PostProcessorCommon, object):
             self.logger.warning("No boundaries defined")
             return True
         for bc_obj in available_bcs:
-            bc_obj.type
             if bc_obj.type == "Solid Block" or bc_obj.type == "Block":
                 n = len(bc_obj.props["Objects"])
                 if "Total Power Variation Data" not in bc_obj.props:
