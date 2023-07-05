@@ -8,7 +8,6 @@ from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 from pyaedt.generic.constants import AEDT_UNITS
 
 # from pyaedt.generic.general_methods import property
-from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import filter_string
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
@@ -648,7 +647,7 @@ class CircuitComponents(object):
             model_name = self.create_model_from_touchstone(model_name)
         arg1 = ["NAME:ComponentProps", "Name:=", model_name, "Id:=", str(id)]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
-        id = _retry_ntimes(10, self.oeditor.CreateComponent, arg1, arg2)
+        id = self.oeditor.CreateComponent(arg1, arg2)
         id = int(id.split(";")[1])
         self.add_id_to_component(id)
         return self.components[id]
@@ -703,7 +702,7 @@ class CircuitComponents(object):
         xpos, ypos = self._get_location(location)
 
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
-        id = _retry_ntimes(10, self.oeditor.CreateComponent, arg1, arg2)
+        id = self.oeditor.CreateComponent(arg1, arg2)
         id = int(id.split(";")[1])
         # self.refresh_all_ids()
         self.add_id_to_component(id)
@@ -785,9 +784,7 @@ class CircuitComponents(object):
                     nexxim_data = list(nexxim[nexxim.index(el) + 1])
                     nexxim_data[1] = "\n".join(global_netlist_list).replace("\\", "/")
                     nexxim[nexxim.index(el) + 1] = nexxim_data
-        _retry_ntimes(
-            10,
-            self.o_component_manager.Edit,
+        self.o_component_manager.Edit(
             name,
             ["Name:" + component_name, ["NAME:CosimDefinitions", nexxim, "DefaultCosim:=", "DefaultNetlist"]],
         )
@@ -914,9 +911,7 @@ class CircuitComponents(object):
                 elif el == "GRef:=":
                     nexxim_data = list(nexxim[nexxim.index(el) + 1])
                     nexxim[nexxim.index(el) + 1] = nexxim_data
-        _retry_ntimes(
-            10,
-            self.o_component_manager.Edit,
+        self.o_component_manager.Edit(
             name,
             ["Name:" + component_name, ["NAME:CosimDefinitions", nexxim, "DefaultCosim:=", "DefaultNetlist"]],
         )
@@ -966,7 +961,7 @@ class CircuitComponents(object):
             Number of components.
 
         """
-        obj = _retry_ntimes(10, self.oeditor.GetAllElements)
+        obj = self.oeditor.GetAllElements()
         for el in obj:
             name = el.split(";")
             if len(name) > 1 and str(id) == name[1]:
@@ -1023,12 +1018,12 @@ class CircuitComponents(object):
         >>> oEditor.GetComponentPins
         """
         if isinstance(partid, CircuitComponent):
-            pins = _retry_ntimes(10, self.oeditor.GetComponentPins, partid.composed_name)
+            pins = self.oeditor.GetComponentPins(partid.composed_name)
         elif isinstance(partid, str):
-            pins = _retry_ntimes(10, self.oeditor.GetComponentPins, partid)
+            pins = self.oeditor.GetComponentPins(partid)
             # pins = self.oeditor.GetComponentPins(partid)
         else:
-            pins = _retry_ntimes(10, self.oeditor.GetComponentPins, self.components[partid].composed_name)
+            pins = self.oeditor.GetComponentPins(self.components[partid].composed_name)
             # pins = self.oeditor.GetComponentPins(self.components[partid].composed_name)
         return list(pins)
 
@@ -1055,15 +1050,11 @@ class CircuitComponents(object):
 
         """
         if isinstance(partid, str):
-            x = _retry_ntimes(30, self.oeditor.GetComponentPinLocation, partid, pinname, True)
-            y = _retry_ntimes(30, self.oeditor.GetComponentPinLocation, partid, pinname, False)
+            x = self.oeditor.GetComponentPinLocation(partid, pinname, True)
+            y = self.oeditor.GetComponentPinLocation(partid, pinname, False)
         else:
-            x = _retry_ntimes(
-                30, self.oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, True
-            )
-            y = _retry_ntimes(
-                30, self.oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, False
-            )
+            x = self.oeditor.GetComponentPinLocation(self.components[partid].composed_name, pinname, True)
+            y = self.oeditor.GetComponentPinLocation(self.components[partid].composed_name, pinname, False)
         return self._convert_point_to_units([x, y])
 
     @pyaedt_function_handler()
@@ -1162,7 +1153,7 @@ class CircuitComponents(object):
         arg1 = ["NAME:WireData", "Name:=", wire_name, "Id:=", wire_id, "Points:=", points]
         arg2 = ["NAME:Attributes", "Page:=", 1]
         try:
-            wire_id = _retry_ntimes(10, self.oeditor.CreateWire, arg1, arg2)
+            wire_id = self.oeditor.CreateWire(arg1, arg2)
             w = Wire(self._modeler)
             for segment in self._app.oeditor.GetWireSegments(wire_id):
                 key = "SegmentID_{}".format(segment.split(" ")[3])

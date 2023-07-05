@@ -283,6 +283,7 @@ class TestClass(BasisTest, object):
             assert str(type(self.aedtapp.odesktop)) in [
                 "<class 'win32com.client.CDispatch'>",
                 "<class 'PyDesktopPlugin.AedtObjWrapper'>",
+                "<class 'pyaedt.generic.grpc_plugin.AedtObjWrapper'>",
             ]
 
     def test_28_get_pyaedt_app(self):
