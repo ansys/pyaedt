@@ -378,6 +378,13 @@ class BoundaryObject(BoundaryCommon, object):
 
     @property
     def object_properties(self):
+        """Object-oriented properties.
+
+        Returns
+        -------
+        class:`pyaedt.modeler.cad.elements3d.BinaryTreeNode`
+
+        """
         from pyaedt.modeler.cad.elements3d import BinaryTreeNode
 
         child_object = None
@@ -881,6 +888,14 @@ class MaxwellParameters(BoundaryCommon, object):
 
     @property
     def object_properties(self):
+        """Object-oriented properties.
+
+        Returns
+        -------
+        class:`pyaedt.modeler.cad.elements3d.BinaryTreeNode`
+
+        """
+
         from pyaedt.modeler.cad.elements3d import BinaryTreeNode
 
         cc = self._app.odesign.GetChildObject("Parameters")
@@ -1780,6 +1795,13 @@ class BoundaryObject3dLayout(BoundaryCommon, object):
 
     @property
     def object_properties(self):
+        """Object-oriented properties.
+
+        Returns
+        -------
+        class:`pyaedt.modeler.cad.elements3d.BinaryTreeNode`
+
+        """
         from pyaedt.modeler.cad.elements3d import BinaryTreeNode
 
         cc = self._app.odesign.GetChildObject("Excitations")
