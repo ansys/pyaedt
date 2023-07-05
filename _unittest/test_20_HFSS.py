@@ -1513,3 +1513,8 @@ class TestClass(BasisTest, object):
         assert term.name == "test"
         term.props["TerminalResistance"] = "1ohm"
         assert term.props["TerminalResistance"] == "1ohm"
+
+    def test_61_set_power_calc(self):
+        assert self.aedtapp.set_radiated_power_calc_method()
+        assert self.aedtapp.set_radiated_power_calc_method("Radiation Surface Integral")
+        assert self.aedtapp.set_radiated_power_calc_method("Far Field Integral")

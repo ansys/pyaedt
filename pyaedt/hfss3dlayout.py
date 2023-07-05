@@ -1817,6 +1817,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         air_vertical_positive_padding=None,
         air_vertical_negative_padding=None,
         airbox_values_as_dim=True,
+        air_horizontal_padding=None,
     ):
         """Edit HFSS 3D Layout extents.
 
@@ -1840,6 +1841,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             Airbox vertical negative padding. The default is ``None``.
         airbox_values_as_dim : bool, optional
             Either if inputs are dims or not. Default is `True`.
+        air_horizontal_padding : float, optional
+            Airbox horizontal padding. The default is ``None``.
+
 
         Returns
         -------
@@ -1862,6 +1866,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         if not air_truncate_model_at_ground_layer == "keep":
             arg.append("TruncAtGnd:=")
             arg.append(air_truncate_model_at_ground_layer)
+        if air_horizontal_padding:
+            arg.append("AirHorExt:=")
+            arg.append(["Ext:=", str(air_horizontal_padding), "Dim:=", airbox_values_as_dim])
         if air_vertical_positive_padding:
             arg.append("AirPosZExt:=")
             arg.append(["Ext:=", air_vertical_positive_padding, "Dim:=", airbox_values_as_dim])
