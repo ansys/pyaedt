@@ -383,7 +383,8 @@ class Design(AedtObjects):
 
         Returns
         -------
-        Dictionary of excitations.
+        dict
+            Dictionary of excitations.
         """
         _dict_out = {}
         for bound in self._excitations:
