@@ -448,7 +448,7 @@ class BoundaryObject(BoundaryCommon, object):
         Returns
         -------
         str
-            Returns Type of the boundary
+            Returns the type of the boundary.
         """
         if not self._type:
             if self.available_properties:
