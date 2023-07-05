@@ -3936,9 +3936,9 @@ class Icepak(FieldAnalysis3D):
             - For the ``"Type"`` key, accepted values are ``"Temp Dep"`` and ``"Transient"``.
             - For the ``"Function"`` key, acceptable values depend on the ``"Type"`` key
               selection. When the ``"Type"`` key is set to ``"Temp Dep"``, the only
-              accepted value is ````"Piecewise Linear"`` . When the ``"Type"`` key is
+              accepted value is ``"Piecewise Linear"``. When the ``"Type"`` key is
               set to ``"Transient"``, acceptable values are `"Exponential"``, `"Linear"``,
-              ```"Piecewise Linear"``, ``"Power Law"``, ``"Sinusoidal"``, and ``"Square
+              ``"Piecewise Linear"``, ``"Power Law"``, ``"Sinusoidal"``, and ``"Square
                Wave"``.
             - For the ``"Values"`` key, a list of strings contain the parameters required by
               the ``"Function"`` key selection. For example, whn``"Linear"`` is set as the
@@ -4069,23 +4069,17 @@ class Icepak(FieldAnalysis3D):
             String with value and units of the assignment. If ``"Total Power"`` is
             the assignment type, ``"Joule Heating"`` can be used.
             For a temperature-dependent or transient assignment, a dictionary can be used.
-            The dictionary should contain three keys:
-            ``"Type"``, ``"Function"``, and ``"Values"``.
-
+            The dictionary should contain three keys: ``"Type"``, ``"Function"``, and ``"Values"``.
             - For the ``"Type"`` key, accepted values are ``"Temp Dep"`` and ``"Transient"``.
-            - For the ``"Function"`` key, acceptable values depend on the ``"Type"`` key
-              selection. When the ``"Type"`` key is set to ``"Temp Dep"``, the only
-              accepted value is ````"Piecewise Linear"`` . When the ``"Type"`` key is
-              set to ``"Transient"``, acceptable values are `"Exponential"``, `"Linear"``,
-              ```"Piecewise Linear"``, ``"Power Law"``, ``"Sinusoidal"``, and ``"Square
-               Wave"``.
-            - For the ``"Values"`` key, a list of strings contain the parameters required by
-              the ``"Function"`` key selection. For example, whn``"Linear"`` is set as the
-              ``"Function"`` key, two parameters are required: the value of the variable
-              at t=0 and the slope of the line. For the parameters required by each
-              ``"Function"`` key selection, see the Icepak documentation. The parameters
-              must contain the units where needed.
-
+            - For the ``"Function"`` key, acceptable values depend on the ``"Type"`` key selection. When the ``"Type"``
+            key is set to ``"Temp Dep"``, the only accepted value is ``"Piecewise Linear"``.
+            When the ``"Type"`` key is set to ``"Transient"``, acceptable values are `"Exponential"``, `"Linear"``,
+            ``"Piecewise Linear"``, ``"Power Law"``, ``"Sinusoidal"``, and ``"Square Wave"``.
+            - For the ``"Values"`` key, a list of strings contain the parameters required by the ``"Function"``
+            key selection. For example, whn``"Linear"`` is set as the ``"Function"`` key, two parameters are required:
+             the value of the variable at t=0 and the slope of the line.
+             For the parameters required by each ``"Function"`` key selection, see the Icepak documentation.
+             The parameters must contain the units where needed.
         boundary_name : str, optional
             Name of the source boundary. The default is ``None``, in which case the
             boundary is automatically generated.
@@ -4096,7 +4090,6 @@ class Icepak(FieldAnalysis3D):
             For a transient assignment, a dictionary can be used as described for the
             ``assignment_value argument``. Temperature dependent assignment is not supported.
             The default is ``"AmbientTemp"``.
-
 
         Returns
         -------
