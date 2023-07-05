@@ -16,7 +16,7 @@ from pyaedt.modeler.schematic import ModelerEmit
 
 
 class Emit(Design, object):
-    """Provides the Emit application interface.
+    """Provides the EMIT application interface.
 
     Parameters
     ----------
@@ -127,7 +127,7 @@ class Emit(Design, object):
         """Constructor for the ``FieldAnalysisEmit`` class"""
 
         self._units = {}
-        """Default Emit units."""
+        """Default EMIT units."""
 
         Design.__init__(
             self,
@@ -148,7 +148,7 @@ class Emit(Design, object):
         self._couplings = CouplingsEmit(self)
         if self._aedt_version > "2023.1":
             # the next 2 lines of code are needed to point
-            # the Emit object to the correct EmiApiPython
+            # the EMIT object to the correct EmiApiPython
             # module for the current AEDT version
             emit_core._set_api(self.aedt_version_id)
             self._emit_api = emit_core.emit_api_python().EmitApi()
@@ -178,7 +178,7 @@ class Emit(Design, object):
 
     @property
     def couplings(self):
-        """Emit Couplings.
+        """EMIT Couplings.
 
         Returns
         -------
