@@ -881,7 +881,7 @@ class Components(object):
                 solder_ball_height = sball_diam / 2
             self.set_solder_ball(component, solder_ball_height, sball_diam)
             for pin in cmp_pins:
-                self._padstack.create_coax_port(padstackinstance=pin, user_defined_port_name=port_name)
+                self._padstack.create_coax_port(padstackinstance=pin, name=port_name)
 
         elif port_type == SourceType.CircPort:  # pragma no cover
             ref_pins = [

@@ -474,7 +474,7 @@ class EdbPadstacks(object):
             Whether to use ``.`` as the separator for the naming convention, which
             is ``[component][net][pin]``. The default is ``True``. If ``False``, ``_`` is
             used as the separator instead.
-        user_defined_port_name : str
+        name : str
             Port name for overwriting the default port-naming convention,
             which is ``[component][net][pin]``. The port name must be unique.
             If a port with the specified name already exists, the
