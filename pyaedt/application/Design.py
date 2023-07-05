@@ -400,7 +400,8 @@ class Design(AedtObjects):
 
         Returns
         -------
-        List of :class:`pyaedt.modules.Boundary.BoundaryObject`
+        list
+            List of :class:`pyaedt.modules.Boundary.BoundaryObject`.
         """
         design_excitations = {}
 
