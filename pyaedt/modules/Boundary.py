@@ -925,7 +925,7 @@ class MaxwellParameters(BoundaryCommon, object):
 
     @property
     def name(self):
-        """Boundary Name."""
+        """Boundary name."""
         return self._name
 
     @name.setter
