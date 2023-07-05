@@ -910,7 +910,7 @@ class MaxwellParameters(BoundaryCommon, object):
 
     @property
     def props(self):
-        """Retrieve maxwell parameters data.
+        """Maxwell parameter data.
 
         Returns
         -------
