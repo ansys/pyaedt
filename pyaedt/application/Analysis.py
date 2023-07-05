@@ -437,7 +437,9 @@ class Analysis(Design, object):
         first_element_filter=None,
         second_element_filter=None,
         category="dB(S",
+        differential_pairs=[],
     ):
+        # type: (bool, bool, str, str, str, list) -> list
         """Retrieve a list of traces of specified designs ready to use in plot reports.
 
         Parameters
@@ -452,9 +454,11 @@ class Analysis(Design, object):
         second_element_filter : str, optional
             Filter to apply to the second element of the equation.
             This parameter accepts ``*`` and ``?`` as special characters. The default is ``None``.
-        category : str
+        category : str, optional
             Plot category name as in the report (including operator).
             The default is ``"dB(S"``,  which is the plot category name for capacitance.
+        differential_pairs : list, optional
+            Differential pairs defined. The default is ``[]``.
 
         Returns
         -------
@@ -466,7 +470,10 @@ class Analysis(Design, object):
         >>> from pyaedt import Hfss3dLayout
         >>> hfss = Hfss3dLayout(project_path)
         >>> hfss.get_traces_for_plot(first_element_filter="Bo?1",
-        ...                           second_element_filter="GND*", category="dB(S")
+        ...                          second_element_filter="GND*", category="dB(S")
+        >>> hfss.get_traces_for_plot(differential_pairs=['Diff_U0_data0','Diff_U1_data0','Diff_U1_data1'],
+        ...                          first_element_filter="*_U1_data?",
+        ...                          second_element_filter="*_U0_*", category="dB(S")
         """
         if not first_element_filter:
             first_element_filter = "*"
@@ -474,79 +481,18 @@ class Analysis(Design, object):
             second_element_filter = "*"
         list_output = []
         end_str = ")" * (category.count("(") + 1)
+        if differential_pairs:
+            excitations = differential_pairs
+        else:
+            excitations = self.excitations
         if get_self_terms:
-            for el in self.excitations:
+            for el in excitations:
                 value = "{}({},{}{}".format(category, el, el, end_str)
                 if filter_tuple(value, first_element_filter, second_element_filter):
                     list_output.append(value)
         if get_mutual_terms:
-            for el1 in self.excitations:
-                for el2 in self.excitations:
-                    if el1 != el2:
-                        value = "{}({},{}{}".format(category, el1, el2, end_str)
-                        if filter_tuple(value, first_element_filter, second_element_filter):
-                            list_output.append(value)
-        return list_output
-
-    @pyaedt_function_handler()
-    def get_diff_traces_for_plot(
-        self,
-        difflist=[],
-        get_self_terms=True,
-        get_mutual_terms=True,
-        first_element_filter=None,
-        second_element_filter=None,
-        category="dB(S",
-    ):
-        """Retrieve a list of traces of specified designs ready to use in plot reports.
-
-        Parameters
-        ----------
-        difflist : list
-            List of differential pairs defined via the 3DL UI. The default is ``[]``. For example, ``["Diff_RX0"]``.
-        get_self_terms : bool, optional
-            Whether to return self terms. The default is ``True``.
-        get_mutual_terms : bool, optional
-            Whether to return mutual terms. The default is ``True``.
-        first_element_filter : str, optional
-            Filter to apply to the first element of the equation.
-            This parameter accepts ``*`` and ``?`` as special characters. The default is ``None``.
-        second_element_filter : str, optional
-            Filter to apply to the second element of the equation.
-            This parameter accepts ``*`` and ``?`` as special characters. The default is ``None``.
-        category : str
-            Plot category name as in the report (including operator).
-            The default is ``"dB(S"``,  which is the plot category name for capacitance.
-
-        Returns
-        -------
-        list
-            List of traces of specified designs ready to use in plot reports.
-
-        Examples
-        --------
-        >>> from pyaedt import Hfss3dLayout
-        >>> hfss = Hfss3dLayout(project_path)
-        >>> hfss.get_diff_traces_for_plot(difflist=['Diff_U0_data0','Diff_U0_data1','Diff_U1_data0','Diff_U1_data1'],first_element_filter="*_U1_data?",
-        ...                           second_element_filter="*_U0_*", category="dB(S")
-        """
-        if len(difflist) == 0:
-            self.logger.error("difflist argument cannot be empty.")
-            return False
-        if not first_element_filter:
-            first_element_filter = "*"
-        if not second_element_filter:
-            second_element_filter = "*"
-        list_output = []
-        end_str = ")" * (category.count("(") + 1)
-        if get_self_terms:
-            for el in difflist:
-                value = "{}({},{}{}".format(category, el, el, end_str)
-                if filter_tuple(value, first_element_filter, second_element_filter):
-                    list_output.append(value)
-        if get_mutual_terms:
-            for el1 in difflist:
-                for el2 in difflist:
+            for el1 in excitations:
+                for el2 in excitations:
                     if el1 != el2:
                         value = "{}({},{}{}".format(category, el1, el2, end_str)
                         if filter_tuple(value, first_element_filter, second_element_filter):

@@ -1656,8 +1656,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         return True
 
     @pyaedt_function_handler()
-    def get_ui_defined_diff_pairs(self):
-        """Retrieve a list of differential pairs using existing ports.
+    def get_differential_pairs(self):
+        # type: () -> list
+        """Get the list defined differential pairs.
 
         Parameters
         ----------
@@ -1671,19 +1672,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         Examples
         --------
         >>> from pyaedt import Hfss3dLayout
-        >>> hfss = Hfss3dLayout(project_path)
+        >>> hfss = Hfss3dLayout()
         >>> hfss.get_defined_diff_pairs()
-
-        References
-        ----------
-        Under 3D Layout UI, RMB click on Excitations > Differential Pairs... to obtain differential pairs
         """
 
         list_output = []
         if len(self.excitations) != 0:
             tmpfile1 = os.path.join(self.working_directory, generate_unique_name("tmp"))
-            self.oexcitation.SaveDiffPairsToFile(tmpfile1)
-            if os.stat(tmpfile1).st_size != 0:
+            file_flag = self.save_diff_pairs_to_file(tmpfile1)
+            if file_flag and os.stat(tmpfile1).st_size != 0:
                 with open_file(tmpfile1, "r") as fi:
                     fi_lst = fi.readlines()
                 list_output = [line.split(",")[4] for line in fi_lst]
@@ -1699,6 +1696,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @pyaedt_function_handler()
     def load_diff_pairs_from_file(self, filename):
+        # type: (str) -> bool
         """Load differtential pairs definition from file.
 
         You can use the ``save_diff_pairs_to_file`` method to obtain the file format.
@@ -1738,9 +1736,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @pyaedt_function_handler()
     def save_diff_pairs_to_file(self, filename):
+        # type: (str) -> bool
         """Save differtential pairs definition to a file.
 
-        If a filee with the specified name already exists, it is overwritten.
+        If a file with the specified name already exists, it is overwritten.
 
         Parameters
         ----------
