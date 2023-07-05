@@ -363,6 +363,12 @@ class Design(AedtObjects):
 
     @property
     def boundaries_by_type(self):
+        """Design boundaries by type.
+
+        Returns
+        -------
+        Dictionary of boundaries.
+        """
         _dict_out = {}
         for bound in self.boundaries:
             if bound.type in _dict_out:
@@ -373,6 +379,12 @@ class Design(AedtObjects):
 
     @property
     def excitations_by_type(self):
+        """Design excitations by tupe.
+
+        Returns
+        -------
+        Dictionary of excitations.
+        """
         _dict_out = {}
         for bound in self._excitations:
             if bound.type in _dict_out:

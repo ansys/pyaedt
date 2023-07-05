@@ -3932,21 +3932,18 @@ class Icepak(FieldAnalysis3D):
             ``"Joule Heating"``. For a temperature-dependent or transient
             assignment, a dictionary can be used. The dictionary should contain three keys:
             ``"Type"``, ``"Function"``, and ``"Values"``.
-
             - For the ``"Type"`` key, accepted values are ``"Temp Dep"`` and ``"Transient"``.
             - For the ``"Function"`` key, acceptable values depend on the ``"Type"`` key
-              selection. When the ``"Type"`` key is set to ``"Temp Dep"``, the only
-              accepted value is ``"Piecewise Linear"``. When the ``"Type"`` key is
-              set to ``"Transient"``, acceptable values are `"Exponential"``, `"Linear"``,
-              ``"Piecewise Linear"``, ``"Power Law"``, ``"Sinusoidal"``, and ``"Square
-               Wave"``.
+            selection. When the ``"Type"`` key is set to ``"Temp Dep"``, the only
+            accepted value is ``"Piecewise Linear"``. When the ``"Type"`` key is
+            set to ``"Transient"``, acceptable values are `"Exponential"``, `"Linear"``,
+            ``"Piecewise Linear"``, ``"Power Law"``, ``"Sinusoidal"``, and ``"SquareWave"``.
             - For the ``"Values"`` key, a list of strings contain the parameters required by
-              the ``"Function"`` key selection. For example, whn``"Linear"`` is set as the
-              ``"Function"`` key, two parameters are required: the value of the variable
-              at t=0 and the slope of the line. For the parameters required by each
-              ``"Function"`` key selection, see the Icepak documentation. The parameters
-              must contain the units where needed.
-
+            the ``"Function"`` key selection. For example, whn``"Linear"`` is set as the
+            ``"Function"`` key, two parameters are required: the value of the variable
+            at t=0 and the slope of the line. For the parameters required by each
+            ``"Function"`` key selection, see the Icepak documentation. The parameters
+            must contain the units where needed.
         boundary_name : str, optional
             Name of the source boundary. The default is ``None``, in which case the
             boundary name is automatically generated.
@@ -3964,7 +3961,6 @@ class Icepak(FieldAnalysis3D):
             see the description for the preceding ``power_assignment`` parameter. The
             default is ``"AmbientTemp"``, which is used if the ``htc`` parameter is not
             set to ``None``.
-
 
         Returns
         -------
@@ -3984,6 +3980,7 @@ class Icepak(FieldAnalysis3D):
         >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox3", "copper")
         >>> power_dict = {"Type": "Transient", "Function": "Sinusoidal", "Values": ["0W", 1, 1, "1s"]}
         >>> block = ipk.assign_solid_block("BlockBox3", power_dict)
+
         """
         if ext_temperature != "AmbientTemp" and ext_temperature is not None and not htc:
             self.logger.add_error_message("Set an argument for ``htc`` or remove the ``ext_temperature`` argument.")
@@ -4055,8 +4052,7 @@ class Icepak(FieldAnalysis3D):
     def assign_hollow_block(
         self, object_name, assignment_type, assignment_value, boundary_name=None, external_temperature="AmbientTemp"
     ):
-        """
-        Assign block boundary for hollow objects.
+        """Assign block boundary for hollow objects.
 
         Parameters
         ----------
@@ -4077,9 +4073,9 @@ class Icepak(FieldAnalysis3D):
             ``"Piecewise Linear"``, ``"Power Law"``, ``"Sinusoidal"``, and ``"Square Wave"``.
             - For the ``"Values"`` key, a list of strings contain the parameters required by the ``"Function"``
             key selection. For example, whn``"Linear"`` is set as the ``"Function"`` key, two parameters are required:
-             the value of the variable at t=0 and the slope of the line.
-             For the parameters required by each ``"Function"`` key selection, see the Icepak documentation.
-             The parameters must contain the units where needed.
+            the value of the variable at t=0 and the slope of the line.
+            For the parameters required by each ``"Function"`` key selection, see the Icepak documentation.
+            The parameters must contain the units where needed.
         boundary_name : str, optional
             Name of the source boundary. The default is ``None``, in which case the
             boundary is automatically generated.
@@ -4088,7 +4084,7 @@ class Icepak(FieldAnalysis3D):
             coefficient. If a float value is specified, the ``"cel"`` unit is automatically
             added.
             For a transient assignment, a dictionary can be used as described for the
-            ``assignment_value argument``. Temperature dependent assignment is not supported.
+            ``assignment_value`` argument. Temperature dependent assignment is not supported.
             The default is ``"AmbientTemp"``.
 
         Returns
@@ -4110,6 +4106,7 @@ class Icepak(FieldAnalysis3D):
         >>> box.solve_inside = False
         >>> temp_dict = {"Type": "Transient", "Function": "Square Wave", "Values": ["1cel", "0s", "1s", "0.5s", "0cel"]}
         >>> block = ipk.assign_hollow_block("BlockBox5", "Heat Transfer Coefficient", "1w_per_m2kel", "Test", temp_dict)
+
         """
         if assignment_value == "Joule Heating" and assignment_type != "Total Power":
             self.logger.add_error_message(
@@ -4343,7 +4340,6 @@ class Icepak(FieldAnalysis3D):
             Prescribe the direction of the massflow. Default is ``"None"``, in which case a
             massflow normal to the boundary is prescribed.
 
-
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
@@ -4359,6 +4355,7 @@ class Icepak(FieldAnalysis3D):
         >>> icepak = pyaedt.Icepak()
         >>> f_id = icepak.modeler["Region"].faces[0].id
         >>> icepak.assign_free_opening(f_id)
+
         """
         # Sanitize input
         for i in range(len(velocity)):
