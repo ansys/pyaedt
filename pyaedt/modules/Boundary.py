@@ -1830,7 +1830,7 @@ class BoundaryObject3dLayout(BoundaryCommon, object):
 
     @property
     def props(self):
-        """Retrieve excitation data.
+        """Excitation data.
 
         Returns
         -------
