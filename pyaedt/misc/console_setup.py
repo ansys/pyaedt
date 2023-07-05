@@ -22,7 +22,8 @@ except ImportError:
     import pyaedt
 
 
-pyaedt.settings.use_grpc_api = False
+# pyaedt.settings.use_grpc_api = False
+settings = pyaedt.settings
 from pyaedt import Desktop
 from pyaedt.generic.general_methods import active_sessions
 from pyaedt.generic.general_methods import is_windows
@@ -46,7 +47,7 @@ student_version = False
 
 for session in sessions:
     if session[0] == aedt_process_id and session[1] != -1:
-        pyaedt.settings.use_grpc_api = True
+        # pyaedt.settings.use_grpc_api = True
         port = session[1]
         session_found = True
         break
@@ -57,7 +58,7 @@ if not session_found:
     sessions = active_sessions(version=version, student_version=True)
     for session in sessions:
         if session[0] == aedt_process_id and session[1] != -1:
-            pyaedt.settings.use_grpc_api = True
+            # pyaedt.settings.use_grpc_api = True
             port = session[1]
             session_found = True
             student_version = True

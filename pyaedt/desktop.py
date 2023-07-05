@@ -39,7 +39,8 @@ else:
 from pyaedt import __version__
 from pyaedt import pyaedt_function_handler
 from pyaedt import settings
-from pyaedt.generic.general_methods import _pythonver
+
+# from pyaedt.generic.general_methods import _pythonver
 from pyaedt.generic.general_methods import active_sessions
 from pyaedt.generic.general_methods import com_active_sessions
 from pyaedt.generic.general_methods import grpc_active_sessions
@@ -54,13 +55,13 @@ pyaedtversion = __version__
 
 modules = [tup[1] for tup in pkgutil.iter_modules()]
 
-if is_ironpython:
-    _com = "ironpython"
-elif is_windows and "pythonnet" in modules:
-    _com = "pythonnet_v3"
-else:
-    _com = "gprc_v3"
-    settings.use_grpc_api = True
+# if is_ironpython:
+#     _com = "ironpython"
+# elif is_windows and "pythonnet" in modules:
+#     _com = "pythonnet_v3"
+# else:
+#     _com = "gprc_v3"
+#     settings.use_grpc_api = True
 
 
 @pyaedt_function_handler()
@@ -204,7 +205,7 @@ def _delete_objects():
     settings._non_graphical = False
     settings._aedt_version = None
     settings.remote_api = False
-    settings._use_grpc_api = None
+    # settings._use_grpc_api = None
     settings.machine = ""
     settings.port = 0
     module = sys.modules["__main__"]
@@ -264,15 +265,17 @@ def _delete_objects():
 
 
 @pyaedt_function_handler()
-def release_desktop(close_projects=True, close_desktop=True):
+def release_desktop(close_projects, close_desktop, is_grpc_api):
     """Release the AEDT API.
 
     Parameters
     ----------
-    close_projects : bool, optional
-        Whether to close the AEDT projects open in the session. The default is ``True``.
-    close_desktop : bool, optional
-        Whether to close the active AEDT session. The default is ``True``.
+    close_projects : bool
+        Whether to close the AEDT projects open in the session.
+    close_desktop : bool
+        Whether to close the active AEDT session.
+    is_grpc_api : bool
+        Whether the active AEDT session is GRPC or COM.
 
     Returns
     -------
@@ -289,9 +292,7 @@ def release_desktop(close_projects=True, close_desktop=True):
             for project in projects:
                 desktop.CloseProject(project)
         pid = _main.oDesktop.GetProcessID()
-        if settings.remote_rpc_session or (
-            settings.aedt_version >= "2022.2" and settings.use_grpc_api and not is_ironpython
-        ):
+        if settings.remote_rpc_session or (settings.aedt_version >= "2022.2" and is_grpc_api and not is_ironpython):
             try:
                 import ScriptEnv
 
@@ -451,7 +452,7 @@ class Desktop(object):
         Whether to open the AEDT student version. The default is
         ``False``.
     machine : str, optional
-        Machine name to connect the oDesktop session to. This parameters works only in 2022 R2
+        Machine name to connect the oDesktop session to. This parameter works only in 2022 R2
         and later. The remote server must be up and running with the command
         `"ansysedt.exe -grpcsrv portnum"`. If the machine is `"localhost"`, the server also
         starts if not present.
@@ -496,24 +497,28 @@ class Desktop(object):
         aedt_process_id=None,
     ):
         """Initialize desktop."""
-        if os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t"):
-            non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+
+        # env variable PYAEDT_NON_GRAPHICAL override the argument "non_graphical"
+        if os.getenv("PYAEDT_NON_GRAPHICAL", None) is not None:
+            non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "false").lower() in ("true", "1", "t")
 
         self._main = sys.modules["__main__"]
-        self._main.interpreter = _com
-        self.release_on_exit = close_on_exit
+        # self._main.interpreter = _com
+        # self.release_on_exit = close_on_exit
         self.close_on_exit = close_on_exit
         self._main.pyaedt_version = pyaedtversion
-        self._main.interpreter_ver = _pythonver
-        self._main.student_version = student_version
+        # self._main.interpreter_ver = _pythonver
+        # self.student_version = student_version
         self.machine = machine
         self.port = port
         self.aedt_process_id = aedt_process_id
-        if is_ironpython:
-            self._main.isoutsideDesktop = False
-        else:
-            self._main.isoutsideDesktop = True
+        # if is_ironpython:
+        #     self._main.isoutsideDesktop = False
+        # else:
+        #     self._main.isoutsideDesktop = True
         self.release_on_exit = True
+        self.is_grpc_api = None
+
         self.logfile = None
 
         self._logger = pyaedt_logger
@@ -523,81 +528,176 @@ class Desktop(object):
             self._logger.disable_stdout_log()
         self._logger.info("using existing logger.")
 
+        self.student_version, version_key, version = self._assert_version(specified_version, student_version)
+
+        # start open AEDT decision tree
+        # starting_mode can be one of these: "grpc", "com", "ironpython", "console_in", "console_out"
+        starting_mode = None
         if "oDesktop" in dir():  # pragma: no cover
+            # we are inside the AEDT Ironpython console
+            starting_mode = "console_in"
+        elif "oDesktop" in dir(self._main) and self._main.oDesktop is not None:  # pragma: no cover
+            # we are inside a python console outside AEDT (toolkit)
+            starting_mode = "console_out"
+        elif is_linux:
+            starting_mode = "grpc"
+        elif is_windows and "pythonnet" not in modules:
+            starting_mode = "grpc"
+        elif is_ironpython:
+            starting_mode = "ironpython"
+        elif aedt_process_id and not new_desktop_session and not is_ironpython:  # pragma: no cover
+            # connecting to an existing session has the precedence over use_grpc_api user preference
+            sessions = active_sessions(
+                version=version_key, student_version=student_version, non_graphical=non_graphical
+            )
+            for session in sessions:
+                if session[0] == aedt_process_id:
+                    if session[1] != -1:
+                        self.port = session[1]
+                        starting_mode = "grpc"
+                    else:
+                        starting_mode = "com"
+                    break
+        elif float(version_key) < 2022.2:
+            starting_mode = "com"
+        elif float(version_key) == 2022.2:
+            if self.machine and self.port:
+                starting_mode = "grpc"  # if the user specifies machine and port, he wants to use grpc
+            elif settings.use_grpc_api is None:
+                starting_mode = "com"  # default if user doesn't specify use_grpc_api
+            else:
+                starting_mode = "grpc" if settings.use_grpc_api else "com"
+        elif float(version_key) > 2022.2:
+            if settings.use_grpc_api is None:
+                starting_mode = "grpc"  # default if user doesn't specify use_grpc_api
+            else:
+                starting_mode = "grpc" if settings.use_grpc_api else "com"
+        else:  # pragma: no cover
+            # it should not arrive here, it means that there is a starting case not covered by the decision tree
+            raise Exception("Unsupported AEDT starting mode")
+
+        # Starting AEDT
+        if "console" in starting_mode:
             self.release_on_exit = False
-            self._main.oDesktop = oDesktop
             try:
                 settings.non_graphical = oDesktop.GetIsNonGraphical()
             except:
                 settings.non_graphical = non_graphical
+            self.is_grpc_api = False
             settings.aedt_version = self._main.oDesktop.GetVersion()[0:6]
-            settings.is_student = is_student_version(self._main.oDesktop)
-        elif "oDesktop" in dir(self._main) and self._main.oDesktop is not None:  # pragma: no cover
-            self.release_on_exit = False
-            try:
-                settings.non_graphical = self._main.oDesktop.GetIsNonGraphical()
-            except:
-                settings.non_graphical = non_graphical
-            settings.aedt_version = self._main.oDesktop.GetVersion()[0:6]
-            settings.is_student = is_student_version(self._main.oDesktop)
-        else:
-            settings.non_graphical = non_graphical
 
+            if starting_mode == "console_in":
+                # technically not a startup mode, we have just to load oDesktop
+                self._main.oDesktop = oDesktop
+                settings.is_student = is_student_version(self._main.oDesktop)
+
+            elif starting_mode == "console_out":
+                # technically not a startup mode, oDesktop is already loaded
+                settings.is_student = is_student_version(self._main.oDesktop)
+
+        else:
+            settings.aedt_version = version_key
+            settings.is_student = self.student_version
+            settings.non_graphical = non_graphical
             if "oDesktop" in dir(self._main):
                 del self._main.oDesktop
-            self._main.student_version, version_key, version = self._set_version(specified_version, student_version)
-            settings.aedt_version = version_key
-            settings.is_student = self._main.student_version
-            if not new_desktop_session and not is_ironpython:  # pragma: no cover
-                sessions = active_sessions(
-                    version=version_key, student_version=student_version, non_graphical=non_graphical
-                )
-                if aedt_process_id:
-                    for session in sessions:
-                        if session[0] == aedt_process_id and session[1] != -1:
-                            self.port = session[1]
-                            settings.use_grpc_api = True
-                            break
-                        elif session[0] == aedt_process_id:
-                            settings.use_grpc_api = False
-                            break
-
-            if version_key < "2022.2":
-                settings.use_grpc_api = False
-            elif (
-                version_key.startswith("2022.2")
-                and not self.port
-                and not self.machine
-                and settings.use_grpc_api is None
-                and _com != "gprc_v3"
-            ):
-                settings.use_grpc_api = False
-            elif settings.use_grpc_api is None or _com == "gprc_v3":
-                settings.use_grpc_api = True
-            if _com == "ironpython":  # pragma: no cover
+            if starting_mode == "ironpython":
                 self._logger.info("Launching PyAEDT outside AEDT with IronPython.")
                 self._init_ironpython(non_graphical, new_desktop_session, version)
-            elif settings.use_grpc_api:
-                settings.use_grpc_api = True
-                self._init_cpython_new(
-                    non_graphical, new_desktop_session, version, self._main.student_version, version_key
-                )
-            elif _com == "pythonnet_v3":
+            elif starting_mode == "com":
                 self._logger.info("Launching PyAEDT outside AEDT with CPython and PythonNET.")
                 self._init_cpython(
                     non_graphical,
                     new_desktop_session,
                     version,
-                    self._main.student_version,
+                    self.student_version,
                     version_key,
                     aedt_process_id,
                 )
-            else:
-                from pyaedt.generic.clr_module import win32_client
+            elif starting_mode == "grpc":
+                self._logger.info("Launching PyAEDT outside AEDT with gRPC plugin.")
+                self._init_cpython_new(non_graphical, new_desktop_session, version, self.student_version, version_key)
 
-                oAnsoftApp = win32_client.Dispatch(version)
-                self._main.oDesktop = oAnsoftApp.GetAppDesktop()
-                self._main.isoutsideDesktop = True
+        # # console di Ironpython dentro AEDT
+        # if "oDesktop" in dir():  # pragma: no cover
+        #     self.release_on_exit = False
+        #     self._main.oDesktop = oDesktop
+        #     try:
+        #         settings.non_graphical = oDesktop.GetIsNonGraphical()
+        #     except:
+        #         settings.non_graphical = non_graphical
+        #     settings.aedt_version = self._main.oDesktop.GetVersion()[0:6]
+        #     settings.is_student = is_student_version(self._main.oDesktop)
+        #
+        # # console di CPython o IronPython fuori AEDT
+        # elif "oDesktop" in dir(self._main) and self._main.oDesktop is not None:  # pragma: no cover
+        #     self.release_on_exit = False
+        #     try:
+        #         settings.non_graphical = self._main.oDesktop.GetIsNonGraphical()
+        #     except:
+        #         settings.non_graphical = non_graphical
+        #     settings.aedt_version = self._main.oDesktop.GetVersion()[0:6]
+        #     settings.is_student = is_student_version(self._main.oDesktop)
+        #
+        # else:
+        #     settings.non_graphical = non_graphical
+        #
+        #     if "oDesktop" in dir(self._main):
+        #         del self._main.oDesktop
+        #     self.student_version, version_key, version = self._assert_version(specified_version, student_version)
+        #     settings.aedt_version = version_key
+        #     settings.is_student = self.student_version
+        #     if not new_desktop_session and not is_ironpython:  # pragma: no cover
+        #         sessions = active_sessions(
+        #             version=version_key, student_version=student_version, non_graphical=non_graphical
+        #         )
+        #         if aedt_process_id:
+        #             for session in sessions:
+        #                 if session[0] == aedt_process_id and session[1] != -1:
+        #                     self.port = session[1]
+        #                     settings.use_grpc_api = True
+        #                     break
+        #                 elif session[0] == aedt_process_id:
+        #                     settings.use_grpc_api = False
+        #                     break
+        #
+        #     if version_key < "2022.2":
+        #         settings.use_grpc_api = False
+        #     elif (
+        #         version_key.startswith("2022.2")
+        #         and not self.port
+        #         and not self.machine
+        #         and settings.use_grpc_api is None
+        #         and _com != "gprc_v3"
+        #     ):
+        #         settings.use_grpc_api = False
+        #     elif settings.use_grpc_api is None or _com == "gprc_v3":
+        #         settings.use_grpc_api = True
+        #     if _com == "ironpython":  # pragma: no cover
+        #         self._logger.info("Launching PyAEDT outside AEDT with IronPython.")
+        #         self._init_ironpython(non_graphical, new_desktop_session, version)
+        #     elif settings.use_grpc_api:
+        #         settings.use_grpc_api = True
+        #         self._init_cpython_new(
+        #             non_graphical, new_desktop_session, version, self.student_version, version_key
+        #         )
+        #     elif _com == "pythonnet_v3":
+        #         self._logger.info("Launching PyAEDT outside AEDT with CPython and PythonNET.")
+        #         self._init_cpython(
+        #             non_graphical,
+        #             new_desktop_session,
+        #             version,
+        #             self.student_version,
+        #             version_key,
+        #             aedt_process_id,
+        #         )
+        #     else:
+        #         from pyaedt.generic.clr_module import win32_client
+        #
+        #         oAnsoftApp = win32_client.Dispatch(version)
+        #         self._main.oDesktop = oAnsoftApp.GetAppDesktop()
+        #         self._main.isoutsideDesktop = True
+
         self._set_logger_file()
         self._init_desktop(non_graphical)
         self._logger.info("pyaedt v%s", self._main.pyaedt_version)
@@ -611,7 +711,7 @@ class Desktop(object):
         settings.is_student = student_version
         self._logger.info("AEDT %s Build Date %s", self.odesktop.GetVersion(), self.odesktop.GetBuildDateTimeString())
 
-        if _com == "ironpython":
+        if is_ironpython:
             sys.path.append(
                 os.path.join(self._main.sDesktopinstallDirectory, "common", "commonfiles", "IronPython", "DLLs")
             )
@@ -723,17 +823,14 @@ class Desktop(object):
         return ""
 
     def _init_desktop(self, non_graphical):
+        # run it after the settings.non_graphical is set
         self._main.AEDTVersion = self._main.oDesktop.GetVersion()[0:6]
         self._main.oDesktop.RestoreWindow()
         self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
         self._main.pyaedt_initialized = True
-        if non_graphical or self._main.oDesktop.GetIsNonGraphical():
-            try:
-                settings.enable_desktop_logs = not self._main.oDesktop.GetIsNonGraphical()
-            except AttributeError:
-                settings.enable_desktop_logs = not non_graphical
+        settings.enable_desktop_logs = not settings.non_graphical
 
-    def _set_version(self, specified_version, student_version):
+    def _assert_version(self, specified_version, student_version):
         student_version_flag = False
         if specified_version:
             if float(specified_version) < 2021:
@@ -782,6 +879,7 @@ class Desktop(object):
         self._main.oDesktop = oAnsoftApp.GetAppDesktop()
         self._main.isoutsideDesktop = True
         sys.path.append(os.path.join(base_path, "common", "commonfiles", "IronPython", "DLLs"))
+        self.is_grpc_api = False
 
         return True
 
@@ -871,6 +969,8 @@ class Desktop(object):
                 "PyAEDT is not supported in AEDT versions earlier than 2021 R2. Trying to launch PyAEDT with PyWin32."
             )
             self._dispatch_win32(version)
+        # we should have a check here to see if AEDT is really started
+        self.is_grpc_api = False
 
     def _init_cpython_new(self, non_graphical, new_aedt_session, version, student_version, version_key):
         base_path = self._main.sDesktopinstallDirectory
@@ -927,7 +1027,7 @@ class Desktop(object):
                         if com_active_sessions(
                             version=version, student_version=student_version, non_graphical=non_graphical
                         ):
-                            settings.use_grpc_api = False
+                            # settings.use_grpc_api = False
                             self.logger.info("No AEDT gRPC found. Found active COM Sessions.")
                             return self._init_cpython(
                                 non_graphical, new_aedt_session, version, student_version, version_key
@@ -966,9 +1066,10 @@ class Desktop(object):
             self._main.isoutsideDesktop = True
             self._main.oDesktop = self._main.oAnsoftApplication.GetAppDesktop()
             _proc = self._main.oDesktop.GetProcessID()
+            self.is_grpc_api = True
             if new_aedt_session:
-                message = "{} {} version started with process ID {}.".format(
-                    version, "Student" if student_version else "", _proc
+                message = "{}{} version started with process ID {}.".format(
+                    version, " Student" if student_version else "", _proc
                 )
                 self.logger.info(message)
 
@@ -978,16 +1079,14 @@ class Desktop(object):
 
     def _set_logger_file(self):
         # Set up the log file in the AEDT project directory
-        if settings.remote_api:
-            project_dir = tempfile.gettempdir()
-        elif "oDesktop" in dir(self._main):
-            project_dir = self._main.oDesktop.GetProjectDirectory()
-        else:
-            project_dir = tempfile.gettempdir()
         if settings.logger_file_path:
             self.logfile = settings.logger_file_path
         else:
-            if not project_dir:
+            if settings.remote_api:
+                project_dir = tempfile.gettempdir()
+            elif "oDesktop" in dir(self._main):
+                project_dir = self._main.oDesktop.GetProjectDirectory()
+            else:
                 project_dir = tempfile.gettempdir()
             self.logfile = os.path.join(
                 project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
@@ -1341,7 +1440,7 @@ class Desktop(object):
         >>> desktop.release_desktop(close_projects=False, close_on_exit=False) # doctest: +SKIP
 
         """
-        result = release_desktop(close_projects, close_on_exit)
+        result = release_desktop(close_projects, close_on_exit, self.is_grpc_api)
         props = [a for a in dir(self) if not a.startswith("__")]
         for a in props:
             self.__dict__.pop(a, None)

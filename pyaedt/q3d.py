@@ -1941,7 +1941,7 @@ class Q3d(QExtractor, object):
             if not magnetic_threshold:
                 magnetic_threshold = 1.01
 
-            if not is_ironpython and not settings.use_grpc_api:
+            if not is_ironpython and not self.desktop_class.is_grpc_api:
                 insulator_threshold = np.longdouble(insulator_threshold)
                 perfect_conductor_threshold = np.longdouble(perfect_conductor_threshold)
                 magnetic_threshold = np.longdouble(magnetic_threshold)

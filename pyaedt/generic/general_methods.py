@@ -1075,7 +1075,7 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
 
 
 def active_sessions(version=None, student_version=False, non_graphical=False):
-    """Get information for the active COM AEDT sessions.
+    """Get information for the active AEDT sessions.
 
     Parameters
     ----------
@@ -2064,7 +2064,7 @@ class Settings(object):
 
     @property
     def use_grpc_api(self):
-        """Set/Get 20222R2 GPRC API usage or Legacy COM Objectr.
+        """Set/Get GRPC API usage or Legacy COM Object. This is the user setting.
 
         Returns
         -------
@@ -2074,7 +2074,7 @@ class Settings(object):
 
     @use_grpc_api.setter
     def use_grpc_api(self, val):
-        """Set/Get 20222R2 GPRC API usage or Legacy COM Objectr."""
+        """Set/Get GRPC API usage or Legacy COM Object. This is the user setting."""
         self._use_grpc_api = val
 
     @property
