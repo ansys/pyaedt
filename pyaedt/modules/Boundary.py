@@ -428,7 +428,7 @@ class BoundaryObject(BoundaryCommon, object):
 
     @property
     def props(self):
-        """Retrieve boundary data.
+        """Boundary data.
 
         Returns
         -------
