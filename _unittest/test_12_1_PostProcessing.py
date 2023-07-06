@@ -55,6 +55,19 @@ class TestClass(BasisTest, object):
     def teardown_class(self):
         BasisTest.my_teardown(self)
 
+    def test_01_export_model_picture(self):
+        path = self.aedtapp.post.export_model_picture(full_name=os.path.join(self.local_scratch.path, "images2.jpg"))
+        assert path
+        path = self.aedtapp.post.export_model_picture(
+            full_name=os.path.join(self.local_scratch.path, "images3.jpg"),
+            show_axis=True,
+            show_grid=False,
+            show_ruler=True,
+        )
+        assert path
+        path = self.aedtapp.post.export_model_picture(full_name=os.path.join(self.local_scratch.path, "images4.jpg"))
+        assert path
+
     def test_01B_Field_Plot(self):
         assert len(self.aedtapp.post.available_display_types()) > 0
         assert len(self.aedtapp.post.available_report_types) > 0
@@ -478,19 +491,6 @@ class TestClass(BasisTest, object):
 
     def test_12_steal_on_focus(self):
         assert self.aedtapp.post.steal_focus_oneditor()
-
-    def test_13_export_model_picture(self):
-        path = self.aedtapp.post.export_model_picture(full_name=os.path.join(self.local_scratch.path, "images2.jpg"))
-        assert path
-        path = self.aedtapp.post.export_model_picture(
-            full_name=os.path.join(self.local_scratch.path, "images3.jpg"),
-            show_axis=True,
-            show_grid=False,
-            show_ruler=True,
-        )
-        assert path
-        path = self.aedtapp.post.export_model_picture(full_name=os.path.join(self.local_scratch.path, "images4.jpg"))
-        assert path
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_14_Field_Ploton_cutplanedesignname(self):
