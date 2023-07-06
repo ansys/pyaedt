@@ -895,13 +895,13 @@ class Desktop(object):
             os.environ["DesktopPluginPyAEDT"] = os.path.join(
                 self._main.sDesktopinstallDirectory, "PythonFiles", "DesktopPlugin"
             )
+            launch_msg = "AEDT installation Path {}".format(base_path)
+            self.logger.info(launch_msg)
             import PyDesktopPlugin as StandalonePyScriptWrapper
 
             return StandalonePyScriptWrapper.CreateAedtApplication(machine, port, non_graphical, new_session)
 
     def _init_cpython_new(self, non_graphical, new_aedt_session, version, student_version, version_key):
-        launch_msg = "AEDT installation Path {}".format(base_path)
-        self.logger.info(launch_msg)
         self.logger.info("Launching AEDT with the gRPC plugin.")
         if not self.machine or self.machine in [
             "localhost",
