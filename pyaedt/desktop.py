@@ -880,25 +880,26 @@ class Desktop(object):
             else:
                 return StandalonePyScriptWrapper.CreateObject(version)
         else:
+            base_path = self._main.sDesktopinstallDirectory
+            sys.path.insert(0, base_path)
+            sys.path.insert(0, os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
+            if is_linux:
+                if os.environ.get("LD_LIBRARY_PATH"):
+                    os.environ["LD_LIBRARY_PATH"] = (
+                        os.path.join(base_path, "defer") + os.pathsep + os.environ["LD_LIBRARY_PATH"]
+                    )
+                else:
+                    os.environ["LD_LIBRARY_PATH"] = os.path.join(base_path, "defer")
+                pyaedt_path = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), ".."))
+                os.environ["PATH"] = pyaedt_path + os.pathsep + os.environ["PATH"]
+            os.environ["DesktopPluginPyAEDT"] = os.path.join(
+                self._main.sDesktopinstallDirectory, "PythonFiles", "DesktopPlugin"
+            )
             import pyaedt.generic.grpc_plugin as StandalonePyScriptWrapper
 
             return StandalonePyScriptWrapper.CreateAedtApplication(machine, port, non_graphical, new_session)
 
     def _init_cpython_new(self, non_graphical, new_aedt_session, version, student_version, version_key):
-        base_path = self._main.sDesktopinstallDirectory
-        sys.path.insert(0, base_path)
-        sys.path.insert(0, os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
-        os.environ["DesktopPluginPyAEDT"] = os.path.join(base_path, "PythonFiles", "DesktopPlugin")
-        if is_linux:
-            if os.environ.get("LD_LIBRARY_PATH"):
-                os.environ["LD_LIBRARY_PATH"] = (
-                    os.path.join(base_path, "defer") + os.pathsep + os.environ["LD_LIBRARY_PATH"]
-                )
-            else:
-                os.environ["LD_LIBRARY_PATH"] = os.path.join(base_path, "defer")
-            pyaedt_path = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), ".."))
-            os.environ["PATH"] = pyaedt_path + os.pathsep + os.environ["PATH"]
-
         launch_msg = "AEDT installation Path {}".format(base_path)
         self.logger.info(launch_msg)
         self.logger.info("Launching AEDT with the gRPC plugin.")
@@ -911,7 +912,6 @@ class Desktop(object):
             self.machine = ""
         else:
             settings.remote_api = True
-
         if not self.port:
             if self.machine:
                 self.logger.error("New Session of AEDT cannot be started on remote machine from Desktop Class.")

@@ -2768,9 +2768,9 @@ class Primitives(object):
             test = self.oeditor.GetObjectsInGroup("Solids")
         except TypeError:
             test = []
-        if test is None or test is False:
+        if test is False:
             assert False, "Get Solids is failing"
-        elif test is True:
+        elif test is True or test is None:
             self._solids = []  # In IronPython True is returned when no sheets are present
         else:
             self._solids = list(test)
@@ -2782,9 +2782,9 @@ class Primitives(object):
             test = self.oeditor.GetObjectsInGroup("Sheets")
         except TypeError:
             test = []
-        if test is None or test is False:
+        if test is False:
             assert False, "Get Sheets is failing"
-        elif test is True:
+        elif test is True or test is None:
             self._sheets = []  # In IronPython True is returned when no sheets are present
         else:
             self._sheets = list(test)
@@ -2796,9 +2796,9 @@ class Primitives(object):
             test = self.oeditor.GetObjectsInGroup("Lines")
         except TypeError:
             test = []
-        if test is None or test is False:
+        if test is False:
             assert False, "Get Lines is failing"
-        elif test is True:
+        elif test is True or test is None:
             self._lines = []  # In IronPython True is returned when no lines are present
         else:
             self._lines = list(test)
@@ -2810,9 +2810,9 @@ class Primitives(object):
             test = self.oeditor.GetPoints()
         except TypeError:
             test = []
-        if test is None or test is False:
+        if test is False:
             assert False, "Get Points is failing"
-        elif test is True:
+        elif test is True or test is None:
             self._points = []  # In IronPython True is returned when no points are present
         else:
             self._points = list(test)

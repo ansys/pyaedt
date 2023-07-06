@@ -3234,10 +3234,16 @@ class PostProcessor(PostProcessorCommon, object):
             full_name = os.path.join(self._app.working_directory, generate_unique_name(self._app.design_name) + ".jpg")
 
         # open the 3D modeler and remove the selection on other objects
-        if self._app.design_type not in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit", "Twin Builder"]:
-            self.oeditor.ShowWindow()
-            self.steal_focus_oneditor()
-        self.modeler.fit_all()
+        if not settings.non_graphical:
+            if self._app.design_type not in [
+                "HFSS 3D Layout Design",
+                "Circuit Design",
+                "Maxwell Circuit",
+                "Twin Builder",
+            ]:
+                self.oeditor.ShowWindow()
+                self.steal_focus_oneditor()
+            self.modeler.fit_all()
         # export the image
         if field_selections:
             if isinstance(field_selections, str):
