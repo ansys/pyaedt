@@ -1199,8 +1199,11 @@ class TestClass(BasisTest, object):
                 pass
 
     def test_62_get_fans_operating_point(self):
+        new_path = self.local_scratch.copyfile(
+            os.path.join(local_path, "example_models", test_subfolder, "Fan_op_point_231.aedt")
+        )
         app = Icepak(
-            os.path.join(local_path, "example_models", test_subfolder, "Fan_op_point_231.aedt"),
+            new_path,
             specified_version=desktop_version,
             designname="get_fan_op_point",
         )
