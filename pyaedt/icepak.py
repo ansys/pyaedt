@@ -283,7 +283,7 @@ class Icepak(FieldAnalysis3D):
         props["Y"] = y_curve
         bound = BoundaryObject(self, boundary_name, props, "Grille")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             self.logger.info("Grille Assigned")
             return bound
         return None
@@ -330,7 +330,7 @@ class Icepak(FieldAnalysis3D):
         props["Total Pressure"] = "AmbientPressure"
         bound = BoundaryObject(self, boundary_name, props, "Opening")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             self.logger.info("Opening Assigned")
             return bound
         return None
@@ -515,7 +515,7 @@ class Icepak(FieldAnalysis3D):
 
         bound = BoundaryObject(self, boundary_name, props, "Block")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             self.logger.info("Block on {} with {} power created correctly.".format(object_name, input_power))
             return bound
         return None
@@ -626,7 +626,7 @@ class Icepak(FieldAnalysis3D):
         bound = BoundaryObject(self, bc_name, props, "Conducting Plate")
         try:
             if bound.create():
-                self.boundaries.append(bound)
+                self._boundaries[bound.name] = bound
                 return bound
             else:  # pragma : no cover
                 raise SystemExit
@@ -723,7 +723,7 @@ class Icepak(FieldAnalysis3D):
         bound = BoundaryObject(self, source_name, props, "SourceIcepak")
         try:
             if bound.create():
-                self.boundaries.append(bound)
+                self._boundaries[bound.name] = bound
                 return bound
             else:  # pragma : no cover
                 raise SystemExit
@@ -838,7 +838,7 @@ class Icepak(FieldAnalysis3D):
             props["SchematicData"] = OrderedDict({})
             bound = BoundaryObject(self, boundary_name, props, "Network")
             if bound.create():
-                self.boundaries.append(bound)
+                self._boundaries[bound.name] = bound
                 self.modeler[object_name].solve_inside = False
                 return bound
             return None
@@ -1574,7 +1574,7 @@ class Icepak(FieldAnalysis3D):
         name = generate_unique_name("EMLoss")
         bound = BoundaryObject(self, name, props, "EMLoss")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             self.logger.info("EM losses mapped from design: %s.", designname)
             return bound
         return False
@@ -3111,7 +3111,7 @@ class Icepak(FieldAnalysis3D):
         self.modeler.primitives[object_name].material_name = "Ceramic_material"
         boundary = BoundaryObject(self, object_name, props, "Network")
         if boundary.create():
-            self.boundaries.append(boundary)
+            self._boundaries[boundary.name] = boundary
             self.modeler.primitives[object_name].solve_inside = False
             return boundary
         return None
@@ -3328,7 +3328,7 @@ class Icepak(FieldAnalysis3D):
         bound = BoundaryObject(self, name, props, "Stationary Wall")
         try:
             if bound.create():
-                self.boundaries.append(bound)
+                self._boundaries[bound.name] = bound
                 return bound
             else:  # pragma : no cover
                 raise SystemExit
@@ -3802,7 +3802,7 @@ class Icepak(FieldAnalysis3D):
 
         bound = BoundaryObject(self, boundary_name, props, "SourceIcepak")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         else:
             return None
@@ -3842,7 +3842,8 @@ class Icepak(FieldAnalysis3D):
         >>> network = app.create_network_object()
         """
         bound = NetworkObject(self, name, props, create)
-        self.boundaries.append(bound)
+        if create:
+            self._boundaries[bound.name] = bound
         return bound
 
     @pyaedt_function_handler()
@@ -3911,6 +3912,7 @@ class Icepak(FieldAnalysis3D):
                 if matrix[i][j] > 0:
                     net.add_link(all_nodes[i], all_nodes[j], matrix[i][j], "Link_" + all_nodes[i] + "_" + all_nodes[j])
         if net.create():
+            self._boundaries[net.name] = net
             return net
         else:  # pragma: no cover
             return None
@@ -3931,21 +3933,18 @@ class Icepak(FieldAnalysis3D):
             ``"Joule Heating"``. For a temperature-dependent or transient
             assignment, a dictionary can be used. The dictionary should contain three keys:
             ``"Type"``, ``"Function"``, and ``"Values"``.
-
             - For the ``"Type"`` key, accepted values are ``"Temp Dep"`` and ``"Transient"``.
             - For the ``"Function"`` key, acceptable values depend on the ``"Type"`` key
-              selection. When the ``"Type"`` key is set to ``"Temp Dep"``, the only
-              accepted value is ````"Piecewise Linear"`` . When the ``"Type"`` key is
-              set to ``"Transient"``, acceptable values are `"Exponential"``, `"Linear"``,
-              ```"Piecewise Linear"``, ``"Power Law"``, ``"Sinusoidal"``, and ``"Square
-               Wave"``.
+            selection. When the ``"Type"`` key is set to ``"Temp Dep"``, the only
+            accepted value is ``"Piecewise Linear"``. When the ``"Type"`` key is
+            set to ``"Transient"``, acceptable values are `"Exponential"``, `"Linear"``,
+            ``"Piecewise Linear"``, ``"Power Law"``, ``"Sinusoidal"``, and ``"SquareWave"``.
             - For the ``"Values"`` key, a list of strings contain the parameters required by
-              the ``"Function"`` key selection. For example, whn``"Linear"`` is set as the
-              ``"Function"`` key, two parameters are required: the value of the variable
-              at t=0 and the slope of the line. For the parameters required by each
-              ``"Function"`` key selection, see the Icepak documentation. The parameters
-              must contain the units where needed.
-
+            the ``"Function"`` key selection. For example, whn``"Linear"`` is set as the
+            ``"Function"`` key, two parameters are required: the value of the variable
+            at t=0 and the slope of the line. For the parameters required by each
+            ``"Function"`` key selection, see the Icepak documentation. The parameters
+            must contain the units where needed.
         boundary_name : str, optional
             Name of the source boundary. The default is ``None``, in which case the
             boundary name is automatically generated.
@@ -3963,7 +3962,6 @@ class Icepak(FieldAnalysis3D):
             see the description for the preceding ``power_assignment`` parameter. The
             default is ``"AmbientTemp"``, which is used if the ``htc`` parameter is not
             set to ``None``.
-
 
         Returns
         -------
@@ -3983,6 +3981,7 @@ class Icepak(FieldAnalysis3D):
         >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox3", "copper")
         >>> power_dict = {"Type": "Transient", "Function": "Sinusoidal", "Values": ["0W", 1, 1, "1s"]}
         >>> block = ipk.assign_solid_block("BlockBox3", power_dict)
+
         """
         if ext_temperature != "AmbientTemp" and ext_temperature is not None and not htc:
             self.logger.add_error_message("Set an argument for ``htc`` or remove the ``ext_temperature`` argument.")
@@ -4043,7 +4042,7 @@ class Icepak(FieldAnalysis3D):
         bound = BoundaryObject(self, boundary_name, props, "Block")
         try:
             if bound.create():
-                self.boundaries.append(bound)
+                self._boundaries[bound.name] = bound
                 return bound
             else:  # pragma : no cover
                 raise SystemExit
@@ -4054,8 +4053,7 @@ class Icepak(FieldAnalysis3D):
     def assign_hollow_block(
         self, object_name, assignment_type, assignment_value, boundary_name=None, external_temperature="AmbientTemp"
     ):
-        """
-        Assign block boundary for hollow objects.
+        """Assign block boundary for hollow objects.
 
         Parameters
         ----------
@@ -4068,23 +4066,17 @@ class Icepak(FieldAnalysis3D):
             String with value and units of the assignment. If ``"Total Power"`` is
             the assignment type, ``"Joule Heating"`` can be used.
             For a temperature-dependent or transient assignment, a dictionary can be used.
-            The dictionary should contain three keys:
-            ``"Type"``, ``"Function"``, and ``"Values"``.
-
+            The dictionary should contain three keys: ``"Type"``, ``"Function"``, and ``"Values"``.
             - For the ``"Type"`` key, accepted values are ``"Temp Dep"`` and ``"Transient"``.
-            - For the ``"Function"`` key, acceptable values depend on the ``"Type"`` key
-              selection. When the ``"Type"`` key is set to ``"Temp Dep"``, the only
-              accepted value is ````"Piecewise Linear"`` . When the ``"Type"`` key is
-              set to ``"Transient"``, acceptable values are `"Exponential"``, `"Linear"``,
-              ```"Piecewise Linear"``, ``"Power Law"``, ``"Sinusoidal"``, and ``"Square
-               Wave"``.
-            - For the ``"Values"`` key, a list of strings contain the parameters required by
-              the ``"Function"`` key selection. For example, whn``"Linear"`` is set as the
-              ``"Function"`` key, two parameters are required: the value of the variable
-              at t=0 and the slope of the line. For the parameters required by each
-              ``"Function"`` key selection, see the Icepak documentation. The parameters
-              must contain the units where needed.
-
+            - For the ``"Function"`` key, acceptable values depend on the ``"Type"`` key selection. When the ``"Type"``
+            key is set to ``"Temp Dep"``, the only accepted value is ``"Piecewise Linear"``.
+            When the ``"Type"`` key is set to ``"Transient"``, acceptable values are `"Exponential"``, `"Linear"``,
+            ``"Piecewise Linear"``, ``"Power Law"``, ``"Sinusoidal"``, and ``"Square Wave"``.
+            - For the ``"Values"`` key, a list of strings contain the parameters required by the ``"Function"``
+            key selection. For example, whn``"Linear"`` is set as the ``"Function"`` key, two parameters are required:
+            the value of the variable at t=0 and the slope of the line.
+            For the parameters required by each ``"Function"`` key selection, see the Icepak documentation.
+            The parameters must contain the units where needed.
         boundary_name : str, optional
             Name of the source boundary. The default is ``None``, in which case the
             boundary is automatically generated.
@@ -4093,9 +4085,8 @@ class Icepak(FieldAnalysis3D):
             coefficient. If a float value is specified, the ``"cel"`` unit is automatically
             added.
             For a transient assignment, a dictionary can be used as described for the
-            ``assignment_value argument``. Temperature dependent assignment is not supported.
+            ``assignment_value`` argument. Temperature dependent assignment is not supported.
             The default is ``"AmbientTemp"``.
-
 
         Returns
         -------
@@ -4116,6 +4107,7 @@ class Icepak(FieldAnalysis3D):
         >>> box.solve_inside = False
         >>> temp_dict = {"Type": "Transient", "Function": "Square Wave", "Values": ["1cel", "0s", "1s", "0.5s", "0cel"]}
         >>> block = ipk.assign_hollow_block("BlockBox5", "Heat Transfer Coefficient", "1w_per_m2kel", "Test", temp_dict)
+
         """
         if assignment_value == "Joule Heating" and assignment_type != "Total Power":
             self.logger.add_error_message(
@@ -4185,7 +4177,7 @@ class Icepak(FieldAnalysis3D):
         bound = BoundaryObject(self, boundary_name, props, "Block")
         try:
             if bound.create():
-                self.boundaries.append(bound)
+                self._boundaries[bound.name] = bound
                 return bound
             else:  # pragma : no cover
                 raise SystemExit
@@ -4349,7 +4341,6 @@ class Icepak(FieldAnalysis3D):
             Prescribe the direction of the massflow. Default is ``"None"``, in which case a
             massflow normal to the boundary is prescribed.
 
-
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
@@ -4365,6 +4356,7 @@ class Icepak(FieldAnalysis3D):
         >>> icepak = pyaedt.Icepak()
         >>> f_id = icepak.modeler["Region"].faces[0].id
         >>> icepak.assign_free_opening(f_id)
+
         """
         # Sanitize input
         for i in range(len(velocity)):
@@ -4439,7 +4431,7 @@ class Icepak(FieldAnalysis3D):
 
         bound = BoundaryObject(self, boundary_name, props, "Opening")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         else:
             return None
@@ -4714,7 +4706,7 @@ class Icepak(FieldAnalysis3D):
         bound = BoundaryObject(self, boundary_name, props, "Symmetry Wall")
         try:
             if bound.create():
-                self.boundaries.append(bound)
+                self._boundaries[bound.name] = bound
                 return bound
             else:  # pragma : no cover
                 raise SystemExit
