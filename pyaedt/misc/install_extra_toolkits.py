@@ -68,13 +68,17 @@ def write_toolkit_config(product_toolkit_dir, pyaedt_lib_dir, toolkitname, toolk
             # Remove previously existing PyAEDT panel and update with newer one.
             b = [button for button in buttons if button.attrib["label"] == toolkitname][0]
             panel.remove(b)
-
+    if isinstance(toolkit, str) and os.path.exists(toolkit):
+        image_name = os.path.split(toolkit)[-1]
+    else:
+        image_name = toolkit["image"]
+    image_abs_path = image_rel_path + "images/large/{}".format(image_name)
     ET.SubElement(
         panel,
         "button",
         label=toolkitname,
         isLarge="1",
-        image=image_rel_path + "images/large/{}".format(toolkit["image"]),
+        image=image_abs_path,
         script="{}/Run PyAEDT Toolkit Script".format(toolkitname),
     )
 
@@ -84,8 +88,11 @@ def write_toolkit_config(product_toolkit_dir, pyaedt_lib_dir, toolkitname, toolk
 
     write_pretty_xml(root, tab_config_file_path)
 
-    files_to_copy = ["images/large/{}".format(toolkit["image"])]
+    files_to_copy = ["images/large/{}".format(image_name)]
     for file_name in files_to_copy:
         dest_file = os.path.normpath(os.path.join(pyaedt_lib_dir, file_name))
         os.makedirs(os.path.dirname(dest_file), exist_ok=True)
-        shutil.copy(os.path.normpath(os.path.join(current_dir, file_name)), dest_file)
+        if isinstance(toolkit, str):
+            shutil.copy(toolkit, dest_file)
+        else:
+            shutil.copy(os.path.normpath(os.path.join(current_dir, file_name)), dest_file)

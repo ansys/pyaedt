@@ -1570,7 +1570,6 @@ class Desktop(object):
         bool
         """
         from pyaedt.misc.install_extra_toolkits import available_toolkits
-        from pyaedt.misc.install_extra_toolkits import write_toolkit_config
 
         toolkit = available_toolkits[toolkit_name]
         toolkit_name = toolkit_name.replace("_", "")
@@ -1605,7 +1604,34 @@ class Desktop(object):
                 break
         if not full_path:
             raise FileNotFoundError("Error finding the package.")
-        product = toolkit["installation_path"]
+        self.add_script_to_menu(
+            toolkit_name=toolkit_name, script_path=full_path, script_image=toolkit, product=toolkit["installation_path"]
+        )
+
+    @pyaedt_function_handler()
+    def add_script_to_menu(self, toolkit_name, script_path, script_image=None, product="Project"):  # pragma: no cover
+        """Add a script to Ribbon menu. This functionality is available from AEDT 2023 R2.
+        PyAEDT must be installed in AEDT to allow this functionality to run.
+        Please refer to ``"https://aedt.docs.pyansys.com/version/stable/Getting_started/Installation.html"``.
+
+        Parameters
+        ----------
+        toolkit_name : str
+            Name of the toolkit as it will appear in AEDT.
+        script_path : str
+            Full path to the script file.
+        script_image : str, optional
+            Full path to the image logo (30x30 pixels png) to be added into the UI.
+        product : str, optional
+            Product to which the toolkit will apply. It can be Project to apply to all designs or specific (eg. HFSS).
+
+        Returns
+        -------
+        bool
+
+        """
+        from pyaedt.misc.install_extra_toolkits import write_toolkit_config
+
         toolkit_dir = os.path.join(self.personallib, "Toolkits")
         aedt_version = self.aedt_version_id
         tool_dir = os.path.join(toolkit_dir, product, toolkit_name)
@@ -1631,13 +1657,14 @@ class Desktop(object):
                     build_file_data = (
                         build_file_data.replace("##TOOLKIT_REL_LIB_DIR##", toolkit_rel_lib_dir)
                         .replace("##PYTHON_EXE##", executable_version_agnostic)
-                        .replace("##PYTHON_SCRIPT##", full_path)
+                        .replace("##PYTHON_SCRIPT##", script_path)
                     )
                     build_file_data = build_file_data.replace(" % version", "")
                     out_file.write(build_file_data)
-        if aedt_version >= "2023.2":
-            write_toolkit_config(os.path.join(toolkit_dir, product), lib_dir, toolkit_name, toolkit=toolkit)
+        if aedt_version >= "2023.2" and script_image:
+            write_toolkit_config(os.path.join(toolkit_dir, product), lib_dir, toolkit_name, toolkit=script_image)
         self.logger.info("{} toolkit installed.".format(toolkit_name))
+        return True
 
     @pyaedt_function_handler()
     def submit_job(
