@@ -250,10 +250,6 @@ def _delete_objects():
         del sys.modules["PyDesktopPlugin"]
     except:
         pass
-    try:
-        del sys.modules["ScriptEnv"]
-    except:
-        pass
     keys = [k for k in sys.modules.keys()]
     for i in keys:
         if "Ansys.Ansoft" in i:
@@ -294,12 +290,12 @@ def release_desktop(close_projects=True, close_desktop=True):
             settings.aedt_version >= "2022.2" and settings.use_grpc_api and not is_ironpython
         ):
             try:
-                import ScriptEnv
-
                 if close_desktop:
-                    ScriptEnv.Shutdown()
+                    _main.oDesktop.QuitApplication()
                 else:
-                    ScriptEnv.Release()
+                    import PyDesktopPlugin as StandalonePyScriptWrapper
+
+                    return StandalonePyScriptWrapper.Release()
             except:
                 pass
             _delete_objects()
@@ -811,8 +807,6 @@ class Desktop(object):
     ):  # pragma: no cover
         import pythoncom
 
-        from pyaedt.generic.clr_module import _clr
-
         if is_linux:
             raise Exception(
                 "PyAEDT supports COM initialization in Windows only. To use in Linux, upgrade to AEDT 2022 R2 or later."
@@ -822,11 +816,6 @@ class Desktop(object):
         sys.path.insert(0, os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
         launch_msg = "AEDT installation Path {}.".format(base_path)
         self.logger.info(launch_msg)
-        _clr.AddReference("Ansys.Ansoft.CoreCOMScripting")
-        AnsoftCOMUtil = __import__("Ansys.Ansoft.CoreCOMScripting")
-        self.COMUtil = AnsoftCOMUtil.Ansoft.CoreCOMScripting.Util.COMUtil
-        self._main.COMUtil = self.COMUtil
-        StandalonePyScriptWrapper = AnsoftCOMUtil.Ansoft.CoreCOMScripting.COM.StandalonePyScriptWrapper
         self.logger.info("Launching AEDT with module PythonNET.")
         processID = []
         if is_windows:
@@ -835,9 +824,9 @@ class Desktop(object):
             self._run_student()
         elif non_graphical or new_aedt_session or not processID:
             # Force new object if no non-graphical instance is running or if there is not an already existing process.
-            StandalonePyScriptWrapper.CreateObjectNew(non_graphical)
+            self._initialize(non_graphical=non_graphical, new_session=True, is_grpc=False)
         else:
-            StandalonePyScriptWrapper.CreateObject(version)
+            self._initialize(new_session=False, is_grpc=False)
         processID2 = []
         if is_windows:
             processID2 = com_active_sessions(version, student_version, non_graphical)
@@ -873,24 +862,50 @@ class Desktop(object):
             )
             self._dispatch_win32(version)
 
-    def _init_cpython_new(self, non_graphical, new_aedt_session, version, student_version, version_key):
-        base_path = self._main.sDesktopinstallDirectory
-        sys.path.insert(0, base_path)
-        sys.path.insert(0, os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
-        if is_linux:
-            if os.environ.get("LD_LIBRARY_PATH"):
-                os.environ["LD_LIBRARY_PATH"] = (
-                    os.path.join(base_path, "defer") + os.pathsep + os.environ["LD_LIBRARY_PATH"]
-                )
+    def _initialize(
+        self,
+        machine="",
+        port=0,
+        non_graphical=False,
+        new_session=False,
+        version=None,
+        is_grpc=True,
+    ):
+        if not is_grpc:
+            from pyaedt.generic.clr_module import _clr
+
+            _clr.AddReference("Ansys.Ansoft.CoreCOMScripting")
+            AnsoftCOMUtil = __import__("Ansys.Ansoft.CoreCOMScripting")
+            self.COMUtil = AnsoftCOMUtil.Ansoft.CoreCOMScripting.Util.COMUtil
+            self._main.COMUtil = self.COMUtil
+            StandalonePyScriptWrapper = AnsoftCOMUtil.Ansoft.CoreCOMScripting.COM.StandalonePyScriptWrapper
+            if non_graphical or new_session:
+                return StandalonePyScriptWrapper.CreateObjectNew(non_graphical)
             else:
-                os.environ["LD_LIBRARY_PATH"] = os.path.join(base_path, "defer")
-            pyaedt_path = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), ".."))
-            os.environ["PATH"] = pyaedt_path + os.pathsep + os.environ["PATH"]
+                return StandalonePyScriptWrapper.CreateObject(version)
+        else:
+            base_path = self._main.sDesktopinstallDirectory
+            sys.path.insert(0, base_path)
+            sys.path.insert(0, os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
+            if is_linux:
+                if os.environ.get("LD_LIBRARY_PATH"):
+                    os.environ["LD_LIBRARY_PATH"] = (
+                        os.path.join(base_path, "defer") + os.pathsep + os.environ["LD_LIBRARY_PATH"]
+                    )
+                else:
+                    os.environ["LD_LIBRARY_PATH"] = os.path.join(base_path, "defer")
+                pyaedt_path = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), ".."))
+                os.environ["PATH"] = pyaedt_path + os.pathsep + os.environ["PATH"]
+            os.environ["DesktopPluginPyAEDT"] = os.path.join(
+                self._main.sDesktopinstallDirectory, "PythonFiles", "DesktopPlugin"
+            )
+            launch_msg = "AEDT installation Path {}".format(base_path)
+            self.logger.info(launch_msg)
+            import PyDesktopPlugin as StandalonePyScriptWrapper
 
-        import ScriptEnv
+            return StandalonePyScriptWrapper.CreateAedtApplication(machine, port, non_graphical, new_session)
 
-        launch_msg = "AEDT installation Path {}".format(base_path)
-        self.logger.info(launch_msg)
+    def _init_cpython_new(self, non_graphical, new_aedt_session, version, student_version, version_key):
         self.logger.info("Launching AEDT with the gRPC plugin.")
         if not self.machine or self.machine in [
             "localhost",
@@ -901,7 +916,6 @@ class Desktop(object):
             self.machine = ""
         else:
             settings.remote_api = True
-
         if not self.port:
             if self.machine:
                 self.logger.error("New Session of AEDT cannot be started on remote machine from Desktop Class.")
@@ -951,21 +965,29 @@ class Desktop(object):
         if new_aedt_session and settings.use_lsf_scheduler and is_linux:  # pragma: no cover
             out, self.machine = launch_aedt_in_lsf(non_graphical, self.port)
             if out:
-                ScriptEnv._doInitialize(version, None, False, non_graphical, self.machine, self.port)
+                oApp = self._initialize(is_grpc=True, machine=self.machine, port=self.port, new_session=False)
             else:
                 self.logger.error("Failed to start LSF job on machine: %s.", self.machine)
                 return
         elif new_aedt_session:
-            installer = os.path.join(base_path, "ansysedt")
+            installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedt")
             if not is_linux:
-                installer = os.path.join(base_path, "ansysedt.exe")
+                installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedt.exe")
             out, self.port = launch_aedt(installer, non_graphical, self.port)
-            ScriptEnv._doInitialize(version, None, not out, non_graphical, self.machine, self.port)
+            oApp = self._initialize(
+                is_grpc=True, non_graphical=non_graphical, machine=self.machine, port=self.port, new_session=not out
+            )
         else:
-            ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, self.machine, self.port)
-        if "oAnsoftApplication" in dir(self._main):
+            oApp = self._initialize(
+                is_grpc=True,
+                non_graphical=non_graphical,
+                machine=self.machine,
+                port=self.port,
+                new_session=new_aedt_session,
+            )
+        if oApp:
             self._main.isoutsideDesktop = True
-            self._main.oDesktop = self._main.oAnsoftApplication.GetAppDesktop()
+            self._main.oDesktop = oApp.GetAppDesktop()
             _proc = self._main.oDesktop.GetProcessID()
             if new_aedt_session:
                 message = "{} {} version started with process ID {}.".format(
