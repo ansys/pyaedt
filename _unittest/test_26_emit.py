@@ -822,19 +822,19 @@ class TestClass(BasisTest, object):
         radiosTX = rev.get_interferer_names()
         domain = self.aedtapp.results.interaction_domain()
         domain.set_receiver(radiosRX[0], bandsRX[0])
-        
+
         # check max_n_to_1_instances can be set to different values
         self.aedtapp.results.revisions[-1].max_n_to_1_instances = 1
         assert self.aedtapp.results.revisions[-1].max_n_to_1_instances == 1
         self.aedtapp.results.revisions[-1].max_n_to_1_instances = 0
         assert self.aedtapp.results.revisions[-1].max_n_to_1_instances == 0
-        
+
         # get number of 1-1 instances
         assert self.aedtapp.results.revisions[-1].get_instance_count(domain) == 105702
         interaction = self.aedtapp.results.revisions[-1].run(domain)
         instance = interaction.get_worst_instance(ResultType.EMI)
         assert instance.get_value(ResultType.EMI) == 76.02
-        
+
         # rerun with N-1
         self.aedtapp.results.revisions[-1].max_n_to_1_instances = 2**25
         assert self.aedtapp.results.revisions[-1].max_n_to_1_instances == 2**25
