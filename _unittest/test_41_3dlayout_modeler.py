@@ -574,6 +574,9 @@ class TestClass(BasisTest, object):
         assert port.name == "PinPort1"
         port.props["Magnitude"] = "2V"
         assert port.props["Magnitude"] == "2V"
+        assert port.object_properties.props["Magnitude"] == "2V"
+        port.object_properties.props["Magnitude"] = "5V"
+        assert port.object_properties.props["Magnitude"] == "5V"
 
     def test_28_create_scattering(self):
         assert self.aedtapp.create_scattering()

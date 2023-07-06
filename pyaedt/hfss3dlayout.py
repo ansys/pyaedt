@@ -251,8 +251,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 )
             bound = self._update_port_info(a[0])
             if bound:
-                self.boundaries.append(bound)
-                return self.boundaries[-1]
+                self._boundaries[bound.name] = bound
+                return bound
             else:
                 return False
         else:
@@ -403,7 +403,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             for port in a:
                 bound = self._update_port_info(port)
                 if bound:
-                    self.boundaries.append(bound)
+                    self._boundaries[bound.name] = bound
                     ports.append(bound)
         return ports
 
@@ -502,8 +502,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 )
             bound = self._update_port_info(a[0])
             if bound:
-                self.boundaries.append(bound)
-                return self.boundaries[-1]
+                self._boundaries[bound.name] = bound
+                return bound
             else:
                 return False
         else:
@@ -570,8 +570,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         )
         bound = self._update_port_info(name)
         if bound:
-            self.boundaries.append(bound)
-            return self.boundaries[-1]
+            self._boundaries[bound.name] = bound
+            return bound
         else:
             return False
 
