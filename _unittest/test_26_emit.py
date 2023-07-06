@@ -927,7 +927,7 @@ class TestClass(BasisTest, object):
         for band in bands:
             band.set_band_power_level(-20)
 
-        # Disable L2 P(Y) GPS Band
+        # Enable L2 P(Y) GPS Band
         bands = rad2.bands()
         for band in bands:
             for child in band.children:
