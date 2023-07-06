@@ -970,9 +970,9 @@ class Desktop(object):
                 self.logger.error("Failed to start LSF job on machine: %s.", self.machine)
                 return
         elif new_aedt_session:
-            installer = os.path.join(base_path, "ansysedt")
+            installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedt")
             if not is_linux:
-                installer = os.path.join(base_path, "ansysedt.exe")
+                installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedt.exe")
             out, self.port = launch_aedt(installer, non_graphical, self.port)
             oApp = self._initialize(
                 is_grpc=True, non_graphical=non_graphical, machine=self.machine, port=self.port, new_session=not out
