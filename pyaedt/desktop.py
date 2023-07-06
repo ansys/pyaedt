@@ -289,7 +289,7 @@ def release_desktop(close_projects=True, close_desktop=True):
                 if close_desktop:
                     _main.oDesktop.QuitApplication()
                 else:
-                    import pyaedt.generic.grpc_plugin as StandalonePyScriptWrapper
+                    import PyDesktopPlugin as StandalonePyScriptWrapper
 
                     return StandalonePyScriptWrapper.Release()
             except:
@@ -895,7 +895,7 @@ class Desktop(object):
             os.environ["DesktopPluginPyAEDT"] = os.path.join(
                 self._main.sDesktopinstallDirectory, "PythonFiles", "DesktopPlugin"
             )
-            import pyaedt.generic.grpc_plugin as StandalonePyScriptWrapper
+            import PyDesktopPlugin as StandalonePyScriptWrapper
 
             return StandalonePyScriptWrapper.CreateAedtApplication(machine, port, non_graphical, new_session)
 
