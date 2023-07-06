@@ -326,7 +326,7 @@ class Hfss(FieldAnalysis3D, object):
         bound = BoundaryObject(self, name, props, boundary_type)
         result = bound.create()
         if result:
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             self.logger.info("Boundary %s %s has been correctly created.", boundary_type, name)
             return bound
         self.logger.error("Error in boundary creation for %s %s.", boundary_type, name)
@@ -402,7 +402,13 @@ class Hfss(FieldAnalysis3D, object):
             new_ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
             terminals = [i for i in new_ports if i not in ports]
             for count, terminal in enumerate(terminals, start=1):
+                props_terminal = OrderedDict()
+                props_terminal["TerminalResistance"] = "50ohm"
+                props_terminal["ParentBndID"] = boundary.name
+                terminal_name = terminal
+
                 if impedance:
+                    props_terminal["TerminalResistance"] = str(impedance) + "ohm"
                     properties = [
                         "NAME:AllTabs",
                         [
@@ -436,6 +442,7 @@ class Hfss(FieldAnalysis3D, object):
                         self.logger.warning("Failed to change normalization.")
                 if terminals_rename:
                     new_name = portname + "_T" + str(count)
+                    terminal_name = new_name
                     properties = [
                         "NAME:AllTabs",
                         [
@@ -448,6 +455,8 @@ class Hfss(FieldAnalysis3D, object):
                         self.odesign.ChangeProperty(properties)
                     except:  # pragma: no cover
                         self.logger.warning("Failed to rename terminal {}.".format(terminal))
+                bound = BoundaryObject(self, terminal_name, props_terminal, "Terminal")
+                self._boundaries[terminal_name] = bound
 
             if iswaveport:
                 boundary.type = "Wave Port"
@@ -468,8 +477,11 @@ class Hfss(FieldAnalysis3D, object):
             props["RenormalizeAllTerminals"] = renorm
             props["ShowReporterFilter"] = False
             props["UseAnalyticAlignment"] = False
-            boundary.props = props
+            boundary.auto_update = False
+            boundary.props.update(props)
+            boundary.auto_update = True
             boundary.update()
+
         return boundary
 
     @pyaedt_function_handler()
@@ -6252,3 +6264,19 @@ class Hfss(FieldAnalysis3D, object):
                 self.logger.error("Reference conductors are missing.")
                 return False
         return False
+
+    @pyaedt_function_handler()
+    def set_radiated_power_calc_method(self, method="Auto"):
+        """Set the radiated power calculation method in Hfss.
+
+        method : str, optional
+            Radiated power calculation method.
+            The options are ``"Auto"``, ``"Radiation Surface Integral"`` and ``"Far Field Integral"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        self.oradfield.EditRadiatedPowerCalculationMethod(method)
+        return True
