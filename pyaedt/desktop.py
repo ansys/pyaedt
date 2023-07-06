@@ -888,6 +888,7 @@ class Desktop(object):
         base_path = self._main.sDesktopinstallDirectory
         sys.path.insert(0, base_path)
         sys.path.insert(0, os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
+        os.environ["DesktopPluginPyAEDT"] = os.path.join(base_path, "PythonFiles", "DesktopPlugin")
         if is_linux:
             if os.environ.get("LD_LIBRARY_PATH"):
                 os.environ["LD_LIBRARY_PATH"] = (
