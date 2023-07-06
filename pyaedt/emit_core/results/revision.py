@@ -52,7 +52,7 @@ class Revision:
         """Full path of the revision."""
 
         self.emit_project = emit_obj
-        """Emit project."""
+        """EMIT project."""
 
         raw_props = emit_obj.odesign.GetResultProperties(name)
         key = lambda s: s.split("=", 1)[0]
@@ -60,7 +60,7 @@ class Revision:
         props = {key(s): val(s) for s in raw_props}
 
         self.revision_number = int(props["Revision"])
-        """Unique revision number from the Emit design"""
+        """Unique revision number from the EMIT design"""
 
         self.timestamp = props["Timestamp"]
         """Unique timestamp for the revision"""
@@ -95,8 +95,12 @@ class Revision:
 
         Returns
         -------
+        err_msg : str
+            Error/warning message that the specified revision is not accessible.
         """
-        print("This function is inaccessible when the revision is not loaded.")
+        err_msg = "This function is inaccessible when the revision is not loaded."
+        print(err_msg)
+        return err_msg
 
     @pyaedt_function_handler()
     def get_interaction(self, domain):
@@ -226,7 +230,9 @@ class Revision:
             radios = self.emit_project._emit_api.get_radio_names(TxRxMode.RX, InterfererType.TRANSMITTERS_AND_EMITTERS)
         else:
             radios = None
-            self.result_mode_error()
+            err_msg = self.result_mode_error()
+            warnings.warn(err_msg)
+            return radios
         if len(radios) == 0:
             warnings.warn("No valid receivers in the project.")
         return radios
@@ -262,7 +268,9 @@ class Revision:
             radios = self.emit_project._emit_api.get_radio_names(TxRxMode.TX, interferer_type)
         else:
             radios = None
-            self.result_mode_error()
+            err_msg = self.result_mode_error()
+            warnings.warn(err_msg)
+            return radios
         if len(radios) == 0:
             warnings.warn("No valid radios or emitters in the project.")
             return None
@@ -299,6 +307,9 @@ class Revision:
         else:
             bands = None
             self.result_mode_error()
+            err_msg = self.result_mode_error()
+            warnings.warn(err_msg)
+            return bands
         return bands
 
     @pyaedt_function_handler()
@@ -334,7 +345,9 @@ class Revision:
             freqs = self.emit_project._emit_api.get_active_frequencies(radio_name, band_name, tx_rx_mode, units)
         else:
             freqs = None
-            self.result_mode_error()
+            err_msg = self.result_mode_error()
+            warnings.warn(err_msg)
+            return freqs
         return freqs
 
     @property

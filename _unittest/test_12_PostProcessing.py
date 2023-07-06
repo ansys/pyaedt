@@ -69,6 +69,209 @@ class TestClass(BasisTest, object):
     def teardown_class(self):
         BasisTest.my_teardown(self)
 
+    def test_01B_Field_Plot(self):
+        assert len(self.aedtapp.post.available_display_types()) > 0
+        assert len(self.aedtapp.post.available_report_types) > 0
+        assert len(self.aedtapp.post.available_report_quantities()) > 0
+        cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
+        setup_name = self.aedtapp.existing_analysis_sweeps[0]
+        assert self.aedtapp.setups[0].is_solved
+        quantity_name = "ComplexMag_E"
+        intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
+        min_value = self.aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
+        plot1 = self.aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic)
+        plot1.IsoVal = "Tone"
+        plot1.update_field_plot_settings()
+        plot1.update()
+        assert self.aedtapp.post.field_plots[plot1.name].IsoVal == "Tone"
+        assert plot1.change_plot_scale(min_value, "30000")
+        assert self.aedtapp.post.create_fieldplot_volume("inner", "Vector_E", setup_name, intrinsic)
+
+        assert self.aedtapp.post.create_fieldplot_surface(
+            self.aedtapp.modeler["outer"].faces[0].id, "Mag_E", setup_name, intrinsic
+        )
+        assert self.aedtapp.post.create_fieldplot_surface(self.aedtapp.modeler["outer"], "Mag_E", setup_name, intrinsic)
+        assert self.aedtapp.post.create_fieldplot_surface(
+            self.aedtapp.modeler["outer"].faces, "Mag_E", setup_name, intrinsic
+        )
+        assert len(self.aedtapp.setups[0].sweeps[0].frequencies) > 0
+        assert isinstance(self.aedtapp.setups[0].sweeps[0].basis_frequencies, list)
+
+    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
+    def test_01_Animate_plt(self):
+        cutlist = ["Global:XY"]
+        phases = [str(i * 5) + "deg" for i in range(2)]
+        model_gif = self.aedtapp.post.animate_fields_from_aedtplt_2(
+            quantityname="Mag_E",
+            object_list=cutlist,
+            plottype="CutPlane",
+            meshplot=False,
+            setup_name=self.aedtapp.nominal_adaptive,
+            intrinsic_dict={"Freq": "5GHz", "Phase": "0deg"},
+            project_path=self.local_scratch.path,
+            variation_variable="Phase",
+            variation_list=phases,
+            show=False,
+            export_gif=True,
+        )
+        assert os.path.exists(model_gif.gif_file)
+        model_gif2 = self.aedtapp.post.animate_fields_from_aedtplt_2(
+            quantityname="Mag_E",
+            object_list=cutlist,
+            plottype="CutPlane",
+            meshplot=False,
+            setup_name=self.aedtapp.nominal_adaptive,
+            intrinsic_dict={"Freq": "5GHz", "Phase": "0deg"},
+            project_path=self.local_scratch.path,
+            variation_variable="Phase",
+            variation_list=phases,
+            show=False,
+            export_gif=False,
+        )
+        model_gif2.gif_file = os.path.join(self.aedtapp.working_directory, "test2.gif")
+        model_gif2.camera_position = [0, 50, 200]
+        model_gif2.focal_point = [0, 50, 0]
+        model_gif2.animate()
+        assert os.path.exists(model_gif2.gif_file)
+
+    @pytest.mark.skipif(config["NonGraphical"] == True, reason="Not running in non-graphical mode")
+    def test_02_export_fields(self):
+        quantity_name2 = "ComplexMag_H"
+        setup_name = "Setup1 : LastAdaptive"
+        intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
+        vollist = ["NewObject_IJD39Q"]
+        plot2 = self.aedtapp.post.create_fieldplot_volume(vollist, quantity_name2, setup_name, intrinsic)
+
+        self.aedtapp.post.export_field_jpg(
+            os.path.join(self.local_scratch.path, "prova2.jpg"),
+            plot2.name,
+            plot2.plotFolder,
+            selections=["NewObject_IJD39Q"],
+            show_axis=False,
+            show_grid=False,
+            show_ruler=False,
+            show_region=False,
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "prova2.jpg"))
+        assert os.path.exists(
+            plot2.export_image(os.path.join(self.local_scratch.path, "test_x.jpg"), orientation="top")
+        )
+
+    def test_03_create_scattering(self):
+        setup_name = "Setup1 : Sweep"
+        portnames = ["1", "2"]
+        assert self.aedtapp.create_scattering("MyTestScattering")
+        setup_name = "Setup2 : Sweep"
+        assert not self.aedtapp.create_scattering("MyTestScattering2", setup_name, portnames, portnames)
+
+    def test_03_get_solution_data(self):
+        self.aedtapp.analyze(self.aedtapp.active_setup)
+        trace_names = []
+        portnames = ["1", "2"]
+        for el in portnames:
+            for el2 in portnames:
+                trace_names.append("S(" + el + "," + el2 + ")")
+        cxt = ["Domain:=", "Sweep"]
+        families = {"Freq": ["All"]}
+        for el in self.aedtapp.available_variations.nominal_w_values_dict:
+            families[el] = self.aedtapp.available_variations.nominal_w_values_dict[el]
+
+        my_data = self.aedtapp.post.get_solution_data(expressions=trace_names, variations=families)
+        assert my_data
+        assert my_data.expressions
+        assert len(my_data.data_db10(trace_names[0])) > 0
+        assert len(my_data.data_imag(trace_names[0])) > 0
+        assert len(my_data.data_real(trace_names[0])) > 0
+        assert len(my_data.data_magnitude(trace_names[0])) > 0
+        assert my_data.export_data_to_csv(os.path.join(self.local_scratch.path, "output.csv"))
+        assert os.path.exists(os.path.join(self.local_scratch.path, "output.csv"))
+        if not is_ironpython:
+            assert self.aedtapp.get_touchstone_data("Setup1")
+
+    def test_04_export_touchstone(self):
+        setup_name = "Setup1"
+        sweep_name = "Sweep"
+        self.aedtapp.export_touchstone(
+            setup_name, sweep_name, os.path.join(self.local_scratch.path, "Setup1_Sweep.S2p")
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "Setup1_Sweep.S2p"))
+
+        sweep_name = None
+        self.aedtapp.export_touchstone(
+            setup_name, sweep_name, os.path.join(self.local_scratch.path, "Setup1_Sweep2.S2p")
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "Setup1_Sweep2.S2p"))
+        setup_name = None
+        self.aedtapp.export_touchstone(
+            setup_name, sweep_name, os.path.join(self.local_scratch.path, "Setup1_Sweep3.S2p")
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "Setup1_Sweep3.S2p"))
+
+        assert self.aedtapp.export_touchstone(setup_name, sweep_name)
+
+    @pytest.mark.skipif(config["desktopVersion"] != "2023.1", reason="Not running in non-graphical mode")
+    def test_05_export_report_to_jpg(self):
+        self.aedtapp.post.export_report_to_jpg(self.local_scratch.path, "MyTestScattering")
+        assert os.path.exists(os.path.join(self.local_scratch.path, "MyTestScattering.jpg"))
+
+    def test_06_export_report_to_csv(self):
+        self.aedtapp.post.export_report_to_csv(self.local_scratch.path, "MyTestScattering")
+        assert os.path.exists(os.path.join(self.local_scratch.path, "MyTestScattering.csv"))
+
+    def test_06_export_report_to_rdat(self):
+        self.aedtapp.post.export_report_to_file(self.local_scratch.path, "MyTestScattering", ".rdat")
+        assert os.path.exists(os.path.join(self.local_scratch.path, "MyTestScattering.rdat"))
+
+    def test_07_export_fields_from_Calculator(self):
+        self.aedtapp.post.export_field_file_on_grid(
+            "E",
+            "Setup1 : LastAdaptive",
+            self.aedtapp.available_variations.nominal_w_values,
+            os.path.join(self.local_scratch.path, "Efield.fld"),
+            grid_stop=[5, 5, 5],
+            grid_step=[0.5, 0.5, 0.5],
+            isvector=True,
+            intrinsics="5GHz",
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "Efield.fld"))
+
+        self.aedtapp.post.export_field_file_on_grid(
+            "Mag_E",
+            "Setup1 : LastAdaptive",
+            self.aedtapp.available_variations.nominal_w_values,
+            os.path.join(self.local_scratch.path, "MagEfieldSph.fld"),
+            gridtype="Spherical",
+            grid_stop=[5, 300, 300],
+            grid_step=[5, 50, 50],
+            isvector=False,
+            intrinsics="5GHz",
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "MagEfieldSph.fld"))
+
+        self.aedtapp.post.export_field_file_on_grid(
+            "Mag_E",
+            "Setup1 : LastAdaptive",
+            self.aedtapp.available_variations.nominal_w_values,
+            os.path.join(self.local_scratch.path, "MagEfieldCyl.fld"),
+            gridtype="Cylindrical",
+            grid_stop=[5, 300, 5],
+            grid_step=[5, 50, 5],
+            isvector=False,
+            intrinsics="5GHz",
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "MagEfieldCyl.fld"))
+
+    # @pytest.mark.skipif(
+    #     config["NonGraphical"], reason="Skipped because it cannot run on build machine in non-graphical mode"
+    # )
+    def test_07_copydata(self):
+        assert self.aedtapp.post.copy_report_data("MyTestScattering")
+
+    def test_08_manipulate_report(self):
+        assert self.aedtapp.post.rename_report("MyTestScattering", "MyNewScattering")
+        assert [plot for plot in self.aedtapp.post.plots if plot.plot_name == "MyNewScattering"]
+        assert not self.aedtapp.post.rename_report("invalid", "MyNewScattering")
+
     def test_09_manipulate_report(self):
         variations = self.field_test.available_variations.nominal_w_values_dict
         variations["Theta"] = ["All"]
