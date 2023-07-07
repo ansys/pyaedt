@@ -1621,7 +1621,8 @@ class Desktop(object):
         script_path : str
             Full path to the script file.
         script_image : str, optional
-            Full path to the image logo (30x30 pixels png) to be added into the UI.
+            Full path to the image logo (32x32 pixels png) to be added into the UI.
+            If ``None``, the pyansys logo will be used.
         product : str, optional
             Product to which the toolkit will apply. It can be Project to apply to all designs or specific (eg. HFSS).
 
@@ -1661,7 +1662,9 @@ class Desktop(object):
                     )
                     build_file_data = build_file_data.replace(" % version", "")
                     out_file.write(build_file_data)
-        if aedt_version >= "2023.2" and script_image:
+        if aedt_version >= "2023.2":
+            if not script_image:
+                script_image = os.path.join(os.path.dirname(__file__), "misc", "images", "large", "pyansys.png")
             write_toolkit_config(os.path.join(toolkit_dir, product), lib_dir, toolkit_name, toolkit=script_image)
         self.logger.info("{} toolkit installed.".format(toolkit_name))
         return True
