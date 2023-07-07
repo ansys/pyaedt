@@ -1609,7 +1609,9 @@ class Desktop(object):
         )
 
     @pyaedt_function_handler()
-    def add_script_to_menu(self, toolkit_name, script_path, script_image=None, product="Project"):  # pragma: no cover
+    def add_script_to_menu(
+        self, toolkit_name, script_path, script_image=None, product="Project", copy_to_personal_lib=True
+    ):  # pragma: no cover
         """Add a script to Ribbon menu. This functionality is available from AEDT 2023 R2.
         PyAEDT must be installed in AEDT to allow this functionality to run.
         Please refer to ``"https://aedt.docs.pyansys.com/version/stable/Getting_started/Installation.html"``.
@@ -1619,18 +1621,22 @@ class Desktop(object):
         toolkit_name : str
             Name of the toolkit as it will appear in AEDT.
         script_path : str
-            Full path to the script file.
+            Full path to the script file. The script will be moved to Personal Lib.
         script_image : str, optional
             Full path to the image logo (32x32 pixels png) to be added into the UI.
             If ``None``, the pyansys logo will be used.
         product : str, optional
             Product to which the toolkit will apply. It can be Project to apply to all designs or specific (eg. HFSS).
-
+        copy_to_personal_lib : bool, optional
+            Whether to copy the script to Personal Lib or link the original script. Default is ``True``.
         Returns
         -------
         bool
 
         """
+        if not os.path.exists(script_path):
+            self.logger.error("Script does not exists.")
+            return False
         from pyaedt.misc.install_extra_toolkits import write_toolkit_config
 
         toolkit_dir = os.path.join(self.personallib, "Toolkits")
@@ -1644,6 +1650,10 @@ class Desktop(object):
             toolkit_rel_lib_dir = "../../" + toolkit_rel_lib_dir
         os.makedirs(lib_dir, exist_ok=True)
         os.makedirs(tool_dir, exist_ok=True)
+        dest_script_path = script_path
+        if copy_to_personal_lib:
+            dest_script_path = os.path.join(lib_dir, os.path.split(script_path)[-1])
+            shutil.copy2(script_path, dest_script_path)
         files_to_copy = ["Run_PyAEDT_Toolkit_Script"]
         executable_version_agnostic = sys.executable
         for file_name in files_to_copy:
@@ -1658,7 +1668,7 @@ class Desktop(object):
                     build_file_data = (
                         build_file_data.replace("##TOOLKIT_REL_LIB_DIR##", toolkit_rel_lib_dir)
                         .replace("##PYTHON_EXE##", executable_version_agnostic)
-                        .replace("##PYTHON_SCRIPT##", script_path)
+                        .replace("##PYTHON_SCRIPT##", dest_script_path)
                     )
                     build_file_data = build_file_data.replace(" % version", "")
                     out_file.write(build_file_data)
@@ -1667,6 +1677,32 @@ class Desktop(object):
                 script_image = os.path.join(os.path.dirname(__file__), "misc", "images", "large", "pyansys.png")
             write_toolkit_config(os.path.join(toolkit_dir, product), lib_dir, toolkit_name, toolkit=script_image)
         self.logger.info("{} toolkit installed.".format(toolkit_name))
+        return True
+
+    @pyaedt_function_handler()
+    def remove_script_from_menu(self, toolkit_name, product="Project"):
+        """Remove a toolkit script from the menu.
+
+        Parameters
+        ----------
+        toolkit_name : str
+            Name of the toolkit to remove.
+        product : str, optional
+            Product to which the toolkit will apply. It can be Project to apply to all designs or specific (eg. HFSS).
+
+        Returns
+        -------
+        bool
+        """
+        from pyaedt.misc.install_extra_toolkits import remove_toolkit_config
+
+        toolkit_dir = os.path.join(self.personallib, "Toolkits")
+        aedt_version = self.aedt_version_id
+        tool_dir = os.path.join(toolkit_dir, product, toolkit_name)
+        shutil.rmtree(tool_dir, ignore_errors=True)
+        if aedt_version >= "2023.2":
+            remove_toolkit_config(os.path.join(toolkit_dir, product), toolkit_name)
+        self.logger.info("{} toolkit removed successfully.".format(toolkit_name))
         return True
 
     @pyaedt_function_handler()
