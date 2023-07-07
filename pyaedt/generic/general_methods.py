@@ -979,7 +979,211 @@ def _create_json_file(json_dict, full_json_path):
     return True
 
 
-@pyaedt_function_handler()
+# @pyaedt_function_handler()
+# def com_active_sessions(version=None, student_version=False, non_graphical=False):
+#     """Get information for the active COM AEDT sessions.
+#
+#     Parameters
+#     ----------
+#     version : str, optional
+#         Version to check. The default is ``None``, in which case all versions are checked.
+#         When specifying a version, you can use a three-digit format like ``"222"`` or a
+#         five-digit format like ``"2022.2"``.
+#     student_version : bool, optional
+#         Whether to check for student version sessions. The default is ``False``.
+#     non_graphical : bool, optional
+#         Whether to check only for active non-graphical sessions. The default is ``False``.
+#
+#     Returns
+#     -------
+#     list
+#         List of AEDT PIDs.
+#     """
+#     if student_version:
+#         keys = ["ansysedtsv.exe"]
+#     else:
+#         keys = ["ansysedt.exe"]
+#     long_version = None
+#     if len(version) > 6:
+#         version = version[-6:]
+#     if version and "." in version:
+#         long_version = version
+#         version = version[-4:].replace(".", "")
+#     if version < "221":
+#         version = version[:2] + "." + version[2]
+#         long_version = "20{}".format(version)
+#     sessions = []
+#     for p in psutil.process_iter():
+#         try:
+#             if p.name() in keys:
+#                 if long_version and _check_installed_version(os.path.dirname(p.exe()), long_version):
+#                     sessions.append(p.pid)
+#                     continue
+#                 cmd = p.cmdline()
+#                 if non_graphical and "-ng" in cmd or not non_graphical:
+#                     if not version or (version and version in cmd[0]):
+#                         sessions.append(p.pid)
+#         except:
+#             pass
+#     return sessions
+#
+#
+# @pyaedt_function_handler()
+# def grpc_active_sessions(version=None, student_version=False, non_graphical=False):
+#     """Get information for the active gRPC AEDT sessions.
+#
+#     Parameters
+#     ----------
+#     version : str, optional
+#         Version to check. The default is ``None``, in which case all versions are checked.
+#         When specififying a version, you can use a three-digit format like ``"222"`` or a
+#         five-digit format like ``"2022.2"``.
+#     student_version : bool, optional
+#         Whether to check for student version sessions. The default is ``False``.
+#     non_graphical : bool, optional
+#         Whether to check only for active non-graphical sessions. The default is ``False``.
+#
+#     Returns
+#     -------
+#     list
+#         List of gRPC ports.
+#     """
+#     if student_version:
+#         keys = ["ansysedtsv.exe", "ansysedtsv"]
+#     else:
+#         keys = ["ansysedt.exe", "ansysedt"]
+#     if version and "." in version:
+#         version = version[-4:].replace(".", "")
+#     sessions = []
+#     for p in psutil.process_iter():
+#         try:
+#             if p.name() in keys:
+#                 cmd = p.cmdline()
+#                 if "-grpcsrv" in cmd:
+#                     if non_graphical and "-ng" in cmd or not non_graphical:
+#                         if not version or (version and version in cmd[0]):
+#                             try:
+#                                 sessions.append(
+#                                     int(cmd[cmd.index("-grpcsrv") + 1]),
+#                                 )
+#                             except (IndexError, ValueError):
+#                                 # default desktop grpc port.
+#                                 sessions.append(50051)
+#         except:
+#             pass
+#     return sessions
+#
+#
+# def active_sessions(version=None, student_version=False, non_graphical=False):
+#     """Get information for the active AEDT sessions.
+#
+#     Parameters
+#     ----------
+#     version : str, optional
+#         Version to check. The default is ``None``, in which case all versions are checked.
+#         When specifying a version, you can use a three-digit format like ``"222"`` or a
+#         five-digit format like ``"2022.2"``.
+#     student_version : bool, optional
+#     non_graphical : bool, optional
+#
+#
+#     Returns
+#     -------
+#     list
+#         List of tuple (AEDT PIDs, port).
+#     """
+#     if student_version:
+#         keys = ["ansysedtsv.exe", "ansysedtsv"]
+#     else:
+#         keys = ["ansysedt.exe", "ansysedt"]
+#     if version and "." in version:
+#         version = version[-4:].replace(".", "")
+#     if version and version < "222":
+#         version = version[:2] + "." + version[2]
+#     sessions = []
+#     for p in psutil.process_iter():
+#         try:
+#             if p.name() in keys:
+#                 cmd = p.cmdline()
+#                 if non_graphical and "-ng" in cmd or not non_graphical:
+#                     if not version or (version and version in cmd[0]):
+#                         if "-grpcsrv" in cmd:
+#                             if not version or (version and version in cmd[0]):
+#                                 try:
+#                                     sessions.append(
+#                                         [
+#                                             p.pid,
+#                                             int(cmd[cmd.index("-grpcsrv") + 1]),
+#                                         ]
+#                                     )
+#                                 except (IndexError, ValueError):
+#                                     # default desktop grpc port.
+#                                     sessions.append(
+#                                         [
+#                                             p.pid,
+#                                             50051,
+#                                         ]
+#                                     )
+#                         else:
+#                             sessions.append(
+#                                 [
+#                                     p.pid,
+#                                     -1,
+#                                 ]
+#                             )
+#         except:
+#             pass
+#     return sessions
+
+
+def active_sessions(version=None, student_version=False, non_graphical=False):
+    """Get information for the active AEDT sessions.
+
+    Parameters
+    ----------
+    version : str, optional
+        Version to check. The default is ``None``, in which case all versions are checked.
+        When specifying a version, you can use a three-digit format like ``"222"`` or a
+        five-digit format like ``"2022.2"``.
+    student_version : bool, optional
+    non_graphical : bool, optional
+
+
+    Returns
+    -------
+    dict
+        {AEDT PID: port}
+        If the PID corresponds to a COM session port is set to -1
+    """
+    return_dict = {}
+    if student_version:
+        keys = ["ansysedtsv.exe", "ansysedtsv"]
+    else:
+        keys = ["ansysedt.exe", "ansysedt"]
+    if version and "." in version:
+        version = version[-4:].replace(".", "")
+    if version and version < "222":
+        version = version[:2] + "." + version[2]
+    for p in psutil.process_iter():
+        try:
+            if p.name() in keys:
+                cmd = p.cmdline()
+                if non_graphical and "-ng" in cmd or not non_graphical:
+                    if not version or (version and version in cmd[0]):
+                        if "-grpcsrv" in cmd:
+                            if not version or (version and version in cmd[0]):
+                                try:
+                                    return_dict[p.pid] = int(cmd[cmd.index("-grpcsrv") + 1])
+                                except (IndexError, ValueError):
+                                    # default desktop grpc port.
+                                    return_dict[p.pid] = 50051
+                        else:
+                            return_dict[p.pid] = -1
+        except:
+            pass
+    return return_dict
+
+
 def com_active_sessions(version=None, student_version=False, non_graphical=False):
     """Get information for the active COM AEDT sessions.
 
@@ -999,36 +1203,16 @@ def com_active_sessions(version=None, student_version=False, non_graphical=False
     list
         List of AEDT PIDs.
     """
-    if student_version:
-        keys = ["ansysedtsv.exe"]
-    else:
-        keys = ["ansysedt.exe"]
-    long_version = None
-    if len(version) > 6:
-        version = version[-6:]
-    if version and "." in version:
-        long_version = version
-        version = version[-4:].replace(".", "")
-    if version < "221":
-        version = version[:2] + "." + version[2]
-        long_version = "20{}".format(version)
-    sessions = []
-    for p in psutil.process_iter():
-        try:
-            if p.name() in keys:
-                if long_version and _check_installed_version(os.path.dirname(p.exe()), long_version):
-                    sessions.append(p.pid)
-                    continue
-                cmd = p.cmdline()
-                if non_graphical and "-ng" in cmd or not non_graphical:
-                    if not version or (version and version in cmd[0]):
-                        sessions.append(p.pid)
-        except:
-            pass
-    return sessions
+
+    all_sessions = active_sessions(version, student_version, non_graphical)
+
+    return_list = []
+    for s, p in all_sessions.items():
+        if p == -1:
+            return_list.append(s)
+    return return_list
 
 
-@pyaedt_function_handler()
 def grpc_active_sessions(version=None, student_version=False, non_graphical=False):
     """Get information for the active gRPC AEDT sessions.
 
@@ -1048,92 +1232,13 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
     list
         List of gRPC ports.
     """
-    if student_version:
-        keys = ["ansysedtsv.exe", "ansysedtsv"]
-    else:
-        keys = ["ansysedt.exe", "ansysedt"]
-    if version and "." in version:
-        version = version[-4:].replace(".", "")
-    sessions = []
-    for p in psutil.process_iter():
-        try:
-            if p.name() in keys:
-                cmd = p.cmdline()
-                if "-grpcsrv" in cmd:
-                    if non_graphical and "-ng" in cmd or not non_graphical:
-                        if not version or (version and version in cmd[0]):
-                            try:
-                                sessions.append(
-                                    int(cmd[cmd.index("-grpcsrv") + 1]),
-                                )
-                            except (IndexError, ValueError):
-                                # default desktop grpc port.
-                                sessions.append(50051)
-        except:
-            pass
-    return sessions
+    all_sessions = active_sessions(version, student_version, non_graphical)
 
-
-def active_sessions(version=None, student_version=False, non_graphical=False):
-    """Get information for the active AEDT sessions.
-
-    Parameters
-    ----------
-    version : str, optional
-        Version to check. The default is ``None``, in which case all versions are checked.
-        When specifying a version, you can use a three-digit format like ``"222"`` or a
-        five-digit format like ``"2022.2"``.
-    student_version : bool, optional
-    non_graphical : bool, optional
-
-
-    Returns
-    -------
-    list
-        List of AEDT PIDs.
-    """
-    if student_version:
-        keys = ["ansysedtsv.exe", "ansysedtsv"]
-    else:
-        keys = ["ansysedt.exe", "ansysedt"]
-    if version and "." in version:
-        version = version[-4:].replace(".", "")
-    if version and version < "222":
-        version = version[:2] + "." + version[2]
-    sessions = []
-    for p in psutil.process_iter():
-        try:
-            if p.name() in keys:
-                cmd = p.cmdline()
-                if non_graphical and "-ng" in cmd or not non_graphical:
-                    if not version or (version and version in cmd[0]):
-                        if "-grpcsrv" in cmd:
-                            if not version or (version and version in cmd[0]):
-                                try:
-                                    sessions.append(
-                                        [
-                                            p.pid,
-                                            int(cmd[cmd.index("-grpcsrv") + 1]),
-                                        ]
-                                    )
-                                except (IndexError, ValueError):
-                                    # default desktop grpc port.
-                                    sessions.append(
-                                        [
-                                            p.pid,
-                                            50051,
-                                        ]
-                                    )
-                        else:
-                            sessions.append(
-                                [
-                                    p.pid,
-                                    -1,
-                                ]
-                            )
-        except:
-            pass
-    return sessions
+    return_list = []
+    for s, p in all_sessions.items():
+        if p > -1:
+            return_list.append(p)
+    return return_list
 
 
 @pyaedt_function_handler()

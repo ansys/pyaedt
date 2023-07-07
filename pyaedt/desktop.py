@@ -47,7 +47,11 @@ from pyaedt.generic.general_methods import grpc_active_sessions
 from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
-from pyaedt.misc import list_installed_ansysem
+
+# from pyaedt.misc import list_installed_ansysem
+from pyaedt.misc import current_student_version
+from pyaedt.misc import current_version
+from pyaedt.misc import installed_versions
 
 pathname = os.path.dirname(__file__)
 
@@ -92,10 +96,10 @@ def launch_aedt(full_path, non_graphical, port, first_run=True):
     while not _check_grpc_port(port):
         if k > timeout:  # pragma: no cover
             active_s = active_sessions(student_version=settings.is_student)
-            for p in active_s:
-                if port == p[1]:
+            for pid in active_s:
+                if port == active_s[pid]:
                     try:
-                        os.kill(p[0], 9)
+                        os.kill(pid, 9)
                     except (OSError, PermissionError):
                         pass
             if first_run:
@@ -548,16 +552,20 @@ class Desktop(object):
         elif aedt_process_id and not new_desktop_session and not is_ironpython:  # pragma: no cover
             # connecting to an existing session has the precedence over use_grpc_api user preference
             sessions = active_sessions(
-                version=version_key, student_version=student_version, non_graphical=non_graphical
+                version=specified_version, student_version=student_version, non_graphical=non_graphical
             )
-            for session in sessions:
-                if session[0] == aedt_process_id:
-                    if session[1] != -1:
-                        self.port = session[1]
-                        starting_mode = "grpc"
-                    else:
-                        starting_mode = "com"
-                    break
+            if aedt_process_id in sessions:
+                if sessions[aedt_process_id] != -1:
+                    self.port = sessions[aedt_process_id]
+                    starting_mode = "grpc"
+                else:
+                    starting_mode = "com"
+            else:
+                raise ValueError(
+                    "The version specified ({}) does not correspond to the pid specified ({})".format(
+                        specified_version, aedt_process_id
+                    )
+                )
         elif float(version_key) < 2022.2:
             starting_mode = "com"
         elif float(version_key) == 2022.2:
@@ -769,58 +777,58 @@ class Desktop(object):
     def install_path(self):
         """Installation path for AEDT."""
         version_key = self._main.AEDTVersion
-        root = self._version_ids[version_key]
-        return os.environ[root]
+        # root = self._version_ids[version_key]
+        # return os.environ[root]
+        return installed_versions()[version_key]
 
-    @property
-    def version_keys(self):
-        """Version keys for AEDT."""
-
-        self._version_keys = []
-        self._version_ids = {}
-        version_list = list_installed_ansysem()
-        for version_env_var in version_list:
-            if "ANSYSEMSV_ROOT" in version_env_var:
-                current_version_id = version_env_var.replace("ANSYSEMSV_ROOT", "")
-                student = True
-            else:
-                current_version_id = version_env_var.replace("ANSYSEM_ROOT", "")
-                student = False
-            try:
-                version = int(current_version_id[0:2])
-                release = int(current_version_id[2])
-                if version < 20:
-                    if release < 3:
-                        version -= 1
-                    else:
-                        release -= 2
-                if student:
-                    v_key = "20{0}.{1}SV".format(version, release)
-                    self._version_keys.append(v_key)
-                    self._version_ids[v_key] = version_env_var
-                else:
-                    v_key = "20{0}.{1}".format(version, release)
-                    self._version_keys.append(v_key)
-                    self._version_ids[v_key] = version_env_var
-            except:
-                pass
-        return self._version_keys
+    # @property
+    # def version_keys(self):
+    #     """Version keys for AEDT."""
+    #
+    #     self._version_keys = []
+    #     self._version_ids = {}
+    #     version_list = list_installed_ansysem()
+    #     for version_env_var in version_list:
+    #         if "ANSYSEMSV_ROOT" in version_env_var:
+    #             current_version_id = version_env_var.replace("ANSYSEMSV_ROOT", "")
+    #             student = True
+    #         else:
+    #             current_version_id = version_env_var.replace("ANSYSEM_ROOT", "")
+    #             student = False
+    #         try:
+    #             version = int(current_version_id[0:2])
+    #             release = int(current_version_id[2])
+    #             if version < 20:
+    #                 if release < 3:
+    #                     version -= 1
+    #                 else:
+    #                     release -= 2
+    #             if student:
+    #                 v_key = "20{0}.{1}SV".format(version, release)
+    #                 self._version_keys.append(v_key)
+    #                 self._version_ids[v_key] = version_env_var
+    #             else:
+    #                 v_key = "20{0}.{1}".format(version, release)
+    #                 self._version_keys.append(v_key)
+    #                 self._version_ids[v_key] = version_env_var
+    #         except:
+    #             pass
+    #     return self._version_keys
 
     @property
     def current_version(self):
         """Current AEDT version."""
-        try:
-            return self.version_keys[0]
-        except (NameError, IndexError):
-            return ""
+        return current_version()
 
     @property
-    def current_version_student(self):
+    def current_student_version(self):
         """Current student AEDT version."""
-        for version_key in self.version_keys:
-            if "SV" in version_key:
-                return version_key
-        return ""
+        return current_student_version()
+
+    @property
+    def installed_versions(self):
+        """Dictionary of AEDT versions installed on the system and their installation paths"""
+        return installed_versions()
 
     def _init_desktop(self, non_graphical):
         # run it after the settings.non_graphical is set
@@ -844,11 +852,12 @@ class Desktop(object):
             if student_version:
                 specified_version += "SV"
                 student_version_flag = True
-            assert specified_version in self.version_keys, "Specified version {} is not known".format(specified_version)
+            if not specified_version in self.installed_versions:
+                raise ValueError("Specified version {} is not installed on your system".format(specified_version))
             version_key = specified_version
         else:
-            if student_version and self.current_version_student:
-                version_key = self.current_version_student
+            if student_version and self.current_student_version:
+                version_key = self.current_student_version
                 student_version_flag = True
             else:
                 version_key = self.current_version
@@ -857,7 +866,8 @@ class Desktop(object):
             version = "Ansoft.ElectronicsDesktop." + version_key[:-2]
         else:
             version = "Ansoft.ElectronicsDesktop." + version_key
-        self._main.sDesktopinstallDirectory = os.getenv(self._version_ids[version_key])
+        # self._main.sDesktopinstallDirectory = os.getenv(self._version_ids[version_key])
+        self._main.sDesktopinstallDirectory = self.installed_versions[version_key]
         return student_version_flag, version_key, version
 
     def _init_ironpython(self, non_graphical, new_aedt_session, version):
@@ -1016,7 +1026,7 @@ class Desktop(object):
                 )
                 if sessions:
                     self.port = sessions[0]
-                    if len(sessions):
+                    if len(sessions) == 1:
                         self.logger.info("Found active AEDT gRPC session on port %s", self.port)
                     else:
                         self.logger.warning(
