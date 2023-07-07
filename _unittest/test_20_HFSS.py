@@ -1414,6 +1414,7 @@ class TestClass(BasisTest, object):
         )
         assert not aedtapp.assign_symmetry(ids[0])
         assert not aedtapp.assign_symmetry("test")
+        assert aedtapp.set_impedance_multiplier(2)
         self.aedtapp.close_project(name=aedtapp.project_name, save_project=False)
 
     def test_55_create_near_field_sphere(self):
@@ -1513,6 +1514,7 @@ class TestClass(BasisTest, object):
         assert term.name == "test"
         term.props["TerminalResistance"] = "1ohm"
         assert term.props["TerminalResistance"] == "1ohm"
+        assert not self.aedtapp.set_impedance_multiplier(2)
 
     def test_61_set_power_calc(self):
         assert self.aedtapp.set_radiated_power_calc_method()
