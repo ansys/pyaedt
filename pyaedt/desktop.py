@@ -1627,7 +1627,8 @@ class Desktop(object):
             Full path to the image logo (32x32 pixels png) to be added into the UI.
             If ``None``, the pyansys logo will be used.
         product : str, optional
-            Product to which the toolkit will apply. It can be Project to apply to all designs or specific (eg. HFSS).
+            Product to which the toolkit applies. The default is ``"Project"``, in which case
+            it applies to all designs. You can also specify a product, such as ``"HFSS"``.
 
         Returns
         -------
