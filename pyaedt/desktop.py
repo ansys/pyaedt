@@ -1612,23 +1612,28 @@ class Desktop(object):
     def add_script_to_menu(
         self, toolkit_name, script_path, script_image=None, product="Project", copy_to_personal_lib=True
     ):  # pragma: no cover
-        """Add a script to Ribbon menu. This functionality is available from AEDT 2023 R2.
-        PyAEDT must be installed in AEDT to allow this functionality to run.
-        Please refer to ``"https://aedt.docs.pyansys.com/version/stable/Getting_started/Installation.html"``.
+        """Add a script to the ribbon menu.
+
+        .. note::
+           This method is available in AEDT 2023 R2 and later. PyAEDT must be installed
+           in AEDT to allow this method to run. For more information, see `Installation
+           <https://aedt.docs.pyansys.com/version/stable/Getting_started/Installation.html>`_.
 
         Parameters
         ----------
         toolkit_name : str
-            Name of the toolkit as it will appear in AEDT.
+            Name of the toolkit to appear in AEDT.
         script_path : str
             Full path to the script file. The script will be moved to Personal Lib.
         script_image : str, optional
             Full path to the image logo (32x32 pixels png) to be added into the UI.
             If ``None``, the pyansys logo will be used.
         product : str, optional
-            Product to which the toolkit will apply. It can be Project to apply to all designs or specific (eg. HFSS).
+            Product to which the toolkit applies. The default is ``"Project"``, in which case
+            it applies to all designs. You can also specify a product, such as ``"HFSS"``.
         copy_to_personal_lib : bool, optional
             Whether to copy the script to Personal Lib or link the original script. Default is ``True``.
+
         Returns
         -------
         bool
