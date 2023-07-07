@@ -1611,7 +1611,7 @@ class Desktop(object):
     @pyaedt_function_handler()
     def add_script_to_menu(self, toolkit_name, script_path, script_image=None, product="Project"):  # pragma: no cover
         """Add a script to the ribbon menu.
-        
+
         .. note::
            This method is available in AEDT 2023 R2 and later. PyAEDT must be installed
            in AEDT to allow this method to run. For more information, see `Installation
