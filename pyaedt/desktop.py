@@ -1693,7 +1693,8 @@ class Desktop(object):
         toolkit_name : str
             Name of the toolkit to remove.
         product : str, optional
-            Product to which the toolkit will apply. It can be Project to apply to all designs or specific (eg. HFSS).
+            Product to which the toolkit applies. The default is ``"Project"``, in which case
+            it applies to all designs. You can also specify a product, such as ``"HFSS"``.
 
         Returns
         -------
