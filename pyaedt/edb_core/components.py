@@ -805,7 +805,7 @@ class Components(object):
     def create_port_on_component(
         self, component, net_list, port_type=SourceType.CoaxPort, do_pingroup=True, reference_net="gnd", port_name=None
     ):
-        """Create ports on a given component.
+        """Create ports on a component.
 
         Parameters
         ----------
