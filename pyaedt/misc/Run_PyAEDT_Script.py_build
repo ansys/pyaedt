@@ -47,6 +47,8 @@ def main():
             pyaedt_script = file_dialog.FileName
             check_file(python_exe)
             check_file(pyaedt_script)
+            os.environ["PYAEDT_SCRIPT_PROCESS_ID"] = str(oDesktop.GetProcessID())
+            os.environ["PYAEDT_SCRIPT_VERSION"] = str(oDesktop.GetVersion()[:6])
             if is_linux:
                 edt_root = os.path.normpath(oDesktop.GetExeDir())
                 os.environ["ANSYSEM_ROOT{}".format(version)] = edt_root
@@ -65,7 +67,8 @@ def main():
                     str(oDesktop.GetProcessID()),
                     str(oDesktop.GetVersion()[:6]),
                 ]
-                subprocess.Popen(command)
+                my_env = os.environ.copy()
+                subprocess.Popen(command, env=my_env)
             else:
                 command = [
                     '"{}"'.format(python_exe),
@@ -73,7 +76,8 @@ def main():
                     str(oDesktop.GetProcessID()),
                     str(oDesktop.GetVersion()[:6]),
                 ]
-                subprocess.Popen(" ".join(command))
+                my_env = os.environ.copy()
+                subprocess.Popen(" ".join(command), env=my_env)
         else:
             debug("ret didn't pass the equivalence. ret:" + repr(ret))
     except Exception as e:
