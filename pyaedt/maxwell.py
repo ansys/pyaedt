@@ -326,7 +326,7 @@ class Maxwell(object):
 
             bound = MaxwellParameters(self, matrix_name, props, "Matrix")
             if bound.create():
-                self.boundaries.append(bound)
+                self._boundaries[bound.name] = bound
                 return bound
         else:
             self.logger.error("Solution type does not have matrix parameters")
@@ -644,7 +644,7 @@ class Maxwell(object):
                 return False
         bound = BoundaryObject(self, name, props, "Current")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -744,7 +744,7 @@ class Maxwell(object):
         )
         bound = BoundaryObject(self, motion_name, props, "Band")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -842,7 +842,7 @@ class Maxwell(object):
         )
         bound = BoundaryObject(self, motion_name, props, "Band")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -883,7 +883,7 @@ class Maxwell(object):
             props = OrderedDict({"Faces": face_list, "Voltage": amplitude})
         bound = BoundaryObject(self, name, props, "Voltage")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -925,7 +925,7 @@ class Maxwell(object):
         props = OrderedDict({"Faces": face_list, "Voltage Drop": amplitude, "Point out of terminal": swap_direction})
         bound = BoundaryObject(self, name, props, "VoltageDrop")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -996,7 +996,7 @@ class Maxwell(object):
         )
         bound = BoundaryObject(self, name, props, "Winding")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             if coil_terminals is None:
                 coil_terminals = []
             if type(coil_terminals) is not list:
@@ -1102,7 +1102,7 @@ class Maxwell(object):
                 self.logger.warning("Face Selection is not allowed in Maxwell 2D. Provide a 2D object.")
                 return False
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -1162,7 +1162,7 @@ class Maxwell(object):
 
             bound = MaxwellParameters(self, force_name, prop, "Force")
             if bound.create():
-                self.boundaries.append(bound)
+                self._boundaries[bound.name] = bound
                 return bound
         else:
             self.logger.error("Solution Type has not Matrix Parameter")
@@ -1235,7 +1235,7 @@ class Maxwell(object):
 
             bound = MaxwellParameters(self, torque_name, prop, "Torque")
             if bound.create():
-                self.boundaries.append(bound)
+                self._boundaries[bound.name] = bound
                 return bound
         else:
             self.logger.error("Solution Type has not Matrix Parameter")
@@ -1370,7 +1370,7 @@ class Maxwell(object):
 
             bound = BoundaryObject(self, symmetry_name, prop, "Symmetry")
             if bound.create():
-                self.boundaries.append(bound)
+                self._boundaries[bound.name] = bound
                 return bound
             return True
         except:
@@ -1502,7 +1502,7 @@ class Maxwell(object):
                         bound = BoundaryObject(self, current_density_name, props, "CurrentDensity")
 
                 if bound.create():
-                    self.boundaries.append(bound)
+                    self._boundaries[bound.name] = bound
                     return bound
                 return True
             except:
@@ -2417,11 +2417,11 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                     bound = BoundaryObject(self, current_density_name, props, "CurrentDensityTerminal")
 
                 if bound.create():
-                    self.boundaries.append(bound)
+                    self._boundaries[bound.name] = bound
                     return bound
-                return True
+                return False
             except:
-                pass
+                return False
         else:
             self.logger.error("Current density can only be applied to Eddy current or magnetostatic solution types.")
             return False
@@ -2449,7 +2449,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         bound = BoundaryObject(self, name, props, boundary_type)
         result = bound.create()
         if result:
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             self.logger.info("Boundary %s %s has been correctly created.", boundary_type, name)
             return bound
 
@@ -2571,7 +2571,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             )
             bound = BoundaryObject(self, bound_name_m, props2, "Independent")
             if bound.create():
-                self.boundaries.append(bound)
+                self._boundaries[bound.name] = bound
 
                 u_slave_vector_coordinates = OrderedDict(
                     {
@@ -2592,7 +2592,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                 )
                 bound2 = BoundaryObject(self, bound_name_s, props2, "Dependent")
                 if bound2.create():
-                    self.boundaries.append(bound2)
+                    self._boundaries[bound2.name] = bound2
                     return bound, bound2
                 else:
                     return bound, False
@@ -2717,7 +2717,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         )
         bound = MaxwellParameters(self, force_name, props, "LayoutForce")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
 
 
@@ -2976,7 +2976,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         bound = BoundaryObject(self, bound_name, props2, "Balloon")
 
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -3017,7 +3017,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         bound = BoundaryObject(self, bound_name, props2, "Vector Potential")
 
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -3064,7 +3064,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         props2 = OrderedDict({"Edges": master_edge, "ReverseV": reverse_master})
         bound = BoundaryObject(self, bound_name_m, props2, "Independent")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
 
             props2 = OrderedDict(
                 {
@@ -3076,7 +3076,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
             )
             bound2 = BoundaryObject(self, bound_name_s, props2, "Dependent")
             if bound2.create():
-                self.boundaries.append(bound2)
+                self._boundaries[bound2.name] = bound2
                 return bound, bound2
             else:
                 return bound, False
@@ -3129,6 +3129,6 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         )
         bound = BoundaryObject(self, bound_name, props, "EndConnection")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False

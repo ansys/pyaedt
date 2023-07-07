@@ -454,6 +454,7 @@ class Primitives3D(Primitives, object):
         facets=6,
         name=None,
         matname=None,
+        cs_axis="Z",
     ):
         # type : (list, list, float|str=0.2, float|str=0, float=80, float=5, int=0, float|str=0.025, int=6, str=None,
         # str=None) -> Object3d
@@ -500,6 +501,8 @@ class Primitives3D(Primitives, object):
         matname : str, optional
             Name of the material. The default is ``None``, in which case
             the default material is assigned.
+        cs_axis : str, optional
+            Coordinate system axis. The default is ``"Z"``.
 
         Returns
         -------
@@ -588,7 +591,7 @@ class Primitives3D(Primitives, object):
         first_argument.append("h2:="), first_argument.append(self._arg_with_dim(h2))
         first_argument.append("alpha:="), first_argument.append(self._arg_with_dim(alpha, "deg"))
         first_argument.append("beta:="), first_argument.append(self._arg_with_dim(beta, "deg"))
-        first_argument.append("WhichAxis:="), first_argument.append("Z")
+        first_argument.append("WhichAxis:="), first_argument.append(GeometryOperators.cs_axis_str(cs_axis))
         first_argument.append("ReverseDirection:="), first_argument.append(False)
         second_argument = self._default_object_attributes(name=name, matname=matname)
         new_object_name = self.oeditor.CreateBondwire(first_argument, second_argument)

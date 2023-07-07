@@ -1361,6 +1361,8 @@ class BinaryTreeNode:
     """Manages an object's history structure."""
 
     def __init__(self, node, child_object, first_level=False, get_child_obj_arg=None, root_name=None):
+        if not root_name:
+            root_name = node
         saved_root_name = node if first_level else root_name
         self.node = node
         self.child_object = child_object
@@ -1395,7 +1397,10 @@ class BinaryTreeNode:
         else:
             self.props = {}
             for p in self.child_object.GetPropNames():
-                self.props[p] = self.child_object.GetPropValue(p)
+                try:
+                    self.props[p] = self.child_object.GetPropValue(p)
+                except:
+                    self.props[p] = None
             self.props = HistoryProps(self, self.props)
         self.command = self.props.get("Command", "")
 

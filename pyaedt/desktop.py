@@ -26,6 +26,7 @@ from pyaedt import is_ironpython
 from pyaedt import is_linux
 from pyaedt import is_windows
 from pyaedt import pyaedt_logger
+from pyaedt.generic.general_methods import generate_unique_name
 
 if is_linux:
     os.environ["ANS_NODEPCHECK"] = str(1)
@@ -254,10 +255,6 @@ def _delete_objects():
         del sys.modules["PyDesktopPlugin"]
     except:
         pass
-    try:
-        del sys.modules["ScriptEnv"]
-    except:
-        pass
     keys = [k for k in sys.modules.keys()]
     for i in keys:
         if "Ansys.Ansoft" in i:
@@ -298,12 +295,12 @@ def release_desktop(close_projects, close_desktop, is_grpc_api):
         pid = _main.oDesktop.GetProcessID()
         if settings.remote_rpc_session or (settings.aedt_version >= "2022.2" and is_grpc_api and not is_ironpython):
             try:
-                import ScriptEnv
-
                 if close_desktop:
-                    ScriptEnv.Shutdown()
+                    _main.oDesktop.QuitApplication()
                 else:
-                    ScriptEnv.Release()
+                    import PyDesktopPlugin as StandalonePyScriptWrapper
+
+                    return StandalonePyScriptWrapper.Release()
             except:
                 pass
             _delete_objects()
@@ -918,8 +915,6 @@ class Desktop(object):
     ):  # pragma: no cover
         import pythoncom
 
-        from pyaedt.generic.clr_module import _clr
-
         if is_linux:
             raise Exception(
                 "PyAEDT supports COM initialization in Windows only. To use in Linux, upgrade to AEDT 2022 R2 or later."
@@ -929,11 +924,6 @@ class Desktop(object):
         sys.path.insert(0, os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
         launch_msg = "AEDT installation Path {}.".format(base_path)
         self.logger.info(launch_msg)
-        _clr.AddReference("Ansys.Ansoft.CoreCOMScripting")
-        AnsoftCOMUtil = __import__("Ansys.Ansoft.CoreCOMScripting")
-        self.COMUtil = AnsoftCOMUtil.Ansoft.CoreCOMScripting.Util.COMUtil
-        self._main.COMUtil = self.COMUtil
-        StandalonePyScriptWrapper = AnsoftCOMUtil.Ansoft.CoreCOMScripting.COM.StandalonePyScriptWrapper
         self.logger.info("Launching AEDT with module PythonNET.")
         processID = []
         if is_windows:
@@ -942,9 +932,9 @@ class Desktop(object):
             self._run_student()
         elif non_graphical or new_aedt_session or not processID:
             # Force new object if no non-graphical instance is running or if there is not an already existing process.
-            StandalonePyScriptWrapper.CreateObjectNew(non_graphical)
+            self._initialize(non_graphical=non_graphical, new_session=True, is_grpc=False)
         else:
-            StandalonePyScriptWrapper.CreateObject(version)
+            self._initialize(new_session=False, is_grpc=False)
         processID2 = []
         if is_windows:
             processID2 = com_active_sessions(version, student_version, non_graphical)
@@ -982,24 +972,50 @@ class Desktop(object):
         # we should have a check here to see if AEDT is really started
         self.is_grpc_api = False
 
-    def _init_cpython_new(self, non_graphical, new_aedt_session, version, student_version, version_key):
-        base_path = self._main.sDesktopinstallDirectory
-        sys.path.insert(0, base_path)
-        sys.path.insert(0, os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
-        if is_linux:
-            if os.environ.get("LD_LIBRARY_PATH"):
-                os.environ["LD_LIBRARY_PATH"] = (
-                    os.path.join(base_path, "defer") + os.pathsep + os.environ["LD_LIBRARY_PATH"]
-                )
+    def _initialize(
+        self,
+        machine="",
+        port=0,
+        non_graphical=False,
+        new_session=False,
+        version=None,
+        is_grpc=True,
+    ):
+        if not is_grpc:
+            from pyaedt.generic.clr_module import _clr
+
+            _clr.AddReference("Ansys.Ansoft.CoreCOMScripting")
+            AnsoftCOMUtil = __import__("Ansys.Ansoft.CoreCOMScripting")
+            self.COMUtil = AnsoftCOMUtil.Ansoft.CoreCOMScripting.Util.COMUtil
+            self._main.COMUtil = self.COMUtil
+            StandalonePyScriptWrapper = AnsoftCOMUtil.Ansoft.CoreCOMScripting.COM.StandalonePyScriptWrapper
+            if non_graphical or new_session:
+                return StandalonePyScriptWrapper.CreateObjectNew(non_graphical)
             else:
-                os.environ["LD_LIBRARY_PATH"] = os.path.join(base_path, "defer")
-            pyaedt_path = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), ".."))
-            os.environ["PATH"] = pyaedt_path + os.pathsep + os.environ["PATH"]
+                return StandalonePyScriptWrapper.CreateObject(version)
+        else:
+            base_path = self._main.sDesktopinstallDirectory
+            sys.path.insert(0, base_path)
+            sys.path.insert(0, os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
+            if is_linux:
+                if os.environ.get("LD_LIBRARY_PATH"):
+                    os.environ["LD_LIBRARY_PATH"] = (
+                        os.path.join(base_path, "defer") + os.pathsep + os.environ["LD_LIBRARY_PATH"]
+                    )
+                else:
+                    os.environ["LD_LIBRARY_PATH"] = os.path.join(base_path, "defer")
+                pyaedt_path = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), ".."))
+                os.environ["PATH"] = pyaedt_path + os.pathsep + os.environ["PATH"]
+            os.environ["DesktopPluginPyAEDT"] = os.path.join(
+                self._main.sDesktopinstallDirectory, "PythonFiles", "DesktopPlugin"
+            )
+            launch_msg = "AEDT installation Path {}".format(base_path)
+            self.logger.info(launch_msg)
+            import PyDesktopPlugin as StandalonePyScriptWrapper
 
-        import ScriptEnv
+            return StandalonePyScriptWrapper.CreateAedtApplication(machine, port, non_graphical, new_session)
 
-        launch_msg = "AEDT installation Path {}".format(base_path)
-        self.logger.info(launch_msg)
+    def _init_cpython_new(self, non_graphical, new_aedt_session, version, student_version, version_key):
         self.logger.info("Launching AEDT with the gRPC plugin.")
         if not self.machine or self.machine in [
             "localhost",
@@ -1010,7 +1026,6 @@ class Desktop(object):
             self.machine = ""
         else:
             settings.remote_api = True
-
         if not self.port:
             if self.machine:
                 self.logger.error("New Session of AEDT cannot be started on remote machine from Desktop Class.")
@@ -1060,21 +1075,29 @@ class Desktop(object):
         if new_aedt_session and settings.use_lsf_scheduler and is_linux:  # pragma: no cover
             out, self.machine = launch_aedt_in_lsf(non_graphical, self.port)
             if out:
-                ScriptEnv._doInitialize(version, None, False, non_graphical, self.machine, self.port)
+                oApp = self._initialize(is_grpc=True, machine=self.machine, port=self.port, new_session=False)
             else:
                 self.logger.error("Failed to start LSF job on machine: %s.", self.machine)
                 return
         elif new_aedt_session:
-            installer = os.path.join(base_path, "ansysedt")
+            installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedt")
             if not is_linux:
-                installer = os.path.join(base_path, "ansysedt.exe")
+                installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedt.exe")
             out, self.port = launch_aedt(installer, non_graphical, self.port)
-            ScriptEnv._doInitialize(version, None, not out, non_graphical, self.machine, self.port)
+            oApp = self._initialize(
+                is_grpc=True, non_graphical=non_graphical, machine=self.machine, port=self.port, new_session=not out
+            )
         else:
-            ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, self.machine, self.port)
-        if "oAnsoftApplication" in dir(self._main):
+            oApp = self._initialize(
+                is_grpc=True,
+                non_graphical=non_graphical,
+                machine=self.machine,
+                port=self.port,
+                new_session=new_aedt_session,
+            )
+        if oApp:
             self._main.isoutsideDesktop = True
-            self._main.oDesktop = self._main.oAnsoftApplication.GetAppDesktop()
+            self._main.oDesktop = oApp.GetAppDesktop()
             _proc = self._main.oDesktop.GetProcessID()
             self.is_grpc_api = True
             if new_aedt_session:
@@ -1740,7 +1763,7 @@ class Desktop(object):
 
         Parameters
         ----------
-        project : str
+        project_file : str
             Full path to the project.
         clustername : str
             Name of the cluster to submit the job to.
@@ -1791,7 +1814,7 @@ class Desktop(object):
                 self.logger.error("AEDT shared path does not exist. Provide a full path.")
                 return False
             aedt_full_exe_path.replace("\\", "\\\\")
-        if project_name in self.project_list:
+        if project_name in self.project_list():
             self.odesktop.CloseProject(project_name)
         path_file = os.path.dirname(__file__)
         destination_reg = os.path.join(project_path, "Job_settings.areg")
@@ -1825,6 +1848,315 @@ class Desktop(object):
                     f1.write(line)
         f1.close()
         return self.odesktop.SubmitJob(os.path.join(project_path, "Job_settings.areg"), project_file)
+
+    @pyaedt_function_handler()
+    def submit_ansys_cloud_job(
+        self,
+        project_file,
+        config_name,
+        region,
+        numnodes=1,
+        numcores=32,
+        wait_for_license=True,
+        setting_file=None,
+        job_name=None,
+    ):  # pragma: no cover
+        """Submit a job to be solved on a cluster.
+
+        Parameters
+        ----------
+        project_file : str
+            Full path to the project.
+        config_name : str
+            Name of the Ansys Cloud machine configuration selected.
+        region : str
+            Name of Ansys Cloud location region.
+            Available regions are: ``"westeurope"``, ``"eastus"``, ``"northcentralus"``, ``"southcentralus"``,
+            ``"northeurope"``, ``"japaneast"``, ``"westus2"``, ``"centralindia"``.
+        numnodes : int, optional
+            Number of nodes. The default is ``1``.
+        numcores : int, optional
+            Number of cores. The default is ``32``.
+        wait_for_license : bool, optional
+             Whether to wait for the license to be validated. The default is ``True``.
+        setting_file : str, optional
+            Name of the file to use as a template. The default value is ``None``.
+
+        Returns
+        -------
+        str, str
+            Job ID, job name.
+
+        References
+        ----------
+
+        >>> oDesktop.SubmitJob
+
+        Examples
+        --------
+        >>> from pyaedt import Desktop
+
+        >>> d = Desktop(specified_version="2023.1", new_desktop_session=False)
+        >>> d.select_scheduler("Ansys Cloud")
+        >>> out = d.get_available_cloud_config()
+        >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
+        ...                                             list(out.keys())[0],
+        ...                                             region="westeurope",
+        ...                                             job_name="MyJob"
+        ...                                             )
+        >>> o1=d.get_ansyscloud_job_info(job_id=job_id)
+        >>> o2=d.get_ansyscloud_job_info(job_name=job_name)
+        >>> d.download_job_results(job_id=job_id,
+        ...                        project_path='via_gsg.aedt',
+        ...                        results_folder='via_gsg_results')
+        >>> d.release_desktop(False,False)
+        """
+        project_path = os.path.dirname(project_file)
+        project_name = os.path.basename(project_file).split(".")[0]
+        if not job_name:
+            job_name = generate_unique_name(project_name)
+        if project_name in self.project_list():
+            self.odesktop.CloseProject(project_name)
+        path_file = os.path.dirname(__file__)
+        reg_name = generate_unique_name("ansys_cloud") + ".areg"
+        destination_reg = os.path.join(project_path, reg_name)
+        if not setting_file:
+            setting_file = os.path.join(path_file, "misc", "ansys_cloud.areg")
+        shutil.copy(setting_file, destination_reg)
+
+        f1 = open_file(destination_reg, "w")
+        with open_file(setting_file) as f:
+            lines = f.readlines()
+            i = 0
+            while i < len(lines):
+                line = lines[i]
+                if "NumTasks" in line:
+                    lin = "\\	\\	\\	\\	NumTasks={}\\\n".format(numcores)
+                    f1.write(lin)
+                elif "NumMaxTasksPerNode" in line:
+                    lin = "\\	\\	\\	\\	NumMaxTasksPerNode={}\\\n".format(numcores)
+                    f1.write(lin)
+                elif "NumNodes=1" in line:
+                    lin = "\\	\\	\\	\\	NumNodes={}\\\n".format(numnodes)
+                    f1.write(lin)
+                elif "Name=\\'Region\\'" in line:
+                    f1.write(line)
+                    lin = "\\	\\	\\	\\	Value=\\'{}\\'\\\n".format(region)
+                    f1.write(lin)
+                    i += 1
+                elif "WaitForLicense" in line:
+                    lin = "\\	\\	WaitForLicense={}\\\n".format(str(wait_for_license).lower())
+                    f1.write(lin)
+                elif "	JobName" in line:
+                    lin = "\\	\\	\\	JobName=\\'{}\\'\\\n".format(job_name)
+                    f1.write(lin)
+                elif "Name=\\'Config\\'" in line:
+                    f1.write(line)
+                    lin = "\\	\\	\\	\\	Value=\\'{}\\'\\\n".format(config_name)
+                    f1.write(lin)
+                    i += 1
+                else:
+                    f1.write(line)
+                i += 1
+        f1.close()
+        try:
+            id = self.odesktop.SubmitJob(destination_reg, project_file)[0]
+            return id, job_name
+        except:
+            self.logger.error("Failed to submit job. check parameters and credentials and retry")
+            return "", ""
+
+    @pyaedt_function_handler()
+    def get_ansyscloud_job_info(self, job_id=None, job_name=None):  # pragma: no cover
+        """Monitor a job submitted to Ansys Cloud.
+
+        Parameters
+        ----------
+        job_id : str, optional
+            Job Id.  The default value is ``None`` if job name is used.
+        job_name : str, optional
+            Job name.  The default value is ``None`` if job id is used.
+
+        Returns
+        -------
+        dict
+
+                Examples
+        --------
+        >>> from pyaedt import Desktop
+
+        >>> d = Desktop(specified_version="2023.1", new_desktop_session=False)
+        >>> d.select_scheduler("Ansys Cloud")
+        >>> out = d.get_available_cloud_config()
+        >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
+        ...                                             list(out.keys())[0],
+        ...                                             region="westeurope",
+        ...                                             job_name="MyJob"
+        ...                                             )
+        >>> o1=d.get_ansyscloud_job_info(job_id=job_id)
+        >>> o2=d.get_ansyscloud_job_info(job_name=job_name)
+        >>> d.download_job_results(job_id=job_id,
+        ...                        project_path='via_gsg.aedt',
+        ...                        results_folder='via_gsg_results')
+        >>> d.release_desktop(False,False)
+        """
+        command = os.path.join(self.install_path, "common", "AnsysCloudCLI", "AnsysCloudCli.exe")
+        ver = self.aedt_version_id.replace(".", "R")
+        if job_name:
+            command = [command, "jobinfo", "-j", job_name]
+        elif job_id:
+            command = [command, "jobinfo", "-i", job_id]
+        cloud_info = os.path.join(tempfile.gettempdir(), generate_unique_name("job_info"))
+        with open(cloud_info, "w") as outfile:
+            subprocess.Popen(" ".join(command), stdout=outfile).wait()
+        out = {}
+        with open(cloud_info, "r") as infile:
+            lines = infile.readlines()
+            for i in lines:
+                if ":" in i.strip():
+                    strp = i.strip().split(":")
+                    out[strp[0]] = ":".join(strp[1:])
+        return out
+
+    @pyaedt_function_handler()
+    def select_scheduler(
+        self, scheduler_type, address=None, username=None, force_password_entry=False
+    ):  # pragma: no cover
+        """Select a scheduler to submit the job.
+
+        Parameters
+        ----------
+        scheduler_type : str
+            Name of the scheduler.
+            Options are `"RSM"``, `""Windows HPC"``, `""LSF``, `""SGE"``, `""PBS"``, `""Ansys Cloud"``.
+        address : str, optional
+            String specifying the IP address or hostname of the head node or for the
+            remote host running the RSM service.
+        username : str, optional
+            Username string to use for remote RSM service (or blank to use username
+            stored in current submission host user settings). If the (non-blank) username doesn't match the
+            username stored in current submission host user
+            settings, then the Select Scheduler dialog is displayed to allow for password entry prior to job submission.
+        force_password_entry : bool, optional
+            Boolean used to force display of the Select Scheduler GUI to allow for
+             password entry prior to job submission.
+
+
+        Returns
+        -------
+        str
+            The selected scheduler (if selection was successful, this string should match the input option string,
+            although it could differ in upper/lowercase).
+
+                Examples
+        --------
+        >>> from pyaedt import Desktop
+
+        >>> d = Desktop(specified_version="2023.1", new_desktop_session=False)
+        >>> d.select_scheduler("Ansys Cloud")
+        >>> out = d.get_available_cloud_config()
+        >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
+        ...                                             list(out.keys())[0],
+        ...                                             region="westeurope",
+        ...                                             job_name="MyJob"
+        ...                                             )
+        >>> o1=d.get_ansyscloud_job_info(job_id=job_id)
+        >>> o2=d.get_ansyscloud_job_info(job_name=job_name)
+        >>> d.download_job_results(job_id=job_id,
+        ...                        project_path='via_gsg.aedt',
+        ...                        results_folder='via_gsg_results')
+        >>> d.release_desktop(False,False)
+        """
+        if not address:
+            return self.odesktop.SelectScheduler(scheduler_type)
+        elif not username:
+            return self.odesktop.SelectScheduler(scheduler_type, address)
+        else:
+            return self.odesktop.SelectScheduler(scheduler_type, address, username, str(force_password_entry))
+
+    @pyaedt_function_handler()
+    def get_available_cloud_config(self, region="westeurope"):  # pragma: no cover
+        """Get available Ansys Cloud machines configuration.
+
+        Parameters
+        ----------
+        region : str
+            Name of Ansys Cloud location region.
+            Available regions are: ``"westeurope"``, ``"eastus"``, ``"northcentralus"``, ``"southcentralus"``,
+            ``"northeurope"``, ``"japaneast"``, ``"westus2"``, ``"centralindia"``.
+
+        Returns
+        -------
+        dict
+            Dictionary containing the config name and config details.
+
+        Examples
+        --------
+        >>> from pyaedt import Desktop
+
+        >>> d = Desktop(specified_version="2023.1", new_desktop_session=False)
+        >>> d.select_scheduler("Ansys Cloud")
+        >>> out = d.get_available_cloud_config()
+        >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
+        ...                                             list(out.keys())[0],
+        ...                                             region="westeurope",
+        ...                                             job_name="MyJob"
+        ...                                             )
+        >>> o1=d.get_ansyscloud_job_info(job_id=job_id)
+        >>> o2=d.get_ansyscloud_job_info(job_name=job_name)
+        >>> d.download_job_results(job_id=job_id,
+        ...                        project_path='via_gsg.aedt',
+        ...                        results_folder='via_gsg_results')
+        >>> d.release_desktop(False,False)
+        """
+        command = os.path.join(self.install_path, "common", "AnsysCloudCLI", "AnsysCloudCli.exe")
+        ver = self.aedt_version_id.replace(".", "R")
+        command = [command, "getQueues", "-p", "AEDT", "-v", ver, "--details"]
+        cloud_info = os.path.join(tempfile.gettempdir(), generate_unique_name("cloud_info"))
+        with open(cloud_info, "w") as outfile:
+            subprocess.Popen(" ".join(command), stdout=outfile).wait()
+
+        dict_out = {}
+        with open(cloud_info, "r") as infile:
+            lines = infile.readlines()
+            for i in range(len(lines)):
+                line = lines[i].strip()
+                if line.endswith(ver):
+                    split_line = line.split("_")
+                    if split_line[1] == region:
+                        name = "{} {}".format(split_line[0], split_line[3])
+                        dict_out[name] = {"Name": line}
+                        for k in range(i + 1, i + 8):
+                            spl = lines[k].split(":")
+                            try:
+                                dict_out[name][spl[0].strip()] = int(spl[1].strip())
+                            except ValueError:
+                                dict_out[name][spl[0].strip()] = spl[1].strip()
+        os.unlink(cloud_info)
+        return dict_out
+
+    @pyaedt_function_handler()
+    def download_job_results(self, job_id, project_path, results_folder, filter="*"):  # pragma: no cover
+        """Download job results to a specific folder from Ansys Cloud.
+
+        Parameters
+        ----------
+        job_id : str
+            Job Id of solved project.
+        project_path : str
+            Project path to aedt file. The ".q" file will be created there to monitor download status.
+        results_folder : str
+            Folder where the simulation results will be downloaded.
+        filter : str, optional
+            A string containing filters to download. The delimiter of file types is ";". If no filter
+            specified, the default filter "*" will be applied, which requests all files for download
+
+        Returns
+        -------
+        bool
+        """
+        download_status = self.odesktop.DownloadJobResults(job_id, project_path, results_folder, filter)
+        return True if download_status == 1 else False
 
     @property
     def are_there_simulations_running(self):

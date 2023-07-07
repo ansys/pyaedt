@@ -87,6 +87,7 @@ class TestClass(BasisTest, object):
         coat = self.aedtapp.assign_coating([id, "die", 41], **kwargs)
         coat.name = "Coating1" + object_name
         assert coat.update()
+        assert coat.object_properties
         material = coat.props.get("Material", "")
         assert material == kwargs.get("mat", "")
         assert not self.aedtapp.assign_coating(["die2", 45], **kwargs)
@@ -110,6 +111,7 @@ class TestClass(BasisTest, object):
             reference=["outer"],
             terminals_rename=False,
         )
+        assert port.object_properties
         assert port.name == "sheet1_Port"
         assert port.name in [i.name for i in self.aedtapp.boundaries]
         assert port.props["RenormalizeAllTerminals"] is False
@@ -1176,7 +1178,7 @@ class TestClass(BasisTest, object):
         assert portz
 
         n_boundaries = len(self.aedtapp.boundaries)
-        assert n_boundaries == 3
+        assert n_boundaries == 4
 
         box5 = self.aedtapp.modeler.create_box([-50, -15, 200], [150, -10, 200], name="gnd2y", matname="copper")
         box6 = self.aedtapp.modeler.create_box([-50, 10, 200], [150, 15, 200], name="sig2y", matname="copper")
@@ -1187,7 +1189,7 @@ class TestClass(BasisTest, object):
         assert porty
 
         n_boundaries = len(self.aedtapp.boundaries)
-        assert n_boundaries == 6
+        assert n_boundaries == 8
 
         box7 = self.aedtapp.modeler.create_box([-15, 300, 0], [-10, 200, 100], name="gnd2x", matname="copper")
         box8 = self.aedtapp.modeler.create_box([15, 300, 0], [10, 200, 100], name="sig2x", matname="copper")
@@ -1198,7 +1200,7 @@ class TestClass(BasisTest, object):
         assert portx
 
         n_boundaries = len(self.aedtapp.boundaries)
-        assert n_boundaries == 9
+        assert n_boundaries == 12
 
         # Use two boxes with different dimensions.
         try:
@@ -1505,10 +1507,8 @@ class TestClass(BasisTest, object):
             "BoxLumped1", "BoxLumped2", self.aedtapp.AxisDir.XNeg, 50, "Lump1xx", True, False
         )
 
-        self.aedtapp.save_project()
-        self.aedtapp.boundaries.__init__()
         term = [term for term in self.aedtapp.boundaries if term.type == "Terminal"][0]
-        assert term
+        assert self.aedtapp.boundaries[0].type == "Terminal"
         term.name = "test"
         assert term.name == "test"
         term.props["TerminalResistance"] = "1ohm"

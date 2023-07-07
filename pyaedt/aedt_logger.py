@@ -144,24 +144,25 @@ class AedtLogger(object):
         else:
             self.formatter = logging.Formatter(settings.logger_formatter, datefmt=settings.logger_datefmt)
         global_handler = False
-        for handler in self._global.handlers:
-            if settings.global_log_file_name in str(handler):
-                global_handler = True
-                break
-        log_file = os.path.join(tempfile.gettempdir(), settings.global_log_file_name)
-        my_handler = RotatingFileHandler(
-            log_file,
-            mode="a",
-            maxBytes=float(settings.global_log_file_size) * 1024 * 1024,
-            backupCount=2,
-            encoding=None,
-            delay=0,
-        )
-        my_handler.setFormatter(self.formatter)
-        my_handler.setLevel(self.level)
-        if not global_handler and settings.global_log_file_name:
-            self._global.addHandler(my_handler)
-        self._files_handlers.append(my_handler)
+        if settings.enable_global_log_file:
+            for handler in self._global.handlers:
+                if settings.global_log_file_name in str(handler):
+                    global_handler = True
+                    break
+            log_file = os.path.join(tempfile.gettempdir(), settings.global_log_file_name)
+            my_handler = RotatingFileHandler(
+                log_file,
+                mode="a",
+                maxBytes=float(settings.global_log_file_size) * 1024 * 1024,
+                backupCount=2,
+                encoding=None,
+                delay=0,
+            )
+            my_handler.setFormatter(self.formatter)
+            my_handler.setLevel(self.level)
+            if not global_handler and settings.global_log_file_name:
+                self._global.addHandler(my_handler)
+            self._files_handlers.append(my_handler)
         if self.filename and os.path.exists(self.filename):
             shutil.rmtree(self.filename, ignore_errors=True)
         if self.filename and settings.enable_local_log_file:

@@ -758,6 +758,10 @@ class CircuitComponent(object):
             self.change_property(v_prop)
             if self.__dict__.get("_parameters", None) and property_name in self.__dict__["_parameters"]:
                 self.__dict__["_parameters"][property_name] = property_value
+            elif self.__dict__.get("_component_info", None) and property_name in self.__dict__.get(
+                "_component_info", None
+            ):
+                self.__dict__["_component_info"][property_name] = property_value
             else:
                 self.__dict__[property_name] = property_value
         return True
