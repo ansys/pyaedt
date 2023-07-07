@@ -520,7 +520,7 @@ class CommonExcitation(object):
 
     @property
     def net_name(self):
-        """Net Name.
+        """Net name.
 
         Returns
         -------
