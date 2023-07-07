@@ -101,9 +101,9 @@ def _retrieve_folder(url, directory, destination=None):
     with urllib.request.urlopen(url) as response:  # nosec
         data = response.read().decode("utf-8").split("\n")
 
-    if not os.path.isdir(destination):
+    if not os.path.isdir(local_path):
         try:
-            os.mkdir(destination)
+            os.mkdir(local_path)
         except FileNotFoundError:
             os.makedirs(local_path)
 
