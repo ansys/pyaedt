@@ -1620,7 +1620,7 @@ class Desktop(object):
         Parameters
         ----------
         toolkit_name : str
-            Name of the toolkit as it will appear in AEDT.
+            Name of the toolkit to appear in AEDT.
         script_path : str
             Full path to the script file.
         script_image : str, optional
