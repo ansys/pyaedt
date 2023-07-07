@@ -493,8 +493,15 @@ class Desktop(object):
         aedt_process_id=None,
     ):
         """Initialize desktop."""
+        # used in unit test
         if os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t"):
             non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+        # used in toolkit scripts
+        if os.getenv("PYAEDT_SCRIPT_PROCESS_ID", None):
+            print("found process id")
+            aedt_process_id = int(os.getenv("PYAEDT_SCRIPT_PROCESS_ID"))
+        if os.getenv("PYAEDT_SCRIPT_VERSION", None):
+            specified_version = str(os.getenv("PYAEDT_SCRIPT_VERSION"))
 
         self._main = sys.modules["__main__"]
         self._main.interpreter = _com
@@ -1605,13 +1612,24 @@ class Desktop(object):
         if not full_path:
             raise FileNotFoundError("Error finding the package.")
         self.add_script_to_menu(
-            toolkit_name=toolkit_name, script_path=full_path, script_image=toolkit, product=toolkit["installation_path"]
+            toolkit_name=toolkit_name,
+            script_path=full_path,
+            script_image=toolkit,
+            product=toolkit["installation_path"],
+            copy_to_personal_lib=False,
+            add_pyaedt_desktop_init=False,
         )
 
     @pyaedt_function_handler()
     def add_script_to_menu(
-        self, toolkit_name, script_path, script_image=None, product="Project", copy_to_personal_lib=True
-    ):  # pragma: no cover
+        self,
+        toolkit_name,
+        script_path,
+        script_image=None,
+        product="Project",
+        copy_to_personal_lib=True,
+        add_pyaedt_desktop_init=True,
+    ):
         """Add a script to the ribbon menu.
 
         .. note::
@@ -1633,6 +1651,9 @@ class Desktop(object):
             it applies to all designs. You can also specify a product, such as ``"HFSS"``.
         copy_to_personal_lib : bool, optional
             Whether to copy the script to Personal Lib or link the original script. Default is ``True``.
+        add_pyaedt_desktop_init : bool, optional
+            Whether to add Desktop initialization to the script or not.
+            This is needed to reference the Desktop which is launching the script.
 
         Returns
         -------

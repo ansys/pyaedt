@@ -55,9 +55,10 @@ class TestClass(BasisTest, object):
     def teardown_class(self):
         BasisTest.my_teardown(self)
 
+    @pytest.mark.skipif(config["NonGraphical"], reason="Failing on build machine when running in parallel.")
     def test_01_export_model_picture(self):
-        # path = self.aedtapp.post.export_model_picture(full_name=os.path.join(self.local_scratch.path, "images2.jpg"))
-        # assert path
+        path = self.aedtapp.post.export_model_picture(full_name=os.path.join(self.local_scratch.path, "images2.jpg"))
+        assert path
         path = self.aedtapp.post.export_model_picture(
             full_name=os.path.join(self.local_scratch.path, "images3.jpg"),
             show_axis=True,
@@ -65,8 +66,8 @@ class TestClass(BasisTest, object):
             show_ruler=True,
         )
         assert os.path.exists(path)
-        # path = self.aedtapp.post.export_model_picture(full_name=os.path.join(self.local_scratch.path, "images4.jpg"))
-        # assert path
+        path = self.aedtapp.post.export_model_picture(full_name=os.path.join(self.local_scratch.path, "images4.jpg"))
+        assert path
 
     def test_01B_Field_Plot(self):
         assert len(self.aedtapp.post.available_display_types()) > 0
