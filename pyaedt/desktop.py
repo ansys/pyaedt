@@ -1624,8 +1624,8 @@ class Desktop(object):
         script_path : str
             Full path to the script file.
         script_image : str, optional
-            Full path to the image logo (32x32 pixels png) to be added into the UI.
-            If ``None``, the pyansys logo will be used.
+            Full path to the image logo (a 30x30 pixel PNG file) to add to the UI.
+            The default is ``None``.
         product : str, optional
             Product to which the toolkit applies. The default is ``"Project"``, in which case
             it applies to all designs. You can also specify a product, such as ``"HFSS"``.
