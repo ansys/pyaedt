@@ -449,6 +449,8 @@ class Desktop(object):
         The default is ``True``.
     close_on_exit : bool, optional
         Whether to close AEDT on exit. The default is ``True``.
+        This option is used only when Desktop is used in a context manager (``with`` statement).
+        If Desktop is used outside a context manager, see the ``release_desktop`` arguments.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is
         ``False``.
@@ -470,7 +472,7 @@ class Desktop(object):
     Launch AEDT 2021 R1 in non-graphical mode and initialize HFSS.
 
     >>> import pyaedt
-    >>> desktop = pyaedt.Desktop("2021.2", non_graphical=True)
+    >>> desktop = pyaedt.Desktop(specified_version="2021.2", non_graphical=True)
     PyAEDT INFO: pyaedt v...
     PyAEDT INFO: Python version ...
     >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
@@ -559,7 +561,7 @@ class Desktop(object):
                     starting_mode = "com"
             else:
                 raise ValueError(
-                    "The version specified ({}) does not correspond to the pid specified ({})".format(
+                    "The version specified ({}) doesn't correspond to the pid specified ({})".format(
                         specified_version, aedt_process_id
                     )
                 )
@@ -583,6 +585,9 @@ class Desktop(object):
 
         # Starting AEDT
         if "console" in starting_mode:
+            # technically not a startup mode, we have just to load oDesktop
+            if starting_mode == "console_in":
+                self._main.oDesktop = oDesktop
             self.release_on_exit = False
             try:
                 settings.non_graphical = oDesktop.GetIsNonGraphical()
@@ -590,16 +595,7 @@ class Desktop(object):
                 settings.non_graphical = non_graphical
             self.is_grpc_api = False
             settings.aedt_version = self._main.oDesktop.GetVersion()[0:6]
-
-            if starting_mode == "console_in":
-                # technically not a startup mode, we have just to load oDesktop
-                self._main.oDesktop = oDesktop
-                settings.is_student = is_student_version(self._main.oDesktop)
-
-            elif starting_mode == "console_out":
-                # technically not a startup mode, oDesktop is already loaded
-                settings.is_student = is_student_version(self._main.oDesktop)
-
+            settings.is_student = is_student_version(self._main.oDesktop)
         else:
             settings.aedt_version = version_key
             settings.is_student = self.student_version
@@ -611,7 +607,7 @@ class Desktop(object):
                 self._init_ironpython(non_graphical, new_desktop_session, version)
             elif starting_mode == "com":
                 self._logger.info("Launching PyAEDT outside AEDT with CPython and PythonNET.")
-                self._init_cpython(
+                self._init_cpython_com(
                     non_graphical,
                     new_desktop_session,
                     version,
@@ -621,7 +617,7 @@ class Desktop(object):
                 )
             elif starting_mode == "grpc":
                 self._logger.info("Launching PyAEDT outside AEDT with gRPC plugin.")
-                self._init_cpython_new(non_graphical, new_desktop_session, version, self.student_version, version_key)
+                self._init_cpython_grpc(non_graphical, new_desktop_session, version, self.student_version, version_key)
 
         # # console di Ironpython dentro AEDT
         # if "oDesktop" in dir():  # pragma: no cover
@@ -737,7 +733,7 @@ class Desktop(object):
 
         Parameters
         ----------
-        project_design_name : list
+        project_design_name : List
             Project and design name.
 
         Returns
@@ -904,7 +900,7 @@ class Desktop(object):
         self._main.oDesktop = o_ansoft_app.GetAppDesktop()
         self._main.isoutsideDesktop = True
 
-    def _init_cpython(
+    def _init_cpython_com(
         self,
         non_graphical,
         new_aedt_session,
@@ -950,6 +946,8 @@ class Desktop(object):
         elif version_key >= "2021.2":
             if student_version:
                 self.logger.info("AEDT {} Student version started with process ID {}.".format(version_key, proc[0]))
+            elif aedt_process_id:
+                self.logger.info("Connecting to AEDT session with process ID {}.".format(proc[0]))
             else:
                 self.logger.info("AEDT {} Started with process ID {}.".format(version_key, proc[0]))
             context = pythoncom.CreateBindCtx(0)
@@ -1015,7 +1013,7 @@ class Desktop(object):
 
             return StandalonePyScriptWrapper.CreateAedtApplication(machine, port, non_graphical, new_session)
 
-    def _init_cpython_new(self, non_graphical, new_aedt_session, version, student_version, version_key):
+    def _init_cpython_grpc(self, non_graphical, new_aedt_session, version, student_version, version_key):
         self.logger.info("Launching AEDT with the gRPC plugin.")
         if not self.machine or self.machine in [
             "localhost",
@@ -1054,7 +1052,7 @@ class Desktop(object):
                         ):
                             # settings.use_grpc_api = False
                             self.logger.info("No AEDT gRPC found. Found active COM Sessions.")
-                            return self._init_cpython(
+                            return self._init_cpython_com(
                                 non_graphical, new_aedt_session, version, student_version, version_key
                             )
                     self.port = _find_free_port()
@@ -1143,7 +1141,7 @@ class Desktop(object):
 
         Returns
         -------
-        list
+        List
             List of projects.
 
         """
@@ -1300,7 +1298,7 @@ class Desktop(object):
 
         Returns
         -------
-        list
+        List
             List of the designs.
         """
 

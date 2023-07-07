@@ -1136,6 +1136,7 @@ def _create_json_file(json_dict, full_json_path):
 #     return sessions
 
 
+@pyaedt_function_handler()
 def active_sessions(version=None, student_version=False, non_graphical=False):
     """Get information for the active AEDT sessions.
 
@@ -1184,6 +1185,7 @@ def active_sessions(version=None, student_version=False, non_graphical=False):
     return return_dict
 
 
+@pyaedt_function_handler()
 def com_active_sessions(version=None, student_version=False, non_graphical=False):
     """Get information for the active COM AEDT sessions.
 
@@ -1200,7 +1202,7 @@ def com_active_sessions(version=None, student_version=False, non_graphical=False
 
     Returns
     -------
-    list
+    List
         List of AEDT PIDs.
     """
 
@@ -1213,6 +1215,7 @@ def com_active_sessions(version=None, student_version=False, non_graphical=False
     return return_list
 
 
+@pyaedt_function_handler()
 def grpc_active_sessions(version=None, student_version=False, non_graphical=False):
     """Get information for the active gRPC AEDT sessions.
 
@@ -1229,7 +1232,7 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
 
     Returns
     -------
-    list
+    List
         List of gRPC ports.
     """
     all_sessions = active_sessions(version, student_version, non_graphical)
