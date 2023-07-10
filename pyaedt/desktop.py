@@ -1383,7 +1383,10 @@ class Desktop(object):
 
         gc.collect()
         self.odesktop = None
-        del sys.modules["__main__"].oDesktop
+        try:
+            del sys.modules["__main__"].oDesktop
+        except AttributeError:
+            pass
         return result
 
     def close_desktop(self):
