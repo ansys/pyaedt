@@ -1900,37 +1900,37 @@ class Settings(object):
         if is_linux:
             self._aedt_environment_variables["ANS_NODEPCHECK"] = "1"
         self._desktop_launch_timeout = 90
-        self._aedt_process_id = None
-        self._is_student = False
+        # self._aedt_process_id = None
+        # self._is_student = False
 
-    @property
-    def aedt_process_id(self):
-        """ID of the desktop process. The default is ``None``.
-
-        Returns
-        -------
-        int
-        """
-        return self._aedt_process_id
-
-    @aedt_process_id.setter
-    def aedt_process_id(self, value):
-        self._aedt_process_id = int(value)
-
-    @property
-    def is_student(self):
-        """Whether the desktop process is set to the student version. The
-        default is ``False``.
-
-        Returns
-        -------
-        bool
-        """
-        return self._is_student
-
-    @is_student.setter
-    def is_student(self, value):
-        self._is_student = value
+    # @property
+    # def aedt_process_id(self):
+    #     """ID of the desktop process. The default is ``None``.
+    #
+    #     Returns
+    #     -------
+    #     int
+    #     """
+    #     return self._aedt_process_id
+    #
+    # @aedt_process_id.setter
+    # def aedt_process_id(self, value):
+    #     self._aedt_process_id = int(value)
+    #
+    # @property
+    # def is_student(self):
+    #     """Whether the desktop process is set to the student version. The
+    #     default is ``False``.
+    #
+    #     Returns
+    #     -------
+    #     bool
+    #     """
+    #     return self._is_student
+    #
+    # @is_student.setter
+    # def is_student(self, value):
+    #     self._is_student = value
 
     @property
     def desktop_launch_timeout(self):

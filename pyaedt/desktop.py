@@ -501,16 +501,14 @@ class Desktop(object):
     ):
         """Initialize desktop."""
 
-        # env variable PYAEDT_NON_GRAPHICAL override the argument "non_graphical"
+        # Used in unit tests. Env variable PYAEDT_NON_GRAPHICAL override the argument "non_graphical"
         if os.getenv("PYAEDT_NON_GRAPHICAL", None) is not None:
             non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "false").lower() in ("true", "1", "t")
-        # used in unit test
-        if os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t"):
-            non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
-        # used in toolkit scripts
+        # used in toolkit scripts. Env variable PYAEDT_SCRIPT_PROCESS_ID override the argument "aedt_process_id"
         if os.getenv("PYAEDT_SCRIPT_PROCESS_ID", None):
-            print("found process id")
+            # print("found process id")
             aedt_process_id = int(os.getenv("PYAEDT_SCRIPT_PROCESS_ID"))
+        # used in toolkit scripts. Env variable PYAEDT_SCRIPT_VERSION override the argument "specified_version"
         if os.getenv("PYAEDT_SCRIPT_VERSION", None):
             specified_version = str(os.getenv("PYAEDT_SCRIPT_VERSION"))
 
@@ -523,7 +521,7 @@ class Desktop(object):
         # self.student_version = student_version
         self.machine = machine
         self.port = port
-        self.aedt_process_id = aedt_process_id
+        # self.aedt_process_id = aedt_process_id
         # if is_ironpython:
         #     self._main.isoutsideDesktop = False
         # else:
@@ -595,8 +593,6 @@ class Desktop(object):
         # Starting AEDT
         if "console" in starting_mode:
             # technically not a startup mode, we have just to load oDesktop
-            if starting_mode == "console_in":
-                self._main.oDesktop = oDesktop
             self.release_on_exit = False
             try:
                 settings.non_graphical = oDesktop.GetIsNonGraphical()
@@ -604,7 +600,9 @@ class Desktop(object):
                 settings.non_graphical = non_graphical
             self.is_grpc_api = False
             settings.aedt_version = self._main.oDesktop.GetVersion()[0:6]
-            settings.is_student = is_student_version(self._main.oDesktop)
+            if starting_mode == "console_in":
+                self._main.oDesktop = oDesktop
+            # settings.is_student = is_student_version(self._main.oDesktop)
         else:
             settings.aedt_version = version_key
             settings.is_student = self.student_version
@@ -716,9 +714,25 @@ class Desktop(object):
         self.odesktop = self._main.oDesktop
         settings.machine = self.machine
         settings.port = self.port
-        self.aedt_process_id = self.odesktop.GetProcessID()  # bit of cleanup for consistency if used in future
-        settings.aedt_process_id = self.aedt_process_id
-        settings.is_student = student_version
+
+        current_pid = int(self.odesktop.GetProcessID())
+        if aedt_process_id and not new_desktop_session and aedt_process_id != current_pid:
+            raise Exception(
+                "AEDT started a new session instead of connecting to the session with pid: {}".format(aedt_process_id)
+            )
+        self.aedt_process_id = current_pid
+        # settings.aedt_process_id = self.aedt_process_id
+
+        current_is_student = is_student_version(self._main.oDesktop)
+        if not (student_version and current_is_student):
+            self._logger.warning(
+                "AEDT started as {} Version, but requested as {} Version.".format(
+                    "Student" if current_is_student else "Regular", "Student" if student_version else "Regular"
+                )
+            )
+        self.is_student = current_is_student
+        # settings.is_student = student_version
+
         self._logger.info("AEDT %s Build Date %s", self.odesktop.GetVersion(), self.odesktop.GetBuildDateTimeString())
 
         if is_ironpython:
