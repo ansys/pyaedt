@@ -133,6 +133,15 @@ class ControlFileMaterial:
             property._write_xml(content)
 
 
+class ControlFileDielectric:
+    def __init__(self, index, name, properties):
+        self.index = index
+        self.name = name
+        self.properties = {}
+        for name, prop in properties.items():
+            self.properties[name] = prop
+
+
 class ControlFileLayer:
     def __init__(self, name, properties):
         self.name = name
@@ -297,7 +306,7 @@ class ControlFileStackup:
         """
         self._layers.append(ControlFileLayer(layer_name, properties))
 
-    def add_dielectric(self, layer_name, properties):
+    def add_dielectric(self, layer_name, properties=None):
         """Add a new dielectric.
 
         Parameters
@@ -311,7 +320,10 @@ class ControlFileStackup:
         -------
         :class:`pyaedt.edb_core.edb_data.control_file.ControlFileLayer`
         """
-        self._dielectrics.append(ControlFileLayer(layer_name, properties))
+        if isinstance(properties, dict):
+            self._dielectrics.append(ControlFileLayer(layer_name, properties))
+        else:
+            pass
 
     def add_via(self, layer_name, properties):
         """Add a new via layer.
