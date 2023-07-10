@@ -281,11 +281,11 @@ def release_desktop(close_projects=True, close_desktop=True):
     _main = sys.modules["__main__"]
     try:
         desktop = _main.oDesktop
+        pid = desktop.GetProcessID()
         if close_projects:
             projects = desktop.GetProjectList()
             for project in projects:
                 desktop.CloseProject(project)
-        pid = _main.oDesktop.GetProcessID()
         if settings.remote_rpc_session or (
             settings.aedt_version >= "2022.2" and settings.use_grpc_api and not is_ironpython
         ):
@@ -1383,6 +1383,7 @@ class Desktop(object):
 
         gc.collect()
         self.odesktop = None
+        del sys.modules["__main__"].oDesktop
         return result
 
     def close_desktop(self):
