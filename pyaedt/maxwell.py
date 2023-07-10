@@ -1595,7 +1595,9 @@ class Maxwell(object):
         stop_time="2ms",
         use_number_of_cycles_for_stop_time=True,
         number_of_cycles_for_stop_time=1,
+        include_no_layer=True,
     ):
+        # type: (str, dict, int, str,bool, int, str, str, str, bool, int, bool) -> bool
         """Enable the harmonic force calculation for the transient analysis.
 
         Parameters
@@ -1614,9 +1616,19 @@ class Maxwell(object):
             Use number Of last cycles for force calculations. Default is ``True``.
         last_cycles_number : int, optional
             Defines the number of cycles to compute if `use_number_of_last_cycle` is ``True``.
-        calculate_force : sr, optional
+        calculate_force : str, optional
             How to calculate force. The default is ``"Harmonic"``.
             Options are ``"Harmonic"`` and ``"Transient"``.
+        start_time : str, optional
+            Harmonic Force Start Time. Default is ``"0s"``.
+        stop_time : str, optional
+            Harmonic Force Stop Time. Default is ``"2ms"``.
+        use_number_of_cycles_for_stop_time : bool, optional
+            Use number of cycles for force stop time calculations. Default is ``True``.
+        number_of_cycles_for_stop_time : int, optional
+            Number of cycles for force stop time calculations. Default is ``1``.
+        include_no_layer : bool, optional
+            Whether to include ``"<no-layer>"`` layer or not (used for vias). Default is ``True``.
 
 
         Returns
@@ -1660,7 +1672,10 @@ class Maxwell(object):
             ],
         ]
         for net, layers in nets.items():
-            args2[1][1].append(["Name:" + net, "LayerSet:=", ["<no-layer>"] + layers])
+            if include_no_layer:
+                args2[1][1].append(["Name:" + net, "LayerSet:=", ["<no-layer>"] + layers])
+            else:
+                args2[1][1].append(["Name:" + net, "LayerSet:=", layers])
         args.append(args2)
         self.odesign.EnableHarmonicForceCalculation(args)
         return True
@@ -2648,8 +2663,10 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         return self._create_boundary(flux_name, props, "FluxTangential")
 
     @pyaedt_function_handler
-    def assign_layout_force(self, nets_layers_mapping, component_name, reference_cs="Global", force_name=None):
-        # type: (dict, str, str, str) -> bool
+    def assign_layout_force(
+        self, nets_layers_mapping, component_name, reference_cs="Global", force_name=None, include_no_layer=True
+    ):
+        # type: (dict, str, str, str, bool) -> bool
         """Assign the layout force to a component in a Transient A-Phi solver.
         To access layout component features the Beta option has to be enabled first.
 
@@ -2666,6 +2683,8 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         force_name : str, optional
             Name of the layout force.
             If not provided a random name will be generated.
+        include_no_layer : bool, optional
+            Whether to include ``"<no-layer>"`` layer or not (used for vias). Default is ``True``.
 
         Returns
         -------
@@ -2689,6 +2708,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         >>> m3d = Maxwell3d()
         >>> m3d.assign_layout_force(nets_layers_mapping=nets_layers, component_name="LC1_1")
         """
+
         for key in nets_layers_mapping.keys():
             if not isinstance(nets_layers_mapping[key], list):
                 nets_layers_mapping[key] = list(nets_layers_mapping[key])
@@ -2702,10 +2722,13 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         nets_layers_props = None
         for key, valy in nets_layers_mapping.items():
+            layers = valy[:]
+            if include_no_layer:
+                layers = layers[:] + ["<no-layer>"]
             if nets_layers_props:
-                nets_layers_props.append(OrderedDict({key: OrderedDict({"LayerSet": valy})}))
+                nets_layers_props.append(OrderedDict({key: OrderedDict({"LayerSet": layers})}))
             else:
-                nets_layers_props = [OrderedDict({key: OrderedDict({"LayerSet": valy})})]
+                nets_layers_props = [OrderedDict({key: OrderedDict({"LayerSet": layers})})]
 
         props = OrderedDict(
             {
