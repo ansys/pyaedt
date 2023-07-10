@@ -5792,6 +5792,47 @@ class Hfss(FieldAnalysis3D, object):
             return False
 
     @pyaedt_function_handler()
+    def set_impedance_multiplier(self, impedance):
+        # type: (float) -> bool
+        """Set impedance multiplier.
+
+        Parameters
+        ----------
+        impedance : float
+            Impedance.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.ChangeImpedanceMult
+
+        Examples
+        --------
+
+        Create a box. Select the faces of this box and assign a symmetry.
+
+        >>> symmetry_box = hfss.modeler.create_box([0 , -100, 0], [200, 200, 200],
+        ...                                         name="SymmetryForFaces")
+        >>> ids = [i.id for i in hfss.modeler["SymmetryForFaces"].faces]
+        >>> symmetry = hfss.assign_symmetry(ids)
+        >>> hfss.set_impedance_multiplier(2.0)
+
+        """
+        try:
+            if self.solution_type not in ["Modal"]:
+                self.logger.error("Symmetry is only available with 'Modal' solution type.")
+                return False
+            self.oboundary.ChangeImpedanceMult(impedance)
+            return True
+        except:
+            return False
+
+    @pyaedt_function_handler()
     def get_touchstone_data(self, setup_name, sweep_name=None, variation_dict=None):
         """
         Return a Touchstone data plot.

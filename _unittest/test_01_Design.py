@@ -381,3 +381,14 @@ class TestClass(BasisTest, object):
     def test_37_add_custom_toolkit(self):
         desktop = Desktop(desktop_version, new_desktop_session=False)
         assert desktop.get_available_toolkits()
+
+    def test_38_toolkit(self):
+        file = os.path.join(self.local_scratch.path, "test.py")
+        with open(file, "w") as f:
+            f.write("import pyaedt\n")
+        desktop = Desktop(desktop_version, new_desktop_session=False)
+        assert desktop.add_script_to_menu(
+            "test_toolkit",
+            file,
+        )
+        assert desktop.remove_script_from_menu("test_toolkit")

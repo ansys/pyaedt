@@ -246,6 +246,10 @@ def _delete_objects():
         del sys.modules["PyDesktopPluginDll"]
     except:
         pass
+    try:
+        del sys.modules["PyDesktopPlugin"]
+    except:
+        pass
     keys = [k for k in sys.modules.keys()]
     for i in keys:
         if "Ansys.Ansoft" in i:
@@ -489,8 +493,15 @@ class Desktop(object):
         aedt_process_id=None,
     ):
         """Initialize desktop."""
+        # used in unit test
         if os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t"):
             non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+        # used in toolkit scripts
+        if os.getenv("PYAEDT_SCRIPT_PROCESS_ID", None):
+            print("found process id")
+            aedt_process_id = int(os.getenv("PYAEDT_SCRIPT_PROCESS_ID"))
+        if os.getenv("PYAEDT_SCRIPT_VERSION", None):
+            specified_version = str(os.getenv("PYAEDT_SCRIPT_VERSION"))
 
         self._main = sys.modules["__main__"]
         self._main.interpreter = _com
@@ -895,13 +906,13 @@ class Desktop(object):
             os.environ["DesktopPluginPyAEDT"] = os.path.join(
                 self._main.sDesktopinstallDirectory, "PythonFiles", "DesktopPlugin"
             )
+            launch_msg = "AEDT installation Path {}".format(base_path)
+            self.logger.info(launch_msg)
             import pyaedt.generic.grpc_plugin as StandalonePyScriptWrapper
 
             return StandalonePyScriptWrapper.CreateAedtApplication(machine, port, non_graphical, new_session)
 
     def _init_cpython_new(self, non_graphical, new_aedt_session, version, student_version, version_key):
-        launch_msg = "AEDT installation Path {}".format(base_path)
-        self.logger.info(launch_msg)
         self.logger.info("Launching AEDT with the gRPC plugin.")
         if not self.machine or self.machine in [
             "localhost",
@@ -966,9 +977,9 @@ class Desktop(object):
                 self.logger.error("Failed to start LSF job on machine: %s.", self.machine)
                 return
         elif new_aedt_session:
-            installer = os.path.join(base_path, "ansysedt")
+            installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedt")
             if not is_linux:
-                installer = os.path.join(base_path, "ansysedt.exe")
+                installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedt.exe")
             out, self.port = launch_aedt(installer, non_graphical, self.port)
             oApp = self._initialize(
                 is_grpc=True, non_graphical=non_graphical, machine=self.machine, port=self.port, new_session=not out
@@ -1566,7 +1577,6 @@ class Desktop(object):
         bool
         """
         from pyaedt.misc.install_extra_toolkits import available_toolkits
-        from pyaedt.misc.install_extra_toolkits import write_toolkit_config
 
         toolkit = available_toolkits[toolkit_name]
         toolkit_name = toolkit_name.replace("_", "")
@@ -1601,7 +1611,60 @@ class Desktop(object):
                 break
         if not full_path:
             raise FileNotFoundError("Error finding the package.")
-        product = toolkit["installation_path"]
+        self.add_script_to_menu(
+            toolkit_name=toolkit_name,
+            script_path=full_path,
+            script_image=toolkit,
+            product=toolkit["installation_path"],
+            copy_to_personal_lib=False,
+            add_pyaedt_desktop_init=False,
+        )
+
+    @pyaedt_function_handler()
+    def add_script_to_menu(
+        self,
+        toolkit_name,
+        script_path,
+        script_image=None,
+        product="Project",
+        copy_to_personal_lib=True,
+        add_pyaedt_desktop_init=True,
+    ):
+        """Add a script to the ribbon menu.
+
+        .. note::
+           This method is available in AEDT 2023 R2 and later. PyAEDT must be installed
+           in AEDT to allow this method to run. For more information, see `Installation
+           <https://aedt.docs.pyansys.com/version/stable/Getting_started/Installation.html>`_.
+
+        Parameters
+        ----------
+        toolkit_name : str
+            Name of the toolkit to appear in AEDT.
+        script_path : str
+            Full path to the script file. The script will be moved to Personal Lib.
+        script_image : str, optional
+            Full path to the image logo (a 30x30 pixel PNG file) to add to the UI.
+            The default is ``None``.
+        product : str, optional
+            Product to which the toolkit applies. The default is ``"Project"``, in which case
+            it applies to all designs. You can also specify a product, such as ``"HFSS"``.
+        copy_to_personal_lib : bool, optional
+            Whether to copy the script to Personal Lib or link the original script. Default is ``True``.
+        add_pyaedt_desktop_init : bool, optional
+            Whether to add Desktop initialization to the script or not.
+            This is needed to reference the Desktop which is launching the script.
+
+        Returns
+        -------
+        bool
+
+        """
+        if not os.path.exists(script_path):
+            self.logger.error("Script does not exists.")
+            return False
+        from pyaedt.misc.install_extra_toolkits import write_toolkit_config
+
         toolkit_dir = os.path.join(self.personallib, "Toolkits")
         aedt_version = self.aedt_version_id
         tool_dir = os.path.join(toolkit_dir, product, toolkit_name)
@@ -1613,6 +1676,10 @@ class Desktop(object):
             toolkit_rel_lib_dir = "../../" + toolkit_rel_lib_dir
         os.makedirs(lib_dir, exist_ok=True)
         os.makedirs(tool_dir, exist_ok=True)
+        dest_script_path = script_path
+        if copy_to_personal_lib:
+            dest_script_path = os.path.join(lib_dir, os.path.split(script_path)[-1])
+            shutil.copy2(script_path, dest_script_path)
         files_to_copy = ["Run_PyAEDT_Toolkit_Script"]
         executable_version_agnostic = sys.executable
         for file_name in files_to_copy:
@@ -1627,13 +1694,43 @@ class Desktop(object):
                     build_file_data = (
                         build_file_data.replace("##TOOLKIT_REL_LIB_DIR##", toolkit_rel_lib_dir)
                         .replace("##PYTHON_EXE##", executable_version_agnostic)
-                        .replace("##PYTHON_SCRIPT##", full_path)
+                        .replace("##PYTHON_SCRIPT##", dest_script_path)
                     )
                     build_file_data = build_file_data.replace(" % version", "")
                     out_file.write(build_file_data)
         if aedt_version >= "2023.2":
-            write_toolkit_config(os.path.join(toolkit_dir, product), lib_dir, toolkit_name, toolkit=toolkit)
+            if not script_image:
+                script_image = os.path.join(os.path.dirname(__file__), "misc", "images", "large", "pyansys.png")
+            write_toolkit_config(os.path.join(toolkit_dir, product), lib_dir, toolkit_name, toolkit=script_image)
         self.logger.info("{} toolkit installed.".format(toolkit_name))
+        return True
+
+    @pyaedt_function_handler()
+    def remove_script_from_menu(self, toolkit_name, product="Project"):
+        """Remove a toolkit script from the menu.
+
+        Parameters
+        ----------
+        toolkit_name : str
+            Name of the toolkit to remove.
+        product : str, optional
+            Product to which the toolkit applies. The default is ``"Project"``, in which case
+            it applies to all designs. You can also specify a product, such as ``"HFSS"``.
+
+        Returns
+        -------
+        bool
+        """
+        from pyaedt.misc.install_extra_toolkits import remove_toolkit_config
+
+        toolkit_dir = os.path.join(self.personallib, "Toolkits")
+        aedt_version = self.aedt_version_id
+        tool_dir = os.path.join(toolkit_dir, product, toolkit_name)
+        shutil.rmtree(tool_dir, ignore_errors=True)
+        if aedt_version >= "2023.2":
+            remove_toolkit_config(os.path.join(toolkit_dir, product), toolkit_name)
+        self.logger.info("{} toolkit removed successfully.".format(toolkit_name))
+        return True
 
     @pyaedt_function_handler()
     def submit_job(
