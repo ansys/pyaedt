@@ -4,10 +4,15 @@ EDB: geometry creation
 This example shows how you can use EDB to create a layout.
 """
 
-##########################
+######################################################################
 # Import EDB layout object
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Import the EDB layout object and initialize it on version 2023 R1.
+#
+# .. image:: ../../_static/diff_via.png
+#  :width: 400
+#  :alt: Differential Vias.
+######################################################################
 
 import time
 import os

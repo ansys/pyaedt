@@ -137,15 +137,26 @@ class AedtObjWrapper:
         return self.__methodNames__
 
     def __GetObjMethod__(self, funcName):
-        methodNames = AedtObjWrapper.__dir__(self)  # must call the AedtObjWrapper __dir__()
-        for methodName in methodNames:
-            if methodName == funcName:  # a C function
+        try:
 
-                def DynamicFunc(self, *args):
-                    return self.__Invoke__(funcName, args)
+            def DynamicFunc(self, *args):
+                return self.__Invoke__(funcName, args)
 
-                return types.MethodType(DynamicFunc, self)
-        raise AttributeError("This Aedt object has no attribute '" + funcName + "'")
+            return types.MethodType(DynamicFunc, self)
+        except AttributeError:
+            raise AttributeError("This Aedt object has no attribute '" + funcName + "'")
+        except GrpcApiError:
+            raise GrpcApiError("This Aedt object has no attribute '" + funcName + "'")
+
+        # methodNames = AedtObjWrapper.__dir__(self)  # must call the AedtObjWrapper __dir__()
+        # for methodName in methodNames:
+        #     if methodName == funcName:  # a C function
+        #
+        #         def DynamicFunc(self, *args):
+        #             return self.__Invoke__(funcName, args)
+        #
+        #         return types.MethodType(DynamicFunc, self)
+        # raise AttributeError("This Aedt object has no attribute '" + funcName + "'")
 
     def __getattr__(self, funcName):
         try:
