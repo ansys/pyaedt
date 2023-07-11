@@ -251,8 +251,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 )
             bound = self._update_port_info(a[0])
             if bound:
-                self.boundaries.append(bound)
-                return self.boundaries[-1]
+                self._boundaries[bound.name] = bound
+                return bound
             else:
                 return False
         else:
@@ -403,7 +403,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             for port in a:
                 bound = self._update_port_info(port)
                 if bound:
-                    self.boundaries.append(bound)
+                    self._boundaries[bound.name] = bound
                     ports.append(bound)
         return ports
 
@@ -502,8 +502,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 )
             bound = self._update_port_info(a[0])
             if bound:
-                self.boundaries.append(bound)
-                return self.boundaries[-1]
+                self._boundaries[bound.name] = bound
+                return bound
             else:
                 return False
         else:
@@ -570,8 +570,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         )
         bound = self._update_port_info(name)
         if bound:
-            self.boundaries.append(bound)
-            return self.boundaries[-1]
+            self._boundaries[bound.name] = bound
+            return bound
         else:
             return False
 
@@ -1656,7 +1656,47 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         return True
 
     @pyaedt_function_handler()
+    def get_differential_pairs(self):
+        # type: () -> list
+        """Get the list defined differential pairs.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        list
+            List of differential pairs.
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss3dLayout
+        >>> hfss = Hfss3dLayout()
+        >>> hfss.get_defined_diff_pairs()
+        """
+
+        list_output = []
+        if len(self.excitations) != 0:
+            tmpfile1 = os.path.join(self.working_directory, generate_unique_name("tmp"))
+            file_flag = self.save_diff_pairs_to_file(tmpfile1)
+            if file_flag and os.stat(tmpfile1).st_size != 0:
+                with open_file(tmpfile1, "r") as fi:
+                    fi_lst = fi.readlines()
+                list_output = [line.split(",")[4] for line in fi_lst]
+            else:
+                self.logger.warning("ERROR: No differential pairs defined under Excitations > Differential Pairs...")
+
+            try:
+                os.remove(tmpfile1)
+            except:  # pragma: no cover
+                self.logger.warning("ERROR: Cannot remove temp files.")
+
+        return list_output
+
+    @pyaedt_function_handler()
     def load_diff_pairs_from_file(self, filename):
+        # type: (str) -> bool
         """Load differtential pairs definition from file.
 
         You can use the ``save_diff_pairs_to_file`` method to obtain the file format.
@@ -1696,9 +1736,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @pyaedt_function_handler()
     def save_diff_pairs_to_file(self, filename):
+        # type: (str) -> bool
         """Save differtential pairs definition to a file.
 
-        If a filee with the specified name already exists, it is overwritten.
+        If a file with the specified name already exists, it is overwritten.
 
         Parameters
         ----------
@@ -1775,6 +1816,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         air_vertical_positive_padding=None,
         air_vertical_negative_padding=None,
         airbox_values_as_dim=True,
+        air_horizontal_padding=None,
     ):
         """Edit HFSS 3D Layout extents.
 
@@ -1798,6 +1840,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             Airbox vertical negative padding. The default is ``None``.
         airbox_values_as_dim : bool, optional
             Either if inputs are dims or not. Default is `True`.
+        air_horizontal_padding : float, optional
+            Airbox horizontal padding. The default is ``None``.
+
 
         Returns
         -------
@@ -1820,6 +1865,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         if not air_truncate_model_at_ground_layer == "keep":
             arg.append("TruncAtGnd:=")
             arg.append(air_truncate_model_at_ground_layer)
+        if air_horizontal_padding:
+            arg.append("AirHorExt:=")
+            arg.append(["Ext:=", str(air_horizontal_padding), "Dim:=", airbox_values_as_dim])
         if air_vertical_positive_padding:
             arg.append("AirPosZExt:=")
             arg.append(["Ext:=", air_vertical_positive_padding, "Dim:=", airbox_values_as_dim])

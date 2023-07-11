@@ -12,7 +12,7 @@ class Results:
     Parameters
     ----------
     emit_obj : emit_obj object
-        Emit object used to create the result.
+        EMIT object used to create the result.
 
     Examples
     --------
@@ -25,7 +25,7 @@ class Results:
 
     def __init__(self, emit_obj):
         self.emit_project = emit_obj
-        """Emit project."""
+        """EMIT project."""
 
         self.current_revision = None
         """Current active Revision."""
@@ -34,7 +34,7 @@ class Results:
         """List of all result revisions. Only one loaded at a time"""
 
         self.design = emit_obj.odesktop.GetActiveProject().GetActiveDesign()
-        """Active design for the Emit project."""
+        """Active design for the EMIT project."""
 
     @pyaedt_function_handler()
     def _add_revision(self, name=None):
@@ -106,7 +106,7 @@ class Results:
         try:
             domain = emit_core.emit_api_python().InteractionDomain()
         except NameError:
-            raise ValueError("An Emit object must be initialized before any static member of the Results.")
+            raise ValueError("An EMIT object must be initialized before any static member of the Results.")
         return domain
 
     @pyaedt_function_handler

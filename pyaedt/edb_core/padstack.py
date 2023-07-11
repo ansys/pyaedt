@@ -462,7 +462,7 @@ class EdbPadstacks(object):
         return False
 
     @pyaedt_function_handler()
-    def create_coax_port(self, padstackinstance, use_dot_separator=True):
+    def create_coax_port(self, padstackinstance, use_dot_separator=True, name=None):
         """Create HFSS 3Dlayout coaxial lumped port on a pastack
         Requires to have solder ball defined before calling this method.
 
@@ -470,6 +470,16 @@ class EdbPadstacks(object):
         ----------
         padstackinstance : `Edb.Cell.Primitive.PadstackInstance` or int
             Padstack instance object.
+        use_dot_separator : bool, optional
+            Whether to use ``.`` as the separator for the naming convention, which
+            is ``[component][net][pin]``. The default is ``True``. If ``False``, ``_`` is
+            used as the separator instead.
+        name : str
+            Port name for overwriting the default port-naming convention,
+            which is ``[component][net][pin]``. The port name must be unique.
+            If a port with the specified name already exists, the
+            default naming convention is used so that port creation does
+            not fail.
 
         Returns
         -------
@@ -484,11 +494,9 @@ class EdbPadstacks(object):
         cmp_name = padstackinstance.GetComponent().GetName()
         if cmp_name == "":
             cmp_name = "no_comp"
-
         net_name = padstackinstance.GetNet().GetName()
         if net_name == "":
             net_name = "no_net"
-
         pin_name = padstackinstance.GetName()
         if pin_name == "":
             pin_name = "no_pin_name"
@@ -498,8 +506,12 @@ class EdbPadstacks(object):
             port_name = "{0}_{1}_{2}".format(cmp_name, pin_name, net_name)
         if not padstackinstance.IsLayoutPin():
             padstackinstance.SetIsLayoutPin(True)
-
         res = padstackinstance.GetLayerRange()
+        if name:
+            port_name = name
+        if self._port_exist(port_name):
+            port_name = generate_unique_name(port_name, n=2)
+            self._logger.info("An existing port already has this same name. Renaming to {}.".format(port_name))
         self._edb.cell.terminal.PadstackInstanceTerminal.Create(
             self._active_layout,
             padstackinstance.GetNet(),
@@ -510,6 +522,10 @@ class EdbPadstacks(object):
         if res[0]:
             return port_name
         return ""
+
+    @pyaedt_function_handler()
+    def _port_exist(self, port_name):
+        return any(port for port in list(self._pedb.excitations.keys()) if port == port_name)
 
     @pyaedt_function_handler()
     def get_pinlist_from_component_and_net(self, refdes=None, netname=None):

@@ -360,6 +360,8 @@ class TestClass(BasisTest, object):
         assert self.edbapp.siwave.create_circuit_port_on_pin_group(
             "PG_V1P0_S0", "PinGroup_2", impedance=50, name="test_port"
         )
+        self.edbapp.excitations["test_port"].name = "test_rename"
+        assert any(port for port in list(self.edbapp.excitations) if port == "test_rename")
 
     def test_041_create_voltage_source(self):
         assert "Vsource_" in self.edbapp.siwave.create_voltage_source_on_net("U1", "USB3_D_P", "U1", "GND", 3.3, 0)

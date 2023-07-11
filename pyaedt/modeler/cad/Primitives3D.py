@@ -454,6 +454,7 @@ class Primitives3D(Primitives, object):
         facets=6,
         name=None,
         matname=None,
+        cs_axis="Z",
     ):
         # type : (list, list, float|str=0.2, float|str=0, float=80, float=5, int=0, float|str=0.025, int=6, str=None,
         # str=None) -> Object3d
@@ -500,6 +501,8 @@ class Primitives3D(Primitives, object):
         matname : str, optional
             Name of the material. The default is ``None``, in which case
             the default material is assigned.
+        cs_axis : str, optional
+            Coordinate system axis. The default is ``"Z"``.
 
         Returns
         -------
@@ -588,7 +591,7 @@ class Primitives3D(Primitives, object):
         first_argument.append("h2:="), first_argument.append(self._arg_with_dim(h2))
         first_argument.append("alpha:="), first_argument.append(self._arg_with_dim(alpha, "deg"))
         first_argument.append("beta:="), first_argument.append(self._arg_with_dim(beta, "deg"))
-        first_argument.append("WhichAxis:="), first_argument.append("Z")
+        first_argument.append("WhichAxis:="), first_argument.append(GeometryOperators.cs_axis_str(cs_axis))
         first_argument.append("ReverseDirection:="), first_argument.append(False)
         second_argument = self._default_object_attributes(name=name, matname=matname)
         new_object_name = self.oeditor.CreateBondwire(first_argument, second_argument)
@@ -1473,6 +1476,7 @@ class Primitives3D(Primitives, object):
         coordinate_system="Global",
         name=None,
         parameter_mapping=False,
+        layout_coordinate_systems=[],
     ):
         """Insert a new layout component.
 
@@ -1486,6 +1490,8 @@ class Primitives3D(Primitives, object):
             3D component name. The default is ``None``.
         parameter_mapping : bool, optional
             Map the layout parameters in the target HFSS design. The default is ``False``.
+        layout_coordinate_systems : list, optional
+            Coordinate system to import. The default is all available coordinate systems.
 
         Returns
         -------
@@ -1599,7 +1605,7 @@ class Primitives3D(Primitives, object):
             "1.0",
             "Notes:=",
             "",
-            "IconTypeL:=",
+            "IconType:=",
             "Layout Component",
         ]
         vArg1.append(varg4)
@@ -1662,11 +1668,17 @@ class Primitives3D(Primitives, object):
             "CSToImport:=",
         ]
 
-        if component_cs:
+        if component_cs and not layout_coordinate_systems:  # pragma: no cover
             varg10 = component_cs
             varg10.append("Global")
+        elif component_cs and layout_coordinate_systems:  # pragma: no cover
+            varg10 = ["Global"]
+            for cs in layout_coordinate_systems:
+                if cs in component_cs:
+                    varg10.append(cs)
         else:
             varg10 = ["Global"]
+
         varg9.append(varg10)
         vArg1.append(varg9)
 
