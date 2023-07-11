@@ -1003,7 +1003,7 @@ class Components(object):
 
         Parameters
         ----------
-        component: str
+        component : str
             Reference designator of the RLC component.
 
         Returns
