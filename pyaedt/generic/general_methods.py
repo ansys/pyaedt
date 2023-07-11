@@ -42,6 +42,12 @@ except ImportError:
     ET = None
 
 
+class GrpcApiError(Exception):
+    """ """
+
+    pass
+
+
 class MethodNotSupportedError(Exception):
     """ """
 
@@ -95,7 +101,7 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     message_to_print = ""
     try:
         messages = list(sys.modules["__main__"].oDesktop.GetMessages("", "", 2))
-    except AttributeError:
+    except (GrpcApiError, AttributeError):
         messages = []
     except TypeError:
         messages = []
@@ -207,6 +213,9 @@ def _function_handler_wrapper(user_function):
                     print("")
                 if settings.enable_file_logs:
                     settings.logger.error(message)
+                return False
+            except GrpcApiError:
+                _exception(sys.exc_info(), user_function, args, kwargs, "AEDT grpc API call Error")
                 return False
             except BaseException:
                 _exception(sys.exc_info(), user_function, args, kwargs, "General or AEDT Error")
@@ -651,12 +660,12 @@ def _retry_ntimes(n, function, *args, **kwargs):
     while retry < n:
         try:
             ret_val = function(*args, **kwargs)
-            if ret_val is None:
-                # if not ret_val and type(ret_val) not in [float, int, str, tuple, list]:
-                ret_val = True
+            # if ret_val is None:
+            # if not ret_val and type(ret_val) not in [float, int, str, tuple, list]:
+            #    ret_val = True
         except:
             retry += 1
-            time.sleep(0.5)
+            time.sleep(0.1)
         else:
             break
     if retry == n:

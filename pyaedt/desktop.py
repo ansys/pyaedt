@@ -281,11 +281,11 @@ def release_desktop(close_projects=True, close_desktop=True):
     _main = sys.modules["__main__"]
     try:
         desktop = _main.oDesktop
+        pid = desktop.GetProcessID()
         if close_projects:
             projects = desktop.GetProjectList()
             for project in projects:
                 desktop.CloseProject(project)
-        pid = _main.oDesktop.GetProcessID()
         if settings.remote_rpc_session or (
             settings.aedt_version >= "2022.2" and settings.use_grpc_api and not is_ironpython
         ):
@@ -293,7 +293,7 @@ def release_desktop(close_projects=True, close_desktop=True):
                 if close_desktop:
                     _main.oDesktop.QuitApplication()
                 else:
-                    import PyDesktopPlugin as StandalonePyScriptWrapper
+                    import pyaedt.generic.grpc_plugin as StandalonePyScriptWrapper
 
                     return StandalonePyScriptWrapper.Release()
             except:
@@ -908,7 +908,7 @@ class Desktop(object):
             )
             launch_msg = "AEDT installation Path {}".format(base_path)
             self.logger.info(launch_msg)
-            import PyDesktopPlugin as StandalonePyScriptWrapper
+            import pyaedt.generic.grpc_plugin as StandalonePyScriptWrapper
 
             return StandalonePyScriptWrapper.CreateAedtApplication(machine, port, non_graphical, new_session)
 
@@ -1383,6 +1383,10 @@ class Desktop(object):
 
         gc.collect()
         self.odesktop = None
+        try:
+            del sys.modules["__main__"].oDesktop
+        except AttributeError:
+            pass
         return result
 
     def close_desktop(self):
