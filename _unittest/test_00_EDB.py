@@ -2585,3 +2585,15 @@ class TestClass(BasisTest, object):
         assert y.voids
         y_clone = y.clone()
         assert y_clone.voids
+
+    def test_142_replace_rlc_by_gap_boundaries(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "ANSYS-HSD_V1_boundaries.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, edbversion=desktop_version)
+        for refdes, cmp in edbapp.components.components.items():
+            edbapp.components.replace_rlc_by_gap_boundaries(refdes)
+        rlc_list = [
+            term for term in list(edbapp.active_layout.Terminals) if str(term.GetBoundaryType()) == "RlcBoundary"
+        ]
+        assert len(rlc_list) == 944
