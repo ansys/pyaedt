@@ -103,14 +103,16 @@ class ControlProperty:
     def __init__(self, property_name, value):
         self.name = property_name
         self.value = value
-        try:
-            float(value)
-            self.type = 0
-        except TypeError:
-            if isinstance(value, list):
-                self.type = 2
-            elif isinstance(value, str):
-                self.type = 1
+        if isinstance(value, str):
+            self.type = 1
+        elif isinstance(value, list):
+            self.type = 2
+        else:
+            try:
+                float(value)
+                self.type = 0
+            except TypeError:
+                pass
 
     def _write_xml(self, root):
         if self.type == 0:
@@ -134,12 +136,14 @@ class ControlFileMaterial:
 
 
 class ControlFileDielectric:
-    def __init__(self, index, name, properties):
-        self.index = index
+    def __init__(self, name, properties):
         self.name = name
         self.properties = {}
         for name, prop in properties.items():
             self.properties[name] = prop
+
+    def _write_xml(self, root):
+        pass
 
 
 class ControlFileLayer:
@@ -273,13 +277,29 @@ class ControlFileStackup:
         """
         return self._layers
 
-    def add_material(self, material_name, properties):
+    def add_material(
+        self,
+        material_name,
+        permittivity=1.0,
+        dielectric_loss_tg=0.0,
+        permeability=1.0,
+        conductivity=0.0,
+        properties=None,
+    ):
         """Add a new material with specific properties.
 
         Parameters
         ----------
         material_name : str
             Material name.
+        permittivity : float
+            Material permittivity
+        dielectric_loss_tg : float
+            Material tangent losses
+        permeability : float
+            Material permeability
+        conductivity : float
+            Material conductivity
         properties : dict
             Dictionary with key and material property value.
 
@@ -287,32 +307,53 @@ class ControlFileStackup:
         -------
         :class:`pyaedt.edb_core.edb_data.control_file.ControlFileMaterial`
         """
-        self._materials[material_name] = ControlFileMaterial(material_name, properties)
-        return self._materials[material_name]
+        if isinstance(properties, dict):
+            self._materials[material_name] = ControlFileMaterial(material_name, properties)
+            return self._materials[material_name]
+        else:
+            properties = {
+                "Name": material_name,
+                "Permittivity": str(permittivity),
+                "Permeability": str(permeability),
+                "Conductivity": str(conductivity),
+                "DielectricLossTangent": str(dielectric_loss_tg),
+            }
+            self._materials[material_name] = ControlFileMaterial(material_name, properties)
+            return self._materials[material_name]
 
-    def add_layer(self, layer_name, properties):
+    def add_layer(
+        self,
+        layer_name,
+        elevation=0.0,
+        material="",
+        gds_type=0,
+        target_layer="",
+        thickness=0.0,
+        layer_type="conductor",
+        solve_inside=True,
+        properties=None,
+    ):
         """Add a new layer.
 
         Parameters
         ----------
         layer_name : str
             Layer name.
-        properties : dict
-            Dictionary with key and  property value.
-
-        Returns
-        -------
-        :class:`pyaedt.edb_core.edb_data.control_file.ControlFileLayer`
-        """
-        self._layers.append(ControlFileLayer(layer_name, properties))
-
-    def add_dielectric(self, layer_name, properties=None):
-        """Add a new dielectric.
-
-        Parameters
-        ----------
-        layer_name : str
-            Layer name.
+        elevation : float
+            Layer elevation.
+        material : str
+            Material for the layer.
+        gds_type : int
+            GDS type assigned on the layer. The value must be the same as in the GDS file otherwise geometries won't be
+            imported.
+        target_layer : str
+            Layer name assigned in EDB or HFSS 3D layout after import.
+        thickness : float
+            Layer thickness
+        layer_type : str
+            Define the layer type, default value for a layer is ``"conductor"``
+        solve_inside : bool
+            When ``True`` solver will solve inside metal, and not id ``False``. Default value is ``True``.
         properties : dict
             Dictionary with key and  property value.
 
@@ -321,17 +362,94 @@ class ControlFileStackup:
         :class:`pyaedt.edb_core.edb_data.control_file.ControlFileLayer`
         """
         if isinstance(properties, dict):
-            self._dielectrics.append(ControlFileLayer(layer_name, properties))
+            self._layers.append(ControlFileLayer(layer_name, properties))
+            return self._layers[-1]
         else:
-            pass
+            properties = {
+                "Name": layer_name,
+                "GDSDataType": str(gds_type),
+                "TargetLayer": target_layer,
+                "Type": layer_type,
+                "Material": material,
+                "Thickness": str(thickness),
+                "Elevation": str(elevation),
+                "SolveInside": str(solve_inside).lower(),
+            }
+            self._layers.append(ControlFileDielectric(layer_name, properties))
+            return self._layers[-1]
 
-    def add_via(self, layer_name, properties):
+    def add_dielectric(self, layer_name, layer_index=0, material="", thickness=0.0, properties=None):
+        """Add a new dielectric.
+
+        Parameters
+        ----------
+        layer_name : str
+            Layer name.
+        layer_index : int
+            Dielectric layer index as they must be stacked
+        material : str
+            Material name.
+        thickness : float
+            Layer thickness.
+        properties : dict
+            Dictionary with key and  property value.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.control_file.ControlFileDielectric`
+        """
+        if isinstance(properties, dict):
+            self._dielectrics.append(ControlFileDielectric(layer_name, properties))
+            return self._dielectrics[-1]
+        else:
+            properties = {"Index": layer_index, "Material": material, "Name": layer_name, "Thickness": thickness}
+            self._dielectrics.append(ControlFileDielectric(layer_name, properties))
+            return self._dielectrics[-1]
+
+    def add_via(
+        self,
+        layer_name,
+        material="",
+        gds_type=0,
+        target_layer="",
+        start_layer="",
+        stop_layer="",
+        solve_inside=True,
+        via_group_method="proximity",
+        via_group_tol=1e-6,
+        via_group_persistent=True,
+        snap_via_group_method="distance",
+        snap_via_group_tol=10e-9,
+        properties=None,
+    ):
         """Add a new via layer.
 
         Parameters
         ----------
         layer_name : str
             Layer name.
+        material : str
+            Define the material for this layer.
+        gds_type : int
+            Define the gds type.
+        target_layer : str
+            Target layer used after layout import in EDB and HFSS 3D layout.
+        start_layer : str
+            Define the start layer for the via
+        stop_layer : str
+            Define the stop layer for the via.
+        solve_inside : bool
+            When ``True`` solve inside this layer is anbled. Default value is ``True``.
+        via_group_method : str
+            Define the via group method, default value is ``"proximity"``
+        via_group_tol : float
+            Define the via group tolerance.
+        via_group_persistent : bool
+            When ``True`` activated otherwise when ``False``is deactivated. Default value is ``True``.
+        snap_via_group_method : str
+            Define the via group method, default value is ``"distance"``
+        snap_via_group_tol : float
+            Define the via group tolerance, default value is 10e-9.
         properties : dict
             Dictionary with key and  property value.
 
@@ -339,8 +457,26 @@ class ControlFileStackup:
         -------
         :class:`pyaedt.edb_core.edb_data.control_file.ControlFileVia`
         """
-        self._vias.append(ControlFileVia(layer_name, properties))
-        return self._vias[-1]
+        if isinstance(properties, dict):
+            self._vias.append(ControlFileVia(layer_name, properties))
+            return self._vias[-1]
+        else:
+            properties = {
+                "Name": layer_name,
+                "GDSDataType": str(gds_type),
+                "TargetLayer": target_layer,
+                "Material": material,
+                "StartLayer": start_layer,
+                "StopLayer": stop_layer,
+                "SolveInside": str(solve_inside).lower(),
+                "ViaGroupMethod": via_group_method,
+                "Persistent": via_group_persistent,
+                "ViaGroupTolerance": via_group_tol,
+                "SnapViaGroupMethod": snap_via_group_method,
+                "SnapViaGroupTolerance": snap_via_group_tol,
+            }
+            self._vias.append(ControlFileVia(layer_name, properties))
+            return self._vias[-1]
 
     def _write_xml(self, root):
         content = ET.SubElement(root, "Stackup")
@@ -355,6 +491,8 @@ class ControlFileStackup:
             elayers.set("MetalLayerSnappingTolerance", str(self.metal_layer_snapping_tolerance))
         dielectrics = ET.SubElement(elayers, "Dielectrics")
         dielectrics.set("BaseElevation", str(self.dielectrics_base_elevation))
+        # sorting dielectric layers
+        self._dielectrics = list(sorted(list(self._dielectrics), key=lambda x: x.properties["Index"], reverse=True))
         for layer in self.dielectrics:
             layer._write_xml(dielectrics)
         layers = ET.SubElement(elayers, "Layers")
@@ -1048,7 +1186,7 @@ class ControlFile:
 
     @pyaedt_function_handler()
     def write_xml(self, xml_output):
-        """Write xml to output file.
+        """Write xml to output file
 
         Parameters
         ----------
