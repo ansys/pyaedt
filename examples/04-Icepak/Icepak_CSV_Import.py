@@ -55,9 +55,11 @@ ipk.autosave_disable()
 #
 # The following image doe snot show the entire rows and data and only serves as a sample.
 #
-# ![Image.PNG](attachment:Image.PNG)
+# ![CSV_Import.png](..\pyaedt\doc\source\CSV_Import.png)
 
-filename = 'blocks-list.csv'     # name of the csv file that must be located in the current project path
+import pyaedt
+
+filename = pyaedt.downloads.download_file('icepak','blocks-list.csv')
 fields = []
 rows = []
 
