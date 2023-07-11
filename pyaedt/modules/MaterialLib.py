@@ -18,7 +18,6 @@ from pyaedt.generic.DataHandlers import _arg2dict
 
 # from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import _create_json_file
-from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -641,7 +640,7 @@ class Materials(object):
         if matname not in self.odefinition_manager.GetProjectMaterialNames() and not settings.remote_api:
             matname = self._get_aedt_case_name(matname)
         props = {}
-        _arg2dict(list(_retry_ntimes(20, self.omaterial_manager.GetData, matname)), props)
+        _arg2dict(list(self.omaterial_manager.GetData(matname)), props)
         values_view = props.values()
         value_iterator = iter(values_view)
         first_value = next(value_iterator)

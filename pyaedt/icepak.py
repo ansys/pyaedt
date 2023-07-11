@@ -10,6 +10,7 @@ import warnings
 
 from pyaedt import is_ironpython
 from pyaedt import is_linux
+from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.modules.SetupTemplates import SetupKeys
 
 if is_linux and is_ironpython:
@@ -629,7 +630,7 @@ class Icepak(FieldAnalysis3D):
                 return bound
             else:  # pragma : no cover
                 raise SystemExit
-        except SystemExit:
+        except (GrpcApiError, SystemExit):
             return None
 
     @pyaedt_function_handler()
@@ -726,7 +727,7 @@ class Icepak(FieldAnalysis3D):
                 return bound
             else:  # pragma : no cover
                 raise SystemExit
-        except SystemExit:
+        except (GrpcApiError, SystemExit):
             return None
 
     @pyaedt_function_handler()
@@ -3331,7 +3332,7 @@ class Icepak(FieldAnalysis3D):
                 return bound
             else:  # pragma : no cover
                 raise SystemExit
-        except SystemExit:
+        except (GrpcApiError, SystemExit):
             return None
 
     @pyaedt_function_handler()
@@ -4045,7 +4046,7 @@ class Icepak(FieldAnalysis3D):
                 return bound
             else:  # pragma : no cover
                 raise SystemExit
-        except SystemExit:
+        except (GrpcApiError, SystemExit):
             return None
 
     @pyaedt_function_handler
@@ -4180,7 +4181,7 @@ class Icepak(FieldAnalysis3D):
                 return bound
             else:  # pragma : no cover
                 raise SystemExit
-        except SystemExit:
+        except (GrpcApiError, SystemExit):
             return None
 
     @pyaedt_function_handler()
@@ -4709,5 +4710,5 @@ class Icepak(FieldAnalysis3D):
                 return bound
             else:  # pragma : no cover
                 raise SystemExit
-        except SystemExit:
+        except (GrpcApiError, SystemExit):
             return None
