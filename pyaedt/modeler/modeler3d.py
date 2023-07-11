@@ -1358,6 +1358,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                 mesh_objects[obj.name] = []
                 for value in mesh_sheets[obj.name]:
                     mesh_objects[obj.name].append([x for x in self.sheet_objects if x.name == value][0])
+        face_object.delete()
         if apply_mesh_sheets:
             return segment_objects, mesh_objects
         else:
