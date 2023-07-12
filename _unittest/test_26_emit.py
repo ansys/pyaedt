@@ -957,13 +957,13 @@ class TestClass(BasisTest, object):
         assert len(radiosTX) == 2
 
         rx_bands = ["Band", "L2 P(Y)", "HR-DSSS Rx - Ch 1-13"]
-        tx_bands = ["Band", "HR-DSSS Rx - Ch 1-13"]
+        tx_bands = ["Band", "HR-DSSS Tx - Ch 1-13"]
 
         for i in range(len(radiosRX)):
             assert rx_bands[i] == rev.get_band_names(radiosRX[i], TxRxMode.RX)[0]
 
         for i in range(len(radiosTX)):
-            assert tx_bands[i] == rev.get_band_names(radiosTX[i], TxRxMode.RX)[0]
+            assert tx_bands[i] == rev.get_band_names(radiosTX[i], TxRxMode.TX)[0]
 
         # Test with no filtering
         expected_interference_colors = [["white", "green", "yellow"], ["red", "green", "white"]]
@@ -1005,35 +1005,66 @@ class TestClass(BasisTest, object):
         assert protection_power_matrix == expected_protection_power
 
         # Test with active filtering
-        expected_interference_colors = [["white", "green", "yellow"], ["white", "green", "white"]]
-        expected_interference_power = [["N/A", -20.0, -20.0], ["<= -200", -20.0, "N/A"]]
-        expected_protection_colors = [["white", "white", "white"], ["white", "white", "white"]]
-        expected_protection_power = [["N/A", "< -200", "< -200"], ["< -200", "< -200", "N/A"]]
-
         interference_colors = []
         interference_power_matrix = []
         protection_colors = []
         protection_power_matrix = []
-        interference_filter = [
+        all_interference_colors = [
+            [["white", "green", "yellow"], ["orange", "green", "white"]],
+            [["white", "green", "yellow"], ["red", "green", "white"]],
+            [["white", "green", "green"], ["red", "green", "white"]],
+            [["white", "white", "yellow"], ["red", "white", "white"]],
+        ]
+        all_interference_power = [
+            [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]],
+            [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]],
+            [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]],
+            [["N/A", "<= -200", -20.0], [-20.0, "<= -200", "N/A"]],
+        ]
+        all_protection_colors = [
+            [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]],
+            [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]],
+            [["white", "white", "white"], ["white", "white", "white"]],
+            [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]],
+        ]
+        all_protection_power = [
+            [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]],
+            [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]],
+            [["N/A", "< -200", "< -200"], ["< -200", "< -200", "N/A"]],
+            [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]],
+        ]
+        interference_filters = [
+            "TxFundamental:In-band",
+            ["TxHarmonic/Spurious:In-band", "Intermod:In-band", "Broadband:In-band"],
             "TxFundamental:Out-of-band",
             ["TxHarmonic/Spurious:Out-of-band", "Intermod:Out-of-band", "Broadband:Out-of-band"],
         ]
-        interference_colors, interference_power_matrix = interference_type_classification(
-            self.aedtapp, use_filter=True, filter=interference_filter
-        )
-        protection_filter = ["damage", "overload", "desensitization"]
-        protection_colors, protection_power_matrix = protection_level_classification(
-            self.aedtapp,
-            global_protection_level=True,
-            global_levels=[30, -4, -30, -104],
-            use_filter=True,
-            filter=protection_filter,
-        )
+        protection_filters = ["damage", "overload", "intermodulation", "desensitization"]
 
-        assert interference_colors == expected_interference_colors
-        assert interference_power_matrix == expected_interference_power
-        assert protection_colors == expected_protection_colors
-        assert protection_power_matrix == expected_protection_power
+        for ind in range(4):
+            expected_interference_colors = all_interference_colors[ind]
+            expected_interference_power = all_interference_power[ind]
+            expected_protection_colors = all_protection_colors[ind]
+            expected_protection_power = all_protection_power[ind]
+            interference_filter = interference_filters[:ind] + interference_filters[ind + 1 :]
+            protection_filter = protection_filters[:ind] + protection_filters[ind + 1 :]
+
+            interference_colors, interference_power_matrix = interference_type_classification(
+                self.aedtapp, use_filter=True, filter=interference_filter
+            )
+
+            protection_colors, protection_power_matrix = protection_level_classification(
+                self.aedtapp,
+                global_protection_level=True,
+                global_levels=[30, -4, -30, -104],
+                use_filter=True,
+                filter=protection_filter,
+            )
+
+            assert interference_colors == expected_interference_colors
+            assert interference_power_matrix == expected_interference_power
+            assert protection_colors == expected_protection_colors
+            assert protection_power_matrix == expected_protection_power
 
     """
     .. note::
