@@ -1020,11 +1020,11 @@ class Components(object):
         >>> edb.save_edb()
         >>> edb.close_edb()
         """
-        if not component:
+        if not component:  # pragma no cover
             return False
         if isinstance(component, str):
             component = self.instances[component]
-            if not component:
+            if not component:  # pragma  no cover
                 self._logger.error("component %s not found.", component)
                 return False
         component_type = component.edbcomponent.GetComponentType()
