@@ -119,6 +119,8 @@ class ControlProperty:
             content = ET.SubElement(root, self.name)
             double = ET.SubElement(content, "Double")
             double.text = str(self.value)
+        else:
+            pass
 
 
 class ControlFileMaterial:
@@ -131,7 +133,7 @@ class ControlFileMaterial:
     def _write_xml(self, root):
         content = ET.SubElement(root, "Material")
         content.set("Name", self.name)
-        for name, property in self.properties.items():
+        for property_name, property in self.properties.items():
             property._write_xml(content)
 
 
@@ -143,7 +145,10 @@ class ControlFileDielectric:
             self.properties[name] = prop
 
     def _write_xml(self, root):
-        pass
+        content = ET.SubElement(root, "Layer")
+        for property_name, property in self.properties.items():
+            if not property_name == "Index":
+                content.set(property_name, str(property))
 
 
 class ControlFileLayer:
@@ -313,10 +318,10 @@ class ControlFileStackup:
         else:
             properties = {
                 "Name": material_name,
-                "Permittivity": str(permittivity),
-                "Permeability": str(permeability),
-                "Conductivity": str(conductivity),
-                "DielectricLossTangent": str(dielectric_loss_tg),
+                "Permittivity": permittivity,
+                "Permeability": permeability,
+                "Conductivity": conductivity,
+                "DielectricLossTangent": dielectric_loss_tg,
             }
             self._materials[material_name] = ControlFileMaterial(material_name, properties)
             return self._materials[material_name]
@@ -484,7 +489,6 @@ class ControlFileStackup:
         materials = ET.SubElement(content, "Materials")
         for materialname, material in self.materials.items():
             material._write_xml(materials)
-
         elayers = ET.SubElement(content, "ELayers")
         elayers.set("LengthUnit", self.units)
         if self.metal_layer_snapping_tolerance:
