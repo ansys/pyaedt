@@ -1,8 +1,31 @@
-from glob import glob
 import os
 import random
 import shutil
 import string
+
+
+def search_files(dirname, pattern="*"):
+    """Search for files inside a directory given a specific pattern.
+
+    Parameters
+    ----------
+    dirname : str
+    pattern :str, optional
+
+    Returns
+    -------
+    list
+    """
+    from pyaedt.generic.general_methods import is_ironpython
+
+    if is_ironpython:
+        import glob
+
+        return list(glob.glob(dirname, pattern))
+    else:
+        import pathlib
+
+        return [os.path.abspath(i) for i in pathlib.Path(dirname).glob(pattern)]
 
 
 def my_location():
@@ -141,4 +164,4 @@ def get_json_files(start_folder):
     Returns
     -------
     """
-    return [y for x in os.walk(start_folder) for y in glob(os.path.join(x[0], "*.json"))]
+    return [y for x in os.walk(start_folder) for y in search_files(x[0], "*.json")]
