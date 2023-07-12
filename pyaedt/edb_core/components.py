@@ -998,7 +998,7 @@ class Components(object):
 
     @pyaedt_function_handler()
     def replace_rlc_by_gap_boundaries(self, component=None):
-        """Replace RLC component by RLC gap boundaries. These boundary type are compatible with 3D modeler export.
+        """Replace RLC component by RLC gap boundaries. These boundary types are compatible with 3D modeler export.
         Only 2 pins RLC components are supported in this command.
 
         Parameters
