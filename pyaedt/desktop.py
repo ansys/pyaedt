@@ -250,6 +250,10 @@ def _delete_objects():
         del sys.modules["PyDesktopPlugin"]
     except:
         pass
+    try:
+        del sys.modules["glob"]
+    except:
+        pass
     keys = [k for k in sys.modules.keys()]
     for i in keys:
         if "Ansys.Ansoft" in i:
