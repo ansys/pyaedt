@@ -63,8 +63,8 @@ ipk.autosave_disable()                                                    # Save
 # The imported PCB here will be deleted later and replaced by a PCB that has the trace information for higher accuracy.
 
 
-def_path = pyaedt.downloads.download_file('icepak/Icepak_ECAD_Import/A1_uprev.aedb','edb.def',destination=temp_folder)
-board_path = pyaedt.downloads.download_file('icepak/Icepak_ECAD_Import/','A1.bdf',destination=temp_folder)
+def_path = pyaedt.downloads.download_file('icepak/Icepak_ECAD_Import/A1_uprev.aedb','edb.def',temp_folder)
+board_path = pyaedt.downloads.download_file('icepak/Icepak_ECAD_Import/','A1.bdf',temp_folder)
 library_path = pyaedt.downloads.download_file('icepak/Icepak_ECAD_Import/','A1.ldf',temp_folder)
 
 ipk.import_idf(board_path, library_path=None, control_path=None, 
