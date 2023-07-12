@@ -33,29 +33,6 @@ def my_location():
     return os.path.normpath(os.path.dirname(__file__))
 
 
-def files_in_directory(path=".", ext=""):
-    """
-
-    Parameters
-    ----------
-    path :
-         (Default value = '.')
-    ext :
-         (Default value = '')
-
-    Returns
-    -------
-
-    """
-    result = []
-    if os.path.exists(path):
-        for dir in os.listdir(path):
-            bd = os.path.join(path, dir)
-            if os.path.isfile(bd) and dir.endswith("." + ext):
-                result.append(bd)
-    return result
-
-
 class Scratch:
     """ """
 
