@@ -21,7 +21,7 @@ def search_files(dirname, pattern="*"):
     if is_ironpython:
         import glob
 
-        return list(glob.glob(dirname, pattern))
+        return list(glob.glob(os.path.join(dirname, pattern)))
     else:
         import pathlib
 
