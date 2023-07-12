@@ -272,14 +272,14 @@ import time
 start = time.time()
 cutlist = ["Global:XY"]
 phases = [str(i * 5) + "deg" for i in range(18)]
-animated = aedtapp.post.animate_fields_from_aedtplt_2(
-    quantityname="Mag_E",
+
+animated = aedtapp.post.plot_animated_field(
+    quantity="Mag_E",
     object_list=cutlist,
-    plottype="CutPlane",
-    meshplot=False,
+    plot_type="CutPlane",
     setup_name=aedtapp.nominal_adaptive,
-    intrinsic_dict={"Freq": "1GHz", "Phase": "0deg"},
-    project_path=results_folder,
+    intrinsics={"Freq": "1GHz", "Phase": "0deg"},
+    export_path=results_folder,
     variation_variable="Phase",
     variation_list=phases,
     show=False,
