@@ -53,13 +53,11 @@ ipk.autosave_disable()
 #
 # Monitor points can be created for any types of block if the last column is assigned to be 1 (0 and 1 are the only options).
 #
-# The following image doe snot show the entire rows and data and only serves as a sample.
+# The following image does not show the entire rows and data and only serves as a sample.
 #
 # ![CSV_Import.png](..\pyaedt\doc\source\CSV_Import.png)
 
-import pyaedt
-
-filename = pyaedt.downloads.download_file('icepak','blocks-list.csv')
+filename = pyaedt.downloads.download_file('icepak','blocks-list.csv',destination=temp_folder)
 fields = []
 rows = []
 
