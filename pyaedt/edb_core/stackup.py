@@ -1675,7 +1675,6 @@ class Stackup(object):
         prev_layer = None
         for row, val in df[::-1].iterrows():
             if not self.stackup_layers:
-                # There is no stackup
                 self.add_layer(
                     row,
                     None,
@@ -1687,7 +1686,6 @@ class Stackup(object):
                 )
             else:
                 if row in self.stackup_layers.keys():
-                    # layer already exists
                     lyr = self.stackup_layers[row]
                     lyr.type = val.Type
                     lyr.material = val.Material
@@ -1697,7 +1695,6 @@ class Stackup(object):
                         self._set_layout_stackup(lyr._edb_layer, "change_position", prev_layer)
                 else:
                     if prev_layer and prev_layer in self.stackup_layers:
-                        # It is not the first layer
                         layer_name = prev_layer
                     else:
                         layer_name = list(self.stackup_layers.keys())[-1] if self.stackup_layers else None
