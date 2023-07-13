@@ -3111,7 +3111,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         Parameters
         ----------
-        objects : list of int or str or :class:`pyaedt.modeler.object3d.Object3d`
+        objects : list of int or str or :class:`pyaedt.modeler.cad.object3d.Object3d`
             List of objects to assign an end connection to.
         resistance : float or str, optional
             Resistance value. If float is provided, the units are assumed to be ohms.

@@ -20,7 +20,6 @@ from pyaedt.generic.constants import AEDT_UNITS
 
 # from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import PropsManager
-from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import settings
@@ -190,7 +189,7 @@ class BaseCoordinateSystem(PropsManager, object):
 
         """
         arguments = ["NAME:AllTabs", ["NAME:Geometry3DCSTab", ["NAME:PropServers", name], arg]]
-        _retry_ntimes(10, self._modeler.oeditor.ChangeProperty, arguments)
+        self._modeler.oeditor.ChangeProperty(arguments)
 
     @pyaedt_function_handler()
     def rename(self, newname):
@@ -1522,7 +1521,7 @@ class GeometryModeler(Modeler, object):
         >>> oEditor.GetModelUnits
         >>> oEditor.SetModelUnits
         """
-        return _retry_ntimes(10, self.oeditor.GetModelUnits)
+        return self.oeditor.GetModelUnits()
 
     @model_units.setter
     def model_units(self, units):
@@ -2639,7 +2638,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d.Object3d`
+        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             List of split objects.
 
         References
@@ -2760,7 +2759,7 @@ class GeometryModeler(Modeler, object):
             vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
             if is_3d_comp:
                 orig_3d = [i for i in self.user_defined_component_names]
-            added_objs = _retry_ntimes(10, self.oeditor.DuplicateMirror, vArg1, vArg2, vArg3)
+            added_objs = self.oeditor.DuplicateMirror(vArg1, vArg2, vArg3)
             self.add_new_objects()
             if is_3d_comp:
                 added_3d_comps = [i for i in self.user_defined_component_names if i not in orig_3d]
@@ -2939,7 +2938,7 @@ class GeometryModeler(Modeler, object):
         vArg2.append("ZComponent:="), vArg2.append(Zpos)
         vArg2.append("Numclones:="), vArg2.append(str(nclones))
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
-        _retry_ntimes(10, self.oeditor.DuplicateAlongLine, vArg1, vArg2, vArg3)
+        self.oeditor.DuplicateAlongLine(vArg1, vArg2, vArg3)
         if is_3d_comp:
             return self._duplicate_added_components_tuple()
         if attachObject:
@@ -2961,7 +2960,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        pyaedt.modeler.object3d.Object3d
+        pyaedt.modeler.cad.object3d.Object3d
 
         References
         ----------
@@ -2999,7 +2998,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        pyaedt.modeler.object3d.Object3d
+        pyaedt.modeler.cad.object3d.Object3d
 
         References
         ----------
@@ -3476,7 +3475,8 @@ class GeometryModeler(Modeler, object):
 
         vArg1 = ["NAME:Selections", "Selections:=", szList, "NewPartsModelFlag:=", "Model"]
 
-        return _retry_ntimes(10, self.oeditor.PurgeHistory, vArg1)
+        self.oeditor.PurgeHistory(vArg1)
+        return True
 
     @pyaedt_function_handler()
     def get_model_bounding_box(self):
@@ -3574,8 +3574,8 @@ class GeometryModeler(Modeler, object):
         """
         szSelections = self.convert_to_selections(objid)
         vArg1 = ["NAME:Selections", "Selections:=", szSelections]
-        _retry_ntimes(10, self.oeditor.Copy, vArg1)
-        _retry_ntimes(10, self.oeditor.Paste)
+        self.oeditor.Copy(vArg1)
+        self.oeditor.Paste()
         new_objects = self.add_new_objects()
         return True, new_objects
 
@@ -3922,7 +3922,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
 
         References

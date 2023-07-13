@@ -16,7 +16,6 @@ from pyaedt.application.Variables import decompose_variable_value
 
 # from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import _dim_arg
-from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import _uname
 from pyaedt.generic.general_methods import is_number
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -75,7 +74,7 @@ class Primitives(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d.Object3d`
+        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
         self._refresh_solids()
@@ -87,7 +86,7 @@ class Primitives(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d.Object3d`
+        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
         self._refresh_sheets()
@@ -99,7 +98,7 @@ class Primitives(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d.Object3d`
+        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
         self._refresh_lines()
@@ -111,7 +110,7 @@ class Primitives(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d.Object3d`
+        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
         return [v for v in list(self.points.values())]
@@ -122,7 +121,7 @@ class Primitives(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d.Object3d`
+        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
         self._refresh_unclassified()
@@ -134,7 +133,7 @@ class Primitives(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d.Object3d`
+        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
         self._refresh_object_types()
@@ -369,7 +368,7 @@ class Primitives(object):
         attributes.append("Name:="), attributes.append(name)
         attributes.append("Color:="), attributes.append(color)
 
-        _retry_ntimes(10, self.oeditor.CreatePoint, parameters, attributes)
+        self.oeditor.CreatePoint(parameters, attributes)
         self._refresh_points()
         return self._create_object(name)
 
@@ -444,7 +443,7 @@ class Primitives(object):
         attributes.append("Name:="), attributes.append(name)
         attributes.append("Color:="), attributes.append(color)
 
-        _retry_ntimes(10, self.oeditor.CreateCutplane, parameters, attributes)
+        self.oeditor.CreateCutplane(parameters, attributes)
         # self._refresh_planes()
         self.planes[name] = None
         plane = self._create_object(name)
@@ -460,7 +459,7 @@ class Primitives(object):
             vPropServers.append(el)
         vGeo3d = ["NAME:General", vPropServers, vChangedProps]
         vOut = ["NAME:AllTabs", vGeo3d]
-        _retry_ntimes(10, self.oeditor.ChangeProperty, vOut)
+        self.oeditor.ChangeProperty(vOut)
         return True
 
     @pyaedt_function_handler()
@@ -472,7 +471,7 @@ class Primitives(object):
             vPropServers.append(el)
         vGeo3d = ["NAME:Geometry3DAttributeTab", vPropServers, vChangedProps]
         vOut = ["NAME:AllTabs", vGeo3d]
-        _retry_ntimes(10, self.oeditor.ChangeProperty, vOut)
+        self.oeditor.ChangeProperty(vOut)
         if "NAME:Name" in vPropChange:
             self.cleanup_objects()
         return True
@@ -486,7 +485,7 @@ class Primitives(object):
             vPropServers.append(el)
         vGeo3d = ["NAME:Geometry3DPointTab", vPropServers, vChangedProps]
         vOut = ["NAME:AllTabs", vGeo3d]
-        _retry_ntimes(10, self.oeditor.ChangeProperty, vOut)
+        self.oeditor.ChangeProperty(vOut)
         if "NAME:Name" in vPropChange:
             self.cleanup_objects()
         return True
@@ -500,7 +499,7 @@ class Primitives(object):
             vPropServers.append(el)
         vGeo3d = ["NAME:Geometry3DPlaneTab", vPropServers, vChangedProps]
         vOut = ["NAME:AllTabs", vGeo3d]
-        _retry_ntimes(10, self.oeditor.ChangeProperty, vOut)
+        self.oeditor.ChangeProperty(vOut)
         if "NAME:Name" in vPropChange:
             self.cleanup_objects()
         return True
@@ -517,7 +516,7 @@ class Primitives(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
            Updated 3D object.
 
         """
@@ -609,7 +608,7 @@ class Primitives(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             Region object.
 
         References
@@ -1062,7 +1061,7 @@ class Primitives(object):
 
         Parameters
         ----------
-        src_object : :class:`pyaedt.modeler.object3d.Object3d`
+        src_object : :class:`pyaedt.modeler.cad.object3d.Object3d`
             An existing polyline object in the 3D Modeler.
 
         Returns
@@ -1089,7 +1088,7 @@ class Primitives(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             UDP object created.
 
         References
@@ -1322,7 +1321,7 @@ class Primitives(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object returned.
 
         """
@@ -2766,12 +2765,12 @@ class Primitives(object):
     @pyaedt_function_handler()
     def _refresh_solids(self):
         try:
-            test = _retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Solids")
+            test = self.oeditor.GetObjectsInGroup("Solids")
         except TypeError:
             test = []
-        if test is None or test is False:
+        if test is False:
             assert False, "Get Solids is failing"
-        elif test is True:
+        elif test is True or test is None:
             self._solids = []  # In IronPython True is returned when no sheets are present
         else:
             self._solids = list(test)
@@ -2780,12 +2779,12 @@ class Primitives(object):
     @pyaedt_function_handler()
     def _refresh_sheets(self):
         try:
-            test = _retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Sheets")
+            test = self.oeditor.GetObjectsInGroup("Sheets")
         except TypeError:
             test = []
-        if test is None or test is False:
+        if test is False:
             assert False, "Get Sheets is failing"
-        elif test is True:
+        elif test is True or test is None:
             self._sheets = []  # In IronPython True is returned when no sheets are present
         else:
             self._sheets = list(test)
@@ -2794,12 +2793,12 @@ class Primitives(object):
     @pyaedt_function_handler()
     def _refresh_lines(self):
         try:
-            test = _retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Lines")
+            test = self.oeditor.GetObjectsInGroup("Lines")
         except TypeError:
             test = []
-        if test is None or test is False:
+        if test is False:
             assert False, "Get Lines is failing"
-        elif test is True:
+        elif test is True or test is None:
             self._lines = []  # In IronPython True is returned when no lines are present
         else:
             self._lines = list(test)
@@ -2808,12 +2807,12 @@ class Primitives(object):
     @pyaedt_function_handler()
     def _refresh_points(self):
         try:
-            test = _retry_ntimes(10, self.oeditor.GetPoints)
+            test = self.oeditor.GetPoints()
         except TypeError:
             test = []
-        if test is None or test is False:
+        if test is False:
             assert False, "Get Points is failing"
-        elif test is True:
+        elif test is True or test is None:
             self._points = []  # In IronPython True is returned when no points are present
         else:
             self._points = list(test)
@@ -2834,7 +2833,7 @@ class Primitives(object):
     @pyaedt_function_handler()
     def _refresh_unclassified(self):
         try:
-            test = _retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Unclassified")
+            test = self.oeditor.GetObjectsInGroup("Unclassified")
         except TypeError:
             test = []
         if test is None or test is False:
@@ -3134,7 +3133,7 @@ class Primitives(object):
         if len(objListSolids) > 0:
             objList.extend(objListSolids)
         for obj in objList:
-            val = _retry_ntimes(10, self.oeditor.GetEdgeIDsFromObject, obj)
+            val = self.oeditor.GetEdgeIDsFromObject(obj)
             if not (isinstance(val, bool)) and str(lval) in list(val):
                 return obj
         return None
@@ -3221,7 +3220,7 @@ class Primitives(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             Returns None if the part ID or the object name is not found.
 
         """

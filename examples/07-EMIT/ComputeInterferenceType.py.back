@@ -72,6 +72,7 @@ if tx_radios is None or rx_radios is None:
     print("No recievers or transmitters in design.")
     sys.exit()
 
+
 ###############################################################################
 # Classify the interference
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -145,9 +146,6 @@ def create_scenario_view(emis, colors, tx_radios, rx_radios):
         )
     fig.show()
 
-# Create a scenario view for all the interference types
-create_scenario_view(power_matrix, all_colors, tx_radios, rx_radios)
-
 ###############################################################################
 # Generate a legend
 # ~~~~~~~~~~~~~~~~~
@@ -186,6 +184,9 @@ def create_legend_table():
         width = 600
         )
     fig.show()
+
+# Create a scenario view for all the interference types
+create_scenario_view(power_matrix, all_colors, tx_radios, rx_radios)
 
 # Create a legend for the interference types
 create_legend_table()

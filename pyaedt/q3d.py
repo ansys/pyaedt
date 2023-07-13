@@ -1513,7 +1513,7 @@ class Q3d(QExtractor, object):
 
         Parameters
         ----------
-        objects : str, int or list or :class:`pyaedt.modeler.object3d.Object3d`
+        objects : str, int or list or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Name of the object or face ID or face ID list.
         axisdir : int, optional
             Initial axis direction. Options are ``0`` to ``5``. The default is ``0``.
@@ -1545,7 +1545,7 @@ class Q3d(QExtractor, object):
 
         Parameters
         ----------
-        objects : str, int or list or :class:`pyaedt.modeler.object3d.Object3d`
+        objects : str, int or list or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Name of the object or face ID or face ID list.
         axisdir : int, optional
             Initial axis direction. Options are ``0`` to ``5``. The default is ``0``.
@@ -2133,7 +2133,7 @@ class Q2d(QExtractor, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
 
         References

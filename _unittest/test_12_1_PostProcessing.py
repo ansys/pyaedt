@@ -101,32 +101,30 @@ class TestClass(BasisTest, object):
     def test_01_Animate_plt(self):
         cutlist = ["Global:XY"]
         phases = [str(i * 5) + "deg" for i in range(2)]
-        model_gif = self.aedtapp.post.animate_fields_from_aedtplt_2(
-            quantityname="Mag_E",
+        model_gif = self.aedtapp.post.plot_animated_field(
+            quantity="Mag_E",
             object_list=cutlist,
-            plottype="CutPlane",
-            meshplot=False,
+            plot_type="CutPlane",
             setup_name=self.aedtapp.nominal_adaptive,
-            intrinsic_dict={"Freq": "5GHz", "Phase": "0deg"},
-            project_path=self.local_scratch.path,
+            intrinsics={"Freq": "5GHz", "Phase": "0deg"},
+            export_path=self.local_scratch.path,
             variation_variable="Phase",
             variation_list=phases,
             show=False,
             export_gif=True,
         )
         assert os.path.exists(model_gif.gif_file)
-        model_gif2 = self.aedtapp.post.animate_fields_from_aedtplt_2(
-            quantityname="Mag_E",
-            object_list=cutlist,
-            plottype="CutPlane",
-            meshplot=False,
-            setup_name=self.aedtapp.nominal_adaptive,
-            intrinsic_dict={"Freq": "5GHz", "Phase": "0deg"},
-            project_path=self.local_scratch.path,
+        setup_name = self.aedtapp.existing_analysis_sweeps[0]
+        intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
+        pl1 = self.aedtapp.post.create_fieldplot_volume("NewObject_IJD39Q", "Mag_E", setup_name, intrinsic)
+        model_gif2 = self.aedtapp.post.animate_fields_from_aedtplt(
+            plotname=pl1.name,
+            plot_folder=None,
             variation_variable="Phase",
             variation_list=phases,
-            show=False,
+            project_path="",
             export_gif=False,
+            show=False,
         )
         model_gif2.gif_file = os.path.join(self.aedtapp.working_directory, "test2.gif")
         model_gif2.camera_position = [0, 50, 200]

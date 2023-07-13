@@ -653,12 +653,12 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.imprint(rect, box1)
 
     def test_51_imprint_projection(self):
-        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 10, 10], [20, 20], "imprintn1")
+        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 10], [5, 20], "imprintn1")
         box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "imprintn2")
         assert self.aedtapp.modeler.imprint_normal_projection([rect, box1])
-        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 10, 10], [20, 20], "imprintn3")
+        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 10], [6, 18], "imprintn3")
         box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "imprintn3")
-        assert self.aedtapp.modeler.imprint_vector_projection([rect, box1], [3, 2, -5], 1)
+        assert self.aedtapp.modeler.imprint_vector_projection([rect, box1], [0.2, -0.8, -5], 1)
 
     def test_52_objects_in_bounding_box(self):
         bounding_box = [-100, -300, -200, 100, 200, 100]
