@@ -7,7 +7,6 @@ import os.path
 import warnings
 
 # from pyaedt.generic.general_methods import property
-from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.Modeler import GeometryModeler
@@ -364,7 +363,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                         del out_dict["coordinatesystems"][cs]
             with open(auxiliary_dict, "w") as outfile:
                 json.dump(out_dict, outfile)
-        return _retry_ntimes(10, self.oeditor.Create3DComponent, arg, arg2, component_file, arg3)
+        self.oeditor.Create3DComponent(arg, arg2, component_file, arg3)
+        return True
 
     @pyaedt_function_handler()
     def replace_3dcomponent(
@@ -533,7 +533,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             arg2.append("MeshOperations:="), arg2.append(meshops)
         arg3 = ["NAME:ImageFile", "ImageFile:=", ""]
         old_components = self.user_defined_component_names
-        _retry_ntimes(10, self.oeditor.ReplaceWith3DComponent, arg, arg2, arg3)
+        self.oeditor.ReplaceWith3DComponent(arg, arg2, arg3)
         self.refresh_all_ids()
         new_name = list(set(self.user_defined_component_names) - set(old_components))
         return self.user_defined_components[new_name[0]]
@@ -813,7 +813,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d`
+        list of :class:`pyaedt.modeler.cad.object3d`
         """
         if len(bounding_box) != 6:
             raise ValueError("Bounding box list must have dimension 6.")
@@ -1334,10 +1334,11 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         segment_objects = {}
         for obj_name in objects_list:
             obj = self[obj_name]
+            obj_axial_length = GeometryOperators.points_distance(obj.top_face_z.center, obj.bottom_face_z.center)
             if segments_number:
-                segmentation_thickness = obj.top_edge_y.length / segments_number
+                segmentation_thickness = obj_axial_length / segments_number
             elif segmentation_thickness:
-                segments_number = round(obj.top_edge_y.length / segmentation_thickness)
+                segments_number = round(obj_axial_length / segmentation_thickness)
             face_object = self.modeler.create_object_from_face(obj.bottom_face_z)
             # segment sheets
             segment_sheets[obj.name] = face_object.duplicate_along_line(
@@ -1357,6 +1358,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                 mesh_objects[obj.name] = []
                 for value in mesh_sheets[obj.name]:
                     mesh_objects[obj.name].append([x for x in self.sheet_objects if x.name == value][0])
+        face_object.delete()
         if apply_mesh_sheets:
             return segment_objects, mesh_objects
         else:

@@ -1135,7 +1135,7 @@ class Padstack(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             Object created.
         """
         if not instance_name:
@@ -1882,7 +1882,7 @@ class CommonObject(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
         """
         return self._aedt_object
 

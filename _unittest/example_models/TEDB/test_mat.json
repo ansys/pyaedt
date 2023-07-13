@@ -38,8 +38,8 @@
             "loss_tangent_at_frequency": null,
             "permittivity_at_frequency": null
         },
-        "COPPER": {
-            "name": "COPPER",
+        "copper": {
+            "name": "copper",
             "conductivity": 59590000.0,
             "loss_tangent": 0.0,
             "magnetic_loss_tangent": 0.0,

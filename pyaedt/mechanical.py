@@ -231,7 +231,7 @@ class Mechanical(FieldAnalysis3D, object):
         name = generate_unique_name("EMLoss")
         bound = BoundaryObject(self, name, props, "EMLoss")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             self.logger.info("EM losses mapped from design %s.", designname)
             return bound
         return False
@@ -321,7 +321,7 @@ class Mechanical(FieldAnalysis3D, object):
         name = generate_unique_name("ThermalLink")
         bound = BoundaryObject(self, name, props, "ThermalCondition")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             self.logger.info("Thermal conditions are mapped from design %s.", designname)
             return bound
 
@@ -376,7 +376,7 @@ class Mechanical(FieldAnalysis3D, object):
             boundary_name = generate_unique_name("Convection")
         bound = BoundaryObject(self, boundary_name, props, "Convection")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -423,7 +423,7 @@ class Mechanical(FieldAnalysis3D, object):
             boundary_name = generate_unique_name("Temp")
         bound = BoundaryObject(self, boundary_name, props, "Temperature")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -469,7 +469,7 @@ class Mechanical(FieldAnalysis3D, object):
             boundary_name = generate_unique_name("Temp")
         bound = BoundaryObject(self, boundary_name, props, "Frictionless")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -511,7 +511,7 @@ class Mechanical(FieldAnalysis3D, object):
             boundary_name = generate_unique_name("Temp")
         bound = BoundaryObject(self, boundary_name, props, "FixedSupport")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -581,7 +581,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         bound = BoundaryObject(self, boundary_name, props, "HeatFlux")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -623,7 +623,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         bound = BoundaryObject(self, boundary_name, props, "HeatGeneration")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 

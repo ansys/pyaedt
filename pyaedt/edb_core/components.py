@@ -671,11 +671,9 @@ class Components(object):
                 return False
             if source.source_type == SourceType.Vsource:  # pragma: no cover
                 positive_pin_group_term = self._create_pin_group_terminal(
-                    positive_pin_group, source.positive_node.component
+                    positive_pin_group,
                 )
-                negative_pin_group_term = self._create_pin_group_terminal(
-                    negative_pin_group, source.negative_node.component, isref=True
-                )
+                negative_pin_group_term = self._create_pin_group_terminal(negative_pin_group, isref=True)
                 positive_pin_group_term.SetBoundaryType(self._edb.cell.terminal.BoundaryType.kVoltageSource)
                 negative_pin_group_term.SetBoundaryType(self._edb.cell.terminal.BoundaryType.kVoltageSource)
                 term_name = source.name
@@ -690,11 +688,9 @@ class Components(object):
                 positive_pin_group_term.SetReferenceTerminal(negative_pin_group_term)
             elif source.source_type == SourceType.Isource:  # pragma: no cover
                 positive_pin_group_term = self._create_pin_group_terminal(
-                    positive_pin_group, source.positive_node.component
+                    positive_pin_group,
                 )
-                negative_pin_group_term = self._create_pin_group_terminal(
-                    negative_pin_group, source.negative_node.component, isref=True
-                )
+                negative_pin_group_term = self._create_pin_group_terminal(negative_pin_group, isref=True)
                 positive_pin_group_term.SetBoundaryType(self._edb.cell.terminal.BoundaryType.kCurrentSource)
                 negative_pin_group_term.SetBoundaryType(self._edb.cell.terminal.BoundaryType.kCurrentSource)
                 term_name = source.name
@@ -784,13 +780,20 @@ class Components(object):
             reference_pins = ref_cmp_pins
         if not len([pin for pin in reference_pins if isinstance(pin, EDBPadstackInstance)]) == len(reference_pins):
             return
-        group_name = "group_{}_{}".format(pins[0].net_name, pins[0].name)
-        ref_group_name = "group_{}_{}_ref".format(pins[0].net_name, pins[0].name)
-        pin_group = self.create_pingroup_from_pins(pins, group_name)
-        ref_pin_group = self.create_pingroup_from_pins(reference_pins, ref_group_name)
-        term = self._create_pin_group_terminal(pingroup=pin_group, component=refdes.refdes)
+        if len(pins) > 1:
+            group_name = "group_{}_{}".format(pins[0].net_name, pins[0].name)
+            pin_group = self.create_pingroup_from_pins(pins, group_name)
+            term = self._create_pin_group_terminal(pingroup=pin_group)
+
+        else:
+            term = self._create_terminal(pins[0])
         term.SetIsCircuitPort(True)
-        ref_term = self._create_pin_group_terminal(pingroup=ref_pin_group, component=refdes.refdes)
+        if len(reference_pins) > 1:
+            ref_group_name = "group_{}_{}_ref".format(reference_pins[0].net_name, reference_pins[0].name)
+            ref_pin_group = self.create_pingroup_from_pins(reference_pins, ref_group_name)
+            ref_term = self._create_pin_group_terminal(pingroup=ref_pin_group)
+        else:
+            ref_term = self._create_terminal(reference_pins[0])
         ref_term.SetIsCircuitPort(True)
         term.SetImpedance(self._edb.utility.value(impedance))
         term.SetReferenceTerminal(ref_term)
@@ -800,14 +803,9 @@ class Components(object):
 
     @pyaedt_function_handler()
     def create_port_on_component(
-        self,
-        component,
-        net_list,
-        port_type=SourceType.CoaxPort,
-        do_pingroup=True,
-        reference_net="gnd",
+        self, component, net_list, port_type=SourceType.CoaxPort, do_pingroup=True, reference_net="gnd", port_name=None
     ):
-        """Create ports on given component.
+        """Create ports on a component.
 
         Parameters
         ----------
@@ -824,6 +822,12 @@ class Components(object):
             False will take the closest reference pin and generate one port per signal pin.
         refnet : string or list of string.
             list of the reference net.
+        port_name : string
+            Port name for overwriting the default port-naming convention,
+            which is ``[component][net][pin]``. The port name must be unique.
+            If a port with the specified name already exists, the
+            default naming convention is used so that port creation does
+            not fail.
 
         Returns
         -------
@@ -877,7 +881,7 @@ class Components(object):
                 solder_ball_height = sball_diam / 2
             self.set_solder_ball(component, solder_ball_height, sball_diam)
             for pin in cmp_pins:
-                self._padstack.create_coax_port(pin)
+                self._padstack.create_coax_port(padstackinstance=pin, name=port_name)
 
         elif port_type == SourceType.CircPort:  # pragma no cover
             ref_pins = [
@@ -899,7 +903,7 @@ class Components(object):
                     ref_pin_group = self.create_pingroup_from_pins(ref_pins)
                     if not ref_pin_group:
                         return False
-                    ref_pin_group_term = self._create_pin_group_terminal(ref_pin_group, component, isref=True)
+                    ref_pin_group_term = self._create_pin_group_terminal(ref_pin_group, isref=True)
                     if not ref_pin_group_term:
                         return False
                 for net in net_list:
@@ -913,7 +917,7 @@ class Components(object):
                             pin_group = self.create_pingroup_from_pins(pins)
                             if not pin_group:
                                 return False
-                            pin_group_term = self._create_pin_group_terminal(pin_group, component)
+                            pin_group_term = self._create_pin_group_terminal(pin_group)
                             if pin_group_term:
                                 pin_group_term.SetReferenceTerminal(ref_pin_group_term)
                     else:
@@ -923,12 +927,12 @@ class Components(object):
                 if not ref_pin_group:
                     self._logger.warning("failed to create reference pin group")
                     return False
-                ref_pin_group_term = self._create_pin_group_terminal(ref_pin_group, component, isref=True)
+                ref_pin_group_term = self._create_pin_group_terminal(ref_pin_group, isref=True)
                 for net in net_list:
                     pins = [pin for pin in cmp_pins if pin.GetNet().GetName() == net]
                     for pin in pins:
                         pin_group = self.create_pingroup_from_pins([pin])
-                        pin_group_term = self._create_pin_group_terminal(pin_group, component, isref=False)
+                        pin_group_term = self._create_pin_group_terminal(pin_group, isref=False)
                         pin_group_term.SetReferenceTerminal(ref_pin_group_term)
         return True
 
@@ -952,6 +956,9 @@ class Components(object):
         net_name = pin.GetNet().GetName()
         pin_name = pin.GetName()
         term_name = "{}.{}.{}".format(cmp_name, pin_name, net_name)
+        for term in list(self._pedb.active_layout.Terminals):
+            if term.GetName() == term_name:
+                return term
         term = self._edb.cell.terminal.PointTerminal.Create(
             pin.GetLayout(), pin.GetNet(), term_name, pin_pos, from_layer
         )
@@ -988,6 +995,48 @@ class Components(object):
                 distance = temp_distance
                 closest_pin = ref_pin
         return closest_pin
+
+    @pyaedt_function_handler()
+    def replace_rlc_by_gap_boundaries(self, component=None):
+        """Replace RLC component by RLC gap boundaries. These boundary types are compatible with 3D modeler export.
+        Only 2 pins RLC components are supported in this command.
+
+        Parameters
+        ----------
+        component : str
+            Reference designator of the RLC component.
+
+        Returns
+        -------
+        bool
+        ``True`` when succeed, ``False`` if it failed.
+
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> edb = Edb(edb_file)
+        >>>  for refdes, cmp in edb.components.capacitors.items():
+        >>>     edb.components.replace_rlc_by_gap_boundaries(refdes)
+        >>> edb.save_edb()
+        >>> edb.close_edb()
+        """
+        if not component:  # pragma no cover
+            return False
+        if isinstance(component, str):
+            component = self.instances[component]
+            if not component:  # pragma  no cover
+                self._logger.error("component %s not found.", component)
+                return False
+        component_type = component.edbcomponent.GetComponentType()
+        if (
+            component_type == self._edb.definition.ComponentType.Other
+            or component_type == self._edb.definition.ComponentType.IC
+            or component_type == self._edb.definition.ComponentType.IO
+        ):
+            self._logger.info("Component %s passed to deactivate is not an RLC.", component.refdes)
+            return False
+        component.is_enabled = False
+        return self.add_rlc_boundary(component.refdes, False)
 
     @pyaedt_function_handler()
     def deactivate_rlc_component(self, component=None, create_circuit_port=False):
@@ -1094,14 +1143,86 @@ class Components(object):
             return True
 
     @pyaedt_function_handler()
-    def _create_pin_group_terminal(self, pingroup, component=None, isref=False):
+    def add_rlc_boundary(self, component=None, circuit_type=True):
+        """Add RLC gap boundary on component and replace it with a circuit port.
+        The circuit port supports only 2-pin components.
+
+        Parameters
+        ----------
+        component : str
+            Reference designator of the RLC component.
+        circuit_type : bool
+            When ``True`` circuit type are defined, if ``False`` gap type will be used instead (compatible with HFSS 3D
+            modeler). Default value is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if isinstance(component, str):  # pragma: no cover
+            component = self.instances[component]
+        if not isinstance(component, EDBComponent):  # pragma: no cover
+            return False
+        self.set_component_rlc(component.refdes)
+        pins = self.get_pin_from_component(component.refdes)
+        if len(pins) == 2:  # pragma: no cover
+            pin_layer = self._padstack._get_pin_layer_range(pins[0])[0]
+            pos_pin_term = self._pedb.edb_api.cell.terminal.PadstackInstanceTerminal.Create(
+                self._active_layout,
+                pins[0].GetNet(),
+                "{}_{}".format(component.refdes, pins[0].GetName()),
+                pins[0],
+                pin_layer,
+                False,
+            )
+            if not pos_pin_term:  # pragma: no cover
+                return False
+            neg_pin_term = self._pedb.edb_api.cell.terminal.PadstackInstanceTerminal.Create(
+                self._active_layout,
+                pins[1].GetNet(),
+                "{}_{}_ref".format(component.refdes, pins[1].GetName()),
+                pins[1],
+                pin_layer,
+                True,
+            )
+            if not neg_pin_term:  # pragma: no cover
+                return False
+            pos_pin_term.SetBoundaryType(self._pedb.edb_api.cell.terminal.BoundaryType.RlcBoundary)
+            if not circuit_type:
+                pos_pin_term.SetIsCircuitPort(False)
+            else:
+                pos_pin_term.SetIsCircuitPort(True)
+            pos_pin_term.SetName(component.refdes)
+            neg_pin_term.SetBoundaryType(self._pedb.edb_api.cell.terminal.BoundaryType.RlcBoundary)
+            if not circuit_type:
+                neg_pin_term.SetIsCircuitPort(False)
+            else:
+                neg_pin_term.SetIsCircuitPort(True)
+            pos_pin_term.SetReferenceTerminal(neg_pin_term)
+            rlc_values = component.rlc_values
+            rlc = self._edb.utility.Rlc()
+            if rlc_values[0]:
+                rlc.REnabled = True
+                rlc.R = self._edb.utility.value(rlc_values[0])
+            if rlc_values[1]:
+                rlc.LEnabled = True
+                rlc.L = self._edb.utility.value(rlc_values[1])
+            if rlc_values[2]:
+                rlc.CEnabled = True
+                rlc.C = self._edb.utility.value(rlc_values[2])
+            rlc.is_parallel = component.is_parallel_rlc
+            pos_pin_term.SetRlcBoundaryParameters(rlc)
+            self._logger.info("Component {} has been replaced by port".format(component.refdes))
+            return True
+
+    @pyaedt_function_handler()
+    def _create_pin_group_terminal(self, pingroup, isref=False):
         """Creates an EDB pin group terminal from a given EDB pin group.
 
         Parameters
         ----------
         pingroup : Edb pin group.
-
-        component : str or EdbComponent
 
         isref : bool
 
@@ -1109,19 +1230,10 @@ class Components(object):
         -------
         Edb pin group terminal.
         """
-        if component:
-            if not isinstance(component, self._pedb.edb_api.cell.hierarchy.component):
-                cmp_name = component
-            else:
-                cmp_name = component.GetName()
-        else:
-            cmp_name = pingroup.GetComponent().GetName()
-        net_name = pingroup.GetNet().GetName()
-        pin_name = list(pingroup.GetPins())[0].GetName()  # taking first pin name as convention.
-        if cmp_name:
-            term_name = "{0}.{1}.{2}".format(cmp_name, pin_name, net_name)
-        else:
-            term_name = "{0}.{1}".format(pin_name, net_name)
+        term_name = "{}_T".format(pingroup.GetName())
+        for t in list(self._pedb.active_layout.Terminals):
+            if t.GetName() == term_name:
+                return t
         pingroup_term = self._edb.cell.terminal.PinGroupTerminal.Create(
             self._active_layout, pingroup.GetNet(), term_name, pingroup, isref
         )
@@ -1495,6 +1607,24 @@ class Components(object):
             pin.SetIsLayoutPin(True)
         forbiden_car = "-><"
         group_name = group_name.translate({ord(i): "_" for i in forbiden_car})
+        for pgroup in list(self._pedb.active_layout.PinGroups):
+            if pgroup.GetName() == group_name:
+                pin_group_exists = True
+                if len(pgroup.GetPins()) == len(pins):
+                    pnames = [i.GetName() for i in pins]
+                    for p in pgroup.GetPins():
+                        if p.GetName() in pnames:
+                            continue
+                        else:
+                            group_name = self._edb.cell.hierarchy.pin_group.GetUniqueName(
+                                self._active_layout, group_name
+                            )
+                            pin_group_exists = False
+                else:
+                    group_name = self._edb.cell.hierarchy.pin_group.GetUniqueName(self._active_layout, group_name)
+                    pin_group_exists = False
+                if pin_group_exists:
+                    return pgroup
         pingroup = _retry_ntimes(
             10,
             self._edb.cell.hierarchy.pin_group.Create,
@@ -1509,8 +1639,15 @@ class Components(object):
             return pingroup
 
     @pyaedt_function_handler()
-    def delete_single_pin_rlc(self):
+    def delete_single_pin_rlc(self, deactivate_only=False):
+        # type: (bool) -> list
         """Delete all RLC components with a single pin.
+
+        Parameters
+        ----------
+        deactivate_only : bool, optional
+            Whether to only deactivate RLC components with a single point rather than
+            delete them. The default is ``False``, in which case they are deleted.
 
         Returns
         -------
@@ -1530,9 +1667,13 @@ class Components(object):
         deleted_comps = []
         for comp, val in self.instances.items():
             if val.numpins < 2 and val.type in ["Resistor", "Capacitor", "Inductor"]:
-                val.edbcomponent.Delete()
-                deleted_comps.append(comp)
-        self.refresh_components()
+                if deactivate_only:
+                    val.is_enabled = False
+                else:
+                    val.edbcomponent.Delete()
+                    deleted_comps.append(comp)
+        if not deactivate_only:
+            self.refresh_components()
         self._pedb._logger.info("Deleted {} components".format(len(deleted_comps)))
 
         return deleted_comps

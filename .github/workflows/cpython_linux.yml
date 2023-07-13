@@ -41,6 +41,7 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+          architecture: 'x86'
 
       - name: 'Install pyaedt'
         run: |

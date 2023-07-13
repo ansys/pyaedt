@@ -462,7 +462,7 @@ class EdbPadstacks(object):
         return False
 
     @pyaedt_function_handler()
-    def create_coax_port(self, padstackinstance, use_dot_separator=True):
+    def create_coax_port(self, padstackinstance, use_dot_separator=True, name=None):
         """Create HFSS 3Dlayout coaxial lumped port on a pastack
         Requires to have solder ball defined before calling this method.
 
@@ -470,6 +470,16 @@ class EdbPadstacks(object):
         ----------
         padstackinstance : `Edb.Cell.Primitive.PadstackInstance` or int
             Padstack instance object.
+        use_dot_separator : bool, optional
+            Whether to use ``.`` as the separator for the naming convention, which
+            is ``[component][net][pin]``. The default is ``True``. If ``False``, ``_`` is
+            used as the separator instead.
+        name : str
+            Port name for overwriting the default port-naming convention,
+            which is ``[component][net][pin]``. The port name must be unique.
+            If a port with the specified name already exists, the
+            default naming convention is used so that port creation does
+            not fail.
 
         Returns
         -------
@@ -484,11 +494,9 @@ class EdbPadstacks(object):
         cmp_name = padstackinstance.GetComponent().GetName()
         if cmp_name == "":
             cmp_name = "no_comp"
-
         net_name = padstackinstance.GetNet().GetName()
         if net_name == "":
             net_name = "no_net"
-
         pin_name = padstackinstance.GetName()
         if pin_name == "":
             pin_name = "no_pin_name"
@@ -498,8 +506,12 @@ class EdbPadstacks(object):
             port_name = "{0}_{1}_{2}".format(cmp_name, pin_name, net_name)
         if not padstackinstance.IsLayoutPin():
             padstackinstance.SetIsLayoutPin(True)
-
         res = padstackinstance.GetLayerRange()
+        if name:
+            port_name = name
+        if self._port_exist(port_name):
+            port_name = generate_unique_name(port_name, n=2)
+            self._logger.info("An existing port already has this same name. Renaming to {}.".format(port_name))
         self._edb.cell.terminal.PadstackInstanceTerminal.Create(
             self._active_layout,
             padstackinstance.GetNet(),
@@ -510,6 +522,10 @@ class EdbPadstacks(object):
         if res[0]:
             return port_name
         return ""
+
+    @pyaedt_function_handler()
+    def _port_exist(self, port_name):
+        return any(port for port in list(self._pedb.excitations.keys()) if port == port_name)
 
     @pyaedt_function_handler()
     def get_pinlist_from_component_and_net(self, refdes=None, netname=None):
@@ -814,6 +830,8 @@ class EdbPadstacks(object):
         start_layer=None,
         stop_layer=None,
         add_default_layer=False,
+        anti_pad_x_size="600um",
+        anti_pad_y_size="600um",
     ):
         """Create a padstack.
 
@@ -824,17 +842,18 @@ class EdbPadstacks(object):
         holediam : str, optional
             Diameter of the hole with units. The default is ``"300um"``.
         paddiam : str, optional
-            Diameter of the pad with units. The default is ``"400um"``.
+            Diameter of the pad with units, used with ``"Circle"`` shape. The default is ``"400um"``.
         antipaddiam : str, optional
             Diameter of the antipad with units. The default is ``"600um"``.
         pad_shape : str, optional
             Shape of the pad. The default is ``"Circle``. Options are ``"Circle"`` and ``"Rectangle"``.
         antipad_shape : str, optional
-            Shape of the antipad. The default is ``"Circle"``. Options are ``"Circle"`` and ``"Bullet"``.
+            Shape of the antipad. The default is ``"Circle"``. Options are ``"Circle"`` ``"Rectangle"`` and
+            ``"Bullet"``.
         x_size : str, optional
-            Only applicable to bullet shape. The default is ``"600um"``.
+            Only applicable to bullet and rectangle shape. The default is ``"600um"``.
         y_size : str, optional
-            Only applicable to bullet shape. The default is ``"600um"``.
+            Only applicable to bullet and rectangle shape. The default is ``"600um"``.
         corner_radius :
             Only applicable to bullet shape. The default is ``"300um"``.
         offset_x : str, optional
@@ -857,6 +876,10 @@ class EdbPadstacks(object):
             Stop layer of the padstack definition.
         add_default_layer : bool, optional
             Add ``"Default"`` to padstack definition. Default is ``False``.
+        anti_pad_x_size : str, optional
+            Only applicable to bullet and rectangle shape. The default is ``"600um"``.
+        anti_pad_y_size : str, optional
+            Only applicable to bullet and rectangle shape. The default is ``"600um"``.
 
         Returns
         -------
@@ -887,6 +910,8 @@ class EdbPadstacks(object):
         pad_offset_x = self._get_edb_value(pad_offset_x)
         pad_offset_y = self._get_edb_value(pad_offset_y)
         pad_rotation = self._get_edb_value(pad_rotation)
+        anti_pad_x_size = self._get_edb_value(anti_pad_x_size)
+        anti_pad_y_size = self._get_edb_value(anti_pad_y_size)
 
         padstackData.SetHoleParameters(ptype, holparam, value0, value0, value0)
 
@@ -907,6 +932,9 @@ class EdbPadstacks(object):
         if antipad_shape == "Bullet":
             antipad_array = Array[type(x_size)]([x_size, y_size, corner_radius])
             antipad_shape = self._edb.definition.PadGeometryType.Bullet
+        elif antipad_shape == "Rectangle":
+            antipad_array = Array[type(anti_pad_x_size)]([anti_pad_x_size, anti_pad_y_size])
+            antipad_shape = self._edb.definition.PadGeometryType.Rectangle
         else:
             antipad_array = Array[type(antipaddiam)]([antipaddiam])
             antipad_shape = self._edb.definition.PadGeometryType.Circle
@@ -1028,7 +1056,7 @@ class EdbPadstacks(object):
             The default is ``None``.
         solderlayer :
             The default is ``None``.
-        is_pin : bool, optiona
+        is_pin : bool, optional
             Whether if the padstack is a pin or not. Default is `False`.
 
         Returns

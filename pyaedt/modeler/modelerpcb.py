@@ -7,7 +7,6 @@ from pyaedt.edb import Edb
 from pyaedt.generic.constants import AEDT_UNITS
 
 # from pyaedt.generic.general_methods import property
-from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import get_filename_without_extension
 from pyaedt.generic.general_methods import inside_desktop
@@ -48,8 +47,12 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         Primitives3DLayout.__init__(self, app)
         self._primitives = self
         self.logger.info("Primitives loaded.")
-        self.o_def_manager = self._app.odefinition_manager
         self.rigid_flex = None
+
+    @property
+    def o_def_manager(self):
+        """AEDT Definition manager."""
+        return self._app.odefinition_manager
 
     @property
     def stackup(self):
@@ -156,7 +159,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         >>> oEditor.GetActiveUnits
         >>> oEditor.SetActivelUnits
         """
-        return _retry_ntimes(10, self.oeditor.GetActiveUnits)
+        return self.oeditor.GetActiveUnits()
 
     @model_units.setter
     def model_units(self, units):
@@ -328,7 +331,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         comp_name = ""
         for i in range(100, 0, -1):
             try:
-                cmp_info = _retry_ntimes(10, self.oeditor.GetComponentInfo, str(i))
+                cmp_info = self.oeditor.GetComponentInfo(str(i))
                 if cmp_info and des_name in cmp_info[0]:
                     comp_name = str(i)
                     break
@@ -463,7 +466,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         """
         object_to_expand = self.convert_to_selections(object_to_expand)
         self.cleanup_objects()
-        layer = _retry_ntimes(10, self.oeditor.GetPropertyValue, "BaseElementTab", object_to_expand, "PlacementLayer")
+        layer = self.oeditor.GetPropertyValue("BaseElementTab", object_to_expand, "PlacementLayer")
         poly = self.oeditor.GetPolygonDef(object_to_expand).GetPoints()
         pos = [poly[0].GetX(), poly[0].GetY()]
         geom_names = self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0], pos[1]), layer)

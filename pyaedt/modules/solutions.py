@@ -2592,18 +2592,21 @@ class FieldPlot:
         if self.surfaces_indexes:
             model_faces = []
             nonmodel_faces = []
-            models = self._postprocessor.modeler.model_objects
-            for index in self.surfaces_indexes:
-                try:
-                    if isinstance(index, FacePrimitive):
-                        index = index.id
-                    oname = self._postprocessor.modeler.oeditor.GetObjectNameByFaceID(index)
-                    if oname in models:
-                        model_faces.append(str(index))
-                    else:
-                        nonmodel_faces.append(str(index))
-                except:
-                    pass
+            if self._postprocessor._app.design_type == "HFSS 3D Layout Design":
+                model_faces = [str(i) for i in self.surfaces_indexes]
+            else:
+                models = self._postprocessor.modeler.model_objects
+                for index in self.surfaces_indexes:
+                    try:
+                        if isinstance(index, FacePrimitive):
+                            index = index.id
+                        oname = self._postprocessor.modeler.oeditor.GetObjectNameByFaceID(index)
+                        if oname in models:
+                            model_faces.append(str(index))
+                        else:
+                            nonmodel_faces.append(str(index))
+                    except:
+                        pass
             info.append("Surface")
             if model_faces:
                 info.append("FacesList")

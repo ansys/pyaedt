@@ -7,6 +7,7 @@ from _unittest.conftest import desktop_version
 from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
 
+from pyaedt import Hfss
 from pyaedt import Hfss3dLayout
 from pyaedt import Maxwell3d
 
@@ -573,6 +574,9 @@ class TestClass(BasisTest, object):
         assert port.name == "PinPort1"
         port.props["Magnitude"] = "2V"
         assert port.props["Magnitude"] == "2V"
+        assert port.object_properties.props["Magnitude"] == "2V"
+        port.object_properties.props["Magnitude"] = "5V"
+        assert port.object_properties.props["Magnitude"] == "5V"
 
     def test_28_create_scattering(self):
         assert self.aedtapp.create_scattering()
@@ -687,18 +691,38 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
     def test_42_post_processing(self):
-        self.test_post = BasisTest.add_app(
-            self, project_name=test_post, application=Maxwell3d, subfolder=test_subfolder
-        )
-        assert self.test_post.post.create_fieldplot_layers_nets(
+        test_post1 = BasisTest.add_app(self, project_name=test_post, application=Maxwell3d, subfolder=test_subfolder)
+        assert test_post1.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
             "Mag_Volume_Force_Density",
             intrinsics={"Time": "1ms"},
             plot_name="Test_Layers",
         )
+        test_post2 = Hfss(projectname=test_post1.project_name)
+        assert test_post2.post.create_fieldplot_layers_nets(
+            [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
+            "Mag_E",
+            intrinsics={"Freq": "1GHz", "Phase": "0deg"},
+            plot_name="Test_Layers",
+        )
+        self.aedtapp.close_project(test_post2.project_name)
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
+    def test_42_post_processing_3d_layout(self):
+        test = BasisTest.add_app(
+            self, project_name="test_post_3d_layout_solved_23R2", application=Hfss3dLayout, subfolder=test_subfolder
+        )
+        assert test.post.create_fieldplot_layers_nets(
+            [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
+            "Mag_Volume_Force_Density",
+            intrinsics={"Time": "1ms"},
+            plot_name="Test_Layers",
+        )
+        self.aedtapp.close_project(test.project_name)
 
     @pytest.mark.skipif(is_linux, reason="Bug on linux")
     def test_90_set_differential_pairs(self):
+        assert not self.aedtapp.get_differential_pairs()
         assert self.hfss3dl.set_differential_pair(
             positive_terminal="Port3",
             negative_terminal="Port4",
@@ -710,6 +734,8 @@ class TestClass(BasisTest, object):
             matched=False,
         )
         assert self.hfss3dl.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
+        assert self.hfss3dl.get_differential_pairs()
+        assert self.hfss3dl.get_traces_for_plot(differential_pairs=["Diff1"], category="dB(S")
 
     @pytest.mark.skipif(is_linux, reason="Bug on linux")
     def test_91_load_and_save_diff_pair_file(self):
@@ -727,10 +753,12 @@ class TestClass(BasisTest, object):
     def test_92_import_edb(self):
         assert self.aedtapp.import_edb(self.target_path)
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2022.2", reason="Not Working on Version earlier than 2022R2.")
+    @pytest.mark.skipif(
+        config["desktopVersion"] < "2022.2", reason="This test does not work on versions earlier than 2022 R2."
+    )
     def test_93_clip_plane(self):
-        assert self.aedtapp.modeler.clip_plane() == "VCP_1"
-        assert "VCP_1" in self.aedtapp.modeler.clip_planes
+        cp_name = self.aedtapp.modeler.clip_plane()
+        assert cp_name in self.aedtapp.modeler.clip_planes
 
     def test_94_edit_3dlayout_extents(self):
         assert self.aedtapp.edit_hfss_extents(
@@ -739,6 +767,7 @@ class TestClass(BasisTest, object):
             air_extent_type="ConformalExtent",
             air_vertical_positive_padding="10mm",
             air_vertical_negative_padding="10mm",
+            air_horizontal_padding="1mm",
         )
 
     def test_95_create_text(self):
