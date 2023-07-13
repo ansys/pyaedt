@@ -1,5 +1,6 @@
 import copy
 
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 solutions_defaults = {
@@ -34,6 +35,7 @@ solutions_types = {
             "report_type": "EddyCurrent",
             "default_setup": 7,
             "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
         },
         "Transient": {
             "name": "Transient",
@@ -41,6 +43,7 @@ solutions_types = {
             "report_type": "Transient",
             "default_setup": 5,
             "default_adaptive": "Transient",
+            "intrinsics": ["Time"],
         },
         "Electrostatic": {
             "name": "Electrostatic",
@@ -62,6 +65,7 @@ solutions_types = {
             "report_type": None,
             "default_setup": 8,
             "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
         },
     },
     "Maxwell 3D": {
@@ -78,6 +82,7 @@ solutions_types = {
             "report_type": "EddyCurrent",
             "default_setup": 7,
             "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
         },
         "Transient": {
             "name": "Transient",
@@ -85,13 +90,15 @@ solutions_types = {
             "report_type": "Transient",
             "default_setup": 5,
             "default_adaptive": "Transient",
+            "intrinsics": ["Time"],
         },
         "TransientAPhiFormulation": {
             "name": "TransientAPhiFormulation",
             "options": None,
             "report_type": "Transient",
-            "default_setup": 5,
+            "default_setup": 56,
             "default_adaptive": "Transient",
+            "intrinsics": ["Time"],
         },
         "Electrostatic": {
             "name": "Electrostatic",
@@ -106,6 +113,7 @@ solutions_types = {
             "report_type": None,
             "default_setup": None,
             "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
         },
         "DCConduction": {
             "name": None,
@@ -127,6 +135,7 @@ solutions_types = {
             "report_type": None,
             "default_setup": 10,
             "default_adaptive": "Transient",
+            "intrinsics": ["Time"],
         },
     },
     "Twin Builder": {
@@ -254,6 +263,7 @@ solutions_types = {
             "report_type": "Matrix",
             "default_setup": 30,
             "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
         },
         "Closed": {
             "name": "Closed",
@@ -261,6 +271,7 @@ solutions_types = {
             "report_type": "Matrix",
             "default_setup": 31,
             "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
         },
     },
     "Q3D Extractor": {
@@ -270,6 +281,7 @@ solutions_types = {
             "report_type": "Matrix",
             "default_setup": 14,
             "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
         }
     },
     "HFSS": {
@@ -279,6 +291,7 @@ solutions_types = {
             "report_type": "Modal Solution Data",
             "default_setup": 1,
             "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
         },
         "Terminal": {
             "name": "HFSS Terminal Network",
@@ -286,6 +299,7 @@ solutions_types = {
             "report_type": "Terminal Solution Data",
             "default_setup": 1,
             "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
         },
         "DrivenModal": {
             "name": "DrivenModal",
@@ -293,6 +307,7 @@ solutions_types = {
             "report_type": "Modal Solution Data",
             "default_setup": 1,
             "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
         },
         "DrivenTerminal": {
             "name": "DrivenTerminal",
@@ -300,6 +315,7 @@ solutions_types = {
             "report_type": "Terminal Solution Data",
             "default_setup": 1,
             "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
         },
         "Transient Network": {
             "name": "Transient Network",
@@ -307,6 +323,7 @@ solutions_types = {
             "report_type": "Terminal Solution Data",
             "default_setup": 3,
             "default_adaptive": "Transient",
+            "intrinsics": ["Time"],
         },
         "Transient": {
             "name": "Transient",
@@ -314,6 +331,7 @@ solutions_types = {
             "report_type": "Terminal Solution Data",
             "default_setup": 3,
             "default_adaptive": "Transient",
+            "intrinsics": ["Time"],
         },
         "Eigenmode": {
             "name": "Eigenmode",
@@ -321,6 +339,7 @@ solutions_types = {
             "report_type": "EigenMode Parameters",
             "default_setup": 2,
             "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Phase"],
         },
         "Characteristic": {
             "name": "Characteristic Mode",
@@ -406,6 +425,7 @@ solutions_types = {
             "report_type": "Standard",
             "default_setup": 29,
             "default_adaptive": None,
+            "intrinsics": ["Freq", "Phase"],
         },
         "SiwaveDC3DLayout": {
             "name": None,
@@ -497,7 +517,8 @@ class DesignSolution(object):
     def solution_type(self):
         """Get/Set the Solution Type of the active Design."""
         if self._design_type in ["Circuit Design", "Twin Builder", "HFSS 3D Layout Design", "EMIT", "Q3D Extractor"]:
-            self._solution_type = solutions_defaults[self._design_type]
+            if not self._solution_type:
+                self._solution_type = solutions_defaults[self._design_type]
         elif self._odesign:
             try:
                 self._solution_type = self._odesign.GetSolutionType()
@@ -508,7 +529,6 @@ class DesignSolution(object):
         return self._solution_type
 
     @solution_type.setter
-    @pyaedt_function_handler()
     def solution_type(self, value):
         if value is None:
             if self._design_type in [
@@ -526,17 +546,18 @@ class DesignSolution(object):
                     self._solution_type = solutions_defaults[self._design_type]
             else:
                 self._solution_type = solutions_defaults[self._design_type]
-        elif value and value in self._solution_options and self._solution_options[value]["name"]:
+        elif value and value in self._solution_options:
             self._solution_type = value
-            if self._solution_options[value]["options"]:
-                self._odesign.SetSolutionType(
-                    self._solution_options[value]["name"], self._solution_options[value]["options"]
-                )
-            else:
-                try:
-                    self._odesign.SetSolutionType(self._solution_options[value]["name"])
-                except:
-                    self._odesign.SetSolutionType(self._solution_options[value]["name"], "")
+            if self._solution_options[value]["name"]:
+                if self._solution_options[value]["options"]:
+                    self._odesign.SetSolutionType(
+                        self._solution_options[value]["name"], self._solution_options[value]["options"]
+                    )
+                else:
+                    try:
+                        self._odesign.SetSolutionType(self._solution_options[value]["name"])
+                    except:
+                        self._odesign.SetSolutionType(self._solution_options[value]["name"], "")
 
     @property
     def report_type(self):
@@ -563,6 +584,13 @@ class DesignSolution(object):
         """Return the list of all available designs."""
         return list(solutions_types.keys())
 
+    @property
+    def intrinsics(self):
+        """Get list of intrinsics for that specified setup."""
+        if "intrinsics" in self._solution_options[self.solution_type]:
+            return self._solution_options[self.solution_type]["intrinsics"]
+        return []
+
 
 class HFSSDesignSolution(DesignSolution, object):
     def __init__(self, odesign, design_type, aedt_version):
@@ -587,7 +615,6 @@ class HFSSDesignSolution(DesignSolution, object):
         return self._solution_type
 
     @solution_type.setter
-    @pyaedt_function_handler()
     def solution_type(self, value):
         if self._aedt_version < "2021.2":
             if not value:
@@ -643,12 +670,11 @@ class HFSSDesignSolution(DesignSolution, object):
         """HFSS hybrid mode for the active solution."""
         if self._aedt_version < "2021.2":
             return False
-        if self._hybrid is None and self.solution_type is not None:
-            self._hybrid = "Hybrid" in self._solution_options[self.solution_type]["name"]
+        if self.solution_type is not None:
+            self._hybrid = "Hybrid" in self._odesign.GetSolutionType()
         return self._hybrid
 
     @hybrid.setter
-    @pyaedt_function_handler()
     def hybrid(self, value):
         if self._aedt_version < "2021.2":
             return
@@ -669,11 +695,10 @@ class HFSSDesignSolution(DesignSolution, object):
         if self._aedt_version < "2021.2":
             return False
         if self._composite is None and self.solution_type is not None:
-            self._composite = "Composite" in self._solution_options[self.solution_type]["name"]
+            self._composite = "Composite" in self._odesign.GetSolutionType()
         return self._composite
 
     @composite.setter
-    @pyaedt_function_handler()
     def composite(self, val):
         if self._aedt_version < "2021.2":
             return
@@ -725,7 +750,6 @@ class Maxwell2DDesignSolution(DesignSolution, object):
         return self._geometry_mode == "XY"
 
     @xy_plane.setter
-    @pyaedt_function_handler()
     def xy_plane(self, value=True):
         if value:
             self._geometry_mode = "XY"
@@ -745,7 +769,6 @@ class Maxwell2DDesignSolution(DesignSolution, object):
         return self._solution_type
 
     @solution_type.setter
-    @pyaedt_function_handler()
     def solution_type(self, value):
         if value is None:
             if self._odesign and "GetSolutionType" in dir(self._odesign):
@@ -791,7 +814,6 @@ class IcepakDesignSolution(DesignSolution, object):
         return self._problem_type
 
     @problem_type.setter
-    @pyaedt_function_handler()
     def problem_type(self, value="TemperatureAndFlow"):
         if value == "TemperatureAndFlow":
             self._problem_type = value
@@ -829,7 +851,6 @@ class IcepakDesignSolution(DesignSolution, object):
         return self._solution_type
 
     @solution_type.setter
-    @pyaedt_function_handler()
     def solution_type(self, solution_type):
         if solution_type:
             if "SteadyState" in solution_type:
@@ -868,7 +889,6 @@ class RmXprtDesignSolution(DesignSolution, object):
         return self._solution_type
 
     @solution_type.setter
-    @pyaedt_function_handler()
     def solution_type(self, solution_type):
         if solution_type:
             try:
@@ -883,7 +903,6 @@ class RmXprtDesignSolution(DesignSolution, object):
         return self._design_type
 
     @design_type.setter
-    @pyaedt_function_handler()
     def design_type(self, value):
         if value:
             self._design_type = value

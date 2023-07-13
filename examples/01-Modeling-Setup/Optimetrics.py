@@ -9,17 +9,17 @@ This example shows how you can use PyAEDT to create a project in HFSS and create
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-from pyaedt import Hfss
+import pyaedt
+
 import os
 
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
-# documentation only.
+# Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+non_graphical = False
 
 ###############################################################################
 # Initialize object and create variables
@@ -27,7 +27,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # Initialize the ``Hfss`` object and create two needed design variables,
 # ``w1`` and ``w2``.
 
-hfss = Hfss(specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical)
+hfss = pyaedt.Hfss(specified_version="2023.1", new_desktop_session=True, non_graphical=non_graphical)
 hfss["w1"] = "1mm"
 hfss["w2"] = "100mm"
 
@@ -56,8 +56,8 @@ model.plot(os.path.join(hfss.working_directory, "Image.jpg"))
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create two wave ports on the sheets.
 
-hfss.create_wave_port_from_sheet(p1, axisdir=hfss.AxisDir.ZPos, portname="1")
-hfss.create_wave_port_from_sheet(p2, axisdir=hfss.AxisDir.ZPos, portname="2")
+hfss.wave_port(p1, integration_line=hfss.AxisDir.ZPos, name="1")
+hfss.wave_port(p2, integration_line=hfss.AxisDir.ZPos, name="2")
 
 ###############################################################################
 # Create setup and frequency sweep
@@ -145,5 +145,4 @@ sweep6 = hfss.optimizations.add(
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.
 
-if os.name != "posix":
-    hfss.release_desktop()
+hfss.release_desktop()

@@ -1,8 +1,9 @@
 #!/ekm/software/anaconda3/bin/python
 # Import required modules
 from _unittest.conftest import BasisTest
+
 from pyaedt import Maxwell2d
-from pyaedt.modeler.Primitives import Polyline
+from pyaedt.modeler.cad.polylines import Polyline
 
 # Setup paths for module imports
 
@@ -16,7 +17,7 @@ class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(
-            self, design_name="2D_Primitives", solution_type="TransientXY", application=Maxwell2d
+            self, design_name="2D_Primitives_2", solution_type="TransientXY", application=Maxwell2d
         )
 
     def teardown_class(self):
@@ -65,6 +66,10 @@ class TestClass(BasisTest, object):
         if self.aedtapp.modeler["Region"]:
             self.aedtapp.modeler.delete("Region")
         assert "Region" not in self.aedtapp.modeler.object_names
+        assert self.aedtapp.modeler.create_region([20, "50", "100mm", 20], False)
+        self.aedtapp.modeler["Region"].delete()
+        region = self.aedtapp.modeler.create_region("100", True)
+        region.delete()
         region = self.aedtapp.modeler.create_region([100, 100, 100, 100])
         assert region.solve_inside
         assert region.model

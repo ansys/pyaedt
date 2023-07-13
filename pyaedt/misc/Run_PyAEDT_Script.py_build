@@ -1,0 +1,105 @@
+# -*- coding: utf-8 -*-
+"""
+* * * This script is meant to run in IronPython within the Ansys Electronics Desktop. * * *
+The script provides for choosing the Python script to execute.
+
+It looks for a reference to a Python interpreter in the ``python_interpreter.bat`` file.
+
+It then uses this Python interpreter to execute the script.
+See the declaration of the command variable to see the order in which arguments are passed to the script.
+
+The commands allow the launched script to still reference the project and design that was active when the script
+was launched as well as the AEDT instance that has them open.
+
+"""
+import os
+import sys
+
+from System.Windows.Forms import MessageBox
+from System.Windows.Forms import MessageBoxButtons
+from System.Windows.Forms import MessageBoxIcon
+from System.Windows.Forms import OpenFileDialog
+
+is_linux = os.name == "posix"
+script_name = os.path.splitext(os.path.basename(__file__))[0]
+
+if is_linux:
+    import subprocessdotnet as subprocess
+else:
+    import subprocess
+
+
+def main():
+    oProject = oDesktop.GetActiveProject()
+
+    # Choose file to launch
+    file_dialog = OpenFileDialog()
+    file_dialog.InitialDirectory = oProject.GetPath()
+    file_dialog.Filter = "python files (*.py)|*.py"
+    ret = file_dialog.ShowDialog()
+    debug("ret: " + repr(ret))
+
+    try:
+        if ret == ret.OK:
+            # launch file
+            version = oDesktop.GetVersion()[2:6].replace(".", "")
+            python_exe = r"##PYTHON_EXE##" % version
+            pyaedt_script = file_dialog.FileName
+            check_file(python_exe)
+            check_file(pyaedt_script)
+            os.environ["PYAEDT_SCRIPT_PROCESS_ID"] = str(oDesktop.GetProcessID())
+            os.environ["PYAEDT_SCRIPT_VERSION"] = str(oDesktop.GetVersion()[:6])
+            if is_linux:
+                edt_root = os.path.normpath(oDesktop.GetExeDir())
+                os.environ["ANSYSEM_ROOT{}".format(version)] = edt_root
+                ld_library_path_dirs_to_add = [
+                    "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root),
+                    "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root),
+                    "{}/common/mono/Linux64/lib64".format(edt_root),
+                    "{}/Delcross".format(edt_root),
+                    "{}".format(edt_root),
+                ]
+                os.environ["LD_LIBRARY_PATH"] = ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv(
+                    "LD_LIBRARY_PATH", "")
+                command = [
+                    python_exe,
+                    pyaedt_script,
+                    str(oDesktop.GetProcessID()),
+                    str(oDesktop.GetVersion()[:6]),
+                ]
+                my_env = os.environ.copy()
+                subprocess.Popen(command, env=my_env)
+            else:
+                command = [
+                    '"{}"'.format(python_exe),
+                    '"{}"'.format(pyaedt_script),
+                    str(oDesktop.GetProcessID()),
+                    str(oDesktop.GetVersion()[:6]),
+                ]
+                my_env = os.environ.copy()
+                subprocess.Popen(" ".join(command), env=my_env)
+        else:
+            debug("ret didn't pass the equivalence. ret:" + repr(ret))
+    except Exception as e:
+        show_error(str(e))
+
+
+def check_file(file_path):
+    if not os.path.isfile(file_path):
+        show_error('"{}" does not exist. Please click on the "Install PyAEDT" button in the Automation ribbon.'.format(
+            file_path))
+
+
+def show_error(msg):
+    oDesktop.AddMessage("", "", 2, str(msg))
+    MessageBox.Show(str(msg), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+    sys.exit()
+
+
+def debug(msg):
+    print("[debug] {}: {}".format(script_name, str(msg)))
+    LogDebug("{}: {}\n".format(script_name, str(msg)))
+
+
+if __name__ == "__main__":
+    main()

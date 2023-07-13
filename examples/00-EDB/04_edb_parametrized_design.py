@@ -8,11 +8,9 @@ This example shows how you can use HFSS 3D Layout to create and solve a parametr
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports, which includes importing the ``Hfss3dlayout`` object
-# and initializing it on version 2022 R2.
+# and initializing it on version 2023 R1.
 
-from pyaedt import Edb
-from pyaedt.generic.general_methods import generate_unique_folder_name, generate_unique_name
-from pyaedt import Hfss3dLayout
+import pyaedt
 import os
 
 ##########################################################
@@ -20,16 +18,16 @@ import os
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Set non-graphical mode. The default is ``False``.
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+non_graphical = False
 
 ##########################################################
 # Launch EDB
 # ~~~~~~~~~~
 # Launch EDB.
 
-aedb_path = os.path.join(generate_unique_folder_name(), generate_unique_name("pcb") + ".aedb")
+aedb_path = os.path.join(pyaedt.generate_unique_folder_name(), pyaedt.generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
-edb = Edb(edbpath=aedb_path, edbversion="2022.2")
+edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.1")
 
 ######################################################################
 # Define parameters
@@ -51,39 +49,30 @@ params = {"$ms_width": "0.4mm",
           "$corner_rad": "0.5mm"}
 
 for par_name in params:
-    edb.add_design_variable(par_name, params[par_name])
+    edb.add_project_variable(par_name, params[par_name])
 
 ######################################################################
 # Define stackup layers
 # ~~~~~~~~~~~~~~~~~~~~~
 # Define the stackup layers from bottom to top.
-# Note that in the stackup definition, ``"layer_type":0`` is signal and
-# ``"layer_type":1`` is dielectric.
 
-layers = [{"name": "bottom", "layer_type": 0, "thickness": "35um", "material": "copper"},
-          {"name": "diel_3", "layer_type": 1, "thickness": "275um", "material": "FR4_epoxy"},
-          {"name": "sig_2", "layer_type": 0, "thickness": "35um", "material": "copper"},
-          {"name": "diel_2", "layer_type": 1, "thickness": "275um", "material": "FR4_epoxy"},
-          {"name": "sig_1", "layer_type": 0, "thickness": "35um", "material": "copper"},
-          {"name": "diel_1", "layer_type": 1, "thickness": "275um", "material": "FR4_epoxy"},
-          {"name": "top", "layer_type": 0, "thickness": "35um", "material": "copper"}]
+
+layers = [{"name": "bottom", "layer_type": "signal", "thickness": "35um", "material": "copper"},
+          {"name": "diel_3", "layer_type": "dielectric", "thickness": "275um", "material": "FR4_epoxy"},
+          {"name": "sig_2", "layer_type": "signal", "thickness": "35um", "material": "copper"},
+          {"name": "diel_2", "layer_type": "dielectric", "thickness": "275um", "material": "FR4_epoxy"},
+          {"name": "sig_1", "layer_type": "signal", "thickness": "35um", "material": "copper"},
+          {"name": "diel_1", "layer_type": "dielectric", "thickness": "275um", "material": "FR4_epoxy"},
+          {"name": "top", "layer_type": "signal", "thickness": "35um", "material": "copper"}]
 
 
 # Create EDB stackup.
 # Bottom layer
-
-edb.core_stackup.stackup_layers.add_layer(layers[0]["name"],
-                                          layerType=layers[0]["layer_type"],
-                                          thickness=layers[0]["thickness"],
-                                          material=layers[0]["material"])  # Insert first layer
-# All subsequent layers
-
-for n in range(len(layers)-1):
-    edb.core_stackup.stackup_layers.add_layer(layers[n+1]["name"],
-                                              layers[n]["name"],
-                                              layerType=layers[n+1]["layer_type"],
-                                              thickness=layers[n+1]["thickness"],
-                                              material=layers[n+1]["material"])
+prev = None
+for layer in layers:
+    edb.stackup.add_layer(layer["name"], base_layer=prev, layer_type=layer["layer_type"], thickness=layer["thickness"],
+                                          material=layer["material"])
+    prev = layer["name"]
 
 ###############################################################################
 # Create padstack for signal via
@@ -91,17 +80,17 @@ for n in range(len(layers)-1):
 # Create a parametrized padstack for the signal via.
 
 signal_via_padstack = "automated_via"
-edb.core_padstack.create_padstack(
+edb.padstacks.create(
             padstackname=signal_via_padstack,
             holediam="$via_diam",
             paddiam="$pad_diam",
             antipaddiam="",
-            startlayer="top",
-            endlayer="bottom",
             antipad_shape="Bullet",
             x_size="$x_size",
             y_size="$y_size",
             corner_radius="$corner_rad",
+            start_layer=layers[-1]["name"],
+            stop_layer=layers[-3]["name"]
         )
 
 ###############################################################################
@@ -117,41 +106,37 @@ net_n = "n"
 # ~~~~~~~~~~~~~~~~~
 # Place signal vias.
 
-edb.core_padstack.place_padstack(
+edb.padstacks.place(
             position=["$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing)/2"],
             definition_name=signal_via_padstack,
             net_name=net_p,
             via_name="",
-            rotation=90.0,
-            fromlayer=layers[-1]["name"],
-            tolayer=layers[0]["name"],)
+            rotation=90.0
+)
 
-edb.core_padstack.place_padstack(
+edb.padstacks.place(
             position=["2*$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing)/2"],
             definition_name=signal_via_padstack,
             net_name=net_p,
             via_name="",
             rotation=90.0,
-            fromlayer=layers[-1]["name"],
-            tolayer=layers[0]["name"],)
+)
 
-edb.core_padstack.place_padstack(
+edb.padstacks.place(
             position=["$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing)/2"],
             definition_name=signal_via_padstack,
             net_name=net_n,
             via_name="",
             rotation=-90.0,
-            fromlayer=layers[-1]["name"],
-            tolayer=layers[0]["name"],)
+)
 
-edb.core_padstack.place_padstack(
+edb.padstacks.place(
             position=["2*$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing)/2"],
             definition_name=signal_via_padstack,
             net_name=net_n,
             via_name="",
             rotation=-90.0,
-            fromlayer=layers[-1]["name"],
-            tolayer=layers[0]["name"],)
+)
 
 
 # ###############################################################################
@@ -212,14 +197,23 @@ points_n = [
 # ~~~~~~~~~~~~~~~~~
 # Add traces to EDB.
 
+trace_p = []
+trace_n = []
 for n in range(len(points_p)):
-    path_p = edb.core_primitives.Shape("polygon", points=points_p[n])
-    edb.core_primitives.create_path(path_p, route_layer[n], width[n], net_name=net_p,
-                                    start_cap_style="Flat", end_cap_style="Flat")
-    path_n = edb.core_primitives.Shape("polygon", points=points_n[n])
-    edb.core_primitives.create_path(path_n, route_layer[n], width[n], net_name=net_n,
-                                    start_cap_style="Flat", end_cap_style="Flat")
+    trace_p.append(edb.modeler.create_trace(points_p[n], route_layer[n], width[n], net_p, "Flat", "Flat"))
+    trace_n.append(edb.modeler.create_trace(points_n[n], route_layer[n], width[n], net_n, "Flat", "Flat"))
 
+###############################################################################
+# Create wave ports
+# ~~~~~~~~~~~~~~~~~
+# Create wave ports:
+
+edb.hfss.create_differential_wave_port(trace_p[0].id, ["0.0", "($ms_width+$ms_spacing)/2"],
+                                            trace_n[0].id, ["0.0", "-($ms_width+$ms_spacing)/2"],
+                                            "wave_port_1")
+edb.hfss.create_differential_wave_port(trace_p[2].id, ["$pcb_len", "($ms_width+$ms_spacing)/2"],
+                                            trace_n[2].id, ["$pcb_len", "-($ms_width + $ms_spacing)/2"],
+                                            "wave_port_2")
 
 ###############################################################################
 # Draw ground polygons
@@ -230,7 +224,7 @@ gnd_poly = [[0.0, "-$pcb_w/2"],
             ["$pcb_len", "-$pcb_w/2"],
             ["$pcb_len", "$pcb_w/2"],
             [0.0, "$pcb_w/2"]]
-gnd_shape = edb.core_primitives.Shape("polygon", points=gnd_poly)
+gnd_shape = edb.modeler.Shape("polygon", points=gnd_poly)
 
 # Void in ground for traces on the signal routing layer
 
@@ -251,16 +245,16 @@ void_poly = [["$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam
              ["$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2+$via_spacing/2"],
              ["$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2"]]
 
-void_shape = edb.core_primitives.Shape("polygon", points=void_poly)
+void_shape = edb.modeler.Shape("polygon", points=void_poly)
 
 # Add ground layers
 
-for layer in layers[1:-1]:
+for layer in layers[:-1:2]:
 
     # add void if the layer is the signal routing layer.
     void = [void_shape] if layer["name"] == route_layer[1] else []
 
-    edb.core_primitives.create_polygon(main_shape=gnd_shape,
+    edb.modeler.create_polygon(main_shape=gnd_shape,
                                        layer_name=layer["name"],
                                        voids=void,
                                        net_name="gnd")
@@ -271,7 +265,7 @@ for layer in layers[1:-1]:
 # ~~~~~~~~
 # Plot EDB.
 
-edb.core_nets.plot(None)
+edb.nets.plot(None)
 
 ###############################################################################
 # Save EDB
@@ -287,16 +281,8 @@ edb.close_edb()
 # ~~~~~~~~~~~~~~~~
 # Open EDB in AEDT.
 
-h3d = Hfss3dLayout(projectname=os.path.join(aedb_path, "edb.def"), specified_version="2022.2", non_graphical=non_graphical)
-
-
-###############################################################################
-# Create wave ports
-# ~~~~~~~~~~~~~~~~~
-# Create wave ports:
-
-h3d.create_wave_port_from_two_conductors(["line_0", "line_1"], [0, 0])
-h3d.create_wave_port_from_two_conductors(["line_4", "line_5"], [5, 5])
+h3d = pyaedt.Hfss3dLayout(projectname=aedb_path, specified_version="2023.1",
+                          non_graphical=non_graphical)
 
 ###############################################################################
 # Add HFSS simulation setup
@@ -304,6 +290,8 @@ h3d.create_wave_port_from_two_conductors(["line_4", "line_5"], [5, 5])
 # Add HFSS simulation setup.
 
 setup = h3d.create_setup()
+setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 3
+
 h3d.create_linear_count_sweep(
     setupname=setup.name,
     unit="GHz",
@@ -318,13 +306,32 @@ h3d.create_linear_count_sweep(
     use_q3d_for_dc=False,
 )
 
+###############################################################################
+# Set Differential Pairs.
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Define the differential pairs to be used in the postprocessing.
+h3d.set_differential_pair(diff_name="In", positive_terminal="wave_port_1:T1", negative_terminal="wave_port_1:T2")
+h3d.set_differential_pair(diff_name="Out", positive_terminal="wave_port_2:T1", negative_terminal="wave_port_2:T2")
 
 ###############################################################################
 # Start HFSS solver
 # ~~~~~~~~~~~~~~~~~
-# Start the HFSS solver by uncommenting the ``h3d.analyze_nominal()`` command.
+# Start the HFSS solver by uncommenting the ``h3d.analyze()`` command.
 
-# h3d.analyze_nominal()
+h3d.analyze()
+
+
+###############################################################################
+# Generate Plot
+# ~~~~~~~~~~~~~
+# Generate the plot of differential pairs.
+
+solutions = h3d.post.get_solution_data(["dB(S(In,In))", "dB(S(In,Out))"], context="Differential Pairs")
+solutions.plot()
+
+
+
+
 
 h3d.release_desktop()
 

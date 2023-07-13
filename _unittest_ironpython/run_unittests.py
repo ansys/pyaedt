@@ -18,8 +18,9 @@ if os.path.exists(os.path.join(tempfile.gettempdir(), "test.log")):
 settings.logger_file_path = log_path
 
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import is_windows
 
-if os.name != "posix":
+if is_windows:
     ansysem_install_dir = os.environ.get("ANSYSEM_INSTALL_DIR", "")
     if not ansysem_install_dir:
         ansysem_install_dir = os.environ["ANSYSEM_ROOT222"]
@@ -61,22 +62,29 @@ def discover_and_run(start_dir, pattern=None):
         total_runs = 0
         total_errors = 0
         total_failures = 0
+        succeded = False
         for sub_suite in test_suite:
             attempts = 0
+            errors = 0
+            failures = 0
             while True:
                 attempts += 1
                 f.write("\n")
                 result = runner.run(sub_suite)
                 if attempts == max_attempts:
                     total_runs += result.testsRun
-                    total_errors += len(result.errors)
-                    total_failures += len(result.failures)
+                    errors = len(result.errors)
+                    failures = len(result.failures)
                     break
                 if result.wasSuccessful():
                     total_runs += result.testsRun
+                    succeded = True
                     break
                 # try again
                 f.write("\nAttempt n.{} FAILED. Re-running test suite.\n".format(attempts))
+        if not succeded:
+            total_errors += errors
+            total_failures += failures
         f.write(
             "\n<unittest.runner.TextTestResult Total Test run={}>\n".format(
                 total_runs

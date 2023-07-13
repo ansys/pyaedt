@@ -1,5 +1,6 @@
 import sys
 
+# from pyaedt import property
 from pyaedt import pyaedt_function_handler
 
 
@@ -56,8 +57,11 @@ class AedtObjects(object):
     @pyaedt_function_handler()
     def get_module(self, module_name):
         """Aedt Module object."""
-        if self.design_type not in ["EMIT"]:
-            return self.odesign.GetModule(module_name)
+        if self.design_type not in ["EMIT"] and self.odesign:
+            try:
+                return self.odesign.GetModule(module_name)
+            except:
+                return None
         return None
 
     @property

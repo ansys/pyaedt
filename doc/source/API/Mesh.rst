@@ -21,11 +21,11 @@ They are accessible through the mesh property:
 .. code:: python
 
     from pyaedt import Maxwell3d
-    app = Maxwell3d(specified_version="2022.1",
+    app = Maxwell3d(specified_version="2023.1",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
     # This call returns the Mesh class
     my_mesh = app.mesh
-    # This call executes a Mesh method
-    my_mesh.assign_surface_mesh("MyBox", 2)
+    # This call executes a Mesh method and creates an object to control the mesh operation
+    mesh_operation_object = my_mesh.assign_surface_mesh("MyBox", 2)
     ...

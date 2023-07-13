@@ -7,21 +7,25 @@ import sys
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
+from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 
 test_subfolder = "T13"
 if config["desktopVersion"] > "2022.2":
-    test_project_name = "Coax_HFSS_231"
+    test_project_name = "Coax_HFSS_t13_231"
     cs = "Coordinate_System_231"
     cs1 = "Coordinate_System1_231"
     cs2 = "Coordinate_System2_231"
     cs3 = "Coordinate_System3_231"
+    image_f = "Coax_HFSS_v231.jpg"
 else:
-    test_project_name = "Coax_HFSS"
+    test_project_name = "Coax_HFSS_t13"
     cs = "Coordinate_System"
     cs1 = "Coordinate_System1"
     cs2 = "Coordinate_System2"
     cs3 = "Coordinate_System3"
+    image_f = "Coax_HFSS.jpg"
 
 
 def _write_jpg(design_info, scratch):
@@ -48,8 +52,9 @@ class TestClass(BasisTest, object):
         self.cs3 = BasisTest.add_app(self, cs3, subfolder=test_subfolder)
         self.multiple_cs_project = self.test_project
         self.mat1 = BasisTest.add_app(self, "Add_material")
-        hfss_file = os.path.join(local_path, "example_models", test_subfolder, "Coax_HFSS.aedt")
+        hfss_file = os.path.join(local_path, "example_models", test_subfolder, test_project_name + ".aedt")
         self.project_dict = load_entire_aedt_file(hfss_file)
+        self.project_sub_key = load_keyword_in_aedt_file(hfss_file, "AnsoftProject")
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -58,6 +63,8 @@ class TestClass(BasisTest, object):
         assert "AnsoftProject" in list(self.project_dict.keys())
         assert "AllReferencedFilesForProject" in list(self.project_dict.keys())
         assert "ProjectPreview" in list(self.project_dict.keys())
+        assert ["AnsoftProject"] == list(self.project_sub_key.keys())
+        assert self.project_dict["AnsoftProject"] == self.project_sub_key["AnsoftProject"]
 
     def test_02_check_design_info(self):
         design_info = self.project_dict["ProjectPreview"]["DesignInfo"]
@@ -67,7 +74,7 @@ class TestClass(BasisTest, object):
         assert design_info["DesignName"] == "HFSSDesign"
         assert design_info["IsSolved"] == False
         jpg_file = _write_jpg(design_info, self.local_scratch.path)
-        assert filecmp.cmp(jpg_file, os.path.join(local_path, "example_models", test_subfolder, "Coax_HFSS.jpg"))
+        assert filecmp.cmp(jpg_file, os.path.join(local_path, "example_models", test_subfolder, image_f))
 
     def test_03_check_can_load_aedt_file_with_binary_content(self):
         aedt_file = os.path.join(local_path, "example_models", test_subfolder, "assembly.aedt")

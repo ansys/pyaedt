@@ -9,6 +9,8 @@ from __future__ import absolute_import  # noreorder
 from collections import OrderedDict
 
 from pyaedt.generic.DataHandlers import _dict2arg
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -27,11 +29,12 @@ class Mesh3DOperation(PropsManager, object):
     name :
 
     props : dict
-        Dictionary of the properites.
+        Dictionary of the properties.
 
     """
 
     def __init__(self, app, hfss_setup_name, name, props):
+        self.auto_update = True
         self._mesh3dlayout = app
         self.name = name
         self.props = MeshProps(self, props)
@@ -77,7 +80,7 @@ class Mesh3DOperation(PropsManager, object):
         return True
 
     @pyaedt_function_handler()
-    def update(self):
+    def update(self, *args, **kwargs):
         """Update the mesh.
 
         Returns
@@ -116,10 +119,10 @@ class Mesh3DOperation(PropsManager, object):
 
 
 class Mesh3d(object):
-    """Mesh class.
+    """Manages mesh operations for HFSS 3D Layout.
 
-    This class provides the main AEDT mesh functionaility. The inherited class
-    `AEDTConfig` contains all `_desktop` hierarchical calls needed by this class.
+    Provides the main AEDT mesh functionality. The inherited class
+    ``AEDTConfig`` contains all ``_desktop`` hierarchical calls needed by this class.
 
     Parameters
     ----------
@@ -132,12 +135,34 @@ class Mesh3d(object):
 
         self.logger = self._app.logger
         self._odesign = self._app._odesign
-        self.modeler = self._app._modeler
+        self.modeler = self._app.modeler
         self.id = 0
 
         self.meshoperations = self._get_design_mesh_operations()
 
         pass
+
+    @pyaedt_function_handler()
+    def generate_mesh(self, name):
+        """Generate the mesh for a design.
+
+        Parameters
+        ----------
+        name : str
+            Name of the design.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.GenerateMesh
+        """
+        self._app.oanalysis.GenerateMesh([name])
+        return True
 
     @property
     def omeshmodule(self):
@@ -158,7 +183,7 @@ class Mesh3d(object):
         ----------
         setup_name : str
             Name of the setup.
-        mesh_name :str
+        mesh_name : str
             Name of the mesh.
 
         Returns

@@ -1,8 +1,11 @@
 # Setup paths for module imports
 import logging
+import os.path
 
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
+
+from pyaedt import Icepak
 from pyaedt import settings
 from pyaedt.aedt_logger import AedtLogger
 
@@ -48,6 +51,17 @@ class TestClass(BasisTest, object):
         assert len(msg.messages.global_level) >= 1
         assert len(msg.messages.project_level) >= 1
         assert len(msg.messages.design_level) >= 1
+        ipk_app = BasisTest.add_app(self, application=Icepak)
+        box = ipk_app.modeler.create_box([0, 0, 0], [1, 1, 1])
+        ipk_app.modeler.create_3dcomponent(os.path.join(self.local_scratch.path, "test_m.a3dcomp"))
+        box.delete()
+        cmp = ipk_app.modeler.insert_3d_component(os.path.join(self.local_scratch.path, "test_m.a3dcomp"))
+        ipk_app_comp = cmp.edit_definition()
+        msg_comp = ipk_app_comp.logger
+        msg_comp.add_info_message("3dcomp, Test Info design level")
+        msg_comp.add_info_message("3dcomp, Test Info project level", "Project")
+        assert len(msg_comp.messages.project_level) >= 1
+        assert len(msg_comp.messages.design_level) >= 1
         settings.enable_desktop_logs = False
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Messages not functional in non-graphical mode")

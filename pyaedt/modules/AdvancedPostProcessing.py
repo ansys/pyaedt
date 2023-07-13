@@ -6,7 +6,6 @@ It contains all advanced postprocessing functionalities that require Python 3.x 
 from __future__ import absolute_import  # noreorder
 
 import os
-import time
 import warnings
 
 from pyaedt.generic.general_methods import is_ironpython
@@ -101,7 +100,7 @@ class PostProcessor(Post):
         Returns
         -------
         np.ndarray
-            numpy array containing ``[theta_range, phi_range, Etheta, Ephi]``.
+            Numpy array containing ``[theta_range, phi_range, Etheta, Ephi]``.
         """
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_adaptive
@@ -168,46 +167,53 @@ class PostProcessor(Post):
         force_opacity_value=None,
         array_coordinates=None,
         generate_mesh=True,
+        get_objects_from_aedt=True,
     ):
         """Initialize the Model Plotter object with actual modeler objects and return it.
 
-         Parameters
-         ----------
-         objects : list, optional
-             Optional list of objects to plot. If `None` all objects will be exported.
-         plot_as_separate_objects : bool, optional
-             Plot each object separately. It may require more time to export from AEDT.
-         plot_air_objects : bool, optional
-             Plot also air and vacuum objects.
-         force_opacity_value : float, optional
-             Opacity value between 0 and 1 to be applied to all model.
-             If `None` aedt opacity will be applied to each object.
+        Parameters
+        ----------
+        objects : list, optional
+            Optional list of objects to plot. If `None` all objects will be exported.
+        plot_as_separate_objects : bool, optional
+            Plot each object separately. It may require more time to export from AEDT.
+        plot_air_objects : bool, optional
+            Plot also air and vacuum objects.
+        force_opacity_value : float, optional
+            Opacity value between 0 and 1 to be applied to all model.
+            If `None` aedt opacity will be applied to each object.
         array_coordinates : list of list
             List of array element centers. The modeler objects will be duplicated and translated.
             List of [[x1,y1,z1], [x2,y2,z2]...].
+        generate_mesh : bool, optional
+            Whether to generate the mesh after importing objects. The default is ``True``.
+        get_objects_from_aedt : bool, optional
+            Whether to export objects from AEDT and initialize them. The default is ``True``.
 
-         Returns
-         -------
-         :class:`pyaedt.generic.plot.ModelPlotter`
-             Model Object.
+        Returns
+        -------
+        :class:`pyaedt.generic.plot.ModelPlotter`
+            Model Object.
         """
+
         assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
-        files = self.export_model_obj(
-            obj_list=objects,
-            export_as_single_objects=plot_as_separate_objects,
-            air_objects=plot_air_objects,
-        )
-        if not files:
-            self.logger.warning("No Objects exported. Try other options or include Air objects.")
-            return False
+
+        files = []
+        if get_objects_from_aedt:
+            files = self.export_model_obj(
+                obj_list=objects,
+                export_as_single_objects=plot_as_separate_objects,
+                air_objects=plot_air_objects,
+            )
 
         model = ModelPlotter()
         model.off_screen = True
+        units = self.modeler.model_units
         for file in files:
             if force_opacity_value:
-                model.add_object(file[0], file[1], force_opacity_value, self.modeler.model_units)
+                model.add_object(file[0], file[1], force_opacity_value, units)
             else:
-                model.add_object(file[0], file[1], file[2], self.modeler.model_units)
+                model.add_object(file[0], file[1], file[2], units)
         model.array_coordinates = array_coordinates
         if generate_mesh:
             model.generate_geometry_mesh()
@@ -224,6 +230,8 @@ class PostProcessor(Post):
         force_opacity_value=None,
         clean_files=False,
         array_coordinates=None,
+        view="isometric",
+        show_legend=True,
     ):
         """Plot the model or a substet of objects.
 
@@ -248,6 +256,11 @@ class PostProcessor(Post):
         array_coordinates : list of list
             List of array element centers. The modeler objects will be duplicated and translated.
             List of [[x1,y1,z1], [x2,y2,z2]...].
+        view : str, optional
+           View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
+            The default is ``"isometric"``.
+        show_legend : bool, optional
+            Whether to display the legend or not. The default is ``True``.
 
         Returns
         -------
@@ -263,7 +276,12 @@ class PostProcessor(Post):
             generate_mesh=False,
         )
 
+        model.show_legend = show_legend
         model.off_screen = not show
+        if view != "isometric" and view in ["xy", "xz", "yz"]:
+            model.camera_position = view
+        elif view != "isometric":
+            self.logger.warning("Wrong view setup. It has to be one of xy, xz, yz, isometric.")
         if export_path:
             model.plot(export_path)
         elif show:
@@ -285,6 +303,8 @@ class PostProcessor(Post):
         show=True,
         scale_min=None,
         scale_max=None,
+        plot_cad_objs=True,
+        log_scale=True,
     ):
         """Export a field plot to an image file (JPG or PNG) using Python PyVista.
 
@@ -305,8 +325,7 @@ class PostProcessor(Post):
             ``"png"``, ``"svg"``, and ``"webp"``. The default is
             ``"jpg"``.
         view : str, optional
-            View to export. Options are ``isometric``, ``top``, ``front``,
-             ``left``, ``all``.. The default is ``"iso"``. If ``"all"``, all views are exported.
+           View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
         plot_label : str, optional
             Type of the plot. The default is ``"Temperature"``.
         plot_folder : str, optional
@@ -319,6 +338,10 @@ class PostProcessor(Post):
             Fix the Scale Minimum value.
         scale_max : float, optional
             Fix the Scale Maximum value.
+        plot_cad_objs : bool, optional
+            Whether to include objects in the plot. The default is ``True``.
+        log_scale : bool, optional
+            Whether to plot fields in log scale. The default is ``True``.
 
         Returns
         -------
@@ -330,25 +353,248 @@ class PostProcessor(Post):
         else:
             self.ofieldsreporter.UpdateQuantityFieldsPlots(plot_folder)
 
-        start = time.time()
         file_to_add = self.export_field_plot(plotname, self._app.working_directory)
 
-        model = self.get_model_plotter_geometries(generate_mesh=False)
+        model = self.get_model_plotter_geometries(generate_mesh=False, get_objects_from_aedt=plot_cad_objs)
 
         model.off_screen = not show
         if file_to_add:
-            model.add_field_from_file(file_to_add, coordinate_units=self.modeler.model_units, show_edges=meshplot)
+            model.add_field_from_file(
+                file_to_add, coordinate_units=self.modeler.model_units, show_edges=meshplot, log_scale=log_scale
+            )
             if plot_label:
                 model.fields[0].label = plot_label
 
-        model.view = view
+        if view != "isometric" and view in ["xy", "xz", "yz"]:
+            model.camera_position = view
+        elif view != "isometric":
+            self.logger.warning("Wrong view setup. It has to be one of xy, xz, yz, isometric.")
 
         if scale_min and scale_max:
             model.range_min = scale_min
             model.range_max = scale_max
-        if show or project_path:
-            model.plot(os.path.join(project_path, self._app.project_name + "." + imageformat))
-            model.clean_cache_and_files(clean_cache=False)
+        if project_path:
+            model.plot(os.path.join(project_path, plotname + "." + imageformat))
+        elif show:
+            model.plot()
+        return model
+
+    @pyaedt_function_handler()
+    def plot_field(
+        self,
+        quantity,
+        object_list,
+        plot_type="Surface",
+        setup_name=None,
+        intrinsics=None,
+        mesh_on_fields=False,
+        view="isometric",
+        plot_label=None,
+        show=True,
+        scale_min=None,
+        scale_max=None,
+        plot_cad_objs=True,
+        log_scale=True,
+        export_path="",
+        imageformat="jpg",
+        keep_plot_after_generation=False,
+    ):
+        """Create a field plot  using Python PyVista and export to an image file (JPG or PNG).
+
+        .. note::
+           The PyVista module rebuilds the mesh and the overlap fields on the mesh.
+
+        Parameters
+        ----------
+        quantity : str
+            Quantity to plot (e.g. ``"Mag_E"``).
+        object_list : str
+            List of objects or faces to which apply the Field Plot.
+        plot_type  : str, optional
+            Plot type. Options are ``"Surface"``, ``"Volume"``, ``"CutPlane"``.
+        setup_name : str, optional
+            Setup and sweep name on which create the field plot. Default is None for nominal setup usage.
+        intrinsics : dict, optional.
+            Intrinsic dictionary that is needed for the export.
+            The default is ``None`` which try to retrieve intrinsics from setup.
+        mesh_on_fields : bool, optional
+            Whether to create and plot the mesh over the fields. The
+            default is ``False``.
+        view : str, optional
+           View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
+        plot_label : str, optional
+            Type of the plot. The default is ``"Temperature"``.
+        show : bool, optional
+            Export Image without plotting on UI.
+        scale_min : float, optional
+            Fix the Scale Minimum value.
+        scale_max : float, optional
+            Fix the Scale Maximum value.
+        plot_cad_objs : bool, optional
+            Whether to include objects in the plot. The default is ``True``.
+        log_scale : bool, optional
+            Whether to plot fields in log scale. The default is ``True``.
+        export_path : str, optional
+            Image export path. Default is ``None`` to not export the image.
+        imageformat : str, optional
+            Format of the image file. Options are ``"jpg"``,
+            ``"png"``, ``"svg"``, and ``"webp"``. The default is
+            ``"jpg"``.
+        keep_plot_after_generation : bool, optional
+            Either to keep the Field Plot in AEDT after the generation is completed. Default is ``False``.
+
+        Returns
+        -------
+        :class:`pyaedt.generic.plot.ModelPlotter`
+            Model Object.
+        """
+        if not setup_name:
+            setup_name = self._app.existing_analysis_sweeps[0]
+        if not intrinsics:
+            for i in self._app.setups:
+                if i.name == setup_name.split(" : ")[0]:
+                    intrinsics = i.default_intrinsics
+
+        # file_to_add = []
+        if plot_type == "Surface":
+            plotf = self.create_fieldplot_surface(object_list, quantity, setup_name, intrinsics)
+        elif plot_type == "Volume":
+            plotf = self.create_fieldplot_volume(object_list, quantity, setup_name, intrinsics)
+        else:
+            plotf = self.create_fieldplot_cutplane(object_list, quantity, setup_name, intrinsics)
+        # if plotf:
+        #     file_to_add = self.export_field_plot(plotf.name, self._app.working_directory, plotf.name)
+
+        model = self.plot_field_from_fieldplot(
+            plotf.name,
+            export_path,
+            mesh_on_fields,
+            imageformat,
+            view,
+            plot_label if plot_label else quantity,
+            None,
+            show,
+            scale_min,
+            scale_max,
+            plot_cad_objs,
+            log_scale,
+        )
+        if not keep_plot_after_generation:
+            plotf.delete()
+        return model
+
+    @pyaedt_function_handler()
+    def plot_animated_field(
+        self,
+        quantity,
+        object_list,
+        plot_type="Surface",
+        setup_name=None,
+        intrinsics=None,
+        variation_variable="Phi",
+        variation_list=["0deg"],
+        view="isometric",
+        plot_label=None,
+        show=True,
+        scale_min=None,
+        scale_max=None,
+        plot_cad_objs=True,
+        log_scale=True,
+        zoom=None,
+        export_gif=False,
+        export_path="",
+        force_opacity_value=0.1,
+    ):
+        """Create an animated field plot using Python PyVista and export to a gif file.
+
+        .. note::
+           The PyVista module rebuilds the mesh and the overlap fields on the mesh.
+
+        Parameters
+        ----------
+        quantity : str
+            Quantity to plot (e.g. ``"Mag_E"``).
+        object_list : list, str
+            List of objects or faces to which apply the Field Plot.
+        plot_type  : str, optional
+            Plot type. Options are ``"Surface"``, ``"Volume"``, ``"CutPlane"``.
+        setup_name : str, optional
+            Setup and sweep name on which create the field plot. Default is None for nominal setup usage.
+        intrinsics : dict, optional.
+            Intrinsic dictionary that is needed for the export.
+            The default is ``None`` which try to retrieve intrinsics from setup.
+        variation_variable : str, optional
+            Variable to vary. The default is ``"Phi"``.
+        variation_list : list, optional
+            List of variation values with units. The default is
+            ``["0deg"]``.
+        view : str, optional
+           View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
+        show : bool, optional
+            Export Image without plotting on UI.
+        scale_min : float, optional
+            Fix the Scale Minimum value.
+        scale_max : float, optional
+            Fix the Scale Maximum value.
+        plot_cad_objs : bool, optional
+            Whether to include objects in the plot. The default is ``True``.
+        log_scale : bool, optional
+            Whether to plot fields in log scale. The default is ``True``.
+        zoom : float, optional
+            Zoom factor.
+        export_gif : bool, optional
+             Whether to export an animated gif or not. The default is ``False``.
+        export_path : str, optional
+            Image export path. Default is ``None`` to not ``working_directory`` will be used to save the image.
+        force_opacity_value : float, optional
+            Opacity value between 0 and 1 to be applied to all model.
+            If `None` aedt opacity will be applied to each object.
+
+        Returns
+        -------
+        :class:`pyaedt.generic.plot.ModelPlotter`
+            Model Object.
+        """
+        if not export_path:
+            export_path = self._app.working_directory
+
+        v = 0
+        fields_to_add = []
+        for el in variation_list:
+            intrinsics[variation_variable] = el
+            if plot_type == "Surface":
+                plotf = self.create_fieldplot_surface(object_list, quantity, setup_name, intrinsics)
+            elif plot_type == "Volume":
+                plotf = self.create_fieldplot_volume(object_list, quantity, setup_name, intrinsics)
+            else:
+                plotf = self.create_fieldplot_cutplane(object_list, quantity, setup_name, intrinsics)
+            if plotf:
+                file_to_add = self.export_field_plot(plotf.name, export_path, plotf.name + str(v))
+                if file_to_add:
+                    fields_to_add.append(file_to_add)
+                plotf.delete()
+            v += 1
+        model = self.get_model_plotter_geometries(
+            generate_mesh=False, get_objects_from_aedt=plot_cad_objs, force_opacity_value=force_opacity_value
+        )
+        model.off_screen = not show
+
+        if fields_to_add:
+            model.add_frames_from_file(fields_to_add, log_scale=log_scale)
+        if export_gif:
+            model.gif_file = os.path.join(self._app.working_directory, self._app.project_name + ".gif")
+        if view != "isometric" and view in ["xy", "xz", "yz"]:
+            model.camera_position = view
+        elif view != "isometric":
+            self.logger.warning("Wrong view setup. It has to be one of xy, xz, yz, isometric.")
+
+        if scale_min and scale_max:
+            model.range_min = scale_min
+            model.range_max = scale_max
+        if zoom:
+            model.zoom = zoom
+        if show or export_gif:
+            model.animate()
         return model
 
     @pyaedt_function_handler()
@@ -357,7 +603,7 @@ class PostProcessor(Post):
         plotname,
         plot_folder=None,
         meshplot=False,
-        variation_variable="Phi",
+        variation_variable="Phase",
         variation_list=["0deg"],
         project_path="",
         export_gif=False,
@@ -376,7 +622,7 @@ class PostProcessor(Post):
             Name of the folder in which the plot resides. The default
             is ``None``.
         variation_variable : str, optional
-            Variable to vary. The default is ``"Phi"``.
+            Variable to vary. The default is ``"Phase"``.
         variation_list : list, optional
             List of variation values with units. The default is
             ``["0deg"]``.
@@ -404,16 +650,20 @@ class PostProcessor(Post):
         if not project_path:
             project_path = self._app.working_directory
         for el in variation_list:
-            self._app._odesign.ChangeProperty(
-                [
-                    "NAME:AllTabs",
+            if plotname in self.field_plots and variation_variable in self.field_plots[plotname].intrinsincList:
+                self.field_plots[plotname].intrinsincList[variation_variable] = el
+                self.field_plots[plotname].update()
+            else:
+                self._app._odesign.ChangeProperty(
                     [
-                        "NAME:FieldsPostProcessorTab",
-                        ["NAME:PropServers", "FieldsReporter:" + plotname],
-                        ["NAME:ChangedProps", ["NAME:" + variation_variable, "Value:=", el]],
-                    ],
-                ]
-            )
+                        "NAME:AllTabs",
+                        [
+                            "NAME:FieldsPostProcessorTab",
+                            ["NAME:PropServers", "FieldsReporter:" + plotname],
+                            ["NAME:ChangedProps", ["NAME:" + variation_variable, "Value:=", el]],
+                        ],
+                    ]
+                )
             fields_to_add.append(
                 self.export_field_plot(plotname, project_path, plotname + variation_variable + str(el))
             )
@@ -428,7 +678,6 @@ class PostProcessor(Post):
 
         if show or export_gif:
             model.animate()
-            model.clean_cache_and_files(clean_cache=False)
         return model
 
     @pyaedt_function_handler()
@@ -446,8 +695,12 @@ class PostProcessor(Post):
         export_gif=False,
         show=True,
         zoom=None,
+        log_scale=False,
     ):
         """Generate a field plot to an animated gif file using PyVista.
+
+        .. deprecated:: 0.6.83
+            No need to use primitives anymore. You can instantiate primitives methods directly from modeler instead.
 
          .. note::
             The PyVista module rebuilds the mesh and the overlap fields on the mesh.
@@ -487,45 +740,33 @@ class PostProcessor(Post):
             Generate the animation without showing an interactive plot.  The default is ``True``.
         zoom : float, optional
             Zoom factor.
+        log_scale : bool, optional
+            Whether to plot fields in log scale. The default is ``True``.
 
         Returns
         -------
         :class:`pyaedt.generic.plot.ModelPlotter`
             Model Object.
         """
-        if not project_path:
-            project_path = self._app.working_directory
+        warnings.warn(
+            "`animate_fields_from_aedtplt_2` is deprecated. Use `plot_animated_field` property instead.",
+            DeprecationWarning,
+        )
 
-        v = 0
-        fields_to_add = []
-        for el in variation_list:
-            intrinsic_dict[variation_variable] = el
-            if plottype == "Surface":
-                plotf = self.create_fieldplot_surface(object_list, quantityname, setup_name, intrinsic_dict)
-            elif plottype == "Volume":
-                plotf = self.create_fieldplot_volume(object_list, quantityname, setup_name, intrinsic_dict)
-            else:
-                plotf = self.create_fieldplot_cutplane(object_list, quantityname, setup_name, intrinsic_dict)
-            if plotf:
-                file_to_add = self.export_field_plot(plotf.name, project_path, plotf.name + str(v))
-                if file_to_add:
-                    fields_to_add.append(file_to_add)
-                plotf.delete()
-            v += 1
-        model = self.get_model_plotter_geometries(generate_mesh=False)
-        model.off_screen = not show
-
-        if fields_to_add:
-            model.add_frames_from_file(fields_to_add)
-        if export_gif:
-            model.gif_file = os.path.join(self._app.working_directory, self._app.project_name + ".gif")
-        if zoom:
-            model.zoom = zoom
-        if show or export_gif:
-            model.animate()
-            model.clean_cache_and_files(clean_cache=False)
-
-        return model
+        return self.plot_animated_field(
+            quantity=quantityname,
+            object_list=object_list,
+            plot_type=plottype,
+            setup_name=setup_name,
+            intrinsics=intrinsic_dict,
+            variation_variable=variation_variable,
+            variation_list=variation_list,
+            export_path=project_path,
+            log_scale=log_scale,
+            show=show,
+            export_gif=export_gif,
+            zoom=zoom,
+        )
 
     @pyaedt_function_handler()
     def create_3d_plot(
@@ -558,7 +799,19 @@ class PostProcessor(Post):
         return solution_data.plot_3d(x_axis=primary_sweep, y_axis=secondary_sweep)
 
     @pyaedt_function_handler()
-    def plot_scene(self, frames_list, output_gif_path, norm_index=0, dy_rng=0, fps=30, show=True):
+    def plot_scene(
+        self,
+        frames_list,
+        output_gif_path,
+        norm_index=0,
+        dy_rng=0,
+        fps=30,
+        show=True,
+        view="yz",
+        zoom=2.0,
+        convert_fields_in_db=False,
+        log_multiplier=10.0,
+    ):
         """Plot the current model 3D scene with overlapping animation coming from a file list and save the gif.
 
 
@@ -579,6 +832,15 @@ class PostProcessor(Post):
             Frames per Second.
         show : bool, optional
             Either if show or only export gif.
+        view : str, optional
+           View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, and ``"yz"``.
+           The default is ``"isometric"``.
+        zoom : float, optional
+            Default zoom. Default Value is `2`.
+        convert_fields_in_db : bool, optional
+            Either if convert the fields before plotting in dB. Default Value is `False`.
+        log_multiplier : float, optional
+            Field multiplier if field in dB. Default Value is `10.0`.
 
         Returns
         -------
@@ -604,18 +866,20 @@ class PostProcessor(Post):
 
         # Specifying the attributes of the scene through the ModelPlotter object
         scene.off_screen = not show
-        scene.isometric_view = False
+        if view != "isometric" and view in ["xy", "xz", "yz"]:
+            scene.camera_position = view
         scene.range_min = v_min
         scene.range_max = v_max
         scene.show_grid = False
         scene.windows_size = [1920, 1080]
         scene.show_legend = False
-        scene.show_bounding_box = False
+        scene.show_boundingbox = False
         scene.legend = False
         scene.frame_per_seconds = fps
-        scene.camera_position = "yz"
-        scene.zoom = 2
+        scene.zoom = zoom
         scene.bounding_box = False
         scene.color_bar = False
         scene.gif_file = output_gif_path  # This gif may be a bit slower so we can speed it up a bit
+        scene.convert_fields_in_db = convert_fields_in_db
+        scene.log_multiplier = log_multiplier
         scene.animate()

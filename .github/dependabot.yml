@@ -2,11 +2,28 @@ version: 2
 updates:
   - package-ecosystem: "pip" # See documentation for possible values
     directory: "/" # Location of package manifests
-    insecure-external-code-execution: allow
     schedule:
       interval: "daily"
+    reviewers: 
+      - "MaxJPRey"
+    assignees:
+      - "pyansys-ci-bot"
+    labels:
+      - "maintenance"
+      - "dependencies"
+    commit-message:
+      prefix: "MAINT"
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "daily"
+    reviewers: 
+      - "MaxJPRey"
+    assignees:
+      - "pyansys-ci-bot"
+    labels:
+      - "maintenance"
+      - "dependencies"
+    commit-message:
+      prefix: "MAINT"

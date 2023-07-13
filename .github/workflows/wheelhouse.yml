@@ -28,7 +28,7 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: [Windows, pyaedt]
+    runs-on: [windows-latest]
     strategy:
       matrix:
         python-version: [ 3.7, 3.8, 3.9, '3.10']
@@ -47,7 +47,7 @@ jobs:
           python -m pip install pip -U
           python -m pip install wheel setuptools -U
           python -c "import sys; print(sys.executable)"
-          pip install .
+          pip install .[all]
           pip install jupyterlab
 
 
@@ -61,19 +61,23 @@ jobs:
       - name: Generate wheelhouse
         run: |
           testenv\Scripts\Activate.ps1
-          pip install wheel setuptools -U
-          pip wheel . -w wheelhouse
+          $packages=$(pip freeze)
+          # Iterate over the packages and generate wheels
+          foreach ($package in $packages) {
+            echo "Generating wheel for $package"
+            pip wheel "$package" -w wheelhouse
+          }
 
       - name: Zip wheelhouse
         uses: vimtor/action-zip@v1
         with:
           files: wheelhouse
-          dest: ${{ env.PACKAGE_NAME }}-v${{ steps.version.outputs.PYAEDT_VERSION }}-wheelhouse-${{ runner.os }}-${{ matrix.python-version }}.zip
+          dest: ${{ env.PACKAGE_NAME }}-v${{ steps.version.outputs.PYAEDT_VERSION }}-${{ runner.os }}-${{ matrix.python-version }}.zip
 
       - name: Upload Wheelhouse
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.PACKAGE_NAME }}-v${{ steps.version.outputs.PYAEDT_VERSION }}-wheelhouse-${{ runner.os }}-${{ matrix.python-version }}
+          name: ${{ env.PACKAGE_NAME }}-v${{ steps.version.outputs.PYAEDT_VERSION }}-${{ runner.os }}-${{ matrix.python-version }}
           path: '*.zip'
           retention-days: 7
 
@@ -83,4 +87,4 @@ jobs:
         with:
           generate_release_notes: true
           files: |
-            ${{ env.PACKAGE_NAME }}-v${{ steps.version.outputs.PYAEDT_VERSION }}-wheelhouse-${{ runner.os }}-${{ matrix.python-version }}.zip
+            ${{ env.PACKAGE_NAME }}-v${{ steps.version.outputs.PYAEDT_VERSION }}-${{ runner.os }}-${{ matrix.python-version }}.zip

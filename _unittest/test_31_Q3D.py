@@ -3,6 +3,7 @@ import os
 from _unittest.conftest import BasisTest
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
+
 from pyaedt import Q3d
 
 test_project_name = "coax_Q3D"
@@ -52,12 +53,35 @@ class TestClass(BasisTest, object):
         mysetup = self.aedtapp.create_setup()
         mysetup.props["SaveFields"] = True
         assert mysetup.update()
+        assert mysetup.dc_enabled
+        mysetup.dc_resistance_only = True
+        assert mysetup.dc_resistance_only
+        mysetup.dc_enabled = False
+        mysetup.dc_enabled = True
         sweep = self.aedtapp.create_discrete_sweep(mysetup.name, sweepname="mysweep", freqstart=1, units="GHz")
         assert sweep
         assert sweep.props["RangeStart"] == "1GHz"
 
         # Create a discrete sweep with the same name of an existing sweep is not possible.
         assert not self.aedtapp.create_discrete_sweep(mysetup.name, sweepname="mysweep", freqstart=1, units="GHz")
+        assert mysetup.create_linear_step_sweep(
+            sweepname="StepFast",
+            unit="GHz",
+            freqstart=1,
+            freqstop=20,
+            step_size=0.1,
+            sweep_type="Interpolating",
+        )
+        assert mysetup.create_single_point_sweep(
+            save_fields=True,
+        )
+        assert mysetup.create_frequency_sweep(
+            unit="GHz",
+            sweepname="Sweep1",
+            freqstart=9.5,
+            freqstop=10.5,
+            sweep_type="Interpolating",
+        )
 
     def test_06b_create_setup(self):
         mysetup = self.aedtapp.create_setup()
@@ -71,11 +95,13 @@ class TestClass(BasisTest, object):
 
     def test_06c_autoidentify(self):
         assert self.aedtapp.auto_identify_nets()
+        assert self.aedtapp.delete_all_nets()
+        assert self.aedtapp.auto_identify_nets()
         pass
 
     def test_07_create_source_sinks(self):
-        source = self.aedtapp.assign_source_to_objectface("MyCylinder", axisdir=0, source_name="Source1")
-        sink = self.aedtapp.assign_sink_to_objectface("MyCylinder", axisdir=3, sink_name="Sink1")
+        source = self.aedtapp.source("MyCylinder", axisdir=0, name="Source1")
+        sink = self.aedtapp.sink("MyCylinder", axisdir=3, name="Sink1")
         assert source.name == "Source1"
         assert sink.name == "Sink1"
         assert len(self.aedtapp.excitations) > 0
@@ -84,16 +110,28 @@ class TestClass(BasisTest, object):
         self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1")
         self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [10, 10, 10], 4, name="Sink1")
 
-        source = self.aedtapp.assign_source_to_sheet("Source1", sourcename="Source3")
-        sink = self.aedtapp.assign_sink_to_sheet("Sink1", sinkname="Sink3")
+        source = self.aedtapp.source("Source1", name="Source3")
+        sink = self.aedtapp.sink("Sink1", name="Sink3")
         assert source.name == "Source3"
         assert sink.name == "Sink3"
+        assert source.props["TerminalType"] == "ConstantVoltage"
+        assert sink.props["TerminalType"] == "ConstantVoltage"
+
+        self.aedtapp.modeler.delete("Source1")
+        self.aedtapp.modeler.delete("Sink1")
+        self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1")
+        self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [10, 10, 10], 4, name="Sink1")
+        source = self.aedtapp.source("Source1", name="Source3", terminal_type="current")
+        sink = self.aedtapp.sink("Sink1", name="Sink3", terminal_type="current")
+        assert source.props["TerminalType"] == "UniformCurrent"
+        assert sink.props["TerminalType"] == "UniformCurrent"
 
         self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1")
         self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [10, 10, 10], 4, name="Sink1")
 
-        source = self.aedtapp.assign_source_to_sheet("Source1", netname="GND", objectname="Cylinder1")
-        sink = self.aedtapp.assign_sink_to_sheet("Sink1", netname="GND", objectname="Cylinder1")
+        source = self.aedtapp.source(["Source1", "Sink1"], net_name="GND", name="Cylinder1")
+        source.props["Objects"] = ["Source1"]
+        sink = self.aedtapp.sink("Sink1", net_name="GND")
         assert source
         assert sink
         sink.name = "My_new_name"
@@ -104,9 +142,13 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.net_sinks("GND")) > 0
         assert len(self.aedtapp.net_sources("PGND")) == 0
         assert len(self.aedtapp.net_sinks("PGND")) == 0
+        obj_list = self.aedtapp.objects_from_nets(self.aedtapp.nets[0])
+        assert len(obj_list[self.aedtapp.nets[0]]) > 0
+        obj_list = self.aedtapp.objects_from_nets(self.aedtapp.nets[0], "steel")
+        assert len(obj_list[self.aedtapp.nets[0]]) == 0
 
     def test_08_create_faceted_bondwire(self):
-        self.aedtapp.load_project(self.test_project, close_active_proj=True)
+        self.aedtapp.load_project(self.test_project, close_active_proj=True, save_active_project=False)
         test = self.aedtapp.modeler.create_faceted_bondwire_from_true_surface(
             "bondwire_example", self.aedtapp.AXIS.Z, min_size=0.2, numberofsegments=8
         )
@@ -155,8 +197,21 @@ class TestClass(BasisTest, object):
         assert len(q3d.matrices[0].sources(False)) > 0
         assert q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest")
         assert q3d.matrices[1].name == "JointTest"
+        q3d.matrices[1].delete()
+        assert q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest", "New_net")
+        assert "New_net" in q3d.matrices[1].sources()
         assert q3d.insert_reduced_matrix("JoinParallel", ["Source1", "Source2"], "JointTest2")
         assert q3d.matrices[2].name == "JointTest2"
+        assert q3d.matrices[2].delete()
+        assert q3d.insert_reduced_matrix("JoinParallel", ["Box1", "Box1_1"], "JointTest2")
+        assert q3d.matrices[2].name == "JointTest2"
+        assert q3d.matrices[2].delete()
+        assert q3d.insert_reduced_matrix(
+            "JoinParallel", ["Box1", "Box1_1"], "JointTest2", "New_net", "New_source", "New_sink"
+        )
+        assert "New_net" in q3d.matrices[2].sources()
+        assert q3d.matrices[2].add_operation(q3d.MATRIXOPERATIONS.JoinParallel, ["Box1_2", "New_net"])
+        assert len(q3d.matrices[2].operations) == 2
         assert q3d.insert_reduced_matrix("FloatInfinity", None, "JointTest3")
         assert q3d.matrices[3].name == "JointTest3"
         assert q3d.insert_reduced_matrix(q3d.MATRIXOPERATIONS.MoveSink, "Source2", "JointTest4")
@@ -178,7 +233,7 @@ class TestClass(BasisTest, object):
         assert q3d.matrices[0].get_sources_for_plot(first_element_filter="Box?", second_element_filter="B*2") == [
             "C(Box1,Box1_2)"
         ]
-        self.aedtapp.close_project(q3d.project_name, False)
+        self.aedtapp.close_project(q3d.project_name, save_project=False)
 
     def test_14_edit_sources(self):
         q3d = Q3d(self.test_matrix, specified_version=desktop_version)
@@ -210,7 +265,7 @@ class TestClass(BasisTest, object):
         assert not q3d.edit_sources(sources_dc)
         sources = q3d.get_all_sources()
         assert sources[0] == "Box1:Source1"
-        self.aedtapp.close_project(q3d.project_name, False)
+        self.aedtapp.close_project(q3d.project_name, save_project=False)
 
     def test_13a_export_matrix_data(self):
         q3d = Q3d(self.test_matrix, specified_version=desktop_version)
@@ -220,7 +275,10 @@ class TestClass(BasisTest, object):
         q3d.matrices[2].name == "JointTest2"
         q3d.insert_reduced_matrix("FloatInfinity", None, "JointTest3")
         q3d.matrices[3].name == "JointTest3"
-        q3d.analyze_setup(q3d.analysis_setup)
+        sweep = q3d.setups[0].add_sweep()
+        q3d.analyze_setup(q3d.active_setup)
+        assert len(sweep.frequencies) > 0
+        assert sweep.basis_frequencies == []
         assert q3d.export_matrix_data(os.path.join(self.local_scratch.path, "test.txt"))
         assert not q3d.export_matrix_data(os.path.join(self.local_scratch.path, "test.pdf"))
         assert not q3d.export_matrix_data(
@@ -302,20 +360,41 @@ class TestClass(BasisTest, object):
         assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), c_unit="H")
         assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), g_unit="fSie")
         assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), g_unit="A")
-        self.aedtapp.close_project(q3d.project_name, False)
+        self.aedtapp.close_project(q3d.project_name, save_project=False)
 
     def test_14_export_equivalent_circuit(self):
         q3d = Q3d(self.test_matrix, specified_version=desktop_version)
         q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest")
-        q3d.matrices[1].name == "JointTest"
-        q3d.analyze_setup(q3d.analysis_setup)
-        assert q3d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.cir"))
+        assert q3d.matrices[1].name == "JointTest"
+        q3d["d"] = "10mm"
+        q3d.modeler.duplicate_along_line(objid="Box1", vector=[0, "d", 0])
+        q3d.analyze_setup(q3d.active_setup)
+        assert q3d.export_equivalent_circuit(
+            os.path.join(self.local_scratch.path, "test_export_circuit.cir"), variations=["d: 10mm"]
+        )
         assert not q3d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.doc"))
+        q3d["d"] = "20mm"
+        assert not q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            setup_name="Setup1",
+            sweep="LastAdaptive",
+            variations=["d: 10mm", "d: 20mm"],
+        )
+        q3d.analyze_setup(q3d.active_setup)
         assert q3d.export_equivalent_circuit(
             file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
             setup_name="Setup1",
             sweep="LastAdaptive",
+            variations=["d: 10mm", "d: 20mm"],
         )
+
+        assert not q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            setup_name="Setup1",
+            sweep="LastAdaptive",
+            variations=["c: 10mm", "d: 20mm"],
+        )
+
         assert not q3d.export_equivalent_circuit(
             file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), setup_name="Setup2"
         )
@@ -356,4 +435,24 @@ class TestClass(BasisTest, object):
         assert not q3d.export_equivalent_circuit(
             file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name="test"
         )
-        self.aedtapp.close_project(q3d.project_name, False)
+        self.aedtapp.close_project(q3d.project_name, save_project=False)
+
+    def test_15_export_results_q3d(self):
+        q3d = Q3d(self.test_matrix, specified_version=desktop_version)
+        exported_files = q3d.export_results()
+        assert len(exported_files) == 0
+        for setup_name in q3d.setup_names:
+            q3d.analyze_setup(setup_name)
+        exported_files = q3d.export_results()
+        assert len(exported_files) > 0
+        q3d.setups[0].add_sweep()
+        q3d.analyze_setup(q3d.active_setup)
+        exported_files = q3d.export_results()
+        assert len(exported_files) > 0
+        q3d.close_project(q3d.project_name, save_project=False)
+
+    def test_16_set_variable(self):
+        self.aedtapp.variable_manager.set_variable("var_test", expression="123")
+        self.aedtapp["var_test"] = "234"
+        assert "var_test" in self.aedtapp.variable_manager.design_variable_names
+        assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"

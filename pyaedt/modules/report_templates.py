@@ -1,13 +1,16 @@
+from collections import OrderedDict
 import copy
 import os
-from collections import OrderedDict
+import re
 
 from pyaedt.generic.constants import LineStyle
 from pyaedt.generic.constants import SymbolStyle
 from pyaedt.generic.constants import TraceType
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
 def _props_with_default(dict_in, key, default_value=None):
@@ -201,17 +204,57 @@ class Note(object):
 class Trace(object):
     """Provides trace management."""
 
-    def __init__(self, report_setup, trace_name):
+    def __init__(self, report_setup, aedt_name):
         self._oreport_setup = report_setup
-        self.trace_name = trace_name
+        self.aedt_name = aedt_name
+        self._name = None
         self.LINESTYLE = LineStyle()
         self.TRACETYPE = TraceType()
         self.SYMBOLSTYLE = SymbolStyle()
 
+    @property
+    def name(self):
+        """Trace name.
+
+        Returns
+        -------
+        str
+        """
+        report_name = self.aedt_name.split(":")[0]
+        traces_in_report = self._oreport_setup.GetReportTraceNames(report_name)
+        for trace in traces_in_report:
+            if trace + ":" in self.aedt_name:
+                self._name = trace
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        report_name = self.aedt_name.split(":")[0]
+        prop_name = report_name + ":" + self.name
+
+        self._oreport_setup.ChangeProperty(
+            [
+                "NAME:AllTabs",
+                [
+                    "NAME:Trace",
+                    ["NAME:PropServers", prop_name],
+                    ["NAME:ChangedProps", ["NAME:Specify Name", "Value:=", True]],
+                ],
+            ]
+        )
+        self._oreport_setup.ChangeProperty(
+            [
+                "NAME:AllTabs",
+                ["NAME:Trace", ["NAME:PropServers", prop_name], ["NAME:ChangedProps", ["NAME:Name", "Value:=", value]]],
+            ]
+        )
+        self.aedt_name.replace(self.name, value)
+        self._name = value
+
     @pyaedt_function_handler()
     def _change_property(self, props_value):
         self._oreport_setup.ChangeProperty(
-            ["NAME:AllTabs", ["NAME:Attributes", ["NAME:PropServers", self.trace_name], props_value]]
+            ["NAME:AllTabs", ["NAME:Attributes", ["NAME:PropServers", self.aedt_name], props_value]]
         )
         return True
 
@@ -219,23 +262,23 @@ class Trace(object):
     def set_trace_properties(self, trace_style=None, width=None, trace_type=None, color=None):
         """Set trace properties.
 
-         Parameters
-         ----------
+        Parameters
+        ----------
         trace_style : str, optional
-             Style for the trace line. The default is ``None``. You can also use
-             the ``LINESTYLE`` property.
-         width : int, optional
-             Width of the trace line. The default is ``None``.
-         trace_type : str
+            Style for the trace line. The default is ``None``. You can also use
+            the ``LINESTYLE`` property.
+        width : int, optional
+            Width of the trace line. The default is ``None``.
+        trace_type : str
             Type of the trace line. The default is ``None``. You can also use the ``TRACETYPE``
             property.
-         color : tuple, list
-             Trace line color specified as a tuple (R,G,B) or a list of integers [0,255].
-             The default is ``None``.
+        color : tuple, list
+            Trace line color specified as a tuple (R,G,B) or a list of integers [0,255].
+            The default is ``None``.
 
-         Returns
-         -------
-         bool
+        Returns
+        -------
+        bool
             ``True`` when successful, ``False`` when failed.
         """
         props = ["NAME:ChangedProps"]
@@ -308,6 +351,7 @@ class CommonReport(object):
         if expressions:
             self.expressions = expressions
         self._is_created = True
+        self.siwave_dc_category = 0
 
     @property
     def differential_pairs(self):
@@ -446,7 +490,7 @@ class CommonReport(object):
     @pyaedt_function_handler()
     def _update_traces(self):
         for trace in self.traces:
-            trace_name = trace.trace_name.split(":")[1]
+            trace_name = trace.aedt_name.split(":")[1]
             if "expressions" in self.props and trace_name in self.props["expressions"]:
                 trace_val = self.props["expressions"][trace_name]
                 trace_style = _props_with_default(trace_val, "trace_style")
@@ -775,14 +819,14 @@ class CommonReport(object):
         return self.props["context"]["primary_sweep"]
 
     @primary_sweep.setter
-    def primary_sweep(self, val):
-        if val == self.props["context"].get("secondary_sweep", None):
+    def primary_sweep(self, value):
+        if value == self.props["context"].get("secondary_sweep", None):
             self.props["context"]["secondary_sweep"] = self.props["context"]["primary_sweep"]
-        self.props["context"]["primary_sweep"] = val
-        if val == "Time":
+        self.props["context"]["primary_sweep"] = value
+        if value == "Time":
             self.variations.pop("Freq", None)
             self.variations["Time"] = ["All"]
-        elif val == "Freq":
+        elif value == "Freq":
             self.variations.pop("Time", None)
             self.variations["Freq"] = ["All"]
 
@@ -797,14 +841,14 @@ class CommonReport(object):
         return self.props["context"].get("secondary_sweep", None)
 
     @secondary_sweep.setter
-    def secondary_sweep(self, val):
-        if val == self.props["context"]["primary_sweep"]:
+    def secondary_sweep(self, value):
+        if value == self.props["context"]["primary_sweep"]:
             self.props["context"]["primary_sweep"] = self.props["context"]["secondary_sweep"]
-        self.props["context"]["secondary_sweep"] = val
-        if val == "Time":
+        self.props["context"]["secondary_sweep"] = value
+        if value == "Time":
             self.variations.pop("Freq", None)
             self.variations["Time"] = ["All"]
-        elif val == "Freq":
+        elif value == "Freq":
             self.variations.pop("Time", None)
             self.variations["Freq"] = ["All"]
 
@@ -819,8 +863,8 @@ class CommonReport(object):
         return self.props["context"]["primary_sweep_range"]
 
     @primary_sweep_range.setter
-    def primary_sweep_range(self, val):
-        self.props["context"]["primary_sweep_range"] = val
+    def primary_sweep_range(self, value):
+        self.props["context"]["primary_sweep_range"] = value
 
     @property
     def secondary_sweep_range(self):
@@ -833,8 +877,8 @@ class CommonReport(object):
         return self.props["context"]["secondary_sweep_range"]
 
     @secondary_sweep_range.setter
-    def secondary_sweep_range(self, val):
-        self.props["context"]["secondary_sweep_range"] = val
+    def secondary_sweep_range(self, value):
+        self.props["context"]["secondary_sweep_range"] = value
 
     @property
     def _context(self):
@@ -1141,7 +1185,10 @@ class CommonReport(object):
 
     @pyaedt_function_handler()
     def add_cartesian_x_marker(self, val, name=None):  # pragma: no cover
-        """Add a cartesian X marker. This method works only in graphical mode.
+        """Add a cartesian X marker.
+
+        .. note::
+           This method only works in graphical mode.
 
         Parameters
         ----------
@@ -1163,7 +1210,10 @@ class CommonReport(object):
 
     @pyaedt_function_handler()
     def add_cartesian_y_marker(self, val, name=None, y_axis=1):  # pragma: no cover
-        """Add a cartesian Y marker. This method works only in graphical mode.
+        """Add a cartesian Y marker.
+
+        .. note::
+           This method only works in graphical mode.
 
         Parameters
         ----------
@@ -1237,7 +1287,7 @@ class CommonReport(object):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed
+            ``True`` when successful, ``False`` when failed.
         """
         props = ["NAME:ChangedProps"]
         props.append(["NAME:Show minor X grid", "Value:=", minor_x])
@@ -1343,7 +1393,7 @@ class CommonReport(object):
             Minor tick division. The default is ``5``.
         min_spacing : str, optional
             Minimum spacing with units. The default is ``None``.
-        units :str, optional
+        units : str, optional
             Units in the plot. The default is ``None``.
 
         Returns
@@ -1364,6 +1414,7 @@ class CommonReport(object):
         if min_spacing:
             props.append(["NAME:Spacing", "Value:=", min_spacing])
         if units:
+            props.append((["NAME:Auto Units", "Value:=", False]))
             props.append(["NAME:Units", "Value:=", units])
         return self._change_property("Scaling", "AxisX", props)
 
@@ -1509,13 +1560,13 @@ class CommonReport(object):
             Minor tick division. The default is ``5``.
         min_spacing : str, optional
             Minimum spacing with units. The default is ``None``.
-        units :str, optional
+        units : str, optional
             Units in the plot. The default is ``None``.
 
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed
+            ``True`` when successful, ``False`` when failed.
         """
         if linear_scaling:
             props = ["NAME:ChangedProps", ["NAME:Axis Scaling", "Value:=", "Linear"]]
@@ -1530,6 +1581,7 @@ class CommonReport(object):
         if min_spacing:
             props.append(["NAME:Spacing", "Value:=", min_spacing])
         if units:
+            props.append((["NAME:Auto Units", "Value:=", False]))
             props.append(["NAME:Units", "Value:=", units])
         return self._change_property("Scaling", "Axis" + axis_name, props)
 
@@ -1776,7 +1828,9 @@ class CommonReport(object):
         traces : list
             List of traces to add.
         setup_name : str, optional
-            Name of the setup. The default is ``None``.
+            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
+            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
+            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
         variations : dict, optional
             Dictionary of variations. The default is ``None``.
         context : list, optional
@@ -1885,6 +1939,8 @@ class Standard(CommonReport):
     def _did(self):
         if self.domain == "Sweep":
             return 3
+        elif self.domain == "Clock Times":
+            return 55827
         else:
             return 1
 
@@ -1903,7 +1959,34 @@ class Standard(CommonReport):
             else:
                 ctxt = ["Context:=", self.matrix]
         elif self._post.post_solution_type in ["HFSS3DLayout"]:
-            if self.differential_pairs:
+            if self.domain == "DCIR":
+                ctxt = [
+                    "NAME:Context",
+                    "SimValueContext:=",
+                    [
+                        37010,
+                        0,
+                        2,
+                        0,
+                        False,
+                        False,
+                        -1,
+                        1,
+                        0,
+                        1,
+                        1,
+                        "",
+                        0,
+                        0,
+                        "DCIRID",
+                        False,
+                        str(self.siwave_dc_category),
+                        "IDIID",
+                        False,
+                        "1",
+                    ],
+                ]
+            elif self.differential_pairs:
                 ctxt = [
                     "NAME:Context",
                     "SimValueContext:=",
@@ -1951,6 +2034,60 @@ class Standard(CommonReport):
                     ctxt[2].extend(["WS", False, self.time_start])
                 if self.time_stop:
                     ctxt[2].extend(["WE", False, self.time_stop])
+        elif self._post.post_solution_type in ["NexximAMI"]:
+            ctxt = [
+                "NAME:Context",
+                "SimValueContext:=",
+                [self._did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "NUMLEVELS", False, "1"],
+            ]
+            qty = re.sub("<[^>]+>", "", self.expressions[0])
+            if qty == "InitialWave":
+                ctxt_temp = ["QTID", False, "0", "SCID", False, "-1", "SID", False, "0"]
+            elif qty == "WaveAfterSource":
+                ctxt_temp = ["QTID", False, "1", "SCID", False, "-1", "SID", False, "0"]
+            elif qty == "WaveAfterChannel":
+                ctxt_temp = [
+                    "PCID",
+                    False,
+                    "-1",
+                    "PID",
+                    False,
+                    "0",
+                    "QTID",
+                    False,
+                    "2",
+                    "SCID",
+                    False,
+                    "-1",
+                    "SID",
+                    False,
+                    "0",
+                ]
+            elif qty == "WaveAfterProbe":
+                ctxt_temp = [
+                    "PCID",
+                    False,
+                    "-1",
+                    "PID",
+                    False,
+                    "0",
+                    "QTID",
+                    False,
+                    "3",
+                    "SCID",
+                    False,
+                    "-1",
+                    "SID",
+                    False,
+                    "0",
+                ]
+            elif qty == "ClockTics":
+                ctxt_temp = ["PCID", False, "-1", "PID", False, "0"]
+            else:
+                return None
+            for el in ctxt_temp:
+                ctxt[2].append(el)
+
         elif self.differential_pairs:
             ctxt = ["Diff:=", "differential_pairs", "Domain:=", self.domain]
         else:
@@ -2011,9 +2148,9 @@ class Fields(CommonReport):
 
     @property
     def _context(self):
-        ctxt = ["Context:=", self.polyline]
-        ctxt.append("PointCount:=")
-        ctxt.append(self.point_number)
+        ctxt = []
+        if self.polyline:
+            ctxt = ["Context:=", self.polyline, "PointCount:=", self.point_number]
         return ctxt
 
 
@@ -2051,6 +2188,8 @@ class FarField(CommonReport):
         self.domain = "Sweep"
         self.primary_sweep = "Phi"
         self.secondary_sweep = "Theta"
+        self.source_context = None
+        self.source_group = None
         if "Phi" not in self.variations:
             self.variations["Phi"] = ["All"]
         if "Theta" not in self.variations:
@@ -2074,6 +2213,10 @@ class FarField(CommonReport):
 
     @property
     def _context(self):
+        if self.source_context:
+            return ["Context:=", self.far_field_sphere, "SourceContext:=", self.source_context]
+        if self.source_group:
+            return ["Context:=", self.far_field_sphere, "Source Group:=", self.source_group]
         return ["Context:=", self.far_field_sphere]
 
 
@@ -2412,7 +2555,7 @@ class EyeDiagram(CommonReport):
             Points of the eye mask in the format ``[[x1,y1,],[x2,y2],...]``.
         xunits : str, optional
             X points units. The default is ``"ns"``.
-        yunits :  str, optional
+        yunits : str, optional
             Y points units. The default is ``"mV"``.
         enable_limits : bool, optional
             Whether to enable the upper and lower limits. The default is ``False``.

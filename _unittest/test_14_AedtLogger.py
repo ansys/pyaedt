@@ -14,121 +14,50 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
 from _unittest.conftest import BasisTest
+
 from pyaedt import settings
 
 # Import required modules
 from pyaedt.aedt_logger import AedtLogger
 from pyaedt.generic.general_methods import is_ironpython
 
+settings.enable_desktop_logs = True
+
 
 class TestClass(BasisTest, object):
     def setup_class(self):
+        settings.enable_local_log_file = True
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, "Test_14")
 
     def teardown_class(self):
+        settings.enable_local_log_file = False
         BasisTest.my_teardown(self)
-        shutil.rmtree(os.path.join(tempfile.gettempdir(), "log_testing"))
-
-    # @pytest.mark.xfail
-    # def test_01_global(self, clean_desktop_messages, clean_desktop, hfss):
-    #     logger = hfss.logger
-    #     # The default logger level is DEBUGGING.
-    #     logger.debug("Global debug message for testing.")
-    #     logger.info("Global info message for testing.")
-    #     logger.warning("Global warning message for testing.")
-    #     logger.error("Global error message for testing.")
-    #     logger.info("Global critical message for testing.")
-
-    #     # Project logger
-    #     logger.add_logger("Project")
-    #     logger.project.debug("Project debug message for testing.")
-    #     logger.project.info("Project info message for testing.")
-    #     logger.project.warning("Project warning message for testing.")
-    #     logger.project.error("Project error message for testing.")
-    #     logger.project.info("Project critical message for testing.")
-
-    #     # Current active design logger
-    #     logger.add_logger("Design")
-    #     logger.design.debug("Design debug message for testing.")
-    #     logger.design.info("Design info message for testing.")
-    #     logger.design.warning("Design warning message for testing.")
-    #     logger.design.error("Design error message for testing.")
-    #     logger.design.info("Design critical message for testing.")
-
-    #     global_messages = logger.get_messages().global_level
-    #     assert len(global_messages) >= 11
-
-    #     pyaedt_version = False
-    #     python_version = False
-    #     project = False
-    #     for message in global_messages:
-    #         if '[info] pyaedt v' in message:
-    #             pyaedt_version = True
-    #             continue
-    #         if '[info] Python version' in message:
-    #             python_version = True
-    #             continue
-    #         if '[info] Project' in message:
-    #             project = True
-
-    #     print("#######")
-    #     print("Global")
-    #     print(global_messages)
-    #     assert '[info] Global debug message for testing.' in global_messages
-    #     assert '[info] Global info message for testing.' in global_messages
-    #     assert '[warning] Global warning message for testing.' in global_messages
-    #     assert '[error] Global error message for testing.' in global_messages
-    #     assert '[info] Global critical message for testing.' in global_messages
-
-    #     design_messages = logger.get_messages().design_level
-    #     assert len(design_messages) >= 6
-    #     assert '[info] Successfully loaded project materials !' in design_messages[0]
-    #     assert '[info] Design debug message for testing.' in design_messages[1]
-    #     assert '[info] Design info message for testing.' in design_messages[2]
-    #     assert '[warning] Design warning message for testing.' in design_messages[3]
-    #     assert '[error] Design error message for testing.' in design_messages[4]
-    #     assert '[info] Design critical message for testing.' in design_messages[5]
-
-    #     project_messages = logger.get_messages().project_level
-    #     assert len(project_messages) >= 5
-    #     assert '[info] Project debug message for testing.' in project_messages[0]
-    #     assert '[info] Project info message for testing.' in project_messages[1]
-    #     assert '[warning] Project warning message for testing.' in project_messages[2]
-    #     assert '[error] Project error message for testing.' in project_messages[3]
-    #     assert '[info] Project critical message for testing.' in project_messages[4]
-
-    #     logger.clear_messages("", "", 2)
-    #     assert not logger.get_messages().global_level
+        shutil.rmtree(os.path.join(tempfile.gettempdir(), "log_testing"), ignore_errors=True)
 
     def test_01_formatter(self):
         settings.formatter = logging.Formatter(
             fmt="%(asctime)s (%(levelname)s) %(message)s", datefmt="%d.%m.%Y %H:%M:%S"
         )
-        temp_dir = tempfile.gettempdir()
-        logging_dir = os.path.join(temp_dir, "log_testing")
-        if not os.path.exists(logging_dir):
-            os.makedirs(logging_dir)
-        path = os.path.join(logging_dir, "test01.txt")
+        path = os.path.join(self.local_scratch.path, "test01.txt")
         logger = AedtLogger(filename=path)
         assert logger.formatter == settings.formatter
         settings.formatter = None
         logger.disable_log_on_file()
 
-        for handler in logger._global.handlers:
+        for handler in [i for i in logger._global.handlers]:
             if isinstance(handler, logging.FileHandler):
                 handler.close()
-                logger.removeHandler(handler)
+                logger._global.removeHandler(handler)
+        logger.enable_log_on_file()
 
     def test_02_output_file_with_app_filter(self):
         content = None
         temp_dir = tempfile.gettempdir()
-        logging_dir = os.path.join(temp_dir, "log_testing")
-        if not os.path.exists(logging_dir):
-            os.makedirs(logging_dir)
-        path = os.path.join(logging_dir, "test02.txt")
+        path = os.path.join(self.local_scratch.path, "test02.txt")
         logger = AedtLogger(filename=path)
         logger.info("Info for Global")
+
         logger.debug("Debug for Global")
         logger.warning("Warning for Global")
         logger.error("Error for Global")
@@ -142,6 +71,8 @@ class TestClass(BasisTest, object):
         design_logger.debug("Debug for Design")
         design_logger.warning("Warning for Design")
         design_logger.error("Error for Design")
+        logger.info_timer("Info with message")
+        logger.reset_timer()
 
         # Close every handlers to make sure that the
         # file handler on every logger has been released properly.
@@ -163,7 +94,7 @@ class TestClass(BasisTest, object):
 
         with open(path, "r") as f:
             content = f.readlines()
-
+        content.remove(content[0])
         assert ":Global:INFO    :Info for Global" in content[0]
         assert ":Global:DEBUG   :Debug for Global" in content[1]
         assert ":Global:WARNING :Warning for Global" in content[2]
@@ -176,12 +107,12 @@ class TestClass(BasisTest, object):
         assert ":DEBUG   :Debug for Design" in content[9]
         assert ":WARNING :Warning for Design" in content[10]
         assert ":ERROR   :Error for Design" in content[11]
+        assert "Elapsed time:" in content[12]
         # self.aedtapp.logger.handlers.pop()
         # self.aedtapp.logger.project.handlers.pop()
         # if len(self.aedtapp.logger.design.handlers) > 0:
         #     self.aedtapp.logger.design.handlers.pop()
-
-        os.remove(path)
+        shutil.rmtree(path, ignore_errors=True)
 
     @pytest.mark.skipif(is_ironpython, reason="stdout redirection does not work in IronPython.")
     def test_03_stdout_with_app_filter(self):
@@ -193,20 +124,17 @@ class TestClass(BasisTest, object):
             logger.warning("Warning for Global")
             logger.error("Error for Global")
 
-        assert "pyaedt info: Info for Global" in capture.content
-        assert "pyaedt warning: Warning for Global" in capture.content
-        assert "pyaedt error: Error for Global" in capture.content
+        assert "PyAEDT INFO: Info for Global" in capture.content
+        assert "PyAEDT WARNING: Warning for Global" in capture.content
+        assert "PyAEDT ERROR: Error for Global" in capture.content
 
+    @pytest.mark.skipif(is_ironpython, reason="stdout redirection does not work in IronPython.")
     def test_04_disable_output_file_handler(self):
         content = None
         temp_dir = tempfile.gettempdir()
-        logging_dir = os.path.join(temp_dir, "log_testing")
-        if not os.path.exists(logging_dir):
-            os.makedirs(logging_dir)
-
-        path = os.path.join(logging_dir, "test04.txt")
+        path = os.path.join(self.local_scratch.path, "test04.txt")
         if os.path.exists(path):
-            os.remove(path)
+            shutil.rmtree(path, ignore_errors=True)
         logger = AedtLogger(filename=path)
         logger.info("Info for Global before disabling the log file handler.")
         project_logger = logger.add_logger("Project")
@@ -216,6 +144,7 @@ class TestClass(BasisTest, object):
 
         with open(path, "r") as f:
             content = f.readlines()
+        content.remove(content[0])
 
         assert ":Global:INFO    :Info for Global" in content[0]
         assert ":INFO    :Info for Project before disabling the log file handler." in content[1]
@@ -264,13 +193,12 @@ class TestClass(BasisTest, object):
                 handler.close()
                 design_logger.removeHandler(handler)
 
-        os.remove(path)
+        shutil.rmtree(path, ignore_errors=True)
         settings.logger_file_path = ""
 
     @pytest.mark.skipif(is_ironpython, reason="stdout redirection does not work in IronPython.")
     def test_05_disable_stdout(self):
         with tempfile.TemporaryFile("w+") as fp:
-
             stream = unittest.mock.MagicMock()
             stream.write = unittest.mock.MagicMock()
 
@@ -286,17 +214,20 @@ class TestClass(BasisTest, object):
 
             sys.stdout = sys.__stdout__
 
-            stream.write.assert_any_call("pyaedt info: Info for Global")
-            stream.write.assert_any_call("pyaedt info: Info after re-enabling the stdout handler.")
+            stream.write.assert_any_call("PyAEDT INFO: Info for Global\n")
+            stream.write.assert_any_call("PyAEDT INFO: Info after re-enabling the stdout handler.\n")
 
             with pytest.raises(AssertionError) as e_info:
-                stream.write.assert_any_call("pyaedt info: Info after disabling the stdout handler.")
-
+                stream.write.assert_any_call("PyAEDT INFO: Info after disabling the stdout handler.")
             fp.seek(0)
             stream_content = fp.readlines()
-
-        assert stream_content[0] == "pyaedt info: Info for Global\n"
-        assert stream_content[1] == "pyaedt info: Info after re-enabling the stdout handler.\n"
+        for handler in logger._global.handlers[:]:
+            if "MagicMock" in str(handler) or "StreamHandler (DEBUG)" in str(handler):
+                handler.close()
+                logger._global.removeHandler(handler)
+        assert stream_content[0] == "PyAEDT INFO: Info for Global\n"
+        assert stream_content[1] == "PyAEDT INFO: StdOut has been enabled\n"
+        assert stream_content[2] == "PyAEDT INFO: Info after re-enabling the stdout handler.\n"
 
 
 class CaptureStdOut:

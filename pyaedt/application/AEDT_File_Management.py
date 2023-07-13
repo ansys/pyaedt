@@ -109,9 +109,7 @@ def change_objects_visibility(origfile, solid_list):
     newfile = os.path.join(path, "aedttmp.tmp")
 
     if not os.path.isfile(origfile + ".lock"):  # check if the project is closed
-
         with open(origfile, "rb") as f, open(newfile, "wb") as n:
-
             # Reading file content
             content = f.read()
 
@@ -121,8 +119,8 @@ def change_objects_visibility(origfile, solid_list):
             )
             # Replacing string
             # fmt: off
-            ViewStr = u"Drawings[" + unicode(str(len(solid_list))) + u": " + unicode(str(solid_list).strip("["))
-            s = pattern.sub(r"\1" + ViewStr + r"\3", content)
+            view_str = u"Drawings[" + str(len(solid_list)) + u": " + str(solid_list).strip("[")
+            s = pattern.sub(r"\1" + view_str + r"\3", content)
             # fmt: on
             # writing file content
             n.write(str(s))
@@ -178,10 +176,8 @@ def change_model_orientation(origfile, bottom_dir):
     }
 
     if not os.path.isfile(origfile + ".lock"):  # check if the project is closed
-
         # Opening files
         with open(origfile, "rb") as f, open(newfile, "wb") as n:
-
             # Reading file content
             content = f.read()
 
@@ -190,10 +186,8 @@ def change_model_orientation(origfile, bottom_dir):
                 r"(\$begin 'EditorWindow'\n.+?)(OrientationMatrix\(.+?\))(.+\n\s*\$end 'EditorWindow')", re.UNICODE
             )
             # Replacing string
-            OrientStr = unicode(orientation[bottom_dir])
-            # ViewStr = u"Drawings[" + unicode(str(len(SolidList))) +
-            # u": " + unicode(str(SolidList).strip("["))
-            s = pattern.sub(r"\1" + OrientStr + r"\3", content)
+            orientation_str = orientation[bottom_dir]
+            s = pattern.sub(r"\1" + orientation_str + r"\3", content)
 
             # Writing file content
             n.write(str(s))

@@ -10,35 +10,29 @@ This example shows how you can use PyAEDT to create and modify coordinate system
 
 import os
 
-from pyaedt import Hfss
-from pyaedt import Desktop
-from pyaedt import generate_unique_project_name
-
-
+import pyaedt
 
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
-# documentation only.
+# Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
-
+non_graphical = False
 
 ###############################################################################
 # Launch AEDT in graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Launch AEDT 2022 R2 in graphical mode.
+# Launch AEDT 2023 R1 in graphical mode.
 
-d = Desktop("2022.2", non_graphical=non_graphical, new_desktop_session=True)
+d = pyaedt.launch_desktop(specified_version="2023.1", non_graphical=non_graphical, new_desktop_session=True)
 
 ###############################################################################
 # Insert HFSS design
 # ~~~~~~~~~~~~~~~~~~
 # Insert an HFSS design with the default name.
 
-hfss = Hfss(projectname=generate_unique_project_name(folder_name="CoordSysDemo"))
+hfss = pyaedt.Hfss(projectname=pyaedt.generate_unique_project_name(folder_name="CoordSysDemo"))
 
 ###############################################################################
 # Create coordinate system
@@ -202,7 +196,6 @@ cs_fcs = hfss.modeler.create_coordinate_system(
     name="CS_FCS", origin=[0, 0, 0], reference_cs=fcs6.name, mode="view", view="iso"
 )
 
-
 ###############################################################################
 # Get all coordinate systems
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -240,5 +233,4 @@ print("CS5 :", p2)
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.
 
-if os.name != "posix":
-    d.release_desktop()
+d.release_desktop()

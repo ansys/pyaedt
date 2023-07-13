@@ -1,7 +1,8 @@
 from conf_unittest import test_generator, PytestMockup
+from pyaedt.generic.general_methods import is_windows
 import os
 
-if os.name != "posix":
+if is_windows:
     test_filter = "test_"
 
     test_name = os.path.basename(__file__).replace(".py", "")

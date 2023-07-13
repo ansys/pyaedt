@@ -1,15 +1,20 @@
 # standard imports
 import math
 import os
+import sys
 
 from _unittest.conftest import BasisTest
+
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import isclose
 from pyaedt.maxwell import Maxwell2d
 
 # Setup paths for module imports
 
 try:
+    import filecmp
+
     import pytest  # noqa: F401
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
@@ -121,14 +126,16 @@ class TestClass(BasisTest, object):
         assert pg1.solve_inside
         assert pg1.model
         assert pg1.material_name == "vacuum"
+        assert not pg1.is_conductor
         assert isclose(pg1.faces[0].area, 10.392304845413264)
 
         assert pg2.solve_inside
         assert pg2.model
         assert pg2.material_name == "copper"
+        assert pg2.is_conductor
         assert isclose(pg2.faces[0].area, 5.196152422706631)
 
-    @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
+    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_09_plot(self):
         self.aedtapp.modeler.create_regular_polygon([0, 0, 0], [0, 0, 2])
         self.aedtapp.modeler.create_regular_polygon(
@@ -136,6 +143,10 @@ class TestClass(BasisTest, object):
         )
         obj = self.aedtapp.plot(show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg"))
         assert os.path.exists(obj.image_file)
+        obj2 = self.aedtapp.plot(show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg"), view="xy")
+        assert os.path.exists(obj2.image_file)
+        obj3 = self.aedtapp.plot(show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg"), view="xy1")
+        assert filecmp.cmp(obj.image_file, obj3.image_file)
 
     def test_10_edit_menu_commands(self):
         rect1 = self.aedtapp.modeler.create_rectangle([1, 0, -2], [8, 3])
@@ -149,16 +160,16 @@ class TestClass(BasisTest, object):
 
     def test_12_objects_in_bounding_box(self):
         self.aedtapp.solution_type = "MagnetostaticXY"
-        bounding_box = [35, 42, -52, -68]
+        bounding_box = [-52, -68, 35, 42]
         objects_xy_4 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
-        bounding_box = [20, 30, 10, -25, -36, -40]
+        bounding_box = [-25, -36, -40, 20, 30, 10]
         objects_xy_6 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
         assert type(objects_xy_4) is list
         assert type(objects_xy_6) is list
         self.aedtapp.solution_type = "MagnetostaticZ"
-        bounding_box = [35, 42, -52, -68]
+        bounding_box = [-52, -68, 35, 42]
         objects_z_4 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
-        bounding_box = [20, 30, 10, -25, -36, -40]
+        bounding_box = [-25, -36, -40, 20, 30, 10]
         objects_z_6 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
         assert type(objects_z_4) is list
         assert type(objects_z_6) is list
@@ -169,3 +180,9 @@ class TestClass(BasisTest, object):
             with pytest.raises(ValueError):
                 bounding_box_5_elements = [1, 2, 3, 4, 5]
                 self.aedtapp.modeler.objects_in_bounding_box(bounding_box_5_elements)
+
+    def test_13_set_variable(self):
+        self.aedtapp.variable_manager.set_variable("var_test", expression="123")
+        self.aedtapp["var_test"] = "234"
+        assert "var_test" in self.aedtapp.variable_manager.design_variable_names
+        assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"

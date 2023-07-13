@@ -6,21 +6,12 @@ import warnings
 from pyaedt import settings
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.configurations import Configurations
-from pyaedt.generic.general_methods import _retry_ntimes
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.Model2D import Modeler2D
-from pyaedt.modeler.Model3D import Modeler3D
-from pyaedt.modeler.stackup_3d import Stackup3D
-from pyaedt.modules.Mesh import Mesh
-from pyaedt.modules.MeshIcepak import IcepakMesh
-
-if is_ironpython:
-    from pyaedt.modules.PostProcessor import PostProcessor
-else:
-    from pyaedt.modules.AdvancedPostProcessing import PostProcessor
 
 
 class FieldAnalysis3D(Analysis, object):
@@ -101,9 +92,9 @@ class FieldAnalysis3D(Analysis, object):
             port,
             aedt_process_id,
         )
-        self._modeler = Modeler2D(self) if application in ["Maxwell 2D", "2D Extractor"] else Modeler3D(self)
-        self._mesh = IcepakMesh(self) if application == "Icepak" else Mesh(self)
-        self._post = PostProcessor(self)
+        self._post = None
+        self._modeler = None
+        self._mesh = None
         self._configurations = Configurations(self)
 
     @property
@@ -122,8 +113,15 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Model3D.Modeler3D` or :class:`pyaedt.modeler.Model2D.Modeler2D`
+        :class:`pyaedt.modeler.modeler3d.Modeler3D` or :class:`pyaedt.modeler.modeler2d.Modeler2D`
+            Modeler object.
         """
+        if self._modeler is None:
+            from pyaedt.modeler.modeler2d import Modeler2D
+            from pyaedt.modeler.modeler3d import Modeler3D
+
+            self._modeler = Modeler2D(self) if self.design_type in ["Maxwell 2D", "2D Extractor"] else Modeler3D(self)
+
         return self._modeler
 
     @property
@@ -133,8 +131,31 @@ class FieldAnalysis3D(Analysis, object):
         Returns
         -------
         :class:`pyaedt.modules.Mesh.Mesh` or :class:`pyaedt.modules.MeshIcepak.IcepakMesh`
+            Mesh object.
         """
+        if self._mesh is None:
+            from pyaedt.modules.Mesh import Mesh
+            from pyaedt.modules.MeshIcepak import IcepakMesh
+
+            self._mesh = IcepakMesh(self) if self.design_type == "Icepak" else Mesh(self)
         return self._mesh
+
+    @property
+    def post(self):
+        """PostProcessor.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.AdvancedPostProcessing.PostProcessor`
+            PostProcessor object.
+        """
+        if self._post is None:
+            if is_ironpython:  # pragma: no cover
+                from pyaedt.modules.PostProcessor import PostProcessor
+            else:
+                from pyaedt.modules.AdvancedPostProcessing import PostProcessor
+            self._post = PostProcessor(self)
+        return self._post
 
     @property
     def components3d(self):
@@ -147,28 +168,25 @@ class FieldAnalysis3D(Analysis, object):
 
         """
         components_dict = {}
-        syspath = os.path.join(self.syslib, "3DComponents", self._design_type)
-        if os.path.exists(syspath):
-            listfiles = []
-            for root, dirs, files in os.walk(syspath):
-                for file in files:
-                    if file.endswith(".a3dcomp"):
-                        listfiles.append(os.path.join(root, file))
-            # listfiles = glob.glob(syspath + "/**/*.a3dcomp", recursive=True)
-            for el in listfiles:
-                head, tail = ntpath.split(el)
-                components_dict[tail[:-8]] = el
-        userlib = os.path.join(self.userlib, "3DComponents", self._design_type)
-        if os.path.exists(userlib):
-            listfiles = []
-            for root, dirs, files in os.walk(userlib):
-                for file in files:
-                    if file.endswith(".a3dcomp"):
-                        listfiles.append(os.path.join(root, file))
-            # listfiles = glob.glob(userlib + "/**/*.a3dcomp", recursive=True)
-            for el in listfiles:
-                head, tail = ntpath.split(el)
-                components_dict[tail[:-8]] = el
+
+        # Define libraries where 3d components may exist.
+        # libs = [syslib, userlib]
+
+        libs = [
+            os.path.join(self.syslib, "3DComponents", self._design_type),
+            os.path.join(self.userlib, "3DComponents", self._design_type),
+        ]
+
+        for lib in libs:
+            if os.path.exists(lib):
+                listfiles = []
+                for root, _, files in os.walk(lib):
+                    for file in files:
+                        if file.endswith(".a3dcomp"):
+                            listfiles.append(os.path.join(root, file))
+                for el in listfiles:
+                    head, tail = ntpath.split(el)
+                    components_dict[tail[:-8]] = el
         return components_dict
 
     @pyaedt_function_handler()
@@ -181,6 +199,8 @@ class FieldAnalysis3D(Analysis, object):
         plot_air_objects=True,
         force_opacity_value=None,
         clean_files=False,
+        view="isometric",
+        show_legend=True,
     ):
         """Plot the model or a subset of objects.
 
@@ -206,6 +226,11 @@ class FieldAnalysis3D(Analysis, object):
         clean_files : bool, optional
             Whether to clean created files after plot generation. The default is ``False``,
             which means that the cache is maintained in the model object that is returned.
+        view : str, optional
+           View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
+           The default is ``"isometric"``.
+        show_legend : bool, optional
+            Whether to display the legend or not. The default is ``True``.
 
         Returns
         -------
@@ -225,6 +250,8 @@ class FieldAnalysis3D(Analysis, object):
                 plot_air_objects=plot_air_objects,
                 force_opacity_value=force_opacity_value,
                 clean_files=clean_files,
+                view=view,
+                show_legend=show_legend,
             )
 
     @pyaedt_function_handler()
@@ -233,7 +260,7 @@ class FieldAnalysis3D(Analysis, object):
 
         Parameters
         ----------
-        setup_name :str
+        setup_name : str
             Setup name.
         variation_string : str, optional
             Variation list. The default is ``""``.
@@ -341,28 +368,28 @@ class FieldAnalysis3D(Analysis, object):
         }
         if type == "Boundary":
             propserv = boundary[self._design_type]
-            val = _retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
+            val = self.odesign.GetPropertyValue(propserv, objectname, property)
             return val
         elif type == "Setup":
             propserv = setup[self._design_type]
-            val = _retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
+            val = self.odesign.GetPropertyValue(propserv, objectname, property)
             return val
 
         elif type == "Excitation":
             propserv = excitation[self._design_type]
-            val = _retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
+            val = self.odesign.GetPropertyValue(propserv, objectname, property)
             return val
 
         elif type == "Mesh":
             propserv = mesh[self._design_type]
-            val = _retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
+            val = self.odesign.GetPropertyValue(propserv, objectname, property)
             return val
         else:
             propservs = all[self._design_type]
             for propserv in propservs:
                 properties = list(self.odesign.GetProperties(propserv, objectname))
                 if property in properties:
-                    val = _retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
+                    val = self.odesign.GetPropertyValue(propserv, objectname, property)
                     return val
         return None
 
@@ -449,27 +476,18 @@ class FieldAnalysis3D(Analysis, object):
         return True
 
     @pyaedt_function_handler()
-    def export3DModel(self, fileName, filePath, fileFormat=".step", object_list=[], removed_objects=[]):
-        """Export the 3D model.
-
-        .. deprecated:: 0.5.0
-           Use :func:`pyaedt.application.Analysis3D.modeler.export_3d_model` instead.
-
-        """
-        warnings.warn("`export3DModel` is deprecated. Use `export_3d_model` instead.", DeprecationWarning)
-        return self.export_3d_model(fileName, filePath, fileFormat, object_list, removed_objects)
-
-    @pyaedt_function_handler()
-    def export_3d_model(self, fileName, filePath, fileFormat=".step", object_list=None, removed_objects=None):
+    def export_3d_model(
+        self, file_name="", file_path="", file_format=".step", object_list=None, removed_objects=None, **kwargs
+    ):
         """Export the 3D model.
 
         Parameters
         ----------
-        fileName : str
+        file_name : str, optional
             Name of the file.
-        filePath : str
+        file_path : str, optional
             Path for the file.
-        fileFormat : str, optional
+        file_format : str, optional
             Format of the file. The default is ``".step"``.
         object_list : list, optional
             List of objects to export. The default is ``None``.
@@ -486,7 +504,31 @@ class FieldAnalysis3D(Analysis, object):
 
         >>> oEditor.Export
         """
+        if "fileName" in kwargs:
+            warnings.warn(
+                "`fileName` is deprecated. Use `file_name` instead.",
+                DeprecationWarning,
+            )
 
+            file_name = kwargs["fileName"]
+        if "filePath" in kwargs:
+            warnings.warn(
+                "`filePath` is deprecated. Use `file_path` instead.",
+                DeprecationWarning,
+            )
+
+            file_path = kwargs["filePath"]
+        if "fileFormat" in kwargs:
+            warnings.warn(
+                "`fileFormat` is deprecated. Use `file_format` instead.",
+                DeprecationWarning,
+            )
+
+            file_format = kwargs["fileFormat"]
+        if not file_name:
+            file_name = self.project_name + "_" + self.design_name
+        if not file_path:
+            file_path = self.working_directory
         if object_list is None:
             object_list = []
         if removed_objects is None:
@@ -507,7 +549,7 @@ class FieldAnalysis3D(Analysis, object):
         major = -1
         minor = -1
         # actual version supported by AEDT is 29.0
-        if fileFormat in [".sm3", ".sat", ".sab"]:
+        if file_format in [".sm3", ".sat", ".sab"]:
             major = 29
             minor = 0
         stringa = ",".join(allObjects)
@@ -520,7 +562,7 @@ class FieldAnalysis3D(Analysis, object):
             "Selections:=",
             stringa,
             "File Name:=",
-            os.path.join(filePath, fileName + fileFormat).replace("\\", "/"),
+            os.path.join(file_path, file_name + file_format).replace("\\", "/"),
             "Major Version:=",
             major,
             "Minor Version:=",
@@ -569,8 +611,12 @@ class FieldAnalysis3D(Analysis, object):
         """
 
         contexts = []
-        for i in range(number_of_modes):
-            contexts.append([s + ":" + str(i + 1) for s in sources])  # use one based indexing
+        for s in sources:
+            value = s
+            if number_of_modes > 0:
+                for i in range(number_of_modes):
+                    value += ":" + str(i + 1)
+            contexts.append(value)  # use one based indexing
         self.osolution.SetSourceContexts(contexts)
         return True
 
@@ -693,12 +739,13 @@ class FieldAnalysis3D(Analysis, object):
         """
         if len(self.modeler.objects) != len(self.modeler.object_names):
             self.modeler.refresh_all_ids()
-        cond = self.materials.conductors
-
         obj_names = []
-        for obj_val in list(self.modeler.objects.values()):
-            if obj_val.material_name in cond:
-                obj_names.append(obj_val.name)
+        for _, val in self.modeler.objects.items():
+            try:
+                if val.material_name and self.materials[val.material_name].is_conductor():
+                    obj_names.append(val.name)
+            except KeyError:
+                pass
         return obj_names
 
     @pyaedt_function_handler()
@@ -718,9 +765,12 @@ class FieldAnalysis3D(Analysis, object):
             self.modeler.refresh_all_ids()
         diel = self.materials.dielectrics
         obj_names = []
-        for obj_val in list(self.modeler.objects.values()):
-            if obj_val.material_name in diel:
-                obj_names.append(obj_val.name)
+        for _, val in self.modeler.objects.items():
+            try:
+                if val.material_name and self.materials[val.material_name].is_dielectric():
+                    obj_names.append(val.name)
+            except KeyError:
+                pass
         return obj_names
 
     @pyaedt_function_handler()
@@ -891,7 +941,335 @@ class FieldAnalysis3D(Analysis, object):
         Returns
         -------
         :class:`pyaedt.modeler.stackup_3d.Stackup3D`
-            ``True`` when delete operation is successful.
+            Stackup class.
         """
-        st = Stackup3D(self)
-        return st
+        from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
+
+        return Stackup3D(self)
+
+    @pyaedt_function_handler()
+    def flatten_3d_components(self, component_name=None, purge_history=True, password=""):
+        """Flatten one or multiple 3d components in the actual layout. Each 3d Component is replaced with objects.
+        This function will work only if the reference coordinate system of the 3d component is the global one.
+
+        Parameters
+        ----------
+        component_name : str, list, optional
+            List of user defined components. Default is `None` for all 3d Components.
+        purge_history : bool, optional
+            Define if the 3D Component will be purged before copied.
+            This is needed when more than 1 component with the same definition is present.
+        password : str, optional
+            Password for encrypted 3d component.
+
+        Returns
+        -------
+        bool
+            `True` if succeeded.
+        """
+        native_comp_names = [nc.component_name for _, nc in self.native_components.items()]
+        if not component_name:
+            component_name = [
+                key
+                for key, val in self.modeler.user_defined_components.items()
+                if val.definition_name not in native_comp_names
+            ]
+        else:
+            if isinstance(component_name, str):
+                component_name = [component_name]
+            for cmp in component_name:
+                assert cmp in self.modeler.user_defined_component_names, "Component Definition not found."
+
+        for cmp in component_name:
+            comp = self.modeler.user_defined_components[cmp]
+            target_cs = self.modeler._create_reference_cs_from_3dcomp(comp, password=password)
+            app = comp.edit_definition(password=password)
+            for var, val in comp.parameters.items():
+                app[var] = val
+            if purge_history:
+                app.modeler.purge_history(app.modeler._all_object_names)
+            monitor_cache = {}
+            if self.design_type == "Icepak":
+                objs_monitors = [part.name for _, part in comp.parts.items()]
+                for mon_name, mon_obj in self.monitor.all_monitors.items():
+                    obj_name = mon_obj.properties["Geometry Assignment"]
+                    if obj_name in objs_monitors:
+                        monitor_cache.update({mon_obj.name: mon_obj.properties})
+                        monitor_cache[mon_obj.name]["Native Assignment"] = "placeholder"
+                        if monitor_cache[mon_obj.name]["Type"] == "Face":
+                            monitor_cache[mon_obj.name]["Area Assignment"] = self.modeler.get_face_area(
+                                monitor_cache[mon_obj.name]["ID"]
+                            )
+                        elif monitor_cache[mon_obj.name]["Type"] == "Surface":
+                            monitor_cache[mon_obj.name]["Area Assignment"] = self.modeler.get_face_area(
+                                self.modeler.get_object_from_name(monitor_cache[mon_obj.name]["ID"]).faces[0].id
+                            )
+                        elif monitor_cache[mon_obj.name]["Type"] == "Object":
+                            monitor_cache[mon_obj.name]["Volume Assignment"] = self.modeler.get_object_from_name(
+                                monitor_cache[mon_obj.name]["ID"]
+                            ).volume
+                for _, mon_dict in monitor_cache.items():
+                    del mon_dict["Object"]
+            oldcs = self.oeditor.GetActiveCoordinateSystem()
+            self.modeler.set_working_coordinate_system(target_cs)
+            comp.delete()
+            obj_set = set(self.modeler.objects.values())
+            self.copy_solid_bodies_from(app, no_vacuum=False, no_pec=False, include_sheets=True)
+            self.modeler.refresh_all_ids()
+            self.modeler.set_working_coordinate_system(oldcs)
+            if self.design_type == "Icepak":
+                for monitor_obj, mon_dict in monitor_cache.items():
+                    if not self.monitor.insert_monitor_object_from_dict(mon_dict, mode=1):
+                        dict_in = {"monitor": {monitor_obj: mon_dict}}
+                        self.configurations._monitor_assignment_finder(dict_in, monitor_obj, obj_set)
+                        m_type = dict_in["monitor"][monitor_obj]["Type"]
+                        m_obj = dict_in["monitor"][monitor_obj]["ID"]
+                        if not self.configurations.update_monitor(
+                            m_type, m_obj, dict_in["monitor"][monitor_obj]["Quantity"], monitor_obj
+                        ):  # pragma: no cover
+                            return False
+            app.oproject.Close()
+
+        if not self.design_type == "Icepak":
+            self.mesh._refresh_mesh_operations()
+        return True
+
+    def identify_touching_conductors(self, object_name=None):
+        # type: (str) -> dict
+        """Identify all touching components and group in a dictionary. This method requires that
+        the ``pyvista`` package is installed.
+
+        Parameters
+        ----------
+        object_name : str, optional
+            Starting object to check for touching elements. The default is ``None``.
+
+        Returns
+        -------
+        dict
+
+        """
+        if is_ironpython and settings.aedt_version < "2023.2":  # pragma: no cover
+            self.logger.error("This method requires CPython and PyVista.")
+            return {}
+        if settings.aedt_version >= "2023.2" and self.design_type == "HFSS":  # pragma: no cover
+            nets_aedt = self.oboundary.IdentifyNets(True)
+            nets = {}
+            for net in nets_aedt[1:]:
+                nets[net[0].split(":")[1]] = list(net[1][1:])
+            if object_name:
+                for net, net_vals in nets.items():
+                    if object_name in net_vals:
+                        output = {"Net1": net_vals}
+                        return output
+            return nets
+        plt_obj = self.plot(show=False, objects=self.get_all_conductors_names())
+        import pyvista as pv
+
+        nets = {}
+        inputs = []
+        for cad in plt_obj.objects:
+            # if (self.modeler[cad.name].is_conductor):
+            filedata = pv.read(cad.path)
+            cad._cached_polydata = filedata
+            inputs.append(cad)
+
+        if object_name:
+            cad_to_investigate = [i for i in inputs if i.name == object_name][0]
+            inputs = [i for i in inputs if i.name != object_name]
+
+        else:
+            cad_to_investigate = inputs[0]
+            inputs = inputs[1:]
+        if not inputs:
+            self.logger.error("At least one conductor is needed.")
+            return {}
+
+        def check_intersections(output, input_list, cad_in=None):
+            if cad_in is None:
+                cad_in = output[-1]
+            temp_out = []
+            for cad in input_list:
+                if cad != cad_in and cad not in output:
+                    col, n_contacts = cad_in._cached_polydata.collision(cad._cached_polydata, 1)
+                    if n_contacts > 0:
+                        output.append(cad)
+                        temp_out.append(cad)
+                        input_list = [i for i in input_list if i != cad]
+            for cad in temp_out:
+                check_intersections(output, input_list, cad)
+                list(set(output))
+            return output
+
+        k = 1
+        while len(inputs) > 0:
+            net = [cad_to_investigate]
+            check_intersections(net, inputs)
+            inputs = [i for i in inputs if i not in net]
+            nets["Net{}".format(k)] = [i.name for i in net]
+            if object_name:
+                break
+            if inputs:
+                cad_to_investigate = inputs[0]
+                inputs = inputs[1:]
+                k += 1
+                if len(inputs) == 0:
+                    nets["Net{}".format(k)] = [cad_to_investigate.name]
+                    break
+        return nets
+
+    @pyaedt_function_handler()
+    def get_dxf_layers(self, file_path):
+        # type: (str) -> list[str]
+        """Read a DXF file and return all layer names.
+
+        Parameters
+        ----------
+        file_path : str
+            Full path to the DXF file.
+
+        Returns
+        -------
+        list
+            List of layers in the DXF file.
+        """
+        layer_names = []
+        with open_file(file_path) as f:
+            lines = f.readlines()
+            indices = self._find_indices(lines, "AcDbLayerTableRecord\n")
+            for idx in indices:
+                if "2" in lines[idx + 1]:
+                    layer_names.append(lines[idx + 2].replace("\n", ""))
+            return layer_names
+
+    @pyaedt_function_handler
+    def import_dxf(
+        self,
+        file_path,
+        layers_list,
+        auto_detect_close=True,
+        self_stitch=True,
+        self_stitch_tolerance=0,
+        scale=0.001,
+        defeature_geometry=False,
+        defeature_distance=0,
+        round_coordinates=False,
+        round_num_digits=4,
+        write_poly_with_width_as_filled_poly=False,
+        import_method=1,
+        sheet_bodies_2d=True,
+    ):  # pragma: no cover
+        # type: (str, list, bool, bool, float, float, bool, float, bool, int, bool, int, bool) -> bool
+        """Import a DXF file.
+
+        Parameters
+        ----------
+        file_path : str
+            Path to the DXF file.
+        layers_list : list
+            List of layer names to import. To get the layers in the DXF file,
+            you can call the ``get_dxf_layers`` method.
+        auto_detect_close : bool, optional
+            Whether to check polylines to see if they are closed.
+            The default is ``True``. If a polyline is closed, the modeler
+            creates a polygon in the design.
+        self_stitch : bool, optional
+            Whether to join multiple straight line segments to form polylines.
+            The default is ``True``.
+        self_stitch_tolerance : float, optional
+            Self stitch tolerance value. The default is ``0``.
+        scale : float, optional
+            Scaling factor. The default is ``0.001``. The units are ``mm``.
+        defeature_geometry : bool, optional
+            Whether to defeature the geometry to reduce complexity.
+            The default is ``False``.
+        defeature_distance : float, optional
+            Defeature tolerance distance. The default is ``0``.
+        round_coordinates : bool, optional
+            Whether to rounds all imported data to the number
+            of decimal points specified by the next parameter.
+            The default is ``False``.
+        round_num_digits : int, optional
+            Number of digits to which to round all imported data.
+            The default is ``4``.
+        write_poly_with_width_as_filled_poly : bool, optional
+            Imports wide polylines as polygons. The default is ``False``.
+        import_method : int, bool
+            Whether the import method is ``Script`` or ``Acis``.
+            The default is ``1``, which means that the ``Acis`` is used.
+        sheet_bodies_2d : bool, optional
+            Whether importing as 2D sheet bodies causes imported objects to
+            be organized in terms of 2D sheets. The default is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.ImportDXF
+
+        """
+        if settings.non_graphical:
+            self.logger.error("Method is supported only in graphical mode")
+            return False
+        layers = self.get_dxf_layers(file_path)
+        for layer in layers_list:
+            if layer not in layers:
+                self.logger.error("{} does not exist in specified dxf.".format(layer))
+                return False
+
+        if self.is3d:
+            sheet_bodies_2d = False
+
+        vArg1 = ["NAME:options"]
+        vArg1.append("FileName:="), vArg1.append(file_path.replace(os.sep, "/"))
+        vArg1.append("Scale:="), vArg1.append(scale)
+        vArg1.append("AutoDetectClosed:="), vArg1.append(auto_detect_close)
+        vArg1.append("SelfStitch:="), vArg1.append(self_stitch)
+        vArg1.append("SelfStitchTolerance:="), vArg1.append(self_stitch_tolerance)
+        vArg1.append("DefeatureGeometry:="), vArg1.append(defeature_geometry)
+        vArg1.append("DefeatureDistance:="), vArg1.append(defeature_distance)
+        vArg1.append("RoundCoordinates:="), vArg1.append(round_coordinates)
+        vArg1.append("RoundNumDigits:="), vArg1.append(round_num_digits)
+        vArg1.append("WritePolyWithWidthAsFilledPoly:="), vArg1.append(write_poly_with_width_as_filled_poly)
+        vArg1.append("ImportMethod:="), vArg1.append(import_method)
+        vArg1.append("2DSheetBodies:="), vArg1.append(sheet_bodies_2d)
+        vArg2 = ["NAME:LayerInfo"]
+        for layer in layers_list:
+            vArg3 = ["Name:" + layer]
+            vArg3.append("source:="), vArg3.append(layer)
+            vArg3.append("display_source:="), vArg3.append(layer)
+            vArg3.append("import:="), vArg3.append(True)
+            vArg3.append("dest:="), vArg3.append(layer)
+            vArg3.append("dest_selected:="), vArg3.append(False)
+            vArg3.append("layer_type:="), vArg3.append("signal")
+            vArg2.append(vArg3)
+        vArg1.append(vArg2)
+        self.oeditor.ImportDXF(vArg1)
+        return True
+
+    @pyaedt_function_handler()
+    def _find_indices(self, list_to_check, item_to_find):
+        # type: (list, str|int) -> list
+        """Given a list, returns the list of indices for all occurrences of a given element.
+
+        Parameters
+        ----------
+        list_to_check: list
+            List to check.
+        item_to_find: str, int
+            Element to search for in the list.
+
+        Returns
+        -------
+        list
+            Indices of the occurrences of a given element.
+        """
+        indices = []
+        for idx, value in enumerate(list_to_check):
+            if value == item_to_find:
+                indices.append(idx)
+        return indices

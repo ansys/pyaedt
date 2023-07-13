@@ -1,12 +1,19 @@
 documentation:
 - doc/source/**/*
-- README.rst
+- README.md
+- README_CN.md
 maintenance:
 - .github/**/*
 - .flake8
 - setup.py
 - setup-distutils.py
 dependencies:
-- requirements.txt
-- requirements_docs.txt
-- requirements_test.txt
+- requirements/**/*
+testing:
+- _unittest/conftest.py
+- _unittest/launch_desktop_tests.py
+- _unittest_ironpython/generate_tests.py
+- _unittest_ironpython/conf_unittest.py
+- _unittest_ironpython/run_unittests.py
+- _unittest_ironpython/run_unittests_batchmode.cmd
+- _unittest_ironpython/run_unittests_batchmode_linux.cmd

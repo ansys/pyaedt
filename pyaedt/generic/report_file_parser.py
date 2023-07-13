@@ -1,6 +1,6 @@
+from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 from pyaedt.generic.constants import SI_UNITS
 from pyaedt.generic.constants import unit_system
-from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 
 
 def parse_rdat_file(file_path):
@@ -11,7 +11,8 @@ def parse_rdat_file(file_path):
         (dict) report data
     """
     report_dict = {}
-    data = load_entire_aedt_file(file_path)
+    # data = load_entire_aedt_file(file_path)
+    data = load_keyword_in_aedt_file(file_path, "ReportsData")
 
     report_data = data["ReportsData"]["RepMgrRepsData"]
     for report_name in report_data:

@@ -2,36 +2,35 @@ import os
 import random
 import shutil
 import string
-from distutils.dir_util import copy_tree
-from glob import glob
+
+
+def search_files(dirname, pattern="*"):
+    """Search for files inside a directory given a specific pattern.
+
+    Parameters
+    ----------
+    dirname : str
+    pattern :str, optional
+
+    Returns
+    -------
+    list
+    """
+    from pyaedt.generic.general_methods import is_ironpython
+
+    if is_ironpython:
+        import glob
+
+        return list(glob.glob(os.path.join(dirname, pattern)))
+    else:
+        import pathlib
+
+        return [os.path.abspath(i) for i in pathlib.Path(dirname).glob(pattern)]
 
 
 def my_location():
     """ """
     return os.path.normpath(os.path.dirname(__file__))
-
-
-def files_in_directory(path=".", ext=""):
-    """
-
-    Parameters
-    ----------
-    path :
-         (Default value = '.')
-    ext :
-         (Default value = '')
-
-    Returns
-    -------
-
-    """
-    result = []
-    if os.path.exists(path):
-        for dir in os.listdir(path):
-            bd = os.path.join(path, dir)
-            if os.path.isfile(bd) and dir.endswith("." + ext):
-                result.append(bd)
-    return result
 
 
 class Scratch:
@@ -98,7 +97,7 @@ class Scratch:
                 pass
         try:
             shutil.copy2(src_file, dst_file)
-        except shutil.SameFileError:  # pragma: no cover
+        except:  # pragma: no cover
             pass
 
         return dst_file
@@ -117,6 +116,8 @@ class Scratch:
         -------
 
         """
+        from distutils.dir_util import copy_tree
+
         copy_tree(src_folder, destfolder)
         return True
 
@@ -140,4 +141,4 @@ def get_json_files(start_folder):
     Returns
     -------
     """
-    return [y for x in os.walk(start_folder) for y in glob(os.path.join(x[0], "*.json"))]
+    return [y for x in os.walk(start_folder) for y in search_files(x[0], "*.json")]

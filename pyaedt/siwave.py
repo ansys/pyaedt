@@ -12,32 +12,17 @@ import pkgutil
 import sys
 import time
 
+from pyaedt.generic.clr_module import _clr
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import _pythonver
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import is_windows
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.misc import list_installed_ansysem
 
-if is_ironpython:
-    import clr  # IronPython C:\Program Files\AnsysEM\AnsysEM19.4\Win64\common\IronPython\ipy64.exe
 
-    _com = "pythonnet"
-    import System
-elif os.name == "nt":  # pragma: no cover
-    modules = [tup[1] for tup in pkgutil.iter_modules()]
-    if "clr" in modules:
-        import clr  # noqa: F401
-        import win32com.client
-
-        _com = "pythonnet_v3"
-    elif "win32com" in modules:
-        import win32com.client
-
-        _com = "pywin32"
-    else:
-        raise Exception("Error. No win32com.client or PythonNET modules are found. They need to be installed.")
-
-
-class Siwave:
+class Siwave(object):
     """Initializes SIwave based on the inputs provided and manages SIwave release and closing.
 
     Parameters
@@ -75,7 +60,22 @@ class Siwave:
         """Current version of AEDT."""
         return self.version_keys[0]
 
-    def __init__(self, specified_version=None):  # pragma: no cover
+    def __init__(self, specified_version=None):
+        if is_ironpython:
+            _com = "pythonnet"
+            import System
+        elif is_windows:  # pragma: no cover
+            modules = [tup[1] for tup in pkgutil.iter_modules()]
+            if _clr:
+                import win32com.client
+
+                _com = "pythonnet_v3"
+            elif "win32com" in modules:
+                import win32com.client
+
+                _com = "pywin32"
+            else:
+                raise Exception("Error. No win32com.client or PythonNET modules are found. They need to be installed.")
         self._main = sys.modules["__main__"]
         print("Launching Siwave Init")
         if "oSiwave" in dir(self._main) and self._main.oSiwave is not None:
@@ -114,7 +114,7 @@ class Siwave:
                 # but doesn't return the wrapper of oApp
                 print("Launching Siwave with module win32com.")
 
-                self._main.oSiwave = win32com.client.Dispatch("Siwave.Application.2021.2")
+                self._main.oSiwave = win32com.client.Dispatch(version)
 
             self._main.AEDTVersion = version_key
             self.oSiwave = self._main.oSiwave
@@ -122,19 +122,6 @@ class Siwave:
         self._main.siwave_initialized = True
         self._oproject = self.oSiwave.GetActiveProject()
         pass
-        # self.logger = logging.getLogger(__name__)
-        # if not self.logger.handlers:
-        #     output_dir = self._main.oSiwave.GetProjectDirectory()
-        #     logging.basicConfig(
-        #         filename=os.path.join(output_dir, "pyaedt.log"),
-        #         level=logging.DEBUG,
-        #         format='%(asctime)s:%(name)s:%(levelname)-8s:%(message)s',
-        #         datefmt='%Y/%m/%d %H.%M.%S')
-        #     self.logger = logging.getLogger(__name__)
-
-        # info_msg1 = 'Started external COM connection with module {0}'.format(_com)
-        # info_msg2 = 'Python version {0}'.format(sys.version)
-        # info_msg3 = 'Exe path: {0}'.format(sys.executable)
 
     @property
     def project_name(self):
@@ -233,12 +220,17 @@ class Siwave:
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
 
         if os.path.exists(proj_path):
-            self.oSiwave.OpenProject(proj_path)
+            open_result = self.oSiwave.OpenProject(proj_path)
             self._oproject = self.oSiwave.GetActiveProject()
+            return open_result
+        else:
+            return False
 
     @pyaedt_function_handler()
     def save_project(self, projectpath=None, projectName=None):
@@ -303,32 +295,31 @@ class Siwave:
 
         Parameters
         ----------
-        simulation_name :
-
-        file_path :
-
+        simulation_name : str
+            Name of the setup.
+        file_path : str
+            Path to the exported report.
         data_type : str, optional
-            The default is ``"Vias"``.
+            Type of the data. The default is ``"Vias"``.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-
         """
         self.oproject.ScrExportElementData(simulation_name, file_path, data_type)
         return True
 
     @pyaedt_function_handler()
     def export_siwave_report(self, simulation_name, file_path, bkground_color="White"):
-        """Export the SiwaveE report.
+        """Export the Siwave report.
 
         Parameters
         ----------
-        simulation_name :
-
-        file_path :
-
+        simulation_name : str
+            Name of the setup.
+        file_path : str
+            Path to the exported report.
         bkground_color : str, optional
             Color of the report's background. The default is ``"White"``.
 
