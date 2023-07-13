@@ -813,7 +813,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d`
+        list of :class:`pyaedt.modeler.cad.object3d`
         """
         if len(bounding_box) != 6:
             raise ValueError("Bounding box list must have dimension 6.")

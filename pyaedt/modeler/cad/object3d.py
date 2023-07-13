@@ -1377,7 +1377,7 @@ class Object3d(object):
 
         Parameters
         ----------
-        object_list : list of str or list of pyaedt.modeler.object3d.Object3d
+        object_list : list of str or list of pyaedt.modeler.cad.object3d.Object3d
             List of objects.
 
         Returns
@@ -1622,7 +1622,7 @@ class Object3d(object):
 
         Parameters
         ----------
-        sweep_object : :class:`pyaedt.modeler.object3d.Object3d`
+        sweep_object : :class:`pyaedt.modeler.cad.object3d.Object3d`
             Application.Position object.
         draft_angle : float, optional
             Angle of the draft in degrees. The default is ``0``.

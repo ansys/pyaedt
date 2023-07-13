@@ -761,7 +761,7 @@ class Components3DLayout(Objec3DLayout, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dlayout.ModelInfoRlc`
+        :class:`pyaedt.modeler.cad.object3dlayout.ModelInfoRlc`
         """
         if self._part_type_id in [1, 2, 3]:
             return ModelInfoRlc(self, self.name)
@@ -782,7 +782,7 @@ class Nets3DLayout(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dlayout.Components3DLayout`
+        :class:`pyaedt.modeler.cad.object3dlayout.Components3DLayout`
         """
         comps = {}
         for c in self._oeditor.FilterObjectList("Type", "component", self._oeditor.FindObjects("Net", self.name)):
@@ -888,7 +888,7 @@ class Geometries3DLayout(Objec3DLayout, object):
 
         Returns
         -------
-        List of :class:`pyaedt.modeler.object3dlayout.Points3dLayout`
+        List of :class:`pyaedt.modeler.cad.object3dlayout.Points3dLayout`
         """
         if self._points:
             return self._points

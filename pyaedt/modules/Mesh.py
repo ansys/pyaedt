@@ -1355,7 +1355,7 @@ class Mesh(object):
 
         Parameters
         ----------
-        obj : int or str or :class:`pyaedt.modeler.object3d.Object3d`
+        obj : int or str or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Object to assign cylindrical gap to.
         meshop_name : str, optional
             Name of the mesh. The default is ``None``, in which

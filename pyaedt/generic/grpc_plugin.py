@@ -52,19 +52,6 @@ def GetAedtObjId(obj):
     return None
 
 
-# def print_except_and_stop(skipFrames=1):
-#     if threading.main_thread().ident != threading.current_thread().ident:
-#         raise  # rethrow the error. IDLE auto complete may cause this error.
-#     # only print out error for IDLE
-#     frame = sys._getframe().f_back
-#     while skipFrames > 0:
-#         frame = frame.f_back
-#         skipFrames = skipFrames - 1
-#     traceback.print_stack(frame)
-#     error_type, error_instance, tracebackF = sys.exc_info()
-#     traceback.print_exception(error_type, error_instance, None)  # print the exception without call stack.
-
-
 class AedtBlockObj(list):
     def GetName(self):
         if len(self) > 0:
@@ -82,7 +69,7 @@ class AedtBlockObj(list):
                 if len(toks) == 2:
                     if toks[1] == "=" and toks[0] == keyName:
                         return i + 1
-        raise AttributeError(keyName + " is not a key!")
+        raise GrpcApiError(keyName + " is not a key!")
 
     def __getitem__(self, idxOrKey):
         if isinstance(idxOrKey, str):
@@ -98,14 +85,14 @@ class AedtBlockObj(list):
                 if isinstance(oldItem, str):
                     toks = oldItem.split(":")
                     if len(toks) == 2 and (toks[1] == "=" or toks[0] == "NAME"):
-                        raise AttributeError("The element is a key should not be overwritten!")
+                        raise GrpcApiError("The element is a key should not be overwritten!")
             return super().__setitem__(idxOrKey, newVal)
         if isinstance(idxOrKey, str):
             idx = self.__GetValueIdxByKey__(idxOrKey)
             if idx != None:
                 return super().__setitem__(idx, newVal)
-            raise TypeError("Key not found")
-        raise TypeError("Must be key name or index")
+            raise GrpcApiError("Key not found")
+        raise GrpcApiError("Must be key name or index")
 
     def keys(self):
         arr = []
@@ -128,10 +115,13 @@ class AedtObjWrapper:
 
     def __Invoke__(self, funcName, argv):
         try:
-            return _retry_ntimes(3, AedtAPI.InvokeAedtObjMethod, self.objectID, funcName, argv)  # Call C function
-        except BaseException:
-            logger.error("Failed to execute grpc API AEDT command {}".format(funcName))
-            raise GrpcApiError("Failed to execute grpc API AEDT command {}".format(funcName))
+            if settings.enable_debug_grpc_api_logger:
+                settings.logger.debug("{}{}".format(funcName, argv))
+            return _retry_ntimes(
+                settings.number_of_grpc_api_retries, AedtAPI.InvokeAedtObjMethod, self.objectID, funcName, argv
+            )  # Call C function
+        except BaseException as e:
+            raise GrpcApiError("Failed to execute grpc AEDT command:  {}".format(funcName))
 
     def __dir__(self):
         return self.__methodNames__
@@ -143,20 +133,8 @@ class AedtObjWrapper:
                 return self.__Invoke__(funcName, args)
 
             return types.MethodType(DynamicFunc, self)
-        except AttributeError:
-            raise AttributeError("This Aedt object has no attribute '" + funcName + "'")
-        except GrpcApiError:
+        except (AttributeError, GrpcApiError):
             raise GrpcApiError("This Aedt object has no attribute '" + funcName + "'")
-
-        # methodNames = AedtObjWrapper.__dir__(self)  # must call the AedtObjWrapper __dir__()
-        # for methodName in methodNames:
-        #     if methodName == funcName:  # a C function
-        #
-        #         def DynamicFunc(self, *args):
-        #             return self.__Invoke__(funcName, args)
-        #
-        #         return types.MethodType(DynamicFunc, self)
-        # raise AttributeError("This Aedt object has no attribute '" + funcName + "'")
 
     def __getattr__(self, funcName):
         try:
@@ -164,14 +142,13 @@ class AedtObjWrapper:
                 return self.objectID
             return self.__GetObjMethod__(funcName)
         except:
-            logger.error("Failed to get grpc API AEDT attribute {}".format(funcName))
             raise GrpcApiError("Failed to get grpc API AEDT attribute {}".format(funcName))
 
     def __setattr__(self, attrName, val):
         if attrName == "objectID" or attrName == "__methodNames__":
-            raise AttributeError("Modify this attribute is not allowed")
+            raise GrpcApiError("Modify this attribute is not allowed")
         elif attrName in self.__methodNames__:
-            raise AttributeError(attrName + " is a function name")
+            raise GrpcApiError(attrName + " is a function name")
         else:
             super().__setattr__(attrName, val)
 
@@ -234,7 +211,7 @@ class AedtPropServer(AedtObjWrapper):
             propMap = self.__GetPropAttributes()
             if attrName in propMap:
                 return self.GetPropValue(propMap[attrName])
-            raise AttributeError("Failed to retrieve attribute {} from GRPC API".format(attrName))
+            raise GrpcApiError("Failed to retrieve attribute {} from GRPC API".format(attrName))
 
     def __setattr__(self, attrName, val):
         if attrName in self.__dict__:

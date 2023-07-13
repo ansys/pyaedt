@@ -194,7 +194,7 @@ class VertexPrimitive(EdgeTypePrimitive, object):
 
     Parameters
     ----------
-    object3d : :class:`pyaedt.modeler.object3d.Object3d`
+    object3d : :class:`pyaedt.modeler.cad.object3d.Object3d`
         Pointer to the calling object that provides additional functionality.
     objid : int
         Object ID as determined by the parent object.
@@ -244,7 +244,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
     Parameters
     ----------
-    object3d : :class:`pyaedt.modeler.object3d.Object3d`
+    object3d : :class:`pyaedt.modeler.cad.object3d.Object3d`
         Pointer to the calling object that provides additional functionality.
     edge_id : int
         Object ID as determined by the parent object.
@@ -304,7 +304,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d.VertexPrimitive`
+        list of :class:`pyaedt.modeler.cad.object3d.VertexPrimitive`
             List of vertices.
 
         References
@@ -382,7 +382,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         non_model : bool, optional
             Either if create the new object as model or non-model. The default is `False`.
@@ -435,7 +435,7 @@ class FacePrimitive(object):
 
         Parameters
         ----------
-        object3d : :class:`pyaedt.modeler.object3d.Object3d`
+        object3d : :class:`pyaedt.modeler.cad.object3d.Object3d`
         obj_id : int
         """
         self._id = obj_id
@@ -489,7 +489,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d.EdgePrimitive`
+        list of :class:`pyaedt.modeler.cad.object3d.EdgePrimitive`
             List of Edges.
 
         References
@@ -509,7 +509,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d.VertexPrimitive`
+        list of :class:`pyaedt.modeler.cad.object3d.VertexPrimitive`
             List of Vertices.
 
         References
@@ -603,7 +603,11 @@ class FacePrimitive(object):
                 return GeometryOperators.get_polygon_centroid([pos.position for pos in vtx])
             elif len(vtx) <= 1:
                 eval_points = 4
-                edge = self.edges[0]
+                try:
+                    edge = self.edges[0]
+                except IndexError:
+                    self.logger.error("At least one edge is needed to compute face center.")
+                    return
                 centroid = GeometryOperators.get_polygon_centroid(
                     [
                         [
@@ -641,7 +645,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.EdgePrimitive`
+        :class:`pyaedt.modeler.cad.object3d.EdgePrimitive`
 
         References
         ----------
@@ -662,7 +666,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.EdgePrimitive`
+        :class:`pyaedt.modeler.cad.object3d.EdgePrimitive`
 
         """
         try:
@@ -678,7 +682,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.EdgePrimitive`
+        :class:`pyaedt.modeler.cad.object3d.EdgePrimitive`
 
         """
         try:
@@ -694,7 +698,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.EdgePrimitive`
+        :class:`pyaedt.modeler.cad.object3d.EdgePrimitive`
 
         """
         try:
@@ -710,7 +714,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.EdgePrimitive`
+        :class:`pyaedt.modeler.cad.object3d.EdgePrimitive`
 
         """
         try:
@@ -726,7 +730,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.EdgePrimitive`
+        :class:`pyaedt.modeler.cad.object3d.EdgePrimitive`
 
         """
         try:
@@ -917,7 +921,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         non_model : bool, optional
             Either if create the new object as model or non-model. Default is `False`.
