@@ -47,12 +47,13 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        string : str
-            String to convert. For example, ``"2mm"``.
-        scale_to_unit : str
+        string : str, optional
+            String to convert. For example, ``"2mm"``. The default is ``None``.
+        scale_to_unit : str, optional
             Units for the value to convert. For example, ``"mm"``.
         variable_manager : :class:`pyaedt.application.Variables.VariableManager`, optional
             Try to parse formula and returns numeric value.
+            The default is ``None``.
 
         Returns
         -------
@@ -73,7 +74,6 @@ class GeometryOperators(object):
         >>> 2.0
 
         """
-
         if type(string) is not str:
             try:
                 return float(string)
@@ -115,8 +115,8 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        val :
-
+        val : int
+            ``PLANE`` enum vélo.
 
         Returns
         -------
@@ -161,7 +161,8 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        val :
+        val : int
+            ``AXIS`` enum value.
 
 
         Returns
@@ -184,8 +185,8 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        val :
-
+        val : int
+            ``SWEEPDRAFT`` enum value.
 
         Returns
         -------
@@ -267,7 +268,6 @@ class GeometryOperators(object):
         List
             List of ``[x, y, z]`` coordinates for the result vector.
         """
-
         c = [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]
         return c
 
@@ -431,8 +431,8 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-         a : List
-            List of ``[x, y, z]`` coordinates for the vector.
+        a : List
+        List of ``[x, y, z]`` coordinates for the vector.
 
         Returns
         -------
@@ -529,7 +529,6 @@ class GeometryOperators(object):
         List
 
         """
-
         if direction <= 2:
             point = 1e6
             for p in pointlists:
@@ -728,7 +727,7 @@ class GeometryOperators(object):
     @staticmethod
     @pyaedt_function_handler()
     def arrays_positions_sum(vertlist1, vertlist2):
-        """ADD DESCRIPTION.
+        """Return the sum of two vertices lists.
 
         Parameters
         ----------
@@ -792,7 +791,6 @@ class GeometryOperators(object):
         tuple
             ``[Xx, Xy, Xz], [Yx, Yy, Yz], [Zx, Zy, Zz]`` of the three axes (normalized).
         """
-
         zpt = GeometryOperators.v_cross(x_pointing, y_pointing)
         ypt = GeometryOperators.v_cross(zpt, x_pointing)
 
@@ -1364,16 +1362,16 @@ class GeometryOperators(object):
     @staticmethod
     @pyaedt_function_handler()
     def is_small(s):
-        """
-        Return True if the number represented by s is zero (i.e very small).
+        """Return ``True`` if the number represented by s is zero (i.e very small).
 
         Parameters
         ----------
-        s, numeric or str
+        s : numeric or str
             Variable value.
 
         Returns
         -------
+            bool
 
         """
         n = GeometryOperators.get_numeric(s)
@@ -1553,8 +1551,8 @@ class GeometryOperators(object):
 
     @staticmethod
     @pyaedt_function_handler()
-    def point_in_polygon(point, polygon):
-        """Determine if a point is inside or outside a polygon, both located on the same plane.
+    def point_in_polygon(point, polygon, tolerance=1e-8):
+        """Determine if a point is inside, outside the polygon or at exactly at the border.
 
         The method implements the radial algorithm (https://es.wikipedia.org/wiki/Algoritmo_radial)
 
@@ -1562,6 +1560,8 @@ class GeometryOperators(object):
             List of ``[x, y]`` coordinates.
         polygon : List
             [[x1, x2, ..., xn],[y1, y2, ..., yn]]
+        tolerance : float
+            tolerance used for the algorithm. Default value is 1e-8.
 
         Returns
         -------
@@ -1571,9 +1571,9 @@ class GeometryOperators(object):
             - ``1`` When the point is inside the polygon.
         """
         # fmt: off
-        tol = 1e-8
+        tol = tolerance
         if len(point) != 2:  # pragma: no cover
-            raise ValueError("point must be a list in the form [x, y]")
+            raise ValueError("Point must be a list in the form [x, y].")
         pl = len(polygon[0])
         if len(polygon[1]) != pl:  # pragma: no cover
             raise ValueError("Polygon x and y lists must be the same length")

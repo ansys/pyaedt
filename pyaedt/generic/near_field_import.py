@@ -1,8 +1,8 @@
 import csv
-import glob
 import os
 import re
 
+from pyaedt.generic.filesystem import search_files
 from pyaedt.generic.general_methods import open_file
 
 
@@ -74,7 +74,7 @@ def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces
         "zmax": BoxFacePointsAndFields(),
     }
 
-    file_names = glob.glob(dat_folder + "/*.dat")
+    file_names = search_files(dat_folder, "*.dat")
     for data_file in file_names:
         match = re.search(r"data_(\S+)_(\S+).dat", os.path.basename(data_file))
         field_component = match.group(1)

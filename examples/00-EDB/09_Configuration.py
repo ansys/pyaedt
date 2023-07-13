@@ -1,6 +1,6 @@
 """
-EDB: fully configurable project
--------------------------------
+EDB: Pin to Pin project
+-----------------------
 This example shows how you can create a project using a BOM file and configuration files.
 run anlasyis and get results.
 
@@ -29,7 +29,7 @@ non_graphical = True
 
 
 project_path = pyaedt.generate_unique_folder_name()
-target_aedb = pyaedt.downloads.download_file('edb/Galileo.aedb',destination=project_path)
+target_aedb = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb', destination=project_path)
 print("Project folder will be", target_aedb)
 
 ###############################################################################
@@ -44,7 +44,35 @@ edbapp = pyaedt.Edb(target_aedb, edbversion="2023.1")
 # A definitions file is a json containing, for each part name the model associated.
 # Model can be RLC, Sparameter or Spice.
 # Once imported the definition is applied to the board.
-# Json file is stored for convenience in aedb folder.
+# In this example the json file is stored for convenience in aedb folder and has the following format:
+# {
+#     "SParameterModel": {
+#         "GRM32_DC0V_25degC_series": "./GRM32_DC0V_25degC_series.s2p"
+#     },
+#     "SPICEModel": {
+#         "GRM32_DC0V_25degC": "./GRM32_DC0V_25degC.mod"
+#     },
+#     "Definitions": {
+#         "CAPC1005X05N": {
+#             "Component_type": "Capacitor",
+#             "Model_type": "RLC",
+#             "Res": 1,
+#             "Ind": 2,
+#             "Cap": 3,
+#             "Is_parallel": false
+#         },
+#         "'CAPC3216X180X55ML20T25": {
+#             "Component_type": "Capacitor",
+#             "Model_type": "SParameterModel",
+#             "Model_name": "GRM32_DC0V_25degC_series"
+#         },
+#         "'CAPC3216X180X20ML20": {
+#             "Component_type": "Capacitor",
+#             "Model_type": "SPICEModel",
+#             "Model_name": "GRM32_DC0V_25degC"
+#         }
+#     }
+# }
 
 edbapp.components.import_definition(os.path.join(target_aedb, "1_comp_definition.json"))
 
@@ -54,9 +82,16 @@ edbapp.components.import_definition(os.path.join(target_aedb, "1_comp_definition
 # This step imports a BOM file in CSV format. The BOM contains the
 # reference designator, part name, component type, and default value.
 # Components not in the BOM are deactivated.
-# Csv file is store for convenience in aedb folder.
+# In this example the csv file is stored for convenience in aedb folder.
+#
+# +------------+-----------------------+-----------+------------+
+# | RefDes     | Part name             | Type      | Value      |
+# +============+=======================+===========+============+
+# | C380       | CAPC1005X55X25LL05T10 | Capacitor | 11nF       |
+# +------------+-----------------------+-----------+------------+
 
-edbapp.components.import_bom(os.path.join(target_aedb,"0_bom.csv"),
+
+edbapp.components.import_bom(os.path.join(target_aedb, "0_bom.csv"),
                                   refdes_col=0,
                                   part_name_col=1,
                                   comp_type_col=2,
@@ -67,19 +102,16 @@ edbapp.components.import_bom(os.path.join(target_aedb,"0_bom.csv"),
 ###############################################################################
 # Check Component Values
 # ~~~~~~~~~~~~~~~~~~~~~~
+# Component property allows to access all components instances and their property with getters and setters.
 
-comp = edbapp.components["C3B14"]
+comp = edbapp.components["C1"]
 comp.model_type, comp.value
 
-###############################################################################
-# Check Component Values
-# ~~~~~~~~~~~~~~~~~~~~~~
-comp2 = edbapp.components["C3A3"]
-comp2.model_type, comp2.value
 
 ###############################################################################
 # Check Component Definition
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# When an s-parameter model is associated to a component it will be available in nport_comp_definition property.
 
 edbapp.components.nport_comp_definition
 
@@ -99,13 +131,18 @@ edbapp.save_edb()
 
 sim_setup = edbapp.new_simulation_configuration()
 sim_setup.solver_type = sim_setup.SOLVER_TYPE.SiwaveSYZ
-sim_setup.batch_solve_settings.cutout_subdesign_expansion = 0.01
+sim_setup.batch_solve_settings.cutout_subdesign_expansion = 0.003
 sim_setup.batch_solve_settings.do_cutout_subdesign = True
-sim_setup.use_default_cutout = False
-sim_setup.batch_solve_settings.signal_nets = ["PCIE0_RX0_P", "PCIE0_RX0_N", "PCIE0_TX0_P_C", "PCIE0_TX0_N_C",
-                                              "PCIE0_TX0_P", "PCIE0_TX0_N"]
-sim_setup.batch_solve_settings.components = ["U2A5", "J2L1"]
-sim_setup.batch_solve_settings.power_nets = ["GND"]
+sim_setup.batch_solve_settings.use_pyaedt_cutout = True
+sim_setup.ac_settings.max_arc_points = 6
+sim_setup.ac_settings.max_num_passes = 5
+
+sim_setup.batch_solve_settings.signal_nets = ['PCIe_Gen4_TX2_CAP_P',
+                                              'PCIe_Gen4_TX2_CAP_N',
+                                              'PCIe_Gen4_TX2_P',
+                                              'PCIe_Gen4_TX2_N']
+sim_setup.batch_solve_settings.components = ["U1", "X1"]
+sim_setup.batch_solve_settings.power_nets = ["GND", "GND_DP"]
 sim_setup.ac_settings.start_freq = "100Hz"
 sim_setup.ac_settings.stop_freq = "6GHz"
 sim_setup.ac_settings.step_freq = "10MHz"

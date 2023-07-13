@@ -14,6 +14,7 @@ from _unittest.conftest import config
 from _unittest.conftest import local_path
 
 from pyaedt import Hfss
+from pyaedt import generate_unique_name
 from pyaedt.generic.constants import AXIS
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.modeler.cad.Primitives import PolylineSegment
@@ -28,6 +29,7 @@ scdoc = "input.scdoc"
 step = "input.stp"
 component3d = "new.a3dcomp"
 encrypted_cylinder = "encrypted_cylinder.a3dcomp"
+layout_comp = "Layoutcomponent_231.aedbcomp"
 test_subfolder = "T08"
 if config["desktopVersion"] > "2022.2":
     assembly = "assembly_231"
@@ -57,6 +59,7 @@ class TestClass(BasisTest, object):
         self.flatten = BasisTest.add_app(self, project_name=components_flatten, subfolder=test_subfolder)
         test_54b_project = os.path.join(local_path, "example_models", test_subfolder, polyline + ".aedt")
         self.test_54b_project = self.local_scratch.copyfile(test_54b_project)
+        self.layout_component = os.path.join(local_path, "example_models", test_subfolder, layout_comp)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -976,7 +979,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.modeler.model_units = save_model_units
 
     def test_54b_open_and_load_a_polyline(self):
-        aedtapp = Hfss(self.test_54b_project)
+        aedtapp = Hfss(self.test_54b_project, specified_version=config["desktopVersion"])
         # self.aedtapp.load_project(self.test_54b_project)
 
         poly1 = aedtapp.modeler["Inductor1"]
@@ -999,6 +1002,14 @@ class TestClass(BasisTest, object):
         aedtapp.close_project(save_project=False)
 
     def test_55_create_bond_wires(self):
+        self.aedtapp["$Ox"] = 0
+        self.aedtapp["$Oy"] = 0
+        self.aedtapp["$Oz"] = 0
+        self.aedtapp["$Endx"] = 10
+        self.aedtapp["$Endy"] = 10
+        self.aedtapp["$Endz"] = 2
+        self.aedtapp["$bondHeight1"] = "0.15mm"
+        self.aedtapp["$bondHeight2"] = "0mm"
         b0 = self.aedtapp.modeler.create_bondwire(
             [0, 0, 0], [10, 10, 2], h1=0.15, h2=0, diameter=0.034, facets=8, matname="copper", name="jedec51"
         )
@@ -1019,6 +1030,28 @@ class TestClass(BasisTest, object):
             (2, 2, 0), (0, 0, 0), h1=0.15, h2=0, diameter=0.034, bond_type=1, matname="copper", name="jedec41"
         )
         assert b4
+        b5 = self.aedtapp.modeler.create_bondwire(
+            ("$Ox", "$Oy", "$Oz"),
+            ("$Endx", "$Endy", "$Endz"),
+            h1=0.15,
+            h2=0,
+            diameter=0.034,
+            bond_type=1,
+            matname="copper",
+            name="jedec41",
+        )
+        assert b5
+        b6 = self.aedtapp.modeler.create_bondwire(
+            [0, 0, 0],
+            [10, 10, 2],
+            h1="$bondHeight1",
+            h2="$bondHeight2",
+            diameter=0.034,
+            bond_type=2,
+            matname="copper",
+            name="low",
+        )
+        assert b6
 
     def test_56_create_group(self):
         assert self.aedtapp.modeler.create_group(["jedec51", "jedec41"], "mygroup")
@@ -1145,10 +1178,11 @@ class TestClass(BasisTest, object):
         )
 
     def test_66d_component_bounding_box(self):
+        self.aedtapp["tau_variable"] = "0.65"
         my_udmPairs = []
         mypair = ["OuterRadius", "20.2mm"]
         my_udmPairs.append(mypair)
-        mypair = ["Tau", "0.65"]
+        mypair = ["Tau", "tau_variable"]
         my_udmPairs.append(mypair)
         mypair = ["Sigma", "0.81"]
         my_udmPairs.append(mypair)
@@ -1305,27 +1339,21 @@ class TestClass(BasisTest, object):
         self.aedtapp.modeler.planes["my_plane1"].delete()
         assert name not in self.aedtapp.modeler.planes
 
-    def test_71_create_choke(self):
-        self.aedtapp.insert_design("Chokes")
-        choke_file1 = os.path.join(
-            local_path, "example_models", "choke_json_file", "choke_1winding_1Layer_Corrected.json"
-        )
-        choke_file2 = os.path.join(
-            local_path, "example_models", "choke_json_file", "choke_2winding_1Layer_Common_Corrected.json"
-        )
-        choke_file3 = os.path.join(
-            local_path, "example_models", "choke_json_file", "choke_2winding_2Layer_Linked_Differential_Corrected.json"
-        )
-        choke_file4 = os.path.join(
-            local_path, "example_models", "choke_json_file", "choke_3winding_3Layer_Separate_Corrected.json"
-        )
-        choke_file5 = os.path.join(
-            local_path, "example_models", "choke_json_file", "choke_4winding_3Layer_Linked_Corrected.json"
-        )
-        choke_file6 = os.path.join(
-            local_path, "example_models", "choke_json_file", "choke_2winding_2Layer_Common_Corrected.json"
-        )
-        self.aedtapp.insert_design("Chokes")
+    @pytest.mark.parametrize(
+        "filename",
+        [
+            "choke_1winding_1Layer_Corrected.json",
+            "choke_2winding_1Layer_Common_Corrected.json",
+            "choke_2winding_2Layer_Linked_Differential_Corrected.json",
+            "choke_3winding_3Layer_Separate_Corrected.json",
+            "choke_4winding_3Layer_Linked_Corrected.json",
+            "choke_2winding_2Layer_Common_Corrected.json",
+        ],
+    )
+    def test_71_create_choke(self, filename):
+        self.aedtapp.insert_design(generate_unique_name("Chokes"))
+        choke_file1 = os.path.join(local_path, "example_models", "choke_json_file", filename)
+
         resolve1 = self.aedtapp.modeler.create_choke(choke_file1)
 
         assert isinstance(resolve1, list)
@@ -1334,53 +1362,7 @@ class TestClass(BasisTest, object):
         for i in range(2, len(resolve1)):
             assert isinstance(resolve1[i][0], Object3d)
             assert isinstance(resolve1[i][1], list)
-        self.aedtapp.delete_design("Chokes")
-        self.aedtapp.insert_design("Chokes2")
-        resolve2 = self.aedtapp.modeler.create_choke(choke_file2)
-        assert isinstance(resolve2, list)
-        assert resolve2[0]
-        assert isinstance(resolve2[1], Object3d)
-        for i in range(2, len(resolve2)):
-            assert isinstance(resolve2[i][0], Object3d)
-            assert isinstance(resolve2[i][1], list)
-        self.aedtapp.delete_design("Chokes2")
-        self.aedtapp.insert_design("Chokes3")
-        resolve3 = self.aedtapp.modeler.create_choke(choke_file3)
-        assert isinstance(resolve3, list)
-        assert resolve3[0]
-        assert isinstance(resolve3[1], Object3d)
-        for i in range(2, len(resolve3)):
-            assert isinstance(resolve3[i][0], Object3d)
-            assert isinstance(resolve3[i][1], list)
-        self.aedtapp.delete_design("Chokes3")
-        self.aedtapp.insert_design("Chokes4")
-        resolve4 = self.aedtapp.modeler.create_choke(choke_file4)
-
-        assert isinstance(resolve4, list)
-        assert resolve4[0]
-        assert isinstance(resolve4[1], Object3d)
-        for i in range(2, len(resolve4)):
-            assert isinstance(resolve4[i][0], Object3d)
-            assert isinstance(resolve4[i][1], list)
-        self.aedtapp.delete_design("Chokes4")
-        self.aedtapp.insert_design("Chokes5")
-        resolve5 = self.aedtapp.modeler.create_choke(choke_file5)
-
-        assert isinstance(resolve5, list)
-        assert resolve5[0]
-        assert isinstance(resolve5[1], Object3d)
-        for i in range(2, len(resolve5)):
-            assert isinstance(resolve5[i][0], Object3d)
-            assert isinstance(resolve5[i][1], list)
-        self.aedtapp.delete_design("Chokes5")
-        self.aedtapp.insert_design("Chokes6")
-        resolve6 = self.aedtapp.modeler.create_choke(choke_file6)
-        assert isinstance(resolve6, list)
-        assert resolve6[0]
-        assert isinstance(resolve6[1], Object3d)
-        for i in range(2, len(resolve6)):
-            assert isinstance(resolve6[i][0], Object3d)
-            assert isinstance(resolve6[i][1], list)
+        self.aedtapp.delete_design(self.aedtapp.design_name)
 
     def test_72_check_choke_values(self):
         choke_file1 = os.path.join(local_path, "example_models", "choke_json_file", "choke_1winding_1Layer.json")
@@ -1550,9 +1532,10 @@ class TestClass(BasisTest, object):
             assert False
 
     def test_78_get_touching_objects(self):
-        box1 = self.aedtapp.modeler.create_box([-20, -20, -20], [1, 1, 1])
-        box2 = self.aedtapp.modeler.create_box([-20, -20, -19], [0.2, 0.2, 0.2])
+        box1 = self.aedtapp.modeler.create_box([-20, -20, -20], [1, 1, 1], matname="copper")
+        box2 = self.aedtapp.modeler.create_box([-20, -20, -19], [0.2, 0.2, 0.2], matname="copper")
         assert box2.name in box1.touching_objects
+        assert box2.name in box1.touching_conductors()
         assert box1.name in box2.touching_objects
         assert box2.name in box1.faces[0].touching_objects
         if config["desktopVersion"] > "2022.2":
@@ -1730,3 +1713,37 @@ class TestClass(BasisTest, object):
             object_list=[box2.name],
         )
         assert len(self.aedtapp.modeler.user_defined_components) == 2
+
+    @pytest.mark.skipif(
+        config["desktopVersion"] < "2023.1" or is_ironpython, reason="Method available in beta from 2023.1"
+    )
+    def test_85_insert_layoutcomponent(self):
+        self.aedtapp.insert_design("LayoutComponent")
+        self.aedtapp.solution_type = "Modal"
+        assert not self.aedtapp.modeler.insert_layout_component(
+            self.layout_component, name=None, parameter_mapping=False
+        )
+        self.aedtapp.solution_type = "Terminal"
+        comp = self.aedtapp.modeler.insert_layout_component(self.layout_component, name=None, parameter_mapping=False)
+        assert isinstance(comp, UserDefinedComponent)
+        assert len(self.aedtapp.modeler.modeler.user_defined_components[comp.name].parts) == 3
+        comp2 = self.aedtapp.modeler.insert_layout_component(
+            self.layout_component, name="new_layout", parameter_mapping=True
+        )
+        assert isinstance(comp2, UserDefinedComponent)
+        assert len(comp2.parameters) == 2
+        assert comp2.layout_component.show_layout
+        comp2.layout_component.show_layout = False
+        assert not comp2.layout_component.show_layout
+        comp2.layout_component.show_layout = True
+        comp2.layout_component.fast_transformation = True
+        assert comp2.layout_component.fast_transformation
+        comp2.layout_component.fast_transformation = False
+        assert comp2.layout_component.show_dielectric
+        comp2.layout_component.show_dielectric = False
+        assert not comp2.layout_component.show_dielectric
+        assert comp2.layout_component.display_mode == 0
+        comp2.layout_component.display_mode = 1
+        assert comp2.layout_component.display_mode == 1
+        comp2.layout_component.layers["Trace"] = [True, True, 90]
+        assert comp2.layout_component.update_visibility()

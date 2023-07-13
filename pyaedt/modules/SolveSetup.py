@@ -11,13 +11,17 @@ from collections import OrderedDict
 import logging
 import os.path
 from random import randrange
+import re
 import time
 import warnings
 
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.constants import AEDT_UNITS
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SolveSweeps import SetupProps
@@ -79,6 +83,7 @@ class CommonSetup(PropsManager, object):
         machine="localhost",
         run_in_thread=False,
         revert_to_initial_mesh=False,
+        blocking=True,
     ):
         """Solve the active design.
 
@@ -105,6 +110,9 @@ class CommonSetup(PropsManager, object):
             ``False``.
         revert_to_initial_mesh : bool, optional
             Whether to revert to initial mesh before solving or not. Default is ``False``.
+        blocking : bool, optional
+            Whether to block script while analysis is completed or not. It works from AEDT 2023 R2.
+            Default is ``True``.
 
         Returns
         -------
@@ -127,6 +135,7 @@ class CommonSetup(PropsManager, object):
             machine=machine,
             run_in_thread=run_in_thread,
             revert_to_initial_mesh=revert_to_initial_mesh,
+            blocking=blocking,
         )
 
     @pyaedt_function_handler()
@@ -1343,7 +1352,9 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler()
     def export_to_hfss(self, file_fullname, keep_net_name=False):
-        """Export the HFSS 3DLayout design to HFSS 3D design.
+        """Export the HFSS 3D Layout design to HFSS 3D design.
+
+        This method is not supported with IronPython.
 
         Parameters
         ----------
@@ -1373,9 +1384,12 @@ class Setup3DLayout(CommonSetup):
         self.omodule.ExportToHfss(self.name, file_fullname)
         succeeded = self._check_export_log(info_messages, error_messages, file_fullname)
         if succeeded and keep_net_name:
-            from pyaedt import Hfss
+            if not is_ironpython:
+                from pyaedt import Hfss
 
-            self._get_net_names(Hfss, file_fullname)
+                self._get_net_names(Hfss, file_fullname)
+            else:
+                self.p_app.logger.error("Exporting layout while keeping net name is not supported with IronPython")
         return succeeded
 
     @pyaedt_function_handler()
@@ -1425,13 +1439,22 @@ class Setup3DLayout(CommonSetup):
                                         obj_dict[pad_ind] = aedtapp.modeler.objects[pad_ind]
             obj_list = list(obj_dict.values())
             if len(obj_list) == 1:
-                obj_list[0].name = net
+                net = net.replace("-", "m")
+                net = net.replace("+", "p")
+                net_name = re.sub("[^a-zA-Z0-9 \n\.]", "_", net)
+                obj_list[0].name = net_name
                 obj_list[0].color = [randrange(255), randrange(255), randrange(255)]
             elif len(obj_list) > 1:
                 united_object = aedtapp.modeler.unite(obj_list, purge=True)
                 obj_ind = aedtapp.modeler._object_names_to_ids[united_object]
-                aedtapp.modeler.objects[obj_ind].name = net
-                aedtapp.modeler.objects[obj_ind].color = [randrange(255), randrange(255), randrange(255)]
+                try:
+                    net = net.replace("-", "m")
+                    net = net.replace("+", "p")
+                    net_name = re.sub("[^a-zA-Z0-9 \n\.]", "_", net)
+                    aedtapp.modeler.objects[obj_ind].name = net_name
+                    aedtapp.modeler.objects[obj_ind].color = [randrange(255), randrange(255), randrange(255)]
+                except:
+                    pass
         if aedtapp.design_type == "Q3D Extractor":
             aedtapp.auto_identify_nets()
         aedtapp.close_project(save_project=True)
@@ -1443,15 +1466,44 @@ class Setup3DLayout(CommonSetup):
         primitive_dict = {}
         for net, primitives in net_primitives.items():
             primitive_dict[net] = []
-            if primitives:
+            n = 0
+            while len(primitive_dict[net]) < len(net_primitives[net]):
+                if n > 1000:  # adding 1000 as maximum value to prevent infinite loop
+                    return
+                n += 20
+                primitive_dict[net] = []
                 for prim in primitives:
                     layer = edb.stackup.signal_layers[prim.layer_name]
                     z = layer.lower_elevation + layer.thickness / 2
-                    for arc in prim.arcs:
-                        pt = self._get_polygon_centroid(arc.points)
+                    pt = self._get_point_inside_primitive(prim, n)
+                    if pt:
                         pt.append(z)
                         primitive_dict[net].append(pt)
         return primitive_dict
+
+    @pyaedt_function_handler()
+    def _get_point_inside_primitive(self, primitive, n):
+        from pyaedt.modeler.geometry_operators import GeometryOperators
+
+        if not is_ironpython:
+            import numpy as np
+        else:
+            return False
+        bbox = primitive.bbox
+        primitive_x_points = []
+        primitive_y_points = []
+        for arc in primitive.arcs:
+            if len(arc.points) == 2:
+                primitive_x_points += arc.points[0]
+                primitive_y_points += arc.points[1]
+        dx = (bbox[2] - bbox[0]) / n
+        dy = (bbox[3] - bbox[1]) / n
+        xcoords = [i for i in np.arange(bbox[0], bbox[2], dx)]
+        ycoords = [i for i in np.arange(bbox[1], bbox[3], dy)]
+        for x in xcoords:
+            for y in ycoords:
+                if GeometryOperators.point_in_polygon([x, y], [primitive_x_points, primitive_y_points]) == 1:
+                    return [x, y]
 
     @pyaedt_function_handler()
     def _get_polygon_centroid(self, arcs=None):
@@ -1553,9 +1605,12 @@ class Setup3DLayout(CommonSetup):
         self.omodule.ExportToQ3d(self.name, file_fullname)
         succeeded = self._check_export_log(info_messages, error_messages, file_fullname)
         if succeeded and keep_net_name:
-            from pyaedt import Q3d
+            if not is_ironpython:
+                from pyaedt import Q3d
 
-            self._get_net_names(Q3d, file_fullname)
+                self._get_net_names(Q3d, file_fullname)
+            else:
+                self.p_app.logger.error("Exporting layout while keeping net name is not supported with IronPython")
         return succeeded
 
     @pyaedt_function_handler()
@@ -1646,12 +1701,12 @@ class Setup3DLayout(CommonSetup):
         ----------
         file_path : str
             File path of the json file.
-        overwrite : bool
+        overwrite : bool, optional
             Whether to overwrite the file if it already exists.
         """
         if os.path.isdir(file_path):  # pragma no cover
             if not overwrite:  # pragma no cover
-                raise logging.error("File {} already exists. Configure file is not exported".format(file_path))
+                logging.error("File {} already exists. Configure file is not exported".format(file_path))
         return self.props._export_properties_to_json(file_path)
 
 
@@ -2585,6 +2640,62 @@ class SetupMaxwell(Setup, object):
         self.auto_update = legacy_update
         return True
 
+    @pyaedt_function_handler()
+    def enable_control_program(self, control_program_path, control_program_args=" ", call_after_last_step=False):
+        """Enable control program option is solution setup.
+        Provide externally created executable files, or Python (*.py) scripts that are called after each time step,
+        and allow you to control the source input, circuit elements, mechanical quantities, time step,
+        and stopping criteria, based on the updated solutions.
+
+        Parameters
+        ----------
+        control_program_path : str
+            File path of control program.
+        control_program_args : str, optional
+            Arguments to pass to control program.
+            Default value is ``" "``.
+        call_after_last_step : bool, optional
+            If ``True`` the control program is called after the simulation is completed.
+            Default value is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful, ``False`` if it fails.
+
+        Notes
+        -----
+        By default a control program script will be called by the pre-installed Python interpreter:
+        ``<install_path>\Win64\commonfiles\CPython\37\winx64\Release\python\python.exe``.
+        However, the user can specify a custom Python interpreter to be used by setting following environment variable:
+        ``EM_CTRL_PROG_PYTHON_PATH=<path_to\python.exe>``
+
+        References
+        ----------
+        >>> oModule.EditSetup
+        """
+        if self.p_app.solution_type not in ["Transient", "TransientXY", "TransientZ"]:
+            self._app.logger.error("Control Program is only available in Maxwell 2D and 3D Transient solutions.")
+            return False
+
+        if not os.path.exists(control_program_path):
+            self._app.logger.error("Control Program file does not exist.")
+            return False
+
+        if not isinstance(control_program_args, str):
+            self._app.logger.error("Control Program arguments have to be a string.")
+            return False
+
+        self.auto_update = False
+        self.props["UseControlProgram"] = True
+        self.props["ControlProgramName"] = control_program_path
+        self.props["ControlProgramArg"] = control_program_args
+        self.props["CallCtrlProgAfterLastStep"] = call_after_last_step
+        self.auto_update = True
+        self.update()
+
+        return True
+
 
 class SetupQ3D(Setup, object):
     """Initializes, creates, and updates an Q3D setup.
@@ -3004,6 +3115,24 @@ class SetupQ3D(Setup, object):
         if value or (self._ac_rl_enbled or self._capacitance_enabled):
             self._dc_enabled = value
             self.update()
+
+    @property
+    def dc_resistance_only(self):
+        """Get/Set the DC Resistance Only or Resistance/Inductance calculatio in active Q3D setup.
+
+        Returns
+        -------
+        bool
+        """
+        try:
+            return self.props["DC"]["SolveResOnly"]
+        except KeyError:
+            return False
+
+    @dc_resistance_only.setter
+    def dc_resistance_only(self, value):
+        if self.dc_enabled:
+            self.props["DC"]["SolveResOnly"] = value
 
     @pyaedt_function_handler()
     def update(self, update_dictionary=None):

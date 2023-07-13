@@ -2,8 +2,8 @@ from __future__ import absolute_import
 
 from collections import OrderedDict
 
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import _dim_arg
-from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import clamp
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import rgb_color_codes
@@ -341,14 +341,14 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         >>> oEditor.GetVertexPosition
 
         """
-
-        if len(self.vertices) == 2:
-            midpoint = GeometryOperators.get_mid_point(self.vertices[0].position, self.vertices[1].position)
-            return list(midpoint)
-        elif len(self.vertices) == 1:
-            return self.vertices[0].position
-        else:
-            return [float(i) for i in self.oeditor.GetEdgePositionAtNormalizedParameter(self.id, 0)]
+        return [float(i) for i in self.oeditor.GetEdgePositionAtNormalizedParameter(self.id, 0.5)]
+        # if len(self.vertices) == 2:
+        #     midpoint = GeometryOperators.get_mid_point(self.vertices[0].position, self.vertices[1].position)
+        #     return list(midpoint)
+        # elif len(self.vertices) == 1:
+        #     return self.vertices[0].position
+        # else:
+        #     return [float(i) for i in self.oeditor.GetEdgePositionAtNormalizedParameter(self.id, 0)]
 
     @property
     def length(self):
@@ -377,7 +377,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         return "EdgeId " + str(self.id)
 
     @pyaedt_function_handler()
-    def create_object(self, non_model=False, create_group_for_new_objects=False):
+    def create_object(self, non_model=False):
         """Return a new object from the selected edge.
 
         Returns
@@ -579,11 +579,10 @@ class FacePrimitive(object):
         """Face center in model units.
 
         .. note::
-           It returns the face centroid if number of face vertices is >1.
+           It returns the face center from AEDT.
+           It falls back to get the face centroid if number of face vertices is >1.
            For curved faces returns a point on the surface even if it is
            not properly the center of mass.
-           It falls back to get AEDT Face Center if the efficient methods
-           fail.
 
         Returns
         -------
@@ -596,8 +595,10 @@ class FacePrimitive(object):
         >>> oEditor.GetFaceCenter
 
         """
-        vtx = self.vertices
         try:
+            return [float(i) for i in self.oeditor.GetFaceCenter(self.id)]
+        except:  # pragma: no cover
+            vtx = self.vertices
             if len(vtx) > 1:
                 return GeometryOperators.get_polygon_centroid([pos.position for pos in vtx])
             elif len(vtx) <= 1:
@@ -615,8 +616,6 @@ class FacePrimitive(object):
                     ]
                 )
                 return centroid
-        except:  # pragma: no cover
-            return self.center_from_aedt
 
     @property
     def area(self):
@@ -1012,7 +1011,7 @@ class Point(object):
                 property_servers.append(self._name)
                 point_tab = ["NAME:Geometry3DPointTab", property_servers, changed_property]
                 all_tabs = ["NAME:AllTabs", point_tab]
-                _retry_ntimes(10, self._primitives.oeditor.ChangeProperty, all_tabs)
+                self._primitives.oeditor.ChangeProperty(all_tabs)
                 self._name = point_name
                 self._primitives.cleanup_objects()
         else:
@@ -1028,13 +1027,12 @@ class Point(object):
         >>> oEditor.GetProperties
         """
         if not self._all_props:
-            self._all_props = _retry_ntimes(10, self._oeditor.GetProperties, "Geometry3DPointTab", self._name)
+            self._all_props = self._oeditor.GetProperties("Geometry3DPointTab", self._name)
         return self._all_props
 
     # Note: We currently cannot get the color property value because
     # when we try to access it, we only get access to the 'edit' button.
     # Following is the line that we would use but it currently returns 'edit'.
-    # color = _retry_ntimes(10, self._oeditor.GetPropertyValue, "Geometry3DPointTab", self._name, "Color")
     def set_color(self, color_value):
         """Set symbol color.
 
@@ -1101,8 +1099,8 @@ class Point(object):
         if self._point_coordinate_system is not None:
             return self._point_coordinate_system
         if "Orientation" in self.valid_properties:
-            self._point_coordinate_system = _retry_ntimes(
-                10, self._oeditor.GetPropertyValue, "Geometry3DPointTab", self._name, "Orientation"
+            self._point_coordinate_system = self._oeditor.GetPropertyValue(
+                "Geometry3DPointTab", self._name, "Orientation"
             )
             return self._point_coordinate_system
 
@@ -1215,7 +1213,7 @@ class Plane(object):
                 property_servers.append(self._name)
                 plane_tab = ["NAME:Geometry3DPlaneTab", property_servers, changed_property]
                 all_tabs = ["NAME:AllTabs", plane_tab]
-                _retry_ntimes(10, self._primitives.oeditor.ChangeProperty, all_tabs)
+                self._primitives.oeditor.ChangeProperty(all_tabs)
                 self._name = plane_name
                 # TO BE DELETED self._primitives.cleanup_objects()
                 # Update the name of the plane in the ``planes`` dictionary listing all existing planes.
@@ -1233,13 +1231,12 @@ class Plane(object):
         >>> oEditor.GetProperties
         """
         if not self._all_props:
-            self._all_props = _retry_ntimes(10, self._oeditor.GetProperties, "Geometry3DPlaneTab", self._name)
+            self._all_props = self._oeditor.GetProperties("Geometry3DPlaneTab", self._name)
         return self._all_props
 
     # Note: You currently cannot get the color property value because
     # when you try to access it, you only get access to the 'edit' button.
     # Following is the line that you would use, but it currently returns 'edit'.
-    # color = _retry_ntimes(10, self._oeditor.GetPropertyValue, "Geometry3DPlaneTab", self._name, "Color")
     @pyaedt_function_handler()
     def set_color(self, color_value):
         """Set symbol color.
@@ -1307,8 +1304,8 @@ class Plane(object):
         if self._plane_coordinate_system is not None:
             return self._plane_coordinate_system
         if "Orientation" in self.valid_properties:
-            self._plane_coordinate_system = _retry_ntimes(
-                10, self._oeditor.GetPropertyValue, "Geometry3DPlaneTab", self._name, "Orientation"
+            self._plane_coordinate_system = self._oeditor.GetPropertyValue(
+                "Geometry3DPlaneTab", self._name, "Orientation"
             )
             return self._plane_coordinate_system
 
@@ -1361,6 +1358,8 @@ class BinaryTreeNode:
     """Manages an object's history structure."""
 
     def __init__(self, node, child_object, first_level=False, get_child_obj_arg=None, root_name=None):
+        if not root_name:
+            root_name = node
         saved_root_name = node if first_level else root_name
         self.node = node
         self.child_object = child_object
@@ -1395,7 +1394,10 @@ class BinaryTreeNode:
         else:
             self.props = {}
             for p in self.child_object.GetPropNames():
-                self.props[p] = self.child_object.GetPropValue(p)
+                try:
+                    self.props[p] = self.child_object.GetPropValue(p)
+                except:
+                    self.props[p] = None
             self.props = HistoryProps(self, self.props)
         self.command = self.props.get("Command", "")
 

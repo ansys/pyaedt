@@ -438,7 +438,7 @@ class TerrainPrep(object):
         num_samples = int(np.ceil(max_radius * 2 / sample_grid_size))
         x_samples = np.linspace(utm_x_min, utm_x_max, int(num_samples))
         y_samples = np.linspace(utm_y_min, utm_y_max, int(num_samples))
-        elevation_data = srtm.get_data(local_cache_dir="tmp_cache")
+        elevation_data = srtm.get_data()
 
         all_data = np.zeros((num_samples, num_samples))
         all_utm = np.zeros((num_samples, num_samples, 2))

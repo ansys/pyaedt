@@ -6,6 +6,7 @@ from _unittest.conftest import config
 from _unittest.conftest import local_path
 
 from pyaedt import Circuit  # Setup paths for module imports
+from pyaedt import Edb
 from pyaedt import is_ironpython
 from pyaedt import is_linux
 
@@ -705,7 +706,7 @@ class TestClass(BasisTest, object):
         c.excitations["PortTest"].delete()
         assert len(c.excitation_objets) == 0
         self.aedtapp.save_project()
-        c = Circuit(designname="sources")
+        c = Circuit(designname="sources", specified_version=config["desktopVersion"])
         assert c.sources
 
     def test_41_set_variable(self):
@@ -777,10 +778,23 @@ class TestClass(BasisTest, object):
 
     def test_43_create_and_change_prop_text(self):
         self.aedtapp.insert_design("text")
-        text = self.aedtapp.modeler.create_text("text test")
+        self.aedtapp.modeler.schematic_units = "mil"
+        text = self.aedtapp.modeler.create_text(
+            "text test",
+            100,
+            300,
+            text_size=14,
+            text_angle=45,
+            text_color=[255, 0, 0],
+            show_rect=True,
+            rect_line_width=3,
+            rect_border_color=[0, 255, 0],
+            rect_fill=1,
+            rect_color=[0, 0, 255],
+        )
         assert isinstance(text, str)
         assert text in self.aedtapp.oeditor.GetAllGraphics()
-        assert not self.aedtapp.modeler.create_text("text test", "1000mil", "-2000mil")
+        assert self.aedtapp.modeler.create_text("text test", "1000mil", "-2000mil")
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Change property doesn't work in non-graphical mode.")
     def test_44_change_text_property(self):
@@ -794,3 +808,18 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.change_text_property(text_id, "Location", [5000, 2000])
         assert not self.aedtapp.modeler.change_text_property(1, "Color", [255, 120, 0])
         assert not self.aedtapp.modeler.change_text_property(text_id, "Invalid", {})
+
+    def test_45_create_circuit_from_multizone_layout(self):
+        source_path = os.path.join(local_path, "example_models", "multi_zone_project.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_multi_zone", "test_45.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edb = Edb(edbpath=target_path, edbversion=self.aedtapp._aedt_version)
+        common_reference_net = "gnd"
+        edb_zones = edb.copy_zones()
+        assert edb_zones
+        defined_ports, project_connexions = edb.cutout_multizone_layout(edb_zones, common_reference_net)
+        edb.close_edb()
+        assert project_connexions
+        self.aedtapp.insert_design("test_45")
+        self.aedtapp.connect_circuit_models_from_multi_zone_cutout(project_connexions, edb_zones, defined_ports)
+        assert [mod for mod in list(self.aedtapp.modeler.schematic.components.values()) if "PagePort" in mod.name]

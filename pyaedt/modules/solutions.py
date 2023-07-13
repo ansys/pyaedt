@@ -5,6 +5,7 @@ import os
 import sys
 import time
 
+# from pyaedt import property
 from pyaedt import get_pyaedt_app
 from pyaedt import is_ironpython
 from pyaedt import pyaedt_function_handler
@@ -76,7 +77,8 @@ class SolutionData(object):
 
     @property
     def enable_pandas_output(self):
-        """Set/Get a flag to use Pandas to export dict and lists. This applies to Solution data output.
+        """
+        Set/Get a flag to use Pandas to export dict and lists. This applies to Solution data output.
         If ``True`` the property or method will return a pandas object in CPython environment.
         Default is ``False``.
 
@@ -213,15 +215,17 @@ class SolutionData(object):
     @staticmethod
     @pyaedt_function_handler()
     def _quantity(unit):
-        """
+        """Get the corresponding AEDT units.
 
         Parameters
         ----------
-        unit :
-
+        unit : str
+            The unit to be looked among the available AEDT units.
 
         Returns
         -------
+            str
+            The AEDT units.
 
         """
         for el in AEDT_UNITS:
@@ -232,7 +236,7 @@ class SolutionData(object):
 
     @pyaedt_function_handler()
     def init_solutions_data(self):
-        "Initialize the database and store info in variables."
+        """Initialize the database and store info in variables."""
         self._solutions_real = self._init_solution_data_real()
         self._solutions_imag = self._init_solution_data_imag()
         self._solutions_mag = self._init_solution_data_mag()
@@ -1268,7 +1272,8 @@ class FfdSolutionData(object):
 
     @pyaedt_function_handler()
     def array_center_and_edge(self):
-        """Find the center and edge of our array, assumes all ports in far field
+        """
+        Find the center and edge of our array, assuming all ports in far field
         mapping file are active ports.
 
         Returns
@@ -1999,10 +2004,6 @@ class FfdSolutionData(object):
         export_image_path : str, optional
             Full path to image file. Default is None to not export.
 
-
-        Returns
-        -------
-
         """
         data = self.beamform(phi_scan, theta_scan)
 
@@ -2438,12 +2439,12 @@ class UpdateBeamForm:
         return
 
     def update_phi(self, phi):
-        """Updates the Pyvista Plot with new phi value."""
+        """Update the Pyvista Plot with new phi value."""
         self._phi = phi
         self._update_both()
 
     def update_theta(self, theta):
-        """Updates the Pyvista Plot with new theta value."""
+        """Update the Pyvista Plot with new theta value."""
         self._theta = theta
         self._update_both()
 
@@ -2473,17 +2474,17 @@ class Update2BeamForms:
         return
 
     def update_phi1(self, phi1):
-        """Updates the Pyvista Plot with new phi1 value."""
+        """Update the Pyvista Plot with new phi1 value."""
         self._phi1 = phi1
         self._update_both()
 
     def update_theta1(self, theta1):
-        """Updates the Pyvista Plot with new theta1 value."""
+        """Update the Pyvista Plot with new theta1 value."""
         self._theta1 = theta1
         self._update_both()
 
     def update_phi2(self, phi2):
-        """Updates the Pyvista Plot with new phi2 value."""
+        """Update the Pyvista Plot with new phi2 value."""
         self._phi2 = phi2
         self._update_both()
 
@@ -2521,6 +2522,8 @@ class FieldPlot:
         quantityName="",
         intrinsincList={},
         seedingFaces=[],
+        layers_nets=[],
+        layers_plot_type="LayerNetsExtFace",
     ):
         self._postprocessor = postprocessor
         self.oField = postprocessor.ofieldsreporter
@@ -2528,6 +2531,8 @@ class FieldPlot:
         self.surfaces_indexes = surfacelist
         self.line_indexes = linelist
         self.cutplane_indexes = cutplanelist
+        self.layers_nets = layers_nets
+        self.layers_plot_type = layers_plot_type
         self.seeding_faces = seedingFaces
         self.solutionName = solutionName
         self.quantityName = quantityName
@@ -2574,6 +2579,9 @@ class FieldPlot:
             idx += 1
         if self.line_indexes:
             idx += 1
+        if self.layers_nets:
+            idx += 1
+
         info = [idx]
         if self.volume_indexes:
             info.append("Volume")
@@ -2584,18 +2592,21 @@ class FieldPlot:
         if self.surfaces_indexes:
             model_faces = []
             nonmodel_faces = []
-            models = self._postprocessor.modeler.model_objects
-            for index in self.surfaces_indexes:
-                try:
-                    if isinstance(index, FacePrimitive):
-                        index = index.id
-                    oname = self._postprocessor.modeler.oeditor.GetObjectNameByFaceID(index)
-                    if oname in models:
-                        model_faces.append(str(index))
-                    else:
-                        nonmodel_faces.append(str(index))
-                except:
-                    pass
+            if self._postprocessor._app.design_type == "HFSS 3D Layout Design":
+                model_faces = [str(i) for i in self.surfaces_indexes]
+            else:
+                models = self._postprocessor.modeler.model_objects
+                for index in self.surfaces_indexes:
+                    try:
+                        if isinstance(index, FacePrimitive):
+                            index = index.id
+                        oname = self._postprocessor.modeler.oeditor.GetObjectNameByFaceID(index)
+                        if oname in models:
+                            model_faces.append(str(index))
+                        else:
+                            nonmodel_faces.append(str(index))
+                    except:
+                        pass
             info.append("Surface")
             if model_faces:
                 info.append("FacesList")
@@ -2618,6 +2629,18 @@ class FieldPlot:
             info.append(len(self.line_indexes))
             for index in self.line_indexes:
                 info.append(str(index))
+        if self.layers_nets:
+            if self.layers_plot_type == "LayerNets":
+                info.append("Volume")
+                info.append("LayerNets")
+            else:
+                info.append("Surface")
+                info.append("LayerNetsExtFace")
+            info.append(len(self.layers_nets))
+            for index in self.layers_nets:
+                info.append(index[0])
+                info.append(len(index[1:]))
+                info.extend(index[1:])
         return info
 
     @property
@@ -2653,7 +2676,11 @@ class FieldPlot:
         list
             List of plot settings.
         """
-        if self.surfaces_indexes or self.cutplane_indexes:
+        if (
+            self.surfaces_indexes
+            or self.cutplane_indexes
+            or (self.layers_nets and self.layers_plot_type == "LayerNetsExtFace")
+        ):
             arg = [
                 "NAME:PlotOnSurfaceSettings",
                 "Filled:=",
@@ -3370,7 +3397,6 @@ class VRTFieldPlot:
     @pyaedt_function_handler()
     def update(self):
         """Update the field plot.
-
 
         Returns
         -------

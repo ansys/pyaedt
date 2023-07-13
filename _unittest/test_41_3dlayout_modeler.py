@@ -7,7 +7,9 @@ from _unittest.conftest import desktop_version
 from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
 
+from pyaedt import Hfss
 from pyaedt import Hfss3dLayout
+from pyaedt import Maxwell3d
 
 try:
     import pytest  # noqa: F401
@@ -20,6 +22,7 @@ test_subfolder = "T41"
 # Input Data and version for the test
 test_project_name = "Test_RadioBoard"
 test_rigid_flex = "demo_flex"
+test_post = "test_post_processing"
 
 if config["desktopVersion"] > "2022.2":
     diff_proj_name = "differential_pairs_t41_231"
@@ -33,9 +36,6 @@ class TestClass(BasisTest, object):
         self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, application=Hfss3dLayout)
         self.hfss3dl = BasisTest.add_app(
             self, project_name=diff_proj_name, application=Hfss3dLayout, subfolder=test_subfolder
-        )
-        self.flex = BasisTest.add_app(
-            self, project_name=test_rigid_flex, application=Hfss3dLayout, subfolder=test_subfolder
         )
         example_project = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
         self.target_path = os.path.join(self.local_scratch.path, "Package_test_41.aedb")
@@ -495,6 +495,14 @@ class TestClass(BasisTest, object):
     def test_19A_validate(self):
         assert self.aedtapp.validate_full_design()
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
+    def test_19A_analyze_setup(self):
+        self.aedtapp.save_project()
+        assert self.aedtapp.analyze_setup("RFBoardSetup", blocking=False)
+        assert self.aedtapp.are_there_simulations_running
+        # assert self.aedtapp.get_monitor_data()
+        assert self.aedtapp.stop_simulations()
+
     def test_19B_analyze_setup(self):
         self.aedtapp.save_project()
         assert self.aedtapp.mesh.generate_mesh("RFBoardSetup3")
@@ -514,6 +522,7 @@ class TestClass(BasisTest, object):
         sweep_name = None
         assert self.aedtapp.export_touchstone(solution_name, sweep_name)
 
+    @pytest.mark.skipif(is_ironpython, reason="Not supported with IronPython")
     def test_19D_export_to_hfss(self):
         filename = "export_to_hfss_test"
         filename2 = "export_to_hfss_test2"
@@ -529,7 +538,7 @@ class TestClass(BasisTest, object):
         setup = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
         assert setup.export_to_q3d(file_fullname)
 
-    def test_19_F_export_results(self):
+    def test_19F_export_results(self):
         files = self.aedtapp.export_results()
         assert len(files) > 0
 
@@ -565,6 +574,9 @@ class TestClass(BasisTest, object):
         assert port.name == "PinPort1"
         port.props["Magnitude"] = "2V"
         assert port.props["Magnitude"] == "2V"
+        assert port.object_properties.props["Magnitude"] == "2V"
+        port.object_properties.props["Magnitude"] = "5V"
+        assert port.object_properties.props["Magnitude"] == "5V"
 
     def test_28_create_scattering(self):
         assert self.aedtapp.create_scattering()
@@ -640,7 +652,9 @@ class TestClass(BasisTest, object):
     def test_37_import_gds(self):
         self.aedtapp.insert_design("gds")
         gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1.gds")
-        control_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1.tech")
+        control_file = self.local_scratch.copyfile(
+            os.path.join(local_path, "example_models", "cad", "GDS", "gds1.tech")
+        )
         aedb_file = os.path.join(self.local_scratch.path, "gds_out.aedb")
         assert self.aedtapp.import_gds(gds_file, aedb_path=aedb_file, control_file=control_file)
 
@@ -660,7 +674,8 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(config["desktopVersion"] < "2022.2", reason="Not working on AEDT 22R1")
     def test_40_test_flex(self):
-        assert self.flex.enable_rigid_flex()
+        flex = BasisTest.add_app(self, project_name=test_rigid_flex, application=Hfss3dLayout, subfolder=test_subfolder)
+        assert flex.enable_rigid_flex()
         pass
 
     def test_41_test_create_polygon(self):
@@ -674,8 +689,40 @@ class TestClass(BasisTest, object):
         assert p2.name == "poly_test_41_void"
         assert not self.aedtapp.modeler.create_polygon_void("Top", points2, "another_object", name="poly_43_void")
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
+    def test_42_post_processing(self):
+        test_post1 = BasisTest.add_app(self, project_name=test_post, application=Maxwell3d, subfolder=test_subfolder)
+        assert test_post1.post.create_fieldplot_layers_nets(
+            [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
+            "Mag_Volume_Force_Density",
+            intrinsics={"Time": "1ms"},
+            plot_name="Test_Layers",
+        )
+        test_post2 = Hfss(projectname=test_post1.project_name)
+        assert test_post2.post.create_fieldplot_layers_nets(
+            [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
+            "Mag_E",
+            intrinsics={"Freq": "1GHz", "Phase": "0deg"},
+            plot_name="Test_Layers",
+        )
+        self.aedtapp.close_project(test_post2.project_name)
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
+    def test_42_post_processing_3d_layout(self):
+        test = BasisTest.add_app(
+            self, project_name="test_post_3d_layout_solved_23R2", application=Hfss3dLayout, subfolder=test_subfolder
+        )
+        assert test.post.create_fieldplot_layers_nets(
+            [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
+            "Mag_Volume_Force_Density",
+            intrinsics={"Time": "1ms"},
+            plot_name="Test_Layers",
+        )
+        self.aedtapp.close_project(test.project_name)
+
     @pytest.mark.skipif(is_linux, reason="Bug on linux")
     def test_90_set_differential_pairs(self):
+        assert not self.aedtapp.get_differential_pairs()
         assert self.hfss3dl.set_differential_pair(
             positive_terminal="Port3",
             negative_terminal="Port4",
@@ -687,6 +734,8 @@ class TestClass(BasisTest, object):
             matched=False,
         )
         assert self.hfss3dl.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
+        assert self.hfss3dl.get_differential_pairs()
+        assert self.hfss3dl.get_traces_for_plot(differential_pairs=["Diff1"], category="dB(S")
 
     @pytest.mark.skipif(is_linux, reason="Bug on linux")
     def test_91_load_and_save_diff_pair_file(self):
@@ -704,10 +753,12 @@ class TestClass(BasisTest, object):
     def test_92_import_edb(self):
         assert self.aedtapp.import_edb(self.target_path)
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2022.2", reason="Not Working on Version earlier than 2022R2.")
+    @pytest.mark.skipif(
+        config["desktopVersion"] < "2022.2", reason="This test does not work on versions earlier than 2022 R2."
+    )
     def test_93_clip_plane(self):
-        assert self.aedtapp.modeler.clip_plane() == "VCP_1"
-        assert "VCP_1" in self.aedtapp.modeler.clip_planes
+        cp_name = self.aedtapp.modeler.clip_plane()
+        assert cp_name in self.aedtapp.modeler.clip_planes
 
     def test_94_edit_3dlayout_extents(self):
         assert self.aedtapp.edit_hfss_extents(
@@ -716,6 +767,7 @@ class TestClass(BasisTest, object):
             air_extent_type="ConformalExtent",
             air_vertical_positive_padding="10mm",
             air_vertical_negative_padding="10mm",
+            air_horizontal_padding="1mm",
         )
 
     def test_95_create_text(self):
@@ -744,3 +796,6 @@ class TestClass(BasisTest, object):
     def test_97_mesh_settings(self):
         assert self.aedtapp.set_meshing_settings(mesh_method="PhiPlus", enable_intersections_check=False)
         assert self.aedtapp.set_meshing_settings(mesh_method="Classic", enable_intersections_check=True)
+
+    def test_98_geom_check(self):
+        assert self.aedtapp.modeler.geometry_check_and_fix_all()

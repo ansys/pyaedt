@@ -4,6 +4,8 @@ from __future__ import absolute_import  # noreorder
 from collections import OrderedDict
 
 from pyaedt.application.Analysis3D import FieldAnalysis3D
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.Boundary import BoundaryObject
@@ -136,10 +138,10 @@ class Mechanical(FieldAnalysis3D, object):
         setupname="Setup1",
         sweepname="LastAdaptive",
         map_frequency=None,
-        surface_objects=[],
+        surface_objects=None,
         source_project_name=None,
-        paramlist=[],
-        object_list=[],
+        paramlist=None,
+        object_list=None,
     ):
         """Map EM losses to a Mechanical design.
 
@@ -155,14 +157,14 @@ class Mechanical(FieldAnalysis3D, object):
             Frequency to map. The default is ``None``. The value must be ``None`` for
             Eigenmode analysis.
         surface_objects : list, optional
-            List objects in the source that are metals. The default is ``[]``.
+            List objects in the source that are metals. The default is ``None``.
         source_project_name : str, optional
             Name of the source project. The default is ``None``, in which case
             the source from the same project is used.
         paramlist : list, optional
-            List of all parameters in the EM to map. The default is ``[]``.
+            List of all parameters in the EM to map. The default is ``None``.
         object_list : list, optional
-             The default is ``[]``.
+             The default is ``None``.
 
         Returns
         -------
@@ -173,6 +175,13 @@ class Mechanical(FieldAnalysis3D, object):
 
         >>> oModule.AssignEMLoss
         """
+        if surface_objects is None:
+            surface_objects = []
+        if paramlist is None:
+            paramlist = []
+        if object_list is None:
+            object_list = []
+
         assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
 
         self.logger.info("Mapping HFSS EM Lossess")
@@ -222,7 +231,7 @@ class Mechanical(FieldAnalysis3D, object):
         name = generate_unique_name("EMLoss")
         bound = BoundaryObject(self, name, props, "EMLoss")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             self.logger.info("EM losses mapped from design %s.", designname)
             return bound
         return False
@@ -235,7 +244,7 @@ class Mechanical(FieldAnalysis3D, object):
         setupname="Setup1",
         sweepname="SteadyState",
         source_project_name=None,
-        paramlist=[],
+        paramlist=None,
     ):
         """Map thermal losses to a Mechanical design.
 
@@ -256,7 +265,7 @@ class Mechanical(FieldAnalysis3D, object):
             Name of the source project. The default is ``None``, in which case the
             source from the same project is used.
         paramlist : list, optional
-            List of all parameters in the EM to map. The default is ``[]``.
+            List of all parameters in the EM to map. The default is ``None``.
 
         Returns
         -------
@@ -268,6 +277,8 @@ class Mechanical(FieldAnalysis3D, object):
 
         >>> oModule.AssignThermalCondition
         """
+        if paramlist is None:
+            paramlist = []
 
         assert self.solution_type == "Structural", "This method works only in a Mechanical Structural analysis."
 
@@ -310,7 +321,7 @@ class Mechanical(FieldAnalysis3D, object):
         name = generate_unique_name("ThermalLink")
         bound = BoundaryObject(self, name, props, "ThermalCondition")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             self.logger.info("Thermal conditions are mapped from design %s.", designname)
             return bound
 
@@ -365,7 +376,7 @@ class Mechanical(FieldAnalysis3D, object):
             boundary_name = generate_unique_name("Convection")
         bound = BoundaryObject(self, boundary_name, props, "Convection")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -412,7 +423,7 @@ class Mechanical(FieldAnalysis3D, object):
             boundary_name = generate_unique_name("Temp")
         bound = BoundaryObject(self, boundary_name, props, "Temperature")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -458,7 +469,7 @@ class Mechanical(FieldAnalysis3D, object):
             boundary_name = generate_unique_name("Temp")
         bound = BoundaryObject(self, boundary_name, props, "Frictionless")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -500,7 +511,7 @@ class Mechanical(FieldAnalysis3D, object):
             boundary_name = generate_unique_name("Temp")
         bound = BoundaryObject(self, boundary_name, props, "FixedSupport")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -570,7 +581,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         bound = BoundaryObject(self, boundary_name, props, "HeatFlux")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 
@@ -612,7 +623,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         bound = BoundaryObject(self, boundary_name, props, "HeatGeneration")
         if bound.create():
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             return bound
         return False
 

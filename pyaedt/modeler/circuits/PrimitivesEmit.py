@@ -1,7 +1,9 @@
 from collections import defaultdict
 
-from pyaedt.emit_core import EmitConstants as emit_consts
+from pyaedt.emit_core import emit_constants as emit_consts
 import pyaedt.generic.constants as consts
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -223,6 +225,18 @@ class EmitComponents(object):
         return {k: v for k, v in self.components.items() if v.get_type() == "RadioNode"}
 
     @pyaedt_function_handler()
+    def get_antennas(self):
+        """Get all antennas in the design.
+
+        Returns
+        -------
+        Dict : antenna_name : EmitAntennaComponents
+            Dict of all the antenna_name and EmitAntennaComponents in the
+            design.
+        """
+        return {k: v for k, v in self.components.items() if v.get_type() == "AntennaNode"}
+
+    @pyaedt_function_handler()
     def refresh_all_ids(self):
         """Refresh all IDs and return the number of components."""
         all_comps = self.oeditor.GetAllComponents()
@@ -246,6 +260,7 @@ class EmitComponents(object):
         -------
         EmitComponent
             The component when successful, None when failed.
+
         """
         for el in self.components:
             if self.components[el].name == object_name:
@@ -265,7 +280,6 @@ class EmitComponents(object):
         -------
         type
             Object with properties.
-
         """
         o.update_property_tree()
         comp_type = o.root_prop_node.props["Type"]
@@ -291,7 +305,7 @@ class EmitComponent(object):
 
     @classmethod
     def create(cls, components, component_name):
-        """Create an Emit component.
+        """Create an EMIT component.
 
         Parameters
         ----------
@@ -308,7 +322,7 @@ class EmitComponent(object):
         nodes = components.odesign.GetComponentNodeNames(component_name)
         root_node = nodes[0]
         prop_list = components.odesign.GetComponentNodeProperties(component_name, root_node)
-        props = dict(p.split("=") for p in prop_list)
+        props = dict(p.split("=", 1) for p in prop_list)
         root_node_type = props["Type"]
         if root_node_type.endswith("Node"):
             root_node_type = root_node_type[: -len("Node")]
@@ -349,10 +363,6 @@ class EmitComponent(object):
         component : EmitComponent or str
             The component or name of component to move this component to
             and connect. For example, "Radio1"
-
-        Returns
-        -------
-        None
 
         """
         if isinstance(component, EmitComponent):
@@ -465,39 +475,8 @@ class EmitComponent(object):
         if node is not None:
             node_name = root_node + "-*-" + "-*-".join(node.split("/")[1:])
         props_list = self.odesign.GetComponentNodeProperties(self.name, node_name)
-        props = dict(p.split("=") for p in props_list)
+        props = dict(p.split("=", 1) for p in props_list)
         return props
-
-    @pyaedt_function_handler()
-    def set_property(self, property_name, property_value):
-        """Set part property
-
-        Parameters
-        ----------
-        property_name : str
-            property name
-        property_value : str
-            property value
-
-        Returns
-        -------
-        bool
-
-        References
-        ----------
-
-        >>> oEditor.ChangeProperty
-        """
-        if type(property_name) is list:
-            for p, v in zip(property_name, property_value):
-                v_prop = ["NAME:" + p, "Value:=", v]
-                self.change_property(v_prop)
-                self.__dict__[p] = v
-        else:
-            v_prop = ["NAME:" + property_name, "Value:=", property_value]
-            self.change_property(v_prop)
-            self.__dict__[property_name] = property_value
-        return True
 
     @pyaedt_function_handler()
     def _add_property(self, property_name, property_value):
@@ -648,7 +627,7 @@ class EmitAntennaComponent(EmitComponent):
 
         Parameters
         ----------
-        units : str
+        units : str, optional
             Units of the antenna position. If None specified, units are meters.
 
         Returns
@@ -665,7 +644,7 @@ class EmitAntennaComponent(EmitComponent):
         # Build a tuple of the position
         parts = position_string.split()
 
-        # Check the units specified are a valid Emit length
+        # Check the units specified are a valid EMIT length
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Length"]:
             units = self.units["Length"]
         position = (
@@ -712,9 +691,25 @@ class EmitRadioComponent(EmitComponent):
         Returns
         -------
         List
-            List of the bands in the radio."""
+            List of the band nodes in the radio."""
         band_nodes = self.get_prop_nodes({"Type": "Band"})
         return band_nodes
+
+    def band_node(self, band_name):
+        """Get the specified band node from this radio.
+
+        Parameters
+        ----------
+        band_name : name of the desired band node.
+
+        Returns
+        -------
+        band_node : Instance of the band node."""
+        band_nodes = self.bands()
+        for node in band_nodes:
+            if band_name == node.props["Name"]:
+                return node
+        return None
 
     def band_start_frequency(self, band_node, units=""):
         """Get the start frequency of the band node.
@@ -722,8 +717,8 @@ class EmitRadioComponent(EmitComponent):
         Parameters
         ----------
         band_node : Instance of the band node.
-        units : str
-            Units of the start frequency.
+        units : str, optional
+            If ``None`` specified, global units are used.
 
         Returns
         -------
@@ -732,6 +727,40 @@ class EmitRadioComponent(EmitComponent):
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
             units = self.units["Frequency"]
         return consts.unit_converter(float(band_node.props["StartFrequency"]), "Freq", "Hz", units)
+
+    def band_stop_frequency(self, band_node, units=""):
+        """Get the stop frequency of the band node.
+
+        Parameters
+        ----------
+        band_node : Instance of the band node.
+        units : str, optional
+            If ``None`` specified, global units are used.
+
+        Returns
+        -------
+        Float
+            Stop frequency of the band node."""
+        if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
+            units = self.units["Frequency"]
+        return consts.unit_converter(float(band_node.props["StopFrequency"]), "Freq", "Hz", units)
+
+    def band_channel_bandwidth(self, band_node, units=""):
+        """Get the channel bandwidth of the band node.
+
+        Parameters
+        ----------
+        band_node : Instance of the band node.
+        units : str, optional
+            If ``None`` specified, global units are used.
+
+        Returns
+        -------
+        Float
+            Channel bandwidth of the band node."""
+        if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
+            units = self.units["Frequency"]
+        return consts.unit_converter(float(band_node.props["ChannelBandwidth"]), "Freq", "Hz", units)
 
     def band_tx_power(self, band_node, units=""):
         """Get the transmit power of the band node.
@@ -849,7 +878,7 @@ class EmitComponentPropNode(object):
         Dict
             Dictionary of all the properties for this node."""
         prop_list = self.odesign.GetComponentNodeProperties(self.parent_component.name, self.node_name)
-        props = dict(p.split("=") for p in prop_list)
+        props = dict(p.split("=", 1) for p in prop_list)
         return props
 
     @property
@@ -876,8 +905,8 @@ class EmitComponentPropNode(object):
         ----------
         power : float
             Peak amplitude of the fundamental [dBm].
-        units : str
-            Units of the input power.
+        units : str, optional
+            Units of the input power. If None specified, global units are used.
 
         Return
         ------
@@ -901,8 +930,8 @@ class EmitComponentPropNode(object):
 
         Parameters
         ----------
-        units : str
-            Units to use for the power.
+        units : str, optional
+            Units to use for the power. If None specified, global units are used.
 
         Return
         ------

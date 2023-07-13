@@ -1,7 +1,9 @@
-import os
 import warnings
 
-import pyaedt.emit_core.EmitConstants as emitConsts
+from pyaedt.emit_core.emit_constants import InterfererType
+from pyaedt.emit_core.emit_constants import TxRxMode
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -16,8 +18,12 @@ class Revision:
     emit_obj :
          ``Emit`` object that this revision is associated with.
     name : str, optional
-        Name of the revision to create. The default is ``None``, in which case a
-        default name is given.
+        Name of the revision to create. The default is ``None``, in which
+        case the name of the current design revision is used.
+
+    Raises
+    ------
+    RuntimeError if the name given is not the name of an existing result set and a current result set already exists.
 
     Examples
     --------
@@ -29,28 +35,16 @@ class Revision:
     >>> rev.run(domain)
     """
 
-    def __init__(self, parent_results, emit_obj, name=""):
-        design = emit_obj.odesktop.GetActiveProject().GetActiveDesign()
-        subfolder = ""
-        proj_name = emit_obj.oproject.GetName()
-        for f in os.scandir(emit_obj.oproject.GetPath()):
-            if os.path.splitext(f.name)[0] == proj_name and os.path.splitext(f.name)[1].lower() == ".aedtresults":
-                subfolder = os.path.join(f.path, "EmitDesign1")
-        default_behaviour = not os.path.exists(os.path.join(subfolder, "{}.emit".format(name)))
-        if default_behaviour:
-            print("The most recently generated revision will be used because the revision specified does not exist.")
-        if name == "" or default_behaviour:
-            # if there are no results yet, add a new Result
-            result_files = os.listdir(subfolder)
-            if len(result_files) == 0:
-                name = design.AddResult()
-                full = subfolder + "/{}.emit".format(name)
-            else:
-                file = max([f for f in os.scandir(subfolder)], key=lambda x: x.stat().st_mtime)
-                full = file.path
-                name = file.name
+    def __init__(self, parent_results, emit_obj, name=None):
+        if not name:
+            name = emit_obj.odesign.GetCurrentResult()
+            if not name:
+                name = emit_obj.odesign.AddResult("")
         else:
-            full = subfolder + "/{}.emit".format(name)
+            if name not in emit_obj.odesign.GetResultList():
+                name = emit_obj.odesign.AddResult(name)
+        full = emit_obj.odesign.GetResultDirectory(name)
+
         self.name = name
         """Name of the revision."""
 
@@ -58,14 +52,17 @@ class Revision:
         """Full path of the revision."""
 
         self.emit_project = emit_obj
-        """Emit project."""
+        """EMIT project."""
 
-        self.revision_number = design.GetRevision()
-        """Unique revision number from the Emit design"""
+        raw_props = emit_obj.odesign.GetResultProperties(name)
+        key = lambda s: s.split("=", 1)[0]
+        val = lambda s: s.split("=", 1)[1]
+        props = {key(s): val(s) for s in raw_props}
 
-        result_props = design.GetResultProperties(name)
-        # Strip off the 'Timestamp='
-        self.timestamp = result_props[1][10:]
+        self.revision_number = int(props["Revision"])
+        """Unique revision number from the EMIT design"""
+
+        self.timestamp = props["Timestamp"]
         """Unique timestamp for the revision"""
 
         self.parent_results = parent_results
@@ -79,13 +76,7 @@ class Revision:
     @pyaedt_function_handler()
     def _load_revision(self):
         """
-        Load a specific revision.
-
-        Parameters
-        ----------
-        path : str
-            Path to an AEDT EMIT result directory.
-            For example, "Revision 1.emit"
+        Load this revision.
 
         Examples
         ----------
@@ -104,8 +95,40 @@ class Revision:
 
         Returns
         -------
+        err_msg : str
+            Error/warning message that the specified revision is not accessible.
         """
-        print("This function is inaccessible when the revision is not loaded.")
+        err_msg = "This function is inaccessible when the revision is not loaded."
+        print(err_msg)
+        return err_msg
+
+    @pyaedt_function_handler()
+    def get_interaction(self, domain):
+        """
+        Creates a new interaction for a domain.
+
+        Parameters
+        ----------
+        domain : class:`Emit.InteractionDomain`
+            ``InteractionDomain`` object for constraining the analysis parameters.
+
+        Returns
+        -------
+        interaction:class: `Interaction`
+            Interaction object.
+
+        Examples
+        ----------
+        >>> domain = aedtapp.results.interaction_domain()
+        >>> rev.get_interaction(domain)
+
+        """
+        self._load_revision()
+        engine = self.emit_project._emit_api.get_engine()
+        if domain.interferer_names and engine.max_simultaneous_interferers != len(domain.interferer_names):
+            raise ValueError("The max_simultaneous_interferers must equal the number of interferers in the domain.")
+        interaction = engine.get_interaction(domain)
+        return interaction
 
     @pyaedt_function_handler()
     def run(self, domain):
@@ -128,6 +151,12 @@ class Revision:
         >>> rev.run(domain)
 
         """
+        if domain.receiver_channel_frequency > 0:
+            raise ValueError("The domain must not have channels specified.")
+        if len(domain.interferer_channel_frequencies) != 0:
+            for freq in domain.interferer_channel_frequencies:
+                if freq > 0:
+                    raise ValueError("The domain must not have channels specified.")
         self._load_revision()
         engine = self.emit_project._emit_api.get_engine()
         interaction = engine.run(domain)
@@ -158,12 +187,13 @@ class Revision:
     @pyaedt_function_handler()
     def get_instance_count(self, domain):
         """
-                Return the number of instances in the domain for the current revision.
+        Return the number of instances in the domain for the current revision.
 
-                Parameters
-                ----------
-                domain :
-                    ``InteractionDomain`` object for constraining the analysis parameters.
+        Parameters
+        ----------
+        domain :
+            ``InteractionDomain`` object for constraining the analysis parameters.
+
         Returns
         --------
         count : int
@@ -197,12 +227,12 @@ class Revision:
         >>> rxs = aedtapp.results.current_revision.get_reciver_names()
         """
         if self.revision_loaded:
-            radios = self.emit_project._emit_api.get_radio_names(
-                emitConsts.tx_rx_mode().rx, emitConsts.interferer_type().transmitters_and_emitters
-            )
+            radios = self.emit_project._emit_api.get_radio_names(TxRxMode.RX, InterfererType.TRANSMITTERS_AND_EMITTERS)
         else:
             radios = None
-            self.result_mode_error()
+            err_msg = self.result_mode_error()
+            warnings.warn(err_msg)
+            return radios
         if len(radios) == 0:
             warnings.warn("No valid receivers in the project.")
         return radios
@@ -214,8 +244,9 @@ class Revision:
 
         Parameters
         ----------
-        interferer_type : interferer_type object
-            Type of interferer to return. Options are:
+        interferer_type : interferer_type object, optional
+            Type of interferer to return. The default is ``None``, in which
+            case both transmitters and emitters are returned. Options are:
                 - transmitters
                 - emitters
                 - transmitters_and_emitters
@@ -227,27 +258,26 @@ class Revision:
 
         Examples
         ----------
-        >>> ix_type = emitConsts.interferer_type().transmitters
-        >>> transmitters = aedtapp.results.current_revision.get_interferer_names(ix_type)
-        >>> ix_type = emitConsts.interferer_type().emitters
-        >>> emitters = aedtapp.results.current_revision.get_interferer_names(ix_type)
-        >>> ix_type = emitConsts.interferer_type().transmitters_and_emitters
-        >>> both = aedtapp.results.current_revision.get_interferer_names(ix_type)
+        >>> transmitters = aedtapp.results.current_revision.get_interferer_names(InterfererType.TRANSMITTERS)
+        >>> emitters = aedtapp.results.current_revision.get_interferer_names(InterfererType.EMITTERS)
+        >>> both = aedtapp.results.current_revision.get_interferer_names(InterfererType.TRANSMITTERS_AND_EMITTERS)
         """
         if interferer_type is None:
-            interferer_type = emitConsts.interferer_type().transmitters_and_emitters
+            interferer_type = InterfererType.TRANSMITTERS_AND_EMITTERS
         if self.revision_loaded:
-            radios = self.emit_project._emit_api.get_radio_names(emitConsts.tx_rx_mode().tx, interferer_type)
+            radios = self.emit_project._emit_api.get_radio_names(TxRxMode.TX, interferer_type)
         else:
             radios = None
-            self.result_mode_error()
+            err_msg = self.result_mode_error()
+            warnings.warn(err_msg)
+            return radios
         if len(radios) == 0:
             warnings.warn("No valid radios or emitters in the project.")
             return None
         return radios
 
     @pyaedt_function_handler()
-    def get_band_names(self, radio_name, tx_rx_mode):
+    def get_band_names(self, radio_name, tx_rx_mode=None):
         """
         Get a list of all ``tx`` or ``rx`` bands (or waveforms) in
         a given radio/emitter.
@@ -256,8 +286,9 @@ class Revision:
         ----------
         radio_name : str
             Name of the radio/emitter.
-        tx_rx : tx_rx_mode object
-            Specifies whether to get ``tx`` or ``rx`` band names.
+        tx_rx_mode : :class:`emit_constants.TxRxMode`, optional
+            Specifies whether to get ``tx`` or ``rx`` band names. The default
+            is ``None``, in which case the names of all enabled bands are returned.
 
         Returns
         -------
@@ -266,14 +297,19 @@ class Revision:
 
         Examples
         ----------
-        >>> bands = aedtapp.results.current_revision.get_band_names('Bluetooth', Emit.tx_rx_mode.rx)
-        >>> waveforms = aedtapp.results.current_revision.get_band_names('USB_3.x', Emit.tx_rx_mode.tx)
+        >>> bands = aedtapp.results.current_revision.get_band_names('Bluetooth', TxRxMode.RX)
+        >>> waveforms = aedtapp.results.current_revision.get_band_names('USB_3.x', TxRxMode.TX)
         """
+        if tx_rx_mode is None:
+            tx_rx_mode = TxRxMode.BOTH
         if self.revision_loaded:
             bands = self.emit_project._emit_api.get_band_names(radio_name, tx_rx_mode)
         else:
             bands = None
             self.result_mode_error()
+            err_msg = self.result_mode_error()
+            warnings.warn(err_msg)
+            return bands
         return bands
 
     @pyaedt_function_handler()
@@ -287,10 +323,11 @@ class Revision:
             Name of the radio/emitter.
         band_name : str
            Name of the band.
-        tx_rx : tx_rx_mode object
-            Specifies whether to get ``tx`` or ``rx`` radio freqs.
-        units : str
-            Units for the frequencies.
+        tx_rx_mode : :class:`emit_constants.TxRxMode`
+            Specifies whether to get ``tx`` or ``rx`` radio frequencies.
+        units : str, optional
+            Units for the frequencies. The default is ``None`` which uses the units
+            specified globally for the project.
 
         Returns
         -------
@@ -300,13 +337,17 @@ class Revision:
         Examples
         ----------
         >>> freqs = aedtapp.results.current_revision.get_active_frequencies(
-                'Bluetooth', 'Rx - Base Data Rate', Emit.tx_rx_mode.rx)
+                'Bluetooth', 'Rx - Base Data Rate', TxRxMode.RX)
         """
+        if tx_rx_mode is None or tx_rx_mode == TxRxMode.BOTH:
+            raise ValueError("The mode type must be specified as either Tx or Rx.")
         if self.revision_loaded:
             freqs = self.emit_project._emit_api.get_active_frequencies(radio_name, band_name, tx_rx_mode, units)
         else:
             freqs = None
-            self.result_mode_error()
+            err_msg = self.result_mode_error()
+            warnings.warn(err_msg)
+            return freqs
         return freqs
 
     @property
@@ -320,11 +361,40 @@ class Revision:
         >>> aedtapp.results.current_revision.notes
         'Added a filter to the WiFi Radio.'
         """
-        design = self.emit_project.odesktop.GetActiveProject().GetActiveDesign()
+        design = self.emit_project.odesign
         return design.GetResultNotes(self.name)
 
     @notes.setter
     def notes(self, notes):
-        design = self.emit_project.odesktop.GetActiveProject().GetActiveDesign()
-        design.SetResultNotes(self.name, notes)
+        self.emit_project.odesign.SetResultNotes(self.name, notes)
         self.emit_project._emit_api.save_project()
+
+    @property
+    def max_n_to_1_instances(self):
+        """
+        The maximum number of instances per band combination allowed to run for N to 1.
+        A value of 0 disables N to 1 entirely.
+        A value of -1 allows unlimited N to 1 instances.
+
+        Examples
+        ----------
+        >>> aedtapp.results.current_revision.max_n_to_1_instances = 2**20
+        >>> aedtapp.results.current_revision.max_n_to_1_instances
+        1048576
+        """
+        if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
+            raise RuntimeError("This function only supported in AEDT version 2024.1 and later.")
+        if self.revision_loaded:
+            engine = self.emit_project._emit_api.get_engine()
+            max_instances = engine.max_n_to_1_instances
+        else:  # pragma: no cover
+            max_instances = None
+        return max_instances
+
+    @max_n_to_1_instances.setter
+    def max_n_to_1_instances(self, max_instances):
+        if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
+            raise RuntimeError("This function only supported in AEDT version 2024.1 and later.")
+        if self.revision_loaded:
+            engine = self.emit_project._emit_api.get_engine()
+            engine.max_n_to_1_instances = max_instances

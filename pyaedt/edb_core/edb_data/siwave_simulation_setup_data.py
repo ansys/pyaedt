@@ -1,6 +1,8 @@
 from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import EdbFrequencySweep
 from pyaedt.edb_core.general import convert_netdict_to_pydict
 from pyaedt.edb_core.general import convert_pydict_to_netdict
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -147,7 +149,6 @@ class SiwaveAdvancedSettings(object):
         of trace-like cavities. Further, the coupling between narrow planes is
         also modeled by enabling this feature.
 
-
         Returns
         -------
         bool
@@ -160,7 +161,6 @@ class SiwaveAdvancedSettings(object):
         """Whether to Include a ground plane to serve as a voltage reference for traces and planes
         if they are not defined in the layout.
 
-
         Returns
         -------
         bool
@@ -172,7 +172,6 @@ class SiwaveAdvancedSettings(object):
     def include_trace_coupling(self):
         """Whether to model coupling between adjacent traces.
         Coupling is considered for parallel and almost parallel trace segments.
-
 
         Returns
         -------
@@ -197,7 +196,6 @@ class SiwaveAdvancedSettings(object):
     def infinite_ground_location(self):
         """Elevation of the infinite unconnected ground plane placed under the design.
 
-
         Returns
         -------
         str
@@ -207,7 +205,6 @@ class SiwaveAdvancedSettings(object):
     @property
     def max_coupled_lines(self):
         """Maximum number of coupled lines to build the new coupled transmission line model.
-
 
         Returns
         -------
@@ -716,10 +713,10 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
 
     @pyaedt_function_handler()
     def _update_setup(self):
-        self._edb_sim_setup = self._edb.edb.Utility.SIWaveSimulationSetup(self._edb_sim_setup_info)
+        self._edb_sim_setup = self._edb.edb_api.utility.utility.SIWaveSimulationSetup(self._edb_sim_setup_info)
         if self.name in self._edb.setups:
-            self._edb._active_layout.GetCell().DeleteSimulationSetup(self.name)
-        self._edb._active_layout.GetCell().AddSimulationSetup(self._edb_sim_setup)
+            self._edb.layout.cell.DeleteSimulationSetup(self.name)
+        self._edb.layout.cell.AddSimulationSetup(self._edb_sim_setup)
         return True
 
     @property
@@ -960,9 +957,9 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
 
     @pyaedt_function_handler()
     def _update_setup(self):
-        edb_sim_setup = self._edb.edb.Utility.SIWaveDCIRSimulationSetup(self._edb_sim_setup_info)
+        edb_sim_setup = self._edb.edb_api.utility.utility.SIWaveDCIRSimulationSetup(self._edb_sim_setup_info)
         if self.name in self._edb.setups:
-            self._edb._active_layout.GetCell().DeleteSimulationSetup(self.name)
+            self._edb.layout.cell.DeleteSimulationSetup(self.name)
         self._edb.active_cell.AddSimulationSetup(edb_sim_setup)
         return True
 
@@ -996,7 +993,7 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
 
         Returns
         -------
-            Dictionary
+        Dictionary
             {str, int}, keys is source name, value int 0 unspecified, 1 negative node, 2 positive one.
 
         """

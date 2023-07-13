@@ -56,7 +56,7 @@ sys.path.append(local_path)
 
 # Initialize default desktop configuration
 default_version = "2023.1"
-if "ANSYSEM_ROOT".format(default_version[2:].replace(".", "")) not in list_installed_ansysem():
+if "ANSYSEM_ROOT{}".format(default_version[2:].replace(".", "")) not in list_installed_ansysem():
     default_version = list_installed_ansysem()[0][12:].replace(".", "")
     default_version = "20{}.{}".format(default_version[:2], default_version[-1])
 os.environ["ANSYSEM_FEATURE_SS544753_ICEPAK_VIRTUALMESHREGION_PARADIGM_ENABLE"] = "1"
@@ -85,11 +85,26 @@ if os.path.exists(local_config_file):
         local_config = json.load(f)
     config.update(local_config)
 
-settings.use_grpc_api = config.get("use_grpc", True)
 settings.non_graphical = config["NonGraphical"]
 settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
-
+settings.enable_local_log_file = False
+settings.enable_global_log_file = False
 test_folder = "unit_test" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+for filename in os.listdir(tempfile.gettempdir()):
+    file_path = os.path.join(tempfile.gettempdir(), filename)
+    try:
+        if os.path.isfile(file_path) and "tmp" in file_path:
+            os.unlink(file_path)
+        if (
+            os.path.isdir(file_path)
+            and "pyaedt" in file_path
+            or "scratch" in file_path
+            or file_path.startswith("_")
+            or ".aedb" in file_path
+        ):
+            shutil.rmtree(file_path, ignore_errors=True)
+    except Exception as e:
+        print("Failed to delete %s. Reason: %s" % (file_path, e))
 scratch_path = os.path.join(tempfile.gettempdir(), test_folder)
 if not os.path.exists(scratch_path):
     try:
@@ -111,23 +126,28 @@ class BasisTest(object):
         self._main = sys.modules["__main__"]
         self.desktop = None
         self._main.desktop_pid = 0
+        settings.use_grpc_api = config.get("use_grpc", True)
         if launch_desktop:
             self.desktop = Desktop(desktop_version, NONGRAPHICAL, new_thread)
             self.desktop.disable_autosave()
             self._main.desktop_pid = self.desktop.odesktop.GetProcessID()
 
     def my_teardown(self):
+        try:
+            logger.remove_all_project_file_logger()
+        except:
+            pass
         for edbapp in self.edbapps[::-1]:
             try:
                 edbapp.close_edb()
             except:
                 pass
         if self.desktop and not is_ironpython:
+            self.desktop.release_desktop(False, True)
             try:
                 os.kill(self._main.desktop_pid, 9)
             except:
                 pass
-            self.desktop.release_desktop(False, True)
             try:
                 del self._main.desktop_pid
             except:
@@ -151,7 +171,6 @@ class BasisTest(object):
         del self.aedtapps
         self.desktop = None
         try:
-            logger.remove_all_project_file_logger()
             shutil.rmtree(self.local_scratch.path, ignore_errors=True)
         except:
             pass
@@ -220,6 +239,7 @@ class BasisTest(object):
 # Define desktopVersion explicitly since this is imported by other modules
 desktop_version = config["desktopVersion"]
 new_thread = config["NewThread"]
+settings.desktop_launch_timeout = 180
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -235,6 +255,12 @@ def desktop_init():
         del desktop
     try:
         os.kill(_main.desktop_pid, 9)
+    except:
+        pass
+    try:
+        import pythonnet
+
+        pythonnet.unload()
     except:
         pass
     gc.collect()

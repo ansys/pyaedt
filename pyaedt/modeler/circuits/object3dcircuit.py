@@ -4,7 +4,7 @@ from __future__ import absolute_import
 from collections import OrderedDict
 import math
 
-from pyaedt import _retry_ntimes
+# from pyaedt import property
 from pyaedt import pyaedt_function_handler
 from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
@@ -38,9 +38,7 @@ class CircuitPins(object):
         >>> oPadstackManager.GetComponentPinLocation
         """
         if "Port" in self._circuit_comp.composed_name:
-            pos1 = _retry_ntimes(
-                30,
-                self._oeditor.GetPropertyValue,
+            pos1 = self._oeditor.GetPropertyValue(
                 "BaseElementTab",
                 self._circuit_comp.composed_name,
                 "Component Location",
@@ -55,16 +53,12 @@ class CircuitPins(object):
             return []
         return [
             round(
-                _retry_ntimes(
-                    30, self._oeditor.GetComponentPinLocation, self._circuit_comp.composed_name, self.name, True
-                )
+                self._oeditor.GetComponentPinLocation(self._circuit_comp.composed_name, self.name, True)
                 / AEDT_UNITS["Length"][self.units],
                 8,
             ),
             round(
-                _retry_ntimes(
-                    30, self._oeditor.GetComponentPinLocation, self._circuit_comp.composed_name, self.name, False
-                )
+                self._oeditor.GetComponentPinLocation(self._circuit_comp.composed_name, self.name, False)
                 / AEDT_UNITS["Length"][self.units],
                 8,
             ),
@@ -291,7 +285,7 @@ class CircuitPins(object):
                     decompose_variable_value(cmp._circuit_comp.location[0])[0]
                 )
             except:
-                x_loc = float(self._circuit_comp.location[0])
+                x_loc = float(cmp._circuit_comp.location[0])
             comp_pin_angle = cmp._circuit_comp.angle * math.pi / 180
             if len(cmp._circuit_comp.pins) == 2:
                 comp_pin_angle += math.pi / 2
@@ -471,7 +465,7 @@ class CircuitComponent(object):
             proparray = []
 
         for j in proparray:
-            propval = _retry_ntimes(10, self._oeditor.GetPropertyValue, tab, self.composed_name, j)
+            propval = self._oeditor.GetPropertyValue(tab, self.composed_name, j)
             _parameters[j] = propval
         self._parameters = ComponentParameters(self, tab, _parameters)
         return self._parameters
@@ -493,7 +487,7 @@ class CircuitComponent(object):
         proparray = self._oeditor.GetProperties(tab, self.composed_name)
 
         for j in proparray:
-            propval = _retry_ntimes(10, self._oeditor.GetPropertyValue, tab, self.composed_name, j)
+            propval = self._oeditor.GetPropertyValue(tab, self.composed_name, j)
             _component_info[j] = propval
         self._component_info = ComponentParameters(self, tab, _component_info)
         return self._component_info
@@ -539,13 +533,12 @@ class CircuitComponent(object):
         self._pins = []
 
         try:
-            pins = _retry_ntimes(10, self._oeditor.GetComponentPins, self.composed_name)
-
-            if not pins:
-                return []
-            elif pins is True:
+            pins = self._oeditor.GetComponentPins(self.composed_name)
+            if "Port@" in self.composed_name and pins == []:
                 self._pins.append(CircuitPins(self, self.composed_name))
                 return self._pins
+            elif not pins:
+                return []
             for pin in pins:
                 if self._circuit_components._app.design_type != "Twin Builder":
                     self._pins.append(CircuitPins(self, pin))
@@ -567,9 +560,7 @@ class CircuitComponent(object):
         """
         self._location = []
         try:
-            loc = _retry_ntimes(
-                10, self._oeditor.GetPropertyValue, "BaseElementTab", self.composed_name, "Component Location"
-            )
+            loc = self._oeditor.GetPropertyValue("BaseElementTab", self.composed_name, "Component Location")
             loc = [loc.split(",")[0].strip(), loc.split(",")[1].strip()]
             loc = [decompose_variable_value(i) for i in loc]
 
@@ -646,10 +637,7 @@ class CircuitComponent(object):
             return self._mirror
         try:
             self._mirror = (
-                _retry_ntimes(
-                    10, self._oeditor.GetPropertyValue, "BaseElementTab", self.composed_name, "Component Mirror"
-                )
-                == "true"
+                self._oeditor.GetPropertyValue("BaseElementTab", self.composed_name, "Component Mirror") == "true"
             )
         except:
             self._mirror = False
@@ -757,6 +745,10 @@ class CircuitComponent(object):
             self.change_property(v_prop)
             if self.__dict__.get("_parameters", None) and property_name in self.__dict__["_parameters"]:
                 self.__dict__["_parameters"][property_name] = property_value
+            elif self.__dict__.get("_component_info", None) and property_name in self.__dict__.get(
+                "_component_info", None
+            ):
+                self.__dict__["_component_info"][property_name] = property_value
             else:
                 self.__dict__[property_name] = property_value
         return True
@@ -811,20 +803,18 @@ class CircuitComponent(object):
         else:
             vPropServers = ["NAME:PropServers", self.composed_name]
         tabname = None
-        if vPropChange[0][5:] in _retry_ntimes(10, self._oeditor.GetProperties, self.tabname, self.composed_name):
+        if vPropChange[0][5:] in self._oeditor.GetProperties(self.tabname, self.composed_name):
             tabname = self.tabname
-        elif vPropChange[0][5:] in _retry_ntimes(
-            10, self._oeditor.GetProperties, "PassedParameterTab", self.composed_name
-        ):
+        elif vPropChange[0][5:] in self._oeditor.GetProperties("PassedParameterTab", self.composed_name):
             tabname = "PassedParameterTab"
-        elif vPropChange[0][5:] in _retry_ntimes(10, self._oeditor.GetProperties, "BaseElementTab", self.composed_name):
+        elif vPropChange[0][5:] in self._oeditor.GetProperties("BaseElementTab", self.composed_name):
             tabname = "BaseElementTab"
         if tabname:
             vGeo3dlayout = ["NAME:" + tabname, vPropServers, vChangedProps]
             vOut = ["NAME:AllTabs", vGeo3dlayout]
             if "NAME:Component Location" in str(vChangedProps) and "PagePort" not in self.composed_name:
-                _retry_ntimes(10, self._oeditor.ChangeProperty, vOut)
-            return _retry_ntimes(10, self._oeditor.ChangeProperty, vOut)
+                self._oeditor.ChangeProperty(vOut)
+            return self._oeditor.ChangeProperty(vOut)
         return False
 
 

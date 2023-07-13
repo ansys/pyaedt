@@ -42,6 +42,12 @@ except ImportError:
     ET = None
 
 
+class GrpcApiError(Exception):
+    """ """
+
+    pass
+
+
 class MethodNotSupportedError(Exception):
     """ """
 
@@ -53,6 +59,16 @@ def _write_mes(mes_text):
     parts = [mes_text[i : i + 250] for i in range(0, len(mes_text), 250)]
     for el in parts:
         settings.logger.error(el)
+
+
+def _get_args_dicts(func, args, kwargs):
+    if int(sys.version[0]) > 2:
+        args_name = list(OrderedDict.fromkeys(inspect.getfullargspec(func)[0] + list(kwargs.keys())))
+        args_dict = OrderedDict(list(itertools.zip_longest(args_name, args)) + list(kwargs.items()))
+    else:
+        args_name = list(OrderedDict.fromkeys(inspect.getargspec(func)[0] + list(kwargs.keys())))
+        args_dict = OrderedDict(list(itertools.izip(args_name, args)) + list(kwargs.iteritems()))
+    return args_dict
 
 
 def _exception(ex_info, func, args, kwargs, message="Type Error"):
@@ -85,40 +101,59 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     message_to_print = ""
     try:
         messages = list(sys.modules["__main__"].oDesktop.GetMessages("", "", 2))
-    except AttributeError:
+    except (GrpcApiError, AttributeError):
         messages = []
     except TypeError:
         messages = []
-    if messages:
+    if messages and "error" in messages[-1].lower():
         message_to_print = messages[-1]
-    for el in tblist:
-        if func.__name__ in el:
-            _write_mes("Error in : " + el)
-    _write_mes("{} - {} -  {}.".format(ex_info[1], func.__name__, message.upper()))
+    # _write_mes("{} - {} -  {}.".format(ex_info[1], func.__name__, message.upper()))
 
     if message_to_print:
-        _write_mes(message_to_print)
-    _write_mes("Arguments with values: ")
+        _write_mes("API Message - " + message_to_print)
+    for el in tblist:
+        if func.__name__ in el:
+            _write_mes("{}, {}".format(el, message.upper()))
     args_name = []
     try:
-        if int(sys.version[0]) > 2:
-            args_name = list(OrderedDict.fromkeys(inspect.getfullargspec(func)[0] + list(kwargs.keys())))
-            args_dict = OrderedDict(list(itertools.zip_longest(args_name, args)) + list(kwargs.items()))
-        else:
-            args_name = list(OrderedDict.fromkeys(inspect.getargspec(func)[0] + list(kwargs.keys())))
-            args_dict = OrderedDict(list(itertools.izip(args_name, args)) + list(kwargs.iteritems()))
+        args_dict = _get_args_dicts(func, args, kwargs)
+        first_time_log = True
 
         for el in args_dict:
-            if el != "self":
+            if el != "self" and args_dict[el]:
+                if first_time_log:
+                    _write_mes("Method arguments: ")
+                    first_time_log = False
                 _write_mes("    {} = {} ".format(el, args_dict[el]))
     except:
         pass
     args = [func.__name__] + [i for i in args_name if i not in ["self"]]
-    _write_mes(
-        "Check Online documentation on: https://aedt.docs.pyansys.com/version/stable/search.html?q={}".format(
-            "+".join(args)
+    if not func.__name__.startswith("_"):
+        _write_mes(
+            "Check Online documentation on: https://aedt.docs.pyansys.com/version/stable/search.html?q={}".format(
+                "+".join(args)
+            )
         )
-    )
+
+
+def normalize_path(path_in, sep=None):
+    """Normalize path separators.
+
+    Parameters
+    ----------
+    path_in : str
+        Path to normalize.
+    sep : str, optional
+        Separator.
+
+    Returns
+    -------
+    str
+        Path normalized to new separator.
+    """
+    if sep is None:
+        sep = os.sep
+    return path_in.replace("\\", sep).replace("/", sep)
 
 
 def _check_types(arg):
@@ -142,7 +177,7 @@ def _function_handler_wrapper(user_function):
             try:
                 settings.time_tick = time.time()
                 out = user_function(*args, **kwargs)
-                if settings.enable_debug_logger:
+                if settings.enable_debug_logger or settings.enable_debug_edb_logger:
                     _log_method(user_function, args, kwargs)
                 return out
             except TypeError:
@@ -178,6 +213,9 @@ def _function_handler_wrapper(user_function):
                     print("")
                 if settings.enable_file_logs:
                     settings.logger.error(message)
+                return False
+            except GrpcApiError:
+                _exception(sys.exc_info(), user_function, args, kwargs, "AEDT grpc API call Error")
                 return False
             except BaseException:
                 _exception(sys.exc_info(), user_function, args, kwargs, "General or AEDT Error")
@@ -259,7 +297,6 @@ def check_and_download_file(local_path, remote_path, overwrite=True):
     return remote_path
 
 
-@pyaedt_function_handler()
 def check_if_path_exists(path):
     """Check whether a path exists or not local or remote machine (for remote sessions only).
 
@@ -302,7 +339,6 @@ def check_and_download_folder(local_path, remote_path, overwrite=True):
     return remote_path
 
 
-@pyaedt_function_handler()
 def open_file(file_path, file_options="r"):
     """Open a file and return the object.
 
@@ -346,8 +382,7 @@ def _log_method(func, new_args, new_kwargs):
         or "edb_core" in str(func) + str(new_args)
     ):
         return
-    line_begin = "    Implicit Arguments: "
-    line_begin2 = "    Explicit Arguments: "
+    line_begin = "ARGUMENTS: "
     message = []
     delta = time.time() - settings.time_tick
     m, s = divmod(delta, 60)
@@ -360,28 +395,21 @@ def _log_method(func, new_args, new_kwargs):
         time_msg = " {}h {}m {}sec.".format(h, m, int(s))
     else:
         time_msg = "  {}m {}sec {}msec.".format(m, int(s), int(msec))
-    if new_args and settings.enable_debug_methods_argument_logger:
-        object_name = str([new_args[0]])[1:-1]
-        id = object_name.find(" object at ")
-        if id >= 0:
+    if settings.enable_debug_methods_argument_logger:
+        args_dict = _get_args_dicts(func, new_args, new_kwargs)
+        id = 0
+        if new_args:
+            object_name = str([new_args[0]])[1:-1]
+            id = object_name.find(" object at ")
+        if id > 0:
             object_name = object_name[1:id]
-            message.append(" '{}' has been executed in {}".format(object_name + "." + str(func.__name__), time_msg))
-            if new_args[1:]:
-                message.append(line_begin + str(new_args[1:])[1:-1])
-            if new_kwargs:
-                message.append(line_begin2 + str(new_kwargs)[1:-1])
-
+            message.append("'{}' was run in {}".format(object_name + "." + str(func.__name__), time_msg))
         else:
-            message.append(" '{}' has been executed in {}".format(str(func.__name__), time_msg))
-            if new_args[1:]:
-                message.append(line_begin + str(new_args[1:])[1:-1])
-            if new_kwargs:
-                message.append(line_begin2 + str(new_kwargs)[1:-1])
-
-    else:
-        message.append(" '{}' has been executed in: {}".format(str(func.__name__), time_msg))
-        if new_kwargs and settings.enable_debug_methods_argument_logger:
-            message.append(line_begin2 + str(new_kwargs)[1:-1])
+            message.append("'{}' was run in {}".format(str(func.__name__), time_msg))
+        message.append(line_begin)
+        for k, v in args_dict.items():
+            if k != "self":
+                message.append("    {} = {}".format(k, v))
     for m in message:
         settings.logger.debug(m)
 
@@ -632,8 +660,9 @@ def _retry_ntimes(n, function, *args, **kwargs):
     while retry < n:
         try:
             ret_val = function(*args, **kwargs)
-            if not ret_val and type(ret_val) is not float and type(ret_val) is not int:
-                ret_val = True
+            # if ret_val is None:
+            # if not ret_val and type(ret_val) not in [float, int, str, tuple, list]:
+            #    ret_val = True
         except:
             retry += 1
             time.sleep(0.1)
@@ -1029,9 +1058,9 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
         List of gRPC ports.
     """
     if student_version:
-        keys = ["ansysedtsv.exe"]
+        keys = ["ansysedtsv.exe", "ansysedtsv"]
     else:
-        keys = ["ansysedt.exe"]
+        keys = ["ansysedt.exe", "ansysedt"]
     if version and "." in version:
         version = version[-4:].replace(".", "")
     sessions = []
@@ -1073,12 +1102,12 @@ def active_sessions(version=None, student_version=False, non_graphical=False):
         List of AEDT PIDs.
     """
     if student_version:
-        keys = ["ansysedtsv.exe"]
+        keys = ["ansysedtsv.exe", "ansysedtsv"]
     else:
-        keys = ["ansysedt.exe"]
+        keys = ["ansysedt.exe", "ansysedt"]
     if version and "." in version:
         version = version[-4:].replace(".", "")
-    if version < "222":
+    if version and version < "222":
         version = version[:2] + "." + version[2]
     sessions = []
     for p in psutil.process_iter():
@@ -1390,7 +1419,9 @@ class PropsManager(object):
         -------
         list
         """
-        return self._recursive_list(self.props)
+        if self.props:
+            return self._recursive_list(self.props)
+        return []
 
     @pyaedt_function_handler()
     def update(self):
@@ -1574,6 +1605,144 @@ def _check_installed_version(install_path, long_version):
     return False
 
 
+def install_with_pip(package_name, package_path=None, upgrade=False, uninstall=False):  # pragma: no cover
+    """Install a new package using pip.
+    This method is useful for installing a package from the AEDT Console without launching the Python environment.
+
+    Parameters
+    ----------
+    package_name : str
+        Name of the package to install.
+    package_path : str, optional
+        Path for the GitHub package to download and install. For example, ``git+https://.....``.
+    upgrade : bool, optional
+        Whether to upgrade the package. The default is ``False``.
+    uninstall : bool, optional
+        Whether to install the package or uninstall the package.
+    """
+    if is_linux and is_ironpython:
+        import subprocessdotnet as subprocess
+    else:
+        import subprocess
+    executable = '"{}"'.format(sys.executable) if is_windows else sys.executable
+
+    commands = []
+    if uninstall:
+        commands.append([executable, "-m", "pip", "uninstall", "--yes", package_name])
+    else:
+        if package_path and upgrade:
+            commands.append([executable, "-m", "pip", "uninstall", "--yes", package_name])
+            command = [executable, "-m", "pip", "install", package_path]
+        else:
+            command = [executable, "-m", "pip", "install", package_name]
+        if upgrade:
+            command.append("-U")
+
+        commands.append(command)
+    for command in commands:
+        if is_linux:
+            p = subprocess.Popen(command)
+        else:
+            p = subprocess.Popen(" ".join(command))
+        p.wait()
+
+
+class Help:  # pragma: no cover
+    def __init__(self):
+        self._base_path = "https://aedt.docs.pyansys.com/version/stable"
+        self.browser = "default"
+
+    def _launch_ur(self, url):
+        import webbrowser
+
+        if self.browser != "default":
+            webbrowser.get(self.browser).open_new_tab(url)
+        else:
+            webbrowser.open_new_tab(url)
+
+    def search(self, keywords, app_name=None, search_in_examples_only=False):
+        """Search for one or more keywords.
+
+        Parameters
+        ----------
+        keywords : str or list
+        app_name : str, optional
+            Name of a PyAEDT app. For example, ``"Hfss"``, ``"Circuit"``, ``"Icepak"``, or any other available app.
+        search_in_examples_only : bool, optional
+            Whether to search for the one or more keywords only in the PyAEDT examples.
+            The default is ``False``.
+        """
+        if isinstance(keywords, str):
+            keywords = [keywords]
+        if search_in_examples_only:
+            keywords.append("This example")
+        if app_name:
+            keywords.append(app_name)
+        url = self._base_path + "/search.html?q={}".format("+".join(keywords))
+        self._launch_ur(url)
+
+    def getting_started(self):
+        """Open the PyAEDT User guide page."""
+        url = self._base_path + "/User_guide/index.html"
+        self._launch_ur(url)
+
+    def examples(self):
+        """Open the PyAEDT Examples page."""
+        url = self._base_path + "/examples/index.html"
+        self._launch_ur(url)
+
+    def github(self):
+        """Open the PyAEDT GitHub page."""
+        url = "https://github.com/pyansys/pyaedt"
+        self._launch_ur(url)
+
+    def changelog(self, release=None):
+        """Open the PyAEDT GitHub Changelog for a given release.
+
+        Parameters
+        ----------
+        release : str, optional
+            Release to get the changelog for. For example, ``"0.6.70"``.
+        """
+        if release is None:
+            from pyaedt import __version__ as release
+        url = "https://github.com/pyansys/pyaedt/releases/tag/v" + release
+        self._launch_ur(url)
+
+    def issues(self):
+        """Open the PyAEDT GitHub Issues page."""
+        url = "https://github.com/pyansys/pyaedt/issues"
+        self._launch_ur(url)
+
+    def ansys_forum(self):
+        """Open the PyAEDT GitHub Issues page."""
+        url = "https://discuss.ansys.com/discussions/tagged/pyaedt"
+        self._launch_ur(url)
+
+    def developer_forum(self):
+        """Open the Discussions page on the Ansys Developer site."""
+        url = "https://developer.ansys.com/"
+        self._launch_ur(url)
+
+
+# class Property(property):
+#
+#     @pyaedt_function_handler()
+#     def getter(self, fget):
+#         """Property getter."""
+#         return self.__class__.__base__(fget, self.fset, self.fdel, self.__doc__)
+#
+#     @pyaedt_function_handler()
+#     def setter(self, fset):
+#         """Property setter."""
+#         return self.__class__.__base__(self.fget, fset, self.fdel, self.__doc__)
+#
+#     @pyaedt_function_handler()
+#     def deleter(self, fdel):
+#         """Property deleter."""
+#         return self.__class__.__base__(self.fget, self.fset, fdel, self.__doc__)
+
+
 class Settings(object):
     """Manages all PyAEDT environment variables and global settings."""
 
@@ -1625,10 +1794,44 @@ class Settings(object):
             "ANSYSEM_FEATURE_SF159726_SCRIPTOBJECT_ENABLE": "1",
             "ANSYSEM_FEATURE_SF222134_CABLE_MODELING_ENHANCEMENTS_ENABLE": "1",
             "ANSYSEM_FEATURE_F395486_RIGID_FLEX_BENDING_ENABLE": "1",
+            "ANSYSEM_FEATURE_S432616_LAYOUT_COMPONENT_IN_3D_ENABLE": "1",
+            "ANSYSEM_FEATURE_F545177_ECAD_INTEGRATION_WITH_APHI_ENABLE": "1",
+            "ANSYSEM_FEATURE_F650636_MECH_LAYOUT_COMPONENT_ENABLE": "1",
         }
         if is_linux:
             self._aedt_environment_variables["ANS_NODEPCHECK"] = "1"
         self._desktop_launch_timeout = 90
+        self._aedt_process_id = None
+        self._is_student = False
+
+    @property
+    def aedt_process_id(self):
+        """ID of the desktop process. The default is ``None``.
+
+        Returns
+        -------
+        int
+        """
+        return self._aedt_process_id
+
+    @aedt_process_id.setter
+    def aedt_process_id(self, value):
+        self._aedt_process_id = int(value)
+
+    @property
+    def is_student(self):
+        """Whether the desktop process is set to the student version. The
+        default is ``False``.
+
+        Returns
+        -------
+        bool
+        """
+        return self._is_student
+
+    @is_student.setter
+    def is_student(self, value):
+        self._is_student = value
 
     @property
     def desktop_launch_timeout(self):
@@ -1809,7 +2012,8 @@ class Settings(object):
 
     @property
     def enable_pandas_output(self):
-        """Set/Get a flag to use Pandas to export dict and lists. This applies to Solution data output.
+        """
+        Set/Get a flag to use Pandas to export dict and lists. This applies to Solution data output.
         If ``True`` the property or method will return a pandas object in CPython environment.
         Default is ``False``.
 
@@ -1825,7 +2029,8 @@ class Settings(object):
 
     @property
     def enable_debug_methods_argument_logger(self):
-        """Set/Get a flag to plot methods argument in debug logger.
+        """
+        Set/Get a flag to plot methods argument in debug logger.
         Default is ``False``.
 
         Returns
@@ -2018,4 +2223,6 @@ class Settings(object):
         self._enable_debug_logger = val
 
 
+# property = Property
 settings = Settings()
+online_help = Help()

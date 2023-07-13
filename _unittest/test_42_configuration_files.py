@@ -14,6 +14,7 @@ from pyaedt import Hfss3dLayout
 from pyaedt import Icepak
 from pyaedt import Q2d
 from pyaedt import Q3d
+from pyaedt import is_ironpython
 
 # Import required modules
 # Setup paths for module imports
@@ -41,7 +42,7 @@ class TestClass(BasisTest, object):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, subfolder=test_subfolder)
         self.q3dtest = BasisTest.add_app(self, project_name=q3d_file, application=Q3d, subfolder=test_subfolder)
-        self.q2dtest = Q2d(projectname=q3d_file)
+        self.q2dtest = Q2d(projectname=q3d_file, specified_version=config["desktopVersion"])
         self.icepak_a = BasisTest.add_app(self, project_name=ipk_name + "_a", application=Icepak)
         self.icepak_b = BasisTest.add_app(self, project_name=ipk_name + "_b", application=Icepak)
         self.hfss3dl_a = BasisTest.add_app(
@@ -61,7 +62,9 @@ class TestClass(BasisTest, object):
         filename = self.aedtapp.design_name
         file_path = os.path.join(self.aedtapp.working_directory, filename + ".x_t")
         self.aedtapp.export_3d_model(filename, self.aedtapp.working_directory, ".x_t", [], [])
-        app = Hfss(projectname="new_proj", solution_type=self.aedtapp.solution_type)
+        app = Hfss(
+            projectname="new_proj", solution_type=self.aedtapp.solution_type, specified_version=config["desktopVersion"]
+        )
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
         app.close_project(save_project=False)
@@ -75,7 +78,7 @@ class TestClass(BasisTest, object):
         filename = self.q3dtest.design_name
         file_path = os.path.join(self.q3dtest.working_directory, filename + ".x_t")
         self.q3dtest.export_3d_model(filename, self.q3dtest.working_directory, ".x_t", [], [])
-        app = Q3d(projectname="new_proj_Q3d")
+        app = Q3d(projectname="new_proj_Q3d", specified_version=config["desktopVersion"])
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
         app.close_project(save_project=False)
@@ -89,7 +92,7 @@ class TestClass(BasisTest, object):
         filename = self.q2dtest.design_name
         file_path = os.path.join(self.q2dtest.working_directory, filename + ".x_t")
         self.q2dtest.export_3d_model(filename, self.q2dtest.working_directory, ".x_t", [], [])
-        app = Q2d(projectname="new_proj_Q2d")
+        app = Q2d(projectname="new_proj_Q2d", specified_version=config["desktopVersion"])
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
         app.close_project(save_project=False)
@@ -177,20 +180,27 @@ class TestClass(BasisTest, object):
         conf_file = self.icepak_a.configurations.export_config()
         assert os.path.exists(conf_file)
         f = self.icepak_a.create_fan("test_fan")
+        if is_ironpython:
+            idx = 1
+        else:
+            idx = 0
         self.icepak_a.monitor.assign_point_monitor_to_vertex(
-            list(self.icepak_a.modeler.user_defined_components[f.name].parts.values())[0].vertices[0].id
+            list(self.icepak_a.modeler.user_defined_components[f.name].parts.values())[idx].vertices[0].id
         )
         assert self.icepak_a.configurations.export_config()
         f.delete()
         file_path = os.path.join(self.icepak_a.working_directory, filename + ".x_t")
-        app = Icepak(projectname="new_proj_Ipk_a")
+        app = Icepak(projectname="new_proj_Ipk_a", specified_version=config["desktopVersion"])
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
         assert isinstance(out, dict)
         assert app.configurations.results.global_import_success
         app.close_project(save_project=False)
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 GRPC")
+    @pytest.mark.skipif(
+        is_ironpython or (config["desktopVersion"] < "2023.1" and config["use_grpc"]),
+        reason="Not working in 2022.2 GRPC",
+    )
     def test_04b_icepak(self):
         box1 = self.icepak_b.modeler.create_box([0, 0, 0], [10, 10, 10])
         box1.surface_material_name = "Shellac-Dull-surface"
@@ -239,9 +249,6 @@ class TestClass(BasisTest, object):
         )
         self.icepak_b.modeler.user_defined_components[fan.name].move([1, 2, 3])
         fan4 = self.icepak_b.modeler.user_defined_components[fan.name].duplicate_around_axis("Z")
-        self.icepak_b.monitor.assign_point_monitor_to_vertex(
-            list(self.icepak_b.modeler.user_defined_components[fan4[0]].parts.values())[0].vertices[0].id
-        )
         self.icepak_b.modeler.user_defined_components[fan2[0]].duplicate_and_mirror([4, 5, 6], [1, 2, 3])
         self.icepak_b.monitor.assign_point_monitor_in_object(
             list(self.icepak_b.modeler.user_defined_components[fan4[0]].parts.values())[0]
@@ -249,7 +256,7 @@ class TestClass(BasisTest, object):
         conf_file = self.icepak_b.configurations.export_config()
         assert os.path.exists(conf_file)
         file_path = os.path.join(self.icepak_b.working_directory, filename + ".x_t")
-        app = Icepak(projectname="new_proj_Ipk")
+        app = Icepak(projectname="new_proj_Ipk", specified_version=config["desktopVersion"])
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
         assert isinstance(out, dict)

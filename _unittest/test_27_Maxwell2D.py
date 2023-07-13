@@ -24,6 +24,9 @@ if config["desktopVersion"] > "2022.2":
 else:
     test_name = "Motor_EM_R2019R3"
 
+ctrl_prg = "TimeStepCtrl"
+ctrl_prg_file = "timestep_only.py"
+
 
 class TestClass(BasisTest, object):
     def setup_class(self):
@@ -37,13 +40,15 @@ class TestClass(BasisTest, object):
         )
         self.aedtapp.duplicate_design("design_for_test")
         self.aedtapp.set_active_design("Basis_Model_For_Test")
+        self.m2d_ctrl_prg = BasisTest.add_app(
+            self, application=Maxwell2d, project_name=ctrl_prg, subfolder=test_subfolder
+        )
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
 
     def test_03_assign_initial_mesh_from_slider(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(4)
-        self.aedtapp.set_active_design("Basis_Model_For_Test")
 
     def test_04_create_winding(self):
         bounds = self.aedtapp.assign_winding(current_value=20e-3, coil_terminals=["Coil"])
@@ -453,3 +458,29 @@ class TestClass(BasisTest, object):
             if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
         ]
         assert self.aedtapp.mesh.assign_cylindrical_gap("Band", meshop_name="cyl_gap_test", band_mapping_angle=2)
+
+    def test_32_control_program(self):
+        user_ctl_path = "user.ctl"
+        ctrl_prg_path = os.path.join(local_path, "example_models", test_subfolder, ctrl_prg_file)
+        assert self.m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path)
+        assert self.m2d_ctrl_prg.setups[0].enable_control_program(
+            control_program_path=ctrl_prg_path, control_program_args="3"
+        )
+        assert not self.m2d_ctrl_prg.setups[0].enable_control_program(
+            control_program_path=ctrl_prg_path, control_program_args=3
+        )
+        assert self.m2d_ctrl_prg.setups[0].enable_control_program(
+            control_program_path=ctrl_prg_path, call_after_last_step=True
+        )
+        invalid_ctrl_prg_path = os.path.join(local_path, "example_models", test_subfolder, "invalid.py")
+        assert not self.m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=invalid_ctrl_prg_path)
+        self.m2d_ctrl_prg.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
+        assert not self.m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path)
+        if os.path.exists(user_ctl_path):
+            os.unlink(user_ctl_path)
+
+    def test_33_import_dxf(self):
+        self.aedtapp.insert_design("dxf")
+        dxf_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf1.dxf")
+        dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
+        assert isinstance(dxf_layers, list)

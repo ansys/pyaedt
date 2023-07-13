@@ -6,6 +6,13 @@ updates:
       interval: "daily"
     reviewers: 
       - "MaxJPRey"
+    assignees:
+      - "pyansys-ci-bot"
+    labels:
+      - "maintenance"
+      - "dependencies"
+    commit-message:
+      prefix: "MAINT"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -13,3 +20,10 @@ updates:
       interval: "daily"
     reviewers: 
       - "MaxJPRey"
+    assignees:
+      - "pyansys-ci-bot"
+    labels:
+      - "maintenance"
+      - "dependencies"
+    commit-message:
+      prefix: "MAINT"

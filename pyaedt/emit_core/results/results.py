@@ -1,6 +1,6 @@
 import warnings
 
-from pyaedt.emit_core import EMIT_MODULE
+from pyaedt import emit_core
 from pyaedt.emit_core.results.revision import Revision
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
@@ -12,7 +12,7 @@ class Results:
     Parameters
     ----------
     emit_obj : emit_obj object
-        Emit object used to create the result.
+        EMIT object used to create the result.
 
     Examples
     --------
@@ -25,7 +25,7 @@ class Results:
 
     def __init__(self, emit_obj):
         self.emit_project = emit_obj
-        """Emit project."""
+        """EMIT project."""
 
         self.current_revision = None
         """Current active Revision."""
@@ -34,26 +34,27 @@ class Results:
         """List of all result revisions. Only one loaded at a time"""
 
         self.design = emit_obj.odesktop.GetActiveProject().GetActiveDesign()
-        """Active design for the Emit project."""
+        """Active design for the EMIT project."""
 
     @pyaedt_function_handler()
     def _add_revision(self, name=None):
-        """Add a new revision.
+        """Add a new revision or get the current revision if it already exists.
 
         Parameters
         ----------
         name : str, optional
-            Name for the new revision. If None, it will
-            be named the current design revision.
+            Name for the new revision, if created. The default is ``None``, in which
+            case the name of the current design revision is used.
+
+        Raises
+        ------
+        RuntimeError if the name given is not the name of an existing result set and a current result set already
+        exists.
 
         Returns
         -------
         ``Revision`` object that was created.
         """
-        if name == None:
-            self.design.AddResult()
-            rev_num = self.design.GetRevision()
-            name = "Revision {}".format(rev_num)
         revision = Revision(self, self.emit_project, name)
         self.revisions.append(revision)
         return revision
@@ -103,9 +104,9 @@ class Results:
 
         """
         try:
-            domain = EMIT_MODULE.InteractionDomain()
+            domain = emit_core.emit_api_python().InteractionDomain()
         except NameError:
-            raise ValueError("An Emit object must be initialized before any static member of the Results.")
+            raise ValueError("An EMIT object must be initialized before any static member of the Results.")
         return domain
 
     @pyaedt_function_handler
@@ -147,7 +148,7 @@ class Results:
 
         Parameters
         ----------
-        revision_name : str
+        revision_name : str, optional
             Revision to load. The default is  ``None`` in which
             case the latest revision will be returned.
 
@@ -179,7 +180,15 @@ class Results:
                 self.current_revision = rev[0]
                 self.current_revision._load_revision()
             else:
-                warnings.warn("{} not found.".format(revision_name))
+                # might be an old revision that was never loaded by pyaedt
+                aedt_result_list = self.design.GetResultList()
+                rev = [x for x in aedt_result_list if revision_name == x]
+                if len(rev) > 0:
+                    # unload the current revision and load the specified revision
+                    self.current_revision.revision_loaded = False
+                    self.current_revision = self._add_revision(rev[0])
+                else:
+                    warnings.warn("{} not found.".format(revision_name))
         return self.current_revision
 
     @pyaedt_function_handler()

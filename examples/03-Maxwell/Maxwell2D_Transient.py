@@ -29,8 +29,7 @@ import pyaedt
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
-# documentation only.
+# Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -113,11 +112,12 @@ face_lists = rect1.faces
 face_lists += rect2.faces
 timesteps = [str(i * 2e-4) + "s" for i in range(11)]
 id_list = [f.id for f in face_lists]
-animatedGif = maxwell_2d.post.animate_fields_from_aedtplt_2(
+
+animatedGif = maxwell_2d.post.plot_animated_field(
     "Mag_B",
     id_list,
     "Surface",
-    intrinsic_dict={"Time": "0s"},
+    intrinsics={"Time": "0s"},
     variation_variable="Time",
     variation_list=timesteps,
     show=False,

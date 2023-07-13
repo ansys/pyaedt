@@ -17,7 +17,7 @@ import sys
 import subprocess
 import pyaedt
 from pyaedt import Emit
-import pyaedt.emit_core.EmitConstants as econsts
+from pyaedt.emit_core.emit_constants import ResultType, TxRxMode, InterfererType
 
 # Check to see which Python libraries have been installed
 reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
@@ -53,7 +53,7 @@ import numpy as np
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 NewThread = False
-desktop_version = "2022.2"
+desktop_version = "2023.2"
 
 ###############################################################################
 # Launch AEDT with EMIT
@@ -102,17 +102,13 @@ for band in bluetooth.bands():
 # Create a results revision and load it for analysis.
 
 rev = emitapp.results.analyze()
-modeRx = econsts.tx_rx_mode().rx
-modeTx = econsts.tx_rx_mode().tx
-modeEmi = econsts.result_type().emi
-tx_interferer = econsts.interferer_type().transmitters
 
 def get_rx_bands(rx_radio):
     """Return a list of all Rx bands in a given radio.
     Returns:
         List of ("Rx Radio Name", "Rx Band Name") tuples.
     """
-    bands = rev.get_band_names(rx_radio, modeRx)
+    bands = rev.get_band_names(rx_radio, TxRxMode.RX)
     return [(rx_radio, band) for band in bands]
 
 def overlapping_tx_bands(rx_band):
@@ -124,19 +120,19 @@ def overlapping_tx_bands(rx_band):
     """
     overlapping = []
     rx_frequencies = rev.get_active_frequencies(
-        rx_band[0], rx_band[1], modeRx
+        rx_band[0], rx_band[1], TxRxMode.RX
     )
     if len(rx_frequencies) < 1:
         return overlapping
     rx_start = min(rx_frequencies)
     rx_stop = max(rx_frequencies)
-    for tx_radio in rev.get_interferer_names(tx_interferer):
+    for tx_radio in rev.get_interferer_names(InterfererType.TRANSMITTERS):
         if tx_radio == rx_band[0]:
             # skip self interaction
             continue        
-        for tx_band in rev.get_band_names(tx_radio, modeTx):
+        for tx_band in rev.get_band_names(tx_radio, TxRxMode.TX):
             tx_frequencies = rev.get_active_frequencies(
-                tx_radio, tx_band, modeTx
+                tx_radio, tx_band, TxRxMode.TX
             )
             tx_start = min(tx_frequencies)
             tx_stop = max(tx_frequencies)
@@ -207,22 +203,22 @@ def minimum_tx_channel_separation(rx_band, tx_band, emi_threshold):
     domain.set_interferer(tx_band[0], tx_band[1])
 
     interaction = rev.run(domain)
-    worst = interaction.get_worst_instance(modeEmi)
+    worst = interaction.get_worst_instance(ResultType.EMI)
     # If the worst case for the band-pair is below the EMI limit, then
     # there are no interference issues and no offset is required.
     if worst.has_valid_values():
-        emi = worst.get_value(modeEmi)
+        emi = worst.get_value(ResultType.EMI)
         if emi < emi_threshold:
             return 0.0
     # Assess each Rx channel and see how close the Tx can be tuned while
     # keeping the EMI below the threshold.
     # Freqs are used to set the domain, so they need to be in Hz
     rx_frequencies = rev.get_active_frequencies(
-        rx_band[0], rx_band[1], modeRx, "Hz"
+        rx_band[0], rx_band[1], TxRxMode.RX
     )
     rx_channel_count = len(rx_frequencies)
     tx_frequencies = rev.get_active_frequencies(
-        tx_band[0], tx_band[1], modeTx, "Hz"
+        tx_band[0], tx_band[1], TxRxMode.TX
     )
     tx_channel_count = len(tx_frequencies)
     chpair = domain
@@ -233,9 +229,9 @@ def minimum_tx_channel_separation(rx_band, tx_band, emi_threshold):
         for tx_frequency in tx_frequencies:
             chpair.set_interferer(tx_band[0], tx_band[1], tx_frequency)
             chpair_interaction = rev.run(chpair)
-            chpair_result = chpair_interaction.get_worst_instance(modeEmi)
+            chpair_result = chpair_interaction.get_worst_instance(ResultType.EMI)
             if chpair_result.has_valid_values():
-                emi = chpair_result.get_value(modeEmi)
+                emi = chpair_result.get_value(ResultType.EMI)
             else:
                 emi = 300.0
             if emi >= emi_threshold:
@@ -259,8 +255,8 @@ separation_results = []
 # separation for each channel.
 num=1 # Current figure number
 for rx_band, tx_band in tqdm(overlapping[1:]):
-    tx_frequencies = rev.get_active_frequencies(tx_band[0], tx_band[1], modeTx)
-    rx_frequencies = rev.get_active_frequencies(rx_band[0], rx_band[1], modeRx)
+    tx_frequencies = rev.get_active_frequencies(tx_band[0], tx_band[1], TxRxMode.TX)
+    rx_frequencies = rev.get_active_frequencies(rx_band[0], rx_band[1], TxRxMode.RX)
     print('Rx:')
     print('    Radio:', rx_band[0])
     print('    Band:', rx_band[1])

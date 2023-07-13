@@ -16,6 +16,12 @@ try:
     import pytest
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
+try:
+    from IPython.display import Image
+
+    ipython_available = True
+except ImportError:
+    ipython_available = False
 
 test_subfolder = "TMaxwell"
 test_project_name = "eddy"
@@ -25,6 +31,7 @@ else:
     core_loss_file = "PlanarTransformer"
 transient = "Transient_StrandedWindings"
 cyl_gap = "Motor3D_cyl_gap"
+layout_component = "LayoutForce"
 
 
 class TestClass(BasisTest, object):
@@ -37,6 +44,10 @@ class TestClass(BasisTest, object):
             self, application=Maxwell3d, project_name=transient, subfolder=test_subfolder
         )
         self.cyl_gap = BasisTest.add_app(self, application=Maxwell3d, project_name=cyl_gap, subfolder=test_subfolder)
+        if desktop_version > "2023.1":
+            self.layout_comp = BasisTest.add_app(
+                self, application=Maxwell3d, project_name=layout_component, subfolder=test_subfolder
+            )
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -53,6 +64,11 @@ class TestClass(BasisTest, object):
         plate.material_name = "aluminum"
         assert plate.solve_inside
         assert plate.material_name == "aluminum"
+
+    @pytest.mark.skipif(config["NonGraphical"], reason="Test is failing on build machine")
+    def test_01_display(self):
+        img = self.aedtapp.post.nb_display(show_axis=True, show_grid=True, show_ruler=True)
+        assert isinstance(img, Image)
 
     def test_01A_litz_wire(self):
         cylinder = self.aedtapp.modeler.create_cylinder(
@@ -750,7 +766,6 @@ class TestClass(BasisTest, object):
         assert self.m3dtransient.setups[0].add_mesh_link(
             design_name=self.m3dtransient.design_list[0], project_name=example_project_copy
         )
-        # Test the creation of the control program file
 
     def test_46_set_variable(self):
         self.aedtapp.variable_manager.set_variable("var_test", expression="123")
@@ -828,4 +843,94 @@ class TestClass(BasisTest, object):
         )
         assert not self.cyl_gap.mesh.assign_cylindrical_gap(
             "Band", meshop_name="cyl_gap_test", clone_mesh=True, band_mapping_angle=2, static_side_layers=0
+        )
+
+    def test_50_objects_segmentation(self):
+        segments_number = 5
+        object_name = "PM_I1"
+        sheets = self.cyl_gap.modeler.objects_segmentation(
+            object_name, segments_number=segments_number, apply_mesh_sheets=True
+        )
+        assert isinstance(sheets, tuple)
+        assert isinstance(sheets[0], dict)
+        assert isinstance(sheets[1], dict)
+        assert isinstance(sheets[0][object_name], list)
+        assert len(sheets[0][object_name]) == segments_number - 1
+        segments_number = 4
+        object_name = "PM_I1_1"
+        magnet_id = [obj.id for obj in self.cyl_gap.modeler.object_list if obj.name == object_name][0]
+        sheets = self.cyl_gap.modeler.objects_segmentation(
+            magnet_id, segments_number=segments_number, apply_mesh_sheets=True
+        )
+        assert isinstance(sheets, tuple)
+        assert isinstance(sheets[0][object_name], list)
+        assert len(sheets[0][object_name]) == segments_number - 1
+        segmentation_thickness = 1
+        object_name = "PM_O1"
+        magnet = [obj for obj in self.cyl_gap.modeler.object_list if obj.name == object_name][0]
+        sheets = self.cyl_gap.modeler.objects_segmentation(
+            magnet, segmentation_thickness=segmentation_thickness, apply_mesh_sheets=True
+        )
+        assert isinstance(sheets, tuple)
+        assert isinstance(sheets[0][object_name], list)
+        segments_number = round(magnet.top_edge_y.length / segmentation_thickness)
+        assert len(sheets[0][object_name]) == segments_number - 1
+        assert not self.cyl_gap.modeler.objects_segmentation(object_name)
+        assert not self.cyl_gap.modeler.objects_segmentation(
+            object_name, segments_number=segments_number, segmentation_thickness=segmentation_thickness
+        )
+        object_name = "PM_O1_1"
+        segments_number = 10
+        sheets = self.cyl_gap.modeler.objects_segmentation(object_name, segments_number=segments_number)
+        assert isinstance(sheets, dict)
+        assert isinstance(sheets[object_name], list)
+        assert len(sheets[object_name]) == segments_number - 1
+
+    def test_51_import_dxf(self):
+        self.aedtapp.insert_design("dxf")
+        dxf_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf1.dxf")
+        dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
+        assert isinstance(dxf_layers, list)
+
+    def test_52_assign_flux_tangential(self):
+        self.aedtapp.insert_design("flux_tangential")
+        box = self.aedtapp.modeler.create_box([50, 0, 50], [294, 294, 19], name="Box")
+        assert not self.aedtapp.assign_flux_tangential(box.faces[0])
+        self.aedtapp.solution_type = "TransientAPhiFormulation"
+        assert self.aedtapp.assign_flux_tangential(box.faces[0], "FluxExample")
+        assert self.aedtapp.assign_flux_tangential(box.faces[0].id, "FluxExample")
+
+    @pytest.mark.skipif(desktop_version < "2023.2", reason="Method available in beta from 2023.2")
+    def test_53_assign_layout_force(self):
+        nets_layers = {
+            "<no-net>": ["<no-layer>", "TOP", "UNNAMED_000", "UNNAMED_002"],
+            "GND": ["BOTTOM", "Region", "UNNAMED_010", "UNNAMED_012"],
+            "V3P3_S5": ["LYR_1", "LYR_2", "UNNAMED_006", "UNNAMED_008"],
+        }
+        assert self.layout_comp.assign_layout_force(nets_layers, "LC1_1")
+        assert not self.layout_comp.assign_layout_force(nets_layers, "LC1_3")
+        nets_layers = {"1V0": "Bottom Solder"}
+        assert self.layout_comp.assign_layout_force(nets_layers, "LC1_1")
+
+    @pytest.mark.skipif(desktop_version < "2023.2", reason="Method available in beta from 2023.2")
+    def test_54_enable_harmonic_force_layout(self):
+        comp = self.layout_comp.modeler.user_defined_components["LC1_1"]
+        layers = list(comp.layout_component.layers.keys())
+        nets = list(comp.layout_component.nets.keys())
+        self.layout_comp.enable_harmonic_force_on_layout_component(
+            comp.name,
+            {nets[0]: layers[1::2], nets[1]: layers[1::2]},
+            force_type=2,
+            window_function="Rectangular",
+            use_number_of_last_cycles=True,
+            last_cycles_number=1,
+            calculate_force="Harmonic",
+            start_time="10us",
+            stop_time="20us",
+            use_number_of_cycles_for_stop_time=True,
+            number_of_cycles_for_stop_time=1,
+        )
+        self.layout_comp.solution_type = "Magnetostatic"
+        assert not self.layout_comp.enable_harmonic_force_on_layout_component(
+            comp.name, {nets[0]: layers[1::2], nets[1]: layers[1::2]}
         )

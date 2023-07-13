@@ -6,7 +6,7 @@ import json
 import os.path
 import warnings
 
-from pyaedt.generic.general_methods import _retry_ntimes
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.Modeler import GeometryModeler
@@ -15,6 +15,7 @@ from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
 class Modeler3D(GeometryModeler, Primitives3D, object):
+
     """Provides the Modeler 3D application interface.
 
     This class is inherited in the caller application and is accessible through the modeler variable
@@ -276,7 +277,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             if meshregions:
                 arg2.append("MeshRegions:="), arg2.append(meshregions)
         else:
-            if excitation_list:
+            if excitation_list is not None:
                 excitations = excitation_list
             else:
                 excitations = self._app.excitations
@@ -362,7 +363,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                         del out_dict["coordinatesystems"][cs]
             with open(auxiliary_dict, "w") as outfile:
                 json.dump(out_dict, outfile)
-        return _retry_ntimes(3, self.oeditor.Create3DComponent, arg, arg2, component_file, arg3)
+        self.oeditor.Create3DComponent(arg, arg2, component_file, arg3)
+        return True
 
     @pyaedt_function_handler()
     def replace_3dcomponent(
@@ -531,7 +533,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             arg2.append("MeshOperations:="), arg2.append(meshops)
         arg3 = ["NAME:ImageFile", "ImageFile:=", ""]
         old_components = self.user_defined_component_names
-        _retry_ntimes(3, self.oeditor.ReplaceWith3DComponent, arg, arg2, arg3)
+        self.oeditor.ReplaceWith3DComponent(arg, arg2, arg3)
         self.refresh_all_ids()
         new_name = list(set(self.user_defined_component_names) - set(old_components))
         return self.user_defined_components[new_name[0]]
@@ -585,10 +587,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         >>> oEditor.CreateCylinder
         >>> oEditor.AssignMaterial
 
-
         Examples
         --------
-
         This example shows how to create a Coaxial Along X Axis waveguide.
 
         >>> from pyaedt import Hfss
@@ -673,7 +673,6 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
 
         Examples
         --------
-
         This example shows how to create a WG9 waveguide.
 
         >>> from pyaedt import Hfss
@@ -802,21 +801,20 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
 
         Parameters
         ----------
-        bounding_box : list.
+        bounding_box : list
             List of coordinates of bounding box vertices.
             Bounding box is provided as [xmin, ymin, zmin, xmax, ymax, zmax].
-        check_solids : bool, optional.
+        check_solids : bool, optional
             Check solid objects.
-        check_lines : bool, optional.
+        check_lines : bool, optional
             Check line objects.
-        check_sheets : bool, optional.
+        check_sheets : bool, optional
             Check sheet objects.
 
         Returns
         -------
         list of :class:`pyaedt.modeler.object3d`
         """
-
         if len(bounding_box) != 6:
             raise ValueError("Bounding box list must have dimension 6.")
 
@@ -863,8 +861,9 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         return objects
 
     @pyaedt_function_handler()
-    def import_nastran(self, file_path, import_lines=True, lines_thickness=0):
-        """Import Nastran file into 3D Modeler by converting it to stl and reading it.
+    def import_nastran(self, file_path, import_lines=True, lines_thickness=0, import_solids=True):
+        """Import Nastran file into 3D Modeler by converting the faces to stl and reading it. The solids are
+        translated directly to AEDT format.
 
         Parameters
         ----------
@@ -875,12 +874,17 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         lines_thickness : float, optional
             Whether to thicken lines after creation and it's default value.
             Every line will be parametrized with a design variable called ``xsection_linename``.
+        import_solids : bool, optional
+            Whether to import the solids or only triangles. Default is ``True``.
 
         Returns
         -------
         List of :class:`pyaedt.modeler.Object3d.Object3d`
         """
-        nas_to_dict = {"Points": {}, "PointsId": {}, "Triangles": {}, "Lines": {}}
+        nas_to_dict = {"Points": {}, "PointsId": {}, "Triangles": {}, "Lines": {}, "Solids": {}}
+
+        self.logger.reset_timer()
+        self.logger.info("Loading file")
         with open(file_path, "r") as f:
             lines = f.read().splitlines()
             id = 0
@@ -890,7 +894,6 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                     continue
                 if line_split[0].startswith("GRID"):
                     try:
-                        n_1_3 = line[24:48]
                         import re
 
                         out = re.findall("^.{24}(.{8})(.{8})(.{8})", line)[0]
@@ -930,77 +933,203 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                                 int(line_split[5]),
                             ]
                         ]
+                elif line_split[0].startswith("CPENTA"):
+                    if int(line_split[2]) in nas_to_dict["Solids"]:
+                        nas_to_dict["Solids"][int(line_split[2])].append(
+                            [
+                                line_split[0].strip(),
+                                int(line_split[3]),
+                                int(line_split[4]),
+                                int(line_split[5]),
+                                int(line_split[6]),
+                                int(line_split[7]),
+                                int(line_split[8]),
+                            ]
+                        )
+                    else:
+                        nas_to_dict["Solids"][int(line_split[2])] = [
+                            [
+                                line_split[0].strip(),
+                                int(line_split[3]),
+                                int(line_split[4]),
+                                int(line_split[5]),
+                                int(line_split[6]),
+                                int(line_split[7]),
+                                int(line_split[8]),
+                            ]
+                        ]
+                elif line_split[0].startswith("CHEXA"):
+                    if int(line_split[2]) in nas_to_dict["Solids"]:
+                        nas_to_dict["Solids"][int(line_split[2])].append(
+                            [
+                                line_split[0].strip(),
+                                int(line_split[3]),
+                                int(line_split[4]),
+                                int(line_split[5]),
+                                int(line_split[6]),
+                                int(line_split[7]),
+                                int(line_split[8]),
+                                int(line_split[9]),
+                                int(line_split[10]),
+                            ]
+                        )
+                    else:
+                        nas_to_dict["Solids"][int(line_split[2])] = [
+                            [
+                                line_split[0].strip(),
+                                int(line_split[3]),
+                                int(line_split[4]),
+                                int(line_split[5]),
+                                int(line_split[6]),
+                                int(line_split[7]),
+                                int(line_split[8]),
+                                int(line_split[9]),
+                                int(line_split[10]),
+                            ]
+                        ]
+                elif line_split[0].startswith("CTETRA"):
+                    if int(line_split[2]) in nas_to_dict["Solids"]:
+                        nas_to_dict["Solids"][int(line_split[2])].append(
+                            [
+                                line_split[0].strip(),
+                                int(line_split[3]),
+                                int(line_split[4]),
+                                int(line_split[5]),
+                                int(line_split[6]),
+                            ]
+                        )
+                    else:
+                        nas_to_dict["Solids"][int(line_split[2])] = [
+                            [
+                                line_split[0].strip(),
+                                int(line_split[3]),
+                                int(line_split[4]),
+                                int(line_split[5]),
+                                int(line_split[6]),
+                            ]
+                        ]
                 elif line_split[0].startswith("CROD") or line_split[0].startswith("CBEAM"):
                     if int(line_split[2]) in nas_to_dict["Lines"]:
                         nas_to_dict["Lines"][int(line_split[2])].append([int(line_split[3]), int(line_split[4])])
                     else:
                         nas_to_dict["Lines"][int(line_split[2])] = [[int(line_split[3]), int(line_split[4])]]
+        self.logger.info_timer("File loaded")
         objs_before = [i for i in self.object_names]
-        f = open(os.path.join(self._app.working_directory, self._app.design_name + "_test.stl"), "w")
-        f.write("solid PyaedtStl\n")
-        for triangles in nas_to_dict["Triangles"].values():
-            for triangle in triangles:
-                try:
-                    points = [nas_to_dict["Points"][id] for id in triangle]
-                except KeyError:
-                    continue
-                fc = GeometryOperators.get_polygon_centroid(points)
-                v1 = points[0]
-                v2 = points[1]
-                cv1 = GeometryOperators.v_points(fc, v1)
-                cv2 = GeometryOperators.v_points(fc, v2)
-                if cv2[0] == cv1[0] == 0.0 and cv2[1] == cv1[1] == 0.0:
-                    n = [0, 0, 1]
-                elif cv2[0] == cv1[0] == 0.0 and cv2[2] == cv1[2] == 0.0:
-                    n = [0, 1, 0]
-                elif cv2[1] == cv1[1] == 0.0 and cv2[2] == cv1[2] == 0.0:
-                    n = [1, 0, 0]
-                else:
-                    n = GeometryOperators.v_cross(cv1, cv2)
-                normal = GeometryOperators.normalize_vector(n)
-                if normal:
-                    f.write(" facet normal {} {} {}\n".format(normal[0], normal[1], normal[2]))
-                    f.write("  outer loop\n")
-                    f.write("   vertex {} {} {}\n".format(points[0][0], points[0][1], points[0][2]))
-                    f.write("   vertex {} {} {}\n".format(points[1][0], points[1][1], points[1][2]))
-                    f.write("   vertex {} {} {}\n".format(points[2][0], points[2][1], points[2][2]))
-                    f.write("  endloop\n")
-                    f.write(" endfacet\n")
+        if nas_to_dict["Triangles"]:
+            self.logger.reset_timer()
+            self.logger.info("Creating STL file with detected faces")
+            f = open(os.path.join(self._app.working_directory, self._app.design_name + "_test.stl"), "w")
+            f.write("solid PyaedtStl\n")
+            for triangles in nas_to_dict["Triangles"].values():
+                for triangle in triangles:
+                    try:
+                        points = [nas_to_dict["Points"][id] for id in triangle]
+                    except KeyError:
+                        continue
+                    fc = GeometryOperators.get_polygon_centroid(points)
+                    v1 = points[0]
+                    v2 = points[1]
+                    cv1 = GeometryOperators.v_points(fc, v1)
+                    cv2 = GeometryOperators.v_points(fc, v2)
+                    if cv2[0] == cv1[0] == 0.0 and cv2[1] == cv1[1] == 0.0:
+                        n = [0, 0, 1]
+                    elif cv2[0] == cv1[0] == 0.0 and cv2[2] == cv1[2] == 0.0:
+                        n = [0, 1, 0]
+                    elif cv2[1] == cv1[1] == 0.0 and cv2[2] == cv1[2] == 0.0:
+                        n = [1, 0, 0]
+                    else:
+                        n = GeometryOperators.v_cross(cv1, cv2)
+                    normal = GeometryOperators.normalize_vector(n)
+                    if normal:
+                        f.write(" facet normal {} {} {}\n".format(normal[0], normal[1], normal[2]))
+                        f.write("  outer loop\n")
+                        f.write("   vertex {} {} {}\n".format(points[0][0], points[0][1], points[0][2]))
+                        f.write("   vertex {} {} {}\n".format(points[1][0], points[1][1], points[1][2]))
+                        f.write("   vertex {} {} {}\n".format(points[2][0], points[2][1], points[2][2]))
+                        f.write("  endloop\n")
+                        f.write(" endfacet\n")
 
-        f.write("endsolid\n")
-        f.close()
-        self.import_3d_cad(os.path.join(self._app.working_directory, self._app.design_name + "_test.stl"))
-        if not import_lines:
-            return True
+            f.write("endsolid\n")
+            f.close()
+            self.logger.info("STL file created")
+            self.import_3d_cad(os.path.join(self._app.working_directory, self._app.design_name + "_test.stl"))
+            self.logger.info_timer("Faces imported")
 
-        for line_name, lines in nas_to_dict["Lines"].items():
-            if lines_thickness:
-                self._app["x_section_{}".format(line_name)] = lines_thickness
-            polys = []
-            id = 0
-            for line in lines:
-                try:
-                    points = [nas_to_dict["Points"][line[0]], nas_to_dict["Points"][line[1]]]
-                except KeyError:
-                    continue
+        if import_lines:
+            for line_name, lines in nas_to_dict["Lines"].items():
                 if lines_thickness:
-                    polys.append(
-                        self.create_polyline(
-                            points,
-                            name="Poly_{}_{}".format(line_name, id),
-                            xsection_type="Circle",
-                            xsection_width="x_section_{}".format(line_name),
-                            xsection_num_seg=6,
+                    self._app["x_section_{}".format(line_name)] = lines_thickness
+                polys = []
+                id = 0
+                for line in lines:
+                    try:
+                        points = [nas_to_dict["Points"][line[0]], nas_to_dict["Points"][line[1]]]
+                    except KeyError:
+                        continue
+                    if lines_thickness:
+                        polys.append(
+                            self.create_polyline(
+                                points,
+                                name="Poly_{}_{}".format(line_name, id),
+                                xsection_type="Circle",
+                                xsection_width="x_section_{}".format(line_name),
+                                xsection_num_seg=6,
+                            )
                         )
-                    )
-                else:
-                    polys.append(self.create_polyline(points, name="Poly_{}_{}".format(line_name, id)))
-                id += 1
+                    else:
+                        polys.append(self.create_polyline(points, name="Poly_{}_{}".format(line_name, id)))
+                    id += 1
 
-            if len(polys) > 1:
-                out_poly = self.unite(polys, purge=not lines_thickness)
-                if not lines_thickness and out_poly:
-                    self.generate_object_history(out_poly)
+                if len(polys) > 1:
+                    out_poly = self.unite(polys, purge=not lines_thickness)
+                    if not lines_thickness and out_poly:
+                        self.generate_object_history(out_poly)
+
+        if import_solids and nas_to_dict["Solids"]:
+            self.logger.reset_timer()
+            self.logger.info("Loading solids")
+            for solid_pid in nas_to_dict["Solids"].keys():
+                for solid in nas_to_dict["Solids"][solid_pid]:
+                    points = [nas_to_dict["Points"][id] for id in solid[1:]]
+                    if solid[0] == "CPENTA":
+                        element1 = self._app.modeler.create_polyline(
+                            position_list=[points[0], points[1], points[2]], close_surface=True, cover_surface=True
+                        )
+                        element2 = self._app.modeler.create_polyline(
+                            position_list=[points[3], points[4], points[5]], close_surface=True, cover_surface=True
+                        )
+                        self._app.modeler.connect([element1.name, element2.name])
+                        element1.group_name = "PID_" + str(solid_pid)
+                    elif solid[0] == "CHEXA":
+                        element1 = self._app.modeler.create_polyline(
+                            position_list=[points[0], points[1], points[2], points[3]],
+                            close_surface=True,
+                            cover_surface=True,
+                        )
+                        element2 = self._app.modeler.create_polyline(
+                            position_list=[points[4], points[5], points[6], points[7]],
+                            close_surface=True,
+                            cover_surface=True,
+                        )
+                        self._app.modeler.connect([element1.name, element2.name])
+                        element1.group_name = "PID_" + str(solid_pid)
+                    elif solid[0] == "CTETRA":
+                        element1 = self._app.modeler.create_polyline(
+                            position_list=[points[0], points[1], points[2]], close_surface=True, cover_surface=True
+                        )
+                        element2 = self._app.modeler.create_polyline(
+                            position_list=[points[0], points[1], points[3]], close_surface=True, cover_surface=True
+                        )
+                        element3 = self._app.modeler.create_polyline(
+                            position_list=[points[0], points[2], points[3]], close_surface=True, cover_surface=True
+                        )
+                        element4 = self._app.modeler.create_polyline(
+                            position_list=[points[1], points[2], points[3]], close_surface=True, cover_surface=True
+                        )
+                        self._app.modeler.unite([element1.name, element2.name, element3.name, element4.name])
+                        element1.group_name = "PID_" + str(solid_pid)
+
+            self.logger.info_timer("Solids loaded")
 
         objs_after = [i for i in self.object_names]
         new_objects = [self[i] for i in objs_after if i not in objs_before]
@@ -1134,6 +1263,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         if import_in_aedt:
             self.model_units = "meter"
             for part in parts_dict:
+                if not os.path.exists(parts_dict[part]["file_name"]):
+                    continue
                 obj_names = [i for i in self.object_names]
                 self.import_3d_cad(
                     parts_dict[part]["file_name"],
@@ -1153,3 +1284,82 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                     self[obj].transparency = transparency
                     self[obj].color = color
         return scene
+
+    @pyaedt_function_handler
+    def objects_segmentation(
+        self, objects_list, segmentation_thickness=None, segments_number=None, apply_mesh_sheets=False
+    ):
+        """Get segmentation of an object given the segmentation thickness or number of segments.
+
+        Parameters
+        ----------
+        objects_list : list
+            List of objects to apply the segmentation to.
+            It can either be a list of strings (object names), integers (object IDs), or
+            a list of :class:`pyaedt.modeler.cad.object3d.Object3d` classes.
+        segmentation_thickness : float, optional
+            Segmentation thickness.
+            Model units are automatically assigned. The default is ``None``.
+        segments_number : int, optional
+            Number of segments to segment the object to. The default is ``None``.
+        apply_mesh_sheets : bool, optional
+            Whether to apply mesh sheets to selected objects.
+            Mesh sheets are needed in case the user would like to have additional layers
+            inside the objects for a finer mesh and more accurate results. The default is ``False``.
+
+        Returns
+        -------
+        dict or tuple
+            Depending on value ``apply_mesh_sheets`` it returns either a dictionary or a tuple.
+            If mesh sheets are applied the method returns a tuple where:
+            - First dictionary is the segments that the object has been divided into.
+            - Second dictionary is the mesh sheets eventually needed to apply the mesh.
+            to inside the object. Keys are the object names, and values are respectively
+            segments sheets and mesh sheets of the
+            :class:`pyaedt.modeler.cad.object3d.Object3d` class.
+            If mesh sheets are not applied the method returns only the dictionary of
+            segments that the object has been divided into.
+            ``False`` is returned if the method fails.
+        """
+        if not segmentation_thickness and not segments_number:
+            self.logger.error("Provide at least one option to segment the objects in the list.")
+            return False
+        elif segmentation_thickness and segments_number:
+            self.logger.error("Only one segmentation option can be selected.")
+            return False
+
+        objects_list = self.convert_to_selections(objects_list, True)
+
+        segment_sheets = {}
+        segment_objects = {}
+        for obj_name in objects_list:
+            obj = self[obj_name]
+            obj_axial_length = GeometryOperators.points_distance(obj.top_face_z.center, obj.bottom_face_z.center)
+            if segments_number:
+                segmentation_thickness = obj_axial_length / segments_number
+            elif segmentation_thickness:
+                segments_number = round(obj_axial_length / segmentation_thickness)
+            face_object = self.modeler.create_object_from_face(obj.bottom_face_z)
+            # segment sheets
+            segment_sheets[obj.name] = face_object.duplicate_along_line(
+                ["0", "0", segmentation_thickness], segments_number
+            )
+            segment_objects[obj.name] = []
+            for value in segment_sheets[obj.name]:
+                segment_objects[obj.name].append([x for x in self.sheet_objects if x.name == value][0])
+            if apply_mesh_sheets:
+                mesh_sheets = {}
+                mesh_objects = {}
+                # mesh sheets
+                self.move(face_object, [0, 0, segmentation_thickness / 4])
+                mesh_sheets[obj.name] = face_object.duplicate_along_line(
+                    [0, 0, (segmentation_thickness * 2.0) / 4.0], segments_number * 2
+                )
+                mesh_objects[obj.name] = []
+                for value in mesh_sheets[obj.name]:
+                    mesh_objects[obj.name].append([x for x in self.sheet_objects if x.name == value][0])
+        face_object.delete()
+        if apply_mesh_sheets:
+            return segment_objects, mesh_objects
+        else:
+            return segment_objects

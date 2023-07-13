@@ -1,10 +1,13 @@
 from __future__ import absolute_import
 
 from collections import OrderedDict
+import os
 import random
 import re
 import warnings
 
+# from pyaedt import property
+from pyaedt import Edb
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.general_methods import _uname
 from pyaedt.modeler.cad.elements3d import BinaryTreeNode
@@ -102,6 +105,7 @@ class UserDefinedComponent(object):
         self._group_name = None
         self._is3dcomponent = None
         self._mesh_assembly = None
+
         if name:
             self._m_name = name
         else:
@@ -123,7 +127,7 @@ class UserDefinedComponent(object):
                 OrderedDict(
                     {
                         "TargetCS": self._target_coordinate_system,
-                        "SubmodelDefinitionName": component,
+                        "SubmodelDefinitionName": self.definition_name,
                         "ComponentPriorityLists": OrderedDict({}),
                         "NextUniqueID": 0,
                         "MoveBackwards": False,
@@ -131,7 +135,7 @@ class UserDefinedComponent(object):
                         "DatasetDefinitions": OrderedDict({}),
                         "BasicComponentInfo": OrderedDict(
                             {
-                                "ComponentName": component,
+                                "ComponentName": self.definition_name,
                                 "Company": "",
                                 "Company URL": "",
                                 "Model Number": "",
@@ -163,6 +167,30 @@ class UserDefinedComponent(object):
                 self._update_props(self._props["NativeComponentDefinitionProvider"], props)
             self.native_properties = self._props["NativeComponentDefinitionProvider"]
             self.auto_update = True
+
+        self._layout_component = None
+
+    @property
+    def layout_component(self):
+        """Layout component object.
+
+        Returns
+        -------
+        :class:`LayoutComponent`
+            Layout Component.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
+        """
+        if not self._layout_component and "Show Layout" in self._primitives._app.get_oo_properties(
+            self._primitives.oeditor, self.name
+        ):
+            self._layout_component = LayoutComponent(self)
+        return self._layout_component
 
     @pyaedt_function_handler()
     def history(self):
@@ -378,7 +406,11 @@ class UserDefinedComponent(object):
            :class:`pyaedt.modeler.Object3d`
 
         """
-        component_parts = list(self._primitives.oeditor.GetChildObject(self.name).GetChildNames())
+        if self.is3dcomponent:
+            component_parts = list(self._primitives.oeditor.Get3DComponentPartNames(self.name))
+        else:
+            component_parts = list(self._primitives.oeditor.GetChildObject(self.name).GetChildNames())
+
         parts_id = [
             self._primitives._object_names_to_ids[part]
             for part in self._primitives._object_names_to_ids
@@ -763,13 +795,13 @@ class UserDefinedComponent(object):
          target_coordinate_system: {}
          """.format(
             type(self),
-            self.is3dcomponent,
-            self.parts,
-            self.name,
-            self.group_name,
-            self.mesh_assembly,
-            self.parameters,
-            self.target_coordinate_system,
+            self._is3dcomponent,
+            self._parts,
+            self._m_name,
+            self._group_name,
+            self._mesh_assembly,
+            self._parameters,
+            self._target_coordinate_system,
         )
 
     @pyaedt_function_handler()
@@ -810,3 +842,245 @@ class UserDefinedComponent(object):
                 design_name = project.GetActiveDesign().GetName()
             return get_pyaedt_app(project_name, design_name)
         return False
+
+
+class LayoutComponent(object):
+    """Manages object attributes for Layout components.
+
+    Parameters
+    ----------
+    primitives : :class:`pyaedt.modeler.Primitives3D.Primitives3D`
+        Inherited parent object.
+    name : str, optional
+        Name of the component. The default value is ``None``.
+
+    """
+
+    def __init__(self, component):
+        self._primitives = component._primitives
+        self._name = component.name
+        self._component = component
+        self._edb_definition = None
+        self._show_layout = None
+        self._fast_transformation = None
+        self._show_dielectric = None
+        self._display_mode = None
+        self.layers = {}
+        self.nets = {}
+        self.objects = {}
+        if self.edb_definition:
+            self._get_edb_info()
+
+    @property
+    def edb_definition(self):
+        """Edb definition.
+
+        Returns
+        -------
+        str
+           EDB definition.
+
+        """
+        key = "EDB Definition"
+        if key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self._component.definition_name):
+            edb_definition = self._primitives._app.get_oo_property_value(
+                self._primitives.oeditor, self._component.definition_name, key
+            )
+            self._edb_definition = edb_definition
+            return edb_definition
+        else:
+            return None
+
+    @property
+    def show_layout(self):
+        """Show layout flag.
+
+        Returns
+        -------
+        bool
+           `Show layout check box.
+
+        """
+        key = "Show Layout"
+        if key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self._name):
+            show_layout = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self._name, key)
+            self._show_layout = show_layout
+            return show_layout
+        else:  # pragma: no cover
+            return None
+
+    @show_layout.setter
+    def show_layout(self, show_layout):
+        key = "Show Layout"
+        if isinstance(show_layout, bool) and key in self._primitives._app.get_oo_properties(
+            self._primitives.oeditor, self._name
+        ):
+            self._primitives.oeditor.GetChildObject(self._name).SetPropValue(key, show_layout)
+            self._show_layout = show_layout
+
+    @property
+    def fast_transformation(self):
+        """Show layout flag.
+
+        Returns
+        -------
+        bool
+           Fast transformation check box.
+
+        """
+        key = "Fast Transformation"
+        if key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self._name):
+            fast_transformation = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self._name, key)
+            self._fast_transformation = fast_transformation
+            return fast_transformation
+        else:  # pragma: no cover
+            return None
+
+    @fast_transformation.setter
+    def fast_transformation(self, fast_transformation):
+        key = "Fast Transformation"
+        if isinstance(fast_transformation, bool) and key in self._primitives._app.get_oo_properties(
+            self._primitives.oeditor, self._name
+        ):
+            self._primitives.oeditor.GetChildObject(self._name).SetPropValue(key, fast_transformation)
+            self._fast_transformation = fast_transformation
+
+    @property
+    def show_dielectric(self):
+        """Show dielectric flag.
+
+        Returns
+        -------
+        bool
+           Show dielectric check box.
+
+        """
+        key = "Object Attributes/ShowDielectric"
+
+        if key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self._name):
+            show_dielectric = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self._name, key)
+            self._show_dielectric = show_dielectric
+            return show_dielectric
+        else:  # pragma: no cover
+            return None
+
+    @show_dielectric.setter
+    def show_dielectric(self, show_dielectric):
+        key = "Object Attributes/ShowDielectric"
+        if isinstance(show_dielectric, bool) and key in self._primitives._app.get_oo_properties(
+            self._primitives.oeditor, self._name
+        ):
+            self._primitives.oeditor.GetChildObject(self._name).SetPropValue(key, show_dielectric)
+            self._show_dielectric = show_dielectric
+
+    @property
+    def display_mode(self):
+        """Show layout flag.
+
+        Returns
+        -------
+        int
+           Layout display mode. Available modes are:
+            * 0 : Layer.
+            * 1 : Net.
+            * 2 : Object.
+
+        """
+        key = "Object Attributes/DisplayMode"
+
+        if key in self._primitives._app.get_oo_properties(self._primitives.oeditor, self._name):
+            display_mode = self._primitives._app.get_oo_property_value(self._primitives.oeditor, self._name, key)
+            self._display_mode = display_mode
+            return display_mode
+        else:  # pragma: no cover
+            return None
+
+    @display_mode.setter
+    def display_mode(self, display_mode):
+        key = "Object Attributes/DisplayMode"
+        if isinstance(display_mode, int) and key in self._primitives._app.get_oo_properties(
+            self._primitives.oeditor, self._name
+        ):
+            self._primitives.oeditor.GetChildObject(self._name).SetPropValue(key, display_mode)
+            self._display_mode = display_mode
+
+    @pyaedt_function_handler()
+    def _get_edb_info(self):
+        """Get Edb information."""
+
+        # Open Layout component and get information
+        aedb_component_path = os.path.join(
+            self._primitives._app.project_file[:-1] + "b",
+            "LayoutComponents",
+            self._edb_definition,
+            self._edb_definition + ".aedb",
+        )
+
+        if not os.path.exists(aedb_component_path):  # pragma: no cover
+            return False
+
+        component_obj = Edb(
+            edbpath=aedb_component_path,
+            isreadonly=True,
+            edbversion=self._primitives._app._aedt_version,
+            student_version=self._primitives._app.student_version,
+        )
+
+        # Get objects, nets and layers
+        self.nets = {key: [True, False, 60] for key in component_obj.nets.netlist}
+        self.layers = {key: [True, False, 60] for key in list(component_obj.stackup.stackup_layers.keys())}
+        self.objects = {key: [True, False, 60] for key in list(component_obj.components.instances.keys())}
+
+        component_obj.close_edb()
+
+        return True
+
+    @pyaedt_function_handler()
+    def update_visibility(self):
+        """Update layer visibility.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
+        """
+
+        vPropChange = [
+            "NAME:Object Attributes",
+            "ShowDielectric:=",
+            self.show_dielectric,
+            "DisplayMode:=",
+            self.display_mode,
+        ]
+
+        if self.layers:
+            layer_mode = ["NAME:ObjectAttributesInLayerMode"]
+            for layer in self.layers:
+                layer_mode.append(layer + ":=")
+                layer_mode.append(self.layers[layer])
+            vPropChange.append(layer_mode)
+        if self.nets:
+            net_mode = ["NAME:ObjectAttributesInNetMode"]
+            for net in self.nets:
+                net_mode.append(layer + ":=")
+                net_mode.append(self.nets[net])
+            vPropChange.append(net_mode)
+        if self.objects:
+            objects_mode = ["NAME:ObjectAttributesInObjectMode"]
+            for objects in self.objects:
+                objects_mode.append(objects + ":=")
+                objects_mode.append(self.objects[objects])
+            vPropChange.append(objects_mode)
+
+        vChangedProps = ["NAME:ChangedProps", vPropChange]
+        vPropServers = ["NAME:PropServers", self._name]
+        vGeo3d = ["NAME:Visualization", vPropServers, vChangedProps]
+        vOut = ["NAME:AllTabs", vGeo3d]
+        self._primitives.oeditor.ChangeProperty(vOut)
+
+        return True

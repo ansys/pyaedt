@@ -1,0 +1,84 @@
+$begin 'AddEntries'
+	'Desktop/Settings/ProjectOptions/GSDefaults'='$begin \'\'\
+\	$begin \'ansysrsm__{"Proxy":"ansyscloud","Data":""}\'\
+\	\	Monitor=true\
+\	\	WaitForLicense=false\
+\	\	UsePPELicensing=true\
+\	\	BatchExtract=false\
+\	\	BatchOptions()\
+\	\	ProductPath=\'\'\
+\	\	BatchExtractPath=\'\'\
+\	\	UseMultiStep=false\
+\	\	UseLSDSO=false\
+\	\	$begin \'\'\
+\	\	\	Method=3\
+\	\	\	$begin \'TasksAndCoresBlock\'\
+\	\	\	\	IsExclusive=true\
+\	\	\	\	RAMLimit=90\
+\	\	\	\	NumTasks=44\
+\	\	\	\	NumCoresPerDistributedTask=1\
+\	\	\	\	LimitTasksPerNodeEnabled=false\
+\	\	\	\	NumMaxTasksPerNode=44\
+\	\	\	\	NumGpus=0\
+\	\	\	$end \'TasksAndCoresBlock\'\
+\	\	\	$begin \'RAMConstrainedBlock\'\
+\	\	\	\	IsExclusive=true\
+\	\	\	\	RAMLimit=90\
+\	\	\	\	NumCores=704\
+\	\	\	\	RAMPerCoreCheckbox=false\
+\	\	\	\	RAMPerCoreInGB=\'2.0\'\
+\	\	\	$end \'RAMConstrainedBlock\'\
+\	\	\	$begin \'NodesAndCoresBlock\'\
+\	\	\	\	IsExclusive=true\
+\	\	\	\	RAMLimit=90\
+\	\	\	\	NumNodes=1\
+\	\	\	\	NumCores=16\
+\	\	\	\	NumGpus=0\
+\	\	\	$end \'NodesAndCoresBlock\'\
+\	\	\	$begin \'NodeListBlock\'\
+\	\	\	\	$begin \'MachineListVec\'\
+\	\	\	\	$end \'MachineListVec\'\
+\	\	\	$end \'NodeListBlock\'\
+\	\	$end \'\'\
+\	\	$begin \'JobAttributes\'\
+\	\	\	JobName=\'\'\
+\	\	\	JobPriority=\'\'\
+\	\	\	SubmissionOptions=\'\'\
+\	\	\	SubmissionOptionsReplace=false\
+\	\	\	FixJobName=true\
+\	\	$end \'JobAttributes\'\
+\	\	$begin \'UniformComputeResources\'\
+\	\	\	$begin \'ComputeResourceAttribute\'\
+\	\	\	\	Name=\'Config\'\
+\	\	\	\	Value=\'Flexible HC44rs\'\
+\	\	\	$end \'ComputeResourceAttribute\'\
+\	\	\	$begin \'ComputeResourceAttribute\'\
+\	\	\	\	Name=\'Region\'\
+\	\	\	\	Value=\'WestEurope\'\
+\	\	\	$end \'ComputeResourceAttribute\'\
+\	\	$end \'UniformComputeResources\'\
+\	\	$begin \'DSOJobDistributionInfo\'\
+\	\	\	AllowedDistributionTypes[0:]\
+\	\	\	Enable2LevelDistribution=false\
+\	\	\	NumL1Engines=2\
+\	\	\	UseDefaultsForDistributionTypes=true\
+\	\	\	Context()\
+\	\	$end \'DSOJobDistributionInfo\'\
+\	\	EnvVarNames[1: \'ANSOFT_PASS_DEBUG_ENV_TO_REMOTE_ENGINES\']\
+\	\	EnvVarValues[1: \'1\']\
+\	\	$begin \'ArchiveOptions\'\
+\	\	\	OverwriteFiles=false\
+\	\	$end \'ArchiveOptions\'\
+\	\	$begin \'SharedDirectories\'\
+\	\	\	WindowsPaths[0:]\
+\	\	\	LinuxPaths[0:]\
+\	\	$end \'SharedDirectories\'\
+\	\	$begin \'MultiStepJobSettings\'\
+\	\	\	SelectedOption=\'\'\
+\	\	$end \'MultiStepJobSettings\'\
+\	\	NumVariationsToDistributeInAuto=1\
+\	$end \'ansysrsm__{"Proxy":"ansyscloud","Data":""}\'\
+$end \'\'\
+'
+	'Desktop/Settings/ProjectOptions/GSIsAdvancedMode'=0
+$end 'AddEntries'

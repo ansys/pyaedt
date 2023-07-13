@@ -103,7 +103,7 @@ extensions = [
 
 # Intersphinx mapping
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/dev", None),
+    "python": ("https://docs.python.org/3", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/reference", None),
     "numpy": ("https://numpy.org/devdocs", None),
     "matplotlib": ("https://matplotlib.org/stable", None),
@@ -265,7 +265,6 @@ html_short_title = html_title = "PyAEDT"
 html_show_sourcelink = True
 html_theme = "ansys_sphinx_theme"
 html_logo = pyansys_logo_black
-html_facivon = ansys_favicon
 
 # specify the location of your github repo
 html_context = {
@@ -296,6 +295,14 @@ html_theme_options = {
         "version_match": get_version_match(__version__),
     },
     "collapse_navigation": True,
+    "use_meilisearch": {
+        "host": "https://backend.search.pyansys.com/",
+        "api_key": os.getenv("MEILISEARCH_API_KEY", ""),
+        "index_uids": {
+            "pyansys-pyaedt-sphinx-docs": "PyAEDT",
+            "pyansys-pyedb-sphinx-docs": "EDB API",
+        },
+    },
 }
 
 html_static_path = ["_static"]

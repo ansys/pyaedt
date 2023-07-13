@@ -9,6 +9,8 @@ from collections import OrderedDict
 
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import unit_converter
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -39,14 +41,15 @@ def _conv_number(number, typen=float):
 
     Parameters
     ----------
-    number
+    number : int, float
        Number represented a float.
-
-    typen :
+    typen : type
          The default is ``float``.
 
     Returns
     -------
+    int or float
+        Number converted either to ``int`` or ``float``.
 
     """
     if typen is float:
@@ -67,18 +70,19 @@ def _getIfromRGB(rgb):
 
     Parameters
     ----------
-    rgb :
-
+    rgb : list
+        List representing the color. IT is made of 3 values: blue, green, and red.
 
     Returns
     -------
+    int
 
     """
     red = rgb[2]
     green = rgb[1]
     blue = rgb[0]
-    RGBint = (red << 16) + (green << 8) + blue
-    return RGBint
+    rgb_int = (red << 16) + (green << 8) + blue
+    return rgb_int
 
 
 @pyaedt_function_handler()
@@ -88,11 +92,12 @@ def _getRGBfromI(value):
     Parameters
     ----------
     value : int
-
+        Integer value representing the layer color.
 
     Returns
     -------
     list
+
     """
     r = (value >> 16) & 0xFF
     g = (value >> 8) & 0xFF
@@ -106,7 +111,6 @@ class Layer(object):
     Parameters
     ----------
     app : :class:`pyaedt.modules.LayerStackup.Layers`
-
     layertype : string, optional
         The default is ``"signal"``.
     negative : bool, optional
@@ -174,10 +178,11 @@ class Layer(object):
 
     @property
     def color(self):
-        """Get/Set the property of the active layer. Color it is list of rgb values (0,255).
+        """Return or set the property of the active layer. Color it is list of rgb values (0,255).
 
         Returns
         -------
+        list
 
         """
         if isinstance(self._color, list):
@@ -447,7 +452,7 @@ class Layer(object):
 
     @property
     def roughness(self):
-        """Get/Set the active layer roughness (with units).
+        """Return or set the active layer roughness (with units).
 
         Returns
         -------
@@ -456,13 +461,13 @@ class Layer(object):
         return self._roughness
 
     @roughness.setter
-    def roughness(self, val):
-        self._roughness = val
+    def roughness(self, value):
+        self._roughness = value
         self.update_stackup_layer()
 
     @property
     def bottom_roughness(self):
-        """Get/Set the active layer bottom roughness (with units).
+        """Return or set the active layer bottom roughness (with units).
 
         Returns
         -------
@@ -471,8 +476,8 @@ class Layer(object):
         return self._botroughness
 
     @bottom_roughness.setter
-    def bottom_roughness(self, val):
-        self._botroughness = val
+    def bottom_roughness(self, value):
+        self._botroughness = value
         self.update_stackup_layer()
 
     @property
@@ -891,13 +896,15 @@ class Layer(object):
 
         Parameters
         ----------
-        value :
-
+        value : str, float
+            Value of the quantity.
         units :
-             The default is ``None``.
+            Unit of the quantity. The default is ``None``.
 
         Returns
         -------
+        str
+            String containing both the value and the unit properly formatted.
 
         """
         if units is None:
@@ -964,9 +971,9 @@ class Layer(object):
                         "SideRoughness:=",
                         self._arg_with_dim(self.top_roughness, self.LengthUnitRough),
                         "Material:=",
-                        self.material.lower(),
+                        self._layers._app.materials[self.material].name if self.material != "" else "",
                         "FillMaterial:=",
-                        self.fill_material.lower(),
+                        self._layers._app.materials[self.fill_material].name if self.fill_material != "" else "",
                     ],
                     "Neg:=",
                     self._is_negative,
@@ -1056,7 +1063,7 @@ class Layer(object):
                         "SideRoughness:=",
                         0,
                         "Material:=",
-                        self.material.lower(),
+                        self.material,
                     ],
                 ]
             )
@@ -1153,7 +1160,8 @@ class Layers(object):
         References
         ----------
 
-        >>> oEditor = oDesign.SetActiveEditor("Layout")"""
+        >>> oEditor = oDesign.SetActiveEditor("Layout")
+        """
         return self._modeler.oeditor
 
     @property
@@ -1206,7 +1214,6 @@ class Layers(object):
 
         >>> oEditor.GetAllLayerNames()
         """
-
         return [v for k, v in self.layers.items() if v.type not in ["signal", "via", "dielectric"]]
 
     @property
@@ -1223,7 +1230,6 @@ class Layers(object):
 
         >>> oEditor.GetAllLayerNames()
         """
-
         return [v for k, v in self.layers.items() if v.type in ["signal", "via", "dielectric"]]
 
     @property
@@ -1235,7 +1241,6 @@ class Layers(object):
         List of :class:`pyaedt.modules.LayerStackup.Layer`
             List of signal layers.
         """
-
         return [v for k, v in self.layers.items() if v.type == "signal"]
 
     @property
@@ -1284,7 +1289,6 @@ class Layers(object):
 
         >>> oEditor.GetAllLayerNames()
         """
-
         return {k: v for k, v in self.layers.items() if v.type in ["signal", "via", "dielectric"]}
 
     @property
@@ -1304,7 +1308,7 @@ class Layers(object):
 
         Parameters
         ----------
-        name :  str
+        name : str
             Name of the layer.
 
         Returns
@@ -1323,7 +1327,7 @@ class Layers(object):
 
         Returns
         -------
-         Dict[int,  :class:`pyaedt.modules.LayerStackup.Layer`]
+         Dict[int, :class:`pyaedt.modules.LayerStackup.Layer`]
             Number of layers in the current stackup.
         """
         layers = OrderedDict({})

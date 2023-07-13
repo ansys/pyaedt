@@ -11,10 +11,11 @@ from math import sqrt
 from math import tan
 import os
 
+from pyaedt import Edb
 from pyaedt import Icepak
 from pyaedt.generic import LoadAEDTFile
-from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import normalize_path
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.advanced_cad.actors import Bird
@@ -102,7 +103,7 @@ class Primitives3D(Primitives, object):
         vArg1.append("YSize:="), vArg1.append(YSize)
         vArg1.append("ZSize:="), vArg1.append(ZSize)
         vArg2 = self._default_object_attributes(name=name, matname=matname)
-        new_object_name = _retry_ntimes(10, self.oeditor.CreateBox, vArg1, vArg2)
+        new_object_name = self.oeditor.CreateBox(vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @pyaedt_function_handler()
@@ -435,7 +436,7 @@ class Primitives3D(Primitives, object):
         first_argument.append("MinorRadius:="), first_argument.append(minor_radius)
         first_argument.append("WhichAxis:="), first_argument.append(axis)
         second_argument = self._default_object_attributes(name=name, matname=material_name)
-        new_object_name = _retry_ntimes(10, self.oeditor.CreateTorus, first_argument, second_argument)
+        new_object_name = self.oeditor.CreateTorus(first_argument, second_argument)
         return self._create_object(new_object_name)
 
     @pyaedt_function_handler()
@@ -452,7 +453,10 @@ class Primitives3D(Primitives, object):
         facets=6,
         name=None,
         matname=None,
+        cs_axis="Z",
     ):
+        # type : (list, list, float|str=0.2, float|str=0, float=80, float=5, int=0, float|str=0.025, int=6, str=None,
+        # str=None) -> Object3d
         """Create a bondwire.
 
         Parameters
@@ -463,12 +467,14 @@ class Primitives3D(Primitives, object):
         end_position :  list
             List of ``[x, y, z]`` coordinates for the ending position
             of the bond pad.
-        h1 : float, optional
+        h1 : float|str optional
             Height between the IC die I/O pad and the top of the bondwire.
+            If the height is provided as a parameter, its value has to be provided as value + unit.
             The default is ``0.2``.
-        h2 : float, optional
-            Height of the IC die I/O pad above the lead frame. The default
-            is ``0``. A negative value indicates that the I/O pad is below
+        h2 : float|str optional
+            Height of the IC die I/O pad above the lead frame.
+            If the height is provided as a parameter, its value has to be provided as value + unit.
+            The default is ``0``. A negative value indicates that the I/O pad is below
             the lead frame.
         alpha : float, optional
             Angle in degrees between the xy plane and the wire bond at the
@@ -484,7 +490,7 @@ class Primitives3D(Primitives, object):
             * ''2`` for Low
 
             The default is ''0``.
-        diameter : float, optional
+        diameter : float|str optional
             Diameter of the wire. The default is ``0.025``.
         facets : int, optional
             Number of wire facets. The default is ``6``.
@@ -494,6 +500,8 @@ class Primitives3D(Primitives, object):
         matname : str, optional
             Name of the material. The default is ``None``, in which case
             the default material is assigned.
+        cs_axis : str, optional
+            Coordinate system axis. The default is ``"Z"``.
 
         Returns
         -------
@@ -512,13 +520,33 @@ class Primitives3D(Primitives, object):
         >>> origin = [0,0,0]
         >>> endpos = [10,5,20]
         >>> #Material and name are not mandatory fields
-        >>> object_id = hfss.modeler.primivites.create_bondwire(origin, endpos,h1=0.5, h2=0.1, alpha=75, beta=4,
-        ...                                                     bond_type=0, name="mybox", matname="copper")
+        >>> object_id = hfss.modeler.create_bondwire(origin, endpos,h1=0.5, h2=0.1, alpha=75, beta=4,
+        ...                                          bond_type=0, name="mybox", matname="copper")
         """
         x_position, y_position, z_position = self._pos_with_arg(start_position)
+        x_position_end, y_position_end, z_position_end = self._pos_with_arg(end_position)
+
         if x_position is None or y_position is None or z_position is None:
             raise AttributeError("Position Argument must be a valid 3 Element List")
-        x_length, y_length, z_length = self._pos_with_arg([n - m for m, n in zip(start_position, end_position)])
+
+        cont = 0
+        x_length = None
+        y_length = None
+        z_length = None
+
+        for m, n in zip(start_position, end_position):
+            if not isinstance(m, str):
+                m = self._arg_with_dim(m)
+            if not isinstance(n, str):
+                n = self._arg_with_dim(n)
+            if cont == 0:
+                x_length = "(" + str(n) + ") - (" + str(m) + ")"
+            elif cont == 1:
+                y_length = "(" + str(n) + ") - (" + str(m) + ")"
+            elif cont == 2:
+                z_length = "(" + str(n) + ") - (" + str(m) + ")"
+            cont += 1
+
         if x_length is None or y_length is None or z_length is None:
             raise AttributeError("Dimension Argument must be a valid 3 Element List")
         if bond_type == 0:
@@ -540,14 +568,29 @@ class Primitives3D(Primitives, object):
         first_argument.append("XDir:="), first_argument.append(x_length)
         first_argument.append("YDir:="), first_argument.append(y_length)
         first_argument.append("ZDir:="), first_argument.append(z_length)
-        first_argument.append("Distance:="), first_argument.append(
-            self._arg_with_dim(GeometryOperators.points_distance(start_position, end_position))
+        distance = (
+            "sqrt(("
+            + str(x_position_end)
+            + "-("
+            + str(x_position)
+            + ")) ** 2 + ("
+            + str(y_position_end)
+            + "-("
+            + str(y_position)
+            + ")) ** 2 + ( "
+            + str(z_position_end)
+            + "-("
+            + str(z_position)
+            + ")) ** 2) meter"
         )
+
+        first_argument.append("Distance:="), first_argument.append(distance)
+
         first_argument.append("h1:="), first_argument.append(self._arg_with_dim(h1))
         first_argument.append("h2:="), first_argument.append(self._arg_with_dim(h2))
         first_argument.append("alpha:="), first_argument.append(self._arg_with_dim(alpha, "deg"))
         first_argument.append("beta:="), first_argument.append(self._arg_with_dim(beta, "deg"))
-        first_argument.append("WhichAxis:="), first_argument.append("Z")
+        first_argument.append("WhichAxis:="), first_argument.append(GeometryOperators.cs_axis_str(cs_axis))
         first_argument.append("ReverseDirection:="), first_argument.append(False)
         second_argument = self._default_object_attributes(name=name, matname=matname)
         new_object_name = self.oeditor.CreateBondwire(first_argument, second_argument)
@@ -993,6 +1036,10 @@ class Primitives3D(Primitives, object):
                 vArgParamVector.append(
                     ["NAME:UDMParam", "Name:=", name_param, "Value:=", str(val), "PropType2:=", 3, "PropFlag2:=", 4]
                 )
+            elif val in self._app.variable_manager.variables:
+                vArgParamVector.append(
+                    ["NAME:UDMParam", "Name:=", name_param, "Value:=", str(val), "PropType2:=", 3, "PropFlag2:=", 2]
+                )
             else:
                 vArgParamVector.append(
                     [
@@ -1317,7 +1364,6 @@ class Primitives3D(Primitives, object):
                 for cs in set(self._app.modeler.coordinate_systems) - old_cs:
                     if cs.ref_cs == "Global":
                         cs.ref_cs = targetCS
-                        cs.update()
             if aux_dict.get("monitor", None):
                 temp_proj_name = self._app._generate_unique_project_name()
                 ipkapp_temp = Icepak(projectname=os.path.join(self._app.toolkit_directory, temp_proj_name))
@@ -1421,6 +1467,253 @@ class Primitives3D(Primitives, object):
             return udm_obj, mapping_dict, aux_dict
         else:
             return udm_obj
+
+    @pyaedt_function_handler()
+    def insert_layout_component(
+        self,
+        comp_file,
+        coordinate_system="Global",
+        name=None,
+        parameter_mapping=False,
+        layout_coordinate_systems=[],
+    ):
+        """Insert a new layout component.
+
+        Parameters
+        ----------
+        comp_file : str
+            Path of the component file. Either ``".aedb"`` and ``".aedbcomp"`` are allowed.
+        coordinate_system : str, optional
+            Target coordinate system. The default is ``"Global"``.
+        name : str, optional
+            3D component name. The default is ``None``.
+        parameter_mapping : bool, optional
+            Map the layout parameters in the target HFSS design. The default is ``False``.
+        layout_coordinate_systems : list, optional
+            Coordinate system to import. The default is all available coordinate systems.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.components_3d.UserDefinedComponent`
+            User defined component object.
+
+        References
+        ----------
+
+        >>> oEditor.InsertNativeComponent
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> app = Hfss()
+        >>> layout_component = "path/to/layout_component/component.aedbcomp"
+        >>> comp = app.modeler.insert_layout_component(layout_component)
+
+        """
+        if self._app.solution_type != "Terminal" and self._app.solution_type != "TransientAPhiFormulation":
+            self.logger.warning("Solution type must be terminal in HFSS or APhi in Maxwell")
+            return False
+
+        component_name = os.path.splitext(os.path.basename(comp_file))[0]
+        aedt_component_name = component_name
+        if component_name not in self._app.o_component_manager.GetNames():
+            compInfo = ["NAME:" + str(component_name), "Info:=", []]
+
+            compInfo.extend(
+                [
+                    "CircuitEnv:=",
+                    0,
+                    "Refbase:=",
+                    "U",
+                    "NumParts:=",
+                    1,
+                    "ModSinceLib:=",
+                    True,
+                    "Terminal:=",
+                    [],
+                    "CompExtID:=",
+                    9,
+                    "ModelEDBFilePath:=",
+                    comp_file,
+                    "EDBCompPassword:=",
+                    "",
+                ]
+            )
+
+            aedt_component_name = self._app.o_component_manager.Add(compInfo)
+
+        if not name or name in self.modeler.user_defined_component_names:
+            name = generate_unique_name("LC")
+
+        # Open Layout component and get information
+        aedb_component_path = comp_file
+        if os.path.splitext(os.path.basename(comp_file))[1] == ".aedbcomp":
+            aedb_project_path = os.path.join(self._app.project_path, self._app.project_name + ".aedb")
+            aedb_component_path = os.path.join(
+                aedb_project_path, "LayoutComponents", aedt_component_name, aedt_component_name + ".aedb"
+            )
+            aedb_component_path = normalize_path(aedb_component_path)
+
+        component_obj = Edb(
+            edbpath=aedb_component_path,
+            isreadonly=True,
+            edbversion=self._app._aedt_version,
+            student_version=self._app.student_version,
+        )
+
+        # Extract and map parameters
+        parameters = {}
+        for param in component_obj.design_variables:
+            parameters[param] = [param + "_" + name, component_obj.design_variables[param].value_string]
+            if parameter_mapping:
+                self._app[param + "_" + name] = component_obj.design_variables[param].value_string
+
+        # Get coordinate systems
+        component_cs = list(component_obj.components.instances.keys())
+
+        component_obj.close_edb()
+
+        vArg1 = ["NAME:InsertNativeComponentData"]
+        vArg1.append("TargetCS:=")
+        vArg1.append(coordinate_system)
+        vArg1.append("SubmodelDefinitionName:=")
+        vArg1.append("LC")
+        varg2 = ["NAME:ComponentPriorityLists"]
+        vArg1.append(varg2)
+        vArg1.append("NextUniqueID:=")
+        vArg1.append(0)
+        vArg1.append("MoveBackwards:=")
+        vArg1.append(False)
+        vArg1.append("DatasetType:=")
+        vArg1.append("ComponentDatasetType")
+        varg3 = ["NAME:DatasetDefinitions"]
+        vArg1.append(varg3)
+        varg4 = [
+            "NAME:BasicComponentInfo",
+            "ComponentName:=",
+            "LC",
+            "Company:=",
+            "",
+            "Company URL:=",
+            "",
+            "Model Number:=",
+            "",
+            "Help URL:=",
+            "",
+            "Version:=",
+            "1.0",
+            "Notes:=",
+            "",
+            "IconType:=",
+            "Layout Component",
+        ]
+        vArg1.append(varg4)
+        varg5 = [
+            "NAME:GeometryDefinitionParameters",
+        ]
+        if parameters and parameter_mapping:
+            for param in parameters:
+                varg5.append("VariableProp:=")
+                varg5.append([parameters[param][0], "D", "", parameters[param][1]])
+
+        varg5.append(["NAME:VariableOrders"])
+        vArg1.append(varg5)
+
+        varg6 = ["NAME:DesignDefinitionParameters", ["NAME:VariableOrders"]]
+        vArg1.append(varg6)
+
+        varg7 = ["NAME:MaterialDefinitionParameters", ["NAME:VariableOrders"]]
+        vArg1.append(varg7)
+
+        vArg1.append("DefReferenceCSID:=")
+        vArg1.append(1)
+        vArg1.append("MapInstanceParameters:=")
+        vArg1.append("DesignVariable")
+        vArg1.append("UniqueDefinitionIdentifier:=")
+        vArg1.append("")
+        vArg1.append("OriginFilePath:=")
+        vArg1.append("")
+        vArg1.append("IsLocal:=")
+        vArg1.append(False)
+        vArg1.append("ChecksumString:=")
+        vArg1.append("")
+        vArg1.append("ChecksumHistory:=")
+        vArg1.append([])
+        vArg1.append("VersionHistory:=")
+        vArg1.append([])
+
+        varg8 = ["NAME:VariableMap"]
+
+        for param in parameters:
+            varg8.append(param + ":=")
+            if parameter_mapping:
+                varg8.append(parameters[param][0])
+            else:
+                varg8.append(parameters[param][1])
+
+        varg9 = [
+            "NAME:NativeComponentDefinitionProvider",
+            "Type:=",
+            "Layout Component",
+            "Unit:=",
+            "mm",
+            "Version:=",
+            1.1,
+            "EDBDefinition:=",
+            aedt_component_name,
+            varg8,
+            "ReferenceCS:=",
+            "Global",
+            "CSToImport:=",
+        ]
+
+        if component_cs and not layout_coordinate_systems:  # pragma: no cover
+            varg10 = component_cs
+            varg10.append("Global")
+        elif component_cs and layout_coordinate_systems:  # pragma: no cover
+            varg10 = ["Global"]
+            for cs in layout_coordinate_systems:
+                if cs in component_cs:
+                    varg10.append(cs)
+        else:
+            varg10 = ["Global"]
+
+        varg9.append(varg10)
+        vArg1.append(varg9)
+
+        varg11 = ["NAME:InstanceParameters"]
+        varg11.append("GeometryParameters:=")
+
+        if parameters and parameter_mapping:
+            varg12 = ""
+            for param in parameters:
+                varg12 += " {0}='{1}'".format(parameters[param][0], parameters[param][0])
+        else:
+            varg12 = ""
+        varg11.append(varg12[1:])
+
+        varg11.append("MaterialParameters:=")
+        varg11.append("")
+        varg11.append("DesignParameters:=")
+        varg11.append("")
+        vArg1.append(varg11)
+
+        try:
+            new_object_name = self.oeditor.InsertNativeComponent(vArg1)
+            udm_obj = False
+            if new_object_name:
+                obj_list = list(self.oeditor.Get3DComponentPartNames(new_object_name))
+                for new_name in obj_list:
+                    self._create_object(new_name)
+
+                udm_obj = self._create_user_defined_component(new_object_name)
+
+                if name:
+                    udm_obj.name = name
+
+        except Exception:  # pragma: no cover
+            udm_obj = False
+        return udm_obj
 
     @pyaedt_function_handler()
     def get_3d_component_object_list(self, componentname):

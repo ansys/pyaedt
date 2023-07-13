@@ -9,6 +9,7 @@ from _unittest.conftest import config
 from _unittest.conftest import local_path
 
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
+from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 
 test_subfolder = "T13"
 if config["desktopVersion"] > "2022.2":
@@ -53,6 +54,7 @@ class TestClass(BasisTest, object):
         self.mat1 = BasisTest.add_app(self, "Add_material")
         hfss_file = os.path.join(local_path, "example_models", test_subfolder, test_project_name + ".aedt")
         self.project_dict = load_entire_aedt_file(hfss_file)
+        self.project_sub_key = load_keyword_in_aedt_file(hfss_file, "AnsoftProject")
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -61,6 +63,8 @@ class TestClass(BasisTest, object):
         assert "AnsoftProject" in list(self.project_dict.keys())
         assert "AllReferencedFilesForProject" in list(self.project_dict.keys())
         assert "ProjectPreview" in list(self.project_dict.keys())
+        assert ["AnsoftProject"] == list(self.project_sub_key.keys())
+        assert self.project_dict["AnsoftProject"] == self.project_sub_key["AnsoftProject"]
 
     def test_02_check_design_info(self):
         design_info = self.project_dict["ProjectPreview"]["DesignInfo"]
