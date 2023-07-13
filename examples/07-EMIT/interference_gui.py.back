@@ -82,7 +82,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     ###############################################################################
     # Setup widgets
     # ~~~~~~~~~~~~~
-    # Define all widgets from the .ui file, connect the widgets to functions, define 
+    # Define all widgets from the UI file, connect the widgets to functions, define 
     # table colors, and format table settings. 
     
     def setup_widgets(self):
@@ -270,9 +270,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.protection_levels[index] = values
 
     ###############################################################################
-    # Save scenario matrix to as png file 
+    # Save scenario matrix to as PNG file 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # Save the scenario matrix table as a png file.
+    # Save the scenario matrix table as a PNG file.
 
     def save_image(self):
         if self.tab_widget.currentIndex() == 0:
@@ -441,8 +441,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 ###############################################################################
 # Run GUI
 # ~~~~~~~
-# Launch the GUI. Ensure that window.show() and app.exec_() are 
-# uncommented to run the GUI. 
+# Launch the GUI. If you want to run the GUI, uncomment the ``window.show()`` and
+# ``app.exec_()`` method calls. 
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication([])
