@@ -74,7 +74,7 @@ class Primitives(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d.Object3d`
+        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
         self._refresh_solids()
@@ -86,7 +86,7 @@ class Primitives(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d.Object3d`
+        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
         self._refresh_sheets()
@@ -98,7 +98,7 @@ class Primitives(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d.Object3d`
+        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
         self._refresh_lines()
@@ -110,7 +110,7 @@ class Primitives(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d.Object3d`
+        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
         return [v for v in list(self.points.values())]
@@ -121,7 +121,7 @@ class Primitives(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d.Object3d`
+        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
         self._refresh_unclassified()
@@ -133,7 +133,7 @@ class Primitives(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d.Object3d`
+        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
         self._refresh_object_types()
@@ -516,7 +516,7 @@ class Primitives(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
            Updated 3D object.
 
         """
@@ -608,7 +608,7 @@ class Primitives(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             Region object.
 
         References
@@ -1061,7 +1061,7 @@ class Primitives(object):
 
         Parameters
         ----------
-        src_object : :class:`pyaedt.modeler.object3d.Object3d`
+        src_object : :class:`pyaedt.modeler.cad.object3d.Object3d`
             An existing polyline object in the 3D Modeler.
 
         Returns
@@ -1088,7 +1088,7 @@ class Primitives(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             UDP object created.
 
         References
@@ -1321,7 +1321,7 @@ class Primitives(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object returned.
 
         """
@@ -3220,7 +3220,7 @@ class Primitives(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             Returns None if the part ID or the object name is not found.
 
         """

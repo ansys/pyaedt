@@ -2638,7 +2638,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d.Object3d`
+        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             List of split objects.
 
         References
@@ -2960,7 +2960,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        pyaedt.modeler.object3d.Object3d
+        pyaedt.modeler.cad.object3d.Object3d
 
         References
         ----------
@@ -2998,7 +2998,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        pyaedt.modeler.object3d.Object3d
+        pyaedt.modeler.cad.object3d.Object3d
 
         References
         ----------
@@ -3922,7 +3922,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
 
         References

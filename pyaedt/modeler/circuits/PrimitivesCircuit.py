@@ -291,7 +291,7 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -324,7 +324,7 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -631,7 +631,7 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -685,7 +685,7 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -1114,7 +1114,7 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.Line`
+        :class:`pyaedt.modeler.cad.object3dcircuit.Line`
             Line Object.
 
         >>> oEditor.CreateLine
@@ -1140,7 +1140,7 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.Wire`
+        :class:`pyaedt.modeler.cad.object3dcircuit.Wire`
             Wire Object.
 
         References
@@ -1209,7 +1209,7 @@ class ComponentInfo(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
