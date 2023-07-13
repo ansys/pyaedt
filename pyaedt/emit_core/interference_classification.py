@@ -3,7 +3,7 @@ from pyaedt.emit_core.emit_constants import ResultType
 from pyaedt.emit_core.emit_constants import TxRxMode
 
 
-def interference_type_classification(emitapp, use_filter=False, filter=[]):
+def interference_type_classification(emitapp, use_filter=False, filter_list=None):
     """
     Classify interference type as according to inband/inband,
     out of band/in band, inband/out of band, and out of band/out of band.
@@ -13,7 +13,7 @@ def interference_type_classification(emitapp, use_filter=False, filter=[]):
         emitapp : instance of Emit
         use_filter : bool, optional
             Whether filtering is being used. The default is ``False``.
-        filter : list, optional
+        filter_list : list, optional
             List of filter values selected by the user via the GUI if filtering is in use.
 
         Returns
@@ -54,12 +54,12 @@ def interference_type_classification(emitapp, use_filter=False, filter=[]):
             tx_bands = rev.get_band_names(tx_radio, modeTx)
             tx_band_objects = radios[tx_radio].bands()
 
-            for i in range(len(rx_bands)):
+            for i, rx_band in enumerate(rx_bands):
                 # Find the highest power level at the Rx input due to each Tx Radio.
                 # Can look at any Rx freq since susceptibility won't impact
                 # powerAtRx, but need to look at all tx channels since coupling
                 # can change over a transmitter's bandwidth
-                rx_freq = rev.get_active_frequencies(rx_radio, rx_bands[i], modeRx)[0]
+                rx_freq = rev.get_active_frequencies(rx_radio, rx_band, modeRx)[0]
 
                 # The start and stop frequencies define the Band's extents,
                 # while the active frequencies are a subset of the Band's frequencies
@@ -68,14 +68,14 @@ def interference_type_classification(emitapp, use_filter=False, filter=[]):
                 rx_stop_freq = radios[rx_radio].band_stop_frequency(rx_band_objects[i])
                 rx_channel_bandwidth = radios[rx_radio].band_channel_bandwidth(rx_band_objects[i])
 
-                for j in range(len(tx_bands)):
-                    domain.set_receiver(rx_radio, rx_bands[i])
-                    domain.set_interferer(tx_radio, tx_bands[j])
+                for j, tx_band in enumerate(tx_bands):
+                    domain.set_receiver(rx_radio, rx_band)
+                    domain.set_interferer(tx_radio, tx_band)
                     interaction = rev.run(domain)
-                    domain.set_receiver(rx_radio, rx_bands[i], rx_freq)
-                    tx_freqs = rev.get_active_frequencies(tx_radio, tx_bands[j], modeTx)
+                    domain.set_receiver(rx_radio, rx_band, rx_freq)
+                    tx_freqs = rev.get_active_frequencies(tx_radio, tx_band, modeTx)
                     for tx_freq in tx_freqs:
-                        domain.set_interferer(tx_radio, tx_bands[j], tx_freq)
+                        domain.set_interferer(tx_radio, tx_band, tx_freq)
                         instance = interaction.get_instance(domain)
                         tx_prob = instance.get_largest_problem_type(mode_power).replace(" ", "").split(":")[1]
                         if (
@@ -123,7 +123,12 @@ def interference_type_classification(emitapp, use_filter=False, filter=[]):
 
 
 def protection_level_classification(
-    emitapp, global_protection_level=True, global_levels=[], protection_levels={}, use_filter=False, filter=[]
+    emitapp,
+    global_protection_level=True,
+    global_levels=None,
+    protection_levels=None,
+    use_filter=False,
+    filter_list=None,
 ):
     """
     Classify worst-case power at each Rx radio according to interference type.
@@ -142,7 +147,7 @@ def protection_level_classification(
             Dictionary of protection levels for each Rx radio.
         use_filter : bool, optional
             Whether to use filtering. The default is ``False``.
-        filter : list, optional
+        filter_list : list, optional
             List of filter values selected by the user via the GUI if filtering is in use.
 
         Returns
@@ -164,13 +169,11 @@ def protection_level_classification(
     rx_radios = rev.get_receiver_names()
     tx_radios = rev.get_interferer_names(tx_interferer)
     domain = emitapp.results.interaction_domain()
-    radios = emitapp.modeler.components.get_radios()
 
     if global_protection_level:
         damage_threshold = global_levels[0]
         overload_threshold = global_levels[1]
         intermod_threshold = global_levels[2]
-        desense_threshold = global_levels[3]
 
     for tx_radio in tx_radios:
         rx_powers = []
@@ -182,7 +185,6 @@ def protection_level_classification(
                 damage_threshold = protection_levels[rx_radio][0]
                 overload_threshold = protection_levels[rx_radio][1]
                 intermod_threshold = protection_levels[rx_radio][2]
-                desense_threshold = protection_levels[rx_radio][3]
 
             rx_band = rev.get_band_names(rx_radio, modeRx)[0]
             if tx_radio == rx_radio:
@@ -225,7 +227,7 @@ def protection_level_classification(
                     power_list.append(power)
 
                     if use_filter:
-                        filtering = classification in filter
+                        filtering = classification in filter_list
                     else:
                         filtering = True
 
