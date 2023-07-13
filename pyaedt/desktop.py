@@ -269,7 +269,7 @@ def _delete_objects():
 
 
 @pyaedt_function_handler()
-def close_aedt_application(close_projects, close_desktop, is_grpc_api):
+def _close_aedt_application(close_projects, close_desktop, is_grpc_api):
     """Release the AEDT API.
 
     Parameters
@@ -1570,7 +1570,7 @@ class Desktop(object):
         >>> desktop.release_desktop(close_projects=False, close_on_exit=False) # doctest: +SKIP
 
         """
-        result = close_aedt_application(close_projects, close_on_exit, self.is_grpc_api)
+        result = _close_aedt_application(close_projects, close_on_exit, self.is_grpc_api)
         del self._sessions[self.aedt_process_id]
         props = [a for a in dir(self) if not a.startswith("__")]
         for a in props:
@@ -1587,6 +1587,10 @@ class Desktop(object):
                 dict_to_clean.__dict__[a] = None
 
         self.odesktop = None
+        try:
+            del sys.modules["__main__"].oDesktop
+        except AttributeError:
+            pass
         gc.collect()
         return result
 
