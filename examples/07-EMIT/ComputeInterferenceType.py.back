@@ -16,7 +16,7 @@ import pyaedt
 import os
 import pyaedt.generic.constants as consts
 import subprocess
-from interference_classification import interference_classification
+from pyaedt.emit_core.interference_classification import interference_type_classification, protection_level_classification
 
 # Check to see which Python libraries have been installed
 reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])

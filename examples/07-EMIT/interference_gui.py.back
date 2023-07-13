@@ -17,7 +17,7 @@ import pyaedt
 import os
 import subprocess
 import pyaedt.generic.constants as consts
-from interference_classification import interference_type_classification, protection_level_classification
+from pyaedt.emit_core.interference_classification import interference_type_classification, protection_level_classification
 
 # Check that emit is a compatible version
 emitapp_desktop_version = "2023.2"
