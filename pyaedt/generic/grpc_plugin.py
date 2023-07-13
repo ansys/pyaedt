@@ -117,7 +117,9 @@ class AedtObjWrapper:
         try:
             if settings.enable_debug_grpc_api_logger:
                 settings.logger.debug("{}{}".format(funcName, argv))
-            return _retry_ntimes(3, AedtAPI.InvokeAedtObjMethod, self.objectID, funcName, argv)  # Call C function
+            return _retry_ntimes(
+                settings.number_of_grpc_api_retries, AedtAPI.InvokeAedtObjMethod, self.objectID, funcName, argv
+            )  # Call C function
         except BaseException as e:
             raise GrpcApiError("Failed to execute grpc AEDT command:  {}".format(funcName))
 

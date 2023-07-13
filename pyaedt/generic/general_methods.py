@@ -1812,6 +1812,21 @@ class Settings(object):
         self._desktop_launch_timeout = 90
         self._aedt_process_id = None
         self._is_student = False
+        self._number_of_grpc_api_retries = 3
+
+    @property
+    def number_of_grpc_api_retries(self):
+        """Number of Grpc API retries. Default is 3.
+
+        Returns
+        -------
+        int
+        """
+        return self._number_of_grpc_api_retries
+
+    @number_of_grpc_api_retries.setter
+    def number_of_grpc_api_retries(self, value):
+        self._number_of_grpc_api_retries = int(value)
 
     @property
     def aedt_process_id(self):
