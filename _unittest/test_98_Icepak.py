@@ -1287,7 +1287,9 @@ class TestClass(BasisTest, object):
         self.aedtapp.modeler.create_coordinate_system(
             origin=[1, 1, 1], name=cs_name, mode="zxz", phi=10, theta=30, psi=50
         )
-        self.aedtapp.change_region_coordinate_system(region_cs=cs_name)
+        assert self.aedtapp.change_region_coordinate_system(region_cs=cs_name)
+        assert not self.aedtapp.change_region_coordinate_system(region_cs="NoCS")
+
         assert self.aedtapp.change_region_padding("10mm", padding_type="Absolute Offset", direction="-X")
         assert self.aedtapp.change_region_padding(
             ["1mm", "-2mm", "3mm", "-4mm", "5mm", "-6mm"],
@@ -1301,13 +1303,5 @@ class TestClass(BasisTest, object):
             ],
         )
         assert not self.aedtapp.change_region_padding(
-            ["-1mm", "2mm", "-3mm", "4mm", "-5mm", "6mm"],
-            padding_type=[
-                "Absolute Position",
-                "Absolute Position",
-                "Absolute Position",
-                "Absolute Position",
-                "Absolute Position",
-                "Absolute Position",
-            ],
+            "10mm", padding_type="Absolute Offset", direction="-X", region_name="NoRegion"
         )

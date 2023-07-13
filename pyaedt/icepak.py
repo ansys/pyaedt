@@ -4726,7 +4726,7 @@ class Icepak(FieldAnalysis3D):
         padding_type : str or list of str
             Padding type. Available options are ``"Percentage Offset"``, ``"Transverse Percentage Offset"``,
             ``"Absolute Offset"``, ``"Absolute Position"``.
-        direction: str or list of str, optional
+        direction : str or list of str, optional
             Direction to which apply the padding settings. A direction can be ``"+X"``, ``"-X"``,
             `"+Y"``, ``"-Y"``, ``"+Z"`` or ``"-Z"``. Default is ``None``, in which case all the
             directions are used (in the order written in the previous sentence).
@@ -4736,7 +4736,7 @@ class Icepak(FieldAnalysis3D):
         Returns
         -------
         bool
-            ``True`` if successful, else ``None``
+            ``True`` if successful, else ``None``.
 
         Examples
         ----------
@@ -4744,7 +4744,6 @@ class Icepak(FieldAnalysis3D):
         >>> ipk = pyaedt.Icepak()
         >>> ipk.change_region_padding("10mm", padding_type="Absolute Offset", direction="-X")
         """
-        create_region_name = self.modeler.oeditor.GetChildObject(region_name).GetChildNames()[0]
         available_directions = ["+X", "-X", "+Y", "-Y", "+Z", "-Z"]
         available_paddings = [
             "Percentage Offset",
@@ -4771,20 +4770,25 @@ class Icepak(FieldAnalysis3D):
             modify_props.append(["NAME:" + direction[i] + " Padding Type", "Value:=", padding_type[i]])
             modify_props.append(["NAME:" + direction[i] + " Padding Data", "Value:=", padding_data[i]])
 
-        return self.modeler.oeditor.ChangeProperty(
-            list(
-                [
-                    "NAME:AllTabs",
-                    list(
-                        [
-                            "NAME:Geometry3DCmdTab",
-                            list(["NAME:PropServers", region_name + ":" + create_region_name]),
-                            list(["NAME:ChangedProps"] + modify_props),
-                        ]
-                    ),
-                ]
+        try:
+            create_region_name = self.modeler.oeditor.GetChildObject(region_name).GetChildNames()[0]
+            self.modeler.oeditor.ChangeProperty(
+                list(
+                    [
+                        "NAME:AllTabs",
+                        list(
+                            [
+                                "NAME:Geometry3DCmdTab",
+                                list(["NAME:PropServers", region_name + ":" + create_region_name]),
+                                list(["NAME:ChangedProps"] + modify_props),
+                            ]
+                        ),
+                    ]
+                )
             )
-        )
+            return True
+        except Exception:
+            return False
 
     @pyaedt_function_handler
     def change_region_coordinate_system(self, region_cs="Global", region_name="Region"):
@@ -4801,7 +4805,7 @@ class Icepak(FieldAnalysis3D):
         Returns
         -------
         bool
-            ``True`` if successful, else ``None``
+            ``True`` if successful, else ``None``.
 
         Examples
         ----------
@@ -4810,18 +4814,22 @@ class Icepak(FieldAnalysis3D):
         >>> ipk.modeler.create_coordinate_system(origin=[1, 1, 1], name="NewCS")
         >>> ipk.change_region_coordinate_system(region_cs="NewCS")
         """
-        create_region_name = self.modeler.oeditor.GetChildObject(region_name).GetChildNames()[0]
-        return self.modeler.oeditor.ChangeProperty(
-            list(
-                [
-                    "NAME:AllTabs",
-                    list(
-                        [
-                            "NAME:Geometry3DCmdTab",
-                            list(["NAME:PropServers", region_name + ":" + create_region_name]),
-                            list(["NAME:ChangedProps", list(["NAME:Coordinate System", "Value:=", region_cs])]),
-                        ]
-                    ),
-                ]
+        try:
+            create_region_name = self.modeler.oeditor.GetChildObject(region_name).GetChildNames()[0]
+            self.modeler.oeditor.ChangeProperty(
+                list(
+                    [
+                        "NAME:AllTabs",
+                        list(
+                            [
+                                "NAME:Geometry3DCmdTab",
+                                list(["NAME:PropServers", region_name + ":" + create_region_name]),
+                                list(["NAME:ChangedProps", list(["NAME:Coordinate System", "Value:=", region_cs])]),
+                            ]
+                        ),
+                    ]
+                )
             )
-        )
+            return True
+        except Exception:
+            return False
