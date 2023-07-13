@@ -36,7 +36,8 @@ from pyaedt.application.design_solutions import solutions_defaults
 from pyaedt.desktop import Desktop
 from pyaedt.desktop import exception_to_desktop
 from pyaedt.desktop import get_version_env_variable
-from pyaedt.desktop import release_desktop
+
+# from pyaedt.desktop import release_desktop
 from pyaedt.generic.DataHandlers import variation_string_to_dict
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.generic.constants import AEDT_UNITS
@@ -120,7 +121,9 @@ class Design(AedtObjects):
     def __exit__(self, ex_type, ex_value, ex_traceback):
         if ex_type:
             exception_to_desktop(ex_value, ex_traceback)
-        if self.release_on_exit:
+        if self._desktop_class._connected_designs > 1:
+            self._desktop_class._connected_designs -= 1
+        else:
             self.release_desktop(self.close_on_exit, self.close_on_exit)
 
     def __enter__(self):
@@ -195,30 +198,42 @@ class Design(AedtObjects):
         self._global_logger = pyaedt_logger
         self._logger = pyaedt_logger
         self._desktop_class = None
-        if "pyaedt_initialized" not in dir(main_module):
-            self._desktop_class = Desktop(
-                specified_version,
-                non_graphical,
-                new_desktop_session,
-                close_on_exit,
-                student_version,
-                machine,
-                port,
-                aedt_process_id,
-            )
-            self.release_on_exit = True
-        else:
-            self._desktop_class = Desktop(
-                settings.aedt_version,
-                settings.non_graphical,
-                False,
-                close_on_exit,
-                student_version,
-                settings.machine,
-                settings.port,
-                settings.aedt_process_id,
-            )
-            self.release_on_exit = False
+        self._desktop_class = Desktop(
+            specified_version,
+            non_graphical,
+            new_desktop_session,
+            close_on_exit,
+            student_version,
+            machine,
+            port,
+            aedt_process_id,
+        )
+        self._desktop_class._connected_designs += 1
+
+        # if "pyaedt_initialized" not in dir(main_module):
+        #     self._desktop_class = Desktop(
+        #         specified_version,
+        #         non_graphical,
+        #         new_desktop_session,
+        #         close_on_exit,
+        #         student_version,
+        #         machine,
+        #         port,
+        #         aedt_process_id,
+        #     )
+        #     self.release_on_exit = True
+        # else:
+        #     self._desktop_class = Desktop(
+        #         settings.aedt_version,
+        #         settings.non_graphical,
+        #         False,
+        #         close_on_exit,
+        #         student_version,
+        #         settings.machine,
+        #         settings.port,
+        #         settings.aedt_process_id,
+        #     )
+        #     self.release_on_exit = False
 
         self.student_version = self._desktop_class.student_version
         if self.student_version:
@@ -2305,7 +2320,7 @@ class Design(AedtObjects):
             ``True`` when successful, ``False`` when failed.
 
         """
-        release_desktop()
+        self.release_desktop()
         return True
 
     @pyaedt_function_handler()
@@ -2360,7 +2375,7 @@ class Design(AedtObjects):
 
         """
         self.desktop_class.release_desktop(close_projects, close_desktop)
-        release_desktop(close_projects, close_desktop)
+        # release_desktop(close_projects, close_desktop)
         props = [a for a in dir(self) if not a.startswith("__")]
         for a in props:
             self.__dict__.pop(a, None)

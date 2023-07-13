@@ -54,6 +54,9 @@ from pyaedt.misc import current_student_version
 from pyaedt.misc import current_version
 from pyaedt.misc import installed_versions
 
+# from pyaedt.generic.general_methods import _desktop_sessions
+
+
 pathname = os.path.dirname(__file__)
 
 pyaedtversion = __version__
@@ -70,7 +73,7 @@ modules = [tup[1] for tup in pkgutil.iter_modules()]
 
 
 @pyaedt_function_handler()
-def launch_aedt(full_path, non_graphical, port, first_run=True):
+def launch_aedt(full_path, non_graphical, port, student_version, first_run=True):
     """Launch AEDT in gRPC mode."""
 
     def launch_desktop_on_port():
@@ -96,7 +99,7 @@ def launch_aedt(full_path, non_graphical, port, first_run=True):
     k = 0
     while not _check_grpc_port(port):
         if k > timeout:  # pragma: no cover
-            active_s = active_sessions(student_version=settings.is_student)
+            active_s = active_sessions(student_version=student_version)
             for pid in active_s:
                 if port == active_s[pid]:
                     try:
@@ -105,7 +108,7 @@ def launch_aedt(full_path, non_graphical, port, first_run=True):
                         pass
             if first_run:
                 port = _find_free_port()
-                return launch_aedt(full_path, non_graphical, port, first_run=False)
+                return launch_aedt(full_path, non_graphical, port, student_version, first_run=False)
             return False, _find_free_port()
         time.sleep(1)
         k += 1
@@ -266,7 +269,7 @@ def _delete_objects():
 
 
 @pyaedt_function_handler()
-def release_desktop(close_projects, close_desktop, is_grpc_api):
+def close_aedt_application(close_projects, close_desktop, is_grpc_api):
     """Release the AEDT API.
 
     Parameters
@@ -488,6 +491,25 @@ class Desktop(object):
     PyAEDT INFO: No project is defined. Project...
     """
 
+    _sessions = {}
+
+    def __new__(cls, *args, **kwargs):
+        specified_version = kwargs.get("specified_version") or None if not args else args[0]
+        new_desktop_session = kwargs.get("new_desktop_session") or True if not args else args[2]
+        student_version = kwargs.get("student_version") or False if not args else args[4]
+        machine = kwargs.get("machine") or "" if not args else args[5]
+        port = kwargs.get("port") or 0 if not args else args[6]
+        aedt_process_id = kwargs.get("aedt_process_id") or None if not args else args[7]
+
+        print(cls._sessions)
+
+        if len(cls._sessions.keys()) > 0:
+            print("Returning found desktop!")
+            return list(cls._sessions.values())[0]
+        else:
+            print("Initializing new desktop!")
+            return object.__new__(cls)
+
     def __init__(
         self,
         specified_version=None,
@@ -499,6 +521,12 @@ class Desktop(object):
         port=0,
         aedt_process_id=None,
     ):
+        if getattr(self, "_initialized", None) is not None and self._initialized:
+            return
+        else:
+            self._initialized = True
+        self._connected_designs = 0
+
         """Initialize desktop."""
 
         # Used in unit tests. Env variable PYAEDT_NON_GRAPHICAL override the argument "non_graphical"
@@ -538,11 +566,10 @@ class Desktop(object):
             self._logger.disable_stdout_log()
         self._logger.info("using existing logger.")
 
-        self.student_version, version_key, version = self._assert_version(specified_version, student_version)
+        student_version_flag, version_key, version = self._assert_version(specified_version, student_version)
 
         # start open AEDT decision tree
         # starting_mode can be one of these: "grpc", "com", "ironpython", "console_in", "console_out"
-        starting_mode = None
         if "oDesktop" in dir():  # pragma: no cover
             # we are inside the AEDT Ironpython console
             starting_mode = "console_in"
@@ -558,7 +585,7 @@ class Desktop(object):
         elif aedt_process_id and not new_desktop_session and not is_ironpython:  # pragma: no cover
             # connecting to an existing session has the precedence over use_grpc_api user preference
             sessions = active_sessions(
-                version=specified_version, student_version=student_version, non_graphical=non_graphical
+                version=specified_version, student_version=student_version_flag, non_graphical=non_graphical
             )
             if aedt_process_id in sessions:
                 if sessions[aedt_process_id] != -1:
@@ -573,6 +600,7 @@ class Desktop(object):
                     )
                 )
         elif float(version_key) < 2022.2:
+            self._logger.warning()
             starting_mode = "com"
         elif float(version_key) == 2022.2:
             if self.machine and self.port:
@@ -605,7 +633,7 @@ class Desktop(object):
             # settings.is_student = is_student_version(self._main.oDesktop)
         else:
             settings.aedt_version = version_key
-            settings.is_student = self.student_version
+            # settings.is_student = self.student_version
             settings.non_graphical = non_graphical
             if "oDesktop" in dir(self._main):
                 del self._main.oDesktop
@@ -614,17 +642,17 @@ class Desktop(object):
                 self._init_ironpython(non_graphical, new_desktop_session, version)
             elif starting_mode == "com":
                 self._logger.info("Launching PyAEDT outside AEDT with CPython and PythonNET.")
-                self._init_cpython_com(
+                self._init_dotnet(
                     non_graphical,
                     new_desktop_session,
                     version,
-                    self.student_version,
+                    student_version_flag,
                     version_key,
                     aedt_process_id,
                 )
             elif starting_mode == "grpc":
                 self._logger.info("Launching PyAEDT outside AEDT with gRPC plugin.")
-                self._init_cpython_grpc(non_graphical, new_desktop_session, version, self.student_version, version_key)
+                self._init_grpc(non_graphical, new_desktop_session, version, student_version_flag, version_key)
 
         # # console di Ironpython dentro AEDT
         # if "oDesktop" in dir():  # pragma: no cover
@@ -724,14 +752,16 @@ class Desktop(object):
         # settings.aedt_process_id = self.aedt_process_id
 
         current_is_student = is_student_version(self._main.oDesktop)
-        if not (student_version and current_is_student):
+        if student_version ^ current_is_student:
             self._logger.warning(
                 "AEDT started as {} Version, but requested as {} Version.".format(
                     "Student" if current_is_student else "Regular", "Student" if student_version else "Regular"
                 )
             )
-        self.is_student = current_is_student
+        self.student_version = current_is_student
         # settings.is_student = student_version
+
+        self.aedt_version_id = self._main.oDesktop.GetVersion()[0:6]
 
         self._logger.info("AEDT %s Build Date %s", self.odesktop.GetVersion(), self.odesktop.GetBuildDateTimeString())
 
@@ -739,6 +769,10 @@ class Desktop(object):
             sys.path.append(
                 os.path.join(self._main.sDesktopinstallDirectory, "common", "commonfiles", "IronPython", "DLLs")
             )
+
+        # save the current desktop session in the database
+        # _desktop_sessions.add(self)
+        self._sessions[self.aedt_process_id] = self
 
     def __enter__(self):
         return self
@@ -855,36 +889,78 @@ class Desktop(object):
         settings.enable_desktop_logs = not settings.non_graphical
 
     def _assert_version(self, specified_version, student_version):
-        student_version_flag = False
-        if specified_version:
-            if float(specified_version) < 2021:
-                if float(specified_version) < 2019:
-                    raise ValueError("PyAEDT supports AEDT version 2021 R1 and later.")
-                else:
-                    warnings.warn(
-                        """PyAEDT has limited capabilities when used with an AEDT version earlier than 2021 R1.
-                        PyAEDT officially supports AEDT version 2021 R1 and later."""
-                    )
-            if student_version:
-                specified_version += "SV"
-                student_version_flag = True
-            if not specified_version in self.installed_versions:
-                raise ValueError("Specified version {} is not installed on your system".format(specified_version))
-            version_key = specified_version
-        else:
-            if student_version and self.current_student_version:
-                version_key = self.current_student_version
-                student_version_flag = True
+        # avoid evaluating the env variables multiple times
+        self_current_version = self.current_version
+        self_current_student_version = self.current_student_version
+
+        if current_version == "":
+            raise Exception("AEDT is not installed on your system. Please install AEDT version 2022 R2 or higher.")
+        if not specified_version:
+            if student_version and self_current_student_version:
+                specified_version = self_current_student_version
+            elif student_version and self_current_version:
+                specified_version = self_current_version
+                student_version = False
+                self.logger.warning("AEDT Student Version not found on the system. Using regular version.")
             else:
-                version_key = self.current_version
-                student_version_flag = False
-        if student_version and student_version_flag:
-            version = "Ansoft.ElectronicsDesktop." + version_key[:-2]
-        else:
-            version = "Ansoft.ElectronicsDesktop." + version_key
-        # self._main.sDesktopinstallDirectory = os.getenv(self._version_ids[version_key])
-        self._main.sDesktopinstallDirectory = self.installed_versions[version_key]
-        return student_version_flag, version_key, version
+                specified_version = self_current_version
+                if "SV" in specified_version:
+                    # specified_version = specified_version[0:6]
+                    student_version = True
+                    self.logger.warning("Only AEDT Student Version found on the system. Using Student Version.")
+        elif student_version:
+            specified_version += "SV"
+
+        if float(specified_version[0:6]) < 2019:
+            raise ValueError(
+                "PyAEDT supports AEDT version 2021 R1 and later. Recommended version is 2022 R2 or higher."
+            )
+        elif float(specified_version[0:6]) < 2022.2:
+            warnings.warn(
+                """PyAEDT has limited capabilities when used with an AEDT version earlier than 2022 R2.
+                Please update your AEDT installation to 2022 R2 or higher."""
+            )
+        if not (specified_version in self.installed_versions):
+            raise ValueError(
+                "Specified version {}{} is not installed on your system".format(
+                    specified_version[0:6], " Student Version" if student_version else ""
+                )
+            )
+
+        version = "Ansoft.ElectronicsDesktop." + specified_version[0:6]
+        self._main.sDesktopinstallDirectory = self.installed_versions[specified_version]
+        return student_version, specified_version, version
+
+        # student_version_flag = False
+        # if specified_version:
+        #     if float(specified_version) < 2022.2:
+        #         if float(specified_version) < 2019:
+        #             raise ValueError("PyAEDT supports AEDT version 2021 R1 and later.")
+        #         else:
+        #             warnings.warn(
+        #                 """PyAEDT has limited capabilities when used with an AEDT version earlier than 2022 R2.
+        #                 Please update your AEDT installation to 2022 R2 or higher."""
+        #             )
+        #     if student_version:
+        #         specified_version += "SV"
+        #         student_version_flag = True
+        #     if not specified_version in self.installed_versions:
+        #         raise ValueError("Specified version {} is not installed on your system".format(specified_version))
+        #     version_key = specified_version
+        # else:
+        #     if student_version and self.current_student_version:
+        #         version_key = self.current_student_version
+        #         student_version_flag = True
+        #     else:
+        #         version_key = self.current_version
+        #         student_version_flag = False
+        # if student_version and student_version_flag:
+        #     version = "Ansoft.ElectronicsDesktop." + version_key[:-2]
+        # else:
+        #     version = "Ansoft.ElectronicsDesktop." + version_key
+        # # self._main.sDesktopinstallDirectory = os.getenv(self._version_ids[version_key])
+        # self._main.sDesktopinstallDirectory = self.installed_versions[version_key]
+        # return student_version_flag, version_key, version
 
     def _init_ironpython(self, non_graphical, new_aedt_session, version):
         from pyaedt.generic.clr_module import _clr
@@ -923,7 +999,7 @@ class Desktop(object):
         self._main.oDesktop = o_ansoft_app.GetAppDesktop()
         self._main.isoutsideDesktop = True
 
-    def _init_cpython_com(
+    def _init_dotnet(
         self,
         non_graphical,
         new_aedt_session,
@@ -1036,7 +1112,7 @@ class Desktop(object):
 
             return StandalonePyScriptWrapper.CreateAedtApplication(machine, port, non_graphical, new_session)
 
-    def _init_cpython_grpc(self, non_graphical, new_aedt_session, version, student_version, version_key):
+    def _init_grpc(self, non_graphical, new_aedt_session, version, student_version, version_key):
         self.logger.info("Launching AEDT with the gRPC plugin.")
         if not self.machine or self.machine in [
             "localhost",
@@ -1075,7 +1151,7 @@ class Desktop(object):
                         ):
                             # settings.use_grpc_api = False
                             self.logger.info("No AEDT gRPC found. Found active COM Sessions.")
-                            return self._init_cpython_com(
+                            return self._init_dotnet(
                                 non_graphical, new_aedt_session, version, student_version, version_key
                             )
                     self.port = _find_free_port()
@@ -1104,7 +1180,7 @@ class Desktop(object):
             installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedt")
             if not is_linux:
                 installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedt.exe")
-            out, self.port = launch_aedt(installer, non_graphical, self.port)
+            out, self.port = launch_aedt(installer, non_graphical, self.port, student_version)
             oApp = self._initialize(
                 is_grpc=True, non_graphical=non_graphical, machine=self.machine, port=self.port, new_session=not out
             )
@@ -1339,7 +1415,7 @@ class Desktop(object):
 
     @pyaedt_function_handler()
     def design_type(self, project_name=None, design_name=None):
-        """Get the type of a design.
+        """Get the type of design.
 
         Parameters
         ----------
@@ -1405,19 +1481,19 @@ class Desktop(object):
         """
         return self.odesktop.GetLibraryDirectory()
 
-    @property
-    def aedt_version_id(self):
-        """AEDT version.
-
-        Returns
-        -------
-        str
-            Version of AEDT.
-
-        """
-        version = self.odesktop.GetVersion().split(".")
-        v = ".".join([version[0], version[1]])
-        return v
+    # @property
+    # def aedt_version_id(self):
+    #     """AEDT version.
+    #
+    #     Returns
+    #     -------
+    #     str
+    #         Version of AEDT.
+    #
+    #     """
+    #     version = self.odesktop.GetVersion().split(".")
+    #     v = ".".join([version[0], version[1]])
+    #     return v
 
     @property
     def src_dir(self):
@@ -1494,18 +1570,24 @@ class Desktop(object):
         >>> desktop.release_desktop(close_projects=False, close_on_exit=False) # doctest: +SKIP
 
         """
-        result = release_desktop(close_projects, close_on_exit, self.is_grpc_api)
+        result = close_aedt_application(close_projects, close_on_exit, self.is_grpc_api)
+        del self._sessions[self.aedt_process_id]
         props = [a for a in dir(self) if not a.startswith("__")]
         for a in props:
             self.__dict__.pop(a, None)
         dicts = [self, sys.modules["__main__"]]
         for dict_to_clean in dicts:
-            props = [a for a in dir(dict_to_clean) if "win32com" in str(type(dict_to_clean.__dict__.get(a, None)))]
+            props = [
+                a
+                for a in dir(dict_to_clean)
+                if "win32com" in str(type(dict_to_clean.__dict__.get(a, None)))
+                or "pyaedt" in str(type(dict_to_clean.__dict__.get(a, None)))
+            ]
             for a in props:
                 dict_to_clean.__dict__[a] = None
 
-        gc.collect()
         self.odesktop = None
+        gc.collect()
         return result
 
     def close_desktop(self):
