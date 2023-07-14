@@ -52,7 +52,6 @@ def interference_type_classification(emitapp, use_filter=False, filter_list=None
 
             max_power = -200
             tx_bands = rev.get_band_names(tx_radio, modeTx)
-            tx_band_objects = radios[tx_radio].bands()
 
             for i, rx_band in enumerate(rx_bands):
                 # Find the highest power level at the Rx input due to each Tx Radio.
@@ -68,7 +67,7 @@ def interference_type_classification(emitapp, use_filter=False, filter_list=None
                 rx_stop_freq = radios[rx_radio].band_stop_frequency(rx_band_objects[i])
                 rx_channel_bandwidth = radios[rx_radio].band_channel_bandwidth(rx_band_objects[i])
 
-                for j, tx_band in enumerate(tx_bands):
+                for tx_band in tx_bands:
                     domain.set_receiver(rx_radio, rx_band)
                     domain.set_interferer(tx_radio, tx_band)
                     interaction = rev.run(domain)
