@@ -346,7 +346,7 @@ class CircuitComponents(object):
                 return self.components[el]
 
     @pyaedt_function_handler()
-    def create_model_from_touchstone(self, touchstone_full_path, model_name=None):
+    def create_model_from_touchstone(self, touchstone_full_path, model_name=None, show_bitmap=True):
         """Create a model from a Touchstone file.
 
         Parameters
@@ -355,6 +355,9 @@ class CircuitComponents(object):
             Full path to the Touchstone file.
         model_name : str, optional
             Name of the model. The default is ``None``.
+        show_bitmap : bool, optional
+            Show bitmap image of schematic component.
+            The default value is ``True``.
 
         Returns
         -------
@@ -403,7 +406,13 @@ class CircuitComponents(object):
         num_terminal = int(os.path.splitext(touchstone_full_path)[1].lower().strip(".sp"))
         with open_file(touchstone_full_path, "r") as f:
             port_names = _parse_ports_name(f, num_terminal)
-        image_subcircuit_path = os.path.join(self._modeler._app.desktop_install_dir, "syslib", "Bitmaps", "nport.bmp")
+        image_subcircuit_path = ""
+        bmp_file_name = ""
+        if show_bitmap:
+            image_subcircuit_path = os.path.join(
+                self._modeler._app.desktop_install_dir, "syslib", "Bitmaps", "nport.bmp"
+            )
+            bmp_file_name = os.path.basename(image_subcircuit_path)
 
         if not port_names:
             port_names = ["Port" + str(i + 1) for i in range(num_terminal)]
@@ -537,7 +546,7 @@ class CircuitComponents(object):
                 "InfoHelpFile:=",
                 "",
                 "IconFile:=",
-                "nport.bmp",
+                bmp_file_name,
                 "Library:=",
                 "",
                 "OriginalLocation:=",
@@ -616,6 +625,7 @@ class CircuitComponents(object):
         model_name,
         location=[],
         angle=0,
+        show_bitmap=True,
     ):
         """Create a component from a Touchstone model.
 
@@ -628,6 +638,9 @@ class CircuitComponents(object):
             Position on the X  and Y axis.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
+        show_bitmap : bool, optional
+            Show bitmap image of schematic component.
+            The default value is ``True``.
 
         Returns
         -------
@@ -644,7 +657,7 @@ class CircuitComponents(object):
         xpos, ypos = self._get_location(location)
         id = self.create_unique_id()
         if os.path.exists(model_name):
-            model_name = self.create_model_from_touchstone(model_name)
+            model_name = self.create_model_from_touchstone(model_name, show_bitmap=show_bitmap)
         arg1 = ["NAME:ComponentProps", "Name:=", model_name, "Id:=", str(id)]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         id = self.oeditor.CreateComponent(arg1, arg2)
