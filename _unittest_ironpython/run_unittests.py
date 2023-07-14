@@ -104,7 +104,7 @@ def discover_and_run(start_dir, pattern=None):
                 with open(log_file, 'a') as log:
                     for line in lines:
                         log.write(line)
-            #os.unlink(temp_log)
+            os.unlink(temp_log)
             timeout = 0
         except:
             timeout -=1
