@@ -910,6 +910,7 @@ class TestClass(BasisTest, object):
     def test_30_assign_initial_mesh(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(6)
 
+    @pytest.mark.skipif(is_ironpython, reason="Float overflow in Ironpython")
     def test_30a_add_mesh_link(self):
         self.aedtapp.duplicate_design(self.aedtapp.design_name)
         self.aedtapp.set_active_design(self.aedtapp.design_list[0])
@@ -1129,6 +1130,7 @@ class TestClass(BasisTest, object):
         )
         assert sweep6
 
+    @pytest.mark.skipif(is_ironpython, reason="Float overflow in Ironpython")
     def test_45_set_autoopen(self):
         assert self.aedtapp.set_auto_open(True, "PML")
 
@@ -1428,6 +1430,7 @@ class TestClass(BasisTest, object):
         assert aedtapp.set_impedance_multiplier(2)
         self.aedtapp.close_project(name=aedtapp.project_name, save_project=False)
 
+    @pytest.mark.skipif(is_ironpython, reason="Error on Ironpython")
     def test_55_create_near_field_sphere(self):
         air = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", matname="vacuum")
         self.aedtapp.assign_radiation_boundary_to_objects(air)

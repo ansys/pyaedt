@@ -409,7 +409,7 @@ class TestClass(BasisTest, object):
         assert subcircuit.angle == 0.0
 
     @pytest.mark.skipif(
-        config["NonGraphical"] and config["desktopVersion"] < "2023.1",
+        is_ironpython or (config["NonGraphical"] and config["desktopVersion"] < "2023.1"),
         reason="Duplicate doesn't work in non-graphical mode.",
     )
     def test_31_duplicate(self):  # pragma: no cover
@@ -796,7 +796,9 @@ class TestClass(BasisTest, object):
         assert text in self.aedtapp.oeditor.GetAllGraphics()
         assert self.aedtapp.modeler.create_text("text test", "1000mil", "-2000mil")
 
-    @pytest.mark.skipif(config["NonGraphical"], reason="Change property doesn't work in non-graphical mode.")
+    @pytest.mark.skipif(
+        is_ironpython or config["NonGraphical"], reason="Change property doesn't work in non-graphical mode."
+    )
     def test_44_change_text_property(self):
         self.aedtapp.set_active_design("text")
         text_id = self.aedtapp.oeditor.GetAllGraphics()[0].split("@")[1]
@@ -809,6 +811,9 @@ class TestClass(BasisTest, object):
         assert not self.aedtapp.modeler.change_text_property(1, "Color", [255, 120, 0])
         assert not self.aedtapp.modeler.change_text_property(text_id, "Invalid", {})
 
+    @pytest.mark.skipif(
+        is_ironpython or config["NonGraphical"], reason="Change property doesn't work in non-graphical mode."
+    )
     def test_45_create_circuit_from_multizone_layout(self):
         source_path = os.path.join(local_path, "example_models", "multi_zone_project.aedb")
         target_path = os.path.join(self.local_scratch.path, "test_multi_zone", "test_45.aedb")
