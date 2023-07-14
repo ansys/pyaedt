@@ -1305,3 +1305,7 @@ class TestClass(BasisTest, object):
         assert not self.aedtapp.change_region_padding(
             "10mm", padding_type="Absolute Offset", direction="-X", region_name="NoRegion"
         )
+        with pytest.raises(Exception, match="Check ``axes`` input."):
+            self.aedtapp.change_region_padding("10mm", padding_type="Absolute Offset", direction="X")
+        with pytest.raises(Exception, match="Check ``padding_type`` input."):
+            self.aedtapp.change_region_padding("10mm", padding_type="Partial Offset", direction="+X")
