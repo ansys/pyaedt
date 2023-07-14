@@ -409,9 +409,13 @@ class Stackup(object):
         -------
         Dict[str, :class:`pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`]
         """
+        layer_type = [
+            self._pedb.edb_api.cell.layer_type.SignalLayer,
+            self._pedb.edb_api.cell.layer_type.DielectricLayer,
+        ]
         _lays = OrderedDict()
         for name, obj in self.layers.items():
-            if obj.is_stackup_layer:
+            if obj._edb_layer.GetLayerType() in layer_type:
                 _lays[name] = obj
         return _lays
 
@@ -439,11 +443,7 @@ class Stackup(object):
         -------
         Dict[str, :class:`pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`]
         """
-        _lays = OrderedDict()
-        for name, obj in self.layers.items():
-            if isinstance(obj, LayerEdbClass):
-                _lays[name] = obj
-        return _lays
+        return {l.GetName(): LayerEdbClass(self, l.GetName()) for l in self._edb_layer_list_nonstackup}
 
     @pyaedt_function_handler()
     def _edb_value(self, value):
@@ -1949,6 +1949,9 @@ class Stackup(object):
     @pyaedt_function_handler
     def _import_xml(self, file_path):
         """Read external xml file and update stackup.
+        1, all existing layers must exist in xml file.
+        2, xml can have more layers than the existing stackup.
+        3, if xml has different layer order, reorder the layers according to xml definition.
 
         Parameters
         ----------
@@ -1971,24 +1974,49 @@ class Stackup(object):
 
         self._add_materials_from_dictionary(material_dict)
 
-        new_lc = self._pedb.edb_api.Cell.LayerCollection()
-        if new_lc.ImportFromControlFile(file_path):
-            dumy_layers = OrderedDict()
-            for i in list(new_lc.Layers(self._pedb.edb_api.cell.layer_type_set.AllLayerSet)):
-                dumy_layers[i.GetName()] = i.Clone()
+        lc_import = self._pedb.edb_api.Cell.LayerCollection()
 
-            for name, layer in self.layers.items():
-                l = dumy_layers[name]
-                layer.type = re.sub(r"Layer$", "", l.GetLayerType().ToString()).lower()
-                if layer.is_stackup_layer:
-                    layer.material = l.GetMaterial()
-                    layer.thickness = l.GetThicknessValue().ToDouble()
-                    layer.fill_material = l.GetFillMaterial()
-                    layer.etch_factor = l.GetEtchFactor().ToDouble()
-
-            return True
-        else:
+        if not lc_import.ImportFromControlFile(file_path):
+            logger.error("Import xml failed. Please check xml content.")
             return False
+
+        if not len(self.stackup_layers):
+            self._pedb.layout.layer_collection = lc_import
+            self.refresh_layer_collection()
+            return True
+
+        dumy_layers = OrderedDict()
+        for i in list(lc_import.Layers(self._pedb.edb_api.cell.layer_type_set.AllLayerSet)):
+            dumy_layers[i.GetName()] = i.Clone()
+
+        for name in self.layers.keys():
+            if not name in dumy_layers:
+                logger.error("{} doesn't exist in xml".format(name))
+                return False
+
+        for name, l in dumy_layers.items():
+            layer_type = re.sub(r"Layer$", "", l.GetLayerType().ToString()).lower()
+            if name in self.layers:
+                layer = self.layers[name]
+                layer.type = layer_type
+            else:
+                layer = self.add_layer(name, layer_type=layer_type, material="copper", fillMaterial="copper")
+
+            if l.IsStackupLayer():
+                layer.material = l.GetMaterial()
+                layer.thickness = l.GetThicknessValue().ToDouble()
+                layer.dielectric_fill = l.GetFillMaterial()
+                layer.etch_factor = l.GetEtchFactor().ToDouble()
+
+        lc_new = self._pedb.edb_api.Cell.LayerCollection()
+        for name, _ in dumy_layers.items():
+            layer = self.layers[name]
+            lc_new.AddLayerBottom(layer._edb_layer)
+
+        self._pedb.layout.layer_collection = lc_new
+        self.refresh_layer_collection()
+        return True
+
 
     @pyaedt_function_handler
     def _export_xml(self, file_path):

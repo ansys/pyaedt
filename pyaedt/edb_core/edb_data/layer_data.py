@@ -199,7 +199,6 @@ class StackupLayerEdbClass(LayerEdbClass):
         self._pclass._set_layout_stackup(layer_clone, "change_attribute")
         self._material = name
 
-
     @property
     def conductivity(self):
         """Get the material conductivity.
