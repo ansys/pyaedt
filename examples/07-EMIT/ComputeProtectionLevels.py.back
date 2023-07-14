@@ -18,7 +18,7 @@ import subprocess
 import pyaedt
 from pyaedt import Emit
 from pyaedt.emit_core.emit_constants import TxRxMode, ResultType, InterfererType
-from interference_classification import protection_level_classification
+from pyaedt.emit_core.interference_classification import interference_type_classification, protection_level_classification
 
 # Check to see which Python libraries have been installed
 reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
