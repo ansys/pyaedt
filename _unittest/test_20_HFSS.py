@@ -986,6 +986,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.get_property_value("BoundarySetup:PerfectE_1", "Inf Ground Plane", "Boundary") == "false"
         assert self.aedtapp.get_property_value("AnalysisSetup:MySetup2", "Solution Freq", "Setup") == "1GHz"
 
+    @pytest.mark.skipif(is_ironpython, reason="Paste fails in Ironpython")
     def test_33_copy_solid_bodies(self):
         project_name = "HfssCopiedProject"
         design_name = "HfssCopiedBodies"

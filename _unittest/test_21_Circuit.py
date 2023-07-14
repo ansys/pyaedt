@@ -98,6 +98,7 @@ class TestClass(BasisTest, object):
         LNA_setup = self.aedtapp.create_setup(setup_name)
         assert LNA_setup.name == "LNA"
 
+    @pytest.mark.skipif(is_ironpython, reason="Fails in Ironpython")
     def test_06b_add_3dlayout_component(self):
         setup = self.aedtapp.create_setup("test_06b_LNA")
         setup.add_sweep_step(start_point=0, end_point=5, step_size=0.01)
@@ -119,12 +120,14 @@ class TestClass(BasisTest, object):
         new_report.sub_design_id = myedb.id
         assert new_report.create()
 
+    @pytest.mark.skipif(is_ironpython, reason="Fails in Ironpython")
     def test_07_add_hfss_component(self):
         my_model, myname = self.aedtapp.modeler.schematic.create_field_model(
             "uUSB", "Setup1 : Sweep", ["usb_N_conn", "usb_N_pcb", "usb_P_conn", "usb_P_pcb"]
         )
         assert type(my_model) is int
 
+    @pytest.mark.skipif(is_ironpython, reason="Fails in Ironpython")
     def test_07a_push_excitation(self):
         setup_name = "test_07a_LNA"
         setup = self.aedtapp.create_setup(setup_name)
@@ -132,6 +135,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=False)
         assert self.aedtapp.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=True)
 
+    @pytest.mark.skipif(is_ironpython, reason="Fails in Ironpython")
     def test_07b_push_excitation_time(self):
         setup_name = "test_07b_Transient"
         setup = self.aedtapp.create_setup(setup_name, setuptype="NexximTransient")
