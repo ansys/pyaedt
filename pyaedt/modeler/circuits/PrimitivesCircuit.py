@@ -653,6 +653,15 @@ class CircuitComponents(object):
         >>> oModelManager.Add
         >>> oComponentManager.Add
         >>> oEditor.CreateComponent
+
+        Examples
+        --------
+
+        >>> from pyaedt import Circuit
+        >>> cir = Circuit()
+        >>> comps = cir.modeler.components
+        >>> s_parameter_path = os.path.join("your_path", "s_param_file_name.s4p")
+        >>> circuit_comp = comps.create_touchsthone_component(s_parameter_path, location=[0.0, 0.0], show_bitmap=False)
         """
         xpos, ypos = self._get_location(location)
         id = self.create_unique_id()
