@@ -1681,7 +1681,7 @@ class Stackup(object):
             return False
         df = pd.read_csv(file_path, index_col=0)
 
-        for name in self.layers.keys():
+        for name in self.stackup_layers.keys():
             if not name in df.index:
                 logger.error("{} doesn't exist in csv".format(name))
                 return False
@@ -1701,6 +1701,9 @@ class Stackup(object):
         lc_new = self._pedb.edb_api.Cell.LayerCollection()
         for name, _ in df.iterrows():
             layer = self.layers[name]
+            lc_new.AddLayerBottom(layer._edb_layer)
+
+        for name, layer in self.non_stackup_layers.items():
             lc_new.AddLayerBottom(layer._edb_layer)
 
         self._pedb.layout.layer_collection = lc_new
