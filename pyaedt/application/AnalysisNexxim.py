@@ -73,7 +73,7 @@ class FieldAnalysisCircuit(Analysis):
 
         Parameters
         ----------
-        component_name : str or :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        component_name : str or :class:`pyaedt.modeler.cad.object3d.circuit.CircuitComponent`
             Component to initialize.
 
         Returns

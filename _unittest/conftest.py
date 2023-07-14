@@ -89,6 +89,7 @@ settings.non_graphical = config["NonGraphical"]
 settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
 settings.enable_local_log_file = False
 settings.enable_global_log_file = False
+settings.number_of_grpc_api_retries = 6
 test_folder = "unit_test" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 for filename in os.listdir(tempfile.gettempdir()):
     file_path = os.path.join(tempfile.gettempdir(), filename)

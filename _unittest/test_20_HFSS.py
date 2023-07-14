@@ -30,6 +30,7 @@ class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, "Test_20", "test_20")
+        self.fall_back_name = self.aedtapp.design_name
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -602,7 +603,7 @@ class TestClass(BasisTest, object):
         )
 
     def test_11_create_circuit_on_objects(self):
-        self.aedtapp.set_active_design("test_20")
+        self.aedtapp.insert_design("test_11")
         box1 = self.aedtapp.modeler.create_box([0, 0, 80], [10, 10, 5], "BoxCircuit1", "Copper")
         box2 = self.aedtapp.modeler.create_box([0, 0, 100], [10, 10, 5], "BoxCircuit2", "copper")
         box2.material_name = "Copper"
@@ -613,8 +614,10 @@ class TestClass(BasisTest, object):
         assert not self.aedtapp.circuit_port(
             "BoxCircuit44", "BoxCircuit2", self.aedtapp.AxisDir.XNeg, 50, "Circ1", True, 50, False
         )
+        self.aedtapp.delete_design("test_11", self.fall_back_name)
 
     def test_12_create_perfects_on_objects(self):
+        self.aedtapp.insert_design("test_12")
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "perfect1", "Copper")
         box2 = self.aedtapp.modeler.create_box([0, 0, 10], [10, 10, 5], "perfect2", "copper")
         pe = self.aedtapp.create_perfecth_from_objects(
@@ -627,6 +630,7 @@ class TestClass(BasisTest, object):
         assert pe.update()
         assert ph.name in self.aedtapp.modeler.get_boundaries_name()
         assert ph.update()
+        self.aedtapp.delete_design("test_12", self.fall_back_name)
 
     def test_13_create_impedance_on_objects(self):
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "imp1", "Copper")
@@ -773,6 +777,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.create_open_region("1GHz", "PML", True, "-z")
 
     def test_22_create_length_mesh(self):
+        box1 = self.aedtapp.modeler.create_box([30, 0, 0], [40, 10, 5], "BoxCircuit1", "Copper")
         mesh = self.aedtapp.mesh.assign_length_mesh(["BoxCircuit1"])
         assert mesh
         mesh.props["NumMaxElem"] = "100"
@@ -781,6 +786,7 @@ class TestClass(BasisTest, object):
         ).GetPropValue("Max Elems")
 
     def test_23_create_skin_depth(self):
+        box1 = self.aedtapp.modeler.create_box([30, 0, 0], [40, 10, 5], "BoxCircuit2", "Copper")
         mesh = self.aedtapp.mesh.assign_skin_depth(["BoxCircuit2"], "1mm")
         assert mesh
         mesh.props["SkinDepth"] = "3mm"
@@ -789,7 +795,8 @@ class TestClass(BasisTest, object):
         ).GetPropValue("Skin Depth")
 
     def test_24_create_curvilinear(self):
-        mesh = self.aedtapp.mesh.assign_curvilinear_elements(["BoxCircuit2"])
+        box1 = self.aedtapp.modeler.create_box([30, 0, 0], [40, 10, 5], "BoxCircuit3", "Copper")
+        mesh = self.aedtapp.mesh.assign_curvilinear_elements(["BoxCircuit3"])
         assert mesh
         mesh.props["Apply"] = False
         assert mesh.props["Apply"] == self.aedtapp.odesign.GetChildObject("Mesh").GetChildObject(
@@ -1049,6 +1056,7 @@ class TestClass(BasisTest, object):
         assert bound
         bound.name = "Floquet1"
         assert bound.update()
+        self.aedtapp.delete_design("floquet", self.fall_back_name)
 
     def test_43_autoassign_pairs(self):
         self.aedtapp.insert_design("lattice")
@@ -1071,6 +1079,7 @@ class TestClass(BasisTest, object):
         )
         sec.name = "Sec1"
         assert sec.update()
+        self.aedtapp.delete_design("lattice", self.fall_back_name)
 
     def test_44_create_infinite_sphere(self):
         self.aedtapp.insert_design("InfSphere")
@@ -1161,6 +1170,7 @@ class TestClass(BasisTest, object):
             deembed=True,
         )
         assert port3.name + "_T1" in self.aedtapp.excitations
+        self.aedtapp.delete_design("Design_Terminal", self.fall_back_name)
 
     def test_45B_terminal_port(self):
         self.aedtapp.insert_design("Design_Terminal_2")
@@ -1234,6 +1244,7 @@ class TestClass(BasisTest, object):
             )
         else:
             assert False
+        self.aedtapp.delete_design("Design_Terminal_2", self.fall_back_name)
 
     def test_46_mesh_settings(self):
         assert self.aedtapp.mesh.initial_mesh_settings

@@ -10,7 +10,6 @@ import math
 import re
 
 # from pyaedt import property
-from pyaedt import _retry_ntimes
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import _dim_arg
@@ -115,7 +114,7 @@ class Objec3DLayout(object):
         >>> oEditor.GetPropertyValue
         """
         if self.prim_type in ["component", "pin", "via"]:
-            return _retry_ntimes(self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, "Angle")
+            return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Angle")
 
     @angle.setter
     def angle(self, value):
@@ -172,7 +171,7 @@ class Objec3DLayout(object):
         >>> oEditor.GetPropertyValue
         """
         if self.prim_type not in ["component"]:
-            return _retry_ntimes(self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, "Net")
+            return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Net")
 
     @net_name.setter
     def net_name(self, netname=""):
@@ -195,7 +194,7 @@ class Objec3DLayout(object):
         >>> oEditor.GetPropertyValue
         """
         if self.prim_type not in ["pin", "via"]:
-            return _retry_ntimes(self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, "PlacementLayer")
+            return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "PlacementLayer")
 
     @placement_layer.setter
     def placement_layer(self, layer_name):
@@ -306,9 +305,7 @@ class Objec3DLayout(object):
             loc_y = round(unit_converter(loc_y, output_units=self._primitives.model_units), 9)
             return [loc_x, loc_y]
         elif self.prim_type in ["pin", "via"]:
-            location = _retry_ntimes(
-                self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, "Location"
-            ).split(",")
+            location = self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Location").split(",")
             locs = []
             for i in location:
                 try:
@@ -378,8 +375,7 @@ class Objec3DLayout(object):
         """
         return (
             True
-            if _retry_ntimes(self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, "LockPosition")
-            in [True, "true"]
+            if self._oeditor.GetPropertyValue("BaseElementTab", self.name, "LockPosition") in [True, "true"]
             else False
         )
 
@@ -396,7 +392,7 @@ class ModelInfoRlc(object):
 
     @property
     def rlc_model_type(self):
-        props = _retry_ntimes(self._comp._n, self._comp._oeditor.GetComponentInfo, self._name)
+        props = self._comp._oeditor.GetComponentInfo(self._name)
         model = ""
         for p in props:
             if "ComponentProp=" in p:
@@ -458,7 +454,7 @@ class Components3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        return _retry_ntimes(self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, "Part")
+        return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Part")
 
     @property
     def part_type(self):
@@ -474,7 +470,7 @@ class Components3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        return _retry_ntimes(self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, "Part Type")
+        return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Part Type")
 
     @property
     def _part_type_id(self):
@@ -665,7 +661,7 @@ class Components3DLayout(Objec3DLayout, object):
             prop_name = "ICProp:="
             if not self.die_enabled:
                 self.set_die_type()
-            props = _retry_ntimes(10, self._oeditor.GetComponentInfo, self.name)
+            props = self._oeditor.GetComponentInfo(self.name)
             model = ""
             for p in props:
                 if "PortProp(" in p:
@@ -765,7 +761,7 @@ class Components3DLayout(Objec3DLayout, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dlayout.ModelInfoRlc`
+        :class:`pyaedt.modeler.cad.object3dlayout.ModelInfoRlc`
         """
         if self._part_type_id in [1, 2, 3]:
             return ModelInfoRlc(self, self.name)
@@ -786,7 +782,7 @@ class Nets3DLayout(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dlayout.Components3DLayout`
+        :class:`pyaedt.modeler.cad.object3dlayout.Components3DLayout`
         """
         comps = {}
         for c in self._oeditor.FilterObjectList("Type", "component", self._oeditor.FindObjects("Net", self.name)):
@@ -817,7 +813,7 @@ class Pins3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        return _retry_ntimes(self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, "Start Layer")
+        return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Start Layer")
 
     @property
     def stop_layer(self):
@@ -833,7 +829,7 @@ class Pins3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        return _retry_ntimes(self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, "Stop Layer")
+        return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Stop Layer")
 
     @property
     def holediam(self):
@@ -849,7 +845,7 @@ class Pins3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        return _retry_ntimes(self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, "HoleDiameter")
+        return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "HoleDiameter")
 
 
 class Geometries3DLayout(Objec3DLayout, object):
@@ -892,7 +888,7 @@ class Geometries3DLayout(Objec3DLayout, object):
 
         Returns
         -------
-        List of :class:`pyaedt.modeler.object3dlayout.Points3dLayout`
+        List of :class:`pyaedt.modeler.cad.object3dlayout.Points3dLayout`
         """
         if self._points:
             return self._points
@@ -1035,7 +1031,7 @@ class Geometries3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        return _retry_ntimes(self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, propertyname)
+        return self._oeditor.GetPropertyValue("BaseElementTab", self.name, propertyname)
 
     @property
     def negative(self):
@@ -1058,10 +1054,7 @@ class Geometries3DLayout(Objec3DLayout, object):
         if self.is_void:
             return False
         return (
-            True
-            if _retry_ntimes(self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, "Negative")
-            in [True, "true"]
-            else False
+            True if self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Negative") in [True, "true"] else False
         )
 
     @negative.setter
@@ -1087,7 +1080,7 @@ class Geometries3DLayout(Objec3DLayout, object):
         if self.is_void:
             return None
         if self.prim_type not in ["component"]:
-            return _retry_ntimes(self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, "Net")
+            return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Net")
 
     @net_name.setter
     def net_name(self, netname=""):
@@ -1150,7 +1143,7 @@ class Circle3dLayout(Geometries3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        cent = _retry_ntimes(self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, "Center")
+        cent = self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Center")
         if cent:
             return cent.split(",")
 
@@ -1173,7 +1166,7 @@ class Circle3dLayout(Geometries3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        return _retry_ntimes(self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, "Radius")
+        return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Radius")
 
     @radius.setter
     def radius(self, value):
@@ -1201,7 +1194,7 @@ class Rect3dLayout(Geometries3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        return _retry_ntimes(self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, "CornerRadius")
+        return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "CornerRadius")
 
     @corner_radius.setter
     def corner_radius(self, value):
@@ -1224,8 +1217,7 @@ class Rect3dLayout(Geometries3DLayout, object):
         """
         return (
             True
-            if _retry_ntimes(self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, "2 pt Description")
-            in [True, "true"]
+            if self._oeditor.GetPropertyValue("BaseElementTab", self.name, "2 pt Description") in [True, "true"]
             else False
         )
 
@@ -1249,7 +1241,7 @@ class Rect3dLayout(Geometries3DLayout, object):
         >>> oEditor.GetPropertyValue
         """
         if not self.two_point_description:
-            cent = _retry_ntimes(self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, "Center")
+            cent = self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Center")
             if cent:
                 return cent.split(",")
 
@@ -1274,7 +1266,7 @@ class Rect3dLayout(Geometries3DLayout, object):
         >>> oEditor.GetPropertyValue
         """
         if not self.two_point_description:
-            return _retry_ntimes(self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, "Width")
+            return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Width")
 
     @width.setter
     def width(self, value):
@@ -1297,7 +1289,7 @@ class Rect3dLayout(Geometries3DLayout, object):
         >>> oEditor.GetPropertyValue
         """
         if not self.two_point_description:
-            return _retry_ntimes(self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, "Height")
+            return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Height")
 
     @height.setter
     def height(self, value):
@@ -1320,7 +1312,7 @@ class Rect3dLayout(Geometries3DLayout, object):
         >>> oEditor.GetPropertyValue
         """
         if self.two_point_description:
-            pa = _retry_ntimes(self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, "Pt A")
+            pa = self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Pt A")
             if pa:
                 return pa.split(",")
 
@@ -1345,7 +1337,7 @@ class Rect3dLayout(Geometries3DLayout, object):
         >>> oEditor.GetPropertyValue
         """
         if self.two_point_description:
-            pa = _retry_ntimes(self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, "Pt B")
+            pa = self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Pt B")
             if pa:
                 return pa.split(",")
 
@@ -1378,7 +1370,7 @@ class Line3dLayout(Geometries3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        return _retry_ntimes(self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, "BendType")
+        return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "BendType")
 
     @bend_type.setter
     def bend_type(self, value):
@@ -1399,7 +1391,7 @@ class Line3dLayout(Geometries3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        return _retry_ntimes(self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, "StartCapType")
+        return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "StartCapType")
 
     @start_cap_type.setter
     def start_cap_type(self, value):
@@ -1420,7 +1412,7 @@ class Line3dLayout(Geometries3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        return _retry_ntimes(self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, "EndCapType")
+        return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "EndCapType")
 
     @end_cap_type.setter
     def end_cap_type(self, value):
@@ -1441,7 +1433,7 @@ class Line3dLayout(Geometries3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        return _retry_ntimes(self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, "LineWidth")
+        return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "LineWidth")
 
     @width.setter
     def width(self, value):
@@ -1462,7 +1454,7 @@ class Line3dLayout(Geometries3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        return _retry_ntimes(self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, "TotalLength")
+        return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "TotalLength")
 
     @property
     def center_line(self):
@@ -1477,10 +1469,7 @@ class Line3dLayout(Geometries3DLayout, object):
         self._center_line = {}
         for i in props:
             self._center_line[i] = [
-                i.strip()
-                for i in _retry_ntimes(self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, i).split(
-                    ","
-                )
+                i.strip() for i in self._oeditor.GetPropertyValue("BaseElementTab", self.name, i).split(",")
             ]
         return self._center_line
 
@@ -1797,9 +1786,7 @@ class ComponentsSubCircuit3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        location = _retry_ntimes(
-            self._n, self._oeditor.GetPropertyValue, "BaseElementTab", self.name, "Location"
-        ).split(",")
+        location = self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Location").split(",")
         locs = []
         for i in location:
             try:

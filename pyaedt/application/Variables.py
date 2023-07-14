@@ -26,6 +26,7 @@ from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import SI_UNITS
 from pyaedt.generic.constants import _resolve_unit_system
 from pyaedt.generic.constants import unit_system
+from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import is_array
 from pyaedt.generic.general_methods import is_number
 from pyaedt.generic.general_methods import open_file
@@ -1608,7 +1609,7 @@ class Variable(object):
             var_obj = self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name)
             _, self._units = decompose_variable_value(var_obj.GetPropEvaluatedValue("EvaluatedValue"))
             return self._units
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, GrpcApiError):
             pass
         return self._units
 
