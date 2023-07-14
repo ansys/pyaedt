@@ -28,8 +28,8 @@ class Settings(object):
         self._aedt_version = None
         self.remote_api = False
         self._use_grpc_api = None
-        self.machine = ""
-        self.port = 0
+        # self.machine = ""
+        # self.port = 0
         self.formatter = None
         self.remote_rpc_session = None
         self.remote_rpc_session_temp_folder = ""

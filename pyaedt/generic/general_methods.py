@@ -1258,7 +1258,7 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
     all_sessions = active_sessions(version, student_version, non_graphical)
 
     return_list = []
-    for s, p in all_sessions.items():
+    for _, p in all_sessions.items():
         if p > -1:
             return_list.append(p)
     return return_list

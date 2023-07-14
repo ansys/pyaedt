@@ -889,7 +889,7 @@ class Desktop(object):
 
     @property
     def installed_versions(self):
-        """Dictionary of AEDT versions installed on the system and their installation paths"""
+        """Dictionary of AEDT versions installed on the system and their installation paths."""
         return installed_versions()
 
     def _init_desktop(self):
