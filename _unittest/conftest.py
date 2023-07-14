@@ -85,7 +85,7 @@ if os.path.exists(local_config_file):
         local_config = json.load(f)
     config.update(local_config)
 
-settings.non_graphical = config["NonGraphical"]
+NONGRAPHICAL = config["NonGraphical"]
 settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
 settings.enable_local_log_file = False
 settings.enable_global_log_file = False
@@ -113,8 +113,6 @@ if not os.path.exists(scratch_path):
         pass
 
 logger = pyaedt_logger
-
-NONGRAPHICAL = settings.non_graphical
 
 
 class BasisTest(object):
@@ -159,7 +157,7 @@ class BasisTest(object):
             except Exception as e:
                 oDesktop = None
                 proj_list = []
-            if oDesktop and not settings.non_graphical:
+            if oDesktop and not NONGRAPHICAL:
                 oDesktop.ClearMessages("", "", 3)
             if proj_list:
                 for proj in proj_list:
@@ -247,7 +245,7 @@ def desktop_init():
     _main = sys.modules["__main__"]
 
     if is_ironpython:
-        desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
+        desktop = Desktop(desktop_version, NONGRAPHICAL, new_thread)
         _main.desktop_pid = desktop.odesktop.GetProcessID()
     yield
     if is_ironpython:

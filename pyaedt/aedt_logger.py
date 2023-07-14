@@ -229,9 +229,12 @@ class AedtLogger(object):
 
     @property
     def _log_on_desktop(self):
-        if self._desktop and settings.enable_desktop_logs:
-            return True
-        else:
+        try:
+            if self._desktop and not self._desktop.GetIsNonGraphical() and settings.enable_desktop_logs:
+                return True
+            else:
+                return False
+        except:  # pragma: no cover
             return False
 
     @_log_on_desktop.setter

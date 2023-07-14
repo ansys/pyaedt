@@ -33,7 +33,9 @@ from pyaedt.application.design_solutions import Maxwell2DDesignSolution
 from pyaedt.application.design_solutions import RmXprtDesignSolution
 from pyaedt.application.design_solutions import model_names
 from pyaedt.application.design_solutions import solutions_defaults
-from pyaedt.desktop import Desktop
+
+# from pyaedt.desktop import Desktop
+from pyaedt.desktop import _init_desktop_from_design
 from pyaedt.desktop import exception_to_desktop
 from pyaedt.desktop import get_version_env_variable
 
@@ -198,7 +200,7 @@ class Design(AedtObjects):
         self._global_logger = pyaedt_logger
         self._logger = pyaedt_logger
         self._desktop_class = None
-        self._desktop_class = Desktop(
+        self._desktop_class = _init_desktop_from_design(
             specified_version,
             non_graphical,
             new_desktop_session,
@@ -2374,6 +2376,9 @@ class Design(AedtObjects):
             ``True`` when successful, ``False`` when failed.
 
         """
+        if not self._desktop_class._initialized_from_design:
+            self.logger.warning("Desktop is not closing because it was initialized outside the Design.")
+            return False
         self.desktop_class.release_desktop(close_projects, close_desktop)
         # release_desktop(close_projects, close_desktop)
         props = [a for a in dir(self) if not a.startswith("__")]

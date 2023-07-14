@@ -210,12 +210,12 @@ def exception_to_desktop(ex_value, tb_data):  # pragma: no cover
 
 
 def _delete_objects():
-    settings._non_graphical = False
+    # settings._non_graphical = False
     settings._aedt_version = None
     settings.remote_api = False
     # settings._use_grpc_api = None
-    settings.machine = ""
-    settings.port = 0
+    # settings.machine = ""
+    # settings.port = 0
     module = sys.modules["__main__"]
     try:
         del module.COMUtil
@@ -434,6 +434,12 @@ def is_student_version(oDesktop):
     return False
 
 
+def _init_desktop_from_design(*args, **kwargs):
+    """Used to distinguish if the Desktop is initialized internally from Design or directly from the outside"""
+    Desktop._invoked_from_design = True
+    return Desktop(*args, **kwargs)
+
+
 class Desktop(object):
     """Provides the Ansys Electronics Desktop (AEDT) interface.
 
@@ -492,6 +498,7 @@ class Desktop(object):
     """
 
     _sessions = {}
+    _invoked_from_design = False
 
     def __new__(cls, *args, **kwargs):
         specified_version = kwargs.get("specified_version") or None if not args else args[0]
@@ -501,10 +508,9 @@ class Desktop(object):
         port = kwargs.get("port") or 0 if not args else args[6]
         aedt_process_id = kwargs.get("aedt_process_id") or None if not args else args[7]
 
-        print(cls._sessions)
-
         if len(cls._sessions.keys()) > 0:
             print("Returning found desktop!")
+            cls._invoked_from_design = False
             return list(cls._sessions.values())[0]
         else:
             print("Initializing new desktop!")
@@ -525,6 +531,10 @@ class Desktop(object):
             return
         else:
             self._initialized = True
+
+        self._initialized_from_design = True if Desktop._invoked_from_design else False
+        Desktop._invoked_from_design = False
+
         self._connected_designs = 0
 
         """Initialize desktop."""
@@ -544,17 +554,17 @@ class Desktop(object):
         # self._main.interpreter = _com
         # self.release_on_exit = close_on_exit
         self.close_on_exit = close_on_exit
-        self._main.pyaedt_version = pyaedtversion
         # self._main.interpreter_ver = _pythonver
         # self.student_version = student_version
         self.machine = machine
         self.port = port
+        self.non_graphical = non_graphical
         # self.aedt_process_id = aedt_process_id
         # if is_ironpython:
         #     self._main.isoutsideDesktop = False
         # else:
         #     self._main.isoutsideDesktop = True
-        self.release_on_exit = True
+        # self.release_on_exit = True
         self.is_grpc_api = None
 
         self.logfile = None
@@ -621,11 +631,11 @@ class Desktop(object):
         # Starting AEDT
         if "console" in starting_mode:
             # technically not a startup mode, we have just to load oDesktop
-            self.release_on_exit = False
+            self.close_on_exit = False
             try:
-                settings.non_graphical = oDesktop.GetIsNonGraphical()
-            except:
-                settings.non_graphical = non_graphical
+                self.non_graphical = oDesktop.GetIsNonGraphical()
+            except:  # pragma: no cover
+                self.non_graphical = non_graphical
             self.is_grpc_api = False
             settings.aedt_version = self._main.oDesktop.GetVersion()[0:6]
             if starting_mode == "console_in":
@@ -634,7 +644,6 @@ class Desktop(object):
         else:
             settings.aedt_version = version_key
             # settings.is_student = self.student_version
-            settings.non_graphical = non_graphical
             if "oDesktop" in dir(self._main):
                 del self._main.oDesktop
             if starting_mode == "ironpython":
@@ -735,13 +744,14 @@ class Desktop(object):
         #         self._main.isoutsideDesktop = True
 
         self._set_logger_file()
-        self._init_desktop(non_graphical)
+        settings.enable_desktop_logs = not self.non_graphical
+        self._init_desktop()
         self._logger.info("pyaedt v%s", self._main.pyaedt_version)
         if not settings.remote_api:
             self._logger.info("Python version %s", sys.version)
         self.odesktop = self._main.oDesktop
-        settings.machine = self.machine
-        settings.port = self.port
+        # settings.machine = self.machine
+        # settings.port = self.port
 
         current_pid = int(self.odesktop.GetProcessID())
         if aedt_process_id and not new_desktop_session and aedt_process_id != current_pid:
@@ -771,8 +781,7 @@ class Desktop(object):
             )
 
         # save the current desktop session in the database
-        # _desktop_sessions.add(self)
-        self._sessions[self.aedt_process_id] = self
+        Desktop._sessions[self.aedt_process_id] = self
 
     def __enter__(self):
         return self
@@ -880,13 +889,13 @@ class Desktop(object):
         """Dictionary of AEDT versions installed on the system and their installation paths"""
         return installed_versions()
 
-    def _init_desktop(self, non_graphical):
+    def _init_desktop(self):
         # run it after the settings.non_graphical is set
+        self._main.pyaedt_version = pyaedtversion
         self._main.AEDTVersion = self._main.oDesktop.GetVersion()[0:6]
         self._main.oDesktop.RestoreWindow()
         self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
         self._main.pyaedt_initialized = True
-        settings.enable_desktop_logs = not settings.non_graphical
 
     def _assert_version(self, specified_version, student_version):
         # avoid evaluating the env variables multiple times

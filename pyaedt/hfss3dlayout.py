@@ -1801,7 +1801,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         """
         if settings.aedt_version >= "2022.2":
             self.modeler.oeditor.ProcessBentModelCmd()
-        if settings.non_graphical:
+        if self.desktop_class.non_graphical:
             return True
         return True if self.variable_manager["BendModel"].expression == "1" else False
 

@@ -23,7 +23,7 @@ class Settings(object):
         self._enable_debug_internal_methods_logger = False
         self._enable_debug_logger = False
         self._enable_error_handler = True
-        self._non_graphical = False
+        # self._non_graphical = False
         self._aedt_version = None
         self.remote_api = False
         self._use_grpc_api = None
@@ -358,14 +358,14 @@ class Settings(object):
         except:
             return logging.getLogger(__name__)
 
-    @property
-    def non_graphical(self):
-        """Get the value for the non-graphical flag."""
-        return self._non_graphical
-
-    @non_graphical.setter
-    def non_graphical(self, val):
-        self._non_graphical = val
+    # @property
+    # def non_graphical(self):
+    #     """Get the value for the non-graphical flag."""
+    #     return self._non_graphical
+    #
+    # @non_graphical.setter
+    # def non_graphical(self, val):
+    #     self._non_graphical = val
 
     @property
     def enable_error_handler(self):
@@ -379,7 +379,7 @@ class Settings(object):
     @property
     def enable_desktop_logs(self):
         """Get the content for the environment variable."""
-        return False if self.non_graphical else self._enable_desktop_logs
+        return self._enable_desktop_logs
 
     @enable_desktop_logs.setter
     def enable_desktop_logs(self, val):

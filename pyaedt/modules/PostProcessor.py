@@ -1233,7 +1233,7 @@ class PostProcessorCommon(object):
         # path
         npath = project_dir
         file_name = os.path.join(npath, plot_name + ".jpg")  # name of the image file
-        if settings.non_graphical:
+        if self._app.desktop_class.non_graphical:
             if width == 0:
                 width = 500
             if height == 0:
@@ -3277,7 +3277,7 @@ class PostProcessor(PostProcessorCommon, object):
                 height = 1080
             self.oeditor.ExportImage(full_name, width, height)
         else:
-            if settings.non_graphical:
+            if self._app.desktop_class.non_graphical:
                 if width == 0:
                     width = 500
                 if height == 0:
