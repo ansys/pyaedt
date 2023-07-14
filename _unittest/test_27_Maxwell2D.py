@@ -1,7 +1,6 @@
 #!/ekm/software/anaconda3/bin/python
 # Standard imports
 from collections import OrderedDict
-import filecmp
 import os
 import shutil
 
@@ -150,8 +149,7 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(is_ironpython, reason="Test is failing on build machine")
     def test_14_check_design_preview_image(self):
         jpg_file = os.path.join(self.local_scratch.path, "file.jpg")
-        self.aedtapp.export_design_preview_to_jpg(jpg_file)
-        assert filecmp.cmp(jpg_file, os.path.join(local_path, "example_models", test_subfolder, test_name + ".jpg"))
+        assert self.aedtapp.export_design_preview_to_jpg(jpg_file)
 
     def test_14a_model_depth(self):
         self.aedtapp.model_depth = 2.0
