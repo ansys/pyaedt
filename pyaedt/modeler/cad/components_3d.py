@@ -9,7 +9,6 @@ import warnings
 # from pyaedt import property
 from pyaedt import Edb
 from pyaedt import pyaedt_function_handler
-from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import _uname
 from pyaedt.modeler.cad.elements3d import BinaryTreeNode
 from pyaedt.modeler.cad.elements3d import _dict2arg
@@ -1082,6 +1081,6 @@ class LayoutComponent(object):
         vPropServers = ["NAME:PropServers", self._name]
         vGeo3d = ["NAME:Visualization", vPropServers, vChangedProps]
         vOut = ["NAME:AllTabs", vGeo3d]
-        _retry_ntimes(10, self._primitives.oeditor.ChangeProperty, vOut)
+        self._primitives.oeditor.ChangeProperty(vOut)
 
         return True

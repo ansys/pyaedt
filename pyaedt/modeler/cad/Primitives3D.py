@@ -14,7 +14,6 @@ import os
 from pyaedt import Edb
 from pyaedt import Icepak
 from pyaedt.generic import LoadAEDTFile
-from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import normalize_path
 from pyaedt.generic.general_methods import open_file
@@ -73,7 +72,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
 
         References
@@ -104,7 +103,7 @@ class Primitives3D(Primitives, object):
         vArg1.append("YSize:="), vArg1.append(YSize)
         vArg1.append("ZSize:="), vArg1.append(ZSize)
         vArg2 = self._default_object_attributes(name=name, matname=matname)
-        new_object_name = _retry_ntimes(10, self.oeditor.CreateBox, vArg1, vArg2)
+        new_object_name = self.oeditor.CreateBox(vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @pyaedt_function_handler()
@@ -134,7 +133,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
 
         References
@@ -209,7 +208,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
 
         References
@@ -274,7 +273,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
 
         References
@@ -338,7 +337,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
 
         References
@@ -397,7 +396,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
 
         References
@@ -437,7 +436,7 @@ class Primitives3D(Primitives, object):
         first_argument.append("MinorRadius:="), first_argument.append(minor_radius)
         first_argument.append("WhichAxis:="), first_argument.append(axis)
         second_argument = self._default_object_attributes(name=name, matname=material_name)
-        new_object_name = _retry_ntimes(10, self.oeditor.CreateTorus, first_argument, second_argument)
+        new_object_name = self.oeditor.CreateTorus(first_argument, second_argument)
         return self._create_object(new_object_name)
 
     @pyaedt_function_handler()
@@ -506,7 +505,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
 
         References
@@ -622,7 +621,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
 
         References
@@ -677,7 +676,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
 
         References
@@ -732,7 +731,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
 
         References
@@ -825,7 +824,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
 
         References
@@ -905,7 +904,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
 
         References
@@ -963,7 +962,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
 
         References
@@ -1476,6 +1475,7 @@ class Primitives3D(Primitives, object):
         coordinate_system="Global",
         name=None,
         parameter_mapping=False,
+        layout_coordinate_systems=[],
     ):
         """Insert a new layout component.
 
@@ -1489,6 +1489,8 @@ class Primitives3D(Primitives, object):
             3D component name. The default is ``None``.
         parameter_mapping : bool, optional
             Map the layout parameters in the target HFSS design. The default is ``False``.
+        layout_coordinate_systems : list, optional
+            Coordinate system to import. The default is all available coordinate systems.
 
         Returns
         -------
@@ -1602,7 +1604,7 @@ class Primitives3D(Primitives, object):
             "1.0",
             "Notes:=",
             "",
-            "IconTypeL:=",
+            "IconType:=",
             "Layout Component",
         ]
         vArg1.append(varg4)
@@ -1665,11 +1667,17 @@ class Primitives3D(Primitives, object):
             "CSToImport:=",
         ]
 
-        if component_cs:
+        if component_cs and not layout_coordinate_systems:  # pragma: no cover
             varg10 = component_cs
             varg10.append("Global")
+        elif component_cs and layout_coordinate_systems:  # pragma: no cover
+            varg10 = ["Global"]
+            for cs in layout_coordinate_systems:
+                if cs in component_cs:
+                    varg10.append(cs)
         else:
             varg10 = ["Global"]
+
         varg9.append(varg10)
         vArg1.append(varg9)
 

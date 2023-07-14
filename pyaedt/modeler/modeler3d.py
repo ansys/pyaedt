@@ -7,7 +7,7 @@ import os.path
 import warnings
 
 # from pyaedt.generic.general_methods import property
-from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.Modeler import GeometryModeler
@@ -364,7 +364,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                         del out_dict["coordinatesystems"][cs]
             with open(auxiliary_dict, "w") as outfile:
                 json.dump(out_dict, outfile)
-        return _retry_ntimes(10, self.oeditor.Create3DComponent, arg, arg2, component_file, arg3)
+        self.oeditor.Create3DComponent(arg, arg2, component_file, arg3)
+        return True
 
     @pyaedt_function_handler()
     def replace_3dcomponent(
@@ -533,7 +534,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             arg2.append("MeshOperations:="), arg2.append(meshops)
         arg3 = ["NAME:ImageFile", "ImageFile:=", ""]
         old_components = self.user_defined_component_names
-        _retry_ntimes(10, self.oeditor.ReplaceWith3DComponent, arg, arg2, arg3)
+        self.oeditor.ReplaceWith3DComponent(arg, arg2, arg3)
         self.refresh_all_ids()
         new_name = list(set(self.user_defined_component_names) - set(old_components))
         return self.user_defined_components[new_name[0]]
@@ -813,7 +814,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d`
+        list of :class:`pyaedt.modeler.cad.object3d`
         """
         if len(bounding_box) != 6:
             raise ValueError("Bounding box list must have dimension 6.")
@@ -1358,7 +1359,129 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                 mesh_objects[obj.name] = []
                 for value in mesh_sheets[obj.name]:
                     mesh_objects[obj.name].append([x for x in self.sheet_objects if x.name == value][0])
+        face_object.delete()
         if apply_mesh_sheets:
             return segment_objects, mesh_objects
         else:
             return segment_objects
+
+    @pyaedt_function_handler
+    def change_region_padding(self, padding_data, padding_type, direction=None, region_name="Region"):
+        """
+        Change region padding settings.
+
+        Parameters
+        ----------
+        padding_data : str or list of str
+            Padding value (with unit if necessary). A list of padding values must have corresponding
+            elements in ``padding_type`` and ``direction`` arguments.
+        padding_type : str or list of str
+            Padding type. Available options are ``"Percentage Offset"``, ``"Transverse Percentage Offset"``,
+            ``"Absolute Offset"``, ``"Absolute Position"``.
+        direction : str or list of str, optional
+            Direction to which apply the padding settings. A direction can be ``"+X"``, ``"-X"``,
+            `"+Y"``, ``"-Y"``, ``"+Z"`` or ``"-Z"``. Default is ``None``, in which case all the
+            directions are used (in the order written in the previous sentence).
+        region_name : str optional
+            Region name. Default is ``Region``.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful, else ``None``.
+
+        Examples
+        ----------
+        >>> import pyaedt
+        >>> app = pyaedt.Icepak()
+        >>> app.modeler.change_region_padding("10mm", padding_type="Absolute Offset", direction="-X")
+        """
+        available_directions = ["+X", "-X", "+Y", "-Y", "+Z", "-Z"]
+        available_paddings = [
+            "Percentage Offset",
+            "Transverse Percentage Offset",
+            "Absolute Offset",
+            "Absolute Position",
+        ]
+        if not isinstance(padding_data, list):
+            padding_data = [padding_data]
+        if not isinstance(padding_type, list):
+            padding_type = [padding_type]
+        if direction is None:
+            direction = available_directions
+        else:
+            if not isinstance(direction, list):
+                direction = [direction]
+            if not all(dire in available_directions for dire in direction):
+                raise Exception("Check ``axes`` input.")
+        if not all(pad in available_paddings for pad in padding_type):
+            raise Exception("Check ``padding_type`` input.")
+
+        modify_props = []
+        for i in range(len(padding_data)):
+            modify_props.append(["NAME:" + direction[i] + " Padding Type", "Value:=", padding_type[i]])
+            modify_props.append(["NAME:" + direction[i] + " Padding Data", "Value:=", padding_data[i]])
+
+        try:
+            create_region_name = self.modeler.oeditor.GetChildObject(region_name).GetChildNames()[0]
+            self.modeler.oeditor.ChangeProperty(
+                list(
+                    [
+                        "NAME:AllTabs",
+                        list(
+                            [
+                                "NAME:Geometry3DCmdTab",
+                                list(["NAME:PropServers", region_name + ":" + create_region_name]),
+                                list(["NAME:ChangedProps"] + modify_props),
+                            ]
+                        ),
+                    ]
+                )
+            )
+            return True
+        except (GrpcApiError, SystemExit):
+            return False
+
+    @pyaedt_function_handler
+    def change_region_coordinate_system(self, region_cs="Global", region_name="Region"):
+        """
+        Change region coordinate system.
+
+        Parameters
+        ----------
+        region_cs : str, optional
+            Region coordinate system. Default is ``Global``.
+        region_name : str optional
+            Region name. Default is ``Region``.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful, else ``None``.
+
+        Examples
+        ----------
+        >>> import pyaedt
+        >>> app = pyaedt.Icepak()
+        >>> app.modeler.create_coordinate_system(origin=[1, 1, 1], name="NewCS")
+        >>> app.modeler.change_region_coordinate_system(region_cs="NewCS")
+        """
+        try:
+            create_region_name = self.modeler.oeditor.GetChildObject(region_name).GetChildNames()[0]
+            self.modeler.oeditor.ChangeProperty(
+                list(
+                    [
+                        "NAME:AllTabs",
+                        list(
+                            [
+                                "NAME:Geometry3DCmdTab",
+                                list(["NAME:PropServers", region_name + ":" + create_region_name]),
+                                list(["NAME:ChangedProps", list(["NAME:Coordinate System", "Value:=", region_cs])]),
+                            ]
+                        ),
+                    ]
+                )
+            )
+            return True
+        except (GrpcApiError, SystemExit):
+            return False

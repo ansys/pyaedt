@@ -653,12 +653,12 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.imprint(rect, box1)
 
     def test_51_imprint_projection(self):
-        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 10, 10], [20, 20], "imprintn1")
+        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 10], [5, 20], "imprintn1")
         box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "imprintn2")
         assert self.aedtapp.modeler.imprint_normal_projection([rect, box1])
-        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 10, 10], [20, 20], "imprintn3")
+        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 10], [6, 18], "imprintn3")
         box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "imprintn3")
-        assert self.aedtapp.modeler.imprint_vector_projection([rect, box1], [3, 2, -5], 1)
+        assert self.aedtapp.modeler.imprint_vector_projection([rect, box1], [0.2, -0.8, -5], 1)
 
     def test_52_objects_in_bounding_box(self):
         bounding_box = [-100, -300, -200, 100, 200, 100]
@@ -761,3 +761,35 @@ class TestClass(BasisTest, object):
         sol = [2.2260086876588385, -1.8068578500310104, 9.0, 0, 0.09853761796664223, -0.9951333266680702, 0]
         assert all(abs(res[i] - sol[i]) < tol for i in range(3))
         assert self.aedtapp.modeler.invert_cs(cs6, to_global=True)
+
+    def test_59a_region_property(self):
+        self.aedtapp.modeler.create_air_region()
+        cs_name = "TestCS"
+        self.aedtapp.modeler.create_coordinate_system(
+            origin=[1, 1, 1], name=cs_name, mode="zxz", phi=10, theta=30, psi=50
+        )
+        assert self.aedtapp.modeler.change_region_coordinate_system(region_cs=cs_name)
+        assert self.aedtapp.modeler.change_region_padding("10mm", padding_type="Absolute Offset", direction="-X")
+        assert self.aedtapp.modeler.change_region_padding(
+            ["1mm", "-2mm", "3mm", "-4mm", "5mm", "-6mm"],
+            padding_type=[
+                "Absolute Position",
+                "Absolute Position",
+                "Absolute Position",
+                "Absolute Position",
+                "Absolute Position",
+                "Absolute Position",
+            ],
+        )
+
+    @pytest.mark.skipif(is_ironpython, reason="pytest.raises not available")
+    def test_59b_region_property_failing(self):
+        self.aedtapp.modeler.create_air_region()
+        assert not self.aedtapp.modeler.change_region_coordinate_system(region_cs="NoCS")
+        assert not self.aedtapp.modeler.change_region_padding(
+            "10mm", padding_type="Absolute Offset", direction="-X", region_name="NoRegion"
+        )
+        with pytest.raises(Exception, match="Check ``axes`` input."):
+            self.aedtapp.modeler.change_region_padding("10mm", padding_type="Absolute Offset", direction="X")
+        with pytest.raises(Exception, match="Check ``padding_type`` input."):
+            self.aedtapp.modeler.change_region_padding("10mm", padding_type="Partial Offset", direction="+X")

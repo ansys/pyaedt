@@ -258,6 +258,10 @@ def _delete_objects():
         del sys.modules["PyDesktopPlugin"]
     except:
         pass
+    try:
+        del sys.modules["glob"]
+    except:
+        pass
     keys = [k for k in sys.modules.keys()]
     for i in keys:
         if "Ansys.Ansoft" in i:
@@ -291,17 +295,17 @@ def _close_aedt_application(close_projects, close_desktop, is_grpc_api):
     _main = sys.modules["__main__"]
     try:
         desktop = _main.oDesktop
+        pid = desktop.GetProcessID()
         if close_projects:
             projects = desktop.GetProjectList()
             for project in projects:
                 desktop.CloseProject(project)
-        pid = _main.oDesktop.GetProcessID()
         if settings.remote_rpc_session or (settings.aedt_version >= "2022.2" and is_grpc_api and not is_ironpython):
             try:
                 if close_desktop:
                     _main.oDesktop.QuitApplication()
                 else:
-                    import PyDesktopPlugin as StandalonePyScriptWrapper
+                    import pyaedt.generic.grpc_plugin as StandalonePyScriptWrapper
 
                     return StandalonePyScriptWrapper.Release()
             except:
@@ -1116,7 +1120,7 @@ class Desktop(object):
             )
             launch_msg = "AEDT installation Path {}".format(base_path)
             self.logger.info(launch_msg)
-            import PyDesktopPlugin as StandalonePyScriptWrapper
+            import pyaedt.generic.grpc_plugin as StandalonePyScriptWrapper
 
             return StandalonePyScriptWrapper.CreateAedtApplication(machine, port, non_graphical, new_session)
 

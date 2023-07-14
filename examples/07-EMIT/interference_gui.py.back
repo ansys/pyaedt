@@ -1,3 +1,15 @@
+"""
+EMIT: Classify interference type GUI
+----------------------------------------
+This example uses a GUI to open an AEDT project with
+an EMIT design and analyze the results to classify the
+worst-case interference. 
+"""
+###############################################################################
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports.
+
 import sys
 from pyaedt.emit_core.emit_constants import InterfererType, ResultType, TxRxMode
 from pyaedt import Emit
@@ -5,7 +17,7 @@ import pyaedt
 import os
 import subprocess
 import pyaedt.generic.constants as consts
-from interference_classification import interference_type_classification, protection_level_classification
+from pyaedt.emit_core.interference_classification import interference_type_classification, protection_level_classification
 
 # Check that emit is a compatible version
 emitapp_desktop_version = "2023.2"
@@ -32,7 +44,7 @@ from PySide2 import QtWidgets, QtUiTools, QtGui
 from openpyxl.styles import PatternFill
 import openpyxl
 
-# Launch emit
+# Launch EMIT
 non_graphical = False
 new_thread = True
 d = pyaedt.launch_desktop(emitapp_desktop_version, non_graphical, new_thread)
@@ -66,9 +78,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         super(MainWindow, self).__init__()
         self.setupUi(self)
         self.setup_widgets()
-    
-    def setup_widgets(self): # Widget definitions
 
+    ###############################################################################
+    # Setup widgets
+    # ~~~~~~~~~~~~~
+    # Define all widgets from the UI file, connect the widgets to functions, define 
+    # table colors, and format table settings. 
+    
+    def setup_widgets(self):
         # Widget definitions for file selection/tab management
         self.file_select_btn = self.findChild(QtWidgets.QToolButton, "file_select_btn")
         self.file_path_box = self.findChild(QtWidgets.QLineEdit, "file_path_box") 
@@ -167,8 +184,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         delegate = DoubleDelegate(decimals=2)
         self.protection_legend_table.setItemDelegateForColumn(0, delegate)
 
+    ###############################################################################
+    # Open file dialog and select project
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Open the file dialog for project selection and populate the design dropdown 
+    # with all EMIT designs in the project. 
+
     def open_file_dialog(self):
-        'Open the file dialog and open the corresponging EMIT Project/Design'
         fname = QtWidgets.QFileDialog.getOpenFileName(self, "Select EMIT Project", "", "Ansys Electronics Desktop Files (*.aedt)", )
         if fname: 
             self.file_path_box.setText(fname[0])
@@ -196,8 +218,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
             self.radio_specific_levels.setEnabled(True)
     
+    ###############################################################################
+    # Enable radio specific proteciton levels
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Activate radio selection dropdown and initialize dictionary to store protection levels
+    # when the radio specific level dropdown is checked.
+
     def radio_specific(self):
-        'Enable radio specific proteciton levels'
         self.radio_dropdown.setEnabled(self.radio_specific_levels.isChecked())
         self.radio_dropdown.clear()
         if self.radio_dropdown.isEnabled():
@@ -214,8 +241,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.protection_levels['Global'] = values
         self.global_protection_level = not self.radio_specific_levels.isChecked()
     
+    ###############################################################################
+    # Update legend table
+    # ~~~~~~~~~~~~~~~~~~~
+    # Update shown legend table values when the radio dropdown value changes. 
+
     def radio_dropdown_changed(self):
-        'Update table when radio changes'
         if self.radio_dropdown.isEnabled():
             self.changing = True
             for row in range(self.protection_legend_table.rowCount()):
@@ -223,8 +254,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 item.setText(str(self.protection_levels[self.radio_dropdown.currentText()][row]))
             self.changing = False
 
+    ###############################################################################
+    # Save legend table values
+    # ~~~~~~~~~~~~~~~~~~~~~~~~
+    # Save inputted radio protection level threshold values every time one is changed 
+    # in the legend table.
+
     def table_changed(self):
-        'Save new table values'
         if self.changing == False:
             values = [float(self.protection_legend_table.item(row, 0).text()) for row in range(self.protection_legend_table.rowCount())]
             if self.radio_dropdown.currentText() == '':
@@ -233,8 +269,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 index = self.radio_dropdown.currentText()
             self.protection_levels[index] = values
 
+    ###############################################################################
+    # Save scenario matrix to as PNG file 
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Save the scenario matrix table as a PNG file.
+
     def save_image(self):
-        'Save scenario matrix as png'
         if self.tab_widget.currentIndex() == 0:
             table = self.protection_matrix
         else:
@@ -245,8 +285,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         table.render(image)
         image.save(fname[0])
 
+    ###############################################################################
+    # Save scenario matrix to Excel file 
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Write the scenario matrix results to an Excel file with color coding.
+
     def save_results_excel(self):
-        ' Save interference/protection matrix as an excel file'
         fname = QtWidgets.QFileDialog.getSaveFileName(self, "Save Scenario Matrix", "Protection Level Classification", "xlsx (*.xlsx)")
         
         if self.tab_widget.currentIndex() == 0:
@@ -271,9 +315,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                             fill_type = "solid")
             workbook.save(fname[0])
 
-    def interference_results(self):
-        ' Run simulation to classify results according to interference type'
+    ###############################################################################
+    # Run interference type simulation 
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Run interference type simulation and classify results.
 
+    def interference_results(self):
         # Initialize filter check marks and expected filter results
         self.interference_checks = [self.in_in_check.isChecked(), self.out_in_check.isChecked(),
                                   self.in_out_check.isChecked(), self.out_out_check.isChecked()]
@@ -312,8 +359,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             emitapp.save_project()
             self.populate_table()
 
-    def protection_results(self):
+    ###############################################################################
+    # Run protection level simulation 
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Run protection level simulation and classify results accroding to inputted 
+    # threshold levels.
 
+    def protection_results(self):
+        # Initialize filter check marks and expected filter results
         self.protection_checks = [self.damage_check.isChecked(), self.overload_check.isChecked(),
                                   self.intermodulation_check.isChecked(), self.desensitization_check.isChecked()]
 
@@ -345,8 +398,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
             self.populate_table()
     
+    ###############################################################################
+    # Populate the scenario matrix
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Create a scenario matrix view with the transmitters defined across the top
+    # and receivers down the left-most column.
+
     def populate_table(self):
-        ' Populate the scenario matrix table widget '
         if self.tab_widget.currentIndex() == 0:
             table = self.protection_matrix
             button = self.protection_export_btn
@@ -373,11 +431,21 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         button.setEnabled(True)
         img_btn.setEnabled(True)
     
+    ###############################################################################
+    # GUI closing event
+    # ~~~~~~~~~~~~~~~~~
+    # Close AEDT if the GUI is closed.
     def closeEvent(self, event):
         emitapp.close_desktop()
+
+###############################################################################
+# Run GUI
+# ~~~~~~~
+# Launch the GUI. If you want to run the GUI, uncomment the ``window.show()`` and
+# ``app.exec_()`` method calls. 
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication([])
     window = MainWindow()
-    window.show()
-    app.exec_()
+    # window.show()
+    # app.exec_()

@@ -1737,10 +1737,10 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        start_object : str or int or :class:`pyaedt.modeler.object3d.Object3d`
+        start_object : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
             First solid connected to the spiral port.
 
-        end_object : str or int or :class:`pyaedt.modeler.object3d.Object3d`
+        end_object : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Second object connected to the spiral port.
 
         port_width : float, optional
@@ -3086,7 +3086,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        sheet : str or int or list or :class:`pyaedt.modeler.object3d.Object3d`
+        sheet : str or int or list or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Name of the sheet.
         deemb : float, optional
             Deembedding value distance in model units. The default is ``0``.
@@ -4408,7 +4408,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        obj_names : str or list or int or :class:`pyaedt.modeler.object3d.Object3d`
+        obj_names : str or list or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
             One or more object names or IDs.
         boundary_name : str, optional
             Name of the boundary. The default is ``""``.
@@ -4449,7 +4449,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        obj_names : str or list or int or :class:`pyaedt.modeler.object3d.Object3d`
+        obj_names : str or list or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
             One or more object names or IDs.
         boundary_name : str, optional
             Name of the boundary. The default is ``""``.
@@ -5941,10 +5941,10 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        signal : int or :class:`pyaedt.modeler.object3d.Object3d` or
+        signal : int or :class:`pyaedt.modeler.cad.object3d.Object3d` or
          :class:`pyaedt.modeler.cad.FacePrimitive`or :class:`pyaedt.modeler.cad.EdgePrimitive`
             Signal object.
-        reference : int or :class:`pyaedt.modeler.object3d.Object3d` or
+        reference : int or :class:`pyaedt.modeler.cad.object3d.Object3d` or
          :class:`pyaedt.modeler.cad.FacePrimitive`or :class:`pyaedt.modeler.cad.EdgePrimitive`
             Reference object.
         port_location : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
@@ -6030,10 +6030,10 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        signal : str, int, list, :class:`pyaedt.modeler.object3d.Object3d` or
+        signal : str, int, list, :class:`pyaedt.modeler.cad.object3d.Object3d` or
          :class:`pyaedt.modeler.elements3d.FacePrimitive`
             Main object for port creation or starting object for the integration line.
-        reference : int, list or :class:`pyaedt.modeler.object3d.Object3d`
+        reference : int, list or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Ending object for the integration line or reference for Terminal solution. Can be multiple objects.
         create_port_sheet : bool, optional
             Whether to create a port sheet or use given start_object as port shee.
@@ -6154,10 +6154,10 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        signal : int, str, :class:`pyaedt.modeler.object3d.Object3d` or
+        signal : int, str, :class:`pyaedt.modeler.cad.object3d.Object3d` or
          :class:`pyaedt.modeler.elements3d.FacePrimitive`
             Main object for port creation or starting object for the integration line.
-        reference : int, str, list or :class:`pyaedt.modeler.object3d.Object3d`
+        reference : int, str, list or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Ending object for the integration line or reference for Terminal solution. Can be multiple objects.
         create_port_sheet : bool, optional
             Whether to create a port sheet or use given start_object as port shee.

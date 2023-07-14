@@ -19,7 +19,6 @@ from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.constants import unit_converter
 
 # from pyaedt.generic.general_methods import property
-from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
@@ -1880,7 +1879,7 @@ class PostProcessor(PostProcessorCommon, object):
         str
            Model units, such as ``"mm"``.
         """
-        return _retry_ntimes(10, self.oeditor.GetModelUnits)
+        return self.oeditor.GetModelUnits()
 
     @property
     def post_osolution(self):
@@ -2472,11 +2471,9 @@ class PostProcessor(PostProcessorCommon, object):
                 else:
                     variation_dict.append("0deg")
         if not sample_points_file and not sample_points_lists:
-            _retry_ntimes(10, self.ofieldsreporter.CalculatorWrite, filename, ["Solution:=", solution], variation_dict)
+            self.ofieldsreporter.CalculatorWrite(filename, ["Solution:=", solution], variation_dict)
         elif sample_points_file:
-            _retry_ntimes(
-                10,
-                self.ofieldsreporter.ExportToFile,
+            self.ofieldsreporter.ExportToFile(
                 filename,
                 sample_points_file,
                 solution,
@@ -2488,9 +2485,7 @@ class PostProcessor(PostProcessorCommon, object):
             with open_file(sample_points_file, "w") as f:
                 for point in sample_points_lists:
                     f.write(" ".join([str(i) for i in point]) + "\n")
-            _retry_ntimes(
-                10,
-                self.ofieldsreporter.ExportToFile,
+            self.ofieldsreporter.ExportToFile(
                 filename,
                 sample_points_file,
                 solution,
@@ -3239,10 +3234,16 @@ class PostProcessor(PostProcessorCommon, object):
             full_name = os.path.join(self._app.working_directory, generate_unique_name(self._app.design_name) + ".jpg")
 
         # open the 3D modeler and remove the selection on other objects
-        if self._app.design_type not in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit", "Twin Builder"]:
-            self.oeditor.ShowWindow()
-            self.steal_focus_oneditor()
-        self.modeler.fit_all()
+        if not settings.non_graphical:
+            if self._app.design_type not in [
+                "HFSS 3D Layout Design",
+                "Circuit Design",
+                "Maxwell Circuit",
+                "Twin Builder",
+            ]:
+                self.oeditor.ShowWindow()
+                self.steal_focus_oneditor()
+            self.modeler.fit_all()
         # export the image
         if field_selections:
             if isinstance(field_selections, str):

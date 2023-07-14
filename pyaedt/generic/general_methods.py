@@ -45,6 +45,12 @@ except ImportError:
     ET = None
 
 
+class GrpcApiError(Exception):
+    """ """
+
+    pass
+
+
 class MethodNotSupportedError(Exception):
     """ """
 
@@ -88,29 +94,37 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     -------
 
     """
+
     tb_data = ex_info[2]
     tb_trace = traceback.format_tb(tb_data)
-    if len(tb_trace) > 1:
-        tblist = tb_trace[1].split("\n")
-    else:
-        tblist = tb_trace[0].split("\n")
+    _write_mes("{} on {}".format(message.upper(), func.__name__))
+    try:
+        _write_mes(ex_info[1].args[0])
+    except (IndexError, AttributeError):
+        pass
+    for trace in traceback.format_stack():
+        if func.__name__ in trace:
+            for el in trace.split("\n"):
+                _write_mes(el)
+    for trace in tb_trace:
+        tblist = trace.split("\n")
+        for el in tblist:
+            if func.__name__ in el:
+                _write_mes(el)
 
     message_to_print = ""
+    messages = ""
     try:
-        messages = list(sys.modules["__main__"].oDesktop.GetMessages("", "", 2))
-    except AttributeError:
-        messages = []
-    except TypeError:
-        messages = []
-    if messages and "error" in messages[-1].lower():
-        message_to_print = messages[-1]
+        messages = list(sys.modules["__main__"].oDesktop.GetMessages("", "", 2))[-1].lower()
+    except (GrpcApiError, AttributeError, TypeError, IndexError):
+        pass
+    if "error" in messages:
+        message_to_print = messages[messages.index("[error]") :]
     # _write_mes("{} - {} -  {}.".format(ex_info[1], func.__name__, message.upper()))
 
     if message_to_print:
-        _write_mes("API Message - " + message_to_print)
-    for el in tblist:
-        if func.__name__ in el:
-            _write_mes("{}, {}".format(el, message.upper()))
+        _write_mes("Last Electronics Desktop Message - " + message_to_print)
+
     args_name = []
     try:
         args_dict = _get_args_dicts(func, args, kwargs)
@@ -210,6 +224,9 @@ def _function_handler_wrapper(user_function):
                     print("")
                 if settings.enable_file_logs:
                     settings.logger.error(message)
+                return False
+            except GrpcApiError:
+                _exception(sys.exc_info(), user_function, args, kwargs, "AEDT grpc API call Error")
                 return False
             except BaseException:
                 _exception(sys.exc_info(), user_function, args, kwargs, "General or AEDT Error")
@@ -654,12 +671,12 @@ def _retry_ntimes(n, function, *args, **kwargs):
     while retry < n:
         try:
             ret_val = function(*args, **kwargs)
-            if ret_val is None:
-                # if not ret_val and type(ret_val) not in [float, int, str, tuple, list]:
-                ret_val = True
+            # if ret_val is None:
+            # if not ret_val and type(ret_val) not in [float, int, str, tuple, list]:
+            #    ret_val = True
         except:
             retry += 1
-            time.sleep(0.5)
+            time.sleep(0.1)
         else:
             break
     if retry == n:
