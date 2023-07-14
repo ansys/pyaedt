@@ -18,6 +18,7 @@ class Settings(object):
         self._logger_formatter = "%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s"
         self._logger_datefmt = "%Y/%m/%d %H.%M.%S"
         self._enable_debug_edb_logger = False
+        self._enable_debug_grpc_api_logger = False
         self._enable_debug_methods_argument_logger = False
         self._enable_debug_geometry_operator_logger = False
         self._enable_debug_internal_methods_logger = False
@@ -65,6 +66,21 @@ class Settings(object):
         self._desktop_launch_timeout = 90
         # self._aedt_process_id = None
         # self._is_student = False
+        self._number_of_grpc_api_retries = 3
+
+    @property
+    def number_of_grpc_api_retries(self):
+        """Number of Grpc API retries. Default is 3.
+
+        Returns
+        -------
+        int
+        """
+        return self._number_of_grpc_api_retries
+
+    @number_of_grpc_api_retries.setter
+    def number_of_grpc_api_retries(self, value):
+        self._number_of_grpc_api_retries = int(value)
 
     # @property
     # def aedt_process_id(self):
@@ -355,7 +371,7 @@ class Settings(object):
         """Get the active logger."""
         try:
             return logging.getLogger("Global")
-        except:
+        except:  # pragma: no cover
             return logging.getLogger(__name__)
 
     # @property
@@ -450,8 +466,17 @@ class Settings(object):
 
     @property
     def enable_debug_edb_logger(self):
-        """Return the Environment Variable Content."""
+        """Enable or disable Logger for any EDB API method."""
         return self._enable_debug_edb_logger
+
+    @property
+    def enable_debug_grpc_api_logger(self):
+        """Enable or disable Logger for any grpc API method."""
+        return self._enable_debug_grpc_api_logger
+
+    @enable_debug_grpc_api_logger.setter
+    def enable_debug_grpc_api_logger(self, val):
+        self._enable_debug_grpc_api_logger = val
 
     @enable_debug_edb_logger.setter
     def enable_debug_edb_logger(self, val):
