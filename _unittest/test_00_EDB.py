@@ -1700,7 +1700,7 @@ class TestClass(BasisTest, object):
 
         assert import_method(os.path.join(local_path, "example_models", test_subfolder, "galileo_stackup.csv"))
         assert "TOP" in edbapp.stackup.layers.keys()
-        assert edbapp.stackup.layers["TOP"].material == "copper"
+        assert edbapp.stackup.layers["TOP"].material == "COPPER"
         assert edbapp.stackup.layers["TOP"].thickness == 6e-5
         assert edbapp.stackup.add_layer("1_Top", None, "add_on_top", material="iron")
         export_stackup_path = os.path.join(self.local_scratch.path, "export_galileo_stackup.csv")
@@ -1722,7 +1722,7 @@ class TestClass(BasisTest, object):
 
         assert import_method(os.path.join(local_path, "example_models", test_subfolder, "galileo_stackup.csv"))
         assert "TOP" in edbapp.stackup.layers.keys()
-        assert edbapp.stackup.layers["TOP"].material == "copper"
+        assert edbapp.stackup.layers["TOP"].material == "COPPER"
         assert edbapp.stackup.layers["TOP"].thickness == 6e-5
         assert edbapp.stackup.add_layer("1_Top", None, "add_on_top", material="iron")
         export_stackup_path = os.path.join(self.local_scratch.path, "export_galileo_stackup.csv")

@@ -1671,57 +1671,42 @@ class Stackup(object):
         Parameters
         ----------
         fpath : str
-            File path to the CSV or JSON file.
+            File path to the CSV file.
         """
         if not pd:
             self._pedb.logger.error("Pandas is needed. You must install it first.")
             return False
-        if os.path.splitext(file_path)[1] == ".json":
-            return self._import_layer_stackup(file_path)
         if is_ironpython:
             self._pedb.logger.error("Method works on CPython only.")
             return False
         df = pd.read_csv(file_path, index_col=0)
-        prev_layer = None
-        for row, val in df[::-1].iterrows():
-            if not self.stackup_layers:
-                self.add_layer(
-                    row,
-                    None,
-                    "add_on_top",
-                    val.Type,
-                    val.Material,
-                    val.Dielectric_Fill if not pd.isnull(val.Dielectric_Fill) else "",
-                    val.Thickness,
-                )
+
+        for name in self.layers.keys():
+            if not name in df.index:
+                logger.error("{} doesn't exist in csv".format(name))
+                return False
+
+        for name, l in df.iterrows():
+            layer_type = l.Type
+            if name in self.layers:
+                layer = self.layers[name]
+                layer.type = layer_type
             else:
-                if row in self.stackup_layers.keys():
-                    lyr = self.stackup_layers[row]
-                    lyr.type = val.Type
-                    lyr.material = val.Material
-                    lyr.dielectric_fill = val.Dielectric_Fill if not pd.isnull(val.Dielectric_Fill) else ""
-                    lyr.thickness = val.Thickness
-                    if prev_layer:
-                        self._set_layout_stackup(lyr._edb_layer, "change_position", prev_layer)
-                else:
-                    if prev_layer and prev_layer in self.stackup_layers:
-                        layer_name = prev_layer
-                    else:
-                        layer_name = list(self.stackup_layers.keys())[-1] if self.stackup_layers else None
-                    self.add_layer(
-                        row,
-                        layer_name,
-                        "insert_above",
-                        val.Type,
-                        val.Material,
-                        val.Dielectric_Fill if not pd.isnull(val.Dielectric_Fill) else "",
-                        val.Thickness,
-                    )
-                prev_layer = row
-        for name in self.stackup_layers:
-            if name not in df.index:
-                self.remove_layer(name)
+                layer = self.add_layer(name, layer_type=layer_type, material="copper", fillMaterial="copper")
+
+            layer.material = l.Material
+            layer.thickness = l.Thickness
+            layer.dielectric_fill = l.Dielectric_Fill
+
+        lc_new = self._pedb.edb_api.Cell.LayerCollection()
+        for name, _ in df.iterrows():
+            layer = self.layers[name]
+            lc_new.AddLayerBottom(layer._edb_layer)
+
+        self._pedb.layout.layer_collection = lc_new
+        self.refresh_layer_collection()
         return True
+
 
     @pyaedt_function_handler
     def _set(self, layers=None, materials=None, roughness=None, non_stackup_layers=None):
