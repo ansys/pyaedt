@@ -4,7 +4,6 @@ import math
 import warnings
 
 # from pyaedt import property
-from pyaedt import _retry_ntimes
 from pyaedt import pyaedt_function_handler
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import PLANE
@@ -325,7 +324,7 @@ class Polyline(Object3d):
                 flag = ""
             varg2 = self._primitives._default_object_attributes(name=name, matname=matname, flags=flag)
 
-            new_object_name = _retry_ntimes(10, self._oeditor.CreatePolyline, varg1, varg2)
+            new_object_name = self._oeditor.CreatePolyline(varg1, varg2)
             Object3d.__init__(self, primitives, name=new_object_name)
             self._primitives._create_object(self.name)
 

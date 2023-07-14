@@ -1,5 +1,4 @@
 """Download example datasets from https://github.com/pyansys/example-data"""
-import ast
 import os
 import shutil
 import tempfile
@@ -16,7 +15,7 @@ else:
     import urllib.request
 
 tmpfold = tempfile.gettempdir()
-EXAMPLE_REPO = "https://github.com/pyansys/example-data/raw/master/pyaedt/"
+EXAMPLE_REPO = "https://github.com/ansys/example-data/raw/master/"
 EXAMPLES_PATH = os.path.join(tmpfold, "PyAEDTExamples")
 
 
@@ -32,7 +31,7 @@ def _get_file_url(directory, filename=None):
         return EXAMPLE_REPO + "/".join([directory, filename])
 
 
-def _retrieve_file(url, filename, directory, destination=None):
+def _retrieve_file(url, filename, directory, destination=None, local_paths=[]):
     """Download a file from a url"""
     # First check if file has already been downloaded
     if not destination:
@@ -40,7 +39,7 @@ def _retrieve_file(url, filename, directory, destination=None):
     local_path = os.path.join(destination, directory, os.path.basename(filename))
     local_path_no_zip = local_path.replace(".zip", "")
     if os.path.isfile(local_path_no_zip) or os.path.isdir(local_path_no_zip):
-        return local_path_no_zip
+        local_paths.append(local_path_no_zip)
 
     # grab the correct url retriever
     if not is_ironpython:
@@ -83,57 +82,67 @@ def _retrieve_file(url, filename, directory, destination=None):
             os.system(command)
     else:
         _, resp = urlretrieve(url, local_path)
-    return local_path
+    local_paths.append(local_path)
 
 
-def _retrieve_folder(url, directory, destination=None):
+def _retrieve_folder(url, directory, destination=None, local_paths=[]):
     """Download a folder from a url"""
     # First check if folder exists
+    import json
+    import re
+
     if not destination:
         destination = EXAMPLES_PATH
-    local_path = os.path.join(destination, directory)
-    # if os.path.isdir(local_path):
-    #     return local_path
+    if directory.startswith("pyaedt/"):
+        local_path = os.path.join(destination, directory[7:])
+    else:
+        local_path = os.path.join(destination, directory)
 
     if is_ironpython:
         return False
-
-    with urllib.request.urlopen(url) as response:  # nosec
+    _get_dir = _get_file_url(directory)
+    with urllib.request.urlopen(_get_dir) as response:  # nosec
         data = response.read().decode("utf-8").split("\n")
 
-    if not os.path.isdir(destination):
+    if not os.path.isdir(local_path):
         try:
-            os.mkdir(destination)
+            os.mkdir(local_path)
         except FileNotFoundError:
             os.makedirs(local_path)
 
-    for line in data:
-        if "js-navigation-open Link--primary" in line:
-            name = line[line.find("title=") + len("title=") : line.rfind(" data-pjax")]
-            if "data-turbo-frame" in name:
-                name = line[line.find("title=") + len("title=") : line.rfind(" data-turbo-frame")]
-            filename = ast.literal_eval(name)
-            if ".aedb" in filename:
-                _download_file(directory + "/" + filename, "edb.def", destination)
+    try:
+        tree = [i for i in data if '"payload"' in i][0]
+        b = re.search(r'>({"payload".+)</script>', tree)
+        itemsfromjson = json.loads(b.group(1))
+        items = itemsfromjson["payload"]["tree"]["items"]
+        for item in items:
+            if item["contentType"] == "directory":
+                _retrieve_folder(url, item["path"], destination, local_paths)
             else:
-                _download_file(directory, filename, destination)
-    return local_path
+                dir_folder = os.path.split(item["path"])
+                _download_file(dir_folder[0], dir_folder[1], destination, local_paths)
+    except:
+        return False
 
 
-def _download_file(directory, filename=None, destination=None):
+def _download_file(directory, filename=None, destination=None, local_paths=[]):
     if not filename:
-        url = _get_file_url(directory)
-        local_path = _retrieve_folder(url, directory, destination)
+        if not directory.startswith("pyaedt/"):
+            directory = "pyaedt/" + directory
+        _retrieve_folder(EXAMPLE_REPO, directory, destination, local_paths)
     else:
-        url = _get_file_url(directory, filename)
-        local_path = _retrieve_file(url, filename, directory, destination)
+        if directory.startswith("pyaedt/"):
+            url = _get_file_url(directory, filename)
+            directory = directory[7:]
+        else:
+            url = _get_file_url("pyaedt/" + directory, filename)
+        _retrieve_file(url, filename, directory, destination, local_paths)
     if settings.remote_rpc_session:
-        remote_path = os.path.join(settings.remote_rpc_session_temp_folder, os.path.split(local_path)[-1])
+        remote_path = os.path.join(settings.remote_rpc_session_temp_folder, os.path.split(local_paths[-1])[-1])
         if not settings.remote_rpc_session.filemanager.pathexists(settings.remote_rpc_session_temp_folder):
             settings.remote_rpc_session.filemanager.makedirs(settings.remote_rpc_session_temp_folder)
-        settings.remote_rpc_session.filemanager.upload(local_path, remote_path)
-        return remote_path
-    return local_path
+        settings.remote_rpc_session.filemanager.upload(local_paths[-1], remote_path)
+        local_paths[-1] = remote_path
 
 
 ###############################################################################
@@ -164,9 +173,10 @@ def download_aedb(destination=None):
     >>> path
     'C:/Users/user/AppData/local/temp/Galileo.aedb'
     """
-    _download_file("edb/Galileo.aedb", "GRM32ER72A225KA35_25C_0V.sp", destination)
-
-    return _download_file("edb/Galileo.aedb", "edb.def", destination)
+    local_paths = []
+    _download_file("pyaedt/edb/Galileo.aedb", "GRM32ER72A225KA35_25C_0V.sp", destination, local_paths)
+    _download_file("pyaedt/edb/Galileo.aedb", "edb.def", destination, local_paths)
+    return local_paths
 
 
 def download_edb_merge_utility(force_download=False, destination=None):
@@ -201,11 +211,13 @@ def download_edb_merge_utility(force_download=False, destination=None):
         local_path = os.path.join(destination, "wpf_edb_merge")
         if os.path.exists(local_path):
             shutil.rmtree(local_path, ignore_errors=True)
-    _download_file("wpf_edb_merge/board.aedb", "edb.def", destination)
-    _download_file("wpf_edb_merge/package.aedb", "edb.def", destination)
-    _download_file("wpf_edb_merge", "merge_wizard_settings.json", destination)
+    local_paths = []
+    _download_file("pyaedt/wpf_edb_merge/board.aedb", "edb.def", destination, local_paths)
+    _download_file("pyaedt/wpf_edb_merge/package.aedb", "edb.def", destination, local_paths)
+    _download_file("pyaedt/wpf_edb_merge", "merge_wizard_settings.json", destination, local_paths)
 
-    return _download_file("wpf_edb_merge", "merge_wizard.py", destination)
+    _download_file("pyaedt/wpf_edb_merge", "merge_wizard.py", destination, local_paths)
+    return local_paths[0]
 
 
 def download_netlist(destination=None):
@@ -232,8 +244,9 @@ def download_netlist(destination=None):
     >>> path
     'C:/Users/user/AppData/local/temp/pyaedtexamples/netlist_small.cir'
     """
-
-    return _download_file("netlist", "netlist_small.cir", destination)
+    local_paths = []
+    _download_file("pyaedt/netlist", "netlist_small.cir", destination, local_paths)
+    return local_paths[0]
 
 
 def download_antenna_array(destination=None):
@@ -263,7 +276,9 @@ def download_antenna_array(destination=None):
     'C:/Users/user/AppData/local/temp/pyaedtexamples/FiniteArray_Radome_77GHz_3D_CADDM.aedt'
     """
 
-    return _download_file("array_antenna", "FiniteArray_Radome_77GHz_3D_CADDM.aedt", destination)
+    local_paths = []
+    _download_file("pyaedt/array_antenna", "FiniteArray_Radome_77GHz_3D_CADDM.aedt", destination, local_paths)
+    return local_paths[0]
 
 
 def download_sbr(destination=None):
@@ -292,7 +307,9 @@ def download_sbr(destination=None):
     'C:/Users/user/AppData/local/temp/pyaedtexamples/FiniteArray_Radome_77GHz_3D_CADDM.aedt'
     """
 
-    return _download_file("sbr", "Cassegrain.aedt", destination)
+    local_paths = []
+    _download_file("pyaedt/sbr", "Cassegrain.aedt", destination, local_paths)
+    return local_paths[0]
 
 
 def download_sbr_time(destination=None):
@@ -321,7 +338,7 @@ def download_sbr_time(destination=None):
     'C:/Users/user/AppData/local/temp/pyaedtexamples/sbr/poc_scat_small.aedt'
     """
 
-    return _download_file("sbr", "poc_scat_small.aedt", destination)
+    return _download_file("pyaedt/sbr", "poc_scat_small.aedt", destination)
 
 
 def download_icepak(destination=None):
@@ -350,7 +367,7 @@ def download_icepak(destination=None):
     'C:/Users/user/AppData/local/temp/pyaedtexamples/Graphic_Card.aedt'
     """
 
-    return _download_file("icepak", "Graphics_card.aedt", destination)
+    return _download_file("pyaedt/icepak", "Graphics_card.aedt", destination)
 
 
 def download_icepak_3d_component(destination=None):  # pragma: no cover
@@ -380,10 +397,11 @@ def download_icepak_3d_component(destination=None):  # pragma: no cover
     >>> path1
     'C:/Users/user/AppData/local/temp/pyaedtexamples/PCBAssembly.aedt',
     """
-    _download_file("icepak_3dcomp//PCBAssembly.aedb", destination=destination)
-    return _download_file("icepak_3dcomp", "PCBAssembly.aedt", destination), _download_file(
-        "icepak_3dcomp", "QFP2.aedt", destination
-    )
+    local_paths = []
+    _download_file("pyaedt/icepak_3dcomp//PCBAssembly.aedb", destination=destination)
+    _download_file("pyaedt/icepak_3dcomp", "PCBAssembly.aedt", destination, local_paths)
+    _download_file("icepak_3dcomp", "QFP2.aedt", destination, local_paths)
+    return local_paths
 
 
 def download_via_wizard(destination=None):
@@ -412,7 +430,7 @@ def download_via_wizard(destination=None):
     'C:/Users/user/AppData/local/temp/pyaedtexamples/Graphic_Card.aedt'
     """
 
-    return _download_file("via_wizard", "viawizard_vacuum_FR4.aedt", destination)
+    return _download_file("pyaedt/via_wizard", "viawizard_vacuum_FR4.aedt", destination)
 
 
 def download_touchstone(destination=None):
@@ -439,7 +457,9 @@ def download_touchstone(destination=None):
     >>> path
     'C:/Users/user/AppData/local/temp/pyaedtexamples/ssn_ssn.s6p'
     """
-    return _download_file("touchstone", "SSN_ssn.s6p", destination)
+    local_paths = []
+    _download_file("pyaedt/touchstone", "SSN_ssn.s6p", destination, local_paths)
+    return local_paths
 
 
 def download_sherlock(destination=None):
@@ -469,11 +489,12 @@ def download_sherlock(destination=None):
     """
     if not destination:
         destination = EXAMPLES_PATH
-    _download_file("sherlock", "MaterialExport.csv", destination)
-    _download_file("sherlock", "TutorialBoardPartsList.csv", destination)
-    _download_file("sherlock", "SherlockTutorial.aedt", destination)
-    _download_file("sherlock", "TutorialBoard.stp", destination)
-    _download_file("sherlock/SherlockTutorial.aedb", "edb.def", destination)
+    local_paths = []
+    _download_file("pyaedt/sherlock", "MaterialExport.csv", destination, local_paths)
+    _download_file("pyaedt/sherlock", "TutorialBoardPartsList.csv", destination, local_paths)
+    _download_file("pyaedt/sherlock", "SherlockTutorial.aedt", destination, local_paths)
+    _download_file("pyaedt/sherlock", "TutorialBoard.stp", destination, local_paths)
+    _download_file("pyaedt/sherlock/SherlockTutorial.aedb", "edb.def", destination, local_paths)
 
     return os.path.join(destination, "sherlock")
 
@@ -505,10 +526,11 @@ def download_leaf(destination=None):
     """
     if not destination:
         destination = EXAMPLES_PATH
-    file1 = _download_file("nissan", "30DH_20C_smooth.tab", destination)
-    file2 = _download_file("nissan", "BH_Arnold_Magnetics_N30UH_80C.tab", destination)
+    local_paths = []
+    _download_file("pyaedt/nissan", "30DH_20C_smooth.tab", destination, local_paths)
+    _download_file("pyaedt/nissan", "BH_Arnold_Magnetics_N30UH_80C.tab", destination, local_paths)
 
-    return file1, file2
+    return local_paths
 
 
 def download_custom_reports(force_download=False, destination=None):
@@ -537,19 +559,14 @@ def download_custom_reports(force_download=False, destination=None):
     >>> path
     'C:/Users/user/AppData/local/temp/custom_reports'
     """
-    if not destination:
-        destination = EXAMPLES_PATH
+
     if force_download:
         local_path = os.path.join(destination, "custom_reports")
         if os.path.exists(local_path):
             shutil.rmtree(local_path, ignore_errors=True)
-    _download_file("custom_reports", "CISPR25_Radiated_Emissions_Example22R1.aedtz", destination)
-    _download_file("custom_reports", "EyeDiagram_CISPR_Basic.json", destination)
-    _download_file("custom_reports", "EyeDiagram_CISPR_Custom.json", destination)
-    _download_file("custom_reports", "Spectrum_CISPR_Basic.json", destination)
-    _download_file("custom_reports", "Spectrum_CISPR_Custom.json", destination)
-    _download_file("custom_reports", "Transient_CISPR_Basic.json", destination)
-    _download_file("custom_reports", "Transient_CISPR_Custom.json", destination)
+    download_file("pyaedt/custom_reports")
+    if not destination:
+        destination = EXAMPLES_PATH
     return os.path.join(destination, "custom_reports")
 
 
@@ -585,9 +602,7 @@ def download_3dcomponent(force_download=False, destination=None):
         local_path = os.path.join(destination, "array_3d_component")
         if os.path.exists(local_path):
             shutil.rmtree(local_path, ignore_errors=True)
-    _download_file("array_3d_component", "Circ_Patch_5GHz.a3dcomp", destination)
-    _download_file("array_3d_component", "Circ_Patch_5GHz_hex.a3dcomp", destination)
-    _download_file("array_3d_component", "array_simple.json", destination)
+    download_file("pyaedt/array_3d_component", destination=destination)
     return os.path.join(destination, "array_3d_component")
 
 
@@ -621,7 +636,7 @@ def download_multiparts(destination=None):
     dest_folder = os.path.join(destination, "multiparts")
     if os.path.exists(os.path.join(dest_folder, "library")):
         shutil.rmtree(os.path.join(dest_folder, "library"), ignore_errors=True)
-    _download_file("multiparts", "library.zip", destination)
+    _download_file("pyaedt/multiparts", "library.zip", destination)
     if os.path.exists(os.path.join(destination, "multiparts", "library.zip")):
         unzip(os.path.join(destination, "multiparts", "library.zip"), dest_folder)
     return os.path.join(dest_folder, "library")
@@ -661,7 +676,7 @@ def download_twin_builder_data(file_name, force_download=False, destination=None
         local_path = os.path.join(destination, os.path.join("twin_builder", file_name))
         if os.path.exists(local_path):
             os.unlink(local_path)
-    _download_file("twin_builder", file_name, destination)
+    _download_file("pyaedt/twin_builder", file_name, destination)
     return os.path.join(destination, "twin_builder")
 
 
@@ -694,9 +709,15 @@ def download_file(directory, filename=None, destination=None):
     >>> path
     'C:/Users/user/AppData/local/temp/PyAEDTExamples/motorcad'
     """
-    local_path = _download_file(directory, filename, destination)
-
-    return local_path
+    local_paths = []
+    _download_file(directory, filename, destination, local_paths)
+    if filename:
+        return list(set(local_paths))[0]
+    else:
+        if not destination:
+            destination = EXAMPLES_PATH
+        destination_dir = os.path.join(destination, directory)
+        return destination_dir
 
 
 def unzip(source_filename, dest_dir):

@@ -36,14 +36,28 @@ def main():
         pyaedt_script = r"##PYTHON_SCRIPT##"
         check_file(python_exe)
         check_file(pyaedt_script)
+        os.environ["PYAEDT_SCRIPT_PROCESS_ID"] = str(oDesktop.GetProcessID())
+        os.environ["PYAEDT_SCRIPT_VERSION"] = str(oDesktop.GetVersion()[:6])
         if is_linux:
+            edt_root = os.path.normpath(oDesktop.GetExeDir())
+            os.environ["ANSYSEM_ROOT{}".format(version)] = edt_root
+            ld_library_path_dirs_to_add = [
+                "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root),
+                "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root),
+                "{}/common/mono/Linux64/lib64".format(edt_root),
+                "{}/Delcross".format(edt_root),
+                "{}".format(edt_root),
+            ]
+            os.environ["LD_LIBRARY_PATH"] = ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv(
+                "LD_LIBRARY_PATH", "")
             command = [
                 python_exe,
                 pyaedt_script,
                 str(oDesktop.GetProcessID()),
                 str(oDesktop.GetVersion()[:6]),
             ]
-            subprocess.Popen(command)
+            my_env = os.environ.copy()
+            subprocess.Popen(command, env=my_env)
         else:
             CREATE_NO_WINDOW = 0x08000000
             command = [
@@ -52,7 +66,8 @@ def main():
                 str(oDesktop.GetProcessID()),
                 str(oDesktop.GetVersion()[:6]),
             ]
-            subprocess.Popen(" ".join(command), creationflags=CREATE_NO_WINDOW)
+            my_env = os.environ.copy()
+            subprocess.Popen(" ".join(command), env=my_env, creationflags=CREATE_NO_WINDOW)
     except Exception as e:
         show_error(str(e))
 

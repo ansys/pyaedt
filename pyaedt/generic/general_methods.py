@@ -42,6 +42,12 @@ except ImportError:
     ET = None
 
 
+class GrpcApiError(Exception):
+    """ """
+
+    pass
+
+
 class MethodNotSupportedError(Exception):
     """ """
 
@@ -85,29 +91,37 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     -------
 
     """
+
     tb_data = ex_info[2]
     tb_trace = traceback.format_tb(tb_data)
-    if len(tb_trace) > 1:
-        tblist = tb_trace[1].split("\n")
-    else:
-        tblist = tb_trace[0].split("\n")
+    _write_mes("{} on {}".format(message.upper(), func.__name__))
+    try:
+        _write_mes(ex_info[1].args[0])
+    except (IndexError, AttributeError):
+        pass
+    for trace in traceback.format_stack():
+        if func.__name__ in trace:
+            for el in trace.split("\n"):
+                _write_mes(el)
+    for trace in tb_trace:
+        tblist = trace.split("\n")
+        for el in tblist:
+            if func.__name__ in el:
+                _write_mes(el)
 
     message_to_print = ""
+    messages = ""
     try:
-        messages = list(sys.modules["__main__"].oDesktop.GetMessages("", "", 2))
-    except AttributeError:
-        messages = []
-    except TypeError:
-        messages = []
-    if messages and "error" in messages[-1].lower():
-        message_to_print = messages[-1]
+        messages = list(sys.modules["__main__"].oDesktop.GetMessages("", "", 2))[-1].lower()
+    except (GrpcApiError, AttributeError, TypeError, IndexError):
+        pass
+    if "error" in messages:
+        message_to_print = messages[messages.index("[error]") :]
     # _write_mes("{} - {} -  {}.".format(ex_info[1], func.__name__, message.upper()))
 
     if message_to_print:
-        _write_mes("API Message - " + message_to_print)
-    for el in tblist:
-        if func.__name__ in el:
-            _write_mes("{}, {}".format(el, message.upper()))
+        _write_mes("Last Electronics Desktop Message - " + message_to_print)
+
     args_name = []
     try:
         args_dict = _get_args_dicts(func, args, kwargs)
@@ -207,6 +221,9 @@ def _function_handler_wrapper(user_function):
                     print("")
                 if settings.enable_file_logs:
                     settings.logger.error(message)
+                return False
+            except GrpcApiError:
+                _exception(sys.exc_info(), user_function, args, kwargs, "AEDT grpc API call Error")
                 return False
             except BaseException:
                 _exception(sys.exc_info(), user_function, args, kwargs, "General or AEDT Error")
@@ -651,12 +668,12 @@ def _retry_ntimes(n, function, *args, **kwargs):
     while retry < n:
         try:
             ret_val = function(*args, **kwargs)
-            if ret_val is None:
-                # if not ret_val and type(ret_val) not in [float, int, str, tuple, list]:
-                ret_val = True
+            # if ret_val is None:
+            # if not ret_val and type(ret_val) not in [float, int, str, tuple, list]:
+            #    ret_val = True
         except:
             retry += 1
-            time.sleep(0.5)
+            time.sleep(0.1)
         else:
             break
     if retry == n:
@@ -1410,7 +1427,9 @@ class PropsManager(object):
         -------
         list
         """
-        return self._recursive_list(self.props)
+        if self.props:
+            return self._recursive_list(self.props)
+        return []
 
     @pyaedt_function_handler()
     def update(self):
@@ -1745,6 +1764,7 @@ class Settings(object):
         self._logger_formatter = "%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s"
         self._logger_datefmt = "%Y/%m/%d %H.%M.%S"
         self._enable_debug_edb_logger = False
+        self._enable_debug_grpc_api_logger = False
         self._enable_debug_methods_argument_logger = False
         self._enable_debug_geometry_operator_logger = False
         self._enable_debug_internal_methods_logger = False
@@ -1792,6 +1812,21 @@ class Settings(object):
         self._desktop_launch_timeout = 90
         self._aedt_process_id = None
         self._is_student = False
+        self._number_of_grpc_api_retries = 3
+
+    @property
+    def number_of_grpc_api_retries(self):
+        """Number of Grpc API retries. Default is 3.
+
+        Returns
+        -------
+        int
+        """
+        return self._number_of_grpc_api_retries
+
+    @number_of_grpc_api_retries.setter
+    def number_of_grpc_api_retries(self, value):
+        self._number_of_grpc_api_retries = int(value)
 
     @property
     def aedt_process_id(self):
@@ -2177,8 +2212,17 @@ class Settings(object):
 
     @property
     def enable_debug_edb_logger(self):
-        """Return the Environment Variable Content."""
+        """Enable or disable Logger for any EDB API method."""
         return self._enable_debug_edb_logger
+
+    @property
+    def enable_debug_grpc_api_logger(self):
+        """Enable or disable Logger for any grpc API method."""
+        return self._enable_debug_grpc_api_logger
+
+    @enable_debug_grpc_api_logger.setter
+    def enable_debug_grpc_api_logger(self, val):
+        self._enable_debug_grpc_api_logger = val
 
     @enable_debug_edb_logger.setter
     def enable_debug_edb_logger(self, val):
