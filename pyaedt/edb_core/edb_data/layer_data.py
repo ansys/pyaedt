@@ -14,59 +14,6 @@ class LayerEdbClass(object):
         self._name = name
         self._color = ()
         self._type = ""
-        self._material = ""
-        self._conductivity = 0.0
-        self._permittivity = 0.0
-        self._loss_tangent = 0.0
-        self._dielectric_fill = ""
-        self._thickness = 0.0
-        self._etch_factor = 0.0
-        self._roughness_enabled = False
-        self._top_hallhuray_nodule_radius = 0.5e-6
-        self._top_hallhuray_surface_ratio = 2.9
-        self._bottom_hallhuray_nodule_radius = 0.5e-6
-        self._bottom_hallhuray_surface_ratio = 2.9
-        self._side_hallhuray_nodule_radius = 0.5e-6
-        self._side_hallhuray_surface_ratio = 2.9
-        self._material = None
-        self._upper_elevation = 0.0
-        self._lower_elevation = 0.0
-
-    @property
-    def lower_elevation(self):
-        """Lower elevation.
-
-        Returns
-        -------
-        float
-            Lower elevation.
-        """
-        try:
-            self._lower_elevation = self._edb_layer.GetLowerElevation()
-        except:
-            pass
-        return self._lower_elevation
-
-    @lower_elevation.setter
-    def lower_elevation(self, value):
-        layer_clone = self._edb_layer
-        layer_clone.SetLowerElevation(self._pclass._edb_value(value))
-        self._pclass._set_layout_stackup(layer_clone, "change_attribute")
-
-    @property
-    def upper_elevation(self):
-        """Upper elevation.
-
-        Returns
-        -------
-        float
-            Upper elevation.
-        """
-        try:
-            self._upper_elevation = self._edb_layer.GetUpperElevation()
-        except:
-            pass
-        return self._upper_elevation
 
     @property
     def _edb(self):
@@ -88,23 +35,6 @@ class LayerEdbClass(object):
             True if this layer is a stackup layer, False otherwise.
         """
         return self._edb_layer.IsStackupLayer()
-
-    @property
-    def is_negative(self):
-        """Determine whether this layer is a negative layer.
-
-        Returns
-        -------
-        bool
-            True if this layer is a negative layer, False otherwise.
-        """
-        return self._edb_layer.GetNegative()
-
-    @is_negative.setter
-    def is_negative(self, value):
-        layer_clone = self._edb_layer
-        layer_clone.SetNegative(value)
-        self._pclass._set_layout_stackup(layer_clone, "change_attribute")
 
     @property
     def color(self):
@@ -177,6 +107,81 @@ class LayerEdbClass(object):
         else:
             return
 
+
+class StackupLayerEdbClass(LayerEdbClass):
+    def __init__(self, pclass, name):
+        super().__init__(pclass, name)
+        self._material = ""
+        self._conductivity = 0.0
+        self._permittivity = 0.0
+        self._loss_tangent = 0.0
+        self._dielectric_fill = ""
+        self._thickness = 0.0
+        self._etch_factor = 0.0
+        self._roughness_enabled = False
+        self._top_hallhuray_nodule_radius = 0.5e-6
+        self._top_hallhuray_surface_ratio = 2.9
+        self._bottom_hallhuray_nodule_radius = 0.5e-6
+        self._bottom_hallhuray_surface_ratio = 2.9
+        self._side_hallhuray_nodule_radius = 0.5e-6
+        self._side_hallhuray_surface_ratio = 2.9
+        self._material = None
+        self._upper_elevation = 0.0
+        self._lower_elevation = 0.0
+
+    @property
+    def lower_elevation(self):
+        """Lower elevation.
+
+        Returns
+        -------
+        float
+            Lower elevation.
+        """
+        try:
+            self._lower_elevation = self._edb_layer.GetLowerElevation()
+        except:
+            pass
+        return self._lower_elevation
+
+    @lower_elevation.setter
+    def lower_elevation(self, value):
+        layer_clone = self._edb_layer
+        layer_clone.SetLowerElevation(self._pclass._edb_value(value))
+        self._pclass._set_layout_stackup(layer_clone, "change_attribute")
+
+    @property
+    def upper_elevation(self):
+        """Upper elevation.
+
+        Returns
+        -------
+        float
+            Upper elevation.
+        """
+        try:
+            self._upper_elevation = self._edb_layer.GetUpperElevation()
+        except:
+            pass
+        return self._upper_elevation
+
+    @property
+    def is_negative(self):
+        """Determine whether this layer is a negative layer.
+
+        Returns
+        -------
+        bool
+            True if this layer is a negative layer, False otherwise.
+        """
+        return self._edb_layer.GetNegative()
+
+    @is_negative.setter
+    def is_negative(self, value):
+        layer_clone = self._edb_layer
+        layer_clone.SetNegative(value)
+        self._pclass._set_layout_stackup(layer_clone, "change_attribute")
+
     @property
     def material(self):
         """Get/Set the material loss_tangent.
@@ -193,6 +198,7 @@ class LayerEdbClass(object):
         layer_clone.SetMaterial(name)
         self._pclass._set_layout_stackup(layer_clone, "change_attribute")
         self._material = name
+
 
     @property
     def conductivity(self):
@@ -558,3 +564,8 @@ class LayerEdbClass(object):
                     layer["side_hallhuray_surface_ratio"],
                     apply_on_surface="side",
                 )
+
+
+class ViaLayerEdbClass(StackupLayerEdbClass):
+    def __init__(self, pclass, name):
+        super().__init__(pclass, name)

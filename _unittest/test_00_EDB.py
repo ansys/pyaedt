@@ -1685,6 +1685,7 @@ class TestClass(BasisTest, object):
         edbapp.stackup.stackup_mode = "Overlapping"
         assert edbapp.stackup.stackup_mode == "Overlapping"
         assert edbapp.stackup.add_layer("new_bottom", "1_Top", "add_at_elevation", "dielectric", elevation=0.0003)
+
         edbapp.close()
 
     @pytest.mark.skipif(is_ironpython, reason="Requires Pandas")

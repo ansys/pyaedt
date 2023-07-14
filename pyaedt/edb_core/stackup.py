@@ -9,11 +9,14 @@ from collections import OrderedDict
 import json
 import logging
 import math
+import re
 import os.path
 import warnings
 
 from pyaedt import generate_unique_name
 from pyaedt.edb_core.edb_data.layer_data import LayerEdbClass
+from pyaedt.edb_core.edb_data.layer_data import StackupLayerEdbClass
+from pyaedt.edb_core.edb_data.layer_data import ViaLayerEdbClass
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 
 # from pyaedt.generic.general_methods import property
@@ -356,11 +359,13 @@ class Stackup(object):
 
     @property
     def _edb_layer_list(self):
-        return list(self._layer_collection.Layers(self._pedb.edb_api.cell.layer_type_set.AllLayerSet))
+        layer_list = list(self._layer_collection.Layers(self._pedb.edb_api.cell.layer_type_set.AllLayerSet))
+        return [i.Clone() for i in layer_list]
 
     @property
     def _edb_layer_list_nonstackup(self):
-        return list(self._layer_collection.Layers(self._pedb.edb_api.cell.layer_type_set.NonStackupLayerSet))
+        layer_list = list(self._layer_collection.Layers(self._pedb.edb_api.cell.layer_type_set.NonStackupLayerSet))
+        return [i.Clone() for i in layer_list]
 
     @property
     def layers(self):
@@ -373,7 +378,12 @@ class Stackup(object):
         _lays = OrderedDict()
         for l in self._edb_layer_list:
             name = l.GetName()
-            _lays[name] = LayerEdbClass(self, name)
+            if not l.IsStackupLayer():
+                _lays[name] = LayerEdbClass(self, name)
+            elif not l.IsViaLayer():
+                _lays[name] = StackupLayerEdbClass(self, name)
+            else:
+                _lays[name] = ViaLayerEdbClass(self, name)
         return _lays
 
     @property
@@ -399,13 +409,9 @@ class Stackup(object):
         -------
         Dict[str, :class:`pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`]
         """
-        layer_type = [
-            self._pedb.edb_api.cell.layer_type.SignalLayer,
-            self._pedb.edb_api.cell.layer_type.DielectricLayer,
-        ]
         _lays = OrderedDict()
         for name, obj in self.layers.items():
-            if obj._edb_layer.GetLayerType() in layer_type:
+            if obj.is_stackup_layer:
                 _lays[name] = obj
         return _lays
 
@@ -433,7 +439,11 @@ class Stackup(object):
         -------
         Dict[str, :class:`pyaedt.edb_core.edb_data.layer_data.LayerEdbClass`]
         """
-        return {l.GetName(): LayerEdbClass(self, l.GetName()) for l in self._edb_layer_list_nonstackup}
+        _lays = OrderedDict()
+        for name, obj in self.layers.items():
+            if isinstance(obj, LayerEdbClass):
+                _lays[name] = obj
+        return _lays
 
     @pyaedt_function_handler()
     def _edb_value(self, value):
@@ -1961,11 +1971,24 @@ class Stackup(object):
 
         self._add_materials_from_dictionary(material_dict)
 
-        new_layer_collection = self._pedb.edb_api.Cell.LayerCollection()
-        result = new_layer_collection.ImportFromControlFile(file_path)
-        if result:
-            self._pedb.layout.layer_collection = new_layer_collection
+        new_lc = self._pedb.edb_api.Cell.LayerCollection()
+        if new_lc.ImportFromControlFile(file_path):
+            dumy_layers = OrderedDict()
+            for i in list(new_lc.Layers(self._pedb.edb_api.cell.layer_type_set.AllLayerSet)):
+                dumy_layers[i.GetName()] = i.Clone()
+
+            for name, layer in self.layers.items():
+                l = dumy_layers[name]
+                layer.type = re.sub(r"Layer$", "", l.GetLayerType().ToString()).lower()
+                if layer.is_stackup_layer:
+                    layer.material = l.GetMaterial()
+                    layer.thickness = l.GetThicknessValue().ToDouble()
+                    layer.fill_material = l.GetFillMaterial()
+                    layer.etch_factor = l.GetEtchFactor().ToDouble()
+
             return True
+        else:
+            return False
 
     @pyaedt_function_handler
     def _export_xml(self, file_path):
