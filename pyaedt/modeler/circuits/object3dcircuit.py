@@ -533,7 +533,7 @@ class CircuitComponent(object):
         self._pins = []
 
         try:
-            pins = self._oeditor.GetComponentPins(self.composed_name)
+            pins = list(self._oeditor.GetComponentPins(self.composed_name))
             if "Port@" in self.composed_name and pins == []:
                 self._pins.append(CircuitPins(self, self.composed_name))
                 return self._pins
