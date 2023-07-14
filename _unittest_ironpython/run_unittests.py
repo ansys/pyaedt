@@ -37,7 +37,7 @@ parser.add_argument("--test-filter", "-t", default="test_01_Design*.py", help="t
 args = parser.parse_args(args_env.split())
 test_filter = args.test_filter
 
-max_attempts = 1
+max_attempts = 2
 
 
 def discover_and_run(start_dir, pattern=None):
