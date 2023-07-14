@@ -768,9 +768,9 @@ class TestClass(BasisTest, object):
         self.aedtapp.modeler.create_coordinate_system(
             origin=[1, 1, 1], name=cs_name, mode="zxz", phi=10, theta=30, psi=50
         )
-        assert self.aedtapp.change_region_coordinate_system(region_cs=cs_name)
-        assert self.aedtapp.change_region_padding("10mm", padding_type="Absolute Offset", direction="-X")
-        assert self.aedtapp.change_region_padding(
+        assert self.aedtapp.modeler.change_region_coordinate_system(region_cs=cs_name)
+        assert self.aedtapp.modeler.change_region_padding("10mm", padding_type="Absolute Offset", direction="-X")
+        assert self.aedtapp.modeler.change_region_padding(
             ["1mm", "-2mm", "3mm", "-4mm", "5mm", "-6mm"],
             padding_type=[
                 "Absolute Position",
@@ -785,11 +785,11 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(is_ironpython, reason="pytest.raises not available")
     def test_59b_region_property_failing(self):
         self.aedtapp.modeler.create_air_region()
-        assert not self.aedtapp.change_region_coordinate_system(region_cs="NoCS")
-        assert not self.aedtapp.change_region_padding(
+        assert not self.aedtapp.modeler.change_region_coordinate_system(region_cs="NoCS")
+        assert not self.aedtapp.modeler.change_region_padding(
             "10mm", padding_type="Absolute Offset", direction="-X", region_name="NoRegion"
         )
         with pytest.raises(Exception, match="Check ``axes`` input."):
-            self.aedtapp.change_region_padding("10mm", padding_type="Absolute Offset", direction="X")
+            self.aedtapp.modeler.change_region_padding("10mm", padding_type="Absolute Offset", direction="X")
         with pytest.raises(Exception, match="Check ``padding_type`` input."):
-            self.aedtapp.change_region_padding("10mm", padding_type="Partial Offset", direction="+X")
+            self.aedtapp.modeler.change_region_padding("10mm", padding_type="Partial Offset", direction="+X")

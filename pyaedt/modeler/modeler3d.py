@@ -1394,7 +1394,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         ----------
         >>> import pyaedt
         >>> app = pyaedt.Icepak()
-        >>> app.change_region_padding("10mm", padding_type="Absolute Offset", direction="-X")
+        >>> app.modeler.change_region_padding("10mm", padding_type="Absolute Offset", direction="-X")
         """
         available_directions = ["+X", "-X", "+Y", "-Y", "+Z", "-Z"]
         available_paddings = [
@@ -1464,7 +1464,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         >>> import pyaedt
         >>> app = pyaedt.Icepak()
         >>> app.modeler.create_coordinate_system(origin=[1, 1, 1], name="NewCS")
-        >>> app.change_region_coordinate_system(region_cs="NewCS")
+        >>> app.modeler.change_region_coordinate_system(region_cs="NewCS")
         """
         try:
             create_region_name = self.modeler.oeditor.GetChildObject(region_name).GetChildNames()[0]
