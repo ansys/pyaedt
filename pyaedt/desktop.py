@@ -610,7 +610,6 @@ class Desktop(object):
                     )
                 )
         elif float(version_key) < 2022.2:
-            self._logger.warning()
             starting_mode = "com"
         elif float(version_key) == 2022.2:
             if self.machine and self.port:

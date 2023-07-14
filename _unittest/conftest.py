@@ -13,7 +13,7 @@ directory as this module. An example of the contents of local_config.json
   "desktopVersion": "2022.2",
   "NonGraphical": false,
   "NewThread": false,
-  "test_desktops": true
+  "skip_desktop_test": false
 }
 
 """
@@ -66,7 +66,7 @@ config = {
     "desktopVersion": default_version,
     "NonGraphical": True,
     "NewThread": True,
-    "test_desktops": False,
+    "skip_desktop_test": False,
     "build_machine": True,
     "skip_space_claim": False,
     "skip_circuits": False,

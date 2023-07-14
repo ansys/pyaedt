@@ -150,6 +150,9 @@ class Circuit(FieldAnalysisCircuit, object):
 
         self.onetwork_data_explorer = self._desktop.GetTool("NdExplorer")
 
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
+
     def __enter__(self):
         return self
 

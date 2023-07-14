@@ -163,6 +163,9 @@ class Icepak(FieldAnalysis3D):
         self._monitor = Monitor(self)
         self._configurations = ConfigurationsIcepak(self)
 
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
+
     def __enter__(self):
         return self
 

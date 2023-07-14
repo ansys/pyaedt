@@ -125,7 +125,7 @@ class Design(AedtObjects):
             exception_to_desktop(ex_value, ex_traceback)
         if self._desktop_class._connected_designs > 1:
             self._desktop_class._connected_designs -= 1
-        else:
+        elif self._desktop_class._initialized_from_design:
             self.release_desktop(self.close_on_exit, self.close_on_exit)
 
     def __enter__(self):
@@ -141,18 +141,19 @@ class Design(AedtObjects):
         return True
 
     def _init_design(self, project_name, design_name, solution_type=None):
-        self.__init__(
+        # calls the method from the application class
+        self._init_from_design(
             projectname=project_name,
             designname=design_name,
             # solution_type=solution_type if solution_type else self.solution_type,
             solution_type=solution_type,
             specified_version=settings.aedt_version,
-            non_graphical=settings.non_graphical,
+            non_graphical=self._desktop_class.non_graphical,
             new_desktop_session=False,
             close_on_exit=self.close_on_exit,
             student_version=self.student_version,
-            machine=settings.machine,
-            port=settings.port,
+            machine=self._desktop_class.machine,
+            port=self._desktop_class.port,
         )
 
     def __init__(
@@ -2376,11 +2377,7 @@ class Design(AedtObjects):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if not self._desktop_class._initialized_from_design:
-            self.logger.warning("Desktop is not closing because it was initialized outside the Design.")
-            return False
         self.desktop_class.release_desktop(close_projects, close_desktop)
-        # release_desktop(close_projects, close_desktop)
         props = [a for a in dir(self) if not a.startswith("__")]
         for a in props:
             self.__dict__.pop(a, None)

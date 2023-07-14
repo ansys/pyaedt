@@ -1296,6 +1296,9 @@ class Q3d(QExtractor, object):
         )
         self.MATRIXOPERATIONS = MATRIXOPERATIONSQ3D()
 
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
+
     @property
     def nets(self):
         """Nets in a Q3D project.
@@ -2113,6 +2116,9 @@ class Q2d(QExtractor, object):
             aedt_process_id,
         )
         self.MATRIXOPERATIONS = MATRIXOPERATIONSQ2D()
+
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler()
     def create_rectangle(self, position, dimension_list, name="", matname=""):
