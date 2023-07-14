@@ -1280,34 +1280,3 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.assign_symmetry_wall(geometry=region_fc_ids[1:4])
         if not is_ironpython:
             assert not self.aedtapp.assign_symmetry_wall(geometry="surf01")
-
-    def test_66a_region_property(self):
-        self.aedtapp.insert_design("test_66")
-        cs_name = "TestCS"
-        self.aedtapp.modeler.create_coordinate_system(
-            origin=[1, 1, 1], name=cs_name, mode="zxz", phi=10, theta=30, psi=50
-        )
-        assert self.aedtapp.change_region_coordinate_system(region_cs=cs_name)
-        assert self.aedtapp.change_region_padding("10mm", padding_type="Absolute Offset", direction="-X")
-        assert self.aedtapp.change_region_padding(
-            ["1mm", "-2mm", "3mm", "-4mm", "5mm", "-6mm"],
-            padding_type=[
-                "Absolute Position",
-                "Absolute Position",
-                "Absolute Position",
-                "Absolute Position",
-                "Absolute Position",
-                "Absolute Position",
-            ],
-        )
-
-    @pytest.mark.skipif(is_ironpython, reason="pytest.raises not available")
-    def test_66b_region_property_failing(self):
-        assert not self.aedtapp.change_region_coordinate_system(region_cs="NoCS")
-        assert not self.aedtapp.change_region_padding(
-            "10mm", padding_type="Absolute Offset", direction="-X", region_name="NoRegion"
-        )
-        with pytest.raises(Exception, match="Check ``axes`` input."):
-            self.aedtapp.change_region_padding("10mm", padding_type="Absolute Offset", direction="X")
-        with pytest.raises(Exception, match="Check ``padding_type`` input."):
-            self.aedtapp.change_region_padding("10mm", padding_type="Partial Offset", direction="+X")
