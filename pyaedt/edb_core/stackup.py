@@ -10,7 +10,6 @@ import json
 import logging
 import math
 import re
-import os.path
 import warnings
 
 from pyaedt import generate_unique_name
