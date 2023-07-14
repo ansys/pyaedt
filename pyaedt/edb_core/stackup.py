@@ -9,8 +9,8 @@ from collections import OrderedDict
 import json
 import logging
 import math
-import re
 import os.path
+import re
 import warnings
 
 from pyaedt import generate_unique_name
@@ -1707,7 +1707,6 @@ class Stackup(object):
         self.refresh_layer_collection()
         return True
 
-
     @pyaedt_function_handler
     def _set(self, layers=None, materials=None, roughness=None, non_stackup_layers=None):
         """Update stackup information.
@@ -2001,7 +2000,6 @@ class Stackup(object):
         self._pedb.layout.layer_collection = lc_new
         self.refresh_layer_collection()
         return True
-
 
     @pyaedt_function_handler
     def _export_xml(self, file_path):
