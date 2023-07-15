@@ -1740,7 +1740,7 @@ class TestClass(BasisTest, object):
         assert layer.name == "TOP"
         layer.type = "dielectric"
         assert layer.type == "dielectric"
-        layer.color = (0,0,0)
+        layer.color = (0, 0, 0)
         assert layer.color == (0, 0, 0)
         layer.transparency = 0
         assert layer.transparency == 0
@@ -1750,7 +1750,6 @@ class TestClass(BasisTest, object):
         assert layer.thickness == 50e-6
         assert layer.lower_elevation
         assert layer.upper_elevation
-
 
     @pytest.mark.skipif(is_ironpython, reason="Requires Numpy")
     def test_126_comp_def(self):

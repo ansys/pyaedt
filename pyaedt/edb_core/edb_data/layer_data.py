@@ -109,6 +109,7 @@ class LayerEdbClass(object):
             return
         self._pclass._set_layout_stackup(layer_clone, "change_attribute")
 
+
 class StackupLayerEdbClass(LayerEdbClass):
     def __init__(self, pclass, name):
         super().__init__(pclass, name)
