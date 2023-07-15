@@ -2,7 +2,6 @@ from __future__ import absolute_import
 
 import re
 
-# from pyaedt import property
 from pyaedt import pyaedt_function_handler
 
 
@@ -98,15 +97,17 @@ class LayerEdbClass(object):
     def type(self, new_type):
         if new_type == self.type:
             return
+
+        layer_clone = self._edb_layer
         if new_type == "signal":
-            self._edb_layer.SetLayerType(self._edb.cell.layer_type.SignalLayer)
+            layer_clone.SetLayerType(self._edb.cell.layer_type.SignalLayer)
             self._type = new_type
         elif new_type == "dielectric":
-            self._edb_layer.SetLayerType(self._edb.cell.layer_type.DielectricLayer)
+            layer_clone.SetLayerType(self._edb.cell.layer_type.DielectricLayer)
             self._type = new_type
         else:
             return
-
+        self._pclass._set_layout_stackup(layer_clone, "change_attribute")
 
 class StackupLayerEdbClass(LayerEdbClass):
     def __init__(self, pclass, name):

@@ -1730,6 +1730,28 @@ class TestClass(BasisTest, object):
         assert os.path.exists(export_stackup_path)
         edbapp.close()
 
+    def test_125c_layer(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_0126.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, edbversion=desktop_version)
+        layer = edbapp.stackup["1_Top"]
+        layer.name = "TOP"
+        assert layer.name == "TOP"
+        layer.type = "dielectric"
+        assert layer.type == "dielectric"
+        layer.color = (0,0,0)
+        assert layer.color == (0, 0, 0)
+        layer.transparency = 0
+        assert layer.transparency == 0
+        layer.etch_factor = 2
+        assert layer.etch_factor == 2
+        layer.thickness = 50e-6
+        assert layer.thickness == 50e-6
+        assert layer.lower_elevation
+        assert layer.upper_elevation
+
+
     @pytest.mark.skipif(is_ironpython, reason="Requires Numpy")
     def test_126_comp_def(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")

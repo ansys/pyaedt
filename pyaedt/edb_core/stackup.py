@@ -1962,7 +1962,7 @@ class Stackup(object):
 
         lc_import = self._pedb.edb_api.Cell.LayerCollection()
 
-        if not lc_import.ImportFromControlFile(file_path):
+        if not lc_import.ImportFromControlFile(file_path):  # pragma: no cover
             logger.error("Import xml failed. Please check xml content.")
             return False
 
@@ -1976,7 +1976,7 @@ class Stackup(object):
             dumy_layers[i.GetName()] = i.Clone()
 
         for name in self.layers.keys():
-            if not name in dumy_layers:
+            if not name in dumy_layers:  # pragma: no cover
                 logger.error("{} doesn't exist in xml".format(name))
                 return False
 
