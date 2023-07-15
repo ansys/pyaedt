@@ -1750,6 +1750,7 @@ class TestClass(BasisTest, object):
         assert layer.thickness == 50e-6
         assert layer.lower_elevation
         assert layer.upper_elevation
+        edbapp.close()
 
     @pytest.mark.skipif(is_ironpython, reason="Requires Numpy")
     def test_126_comp_def(self):
