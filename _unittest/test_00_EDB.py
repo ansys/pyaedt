@@ -1677,13 +1677,13 @@ class TestClass(BasisTest, object):
         assert edbapp.stackup["1_Top"].color == (0, 120, 0)
         edbapp.stackup["1_Top"].transparency = 10
         assert edbapp.stackup["1_Top"].transparency == 10
-        assert edbapp.stackup.stackup_mode == "Laminate"
-        edbapp.stackup.stackup_mode = "Overlapping"
-        assert edbapp.stackup.stackup_mode == "Overlapping"
-        edbapp.stackup.stackup_mode = "MultiZone"
-        assert edbapp.stackup.stackup_mode == "MultiZone"
-        edbapp.stackup.stackup_mode = "Overlapping"
-        assert edbapp.stackup.stackup_mode == "Overlapping"
+        assert edbapp.stackup.mode == "Laminate"
+        edbapp.stackup.mode = "Overlapping"
+        assert edbapp.stackup.mode == "Overlapping"
+        edbapp.stackup.mode = "MultiZone"
+        assert edbapp.stackup.mode == "MultiZone"
+        edbapp.stackup.mode = "Overlapping"
+        assert edbapp.stackup.mode == "Overlapping"
         assert edbapp.stackup.add_layer("new_bottom", "1_Top", "add_at_elevation", "dielectric", elevation=0.0003)
         edbapp.close()
 
@@ -1735,6 +1735,7 @@ class TestClass(BasisTest, object):
         target_path = os.path.join(self.local_scratch.path, "test_0126.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
+        edbapp.stackup.load(os.path.join(local_path, "example_models", test_subfolder, "stackup_laminate.xml"))
         layer = edbapp.stackup["1_Top"]
         layer.name = "TOP"
         assert layer.name == "TOP"
@@ -1753,7 +1754,7 @@ class TestClass(BasisTest, object):
         assert layer.upper_elevation
         layer.is_negative = True
         assert layer.is_negative
-
+        assert not layer.is_via_layer
         edbapp.close()
 
     @pytest.mark.skipif(is_ironpython, reason="Requires Numpy")

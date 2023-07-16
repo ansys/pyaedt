@@ -36,6 +36,17 @@ class LayerEdbClass(object):
         return self._edb_layer.IsStackupLayer()
 
     @property
+    def is_via_layer(self):
+        """Determine whether this layer is a via layer.
+
+        Returns
+        -------
+        bool
+            True if this layer is a via layer, False otherwise.
+        """
+        return self._edb_layer.IsViaLayer()
+
+    @property
     def color(self):
         """Retrieve color of the layer.
 
@@ -140,17 +151,15 @@ class StackupLayerEdbClass(LayerEdbClass):
         float
             Lower elevation.
         """
-        try:
-            self._lower_elevation = self._edb_layer.GetLowerElevation()
-        except:  # pragma: no cover
-            pass
+        self._lower_elevation = self._edb_layer.GetLowerElevation()
         return self._lower_elevation
 
     @lower_elevation.setter
-    def lower_elevation(self, value):  # pragma: no cover
-        layer_clone = self._edb_layer
-        layer_clone.SetLowerElevation(self._pclass._edb_value(value))
-        self._pclass._set_layout_stackup(layer_clone, "change_attribute")
+    def lower_elevation(self, value):
+        if self._pclass.mode == "Overlapping":
+            layer_clone = self._edb_layer
+            layer_clone.SetLowerElevation(self._pclass._edb_value(value))
+            self._pclass._set_layout_stackup(layer_clone, "change_attribute")
 
     @property
     def upper_elevation(self):
@@ -161,11 +170,9 @@ class StackupLayerEdbClass(LayerEdbClass):
         float
             Upper elevation.
         """
-        try:
-            self._upper_elevation = self._edb_layer.GetUpperElevation()
-        except:  # pragma: no cover
-            pass
+        self._upper_elevation = self._edb_layer.GetUpperElevation()
         return self._upper_elevation
+
 
     @property
     def is_negative(self):
@@ -568,5 +575,5 @@ class StackupLayerEdbClass(LayerEdbClass):
 
 
 class ViaLayerEdbClass(StackupLayerEdbClass):
-    def __init__(self, pclass, name):  # pragma: no cover
+    def __init__(self, pclass, name):
         super().__init__(pclass, name)

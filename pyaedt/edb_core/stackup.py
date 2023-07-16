@@ -330,7 +330,7 @@ class Stackup(object):
         return self._lc
 
     @property
-    def stackup_mode(self):
+    def mode(self):
         """Stackup mode.
 
         Returns
@@ -345,8 +345,8 @@ class Stackup(object):
         self._stackup_mode = self._layer_collection.GetMode()
         return str(self._stackup_mode)
 
-    @stackup_mode.setter
-    def stackup_mode(self, value):
+    @mode.setter
+    def mode(self, value):
         mode = self._pedb.edb_api.Cell.LayerCollectionMode
         if value == 0 or value == mode.Laminate or value == "Laminate":
             self._layer_collection.SetMode(mode.Laminate)
@@ -355,6 +355,29 @@ class Stackup(object):
         elif value == 2 or value == mode.MultiZone or value == "MultiZone":
             self._layer_collection.SetMode(mode.MultiZone)
         self._pedb.layout.layer_collection = self._layer_collection
+
+    @property
+    def stackup_mode(self):
+        """Stackup mode.
+
+        .. deprecated:: 0.6.52
+           Use :func:`mode` method instead.
+        Returns
+        -------
+        int, str
+            Type of the stackup mode, where:
+
+            * 0 - Laminate
+            * 1 - Overlapping
+            * 2 - MultiZone
+        """
+        warnings.warn("`stackup_mode` is deprecated. Use `mode` method instead.", DeprecationWarning)
+        return self.mode
+
+    @stackup_mode.setter
+    def stackup_mode(self, value):
+        warnings.warn("`stackup_mode` is deprecated. Use `mode` method instead.", DeprecationWarning)
+        self.mode = value
 
     @property
     def _edb_layer_list(self):
@@ -1680,7 +1703,7 @@ class Stackup(object):
             return False
         df = pd.read_csv(file_path, index_col=0)
 
-        for name in self.stackup_layers.keys():
+        for name in self.stackup_layers.keys():  # pragma: no cover
             if not name in df.index:
                 logger.error("{} doesn't exist in csv".format(name))
                 return False
@@ -1702,7 +1725,7 @@ class Stackup(object):
             layer = self.layers[name]
             lc_new.AddLayerBottom(layer._edb_layer)
 
-        for name, layer in self.non_stackup_layers.items():
+        for name, layer in self.non_stackup_layers.items():  # pragma: no cover
             lc_new.AddLayerBottom(layer._edb_layer)
 
         self._pedb.layout.layer_collection = lc_new
@@ -1976,7 +1999,7 @@ class Stackup(object):
             dumy_layers[i.GetName()] = i.Clone()
 
         for name in self.layers.keys():
-            if not name in dumy_layers:  # pragma: no cover
+            if not name in dumy_layers:
                 logger.error("{} doesn't exist in xml".format(name))
                 return False
 
