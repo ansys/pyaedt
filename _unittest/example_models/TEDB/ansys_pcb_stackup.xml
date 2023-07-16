@@ -64,6 +64,7 @@
             <Layer Material="copper" Name="Inner6(GND2)" Thickness="1.7000000000000003e-05" Type="conductor" FillMaterial="Megtron4_2" EtchFactor="0.0"/>
             <Layer Material="Megtron4" Name="DE7" Thickness="0.0001" Type="dielectric"/>
             <Layer Material="copper" Name="16_Bottom" Thickness="3.5000000000000004e-05" Type="conductor" FillMaterial="Solder Resist" EtchFactor="0.0"/>
+            <Layer Material="copper" Name="17_Bottom" Thickness="3.5000000000000004e-05" Type="conductor" FillMaterial="Solder Resist" EtchFactor="0.0"/>
             <Layer Name="Measures" Type="measure"/>
             <Layer Name="SIwave Regions" Type="siwavehfsssolverregions"/>
             <Layer Name="Top Overlay" Type="silkscreen"/>
