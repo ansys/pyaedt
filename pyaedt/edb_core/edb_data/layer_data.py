@@ -173,7 +173,6 @@ class StackupLayerEdbClass(LayerEdbClass):
         self._upper_elevation = self._edb_layer.GetUpperElevation()
         return self._upper_elevation
 
-
     @property
     def is_negative(self):
         """Determine whether this layer is a negative layer.
