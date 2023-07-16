@@ -1693,12 +1693,12 @@ class TestClass(BasisTest, object):
         import_method = edbapp.stackup.load
         export_method = edbapp.stackup.export
 
-        assert import_method(os.path.join(local_path, "example_models", test_subfolder, "stackup_laminate.xml"))
+        assert import_method(os.path.join(local_path, "example_models", test_subfolder, "ansys_pcb_stackup.xml"))
         xml_export = os.path.join(self.local_scratch.path, "stackup.xml")
         assert export_method(xml_export)
         assert os.path.exists(xml_export)
 
-        assert import_method(os.path.join(local_path, "example_models", test_subfolder, "galileo_stackup.csv"))
+        assert import_method(os.path.join(local_path, "example_models", test_subfolder, "ansys_pcb_stackup.csv"))
         assert "TOP" in edbapp.stackup.layers.keys()
         assert edbapp.stackup.layers["TOP"].material == "COPPER"
         assert edbapp.stackup.layers["TOP"].thickness == 6e-5
@@ -1715,12 +1715,12 @@ class TestClass(BasisTest, object):
         import_method = edbapp.stackup.import_stackup
         export_method = edbapp.stackup.export_stackup
 
-        assert import_method(os.path.join(local_path, "example_models", test_subfolder, "stackup_laminate.xml"))
+        assert import_method(os.path.join(local_path, "example_models", test_subfolder, "ansys_pcb_stackup.xml"))
         xml_export = os.path.join(self.local_scratch.path, "stackup.xml")
         assert export_method(xml_export)
         assert os.path.exists(xml_export)
 
-        assert import_method(os.path.join(local_path, "example_models", test_subfolder, "galileo_stackup.csv"))
+        assert import_method(os.path.join(local_path, "example_models", test_subfolder, "ansys_pcb_stackup.csv"))
         assert "TOP" in edbapp.stackup.layers.keys()
         assert edbapp.stackup.layers["TOP"].material == "COPPER"
         assert edbapp.stackup.layers["TOP"].thickness == 6e-5
@@ -1735,7 +1735,7 @@ class TestClass(BasisTest, object):
         target_path = os.path.join(self.local_scratch.path, "test_0126.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
         edbapp = Edb(target_path, edbversion=desktop_version)
-        edbapp.stackup.load(os.path.join(local_path, "example_models", test_subfolder, "stackup_laminate.xml"))
+        edbapp.stackup.load(os.path.join(local_path, "example_models", test_subfolder, "ansys_pcb_stackup.xml"))
         layer = edbapp.stackup["1_Top"]
         layer.name = "TOP"
         assert layer.name == "TOP"

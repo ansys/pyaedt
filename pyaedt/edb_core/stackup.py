@@ -15,7 +15,6 @@ import warnings
 from pyaedt import generate_unique_name
 from pyaedt.edb_core.edb_data.layer_data import LayerEdbClass
 from pyaedt.edb_core.edb_data.layer_data import StackupLayerEdbClass
-from pyaedt.edb_core.edb_data.layer_data import ViaLayerEdbClass
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 
 # from pyaedt.generic.general_methods import property
