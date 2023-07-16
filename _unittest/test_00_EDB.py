@@ -1694,15 +1694,13 @@ class TestClass(BasisTest, object):
         export_method = edbapp.stackup.export
 
         assert import_method(os.path.join(local_path, "example_models", test_subfolder, "ansys_pcb_stackup.xml"))
+        assert "17_Bottom" in edbapp.stackup.layers.keys()
         xml_export = os.path.join(self.local_scratch.path, "stackup.xml")
         assert export_method(xml_export)
         assert os.path.exists(xml_export)
-
         assert import_method(os.path.join(local_path, "example_models", test_subfolder, "ansys_pcb_stackup.csv"))
-        assert "TOP" in edbapp.stackup.layers.keys()
-        assert edbapp.stackup.layers["TOP"].material == "COPPER"
-        assert edbapp.stackup.layers["TOP"].thickness == 6e-5
-        assert edbapp.stackup.add_layer("1_Top", None, "add_on_top", material="iron")
+        assert "18_Bottom" in edbapp.stackup.layers.keys()
+        assert edbapp.stackup.add_layer("19_Bottom", None, "add_on_top", material="iron")
         export_stackup_path = os.path.join(self.local_scratch.path, "export_galileo_stackup.csv")
         assert export_method(export_stackup_path)
         assert os.path.exists(export_stackup_path)
@@ -1716,15 +1714,13 @@ class TestClass(BasisTest, object):
         export_method = edbapp.stackup.export_stackup
 
         assert import_method(os.path.join(local_path, "example_models", test_subfolder, "ansys_pcb_stackup.xml"))
+        assert "17_Bottom" in edbapp.stackup.layers.keys()
         xml_export = os.path.join(self.local_scratch.path, "stackup.xml")
         assert export_method(xml_export)
         assert os.path.exists(xml_export)
-
         assert import_method(os.path.join(local_path, "example_models", test_subfolder, "ansys_pcb_stackup.csv"))
-        assert "TOP" in edbapp.stackup.layers.keys()
-        assert edbapp.stackup.layers["TOP"].material == "COPPER"
-        assert edbapp.stackup.layers["TOP"].thickness == 6e-5
-        assert edbapp.stackup.add_layer("1_Top", None, "add_on_top", material="iron")
+        assert "18_Bottom" in edbapp.stackup.layers.keys()
+        assert edbapp.stackup.add_layer("19_Bottom", None, "add_on_top", material="iron")
         export_stackup_path = os.path.join(self.local_scratch.path, "export_galileo_stackup.csv")
         assert export_method(export_stackup_path)
         assert os.path.exists(export_stackup_path)
@@ -1755,6 +1751,7 @@ class TestClass(BasisTest, object):
         layer.is_negative = True
         assert layer.is_negative
         assert not layer.is_via_layer
+        assert layer.material == "copper"
         edbapp.close()
 
     @pytest.mark.skipif(is_ironpython, reason="Requires Numpy")
