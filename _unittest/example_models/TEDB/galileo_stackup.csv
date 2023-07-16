@@ -14,5 +14,4 @@ UNNAMED_010,dielectric,FR-4,,6.731e-05
 Diel1,dielectric,myMaterial,,0.001
 BOTTOM,signal,COPPER,BOTTOM_FILL,4.826e-05
 Signal1,signal,copper,FR4_epoxy,3.5000000000000004e-05
-Signal2,signal,copper,FR4_epoxy,3.5000000000000004e-05
 UNNAMED_012,dielectric,AIR,,0.0
