@@ -110,6 +110,7 @@
             <Layer Material="copper" Name="BOTTOM" Thickness="4.826e-05" Type="conductor" FillMaterial="BOTTOM_FILL" EtchFactor="0.0"/>
             <Layer Material="copper" Name="Signal1" Thickness="3.5000000000000004e-05" Type="conductor" FillMaterial="fr4_epoxy" EtchFactor="0.0"/>
             <Layer Material="air" Name="UNNAMED_012" Thickness="0.0" Type="dielectric"/>
+            <Layer Name="Outline" Type="outline"/>
         </Layers>
     </Stackup>
 </ns0:Control>

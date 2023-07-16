@@ -1725,7 +1725,7 @@ class Stackup(object):
             layer = self.layers[name]
             lc_new.AddLayerBottom(layer._edb_layer)
 
-        for name, layer in self.non_stackup_layers.items():  # pragma: no cover
+        for name, layer in self.non_stackup_layers.items():
             lc_new.AddLayerBottom(layer._edb_layer)
 
         self._pedb.layout.layer_collection = lc_new
