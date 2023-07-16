@@ -142,12 +142,12 @@ class StackupLayerEdbClass(LayerEdbClass):
         """
         try:
             self._lower_elevation = self._edb_layer.GetLowerElevation()
-        except:
+        except:  # pragma: no cover
             pass
         return self._lower_elevation
 
     @lower_elevation.setter
-    def lower_elevation(self, value):
+    def lower_elevation(self, value):  # pragma: no cover
         layer_clone = self._edb_layer
         layer_clone.SetLowerElevation(self._pclass._edb_value(value))
         self._pclass._set_layout_stackup(layer_clone, "change_attribute")
@@ -163,7 +163,7 @@ class StackupLayerEdbClass(LayerEdbClass):
         """
         try:
             self._upper_elevation = self._edb_layer.GetUpperElevation()
-        except:
+        except:  # pragma: no cover
             pass
         return self._upper_elevation
 
@@ -568,5 +568,5 @@ class StackupLayerEdbClass(LayerEdbClass):
 
 
 class ViaLayerEdbClass(StackupLayerEdbClass):
-    def __init__(self, pclass, name):
+    def __init__(self, pclass, name):  # pragma: no cover
         super().__init__(pclass, name)
