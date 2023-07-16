@@ -402,10 +402,8 @@ class Stackup(object):
             name = l.GetName()
             if not l.IsStackupLayer():
                 _lays[name] = LayerEdbClass(self, name)
-            elif not l.IsViaLayer():
-                _lays[name] = StackupLayerEdbClass(self, name)
             else:
-                _lays[name] = ViaLayerEdbClass(self, name)
+                _lays[name] = StackupLayerEdbClass(self, name)
         return _lays
 
     @property

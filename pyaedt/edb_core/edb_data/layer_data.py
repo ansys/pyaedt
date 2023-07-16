@@ -572,8 +572,3 @@ class StackupLayerEdbClass(LayerEdbClass):
                     layer["side_hallhuray_surface_ratio"],
                     apply_on_surface="side",
                 )
-
-
-class ViaLayerEdbClass(StackupLayerEdbClass):
-    def __init__(self, pclass, name):
-        super().__init__(pclass, name)
