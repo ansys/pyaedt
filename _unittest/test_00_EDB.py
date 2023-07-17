@@ -2597,3 +2597,21 @@ class TestClass(BasisTest, object):
             term for term in list(edbapp.active_layout.Terminals) if str(term.GetBoundaryType()) == "RlcBoundary"
         ]
         assert len(rlc_list) == 944
+
+    def test_143_backdrill_via_with_offset(self):
+        edb = Edb(edbversion="2023.2")
+        edb.stackup.add_layer(layer_name="bot")
+        edb.stackup.add_layer(layer_name="diel1", base_layer="bot", layer_type="dielectric", thickness="127um")
+        edb.stackup.add_layer(layer_name="signal1", base_layer="diel1")
+        edb.stackup.add_layer(layer_name="diel2", base_layer="signal1", layer_type="dielectric", thickness="127um")
+        edb.stackup.add_layer(layer_name="signal2", base_layer="diel2")
+        edb.stackup.add_layer(layer_name="diel3", base_layer="signal2", layer_type="dielectric", thickness="127um")
+        edb.stackup.add_layer(layer_name="top", base_layer="diel2")
+        edb.padstacks.create(padstackname="test1")
+        padstack_instance = edb.padstacks.place(position=[0, 0], net_name="test", definition_name="test1")
+        edb.padstacks.definitions["test1"].hole_range = "through"
+        padstack_instance.set_backdrill_top(drill_depth="signal1", drill_diameter="200um", offset="100um")
+        assert len(padstack_instance.backdrill_top) == 3
+        assert padstack_instance.backdrill_top[0] == "signal1"
+        assert padstack_instance.backdrill_top[1] == "200um"
+        assert padstack_instance.backdrill_top[2] == "100um"
