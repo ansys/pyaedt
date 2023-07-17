@@ -69,7 +69,7 @@ with open(filename, 'r') as csvFile:
 
 ###############################################################################
 # Defining a function for network block types
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This function will be called in the next step if the blcok type is network.
 # It will read the board side as well as thetaj values and assign them to the block.
 
@@ -134,7 +134,7 @@ def create_2R_network_BC(object3d, power, rjb, rjc, board_side):
 
 ###############################################################################
 # Final stage to create the blocks
-# ~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # It will loop over the csv file lines and creates the blocks.
 # It will create solid blocks and assign BCs.
 # Every row in the list has information of a particular block.
@@ -183,7 +183,7 @@ for i in range(len(rows)):
 
 ###############################################################################
 # Fit to scale, save the project
-# ~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This will scale to fit all objects in AEDT and save the project.
 
 ipk.modeler.fit_all()
@@ -191,7 +191,7 @@ ipk.save_project()
 
 ###############################################################################
 # Closing and releasing AEDT
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Release the AEDT session.  If this step is missing, AEDT cannot be closed.
 
 ipk.close_project()

@@ -169,11 +169,11 @@ class EDBNetsData(NetDotNet):
 
                 if refdes in exception_list:
                     pass
-                elif val.type == "Inductor" and val.value < inductor_below and val.is_enabled:
+                elif val.type == "Inductor" and val.rlc_values[1] < inductor_below and val.is_enabled:
                     pass
-                elif val.type == "Resistor" and val.value < resistor_below and val.is_enabled:
+                elif val.type == "Resistor" and val.rlc_values[0] < resistor_below and val.is_enabled:
                     pass
-                elif val.type == "Capacitor" and val.value > capacitor_above and val.is_enabled:
+                elif val.type == "Capacitor" and val.rlc_values[2] > capacitor_above and val.is_enabled:
                     pass
                 else:
                     _comp[refdes] = val

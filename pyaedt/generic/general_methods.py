@@ -113,7 +113,7 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     messages = ""
     try:
         messages = list(sys.modules["__main__"].oDesktop.GetMessages("", "", 2))[-1].lower()
-    except (GrpcApiError, AttributeError, TypeError):
+    except (GrpcApiError, AttributeError, TypeError, IndexError):
         pass
     if "error" in messages:
         message_to_print = messages[messages.index("[error]") :]

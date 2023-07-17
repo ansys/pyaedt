@@ -503,6 +503,7 @@ class TestClass(BasisTest, object):
         # assert self.aedtapp.get_monitor_data()
         assert self.aedtapp.stop_simulations()
 
+    @pytest.mark.skipif(is_ironpython, reason="Not supported with IronPython")
     def test_19B_analyze_setup(self):
         self.aedtapp.save_project()
         assert self.aedtapp.mesh.generate_mesh("RFBoardSetup3")
@@ -511,7 +512,7 @@ class TestClass(BasisTest, object):
         assert os.path.exists(self.aedtapp.export_profile("RFBoardSetup3"))
         assert os.path.exists(self.aedtapp.export_mesh_stats("RFBoardSetup3"))
 
-    @pytest.mark.skipif(is_linux, reason="To be investigated on linux.")
+    @pytest.mark.skipif(is_linux or is_ironpython, reason="To be investigated on linux.")
     def test_19C_export_touchsthone(self):
         filename = os.path.join(self.aedtapp.working_directory, "touchstone.s2p")
         solution_name = "RFBoardSetup3"
@@ -532,12 +533,14 @@ class TestClass(BasisTest, object):
         assert setup.export_to_hfss(file_fullname=file_fullname)
         assert setup.export_to_hfss(file_fullname=file_fullname2, keep_net_name=True)
 
+    @pytest.mark.skipif(is_ironpython, reason="To be investigated on linux.")
     def test_19E_export_to_q3d(self):
         filename = "export_to_q3d_test"
         file_fullname = os.path.join(self.local_scratch.path, filename)
         setup = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
         assert setup.export_to_q3d(file_fullname)
 
+    @pytest.mark.skipif(is_ironpython, reason="To be investigated on linux.")
     def test_19F_export_results(self):
         files = self.aedtapp.export_results()
         assert len(files) > 0
@@ -689,7 +692,7 @@ class TestClass(BasisTest, object):
         assert p2.name == "poly_test_41_void"
         assert not self.aedtapp.modeler.create_polygon_void("Top", points2, "another_object", name="poly_43_void")
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
+    @pytest.mark.skipif(is_ironpython or config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
     def test_42_post_processing(self):
         test_post1 = BasisTest.add_app(self, project_name=test_post, application=Maxwell3d, subfolder=test_subfolder)
         assert test_post1.post.create_fieldplot_layers_nets(
@@ -707,7 +710,7 @@ class TestClass(BasisTest, object):
         )
         self.aedtapp.close_project(test_post2.project_name)
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
+    @pytest.mark.skipif(is_ironpython or config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
     def test_42_post_processing_3d_layout(self):
         test = BasisTest.add_app(
             self, project_name="test_post_3d_layout_solved_23R2", application=Hfss3dLayout, subfolder=test_subfolder

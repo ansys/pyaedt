@@ -793,7 +793,6 @@ class TestClass(BasisTest, object):
             self.aedtapp.modeler.change_region_padding("10mm", padding_type="Absolute Offset", direction="X")
         with pytest.raises(Exception, match="Check ``padding_type`` input."):
             self.aedtapp.modeler.change_region_padding("10mm", padding_type="Partial Offset", direction="+X")
-
         assert not self.aedtapp.modeler.change_region_padding(
             ["1mm", "-2mm", "3mm", "-4mm", "5mm", "-6mm"],
             padding_type=[
