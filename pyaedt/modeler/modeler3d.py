@@ -355,9 +355,10 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                         if instance_dict["CS"] and instance_dict["CS"] != "Global":
                             cs = instance_dict["CS"]
                             cs_set.add(cs)
-                            while config_dict["coordinatesystems"][cs]["Reference CS"] != "Global":
-                                cs = config_dict["coordinatesystems"][cs]["Reference CS"]
-                                cs_set.add(cs)
+                            if cs in config_dict["coordinatesystems"]:
+                                while config_dict["coordinatesystems"][cs]["Reference CS"] != "Global":
+                                    cs = config_dict["coordinatesystems"][cs]["Reference CS"]
+                                    cs_set.add(cs)
                 out_dict["coordinatesystems"] = copy.deepcopy(config_dict["coordinatesystems"])
                 for cs in list(out_dict["coordinatesystems"]):
                     if cs not in cs_set:
