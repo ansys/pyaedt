@@ -402,7 +402,7 @@ def download_icepak_3d_component(destination=None):  # pragma: no cover
     _download_file("pyaedt/icepak_3dcomp//PCBAssembly.aedb", destination=destination)
     _download_file("pyaedt/icepak_3dcomp", "PCBAssembly.aedt", destination, local_paths)
     _download_file("icepak_3dcomp", "QFP2.aedt", destination, local_paths)
-    return local_paths[1:]
+    return local_paths[1], local_paths[2]
 
 
 def download_via_wizard(destination=None):
