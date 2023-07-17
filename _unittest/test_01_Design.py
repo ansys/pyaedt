@@ -382,6 +382,7 @@ class TestClass(BasisTest, object):
         desktop = Desktop(desktop_version, new_desktop_session=False)
         assert desktop.get_available_toolkits()
 
+    @pytest.mark.skipif(is_ironpython, reason="not supported.")
     def test_38_toolkit(self):
         file = os.path.join(self.local_scratch.path, "test.py")
         with open(file, "w") as f:
