@@ -48,7 +48,7 @@ ipk.autosave_disable()                                                    # Save
 
 ###############################################################################
 # Import the IDF files
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~
 # Sample *.bdf and *.ldf files are presented here.
 # .. image:: ../../_static/bdf.png
 # :width: 400
@@ -81,14 +81,14 @@ ipk.import_idf(board_path, library_path=None, control_path=None,
 
 ###############################################################################
 # Fit to scale, save the project
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ipk.modeler.fit_all()    # scales to fit all objects in AEDT
 ipk.save_project()       # saves the project
 
 ###############################################################################
 # Add an HFSS 3D Layout design with the layout information of the PCB
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Layout_name = 'A1_uprev'          # 3D layout name available for import, the extension of .aedb should not be listed here
 
@@ -112,14 +112,14 @@ ipk.create_pcb_from_3dlayout(
 
 ###############################################################################
 # Delete PCB objects
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~
 # Delete the PCB object from IDF import.
 
 ipk.modeler.delete_objects_containing("IDF_BoardOutline", False)
 
 ###############################################################################
 # Compute power budget
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~
 
 # creates a setup to be able to calculate the power
 ipk.create_setup("setup1")
@@ -129,7 +129,7 @@ print(total)
 
 ###############################################################################
 # Closing and releasing AEDT
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ipk.close_project()      # close the project
 ipk.release_desktop()    # release the AEDT session.  If this step is missing, AEDT cannot be closed.
