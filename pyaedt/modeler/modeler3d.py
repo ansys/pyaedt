@@ -1423,7 +1423,11 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             modify_props.append(["NAME:" + direction[i] + " Padding Data", "Value:=", padding_data[i]])
 
         try:
-            create_region_name = self.modeler.oeditor.GetChildObject(region_name).GetChildNames()[0]
+            region = self._app.get_oo_object(self._app.oeditor, region_name)
+            if not region:
+                self.logger.error("{} does not exist.".format(region))
+                return False
+            create_region_name = region.GetChildNames()[0]
             self.modeler.oeditor.ChangeProperty(
                 list(
                     [
