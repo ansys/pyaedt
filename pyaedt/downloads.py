@@ -143,6 +143,7 @@ def _download_file(directory, filename=None, destination=None, local_paths=[]):
             settings.remote_rpc_session.filemanager.makedirs(settings.remote_rpc_session_temp_folder)
         settings.remote_rpc_session.filemanager.upload(local_paths[-1], remote_path)
         local_paths[-1] = remote_path
+    return local_paths[-1]
 
 
 ###############################################################################
@@ -176,7 +177,7 @@ def download_aedb(destination=None):
     local_paths = []
     _download_file("pyaedt/edb/Galileo.aedb", "GRM32ER72A225KA35_25C_0V.sp", destination, local_paths)
     _download_file("pyaedt/edb/Galileo.aedb", "edb.def", destination, local_paths)
-    return local_paths
+    return local_paths[-1]
 
 
 def download_edb_merge_utility(force_download=False, destination=None):
@@ -366,7 +367,7 @@ def download_icepak(destination=None):
     >>> pathavoid
     'C:/Users/user/AppData/local/temp/pyaedtexamples/Graphic_Card.aedt'
     """
-
+    _download_file("pyaedt/icepak", "Graphics_card.aedt", destination)
     return _download_file("pyaedt/icepak", "Graphics_card.aedt", destination)
 
 
@@ -401,7 +402,7 @@ def download_icepak_3d_component(destination=None):  # pragma: no cover
     _download_file("pyaedt/icepak_3dcomp//PCBAssembly.aedb", destination=destination)
     _download_file("pyaedt/icepak_3dcomp", "PCBAssembly.aedt", destination, local_paths)
     _download_file("icepak_3dcomp", "QFP2.aedt", destination, local_paths)
-    return local_paths
+    return local_paths[1:]
 
 
 def download_via_wizard(destination=None):
