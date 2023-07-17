@@ -164,6 +164,10 @@ class TestClass(BasisTest, object):
     def test_009_vias_creation(self):
         self.edbapp.padstacks.create(padstackname="myVia")
         assert "myVia" in list(self.edbapp.padstacks.definitions.keys())
+        self.edbapp.padstacks.definitions["myVia"].hole_range = "begin_on_upper_pad"
+        assert self.edbapp.padstacks.definitions["myVia"].hole_range == "begin_on_upper_pad"
+        self.edbapp.padstacks.definitions["myVia"].hole_range = "through"
+        assert self.edbapp.padstacks.definitions["myVia"].hole_range == "through"
         self.edbapp.padstacks.create(padstackname="myVia_bullet", antipad_shape="Bullet")
         assert "myVia_bullet" in list(self.edbapp.padstacks.definitions.keys())
 

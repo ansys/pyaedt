@@ -683,6 +683,37 @@ class EDBPadstack(object):
             id: via for id, via in self._ppadstack.padstack_instances.items() if via.padstack_definition == self.name
         }
 
+    @property
+    def hole_range(self):
+        cloned_padstackdef_data = self._edb.definition.PadstackDefData(self.edb_padstack.GetData())
+        hole_ange_type = int(cloned_padstackdef_data.GetHoleRange())
+        if hole_ange_type == 0:
+            return "through"
+        elif hole_ange_type == 1:
+            return "begin_on_upper_pad"
+        elif hole_ange_type == 2:
+            return "end_on_lower_pad"
+        elif hole_ange_type == 3:
+            return "upper_pad_to_lower_pad"
+        else:
+            return "undefined"
+
+    @hole_range.setter
+    def hole_range(self, value):
+        if isinstance(value, str):
+            cloned_padstackdef_data = self._edb.definition.PadstackDefData(self.edb_padstack.GetData())
+            if value == "through":
+                cloned_padstackdef_data.SetHoleRange(self._edb.definition.PadstackHoleRange.Through)
+            elif value == "begin_on_upper_pad":
+                cloned_padstackdef_data.SetHoleRange(self._edb.definition.PadstackHoleRange.BeginOnUpperPad)
+            elif value == "end_on_lower_pad":
+                cloned_padstackdef_data.SetHoleRange(self._edb.definition.PadstackHoleRange.EndOnLowerPad)
+            elif value == "upper_pad_to_lower_pad":
+                cloned_padstackdef_data.SetHoleRange(self._edb.definition.PadstackHoleRange.UpperPadToLowerPad)
+            else:
+                return
+            self.edb_padstack.SetData(cloned_padstackdef_data)
+
     @pyaedt_function_handler()
     def convert_to_3d_microvias(self, convert_only_signal_vias=True, hole_wall_angle=15):
         """Convert actual padstack instance to microvias 3D Objects with a given aspect ratio.
