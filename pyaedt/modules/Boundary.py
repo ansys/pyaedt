@@ -102,17 +102,6 @@ class BoundaryCommon(PropsManager):
 
     def _get_boundary_data(self, ds):
         try:
-            if ds in self._app.design_properties["BoundarySetup"]["Boundaries"]:
-                if (
-                    self._app.design_properties["BoundarySetup"]["Boundaries"][ds]["BoundType"] == "Network"
-                    and self._app.design_type == "Icepak"
-                ):
-                    return [self._app.design_properties["BoundarySetup"]["Boundaries"][ds], ""]
-                else:
-                    return [
-                        self._app.design_properties["BoundarySetup"]["Boundaries"][ds],
-                        self._app.design_properties["BoundarySetup"]["Boundaries"][ds]["BoundType"],
-                    ]
             if "MaxwellParameterSetup" in self._app.design_properties:
                 param = "MaxwellParameters"
                 setup = "MaxwellParameterSetup"
@@ -123,6 +112,9 @@ class BoundaryCommon(PropsManager):
                             "MaxwellParameterType"
                         ],
                     ]
+        except:
+            pass
+        try:
             if "MotionSetupList" in self._app.design_properties["ModelSetup"]:
                 motion_list = "MotionSetupList"
                 setup = "ModelSetup"
@@ -131,6 +123,20 @@ class BoundaryCommon(PropsManager):
                     return [
                         self._app.design_properties["ModelSetup"]["MotionSetupList"][ds],
                         self._app.design_properties["ModelSetup"]["MotionSetupList"][ds]["MotionType"],
+                    ]
+        except:
+            pass
+        try:
+            if ds in self._app.design_properties["BoundarySetup"]["Boundaries"]:
+                if (
+                    self._app.design_properties["BoundarySetup"]["Boundaries"][ds]["BoundType"] == "Network"
+                    and self._app.design_type == "Icepak"
+                ):
+                    return [self._app.design_properties["BoundarySetup"]["Boundaries"][ds], ""]
+                else:
+                    return [
+                        self._app.design_properties["BoundarySetup"]["Boundaries"][ds],
+                        self._app.design_properties["BoundarySetup"]["Boundaries"][ds]["BoundType"],
                     ]
         except:
             return []
