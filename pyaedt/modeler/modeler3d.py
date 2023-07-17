@@ -1442,6 +1442,11 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                     ]
                 )
             )
+            create_region = self._app.get_oo_object(self._app.oeditor, region_name + "/" + create_region_name)
+            success = all(create_region.GetPropValue(lst[0].strip("NAME:")) == lst[-1] for lst in modify_props)
+            if not success:
+                self.logger.error("Settings update failed.")
+                return False
             return True
         except (GrpcApiError, SystemExit):
             return False
