@@ -91,6 +91,10 @@ class TestClass(BasisTest, object):
         assert os.path.exists(self.aedtapp.toolkit_directory)
         assert os.path.exists(self.aedtapp.working_directory)
 
+    def test_06a_set_temp_dir(self):
+        assert os.path.exists(self.aedtapp.set_temporary_directory(os.path.join(self.local_scratch.path, "temp_dir")))
+        assert self.aedtapp.set_temporary_directory(os.path.join(self.local_scratch.path, "temp_dir"))
+
     def test_08_objects(self):
         print(self.aedtapp.oboundary)
         print(self.aedtapp.oanalysis)
