@@ -1394,7 +1394,7 @@ class Icepak(FieldAnalysis3D):
             The default is ``0``.
         ambtemp : float, str, optional
             Ambient temperature. The default is ``20``.
-            The default unit is celcius for float or string including unit definition is accepted, e.g. ``325kel``.
+            The default unit is celsius for float or string including unit definition is accepted, e.g. ``325kel``.
         performvalidation : bool, optional
             Whether to perform validation. The default is ``False``.
         CheckLevel : str, optional
