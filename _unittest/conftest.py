@@ -242,7 +242,6 @@ class BasisTest(object):
         """
         Could be redefined
         """
-        print("AEDT PID: {}".format(self.desktop.aedt_process_id))
         pass
 
 
