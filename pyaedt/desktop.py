@@ -27,7 +27,6 @@ from pyaedt import is_linux
 from pyaedt import is_windows
 from pyaedt import pyaedt_logger
 from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.generic.general_methods import is_process_running
 
 if is_linux:
     os.environ["ANS_NODEPCHECK"] = str(1)
@@ -301,12 +300,6 @@ def _close_aedt_application(close_desktop, pid, is_grpc_api):
             except:  # pragma: no cover
                 warnings.warn("Exception in _main.oDesktop.QuitApplication()")
                 pass
-            time.sleep(0.1)
-            try:
-                os.kill(pid, 9)
-            except:  # pragma: no cover
-                warnings.warn("Exception in os.kill(pid, 9) after _main.oDesktop.QuitApplication()")
-                pass
         else:
             try:
                 import pyaedt.generic.grpc_plugin as StandalonePyScriptWrapper
@@ -333,9 +326,17 @@ def _close_aedt_application(close_desktop, pid, is_grpc_api):
                 pass
     _delete_objects()
     if not settings.remote_rpc_session and not is_ironpython and close_desktop:
-        if is_process_running(pid):
-            warnings.warn("Something went wrong in closing AEDT.")
-            return False
+        timeout = 10
+        while pid in active_sessions():
+            time.sleep(1)
+            timeout -= 1
+            if timeout == 0:
+                try:
+                    os.kill(pid, 9)
+                except:  # pragma: no cover
+                    warnings.warn("Exception in os.kill(pid, 9) after _main.oDesktop.QuitApplication()")
+                    return False
+                break
     return True
 
 
