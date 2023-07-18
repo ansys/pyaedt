@@ -826,7 +826,7 @@ class Design(AedtObjects):
 
         >>> oDesktop.GetPersonalLibDirectory
         """
-        return self.odesktop.GetPersonalLibDirectory()
+        return self.desktop_class.personallib
 
     @property
     def userlib(self):
@@ -842,7 +842,7 @@ class Design(AedtObjects):
 
         >>> oDesktop.GetUserLibDirectory
         """
-        return self.odesktop.GetUserLibDirectory()
+        return self.desktop_class.userlib
 
     @property
     def syslib(self):
@@ -858,7 +858,7 @@ class Design(AedtObjects):
 
         >>> oDesktop.GetLibraryDirectory
         """
-        return self.odesktop.GetLibraryDirectory()
+        return self.desktop_class.syslib
 
     @property
     def src_dir(self):

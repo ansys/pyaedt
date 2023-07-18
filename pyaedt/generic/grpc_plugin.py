@@ -120,8 +120,8 @@ class AedtObjWrapper:
             return _retry_ntimes(
                 settings.number_of_grpc_api_retries, AedtAPI.InvokeAedtObjMethod, self.objectID, funcName, argv
             )  # Call C function
-        except BaseException as e:
-            raise GrpcApiError("Failed to execute grpc AEDT command:  {}".format(funcName))
+        except (BaseException, AttributeError) as e:
+            raise GrpcApiError("Failed to execute grpc AEDT command: {}".format(funcName))
 
     def __dir__(self):
         return self.__methodNames__
