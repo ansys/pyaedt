@@ -26,16 +26,25 @@ import sys
 import tempfile
 import time
 
-from pyaedt import pyaedt_logger
-from pyaedt import settings
+from pyaedt.generic.settings import settings
+
+settings.enable_local_log_file = False
+settings.enable_global_log_file = False
+settings.number_of_grpc_api_retries = 6
+settings.retry_n_times_time_interval = 0.5
+settings.enable_error_handler = False
+settings.enable_desktop_logs = False
+settings.desktop_launch_timeout = 180
+
+
+from pyaedt.aedt_logger import pyaedt_logger
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
 
 # from pyaedt.generic.general_methods import is_windows
 
-settings.enable_error_handler = False
-settings.enable_desktop_logs = False
+
 if is_ironpython:
     import _unittest_ironpython.conf_unittest as pytest
 else:
@@ -87,10 +96,9 @@ if os.path.exists(local_config_file):
 
 NONGRAPHICAL = config["NonGraphical"]
 settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
-settings.enable_local_log_file = False
-settings.enable_global_log_file = False
-settings.number_of_grpc_api_retries = 6
-settings.retry_n_times_time_interval = 0.5
+desktop_version = config["desktopVersion"]
+new_thread = config["NewThread"]
+
 
 test_folder = "unit_test" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 for filename in os.listdir(tempfile.gettempdir()):
@@ -235,12 +243,6 @@ class BasisTest(object):
         Could be redefined
         """
         pass
-
-
-# Define desktopVersion explicitly since this is imported by other modules
-desktop_version = config["desktopVersion"]
-new_thread = config["NewThread"]
-settings.desktop_launch_timeout = 180
 
 
 @pytest.fixture(scope="session", autouse=True)

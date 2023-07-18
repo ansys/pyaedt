@@ -687,6 +687,7 @@ class TestClass(BasisTest, object):
             calculate_force="Harmonic",
         )
         self.m3dtransient.analyze(self.m3dtransient.active_setup)
+        self.m3dtransient.save_project()
         assert self.m3dtransient.export_element_based_harmonic_force(
             start_frequency=1, stop_frequency=100, number_of_frequency=None
         )

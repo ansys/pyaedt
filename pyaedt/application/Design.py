@@ -21,7 +21,7 @@ import threading
 import time
 import warnings
 
-from pyaedt import pyaedt_logger
+from pyaedt.aedt_logger import pyaedt_logger
 from pyaedt.application.Variables import DataSet
 from pyaedt.application.Variables import VariableManager
 from pyaedt.application.Variables import decompose_variable_value
@@ -1156,7 +1156,12 @@ class Design(AedtObjects):
             elif settings.force_error_on_missing_project and ".aedt" in proj_name:
                 raise Exception("Project doesn't exists. Check it and retry.")
             else:
+                project_list = self.odesktop.GetProjectList()
                 self._oproject = self.odesktop.NewProject()
+                if not self._oproject:
+                    new_project_list = [i for i in self.odesktop.GetProjectList() if i not in project_list]
+                    if new_project_list:
+                        self._oproject = self.odesktop.SetActiveProject(new_project_list[0])
                 if ".aedt" in proj_name:
                     self._oproject.Rename(proj_name, True)
                 else:
@@ -1164,7 +1169,12 @@ class Design(AedtObjects):
                 self._add_handler()
                 self.logger.info("Project %s has been created.", self._oproject.GetName())
         if not self._oproject:
+            project_list = self.odesktop.GetProjectList()
             self._oproject = self.odesktop.NewProject()
+            if not self._oproject:
+                new_project_list = [i for i in self.odesktop.GetProjectList() if i not in project_list]
+                if new_project_list:
+                    self._oproject = self.odesktop.SetActiveProject(new_project_list[0])
             self._add_handler()
             self.logger.info("Project %s has been created.", self._oproject.GetName())
 

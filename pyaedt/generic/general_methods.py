@@ -671,9 +671,6 @@ def _retry_ntimes(n, function, *args, **kwargs):
     while retry < n:
         try:
             ret_val = function(*args, **kwargs)
-            # if ret_val is None:
-            # if not ret_val and type(ret_val) not in [float, int, str, tuple, list]:
-            #    ret_val = True
         except:
             retry += 1
             time.sleep(settings.retry_n_times_time_interval)
