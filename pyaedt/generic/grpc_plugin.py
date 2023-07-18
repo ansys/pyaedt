@@ -120,13 +120,13 @@ class AedtObjWrapper:
         if funcName in exclusion_list or funcName.startswith("Import"):
             try:
                 return AedtAPI.InvokeAedtObjMethod(self.objectID, funcName, argv)  # Call C function
-            except (BaseException, AttributeError) as e:
+            except:  # pragma: no cover
                 raise GrpcApiError("Failed to execute grpc AEDT command: {}".format(funcName))
         try:
             return _retry_ntimes(
                 settings.number_of_grpc_api_retries, AedtAPI.InvokeAedtObjMethod, self.objectID, funcName, argv
             )  # Call C function
-        except (BaseException, AttributeError) as e:
+        except:  # pragma: no cover
             raise GrpcApiError("Failed to execute grpc AEDT command: {}".format(funcName))
 
     def __dir__(self):

@@ -64,7 +64,7 @@ test_project_name = "test_primitives"
 sys.path.append(local_path)
 
 # Initialize default desktop configuration
-default_version = "2023.2"
+default_version = "2023.1"
 if "ANSYSEM_ROOT{}".format(default_version[2:].replace(".", "")) not in list_installed_ansysem():
     default_version = list_installed_ansysem()[0][12:].replace(".", "")
     default_version = "20{}.{}".format(default_version[:2], default_version[-1])
@@ -242,6 +242,7 @@ class BasisTest(object):
         """
         Could be redefined
         """
+        print("AEDT PID: {}".format(self.desktop.aedt_process_id))
         pass
 
 
