@@ -258,6 +258,8 @@ class TestClass(BasisTest, object):
 
     def test_14_edit_design_settings(self):
         assert self.aedtapp.edit_design_settings(gravityDir=1)
+        assert self.aedtapp.edit_design_settings(ambtemp=20)
+        assert self.aedtapp.edit_design_settings(ambtemp="325kel")
 
     def test_15_insert_new_icepak(self):
         self.aedtapp.insert_design("Solve")

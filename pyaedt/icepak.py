@@ -1395,8 +1395,9 @@ class Icepak(FieldAnalysis3D):
         gravityDir : int, optional
             Gravity direction from -X to +Z. Options are ``0`` to ``5``.
             The default is ``0``.
-        ambtemp : optional
-            Ambient temperature. The default is ``22``.
+        ambtemp : float, str, optional
+            Ambient temperature. The default is ``20``.
+            The default unit is celsius for float or string including unit definition is accepted, e.g. ``325kel``.
         performvalidation : bool, optional
             Whether to perform validation. The default is ``False``.
         CheckLevel : str, optional
@@ -1422,7 +1423,10 @@ class Icepak(FieldAnalysis3D):
 
         >>> oDesign.SetDesignSettings
         """
-        AmbientTemp = str(ambtemp) + "cel"
+        if ambtemp and not isinstance(ambtemp, str):
+            AmbientTemp = str(ambtemp) + "cel"
+        else:
+            AmbientTemp = ambtemp
         #
         # Configure design settings for gravity etc
         IceGravity = ["X", "Y", "Z"]
