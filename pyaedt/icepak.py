@@ -1420,8 +1420,10 @@ class Icepak(FieldAnalysis3D):
 
         >>> oDesign.SetDesignSettings
         """
-        if ambtemp and isinstance(ambtemp, str):
+        if ambtemp and not isinstance(ambtemp, str):
             AmbientTemp = str(ambtemp) + "cel"
+        else:
+            AmbientTemp = ambtemp
         #
         # Configure design settings for gravity etc
         IceGravity = ["X", "Y", "Z"]
