@@ -67,6 +67,21 @@ class Settings(object):
         # self._aedt_process_id = None
         # self._is_student = False
         self._number_of_grpc_api_retries = 3
+        self._retry_n_times_time_interval = 0.1
+
+    @property
+    def retry_n_times_time_interval(self):
+        """Time interval between the retries of the method _retry_n_times.
+
+        Returns
+        -------
+        float
+        """
+        return self._retry_n_times_time_interval
+
+    @retry_n_times_time_interval.setter
+    def retry_n_times_time_interval(self, value):
+        self._retry_n_times_time_interval = float(value)
 
     @property
     def number_of_grpc_api_retries(self):

@@ -676,7 +676,7 @@ def _retry_ntimes(n, function, *args, **kwargs):
             #    ret_val = True
         except:
             retry += 1
-            time.sleep(0.1)
+            time.sleep(settings.retry_n_times_time_interval)
         else:
             break
     if retry == n:
