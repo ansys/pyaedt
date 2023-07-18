@@ -1,5 +1,6 @@
 # standard imports
 import os
+import time
 
 try:
     import pytest
@@ -67,35 +68,36 @@ class TestClass(BasisTest, object):
         )
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
-        app.close_project(save_project=False)
         assert isinstance(out, dict)
         assert app.configurations.results.global_import_success
+        app.close_project(save_project=False)
 
     def test_02_q3d_export(self):
         self.q3dtest.modeler.create_coordinate_system()
         conf_file = self.q3dtest.configurations.export_config()
         assert os.path.exists(conf_file)
         filename = self.q3dtest.design_name
-        file_path = os.path.join(self.q3dtest.working_directory, filename + ".x_t")
-        self.q3dtest.export_3d_model(filename, self.q3dtest.working_directory, ".x_t", [], [])
+        file_path = os.path.join(self.q3dtest.working_directory, filename + ".x_b")
+        self.q3dtest.export_3d_model(filename, self.q3dtest.working_directory, ".x_b", [], [])
+        time.sleep(1)
         app = Q3d(projectname="new_proj_Q3d", specified_version=config["desktopVersion"])
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
-        app.close_project(save_project=False)
         assert isinstance(out, dict)
         assert app.configurations.results.global_import_success
+        app.close_project(save_project=False)
 
     def test_03_q2d_export(self):
         conf_file = self.q2dtest.configurations.export_config()
 
         assert os.path.exists(conf_file)
         filename = self.q2dtest.design_name
-        file_path = os.path.join(self.q2dtest.working_directory, filename + ".x_t")
-        self.q2dtest.export_3d_model(filename, self.q2dtest.working_directory, ".x_t", [], [])
+        file_path = os.path.join(self.q2dtest.working_directory, filename + ".x_b")
+        self.q2dtest.export_3d_model(filename, self.q2dtest.working_directory, ".x_b", [], [])
+        time.sleep(1)
         app = Q2d(projectname="new_proj_Q2d", specified_version=config["desktopVersion"])
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
-        app.close_project(save_project=False)
         assert isinstance(out, dict)
         assert app.configurations.results.global_import_success
         self.q2dtest.configurations.options.unset_all_export()
@@ -134,6 +136,7 @@ class TestClass(BasisTest, object):
         assert self.q2dtest.configurations.options.import_mesh_operations
         assert self.q2dtest.configurations.options.import_object_properties
         assert self.q2dtest.configurations.options.import_parametrics
+        app.close_project(save_project=False)
 
     def test_04a_icepak(self):
         box1 = self.icepak_a.modeler.create_box([0, 0, 0], [10, 10, 10])

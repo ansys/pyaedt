@@ -27,6 +27,7 @@ from pyaedt import is_linux
 from pyaedt import is_windows
 from pyaedt import pyaedt_logger
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_process_running
 
 if is_linux:
     os.environ["ANS_NODEPCHECK"] = str(1)
@@ -84,6 +85,7 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
         for env, val in settings.aedt_environment_variables.items():
             my_env[env] = val
         if is_linux:  # pragma: no cover
+            command.append("&")
             with subprocess.Popen(command, env=my_env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) as p:
                 p.wait()
         else:
@@ -269,19 +271,19 @@ def _delete_objects():
     for p in sys.path[::-1]:
         if "AnsysEM" in p:
             del sys.path[sys.path.index(p)]
-    gc.collect()
+    # gc.collect()
 
 
 @pyaedt_function_handler()
-def _close_aedt_application(close_projects, close_desktop, is_grpc_api):
+def _close_aedt_application(close_desktop, pid, is_grpc_api):
     """Release the AEDT API.
 
     Parameters
     ----------
-    close_projects : bool
-        Whether to close the AEDT projects open in the session.
     close_desktop : bool
         Whether to close the active AEDT session.
+    pid : int
+        PID of the desktop application that is being closed.
     is_grpc_api : bool
         Whether the active AEDT session is GRPC or COM.
 
@@ -291,93 +293,158 @@ def _close_aedt_application(close_projects, close_desktop, is_grpc_api):
         ``True`` when successful, ``False`` when failed.
 
     """
-
     _main = sys.modules["__main__"]
-    try:
-        desktop = _main.oDesktop
-        pid = desktop.GetProcessID()
-        if close_projects:
-            projects = desktop.GetProjectList()
-            for project in projects:
-                desktop.CloseProject(project)
-        if settings.remote_rpc_session or (settings.aedt_version >= "2022.2" and is_grpc_api and not is_ironpython):
+    if settings.remote_rpc_session or (settings.aedt_version >= "2022.2" and is_grpc_api and not is_ironpython):
+        if close_desktop:
             try:
-                if close_desktop:
-                    _main.oDesktop.QuitApplication()
-                else:
-                    import pyaedt.generic.grpc_plugin as StandalonePyScriptWrapper
-
-                    return StandalonePyScriptWrapper.Release()
-            except:
+                _main.oDesktop.QuitApplication()
+            except:  # pragma: no cover
+                warnings.warn("Exception in _main.oDesktop.QuitApplication()")
                 pass
-            _delete_objects()
-            return True
-        elif not inside_desktop:
-            i = 0
-            scopeID = 5
-            while i <= scopeID:
-                _main.COMUtil.ReleaseCOMObjectScope(_main.COMUtil.PInvokeProxyAPI, i)
-                i += 1
+            time.sleep(0.1)
+            try:
+                os.kill(pid, 9)
+            except:  # pragma: no cover
+                warnings.warn("Exception in os.kill(pid, 9) after _main.oDesktop.QuitApplication()")
+                pass
+        else:
+            try:
+                import pyaedt.generic.grpc_plugin as StandalonePyScriptWrapper
+
+                StandalonePyScriptWrapper.Release()
+            except:  # pragma: no cover
+                warnings.warn("Exception in StandalonePyScriptWrapper.Release()")
+                pass
+    elif not inside_desktop:
         if close_desktop:
             try:
                 os.kill(pid, 9)
-                _delete_objects()
-                return True
-            except Exception:  # pragma: no cover
+            except:  # pragma: no cover
                 warnings.warn("Something went wrong in closing AEDT.")
                 return False
-        _delete_objects()
-        return True
-    except AttributeError:
-        _delete_objects()
-        return False
+        else:
+            try:
+                scopeID = 0
+                while scopeID <= 5:
+                    _main.COMUtil.ReleaseCOMObjectScope(_main.COMUtil.PInvokeProxyAPI, scopeID)
+                    scopeID += 1
+            except:
+                logging.warning("Exception in _main.COMUtil.ReleaseCOMObjectScope")
+                pass
+    _delete_objects()
+    if not settings.remote_rpc_session and not is_ironpython and close_desktop:
+        if is_process_running(pid):
+            warnings.warn("Something went wrong in closing AEDT.")
+            return False
+    return True
 
 
-def force_close_desktop():
-    """Forcibly close all AEDT projects and shut down AEDT.
+# @pyaedt_function_handler()
+# def _close_aedt_application(close_projects, close_desktop, is_grpc_api):
+#     """Release the AEDT API.
+#
+#     Parameters
+#     ----------
+#     close_projects : bool
+#         Whether to close the AEDT projects open in the session.
+#     close_desktop : bool
+#         Whether to close the active AEDT session.
+#     is_grpc_api : bool
+#         Whether the active AEDT session is GRPC or COM.
+#
+#     Returns
+#     -------
+#     bool
+#         ``True`` when successful, ``False`` when failed.
+#
+#     """
+#
+#     _main = sys.modules["__main__"]
+#     try:
+#         desktop = _main.oDesktop
+#         pid = desktop.GetProcessID()
+#         if close_projects:
+#             projects = desktop.GetProjectList()
+#             for project in projects:
+#                 desktop.CloseProject(project)
+#         if settings.remote_rpc_session or (settings.aedt_version >= "2022.2" and is_grpc_api and not is_ironpython):
+#             try:
+#                 if close_desktop:
+#                     _main.oDesktop.QuitApplication()
+#                 else:
+#                     import pyaedt.generic.grpc_plugin as StandalonePyScriptWrapper
+#
+#                     return StandalonePyScriptWrapper.Release()
+#             except:
+#                 pass
+#             _delete_objects()
+#             return True
+#         elif not inside_desktop:
+#             i = 0
+#             scopeID = 5
+#             while i <= scopeID:
+#                 _main.COMUtil.ReleaseCOMObjectScope(_main.COMUtil.PInvokeProxyAPI, i)
+#                 i += 1
+#         if close_desktop:
+#             try:
+#                 os.kill(pid, 9)
+#                 _delete_objects()
+#                 return True
+#             except Exception:  # pragma: no cover
+#                 warnings.warn("Something went wrong in closing AEDT.")
+#                 return False
+#         _delete_objects()
+#         return True
+#     except AttributeError:
+#         _delete_objects()
+#         return False
+#
 
-    Returns
-    -------
-    bool
-        ``True`` when successful, ``False`` when failed.
-    """
-    Module = sys.modules["__main__"]
-    pid = Module.oDesktop.GetProcessID()
-    logger = logging.getLogger(__name__)
-
-    if pid > 0:
-        try:
-            projects = Module.oDesktop.GetProjectList()
-            for project in projects:
-                Module.oDesktop.CloseProject(project)
-        except:
-            logger.warning("No projects are open. Closing the AEDT connection.")
-        try:
-            i = 0
-            scopeID = 5
-            while i <= scopeID:
-                Module.COMUtil.ReleaseCOMObjectScope(Module.COMUtil.PInvokeProxyAPI, 0)
-                i += 1
-        except:
-            logger.warning("No COM UTIL. Closing AEDT....")
-        try:
-            del Module.pyaedt_initialized
-        except:
-            pass
-        try:
-            os.kill(pid, 9)
-            del Module.oDesktop
-            successfully_closed = True
-        except:
-            pyaedt_logger.error("Something went wrong in closing AEDT.")
-            successfully_closed = False
-        finally:
-            log = logging.getLogger("Global")
-            handlers = log.handlers[:]
-            for handler in handlers:
-                handler.close()
-                log.removeHandler(handler)
-            return successfully_closed
+# def force_close_desktop():
+#     """Forcibly close all AEDT projects and shut down AEDT.
+#
+#     Returns
+#     -------
+#     bool
+#         ``True`` when successful, ``False`` when failed.
+#     """
+#     Module = sys.modules["__main__"]
+#     pid = Module.oDesktop.GetProcessID()
+#     logger = logging.getLogger(__name__)
+#
+#     if pid > 0:
+#         try:
+#             projects = Module.oDesktop.GetProjectList()
+#             for project in projects:
+#                 Module.oDesktop.CloseProject(project)
+#         except:
+#             logger.warning("No projects are open. Closing the AEDT connection.")
+#         try:
+#             i = 0
+#             scopeID = 5
+#             while i <= scopeID:
+#                 Module.COMUtil.ReleaseCOMObjectScope(Module.COMUtil.PInvokeProxyAPI, 0)
+#                 i += 1
+#         except:
+#             logger.warning("No COM UTIL. Closing AEDT....")
+#         try:
+#             del Module.pyaedt_initialized
+#         except:
+#             pass
+#         try:
+#             os.kill(pid, 9)
+#             del Module.oDesktop
+#             successfully_closed = True
+#         except:
+#             pyaedt_logger.error("Something went wrong in closing AEDT.")
+#             successfully_closed = False
+#         finally:
+#             log = logging.getLogger("Global")
+#             handlers = log.handlers[:]
+#             for handler in handlers:
+#                 handler.close()
+#                 log.removeHandler(handler)
+#             return successfully_closed
 
 
 def run_process(command, bufsize=None):
@@ -1582,7 +1649,11 @@ class Desktop(object):
         >>> desktop.release_desktop(close_projects=False, close_on_exit=False) # doctest: +SKIP
 
         """
-        result = _close_aedt_application(close_projects, close_on_exit, self.is_grpc_api)
+        if close_projects:
+            projects = self.odesktop.GetProjectList()
+            for project in projects:
+                self.odesktop.CloseProject(project)
+        result = _close_aedt_application(close_on_exit, self.aedt_process_id, self.is_grpc_api)
         del self._sessions[self.aedt_process_id]
         props = [a for a in dir(self) if not a.startswith("__")]
         for a in props:

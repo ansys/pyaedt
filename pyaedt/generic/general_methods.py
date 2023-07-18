@@ -1265,6 +1265,15 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
 
 
 @pyaedt_function_handler()
+def is_process_running(pid):
+    if not is_ironpython:
+        return psutil.pid_exists(pid)
+    else:
+        logging.error("'is_process_running' is not available in ironPython")
+        return False
+
+
+@pyaedt_function_handler()
 def compute_fft(time_vals, value):  # pragma: no cover
     """Compute FFT of input transient data.
 
