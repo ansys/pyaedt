@@ -1665,7 +1665,7 @@ class Desktop(object):
                 a
                 for a in dir(dict_to_clean)
                 if "win32com" in str(type(dict_to_clean.__dict__.get(a, None)))
-                or "pyaedt" in str(type(dict_to_clean.__dict__.get(a, None)))
+                # or "pyaedt" in str(type(dict_to_clean.__dict__.get(a, None)))
             ]
             for a in props:
                 dict_to_clean.__dict__[a] = None
