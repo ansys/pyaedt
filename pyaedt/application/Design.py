@@ -3921,3 +3921,20 @@ class Design(AedtObjects):
             if os.path.normpath(os.path.join(p.GetPath(), p.GetName()) + ".aedt") == os.path.normpath(project_path):
                 return p.GetName()
         return False
+
+    @pyaedt_function_handler
+    def set_temporary_directory(self, temp_dir_path):
+        """Set temporary directory path.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesktop.SetTempDirectory()
+        """
+        self.odesktop.SetTempDirectory(temp_dir_path)
+        return True

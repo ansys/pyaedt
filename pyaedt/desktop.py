@@ -1943,9 +1943,6 @@ class Desktop(object):
             it applies to all designs. You can also specify a product, such as ``"HFSS"``.
         copy_to_personal_lib : bool, optional
             Whether to copy the script to Personal Lib or link the original script. Default is ``True``.
-        add_pyaedt_desktop_init : bool, optional
-            Whether to add Desktop initialization to the script or not.
-            This is needed to reference the Desktop which is launching the script.
 
         Returns
         -------

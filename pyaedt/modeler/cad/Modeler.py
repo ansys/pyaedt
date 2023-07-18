@@ -542,9 +542,9 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         props["OriginX"] = origin[1]
         props["OriginY"] = origin[3]
         props["OriginZ"] = origin[5]
-        axisvec = obj1.GetPropValue("X Axis")
         props["Mode"] = obj1.GetPropValue("Mode")
-        if props["Mode"] == "Axis/Position":
+        if "X Axis" in obj1.GetPropNames():
+            axisvec = obj1.GetPropValue("X Axis")
             props["XAxisXvec"] = axisvec[1]
             props["XAxisYvec"] = axisvec[3]
             props["XAxisZvec"] = axisvec[5]

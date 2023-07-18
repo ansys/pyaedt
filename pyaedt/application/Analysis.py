@@ -1526,7 +1526,7 @@ class Analysis(Design, object):
     def analyze(
         self,
         setup_name=None,
-        num_cores=1,
+        num_cores=4,
         num_tasks=1,
         num_gpu=1,
         acf_file=None,
@@ -1544,7 +1544,7 @@ class Analysis(Design, object):
         setup_name : str, optional
             Setup to analyze. Default is ``None`` which solves all the setups.
         num_cores : int, optional
-            Number of simulation cores. Default is ``1``.
+            Number of simulation cores. Default is ``4`` which is the number of cores available in license.
         num_tasks : int, optional
             Number of simulation tasks. Default is ``1``.
             In bach solve, set num_tasks to ``-1`` to apply auto settings and distributed mode.
