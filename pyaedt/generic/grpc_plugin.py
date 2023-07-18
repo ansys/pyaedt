@@ -116,7 +116,7 @@ class AedtObjWrapper:
     def __Invoke__(self, funcName, argv):
         if settings.enable_debug_grpc_api_logger:
             settings.logger.debug("{} {}".format(funcName, argv))
-        exclusion_list = ["Analyze", "AnalyzeAll"]
+        exclusion_list = ["Analyze", "AnalyzeAll", "SolveSetup", "GenerateMesh"]
         if funcName in exclusion_list or funcName.startswith("Import"):
             try:
                 return AedtAPI.InvokeAedtObjMethod(self.objectID, funcName, argv)  # Call C function
