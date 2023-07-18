@@ -1,5 +1,4 @@
 import os
-import time
 
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
@@ -245,8 +244,7 @@ class TestClass(BasisTest, object):
         assert pad1.create()
 
     def test_11_create_via(self):
-        time.sleep(1)
-        cvia = self.aedtapp.modeler.create_via("My_padstack2", x=0, y=0, name="port_via")
+        cvia = self.aedtapp.modeler.create_via("PlanarEMVia", x=0, y=0, name="port_via")
         via = cvia.name
         assert isinstance(via, str)
         assert self.aedtapp.modeler.vias[via].name == via == "port_via"
@@ -264,7 +262,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.vias[via_1].location[1] == float(1)
         assert self.aedtapp.modeler.vias[via_1].angle == "0deg"
         assert self.aedtapp.modeler.vias[via_1].holediam == "1mm"
-        via2 = self.aedtapp.modeler.create_via("My_padstack2", x=10, y=10, name="Via123", netname="VCC")
+        via2 = self.aedtapp.modeler.create_via("PlanarEMVia", x=10, y=10, name="Via123", netname="VCC")
         via_2 = via2.name
         assert isinstance(via_2, str)
         assert self.aedtapp.modeler.vias[via_2].name == via_2
@@ -274,7 +272,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.vias[via_2].angle == "0deg"
         assert "VCC" in self.aedtapp.oeditor.GetNets()
         via_3 = self.aedtapp.modeler.create_via(
-            "My_padstack2", x=5, y=5, name="Via1234", netname="VCC", hole_diam="22mm"
+            "PlanarEMVia", x=5, y=5, name="Via1234", netname="VCC", hole_diam="22mm"
         )
         assert via_3.location[0] == float(5)
         assert via_3.location[1] == float(5)
