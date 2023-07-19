@@ -8,6 +8,7 @@ from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 
 from pyaedt import Maxwell3d
+from pyaedt import is_ironpython
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_linux
@@ -65,7 +66,7 @@ class TestClass(BasisTest, object):
         assert plate.solve_inside
         assert plate.material_name == "aluminum"
 
-    @pytest.mark.skipif(config["NonGraphical"], reason="Test is failing on build machine")
+    @pytest.mark.skipif(is_ironpython or config["NonGraphical"], reason="Test is failing on build machine")
     def test_01_display(self):
         img = self.aedtapp.post.nb_display(show_axis=True, show_grid=True, show_ruler=True)
         assert isinstance(img, Image)
@@ -740,6 +741,7 @@ class TestClass(BasisTest, object):
             u_vector_pos_coordinates_slave=["0mm", "-100mm", "0mm"],
         ) == (False, False)
 
+    @pytest.mark.skipif(is_ironpython, reason="Fails on Ironpython")
     def test_45_add_mesh_link(self):
         self.m3dtransient.duplicate_design(self.m3dtransient.design_name)
         self.m3dtransient.set_active_design(self.m3dtransient.design_list[1])
@@ -900,7 +902,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.assign_flux_tangential(box.faces[0], "FluxExample")
         assert self.aedtapp.assign_flux_tangential(box.faces[0].id, "FluxExample")
 
-    @pytest.mark.skipif(desktop_version < "2023.2", reason="Method available in beta from 2023.2")
+    @pytest.mark.skipif(is_ironpython or desktop_version < "2023.2", reason="Method available in beta from 2023.2")
     def test_53_assign_layout_force(self):
         nets_layers = {
             "<no-net>": ["<no-layer>", "TOP", "UNNAMED_000", "UNNAMED_002"],
@@ -912,7 +914,7 @@ class TestClass(BasisTest, object):
         nets_layers = {"1V0": "Bottom Solder"}
         assert self.layout_comp.assign_layout_force(nets_layers, "LC1_1")
 
-    @pytest.mark.skipif(desktop_version < "2023.2", reason="Method available in beta from 2023.2")
+    @pytest.mark.skipif(is_ironpython or desktop_version < "2023.2", reason="Method available in beta from 2023.2")
     def test_54_enable_harmonic_force_layout(self):
         comp = self.layout_comp.modeler.user_defined_components["LC1_1"]
         layers = list(comp.layout_component.layers.keys())

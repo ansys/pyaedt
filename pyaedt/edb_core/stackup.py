@@ -9,11 +9,12 @@ from collections import OrderedDict
 import json
 import logging
 import math
-import os.path
+import re
 import warnings
 
 from pyaedt import generate_unique_name
 from pyaedt.edb_core.edb_data.layer_data import LayerEdbClass
+from pyaedt.edb_core.edb_data.layer_data import StackupLayerEdbClass
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 
 # from pyaedt.generic.general_methods import property
@@ -328,7 +329,7 @@ class Stackup(object):
         return self._lc
 
     @property
-    def stackup_mode(self):
+    def mode(self):
         """Stackup mode.
 
         Returns
@@ -343,8 +344,8 @@ class Stackup(object):
         self._stackup_mode = self._layer_collection.GetMode()
         return str(self._stackup_mode)
 
-    @stackup_mode.setter
-    def stackup_mode(self, value):
+    @mode.setter
+    def mode(self, value):
         mode = self._pedb.edb_api.Cell.LayerCollectionMode
         if value == 0 or value == mode.Laminate or value == "Laminate":
             self._layer_collection.SetMode(mode.Laminate)
@@ -355,12 +356,37 @@ class Stackup(object):
         self._pedb.layout.layer_collection = self._layer_collection
 
     @property
+    def stackup_mode(self):
+        """Stackup mode.
+
+        .. deprecated:: 0.6.52
+           Use :func:`mode` method instead.
+        Returns
+        -------
+        int, str
+            Type of the stackup mode, where:
+
+            * 0 - Laminate
+            * 1 - Overlapping
+            * 2 - MultiZone
+        """
+        warnings.warn("`stackup_mode` is deprecated. Use `mode` method instead.", DeprecationWarning)
+        return self.mode
+
+    @stackup_mode.setter
+    def stackup_mode(self, value):
+        warnings.warn("`stackup_mode` is deprecated. Use `mode` method instead.", DeprecationWarning)
+        self.mode = value
+
+    @property
     def _edb_layer_list(self):
-        return list(self._layer_collection.Layers(self._pedb.edb_api.cell.layer_type_set.AllLayerSet))
+        layer_list = list(self._layer_collection.Layers(self._pedb.edb_api.cell.layer_type_set.AllLayerSet))
+        return [i.Clone() for i in layer_list]
 
     @property
     def _edb_layer_list_nonstackup(self):
-        return list(self._layer_collection.Layers(self._pedb.edb_api.cell.layer_type_set.NonStackupLayerSet))
+        layer_list = list(self._layer_collection.Layers(self._pedb.edb_api.cell.layer_type_set.NonStackupLayerSet))
+        return [i.Clone() for i in layer_list]
 
     @property
     def layers(self):
@@ -373,7 +399,10 @@ class Stackup(object):
         _lays = OrderedDict()
         for l in self._edb_layer_list:
             name = l.GetName()
-            _lays[name] = LayerEdbClass(self, name)
+            if not l.IsStackupLayer():
+                _lays[name] = LayerEdbClass(self, name)
+            else:
+                _lays[name] = StackupLayerEdbClass(self, name)
         return _lays
 
     @property
@@ -1661,56 +1690,43 @@ class Stackup(object):
         Parameters
         ----------
         fpath : str
-            File path to the CSV or JSON file.
+            File path to the CSV file.
         """
         if not pd:
             self._pedb.logger.error("Pandas is needed. You must install it first.")
             return False
-        if os.path.splitext(file_path)[1] == ".json":
-            return self._import_layer_stackup(file_path)
         if is_ironpython:
             self._pedb.logger.error("Method works on CPython only.")
             return False
         df = pd.read_csv(file_path, index_col=0)
-        prev_layer = None
-        for row, val in df[::-1].iterrows():
-            if not self.stackup_layers:
-                self.add_layer(
-                    row,
-                    None,
-                    "add_on_top",
-                    val.Type,
-                    val.Material,
-                    val.Dielectric_Fill if not pd.isnull(val.Dielectric_Fill) else "",
-                    val.Thickness,
-                )
+
+        for name in self.stackup_layers.keys():  # pragma: no cover
+            if not name in df.index:
+                logger.error("{} doesn't exist in csv".format(name))
+                return False
+
+        for name, l in df.iterrows():
+            layer_type = l.Type
+            if name in self.layers:
+                layer = self.layers[name]
+                layer.type = layer_type
             else:
-                if row in self.stackup_layers.keys():
-                    lyr = self.stackup_layers[row]
-                    lyr.type = val.Type
-                    lyr.material = val.Material
-                    lyr.dielectric_fill = val.Dielectric_Fill if not pd.isnull(val.Dielectric_Fill) else ""
-                    lyr.thickness = val.Thickness
-                    if prev_layer:
-                        self._set_layout_stackup(lyr._edb_layer, "change_position", prev_layer)
-                else:
-                    if prev_layer and prev_layer in self.stackup_layers:
-                        layer_name = prev_layer
-                    else:
-                        layer_name = list(self.stackup_layers.keys())[-1] if self.stackup_layers else None
-                    self.add_layer(
-                        row,
-                        layer_name,
-                        "insert_above",
-                        val.Type,
-                        val.Material,
-                        val.Dielectric_Fill if not pd.isnull(val.Dielectric_Fill) else "",
-                        val.Thickness,
-                    )
-                prev_layer = row
-        for name in self.stackup_layers:
-            if name not in df.index:
-                self.remove_layer(name)
+                layer = self.add_layer(name, layer_type=layer_type, material="copper", fillMaterial="copper")
+
+            layer.material = l.Material
+            layer.thickness = l.Thickness
+            layer.dielectric_fill = l.Dielectric_Fill
+
+        lc_new = self._pedb.edb_api.Cell.LayerCollection()
+        for name, _ in df.iterrows():
+            layer = self.layers[name]
+            lc_new.AddLayerBottom(layer._edb_layer)
+
+        for name, layer in self.non_stackup_layers.items():
+            lc_new.AddLayerBottom(layer._edb_layer)
+
+        self._pedb.layout.layer_collection = lc_new
+        self.refresh_layer_collection()
         return True
 
     @pyaedt_function_handler
@@ -1939,6 +1955,9 @@ class Stackup(object):
     @pyaedt_function_handler
     def _import_xml(self, file_path):
         """Read external xml file and update stackup.
+        1, all existing layers must exist in xml file.
+        2, xml can have more layers than the existing stackup.
+        3, if xml has different layer order, reorder the layers according to xml definition.
 
         Parameters
         ----------
@@ -1961,11 +1980,48 @@ class Stackup(object):
 
         self._add_materials_from_dictionary(material_dict)
 
-        new_layer_collection = self._pedb.edb_api.Cell.LayerCollection()
-        result = new_layer_collection.ImportFromControlFile(file_path)
-        if result:
-            self._pedb.layout.layer_collection = new_layer_collection
+        lc_import = self._pedb.edb_api.Cell.LayerCollection()
+
+        if not lc_import.ImportFromControlFile(file_path):  # pragma: no cover
+            logger.error("Import xml failed. Please check xml content.")
+            return False
+
+        if not len(self.stackup_layers):
+            self._pedb.layout.layer_collection = lc_import
+            self.refresh_layer_collection()
             return True
+
+        dumy_layers = OrderedDict()
+        for i in list(lc_import.Layers(self._pedb.edb_api.cell.layer_type_set.AllLayerSet)):
+            dumy_layers[i.GetName()] = i.Clone()
+
+        for name in self.layers.keys():
+            if not name in dumy_layers:
+                logger.error("{} doesn't exist in xml".format(name))
+                return False
+
+        for name, l in dumy_layers.items():
+            layer_type = re.sub(r"Layer$", "", l.GetLayerType().ToString()).lower()
+            if name in self.layers:
+                layer = self.layers[name]
+                layer.type = layer_type
+            else:
+                layer = self.add_layer(name, layer_type=layer_type, material="copper", fillMaterial="copper")
+
+            if l.IsStackupLayer():
+                layer.material = l.GetMaterial()
+                layer.thickness = l.GetThicknessValue().ToDouble()
+                layer.dielectric_fill = l.GetFillMaterial()
+                layer.etch_factor = l.GetEtchFactor().ToDouble()
+
+        lc_new = self._pedb.edb_api.Cell.LayerCollection()
+        for name, _ in dumy_layers.items():
+            layer = self.layers[name]
+            lc_new.AddLayerBottom(layer._edb_layer)
+
+        self._pedb.layout.layer_collection = lc_new
+        self.refresh_layer_collection()
+        return True
 
     @pyaedt_function_handler
     def _export_xml(self, file_path):
