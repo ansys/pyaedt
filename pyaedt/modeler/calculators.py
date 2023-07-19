@@ -319,7 +319,7 @@ class StandardWaveguide(object):
         ----------
         freq : float
             Operational frequency.
-        units : str
+        units : str, optional
            Input frequency units. The default is ``"GHz"``.
 
         Returns
