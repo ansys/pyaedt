@@ -25,7 +25,7 @@ import warnings
 from pyaedt import is_ironpython
 from pyaedt import is_linux
 from pyaedt import is_windows
-from pyaedt import pyaedt_logger
+from pyaedt.aedt_logger import pyaedt_logger
 from pyaedt.generic.general_methods import generate_unique_name
 
 if is_linux:
@@ -296,6 +296,7 @@ def release_desktop(close_projects=True, close_desktop=True):
             try:
                 if close_desktop:
                     _main.oDesktop.QuitApplication()
+                    _main.oDesktop.QuitApplication()
                 else:
                     import pyaedt.generic.grpc_plugin as StandalonePyScriptWrapper
 
@@ -316,8 +317,13 @@ def release_desktop(close_projects=True, close_desktop=True):
                 _delete_objects()
                 return True
             except Exception:  # pragma: no cover
-                warnings.warn("Something went wrong in closing AEDT.")
-                return False
+                if settings.remote_rpc_session or (
+                    settings.aedt_version >= "2022.2" and settings.use_grpc_api and not is_ironpython
+                ):
+                    pass
+                else:
+                    warnings.warn("Something went wrong in closing AEDT.")
+                    return False
         _delete_objects()
         return True
     except AttributeError:
