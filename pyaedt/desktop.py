@@ -242,25 +242,25 @@ def _delete_objects():
         del module.AEDTVersion
     except AttributeError:
         pass
-    try:
-        del sys.modules["PyDesktopPluginDll"]
-    except:
-        pass
-    try:
-        del sys.modules["PyDesktopPlugin"]
-    except:
-        pass
-    try:
-        del sys.modules["glob"]
-    except:
-        pass
-    keys = [k for k in sys.modules.keys()]
-    for i in keys:
-        if "Ansys.Ansoft" in i:
-            del sys.modules[i]
-    for p in sys.path[::-1]:
-        if "AnsysEM" in p:
-            del sys.path[sys.path.index(p)]
+    # try:
+    #     del sys.modules["PyDesktopPluginDll"]
+    # except:
+    #     pass
+    # try:
+    #     del sys.modules["PyDesktopPlugin"]
+    # except:
+    #     pass
+    # try:
+    #     del sys.modules["glob"]
+    # except:
+    #     pass
+    # keys = [k for k in sys.modules.keys()]
+    # for i in keys:
+    #     if "Ansys.Ansoft" in i:
+    #         del sys.modules[i]
+    # for p in sys.path[::-1]:
+    #     if "AnsysEM" in p:
+    #         del sys.path[sys.path.index(p)]
     gc.collect()
 
 
@@ -317,13 +317,8 @@ def release_desktop(close_projects=True, close_desktop=True):
                 _delete_objects()
                 return True
             except Exception:  # pragma: no cover
-                if settings.remote_rpc_session or (
-                    settings.aedt_version >= "2022.2" and settings.use_grpc_api and not is_ironpython
-                ):
-                    pass
-                else:
-                    warnings.warn("Something went wrong in closing AEDT.")
-                    return False
+                warnings.warn("Something went wrong in closing AEDT.")
+                return False
         _delete_objects()
         return True
     except AttributeError:
