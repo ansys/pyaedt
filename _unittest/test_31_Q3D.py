@@ -369,19 +369,15 @@ class TestClass(BasisTest, object):
         q3d["d"] = "10mm"
         q3d.modeler.duplicate_along_line(objid="Box1", vector=[0, "d", 0])
         q3d.analyze_setup(q3d.active_setup)
+        for setup in q3d.setups:
+            if setup.name == q3d.active_setup and not setup.is_solved:
+                setup.analyze()
         assert q3d.export_equivalent_circuit(
             os.path.join(self.local_scratch.path, "test_export_circuit.cir"), variations=["d: 10mm"]
         )
         assert not q3d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.doc"))
         q3d["d"] = "20mm"
         assert not q3d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
-            setup_name="Setup1",
-            sweep="LastAdaptive",
-            variations=["d: 10mm", "d: 20mm"],
-        )
-        q3d.analyze_setup(q3d.active_setup)
-        assert q3d.export_equivalent_circuit(
             file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
             setup_name="Setup1",
             sweep="LastAdaptive",

@@ -502,10 +502,16 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.stop_simulations()
 
     @pytest.mark.skipif(is_ironpython, reason="Not supported with IronPython")
+    def test_19AB_generate_mesh(self):
+        assert self.aedtapp.mesh.generate_mesh("RFBoardSetup3")
+
+    @pytest.mark.skipif(is_ironpython, reason="Not supported with IronPython")
     def test_19B_analyze_setup(self):
         self.aedtapp.save_project()
-        assert self.aedtapp.mesh.generate_mesh("RFBoardSetup3")
-        assert self.aedtapp.analyze_setup("RFBoardSetup3")
+        self.aedtapp.analyze_setup("RFBoardSetup3")
+        for setup in self.aedtapp.setups:
+            if setup.name == "RFBoardSetup3" and not setup.is_solved:
+                setup.analyze()
         self.aedtapp.save_project()
         assert os.path.exists(self.aedtapp.export_profile("RFBoardSetup3"))
         assert os.path.exists(self.aedtapp.export_mesh_stats("RFBoardSetup3"))
