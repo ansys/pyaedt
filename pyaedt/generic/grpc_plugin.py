@@ -1,6 +1,6 @@
 import re
-import types
 import sys
+import types
 
 from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import _retry_ntimes

@@ -42,6 +42,7 @@ from pyaedt import pyaedt_function_handler
 from pyaedt import settings
 
 # from pyaedt.generic.general_methods import _pythonver
+from pyaedt.generic.general_methods import _desktop_sessions
 from pyaedt.generic.general_methods import active_sessions
 from pyaedt.generic.general_methods import com_active_sessions
 from pyaedt.generic.general_methods import grpc_active_sessions
@@ -53,9 +54,6 @@ from pyaedt.generic.general_methods import open_file
 from pyaedt.misc import current_student_version
 from pyaedt.misc import current_version
 from pyaedt.misc import installed_versions
-
-from pyaedt.generic.general_methods import _desktop_sessions
-
 
 pathname = os.path.dirname(__file__)
 
