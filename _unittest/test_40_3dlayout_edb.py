@@ -224,6 +224,7 @@ class TestClass(BasisTest, object):
         no_nets = self.aedtapp.modeler.no_nets
         assert len(nets) == len(power_nets) + len(signal_nets) + len(no_nets)
 
+    @pytest.mark.skipif(is_ironpython, reason="Not running in non-graphical mode")
     def test_08_merge(self):
         tol = 1e-12
         brd = Hfss3dLayout(self.flipchip.project_name, "Dummy_Board", specified_version=desktop_version)
@@ -257,7 +258,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.layers.change_stackup_type("Laminate")
         assert not self.aedtapp.modeler.layers.change_stackup_type("lami")
 
-    @pytest.mark.skipif(config["NonGraphical"], reason="Not running in non-graphical mode")
+    @pytest.mark.skipif(is_ironpython or config["NonGraphical"], reason="Not running in non-graphical mode")
     def test_11_export_picture(self):
         assert os.path.exists(self.aedtapp.post.export_model_picture(orientation="top"))
 

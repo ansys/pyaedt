@@ -1681,13 +1681,13 @@ class TestClass(BasisTest, object):
         assert edbapp.stackup["1_Top"].color == (0, 120, 0)
         edbapp.stackup["1_Top"].transparency = 10
         assert edbapp.stackup["1_Top"].transparency == 10
-        assert edbapp.stackup.stackup_mode == "Laminate"
-        edbapp.stackup.stackup_mode = "Overlapping"
-        assert edbapp.stackup.stackup_mode == "Overlapping"
-        edbapp.stackup.stackup_mode = "MultiZone"
-        assert edbapp.stackup.stackup_mode == "MultiZone"
-        edbapp.stackup.stackup_mode = "Overlapping"
-        assert edbapp.stackup.stackup_mode == "Overlapping"
+        assert edbapp.stackup.mode == "Laminate"
+        edbapp.stackup.mode = "Overlapping"
+        assert edbapp.stackup.mode == "Overlapping"
+        edbapp.stackup.mode = "MultiZone"
+        assert edbapp.stackup.mode == "MultiZone"
+        edbapp.stackup.mode = "Overlapping"
+        assert edbapp.stackup.mode == "Overlapping"
         assert edbapp.stackup.add_layer("new_bottom", "1_Top", "add_at_elevation", "dielectric", elevation=0.0003)
         edbapp.close()
 
@@ -1696,19 +1696,19 @@ class TestClass(BasisTest, object):
         edbapp = Edb(edbversion=desktop_version)
         import_method = edbapp.stackup.load
         export_method = edbapp.stackup.export
-        assert edbapp.stackup.add_layer("1_Top", None, "add_on_top", material="iron")
-        assert import_method(os.path.join(local_path, "example_models", test_subfolder, "galileo_stackup.csv"))
-        assert "TOP" in edbapp.stackup.layers.keys()
-        assert edbapp.stackup.layers["TOP"].material == "copper"
-        assert edbapp.stackup.layers["TOP"].thickness == 6e-5
+
+        assert import_method(os.path.join(local_path, "example_models", test_subfolder, "ansys_pcb_stackup.xml"))
+        assert "17_Bottom" in edbapp.stackup.layers.keys()
+        xml_export = os.path.join(self.local_scratch.path, "stackup.xml")
+        assert export_method(xml_export)
+        assert os.path.exists(xml_export)
+        assert import_method(os.path.join(local_path, "example_models", test_subfolder, "ansys_pcb_stackup.csv"))
+        assert "18_Bottom" in edbapp.stackup.layers.keys()
+        assert edbapp.stackup.add_layer("19_Bottom", None, "add_on_top", material="iron")
         export_stackup_path = os.path.join(self.local_scratch.path, "export_galileo_stackup.csv")
         assert export_method(export_stackup_path)
         assert os.path.exists(export_stackup_path)
 
-        assert import_method(os.path.join(local_path, "example_models", test_subfolder, "stackup_laminate.xml"))
-        xml_export = os.path.join(self.local_scratch.path, "stackup.xml")
-        assert export_method(xml_export)
-        assert os.path.exists(xml_export)
         edbapp.close()
 
     @pytest.mark.skipif(is_ironpython, reason="Requires Pandas")
@@ -1716,19 +1716,46 @@ class TestClass(BasisTest, object):
         edbapp = Edb(edbversion=desktop_version)
         import_method = edbapp.stackup.import_stackup
         export_method = edbapp.stackup.export_stackup
-        assert edbapp.stackup.add_layer("1_Top", None, "add_on_top", material="iron")
-        assert import_method(os.path.join(local_path, "example_models", test_subfolder, "galileo_stackup.csv"))
-        assert "TOP" in edbapp.stackup.layers.keys()
-        assert edbapp.stackup.layers["TOP"].material == "copper"
-        assert edbapp.stackup.layers["TOP"].thickness == 6e-5
-        export_stackup_path = os.path.join(self.local_scratch.path, "export_galileo_stackup.csv")
-        assert export_method(export_stackup_path)
-        assert os.path.exists(export_stackup_path)
 
-        assert import_method(os.path.join(local_path, "example_models", test_subfolder, "stackup_laminate.xml"))
+        assert import_method(os.path.join(local_path, "example_models", test_subfolder, "ansys_pcb_stackup.xml"))
+        assert "17_Bottom" in edbapp.stackup.layers.keys()
         xml_export = os.path.join(self.local_scratch.path, "stackup.xml")
         assert export_method(xml_export)
         assert os.path.exists(xml_export)
+        assert import_method(os.path.join(local_path, "example_models", test_subfolder, "ansys_pcb_stackup.csv"))
+        assert "18_Bottom" in edbapp.stackup.layers.keys()
+        assert edbapp.stackup.add_layer("19_Bottom", None, "add_on_top", material="iron")
+        export_stackup_path = os.path.join(self.local_scratch.path, "export_galileo_stackup.csv")
+        assert export_method(export_stackup_path)
+        assert os.path.exists(export_stackup_path)
+        edbapp.close()
+
+    def test_125c_layer(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_0126.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, edbversion=desktop_version)
+        edbapp.stackup.load(os.path.join(local_path, "example_models", test_subfolder, "ansys_pcb_stackup.xml"))
+        layer = edbapp.stackup["1_Top"]
+        layer.name = "TOP"
+        assert layer.name == "TOP"
+        layer.type = "dielectric"
+        assert layer.type == "dielectric"
+        layer.type = "signal"
+        layer.color = (0, 0, 0)
+        assert layer.color == (0, 0, 0)
+        layer.transparency = 0
+        assert layer.transparency == 0
+        layer.etch_factor = 2
+        assert layer.etch_factor == 2
+        layer.thickness = 50e-6
+        assert layer.thickness == 50e-6
+        assert layer.lower_elevation
+        assert layer.upper_elevation
+        layer.is_negative = True
+        assert layer.is_negative
+        assert not layer.is_via_layer
+        assert layer.material == "copper"
         edbapp.close()
 
     @pytest.mark.skipif(is_ironpython, reason="Requires Numpy")
