@@ -241,7 +241,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
 
     @property
     def props(self):
-        """Coordinate System Properties.
+        """Properties of the coordinate system.
 
         Returns
         -------
