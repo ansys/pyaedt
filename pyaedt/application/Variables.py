@@ -257,7 +257,7 @@ def decompose_variable_value(variable_value, full_variables={}):
 
     Parameters
     ----------
-    variable_value : float
+    variable_value : str
     full_variables : dict
 
     Returns
