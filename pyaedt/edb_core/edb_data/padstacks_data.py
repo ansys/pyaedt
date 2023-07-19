@@ -685,6 +685,14 @@ class EDBPadstack(object):
 
     @property
     def hole_range(self):
+        """Get hole range value from padstack definition.
+
+        Returns
+        -------
+        str
+            Possible returned value : ``"through"``, ``"begin_on_upper_pad"``, ``"end_on_lower_pad"``,
+            ``"upper_pad_to_lower_pad"``, ``"undefined"``.
+        """
         cloned_padstackdef_data = self._edb.definition.PadstackDefData(self.edb_padstack.GetData())
         hole_ange_type = int(cloned_padstackdef_data.GetHoleRange())
         if hole_ange_type == 0:
