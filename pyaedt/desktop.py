@@ -584,13 +584,14 @@ class Desktop(object):
         port = kwargs.get("port") or 0 if not args else args[6]
         aedt_process_id = kwargs.get("aedt_process_id") or None if not args else args[7]
 
-        if len(_desktop_sessions.keys()) > 0:
-            print("Returning found desktop!")
-            cls._invoked_from_design = False
-            return list(_desktop_sessions.values())[0]
-        else:
-            print("Initializing new desktop!")
-            return object.__new__(cls)
+        # if len(_desktop_sessions.keys()) > 0:
+        #     print("Returning found desktop!")
+        #     cls._invoked_from_design = False
+        #     return list(_desktop_sessions.values())[0]
+        # else:
+        #     print("Initializing new desktop!")
+        #     return object.__new__(cls)
+        return object.__new__(cls)
 
     def __init__(
         self,
@@ -603,10 +604,10 @@ class Desktop(object):
         port=0,
         aedt_process_id=None,
     ):
-        if getattr(self, "_initialized", None) is not None and self._initialized:
-            return
-        else:
-            self._initialized = True
+        # if getattr(self, "_initialized", None) is not None and self._initialized:
+        #     return
+        # else:
+        #     self._initialized = True
 
         self._initialized_from_design = True if Desktop._invoked_from_design else False
         Desktop._invoked_from_design = False
