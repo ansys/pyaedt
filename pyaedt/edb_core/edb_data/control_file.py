@@ -554,7 +554,7 @@ class ControlFileImportOptions:
 
 
 class ControlExtent:
-    "Extent options."
+    """Extent options."""
 
     def __init__(
         self,
