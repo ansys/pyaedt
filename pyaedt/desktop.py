@@ -54,7 +54,7 @@ from pyaedt.misc import current_student_version
 from pyaedt.misc import current_version
 from pyaedt.misc import installed_versions
 
-# from pyaedt.generic.general_methods import _desktop_sessions
+from pyaedt.generic.general_methods import _desktop_sessions
 
 
 pathname = os.path.dirname(__file__)
@@ -296,7 +296,11 @@ def _close_aedt_application(close_desktop, pid, is_grpc_api):
     if settings.remote_rpc_session or (settings.aedt_version >= "2022.2" and is_grpc_api and not is_ironpython):
         if close_desktop:
             try:
-                _main.oDesktop.QuitApplication()
+                try:
+                    os.kill(pid, 9)
+                except:  # pragma: no cover
+                    warnings.warn("Something went wrong in closing AEDT.")
+                    return False
             except:  # pragma: no cover
                 warnings.warn("Exception in _main.oDesktop.QuitApplication()")
                 pass
@@ -569,7 +573,7 @@ class Desktop(object):
     PyAEDT INFO: No project is defined. Project...
     """
 
-    _sessions = {}
+    # _sessions = {}
     _invoked_from_design = False
 
     def __new__(cls, *args, **kwargs):
@@ -580,10 +584,10 @@ class Desktop(object):
         port = kwargs.get("port") or 0 if not args else args[6]
         aedt_process_id = kwargs.get("aedt_process_id") or None if not args else args[7]
 
-        if len(cls._sessions.keys()) > 0:
+        if len(_desktop_sessions.keys()) > 0:
             print("Returning found desktop!")
             cls._invoked_from_design = False
-            return list(cls._sessions.values())[0]
+            return list(_desktop_sessions.values())[0]
         else:
             print("Initializing new desktop!")
             return object.__new__(cls)
@@ -852,7 +856,7 @@ class Desktop(object):
             )
 
         # save the current desktop session in the database
-        Desktop._sessions[self.aedt_process_id] = self
+        _desktop_sessions[self.aedt_process_id] = self
 
     def __enter__(self):
         return self
@@ -1655,7 +1659,7 @@ class Desktop(object):
             for project in projects:
                 self.odesktop.CloseProject(project)
         result = _close_aedt_application(close_on_exit, self.aedt_process_id, self.is_grpc_api)
-        del self._sessions[self.aedt_process_id]
+        del _desktop_sessions[self.aedt_process_id]
         props = [a for a in dir(self) if not a.startswith("__")]
         for a in props:
             self.__dict__.pop(a, None)

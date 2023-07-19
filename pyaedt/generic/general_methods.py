@@ -25,8 +25,7 @@ import traceback
 
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.settings import settings
-
-# from pyaedt.generic.desktop_sessions import _desktop_sessions
+from pyaedt.generic.desktop_sessions import _desktop_sessions
 
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 is_linux = os.name == "posix"
