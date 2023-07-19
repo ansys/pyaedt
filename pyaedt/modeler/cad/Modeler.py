@@ -280,7 +280,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
 
     @property
     def _face_parameters(self):
-        """Internal named array for paramenteers of the face coordinate system."""
+        """Internally named array with parameters of the face coordinate system."""
         arg = ["Name:FaceCSParameters"]
         _dict2arg(self.props, arg)
         return arg
