@@ -242,6 +242,10 @@ def _delete_objects():
         del module.AEDTVersion
     except AttributeError:
         pass
+    try:
+        del sys.modules["glob"]
+    except:
+        pass
     # try:
     #     del sys.modules["PyDesktopPluginDll"]
     # except:
@@ -250,10 +254,7 @@ def _delete_objects():
     #     del sys.modules["PyDesktopPlugin"]
     # except:
     #     pass
-    # try:
-    #     del sys.modules["glob"]
-    # except:
-    #     pass
+
     # keys = [k for k in sys.modules.keys()]
     # for i in keys:
     #     if "Ansys.Ansoft" in i:
