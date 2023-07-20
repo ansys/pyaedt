@@ -663,26 +663,35 @@ def _retry_ntimes(n, function, *args, **kwargs):
     -------
 
     """
+    func_name = None
+    if function.__name__ == "InvokeAedtObjMethod":
+        func_name = args[1]
     retry = 0
     ret_val = None
+    inclusion_list = [
+        "CreateVia",
+        "PasteDesign",
+        "Paste",
+        "PushExcitations",
+        "Rename",
+        "RestoreProjectArchive",
+    ]
+    # if func_name and func_name not in inclusion_list and not func_name.startswith("Get"):
+    if func_name and func_name not in inclusion_list:
+        n = 1
     while retry < n:
         try:
             ret_val = function(*args, **kwargs)
-            # if ret_val is None:
-            # if not ret_val and type(ret_val) not in [float, int, str, tuple, list]:
-            #    ret_val = True
         except:
             retry += 1
-            time.sleep(0.1)
+            time.sleep(1)
         else:
-            break
+            return ret_val
     if retry == n:
         if "__name__" in dir(function):
             raise AttributeError("Error in Executing Method {}.".format(function.__name__))
         else:
             raise AttributeError("Error in Executing Method.")
-
-    return ret_val
 
 
 def time_fn(fn, *args, **kwargs):
@@ -979,6 +988,8 @@ def number_aware_string_key(s):
 
 @pyaedt_function_handler()
 def _create_json_file(json_dict, full_json_path):
+    if not os.path.exists(os.path.dirname(full_json_path)):
+        os.makedirs(os.path.dirname(full_json_path))
     if not is_ironpython:
         with open(full_json_path, "w") as fp:
             json.dump(json_dict, fp, indent=4)

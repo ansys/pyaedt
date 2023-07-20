@@ -23,7 +23,7 @@ test_subfolder = "T41"
 test_project_name = "Test_RadioBoard"
 test_rigid_flex = "demo_flex"
 test_post = "test_post_processing"
-
+test_solve = "test_solve"
 if config["desktopVersion"] > "2022.2":
     diff_proj_name = "differential_pairs_t41_231"
 else:
@@ -40,6 +40,9 @@ class TestClass(BasisTest, object):
         example_project = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
         self.target_path = os.path.join(self.local_scratch.path, "Package_test_41.aedb")
         self.local_scratch.copyfolder(example_project, self.target_path)
+        self.solve = BasisTest.add_app(
+            self, project_name=test_solve, application=Hfss3dLayout, subfolder=test_subfolder
+        )
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -505,23 +508,22 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(is_ironpython, reason="Not supported with IronPython")
     def test_19B_analyze_setup(self):
-        self.aedtapp.save_project()
-        assert self.aedtapp.mesh.generate_mesh("RFBoardSetup3")
-        assert self.aedtapp.analyze_setup("RFBoardSetup3")
-        self.aedtapp.save_project()
-        assert os.path.exists(self.aedtapp.export_profile("RFBoardSetup3"))
-        assert os.path.exists(self.aedtapp.export_mesh_stats("RFBoardSetup3"))
+        assert self.solve.mesh.generate_mesh("Setup1")
+        assert self.solve.analyze_setup("Setup1")
+        self.solve.save_project()
+        assert os.path.exists(self.solve.export_profile("Setup1"))
+        assert os.path.exists(self.solve.export_mesh_stats("Setup1"))
 
     @pytest.mark.skipif(is_linux or is_ironpython, reason="To be investigated on linux.")
     def test_19C_export_touchsthone(self):
-        filename = os.path.join(self.aedtapp.working_directory, "touchstone.s2p")
-        solution_name = "RFBoardSetup3"
-        sweep_name = "Last Adaptive"
-        assert self.aedtapp.export_touchstone(solution_name, sweep_name, filename)
+        filename = os.path.join(self.solve.working_directory, "touchstone.s2p")
+        solution_name = "Setup1"
+        sweep_name = "Sweep1"
+        assert self.solve.export_touchstone(solution_name, sweep_name, filename)
         assert os.path.exists(filename)
-        assert self.aedtapp.export_touchstone(solution_name)
+        assert self.solve.export_touchstone(solution_name)
         sweep_name = None
-        assert self.aedtapp.export_touchstone(solution_name, sweep_name)
+        assert self.solve.export_touchstone(solution_name, sweep_name)
 
     @pytest.mark.skipif(is_ironpython, reason="Not supported with IronPython")
     def test_19D_export_to_hfss(self):
@@ -542,31 +544,31 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(is_ironpython, reason="To be investigated on linux.")
     def test_19F_export_results(self):
-        files = self.aedtapp.export_results()
+        files = self.solve.export_results()
         assert len(files) > 0
 
     def test_20_set_export_touchstone(self):
-        assert self.aedtapp.set_export_touchstone(True)
-        assert self.aedtapp.set_export_touchstone(False)
+        assert self.solve.set_export_touchstone(True)
+        assert self.solve.set_export_touchstone(False)
 
     def test_21_variables(self):
         assert isinstance(self.aedtapp.available_variations.nominal_w_values_dict, dict)
         assert isinstance(self.aedtapp.available_variations.nominal_w_values, list)
 
     def test_21_get_all_sparameter_list(self):
-        assert self.aedtapp.get_all_sparameter_list == ["S(Port1,Port1)", "S(Port1,Port2)", "S(Port2,Port2)"]
+        assert self.solve.get_all_sparameter_list == ["S(Port1,Port1)", "S(Port1,Port2)", "S(Port2,Port2)"]
 
     def test_22_get_all_return_loss_list(self):
-        assert self.aedtapp.get_all_return_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
+        assert self.solve.get_all_return_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
 
     def test_23_get_all_insertion_loss_list(self):
-        assert self.aedtapp.get_all_insertion_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
+        assert self.solve.get_all_insertion_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
 
     def test_24_get_next_xtalk_list(self):
-        assert self.aedtapp.get_next_xtalk_list() == ["S(Port1,Port2)"]
+        assert self.solve.get_next_xtalk_list() == ["S(Port1,Port2)"]
 
     def test_25_get_fext_xtalk_list(self):
-        assert self.aedtapp.get_fext_xtalk_list() == ["S(Port1,Port2)", "S(Port2,Port1)"]
+        assert self.solve.get_fext_xtalk_list() == ["S(Port1,Port2)", "S(Port2,Port1)"]
 
     def test_26_duplicate(self):
         assert self.aedtapp.modeler.duplicate("myrectangle", 2, [1, 1])
