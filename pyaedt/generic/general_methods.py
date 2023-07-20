@@ -663,8 +663,15 @@ def _retry_ntimes(n, function, *args, **kwargs):
     -------
 
     """
+    if function.__name__ == "InvokeAedtObjMethod":
+        func_name = args[1]
+    else:
+        func_name = None
     retry = 0
     ret_val = None
+    inclusion_list = ["CreateVia"]
+    if func_name and func_name not in inclusion_list:
+        return function(*args, **kwargs)
     while retry < n:
         try:
             ret_val = function(*args, **kwargs)
