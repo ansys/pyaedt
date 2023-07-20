@@ -1139,9 +1139,9 @@ class Design(AedtObjects):
                 raise Exception("Project doesn't exists. Check it and retry.")
             else:
                 self._oproject = self.odesktop.NewProject()
-                if ".aedt" in proj_name:
+                if proj_name.endswith(".aedt"):
                     self._oproject.Rename(proj_name, True)
-                else:
+                elif not proj_name.endswith(".aedtz"):
                     self._oproject.Rename(os.path.join(self.project_path, proj_name + ".aedt"), True)
                 self._add_handler()
                 self.logger.info("Project %s has been created.", self._oproject.GetName())

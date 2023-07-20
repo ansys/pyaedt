@@ -676,26 +676,9 @@ def _retry_ntimes(n, function, *args, **kwargs):
         "Rename",
         "RestoreProjectArchive",
     ]
+    # if func_name and func_name not in inclusion_list and not func_name.startswith("Get"):
     if func_name and func_name not in inclusion_list:
-        try:
-            ret_val = function(*args, **kwargs)
-        except:
-            if "__name__" in dir(function):
-                raise AttributeError("Error in Executing Method {}.".format(function.__name__))
-            else:
-                raise AttributeError("Error in Executing Method.")
-        if ret_val is None and func_name.startswith("Get"):
-            while retry < n:
-                try:
-                    ret_val = function(*args, **kwargs)
-                except:
-                    retry += 1
-                    time.sleep(1)
-                else:
-                    if ret_val != None:
-                        return ret_val
-        else:
-            return ret_val
+        n = 1
     while retry < n:
         try:
             ret_val = function(*args, **kwargs)
@@ -703,14 +686,12 @@ def _retry_ntimes(n, function, *args, **kwargs):
             retry += 1
             time.sleep(1)
         else:
-            break
+            return ret_val
     if retry == n:
         if "__name__" in dir(function):
             raise AttributeError("Error in Executing Method {}.".format(function.__name__))
         else:
             raise AttributeError("Error in Executing Method.")
-
-    return ret_val
 
 
 def time_fn(fn, *args, **kwargs):
