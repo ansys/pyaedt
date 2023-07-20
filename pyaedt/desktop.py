@@ -25,7 +25,7 @@ import warnings
 from pyaedt import is_ironpython
 from pyaedt import is_linux
 from pyaedt import is_windows
-from pyaedt import pyaedt_logger
+from pyaedt.aedt_logger import pyaedt_logger
 from pyaedt.generic.general_methods import generate_unique_name
 
 if is_linux:
@@ -243,24 +243,25 @@ def _delete_objects():
     except AttributeError:
         pass
     try:
-        del sys.modules["PyDesktopPluginDll"]
-    except:
-        pass
-    try:
-        del sys.modules["PyDesktopPlugin"]
-    except:
-        pass
-    try:
         del sys.modules["glob"]
     except:
         pass
-    keys = [k for k in sys.modules.keys()]
-    for i in keys:
-        if "Ansys.Ansoft" in i:
-            del sys.modules[i]
-    for p in sys.path[::-1]:
-        if "AnsysEM" in p:
-            del sys.path[sys.path.index(p)]
+    # try:
+    #     del sys.modules["PyDesktopPluginDll"]
+    # except:
+    #     pass
+    # try:
+    #     del sys.modules["PyDesktopPlugin"]
+    # except:
+    #     pass
+
+    # keys = [k for k in sys.modules.keys()]
+    # for i in keys:
+    #     if "Ansys.Ansoft" in i:
+    #         del sys.modules[i]
+    # for p in sys.path[::-1]:
+    #     if "AnsysEM" in p:
+    #         del sys.path[sys.path.index(p)]
     gc.collect()
 
 
@@ -295,6 +296,7 @@ def release_desktop(close_projects=True, close_desktop=True):
         ):
             try:
                 if close_desktop:
+                    _main.oDesktop.QuitApplication()
                     _main.oDesktop.QuitApplication()
                 else:
                     import pyaedt.generic.grpc_plugin as StandalonePyScriptWrapper
