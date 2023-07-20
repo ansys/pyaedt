@@ -1079,7 +1079,7 @@ class TestClass(BasisTest, object):
             protection_filter = protection_filters[:ind] + protection_filters[ind + 1 :]
 
             interference_colors, interference_power_matrix = interference_type_classification(
-                self.aedtapp, use_filter=True, filter=interference_filter
+                self.aedtapp, use_filter=True, filter_list=interference_filter
             )
 
             protection_colors, protection_power_matrix = protection_level_classification(
@@ -1087,7 +1087,7 @@ class TestClass(BasisTest, object):
                 global_protection_level=True,
                 global_levels=[30, -4, -30, -104],
                 use_filter=True,
-                filter=protection_filter,
+                filter_list=protection_filter,
             )
 
             assert interference_colors == expected_interference_colors
