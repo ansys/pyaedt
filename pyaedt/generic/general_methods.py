@@ -676,7 +676,13 @@ def _retry_ntimes(n, function, *args, **kwargs):
         "PushExcitations",
     ]
     if func_name and func_name not in inclusion_list:
-        ret_val = function(*args, **kwargs)
+        try:
+            ret_val = function(*args, **kwargs)
+        except:
+            if "__name__" in dir(function):
+                raise AttributeError("Error in Executing Method {}.".format(function.__name__))
+            else:
+                raise AttributeError("Error in Executing Method.")
         if ret_val is None and func_name.startswith("Get"):
             while retry < n:
                 try:
@@ -686,8 +692,9 @@ def _retry_ntimes(n, function, *args, **kwargs):
                     time.sleep(0.1)
                 else:
                     if ret_val != None:
-                        break
-        return ret_val
+                        return ret_val
+        else:
+            return ret_val
     while retry < n:
         try:
             ret_val = function(*args, **kwargs)
