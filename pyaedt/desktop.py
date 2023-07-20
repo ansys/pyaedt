@@ -334,7 +334,7 @@ def _close_aedt_application(close_desktop, pid, is_grpc_api):
                 try:
                     os.kill(pid, 9)
                 except:  # pragma: no cover
-                    warnings.warn("Something went wrong closing AEDT. Exception in os.kill(pid, 9) after timout")
+                    warnings.warn("Something went wrong closing AEDT. Exception in os.kill(pid, 9) after timeout")
                     return False
                 break
     return True
