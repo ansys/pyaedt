@@ -669,15 +669,28 @@ def _retry_ntimes(n, function, *args, **kwargs):
         func_name = None
     retry = 0
     ret_val = None
-    inclusion_list = ["CreateVia"]
+    inclusion_list = [
+        "CreateVia",
+        "PasteDesign",
+        "Paste",
+        "PushExcitations",
+    ]
     if func_name and func_name not in inclusion_list:
-        return function(*args, **kwargs)
+        ret_val = function(*args, **kwargs)
+        if ret_val is None and func_name.startswith("Get"):
+            while retry < n:
+                try:
+                    ret_val = function(*args, **kwargs)
+                except:
+                    retry += 1
+                    time.sleep(0.1)
+                else:
+                    if ret_val != None:
+                        break
+        return ret_val
     while retry < n:
         try:
             ret_val = function(*args, **kwargs)
-            # if ret_val is None:
-            # if not ret_val and type(ret_val) not in [float, int, str, tuple, list]:
-            #    ret_val = True
         except:
             retry += 1
             time.sleep(0.1)
