@@ -303,6 +303,7 @@ def _close_aedt_application(close_desktop, pid, is_grpc_api):
         else:
             try:
                 import pyaedt.generic.grpc_plugin as StandalonePyScriptWrapper
+
                 StandalonePyScriptWrapper.Release()
             except:  # pragma: no cover
                 warnings.warn("Something went wrong releasing AEDT. Exception in StandalonePyScriptWrapper.Release()")
