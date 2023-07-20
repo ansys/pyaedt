@@ -1604,7 +1604,7 @@ class Analysis(Design, object):
     def analyze_setup(
         self,
         name,
-        num_cores=1,
+        num_cores=4,
         num_tasks=1,
         num_gpu=0,
         acf_file=None,

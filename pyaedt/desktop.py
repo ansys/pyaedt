@@ -250,25 +250,26 @@ def _delete_objects():
     except AttributeError:
         pass
     try:
-        del sys.modules["PyDesktopPluginDll"]
-    except:
-        pass
-    try:
-        del sys.modules["PyDesktopPlugin"]
-    except:
-        pass
-    try:
         del sys.modules["glob"]
     except:
         pass
-    keys = [k for k in sys.modules.keys()]
-    for i in keys:
-        if "Ansys.Ansoft" in i:
-            del sys.modules[i]
-    for p in sys.path[::-1]:
-        if "AnsysEM" in p:
-            del sys.path[sys.path.index(p)]
-    # gc.collect()
+    # try:
+    #     del sys.modules["PyDesktopPluginDll"]
+    # except:
+    #     pass
+    # try:
+    #     del sys.modules["PyDesktopPlugin"]
+    # except:
+    #     pass
+
+    # keys = [k for k in sys.modules.keys()]
+    # for i in keys:
+    #     if "Ansys.Ansoft" in i:
+    #         del sys.modules[i]
+    # for p in sys.path[::-1]:
+    #     if "AnsysEM" in p:
+    #         del sys.path[sys.path.index(p)]
+    gc.collect()
 
 
 @pyaedt_function_handler()
@@ -294,11 +295,8 @@ def _close_aedt_application(close_desktop, pid, is_grpc_api):
     if settings.remote_rpc_session or (settings.aedt_version >= "2022.2" and is_grpc_api and not is_ironpython):
         if close_desktop:
             try:
-                try:
-                    os.kill(pid, 9)
-                except:  # pragma: no cover
-                    warnings.warn("Something went wrong in closing AEDT.")
-                    return False
+                _main.oDesktop.QuitApplication()
+                _main.oDesktop.QuitApplication()
             except:  # pragma: no cover
                 warnings.warn("Exception in _main.oDesktop.QuitApplication()")
                 pass

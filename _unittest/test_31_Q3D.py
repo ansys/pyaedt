@@ -363,7 +363,11 @@ class TestClass(BasisTest, object):
         self.aedtapp.close_project(q3d.project_name, save_project=False)
 
     def test_14_export_equivalent_circuit(self):
-        q3d = Q3d(self.test_matrix, specified_version=desktop_version)
+        test_matrix2 = self.local_scratch.copyfile(
+            os.path.join(local_path, "example_models", test_subfolder, q2d_q3d + ".aedt"),
+            os.path.join(self.local_scratch.path, "test_14.aedt"),
+        )
+        q3d = Q3d(test_matrix2, specified_version=desktop_version)
         q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest")
         assert q3d.matrices[1].name == "JointTest"
         q3d["d"] = "10mm"
@@ -426,7 +430,7 @@ class TestClass(BasisTest, object):
             res_limit="2ohm",
         )
         assert q3d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name=q2d_q3d
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name="test_14"
         )
         assert not q3d.export_equivalent_circuit(
             file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name="test"
