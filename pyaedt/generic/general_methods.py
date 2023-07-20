@@ -674,6 +674,7 @@ def _retry_ntimes(n, function, *args, **kwargs):
         "Paste",
         "PushExcitations",
         "Rename",
+        "RestoreProjectArchive",
     ]
     if func_name and func_name not in inclusion_list:
         try:
