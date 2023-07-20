@@ -16,7 +16,7 @@ import datetime
 
 # Set paths
 project_folder = pyaedt.generate_unique_folder_name()
-input_dir = pyaedt.downloads.download_sherlock()
+input_dir = pyaedt.downloads.download_sherlock(destination=project_folder)
 
 ###############################################################################
 # Set non-graphical mode
@@ -178,8 +178,8 @@ setup1.props["Convergence Criteria - Max Iterations"] = 100
 ipk.assign_openings(ipk.modeler.get_object_faces("Region"))
 
 ###############################################################################
-# Create Point Monitor
-# ~~~~~~~~~~~~~~~~~~~~~~~
+# Create point monitor
+# ~~~~~~~~~~~~~~~~~~~~
 
 point1 = ipk.assign_point_monitor(ipk.modeler["COMP_U10"].top_face_z.center, monitor_name="Point1")
 ipk.modeler.set_working_coordinate_system("Global")
@@ -195,28 +195,28 @@ ipk.post.create_report(expressions="Point1.Temperature", primary_sweep_variable=
 ipk.assign_priority_on_intersections()
 
 ###############################################################################
-# Compute power Budget
-# ~~~~~~~~~~~~~~~~~~~~~~~
+# Compute power budget
+# ~~~~~~~~~~~~~~~~~~~~
 
 power_budget, total = ipk.post.power_budget("W" )
 print(total)
 
 ###############################################################################
-# Compute power Budget
-# ~~~~~~~~~~~~~~~~~~~~~~~
+# Analyze the model
+# ~~~~~~~~~~~~~~~~~
 
 ipk.analyze_nominal()
 
 ###############################################################################
-# Get Solution Data and Plot
-# ~~~~~~~~~~~~~~~~~~~~~~~
+# Get solution data and plots
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 face_u10 = [i.id for i in ipk.modeler["COMP_U10"].faces]
 plot1 = ipk.post.create_fieldplot_surface(face_u10, "SurfTemperature")
-plot1.export_image(os.path.join(ipk.working_directory, "temperature_u10.jpg"))
+plot1.export_image(os.path.join(project_folder, "temperature_u10.jpg"))
 face_u9 = [i.id for i in ipk.modeler["COMP_U9"].faces]
 plot2 = ipk.post.create_fieldplot_surface(face_u9, "SurfPressure")
-
+plot2.export_image(os.path.join(project_folder, "pressure_u9.jpg"))
 
 ###############################################################################
 # Save project and release AEDT
