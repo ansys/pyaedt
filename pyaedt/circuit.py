@@ -3,7 +3,6 @@
 
 from __future__ import absolute_import  # noreorder
 
-import glob
 import io
 import math
 import os
@@ -14,6 +13,7 @@ from pyaedt import Hfss3dLayout
 from pyaedt.application.AnalysisNexxim import FieldAnalysisCircuit
 from pyaedt.generic import ibis_reader
 from pyaedt.generic.DataHandlers import from_rkm_to_aedt
+from pyaedt.generic.filesystem import search_files
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -1537,13 +1537,13 @@ class Circuit(FieldAnalysisCircuit, object):
         results_temp_path = os.path.join(results_path, "temp")
 
         # Check if .log exist in temp folder
-        if os.path.exists(results_temp_path) and glob.glob(os.path.join(results_temp_path, "*.log")):
+        if os.path.exists(results_temp_path) and search_files(results_temp_path, "*.log"):
             # Check the most recent
-            files = glob.glob(os.path.join(results_temp_path, "*.log"))
+            files = search_files(results_temp_path, "*.log")
             latest_file = max(files, key=os.path.getctime)
-        elif os.path.exists(results_path) and glob.glob(os.path.join(results_path, "*.log")):
+        elif os.path.exists(results_path) and search_files(results_path, "*.log"):
             # Check the most recent
-            files = glob.glob(os.path.join(results_path, "*.log"))
+            files = search_files(results_path, "*.log")
             latest_file = max(files, key=os.path.getctime)
         else:
             self.logger.error("Design not solved")

@@ -43,6 +43,7 @@ class TestClass(BasisTest, object):
     def test_05_download_antenna_sherlock(self):
         assert self.examples.download_sherlock(destination=os.path.join(tempfile.gettempdir(), "sherlock"))
 
+    @pytest.mark.skipif(is_linux, reason="Crashes on Linux")
     def test_06_download_multiparts(self):
         assert self.examples.download_multiparts(destination=os.path.join(tempfile.gettempdir(), "multi"))
 

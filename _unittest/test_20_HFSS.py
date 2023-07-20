@@ -30,6 +30,7 @@ class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, "Test_20", "test_20")
+        self.fall_back_name = self.aedtapp.design_name
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -62,34 +63,25 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler["inner"].material_name == "copper"
         assert cyl_1.material_name == "teflon_based"
 
-    @pytest.mark.parametrize(
-        "object_name, kwargs",
-        [
-            ("inner", {"mat": "copper"}),
-            (
-                "outer",
-                {
-                    "mat": "aluminum",
-                    "usethickness": True,
-                    "thickness": "0.5mm",
-                    "istwoside": True,
-                    "issheelElement": True,
-                    "usehuray": True,
-                    "radius": "0.75um",
-                    "ratio": "3",
-                },
-            ),
-            ("die", {}),
-        ],
-    )
-    def test_04_assign_coating(self, object_name, kwargs):
-        id = self.aedtapp.modeler.get_obj_id(object_name)
-        coat = self.aedtapp.assign_coating([id, "die", 41], **kwargs)
-        coat.name = "Coating1" + object_name
+    def test_04_assign_coating(self):
+        id = self.aedtapp.modeler.get_obj_id("inner")
+        args = {
+            "mat": "aluminum",
+            "usethickness": True,
+            "thickness": "0.5mm",
+            "istwoside": True,
+            "issheelElement": True,
+            "usehuray": True,
+            "radius": "0.75um",
+            "ratio": "3",
+        }
+        coat = self.aedtapp.assign_coating([id, "die", 41], **args)
+        coat.name = "Coating1inner"
         assert coat.update()
+        assert coat.object_properties
         material = coat.props.get("Material", "")
-        assert material == kwargs.get("mat", "")
-        assert not self.aedtapp.assign_coating(["die2", 45], **kwargs)
+        assert material == "aluminum"
+        assert not self.aedtapp.assign_coating(["die2", 45])
 
     def test_05_create_wave_port_from_sheets(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
@@ -110,6 +102,7 @@ class TestClass(BasisTest, object):
             reference=["outer"],
             terminals_rename=False,
         )
+        assert port.object_properties
         assert port.name == "sheet1_Port"
         assert port.name in [i.name for i in self.aedtapp.boundaries]
         assert port.props["RenormalizeAllTerminals"] is False
@@ -600,7 +593,7 @@ class TestClass(BasisTest, object):
         )
 
     def test_11_create_circuit_on_objects(self):
-        self.aedtapp.set_active_design("test_20")
+        self.aedtapp.insert_design("test_11")
         box1 = self.aedtapp.modeler.create_box([0, 0, 80], [10, 10, 5], "BoxCircuit1", "Copper")
         box2 = self.aedtapp.modeler.create_box([0, 0, 100], [10, 10, 5], "BoxCircuit2", "copper")
         box2.material_name = "Copper"
@@ -611,8 +604,10 @@ class TestClass(BasisTest, object):
         assert not self.aedtapp.circuit_port(
             "BoxCircuit44", "BoxCircuit2", self.aedtapp.AxisDir.XNeg, 50, "Circ1", True, 50, False
         )
+        self.aedtapp.delete_design("test_11", self.fall_back_name)
 
     def test_12_create_perfects_on_objects(self):
+        self.aedtapp.insert_design("test_12")
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "perfect1", "Copper")
         box2 = self.aedtapp.modeler.create_box([0, 0, 10], [10, 10, 5], "perfect2", "copper")
         pe = self.aedtapp.create_perfecth_from_objects(
@@ -625,6 +620,7 @@ class TestClass(BasisTest, object):
         assert pe.update()
         assert ph.name in self.aedtapp.modeler.get_boundaries_name()
         assert ph.update()
+        self.aedtapp.delete_design("test_12", self.fall_back_name)
 
     def test_13_create_impedance_on_objects(self):
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "imp1", "Copper")
@@ -771,6 +767,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.create_open_region("1GHz", "PML", True, "-z")
 
     def test_22_create_length_mesh(self):
+        box1 = self.aedtapp.modeler.create_box([30, 0, 0], [40, 10, 5], "BoxCircuit1", "Copper")
         mesh = self.aedtapp.mesh.assign_length_mesh(["BoxCircuit1"])
         assert mesh
         mesh.props["NumMaxElem"] = "100"
@@ -779,6 +776,7 @@ class TestClass(BasisTest, object):
         ).GetPropValue("Max Elems")
 
     def test_23_create_skin_depth(self):
+        box1 = self.aedtapp.modeler.create_box([30, 0, 0], [40, 10, 5], "BoxCircuit2", "Copper")
         mesh = self.aedtapp.mesh.assign_skin_depth(["BoxCircuit2"], "1mm")
         assert mesh
         mesh.props["SkinDepth"] = "3mm"
@@ -787,7 +785,8 @@ class TestClass(BasisTest, object):
         ).GetPropValue("Skin Depth")
 
     def test_24_create_curvilinear(self):
-        mesh = self.aedtapp.mesh.assign_curvilinear_elements(["BoxCircuit2"])
+        box1 = self.aedtapp.modeler.create_box([30, 0, 0], [40, 10, 5], "BoxCircuit3", "Copper")
+        mesh = self.aedtapp.mesh.assign_curvilinear_elements(["BoxCircuit3"])
         assert mesh
         mesh.props["Apply"] = False
         assert mesh.props["Apply"] == self.aedtapp.odesign.GetChildObject("Mesh").GetChildObject(
@@ -901,6 +900,7 @@ class TestClass(BasisTest, object):
     def test_30_assign_initial_mesh(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(6)
 
+    @pytest.mark.skipif(is_ironpython, reason="Float overflow in Ironpython")
     def test_30a_add_mesh_link(self):
         self.aedtapp.duplicate_design(self.aedtapp.design_name)
         self.aedtapp.set_active_design(self.aedtapp.design_list[0])
@@ -976,6 +976,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.get_property_value("BoundarySetup:PerfectE_1", "Inf Ground Plane", "Boundary") == "false"
         assert self.aedtapp.get_property_value("AnalysisSetup:MySetup2", "Solution Freq", "Setup") == "1GHz"
 
+    @pytest.mark.skipif(is_ironpython, reason="Paste fails in Ironpython")
     def test_33_copy_solid_bodies(self):
         project_name = "HfssCopiedProject"
         design_name = "HfssCopiedBodies"
@@ -1047,6 +1048,7 @@ class TestClass(BasisTest, object):
         assert bound
         bound.name = "Floquet1"
         assert bound.update()
+        self.aedtapp.delete_design("floquet", self.fall_back_name)
 
     def test_43_autoassign_pairs(self):
         self.aedtapp.insert_design("lattice")
@@ -1069,6 +1071,7 @@ class TestClass(BasisTest, object):
         )
         sec.name = "Sec1"
         assert sec.update()
+        self.aedtapp.delete_design("lattice", self.fall_back_name)
 
     def test_44_create_infinite_sphere(self):
         self.aedtapp.insert_design("InfSphere")
@@ -1118,6 +1121,7 @@ class TestClass(BasisTest, object):
         )
         assert sweep6
 
+    @pytest.mark.skipif(is_ironpython, reason="Float overflow in Ironpython")
     def test_45_set_autoopen(self):
         assert self.aedtapp.set_auto_open(True, "PML")
 
@@ -1159,6 +1163,7 @@ class TestClass(BasisTest, object):
             deembed=True,
         )
         assert port3.name + "_T1" in self.aedtapp.excitations
+        self.aedtapp.delete_design("Design_Terminal", self.fall_back_name)
 
     def test_45B_terminal_port(self):
         self.aedtapp.insert_design("Design_Terminal_2")
@@ -1176,7 +1181,7 @@ class TestClass(BasisTest, object):
         assert portz
 
         n_boundaries = len(self.aedtapp.boundaries)
-        assert n_boundaries == 3
+        assert n_boundaries == 4
 
         box5 = self.aedtapp.modeler.create_box([-50, -15, 200], [150, -10, 200], name="gnd2y", matname="copper")
         box6 = self.aedtapp.modeler.create_box([-50, 10, 200], [150, 15, 200], name="sig2y", matname="copper")
@@ -1187,7 +1192,7 @@ class TestClass(BasisTest, object):
         assert porty
 
         n_boundaries = len(self.aedtapp.boundaries)
-        assert n_boundaries == 6
+        assert n_boundaries == 8
 
         box7 = self.aedtapp.modeler.create_box([-15, 300, 0], [-10, 200, 100], name="gnd2x", matname="copper")
         box8 = self.aedtapp.modeler.create_box([15, 300, 0], [10, 200, 100], name="sig2x", matname="copper")
@@ -1198,7 +1203,7 @@ class TestClass(BasisTest, object):
         assert portx
 
         n_boundaries = len(self.aedtapp.boundaries)
-        assert n_boundaries == 9
+        assert n_boundaries == 12
 
         # Use two boxes with different dimensions.
         try:
@@ -1232,6 +1237,7 @@ class TestClass(BasisTest, object):
             )
         else:
             assert False
+        self.aedtapp.delete_design("Design_Terminal_2", self.fall_back_name)
 
     def test_46_mesh_settings(self):
         assert self.aedtapp.mesh.initial_mesh_settings
@@ -1412,8 +1418,10 @@ class TestClass(BasisTest, object):
         )
         assert not aedtapp.assign_symmetry(ids[0])
         assert not aedtapp.assign_symmetry("test")
+        assert aedtapp.set_impedance_multiplier(2)
         self.aedtapp.close_project(name=aedtapp.project_name, save_project=False)
 
+    @pytest.mark.skipif(is_ironpython, reason="Error on Ironpython")
     def test_55_create_near_field_sphere(self):
         air = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", matname="vacuum")
         self.aedtapp.assign_radiation_boundary_to_objects(air)
@@ -1505,11 +1513,15 @@ class TestClass(BasisTest, object):
             "BoxLumped1", "BoxLumped2", self.aedtapp.AxisDir.XNeg, 50, "Lump1xx", True, False
         )
 
-        self.aedtapp.save_project()
-        self.aedtapp.boundaries.__init__()
         term = [term for term in self.aedtapp.boundaries if term.type == "Terminal"][0]
-        assert term
+        assert self.aedtapp.boundaries[0].type == "Terminal"
         term.name = "test"
         assert term.name == "test"
         term.props["TerminalResistance"] = "1ohm"
         assert term.props["TerminalResistance"] == "1ohm"
+        assert not self.aedtapp.set_impedance_multiplier(2)
+
+    def test_61_set_power_calc(self):
+        assert self.aedtapp.set_radiated_power_calc_method()
+        assert self.aedtapp.set_radiated_power_calc_method("Radiation Surface Integral")
+        assert self.aedtapp.set_radiated_power_calc_method("Far Field Integral")

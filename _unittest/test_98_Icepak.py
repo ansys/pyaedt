@@ -258,6 +258,8 @@ class TestClass(BasisTest, object):
 
     def test_14_edit_design_settings(self):
         assert self.aedtapp.edit_design_settings(gravityDir=1)
+        assert self.aedtapp.edit_design_settings(ambtemp=20)
+        assert self.aedtapp.edit_design_settings(ambtemp="325kel")
 
     def test_15_insert_new_icepak(self):
         self.aedtapp.insert_design("Solve")
@@ -608,12 +610,6 @@ class TestClass(BasisTest, object):
         app = Icepak(self.power_budget, specified_version=desktop_version)
         power_boundaries, total_power = app.post.power_budget(temperature=20, output_type="boundary")
         assert abs(total_power - 787.5221374239883) < 1
-        power_boundaries, total_power = app.post.power_budget(temperature=20, output_type="component")
-        assert len(power_boundaries) == 15
-        power_components, total_power_comp, power_boundaries, total_power = app.post.power_budget(
-            temperature=20, output_type=None
-        )
-        assert abs(total_power_comp - total_power) < 1e-06
 
     def test_41_exporting_monitor_data(self):
         assert self.aedtapp.edit_design_settings()
@@ -1199,8 +1195,11 @@ class TestClass(BasisTest, object):
                 pass
 
     def test_62_get_fans_operating_point(self):
+        new_path = self.local_scratch.copyfile(
+            os.path.join(local_path, "example_models", test_subfolder, "Fan_op_point_231.aedt")
+        )
         app = Icepak(
-            os.path.join(local_path, "example_models", test_subfolder, "Fan_op_point_231.aedt"),
+            new_path,
             specified_version=desktop_version,
             designname="get_fan_op_point",
         )

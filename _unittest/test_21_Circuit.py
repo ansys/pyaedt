@@ -86,6 +86,11 @@ class TestClass(BasisTest, object):
     def test_05b_add_pin_iport(self):
         mycap3 = self.aedtapp.modeler.schematic.create_capacitor(value=1e-12)
         assert self.aedtapp.modeler.schematic.add_pin_iports(mycap3.name, mycap3.id)
+        assert len(self.aedtapp.get_all_sparameter_list) == 3
+        assert len(self.aedtapp.get_all_return_loss_list()) == 2
+        assert len(self.aedtapp.get_all_insertion_loss_list()) == 2
+        assert len(self.aedtapp.get_next_xtalk_list()) == 1
+        assert len(self.aedtapp.get_fext_xtalk_list()) == 2
 
     def test_05c_create_component(self):
         assert self.aedtapp.modeler.schematic.create_new_component_from_symbol("Test", ["1", "2"])
@@ -98,6 +103,7 @@ class TestClass(BasisTest, object):
         LNA_setup = self.aedtapp.create_setup(setup_name)
         assert LNA_setup.name == "LNA"
 
+    @pytest.mark.skipif(is_ironpython, reason="Fails in Ironpython")
     def test_06b_add_3dlayout_component(self):
         setup = self.aedtapp.create_setup("test_06b_LNA")
         setup.add_sweep_step(start_point=0, end_point=5, step_size=0.01)
@@ -119,12 +125,14 @@ class TestClass(BasisTest, object):
         new_report.sub_design_id = myedb.id
         assert new_report.create()
 
+    @pytest.mark.skipif(is_ironpython, reason="Fails in Ironpython")
     def test_07_add_hfss_component(self):
         my_model, myname = self.aedtapp.modeler.schematic.create_field_model(
             "uUSB", "Setup1 : Sweep", ["usb_N_conn", "usb_N_pcb", "usb_P_conn", "usb_P_pcb"]
         )
         assert type(my_model) is int
 
+    @pytest.mark.skipif(is_ironpython, reason="Fails in Ironpython")
     def test_07a_push_excitation(self):
         setup_name = "test_07a_LNA"
         setup = self.aedtapp.create_setup(setup_name)
@@ -132,6 +140,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=False)
         assert self.aedtapp.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=True)
 
+    @pytest.mark.skipif(is_ironpython, reason="Fails in Ironpython")
     def test_07b_push_excitation_time(self):
         setup_name = "test_07b_Transient"
         setup = self.aedtapp.create_setup(setup_name, setuptype="NexximTransient")
@@ -409,7 +418,7 @@ class TestClass(BasisTest, object):
         assert subcircuit.angle == 0.0
 
     @pytest.mark.skipif(
-        config["NonGraphical"] and config["desktopVersion"] < "2023.1",
+        is_ironpython or (config["NonGraphical"] and config["desktopVersion"] < "2023.1"),
         reason="Duplicate doesn't work in non-graphical mode.",
     )
     def test_31_duplicate(self):  # pragma: no cover
@@ -796,7 +805,9 @@ class TestClass(BasisTest, object):
         assert text in self.aedtapp.oeditor.GetAllGraphics()
         assert self.aedtapp.modeler.create_text("text test", "1000mil", "-2000mil")
 
-    @pytest.mark.skipif(config["NonGraphical"], reason="Change property doesn't work in non-graphical mode.")
+    @pytest.mark.skipif(
+        is_ironpython or config["NonGraphical"], reason="Change property doesn't work in non-graphical mode."
+    )
     def test_44_change_text_property(self):
         self.aedtapp.set_active_design("text")
         text_id = self.aedtapp.oeditor.GetAllGraphics()[0].split("@")[1]
@@ -809,6 +820,9 @@ class TestClass(BasisTest, object):
         assert not self.aedtapp.modeler.change_text_property(1, "Color", [255, 120, 0])
         assert not self.aedtapp.modeler.change_text_property(text_id, "Invalid", {})
 
+    @pytest.mark.skipif(
+        is_ironpython or config["NonGraphical"], reason="Change property doesn't work in non-graphical mode."
+    )
     def test_45_create_circuit_from_multizone_layout(self):
         source_path = os.path.join(local_path, "example_models", "multi_zone_project.aedb")
         target_path = os.path.join(self.local_scratch.path, "test_multi_zone", "test_45.aedb")

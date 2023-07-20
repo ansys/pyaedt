@@ -20,7 +20,6 @@ from pyaedt.generic.constants import AEDT_UNITS
 
 # from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import PropsManager
-from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import settings
@@ -190,7 +189,7 @@ class BaseCoordinateSystem(PropsManager, object):
 
         """
         arguments = ["NAME:AllTabs", ["NAME:Geometry3DCSTab", ["NAME:PropServers", name], arg]]
-        _retry_ntimes(10, self._modeler.oeditor.ChangeProperty, arguments)
+        self._modeler.oeditor.ChangeProperty(arguments)
 
     @pyaedt_function_handler()
     def rename(self, newname):
@@ -240,13 +239,31 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
             except:
                 pass
 
+    @property
     def props(self):
-        """Coordinate System Properties.
+        """Properties of the coordinate system.
 
         Returns
         -------
         :class:`pyaedt.modeler.Modeler.CSProps`
         """
+        if self._props or settings.aedt_version <= "2022.2" or self.name is None:
+            return self._props
+        obj1 = self._modeler.oeditor.GetChildObject(self.name)
+        props = {}
+        origin = obj1.GetPropValue("Origin")
+        props["Origin"] = origin
+        move_cs_to_end = obj1.GetPropValue("Always Move CS to End")
+        props["MoveToEnd"] = move_cs_to_end
+        move_cs_to_end = obj1.GetPropValue("Axis")
+        props["WhichAxis"] = move_cs_to_end
+        move_cs_to_end = obj1.GetPropValue("Z Rotation Angle")
+        props["ZRotationAngle"] = move_cs_to_end
+        move_cs_to_end = obj1.GetPropValue("Position Offset XY/X")
+        props["XOffset"] = move_cs_to_end
+        move_cs_to_end = obj1.GetPropValue("Position Offset XY/Y")
+        props["YOffset"] = move_cs_to_end
+        self._props = CsProps(self, props)
         return self._props
 
     @property
@@ -262,8 +279,8 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
         return None  # part has not been found
 
     @property
-    def _face_paramenters(self):
-        """Internal named array for paramenteers of the face coordinate system."""
+    def _face_parameters(self):
+        """Internally named array with parameters of the face coordinate system."""
         arg = ["Name:FaceCSParameters"]
         _dict2arg(self.props, arg)
         return arg
@@ -409,8 +426,8 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
         parameters["YOffset"] = self._dim_arg((offset[1]), self.model_units)
         parameters["AutoAxis"] = False
 
-        self.props = CsProps(self, parameters)
-        self._modeler.oeditor.CreateFaceCS(self._face_paramenters, self._attributes)
+        self._props = CsProps(self, parameters)
+        self._modeler.oeditor.CreateFaceCS(self._face_parameters, self._attributes)
         self._modeler._coordinate_systems.insert(0, self)
         return True
 
@@ -543,9 +560,9 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         props["OriginX"] = origin[1]
         props["OriginY"] = origin[3]
         props["OriginZ"] = origin[5]
-        axisvec = obj1.GetPropValue("X Axis")
         props["Mode"] = obj1.GetPropValue("Mode")
-        if props["Mode"] == "Axis/Position":
+        if "X Axis" in obj1.GetPropNames():
+            axisvec = obj1.GetPropValue("X Axis")
             props["XAxisXvec"] = axisvec[1]
             props["XAxisYvec"] = axisvec[3]
             props["XAxisZvec"] = axisvec[5]
@@ -1298,7 +1315,10 @@ class GeometryModeler(Modeler, object):
                 props = {}
                 local_names = [i.name for i in self._coordinate_systems]
                 if cs_name not in local_names:
-                    self._coordinate_systems.append(CoordinateSystem(self, props, cs_name))
+                    if self.oeditor.GetChildObject(cs_name).GetPropValue("Type") == "Relative":
+                        self._coordinate_systems.append(CoordinateSystem(self, props, cs_name))
+                    elif self.oeditor.GetChildObject(cs_name).GetPropValue("Type") == "Face":
+                        self._coordinate_systems.append(FaceCoordinateSystem(self, props, cs_name))
             return self._coordinate_systems
         if not self._coordinate_systems:
             self._coordinate_systems = self._get_coordinates_data()
@@ -1522,7 +1542,7 @@ class GeometryModeler(Modeler, object):
         >>> oEditor.GetModelUnits
         >>> oEditor.SetModelUnits
         """
-        return _retry_ntimes(10, self.oeditor.GetModelUnits)
+        return self.oeditor.GetModelUnits()
 
     @model_units.setter
     def model_units(self, units):
@@ -2639,7 +2659,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d.Object3d`
+        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             List of split objects.
 
         References
@@ -2760,7 +2780,7 @@ class GeometryModeler(Modeler, object):
             vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
             if is_3d_comp:
                 orig_3d = [i for i in self.user_defined_component_names]
-            added_objs = _retry_ntimes(10, self.oeditor.DuplicateMirror, vArg1, vArg2, vArg3)
+            added_objs = self.oeditor.DuplicateMirror(vArg1, vArg2, vArg3)
             self.add_new_objects()
             if is_3d_comp:
                 added_3d_comps = [i for i in self.user_defined_component_names if i not in orig_3d]
@@ -2939,7 +2959,7 @@ class GeometryModeler(Modeler, object):
         vArg2.append("ZComponent:="), vArg2.append(Zpos)
         vArg2.append("Numclones:="), vArg2.append(str(nclones))
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
-        _retry_ntimes(10, self.oeditor.DuplicateAlongLine, vArg1, vArg2, vArg3)
+        self.oeditor.DuplicateAlongLine(vArg1, vArg2, vArg3)
         if is_3d_comp:
             return self._duplicate_added_components_tuple()
         if attachObject:
@@ -2961,7 +2981,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        pyaedt.modeler.object3d.Object3d
+        pyaedt.modeler.cad.object3d.Object3d
 
         References
         ----------
@@ -2999,7 +3019,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        pyaedt.modeler.object3d.Object3d
+        pyaedt.modeler.cad.object3d.Object3d
 
         References
         ----------
@@ -3476,7 +3496,8 @@ class GeometryModeler(Modeler, object):
 
         vArg1 = ["NAME:Selections", "Selections:=", szList, "NewPartsModelFlag:=", "Model"]
 
-        return _retry_ntimes(10, self.oeditor.PurgeHistory, vArg1)
+        self.oeditor.PurgeHistory(vArg1)
+        return True
 
     @pyaedt_function_handler()
     def get_model_bounding_box(self):
@@ -3574,8 +3595,8 @@ class GeometryModeler(Modeler, object):
         """
         szSelections = self.convert_to_selections(objid)
         vArg1 = ["NAME:Selections", "Selections:=", szSelections]
-        _retry_ntimes(10, self.oeditor.Copy, vArg1)
-        _retry_ntimes(10, self.oeditor.Paste)
+        self.oeditor.Copy(vArg1)
+        self.oeditor.Paste()
         new_objects = self.add_new_objects()
         return True, new_objects
 
@@ -3922,7 +3943,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3d.Object3d`
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
 
         References

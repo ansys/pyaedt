@@ -23,7 +23,7 @@ test_subfolder = "T41"
 test_project_name = "Test_RadioBoard"
 test_rigid_flex = "demo_flex"
 test_post = "test_post_processing"
-
+test_solve = "test_solve"
 if config["desktopVersion"] > "2022.2":
     diff_proj_name = "differential_pairs_t41_231"
 else:
@@ -40,6 +40,9 @@ class TestClass(BasisTest, object):
         example_project = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
         self.target_path = os.path.join(self.local_scratch.path, "Package_test_41.aedb")
         self.local_scratch.copyfolder(example_project, self.target_path)
+        self.solve = BasisTest.add_app(
+            self, project_name=test_solve, application=Hfss3dLayout, subfolder=test_subfolder
+        )
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -503,24 +506,24 @@ class TestClass(BasisTest, object):
         # assert self.aedtapp.get_monitor_data()
         assert self.aedtapp.stop_simulations()
 
+    @pytest.mark.skipif(is_ironpython, reason="Not supported with IronPython")
     def test_19B_analyze_setup(self):
-        self.aedtapp.save_project()
-        assert self.aedtapp.mesh.generate_mesh("RFBoardSetup3")
-        assert self.aedtapp.analyze_setup("RFBoardSetup3")
-        self.aedtapp.save_project()
-        assert os.path.exists(self.aedtapp.export_profile("RFBoardSetup3"))
-        assert os.path.exists(self.aedtapp.export_mesh_stats("RFBoardSetup3"))
+        assert self.solve.mesh.generate_mesh("Setup1")
+        assert self.solve.analyze_setup("Setup1")
+        self.solve.save_project()
+        assert os.path.exists(self.solve.export_profile("Setup1"))
+        assert os.path.exists(self.solve.export_mesh_stats("Setup1"))
 
-    @pytest.mark.skipif(is_linux, reason="To be investigated on linux.")
+    @pytest.mark.skipif(is_linux or is_ironpython, reason="To be investigated on linux.")
     def test_19C_export_touchsthone(self):
-        filename = os.path.join(self.aedtapp.working_directory, "touchstone.s2p")
-        solution_name = "RFBoardSetup3"
-        sweep_name = "Last Adaptive"
-        assert self.aedtapp.export_touchstone(solution_name, sweep_name, filename)
+        filename = os.path.join(self.solve.working_directory, "touchstone.s2p")
+        solution_name = "Setup1"
+        sweep_name = "Sweep1"
+        assert self.solve.export_touchstone(solution_name, sweep_name, filename)
         assert os.path.exists(filename)
-        assert self.aedtapp.export_touchstone(solution_name)
+        assert self.solve.export_touchstone(solution_name)
         sweep_name = None
-        assert self.aedtapp.export_touchstone(solution_name, sweep_name)
+        assert self.solve.export_touchstone(solution_name, sweep_name)
 
     @pytest.mark.skipif(is_ironpython, reason="Not supported with IronPython")
     def test_19D_export_to_hfss(self):
@@ -532,38 +535,40 @@ class TestClass(BasisTest, object):
         assert setup.export_to_hfss(file_fullname=file_fullname)
         assert setup.export_to_hfss(file_fullname=file_fullname2, keep_net_name=True)
 
+    @pytest.mark.skipif(is_ironpython, reason="To be investigated on linux.")
     def test_19E_export_to_q3d(self):
         filename = "export_to_q3d_test"
         file_fullname = os.path.join(self.local_scratch.path, filename)
         setup = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
         assert setup.export_to_q3d(file_fullname)
 
+    @pytest.mark.skipif(is_ironpython, reason="To be investigated on linux.")
     def test_19F_export_results(self):
-        files = self.aedtapp.export_results()
+        files = self.solve.export_results()
         assert len(files) > 0
 
     def test_20_set_export_touchstone(self):
-        assert self.aedtapp.set_export_touchstone(True)
-        assert self.aedtapp.set_export_touchstone(False)
+        assert self.solve.set_export_touchstone(True)
+        assert self.solve.set_export_touchstone(False)
 
     def test_21_variables(self):
         assert isinstance(self.aedtapp.available_variations.nominal_w_values_dict, dict)
         assert isinstance(self.aedtapp.available_variations.nominal_w_values, list)
 
     def test_21_get_all_sparameter_list(self):
-        assert self.aedtapp.get_all_sparameter_list == ["S(Port1,Port1)", "S(Port1,Port2)", "S(Port2,Port2)"]
+        assert self.solve.get_all_sparameter_list == ["S(Port1,Port1)", "S(Port1,Port2)", "S(Port2,Port2)"]
 
     def test_22_get_all_return_loss_list(self):
-        assert self.aedtapp.get_all_return_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
+        assert self.solve.get_all_return_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
 
     def test_23_get_all_insertion_loss_list(self):
-        assert self.aedtapp.get_all_insertion_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
+        assert self.solve.get_all_insertion_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
 
     def test_24_get_next_xtalk_list(self):
-        assert self.aedtapp.get_next_xtalk_list() == ["S(Port1,Port2)"]
+        assert self.solve.get_next_xtalk_list() == ["S(Port1,Port2)"]
 
     def test_25_get_fext_xtalk_list(self):
-        assert self.aedtapp.get_fext_xtalk_list() == ["S(Port1,Port2)", "S(Port2,Port1)"]
+        assert self.solve.get_fext_xtalk_list() == ["S(Port1,Port2)", "S(Port2,Port1)"]
 
     def test_26_duplicate(self):
         assert self.aedtapp.modeler.duplicate("myrectangle", 2, [1, 1])
@@ -574,6 +579,9 @@ class TestClass(BasisTest, object):
         assert port.name == "PinPort1"
         port.props["Magnitude"] = "2V"
         assert port.props["Magnitude"] == "2V"
+        assert port.object_properties.props["Magnitude"] == "2V"
+        port.object_properties.props["Magnitude"] = "5V"
+        assert port.object_properties.props["Magnitude"] == "5V"
 
     def test_28_create_scattering(self):
         assert self.aedtapp.create_scattering()
@@ -686,7 +694,7 @@ class TestClass(BasisTest, object):
         assert p2.name == "poly_test_41_void"
         assert not self.aedtapp.modeler.create_polygon_void("Top", points2, "another_object", name="poly_43_void")
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
+    @pytest.mark.skipif(is_ironpython or config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
     def test_42_post_processing(self):
         test_post1 = BasisTest.add_app(self, project_name=test_post, application=Maxwell3d, subfolder=test_subfolder)
         assert test_post1.post.create_fieldplot_layers_nets(
@@ -704,7 +712,7 @@ class TestClass(BasisTest, object):
         )
         self.aedtapp.close_project(test_post2.project_name)
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
+    @pytest.mark.skipif(is_ironpython or config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
     def test_42_post_processing_3d_layout(self):
         test = BasisTest.add_app(
             self, project_name="test_post_3d_layout_solved_23R2", application=Hfss3dLayout, subfolder=test_subfolder
@@ -719,6 +727,7 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(is_linux, reason="Bug on linux")
     def test_90_set_differential_pairs(self):
+        assert not self.aedtapp.get_differential_pairs()
         assert self.hfss3dl.set_differential_pair(
             positive_terminal="Port3",
             negative_terminal="Port4",
@@ -730,6 +739,8 @@ class TestClass(BasisTest, object):
             matched=False,
         )
         assert self.hfss3dl.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
+        assert self.hfss3dl.get_differential_pairs()
+        assert self.hfss3dl.get_traces_for_plot(differential_pairs=["Diff1"], category="dB(S")
 
     @pytest.mark.skipif(is_linux, reason="Bug on linux")
     def test_91_load_and_save_diff_pair_file(self):
@@ -761,6 +772,7 @@ class TestClass(BasisTest, object):
             air_extent_type="ConformalExtent",
             air_vertical_positive_padding="10mm",
             air_vertical_negative_padding="10mm",
+            air_horizontal_padding="1mm",
         )
 
     def test_95_create_text(self):

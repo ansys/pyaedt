@@ -21,14 +21,18 @@ import datetime
 import gc
 import json
 import os
-import random
 import shutil
 import sys
 import tempfile
 import time
 
-from pyaedt import pyaedt_logger
 from pyaedt import settings
+from pyaedt.aedt_logger import pyaedt_logger
+
+settings.enable_local_log_file = False
+settings.enable_global_log_file = False
+settings.number_of_grpc_api_retries = 6
+
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
@@ -56,7 +60,7 @@ test_project_name = "test_primitives"
 sys.path.append(local_path)
 
 # Initialize default desktop configuration
-default_version = "2023.1"
+default_version = "2023.2"
 if "ANSYSEM_ROOT{}".format(default_version[2:].replace(".", "")) not in list_installed_ansysem():
     default_version = list_installed_ansysem()[0][12:].replace(".", "")
     default_version = "20{}.{}".format(default_version[:2], default_version[-1])
@@ -86,9 +90,8 @@ if os.path.exists(local_config_file):
         local_config = json.load(f)
     config.update(local_config)
 
-settings.use_grpc_api = config.get("use_grpc", True)
-settings.non_graphical = config["NonGraphical"]
 settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
+settings.non_graphical = config["NonGraphical"]
 
 test_folder = "unit_test" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 for filename in os.listdir(tempfile.gettempdir()):
@@ -127,8 +130,9 @@ class BasisTest(object):
         self._main = sys.modules["__main__"]
         self.desktop = None
         self._main.desktop_pid = 0
+        settings.use_grpc_api = config.get("use_grpc", True)
         if launch_desktop:
-            self.desktop = Desktop(desktop_version, NONGRAPHICAL, new_thread, port=random.randint(50000, 60000))
+            self.desktop = Desktop(desktop_version, NONGRAPHICAL, new_thread)
             self.desktop.disable_autosave()
             self._main.desktop_pid = self.desktop.odesktop.GetProcessID()
 

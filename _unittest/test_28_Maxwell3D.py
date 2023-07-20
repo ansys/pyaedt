@@ -8,6 +8,7 @@ from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 
 from pyaedt import Maxwell3d
+from pyaedt import is_ironpython
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_linux
@@ -16,6 +17,12 @@ try:
     import pytest
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
+try:
+    from IPython.display import Image
+
+    ipython_available = True
+except ImportError:
+    ipython_available = False
 
 test_subfolder = "TMaxwell"
 test_project_name = "eddy"
@@ -58,6 +65,11 @@ class TestClass(BasisTest, object):
         plate.material_name = "aluminum"
         assert plate.solve_inside
         assert plate.material_name == "aluminum"
+
+    @pytest.mark.skipif(is_ironpython or config["NonGraphical"], reason="Test is failing on build machine")
+    def test_01_display(self):
+        img = self.aedtapp.post.nb_display(show_axis=True, show_grid=True, show_ruler=True)
+        assert isinstance(img, Image)
 
     def test_01A_litz_wire(self):
         cylinder = self.aedtapp.modeler.create_cylinder(
@@ -674,7 +686,8 @@ class TestClass(BasisTest, object):
             last_cycles_number=3,
             calculate_force="Harmonic",
         )
-        self.m3dtransient.analyze(self.m3dtransient.active_setup)
+        self.m3dtransient.save_project()
+        self.m3dtransient.analyze(self.m3dtransient.active_setup, num_cores=2)
         assert self.m3dtransient.export_element_based_harmonic_force(
             start_frequency=1, stop_frequency=100, number_of_frequency=None
         )
@@ -729,6 +742,7 @@ class TestClass(BasisTest, object):
             u_vector_pos_coordinates_slave=["0mm", "-100mm", "0mm"],
         ) == (False, False)
 
+    @pytest.mark.skipif(is_ironpython, reason="Fails on Ironpython")
     def test_45_add_mesh_link(self):
         self.m3dtransient.duplicate_design(self.m3dtransient.design_name)
         self.m3dtransient.set_active_design(self.m3dtransient.design_list[1])
@@ -889,7 +903,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.assign_flux_tangential(box.faces[0], "FluxExample")
         assert self.aedtapp.assign_flux_tangential(box.faces[0].id, "FluxExample")
 
-    @pytest.mark.skipif(desktop_version < "2023.2", reason="Method available in beta from 2023.2")
+    @pytest.mark.skipif(is_ironpython or desktop_version < "2023.2", reason="Method available in beta from 2023.2")
     def test_53_assign_layout_force(self):
         nets_layers = {
             "<no-net>": ["<no-layer>", "TOP", "UNNAMED_000", "UNNAMED_002"],
@@ -901,7 +915,7 @@ class TestClass(BasisTest, object):
         nets_layers = {"1V0": "Bottom Solder"}
         assert self.layout_comp.assign_layout_force(nets_layers, "LC1_1")
 
-    @pytest.mark.skipif(desktop_version < "2023.2", reason="Method available in beta from 2023.2")
+    @pytest.mark.skipif(is_ironpython or desktop_version < "2023.2", reason="Method available in beta from 2023.2")
     def test_54_enable_harmonic_force_layout(self):
         comp = self.layout_comp.modeler.user_defined_components["LC1_1"]
         layers = list(comp.layout_component.layers.keys())

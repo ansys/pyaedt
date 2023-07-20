@@ -803,14 +803,9 @@ class Components(object):
 
     @pyaedt_function_handler()
     def create_port_on_component(
-        self,
-        component,
-        net_list,
-        port_type=SourceType.CoaxPort,
-        do_pingroup=True,
-        reference_net="gnd",
+        self, component, net_list, port_type=SourceType.CoaxPort, do_pingroup=True, reference_net="gnd", port_name=None
     ):
-        """Create ports on given component.
+        """Create ports on a component.
 
         Parameters
         ----------
@@ -827,6 +822,12 @@ class Components(object):
             False will take the closest reference pin and generate one port per signal pin.
         refnet : string or list of string.
             list of the reference net.
+        port_name : string
+            Port name for overwriting the default port-naming convention,
+            which is ``[component][net][pin]``. The port name must be unique.
+            If a port with the specified name already exists, the
+            default naming convention is used so that port creation does
+            not fail.
 
         Returns
         -------
@@ -880,7 +881,7 @@ class Components(object):
                 solder_ball_height = sball_diam / 2
             self.set_solder_ball(component, solder_ball_height, sball_diam)
             for pin in cmp_pins:
-                self._padstack.create_coax_port(pin)
+                self._padstack.create_coax_port(padstackinstance=pin, name=port_name)
 
         elif port_type == SourceType.CircPort:  # pragma no cover
             ref_pins = [
@@ -996,6 +997,48 @@ class Components(object):
         return closest_pin
 
     @pyaedt_function_handler()
+    def replace_rlc_by_gap_boundaries(self, component=None):
+        """Replace RLC component by RLC gap boundaries. These boundary types are compatible with 3D modeler export.
+        Only 2 pins RLC components are supported in this command.
+
+        Parameters
+        ----------
+        component : str
+            Reference designator of the RLC component.
+
+        Returns
+        -------
+        bool
+        ``True`` when succeed, ``False`` if it failed.
+
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> edb = Edb(edb_file)
+        >>>  for refdes, cmp in edb.components.capacitors.items():
+        >>>     edb.components.replace_rlc_by_gap_boundaries(refdes)
+        >>> edb.save_edb()
+        >>> edb.close_edb()
+        """
+        if not component:  # pragma no cover
+            return False
+        if isinstance(component, str):
+            component = self.instances[component]
+            if not component:  # pragma  no cover
+                self._logger.error("component %s not found.", component)
+                return False
+        component_type = component.edbcomponent.GetComponentType()
+        if (
+            component_type == self._edb.definition.ComponentType.Other
+            or component_type == self._edb.definition.ComponentType.IC
+            or component_type == self._edb.definition.ComponentType.IO
+        ):
+            self._logger.info("Component %s passed to deactivate is not an RLC.", component.refdes)
+            return False
+        component.is_enabled = False
+        return self.add_rlc_boundary(component.refdes, False)
+
+    @pyaedt_function_handler()
     def deactivate_rlc_component(self, component=None, create_circuit_port=False):
         """Deactivate RLC component with a possibility to convert to a circuit port.
 
@@ -1096,6 +1139,80 @@ class Components(object):
             neg_pin_term.SetBoundaryType(self._pedb.edb_api.cell.terminal.BoundaryType.PortBoundary)
             neg_pin_term.SetIsCircuitPort(True)
             pos_pin_term.SetReferenceTerminal(neg_pin_term)
+            self._logger.info("Component {} has been replaced by port".format(component.refdes))
+            return True
+
+    @pyaedt_function_handler()
+    def add_rlc_boundary(self, component=None, circuit_type=True):
+        """Add RLC gap boundary on component and replace it with a circuit port.
+        The circuit port supports only 2-pin components.
+
+        Parameters
+        ----------
+        component : str
+            Reference designator of the RLC component.
+        circuit_type : bool
+            When ``True`` circuit type are defined, if ``False`` gap type will be used instead (compatible with HFSS 3D
+            modeler). Default value is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if isinstance(component, str):  # pragma: no cover
+            component = self.instances[component]
+        if not isinstance(component, EDBComponent):  # pragma: no cover
+            return False
+        self.set_component_rlc(component.refdes)
+        pins = self.get_pin_from_component(component.refdes)
+        if len(pins) == 2:  # pragma: no cover
+            pin_layer = self._padstack._get_pin_layer_range(pins[0])[0]
+            pos_pin_term = self._pedb.edb_api.cell.terminal.PadstackInstanceTerminal.Create(
+                self._active_layout,
+                pins[0].GetNet(),
+                "{}_{}".format(component.refdes, pins[0].GetName()),
+                pins[0],
+                pin_layer,
+                False,
+            )
+            if not pos_pin_term:  # pragma: no cover
+                return False
+            neg_pin_term = self._pedb.edb_api.cell.terminal.PadstackInstanceTerminal.Create(
+                self._active_layout,
+                pins[1].GetNet(),
+                "{}_{}_ref".format(component.refdes, pins[1].GetName()),
+                pins[1],
+                pin_layer,
+                True,
+            )
+            if not neg_pin_term:  # pragma: no cover
+                return False
+            pos_pin_term.SetBoundaryType(self._pedb.edb_api.cell.terminal.BoundaryType.RlcBoundary)
+            if not circuit_type:
+                pos_pin_term.SetIsCircuitPort(False)
+            else:
+                pos_pin_term.SetIsCircuitPort(True)
+            pos_pin_term.SetName(component.refdes)
+            neg_pin_term.SetBoundaryType(self._pedb.edb_api.cell.terminal.BoundaryType.RlcBoundary)
+            if not circuit_type:
+                neg_pin_term.SetIsCircuitPort(False)
+            else:
+                neg_pin_term.SetIsCircuitPort(True)
+            pos_pin_term.SetReferenceTerminal(neg_pin_term)
+            rlc_values = component.rlc_values
+            rlc = self._edb.utility.Rlc()
+            if rlc_values[0]:
+                rlc.REnabled = True
+                rlc.R = self._edb.utility.value(rlc_values[0])
+            if rlc_values[1]:
+                rlc.LEnabled = True
+                rlc.L = self._edb.utility.value(rlc_values[1])
+            if rlc_values[2]:
+                rlc.CEnabled = True
+                rlc.C = self._edb.utility.value(rlc_values[2])
+            rlc.is_parallel = component.is_parallel_rlc
+            pos_pin_term.SetRlcBoundaryParameters(rlc)
             self._logger.info("Component {} has been replaced by port".format(component.refdes))
             return True
 

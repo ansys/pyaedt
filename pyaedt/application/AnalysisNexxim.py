@@ -73,7 +73,7 @@ class FieldAnalysisCircuit(Analysis):
 
         Parameters
         ----------
-        component_name : str or :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        component_name : str or :class:`pyaedt.modeler.cad.object3d.circuit.CircuitComponent`
             Component to initialize.
 
         Returns
@@ -335,7 +335,7 @@ class FieldAnalysisCircuit(Analysis):
 
         """
         if not excitation_names:
-            excitation_names = self.excitations
+            excitation_names = list(self.excitations.keys())
         spar = []
         k = 0
         for i in excitation_names:
@@ -373,7 +373,7 @@ class FieldAnalysisCircuit(Analysis):
             excitation_names = []
 
         if not excitation_names:
-            excitation_names = self.excitations
+            excitation_names = list(self.excitations.keys())
         if excitation_name_prefix:
             excitation_names = [i for i in excitation_names if excitation_name_prefix.lower() in i.lower()]
         spar = []
@@ -415,9 +415,9 @@ class FieldAnalysisCircuit(Analysis):
 
         spar = []
         if not trlist:
-            trlist = [i for i in self.excitations if tx_prefix in i]
+            trlist = [i for i in list(self.excitations.keys()) if tx_prefix in i]
         if not reclist:
-            reclist = [i for i in self.excitations if rx_prefix in i]
+            reclist = [i for i in list(self.excitations.keys()) if rx_prefix in i]
         if len(trlist) != len(reclist):
             self.logger.error("The TX and RX lists should be the same length.")
             return False
@@ -450,7 +450,7 @@ class FieldAnalysisCircuit(Analysis):
         """
         next = []
         if not trlist:
-            trlist = [i for i in self.excitations if tx_prefix in i]
+            trlist = [i for i in list(self.excitations.keys()) if tx_prefix in i]
         for i in trlist:
             k = trlist.index(i) + 1
             while k < len(trlist):
@@ -498,9 +498,9 @@ class FieldAnalysisCircuit(Analysis):
 
         fext = []
         if not trlist:
-            trlist = [i for i in self.excitations if tx_prefix in i]
+            trlist = [i for i in list(self.excitations.keys()) if tx_prefix in i]
         if not reclist:
-            reclist = [i for i in self.excitations if rx_prefix in i]
+            reclist = [i for i in list(self.excitations.keys()) if rx_prefix in i]
         for i in trlist:
             for k in reclist:
                 if not skip_same_index_couples or reclist.index(k) != trlist.index(i):

@@ -62,7 +62,9 @@ class TestClass(BasisTest, object):
         self.aedtapp = BasisTest.add_app(self, application=Emit)
         radio = self.aedtapp.modeler.components.create_component("New Radio", "TestRadio")
         assert radio.name == "TestRadio"
+        assert radio.composed_name == "TestRadio"
         assert isinstance(radio, EmitComponent)
+
         antenna = self.aedtapp.modeler.components.create_component("Antenna", "TestAntenna")
         assert antenna.name == "TestAntenna"
         assert isinstance(antenna, EmitAntennaComponent)
@@ -380,18 +382,32 @@ class TestClass(BasisTest, object):
         notes = rev2.notes
         assert rev2.name == "Revision 13"
         assert notes == "Added Bluetooth and an antenna"
+
         # get the initial revision
         rev3 = self.aedtapp.results.get_revision("Revision 10")
         assert rev3.name == "Revision 10"
         assert rev3.revision_number == 10
         assert rev_timestamp == rev3.timestamp
+
+        # test result_mode_error(), try to access unloaded revision
+        receivers = rev2.get_receiver_names()
+        assert receivers is None
+        transmitters = rev2.get_interferer_names()
+        assert transmitters is None
+        bands = rev2.get_band_names(rad5)
+        assert bands is None
+        freqs = rev2.get_active_frequencies(rad5, "Band", TxRxMode.TX)
+        assert freqs is None
+
         # get the most recent revision
         # there are changes, so it should be a new revision
         rev4 = self.aedtapp.results.analyze()
         assert rev4.name == "Revision 16"
+
         # get the initial revision
         rev5 = self.aedtapp.results.get_revision("Revision 10")
         assert rev5.name == "Revision 10"
+
         # get the most recent revision
         # no changes, so it should be the most recent revision
         rev6 = self.aedtapp.results.analyze()
@@ -499,6 +515,11 @@ class TestClass(BasisTest, object):
         band_nodes = rad4.bands()
         for bn in band_nodes:
             bn.enabled = True
+
+        band_node = rad4.band_node("Invalid")
+        assert band_node is None
+        band_node = rad4.band_node("U-NII-5-8 QPSK R=0.75 (Bw 80 MHz)")
+        assert band_node.enabled
 
         # Set up the results
         rev = self.aedtapp.results.analyze()
@@ -751,13 +772,15 @@ class TestClass(BasisTest, object):
             rev2 = self.aedtapp.results.analyze()
             domain2 = self.aedtapp.results.interaction_domain()
             domain2.set_receiver("MD400C")
-            rev2.max_n_to_1_instances = 0
+            if config["desktopVersion"] >= "2024.1":
+                rev2.max_n_to_1_instances = 0
             assert rev2.is_domain_valid(domain2)
             interaction3 = rev2.run(domain2)
             assert interaction3 is not None
             assert interaction3.is_valid()
             worst_domain = interaction3.get_worst_instance(ResultType.EMI).get_domain()
             assert worst_domain.receiver_name == rad4.name
+            assert len(worst_domain.interferer_names) == 1
             assert worst_domain.interferer_names[0] == rad2.name
             domain2.set_receiver(rad3.name)
             assert rev2.is_domain_valid(domain2)
@@ -799,13 +822,19 @@ class TestClass(BasisTest, object):
         radiosTX = rev.get_interferer_names()
         domain = self.aedtapp.results.interaction_domain()
         domain.set_receiver(radiosRX[0], bandsRX[0])
+
+        # check max_n_to_1_instances can be set to different values
+        self.aedtapp.results.revisions[-1].max_n_to_1_instances = 1
         assert self.aedtapp.results.revisions[-1].max_n_to_1_instances == 1
         self.aedtapp.results.revisions[-1].max_n_to_1_instances = 0
         assert self.aedtapp.results.revisions[-1].max_n_to_1_instances == 0
+
+        # get number of 1-1 instances
         assert self.aedtapp.results.revisions[-1].get_instance_count(domain) == 105702
         interaction = self.aedtapp.results.revisions[-1].run(domain)
         instance = interaction.get_worst_instance(ResultType.EMI)
         assert instance.get_value(ResultType.EMI) == 76.02
+
         # rerun with N-1
         self.aedtapp.results.revisions[-1].max_n_to_1_instances = 2**25
         assert self.aedtapp.results.revisions[-1].max_n_to_1_instances == 2**25
@@ -917,3 +946,35 @@ class TestClass(BasisTest, object):
         for link in self.aedtapp.couplings.coupling_names:
             assert link == "ATA_Analysis"
             self.aedtapp.couplings.update_link(link)
+
+        # test deleting a link
+        self.aedtapp.couplings.delete_link("ATA_Analysis")
+        links = self.aedtapp.couplings.linkable_design_names
+        assert len(links) == 1
+
+        # test adding a link
+        self.aedtapp.couplings.add_link("ATA_Analysis")
+        links = self.aedtapp.couplings.linkable_design_names
+        assert len(links) == 0
+        for link in self.aedtapp.couplings.coupling_names:
+            assert link == "ATA_Analysis"
+
+        self.aedtapp.close_project()
+
+        self.aedtapp = BasisTest.add_app(
+            self, project_name="Tutorial 4 - Completed", application=Emit, subfolder=test_subfolder
+        )
+        # test CAD nodes
+        cad_nodes = self.aedtapp.couplings.cad_nodes
+        assert len(cad_nodes) == 1
+        for key in cad_nodes.keys():
+            assert cad_nodes[key]["Name"] == "Fighter_Jet"
+
+        # test antenna nodes
+        antenna_nodes = self.aedtapp.couplings.antenna_nodes
+        assert len(antenna_nodes) == 4
+        antenna_names = ["GPS", "UHF-1", "UHF-2", "VHF-UHF"]
+        i = 0
+        for key in antenna_nodes.keys():
+            assert antenna_nodes[key].name == antenna_names[i]
+            i += 1

@@ -13,7 +13,6 @@ from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 
 # from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import MethodNotSupportedError
-from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import settings
@@ -290,7 +289,7 @@ class MeshOperation(object):
 
         """
         arguments = ["NAME:AllTabs", ["NAME:MeshSetupTab", ["NAME:PropServers", "MeshSetup:{}".format(name)], arg]]
-        _retry_ntimes(10, self._mesh._app.odesign.ChangeProperty, arguments)
+        self._mesh._app.odesign.ChangeProperty(arguments)
 
     @pyaedt_function_handler()
     def delete(self):
@@ -1356,7 +1355,7 @@ class Mesh(object):
 
         Parameters
         ----------
-        obj : int or str or :class:`pyaedt.modeler.object3d.Object3d`
+        obj : int or str or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Object to assign cylindrical gap to.
         meshop_name : str, optional
             Name of the mesh. The default is ``None``, in which

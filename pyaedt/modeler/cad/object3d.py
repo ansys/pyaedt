@@ -17,7 +17,6 @@ import re
 from pyaedt.generic.constants import AEDT_UNITS
 
 # from pyaedt.generic.general_methods import property
-from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import _to_boolean
 from pyaedt.generic.general_methods import _uname
 from pyaedt.generic.general_methods import clamp
@@ -793,8 +792,8 @@ class Object3d(object):
         if self._surface_material is not None:
             return self._surface_material
         if "Surface Material" in self.valid_properties and self.model:
-            self._surface_material = _retry_ntimes(
-                10, self._oeditor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Surface Material"
+            self._surface_material = self._oeditor.GetPropertyValue(
+                "Geometry3DAttributeTab", self._m_name, "Surface Material"
             )
             return self._surface_material.strip('"')
 
@@ -817,9 +816,7 @@ class Object3d(object):
         if self._m_groupName is not None:
             return self._m_groupName
         if "Group" in self.valid_properties:
-            self._m_groupName = _retry_ntimes(
-                10, self._oeditor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Group"
-            )
+            self._m_groupName = self._oeditor.GetPropertyValue("Geometry3DAttributeTab", self._m_name, "Group")
             return self._m_groupName
 
     @group_name.setter
@@ -858,9 +855,7 @@ class Object3d(object):
                     "",
                 ]
             )
-            groupName = _retry_ntimes(
-                10, self._oeditor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Group"
-            )
+            groupName = self._oeditor.GetPropertyValue("Geometry3DAttributeTab", self._m_name, "Group")
             self._oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",
@@ -903,7 +898,7 @@ class Object3d(object):
         if self._material_name is not None:
             return self._material_name
         if "Material" in self.valid_properties and self.model:
-            mat = _retry_ntimes(10, self._oeditor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Material")
+            mat = self._oeditor.GetPropertyValue("Geometry3DAttributeTab", self._m_name, "Material")
             self._material_name = ""
             if mat:
                 self._material_name = mat.strip('"').lower()
@@ -1085,7 +1080,7 @@ class Object3d(object):
                 vPropServers.append(self._m_name)
                 vGeo3d = ["NAME:Geometry3DAttributeTab", vPropServers, vChangedProps]
                 vOut = ["NAME:AllTabs", vGeo3d]
-                _retry_ntimes(10, self._primitives.oeditor.ChangeProperty, vOut)
+                self._primitives.oeditor.ChangeProperty(vOut)
                 self._m_name = obj_name
                 self._primitives.add_new_objects()
                 self._primitives.cleanup_objects()
@@ -1102,7 +1097,7 @@ class Object3d(object):
         >>> oEditor.GetProperties
         """
         if not self._all_props:
-            self._all_props = _retry_ntimes(10, self._oeditor.GetProperties, "Geometry3DAttributeTab", self._m_name)
+            self._all_props = self._oeditor.GetProperties("Geometry3DAttributeTab", self._m_name)
         return self._all_props
 
     @property
@@ -1125,7 +1120,7 @@ class Object3d(object):
         if self._color is not None:
             return self._color
         if "Color" in self.valid_properties:
-            color = _retry_ntimes(10, self._oeditor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Color")
+            color = self._oeditor.GetPropertyValue("Geometry3DAttributeTab", self._m_name, "Color")
             if color:
                 b = (int(color) >> 16) & 255
                 g = (int(color) >> 8) & 255
@@ -1193,9 +1188,7 @@ class Object3d(object):
         if self._transparency is not None:
             return self._transparency
         if "Transparent" in self.valid_properties:
-            transp = _retry_ntimes(
-                10, self._oeditor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Transparent"
-            )
+            transp = self._oeditor.GetPropertyValue("Geometry3DAttributeTab", self._m_name, "Transparent")
             try:
                 self._transparency = float(transp)
             except:
@@ -1242,8 +1235,8 @@ class Object3d(object):
         if self._part_coordinate_system is not None and not isinstance(self._part_coordinate_system, int):
             return self._part_coordinate_system
         if "Orientation" in self.valid_properties:
-            self._part_coordinate_system = _retry_ntimes(
-                10, self._oeditor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Orientation"
+            self._part_coordinate_system = self._oeditor.GetPropertyValue(
+                "Geometry3DAttributeTab", self._m_name, "Orientation"
             )
             return self._part_coordinate_system
 
@@ -1273,9 +1266,7 @@ class Object3d(object):
         if self._solve_inside is not None:
             return self._solve_inside
         if "Solve Inside" in self.valid_properties and self.model:
-            solveinside = _retry_ntimes(
-                10, self._oeditor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Solve Inside"
-            )
+            solveinside = self._oeditor.GetPropertyValue("Geometry3DAttributeTab", self._m_name, "Solve Inside")
             if solveinside == "false" or solveinside == "False":
                 self._solve_inside = False
             else:
@@ -1315,9 +1306,7 @@ class Object3d(object):
         if self._wireframe is not None:
             return self._wireframe
         if "Display Wireframe" in self.valid_properties:
-            wireframe = _retry_ntimes(
-                10, self._oeditor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Display Wireframe"
-            )
+            wireframe = self._oeditor.GetPropertyValue("Geometry3DAttributeTab", self._m_name, "Display Wireframe")
             if wireframe == "true" or wireframe == "True":
                 self._wireframe = True
             else:
@@ -1368,7 +1357,7 @@ class Object3d(object):
         if self._model is not None:
             return self._model
         if "Model" in self.valid_properties:
-            mod = _retry_ntimes(10, self._oeditor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Model")
+            mod = self._oeditor.GetPropertyValue("Geometry3DAttributeTab", self._m_name, "Model")
             if mod == "false" or mod == "False":
                 self._model = False
             else:
@@ -1388,7 +1377,7 @@ class Object3d(object):
 
         Parameters
         ----------
-        object_list : list of str or list of pyaedt.modeler.object3d.Object3d
+        object_list : list of str or list of pyaedt.modeler.cad.object3d.Object3d
             List of objects.
 
         Returns
@@ -1633,7 +1622,7 @@ class Object3d(object):
 
         Parameters
         ----------
-        sweep_object : :class:`pyaedt.modeler.object3d.Object3d`
+        sweep_object : :class:`pyaedt.modeler.cad.object3d.Object3d`
             Application.Position object.
         draft_angle : float, optional
             Angle of the draft in degrees. The default is ``0``.

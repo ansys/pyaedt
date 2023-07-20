@@ -326,7 +326,7 @@ class Hfss(FieldAnalysis3D, object):
         bound = BoundaryObject(self, name, props, boundary_type)
         result = bound.create()
         if result:
-            self.boundaries.append(bound)
+            self._boundaries[bound.name] = bound
             self.logger.info("Boundary %s %s has been correctly created.", boundary_type, name)
             return bound
         self.logger.error("Error in boundary creation for %s %s.", boundary_type, name)
@@ -402,7 +402,13 @@ class Hfss(FieldAnalysis3D, object):
             new_ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
             terminals = [i for i in new_ports if i not in ports]
             for count, terminal in enumerate(terminals, start=1):
+                props_terminal = OrderedDict()
+                props_terminal["TerminalResistance"] = "50ohm"
+                props_terminal["ParentBndID"] = boundary.name
+                terminal_name = terminal
+
                 if impedance:
+                    props_terminal["TerminalResistance"] = str(impedance) + "ohm"
                     properties = [
                         "NAME:AllTabs",
                         [
@@ -436,6 +442,7 @@ class Hfss(FieldAnalysis3D, object):
                         self.logger.warning("Failed to change normalization.")
                 if terminals_rename:
                     new_name = portname + "_T" + str(count)
+                    terminal_name = new_name
                     properties = [
                         "NAME:AllTabs",
                         [
@@ -448,6 +455,8 @@ class Hfss(FieldAnalysis3D, object):
                         self.odesign.ChangeProperty(properties)
                     except:  # pragma: no cover
                         self.logger.warning("Failed to rename terminal {}.".format(terminal))
+                bound = BoundaryObject(self, terminal_name, props_terminal, "Terminal")
+                self._boundaries[terminal_name] = bound
 
             if iswaveport:
                 boundary.type = "Wave Port"
@@ -468,8 +477,11 @@ class Hfss(FieldAnalysis3D, object):
             props["RenormalizeAllTerminals"] = renorm
             props["ShowReporterFilter"] = False
             props["UseAnalyticAlignment"] = False
-            boundary.props = props
+            boundary.auto_update = False
+            boundary.props.update(props)
+            boundary.auto_update = True
             boundary.update()
+
         return boundary
 
     @pyaedt_function_handler()
@@ -1722,10 +1734,10 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        start_object : str or int or :class:`pyaedt.modeler.object3d.Object3d`
+        start_object : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
             First solid connected to the spiral port.
 
-        end_object : str or int or :class:`pyaedt.modeler.object3d.Object3d`
+        end_object : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Second object connected to the spiral port.
 
         port_width : float, optional
@@ -3071,7 +3083,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        sheet : str or int or list or :class:`pyaedt.modeler.object3d.Object3d`
+        sheet : str or int or list or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Name of the sheet.
         deemb : float, optional
             Deembedding value distance in model units. The default is ``0``.
@@ -4393,7 +4405,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        obj_names : str or list or int or :class:`pyaedt.modeler.object3d.Object3d`
+        obj_names : str or list or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
             One or more object names or IDs.
         boundary_name : str, optional
             Name of the boundary. The default is ``""``.
@@ -4434,7 +4446,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        obj_names : str or list or int or :class:`pyaedt.modeler.object3d.Object3d`
+        obj_names : str or list or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
             One or more object names or IDs.
         boundary_name : str, optional
             Name of the boundary. The default is ``""``.
@@ -5780,6 +5792,47 @@ class Hfss(FieldAnalysis3D, object):
             return False
 
     @pyaedt_function_handler()
+    def set_impedance_multiplier(self, impedance):
+        # type: (float) -> bool
+        """Set impedance multiplier.
+
+        Parameters
+        ----------
+        impedance : float
+            Impedance.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.ChangeImpedanceMult
+
+        Examples
+        --------
+
+        Create a box. Select the faces of this box and assign a symmetry.
+
+        >>> symmetry_box = hfss.modeler.create_box([0 , -100, 0], [200, 200, 200],
+        ...                                         name="SymmetryForFaces")
+        >>> ids = [i.id for i in hfss.modeler["SymmetryForFaces"].faces]
+        >>> symmetry = hfss.assign_symmetry(ids)
+        >>> hfss.set_impedance_multiplier(2.0)
+
+        """
+        try:
+            if self.solution_type not in ["Modal"]:
+                self.logger.error("Symmetry is only available with 'Modal' solution type.")
+                return False
+            self.oboundary.ChangeImpedanceMult(impedance)
+            return True
+        except:
+            return False
+
+    @pyaedt_function_handler()
     def get_touchstone_data(self, setup_name, sweep_name=None, variation_dict=None):
         """
         Return a Touchstone data plot.
@@ -5885,10 +5938,10 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        signal : int or :class:`pyaedt.modeler.object3d.Object3d` or
+        signal : int or :class:`pyaedt.modeler.cad.object3d.Object3d` or
          :class:`pyaedt.modeler.cad.FacePrimitive`or :class:`pyaedt.modeler.cad.EdgePrimitive`
             Signal object.
-        reference : int or :class:`pyaedt.modeler.object3d.Object3d` or
+        reference : int or :class:`pyaedt.modeler.cad.object3d.Object3d` or
          :class:`pyaedt.modeler.cad.FacePrimitive`or :class:`pyaedt.modeler.cad.EdgePrimitive`
             Reference object.
         port_location : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
@@ -5974,10 +6027,10 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        signal : str, int, list, :class:`pyaedt.modeler.object3d.Object3d` or
+        signal : str, int, list, :class:`pyaedt.modeler.cad.object3d.Object3d` or
          :class:`pyaedt.modeler.elements3d.FacePrimitive`
             Main object for port creation or starting object for the integration line.
-        reference : int, list or :class:`pyaedt.modeler.object3d.Object3d`
+        reference : int, list or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Ending object for the integration line or reference for Terminal solution. Can be multiple objects.
         create_port_sheet : bool, optional
             Whether to create a port sheet or use given start_object as port shee.
@@ -6098,10 +6151,10 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        signal : int, str, :class:`pyaedt.modeler.object3d.Object3d` or
+        signal : int, str, :class:`pyaedt.modeler.cad.object3d.Object3d` or
          :class:`pyaedt.modeler.elements3d.FacePrimitive`
             Main object for port creation or starting object for the integration line.
-        reference : int, str, list or :class:`pyaedt.modeler.object3d.Object3d`
+        reference : int, str, list or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Ending object for the integration line or reference for Terminal solution. Can be multiple objects.
         create_port_sheet : bool, optional
             Whether to create a port sheet or use given start_object as port shee.
@@ -6252,3 +6305,19 @@ class Hfss(FieldAnalysis3D, object):
                 self.logger.error("Reference conductors are missing.")
                 return False
         return False
+
+    @pyaedt_function_handler()
+    def set_radiated_power_calc_method(self, method="Auto"):
+        """Set the radiated power calculation method in Hfss.
+
+        method : str, optional
+            Radiated power calculation method.
+            The options are ``"Auto"``, ``"Radiation Surface Integral"`` and ``"Far Field Integral"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        self.oradfield.EditRadiatedPowerCalculationMethod(method)
+        return True
