@@ -209,7 +209,7 @@ ipk.analyze_nominal()
 
 ###############################################################################
 # Get solution data and plots
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 face_u10 = [i.id for i in ipk.modeler["COMP_U10"].faces]
 plot1 = ipk.post.create_fieldplot_surface(face_u10, "SurfTemperature")
