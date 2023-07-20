@@ -105,12 +105,9 @@ h3d.close_project()
 ###############################################################################
 # Open Q3D
 # ~~~~~~~~
-# Launch the newly created q3d project and plot it.
+# Launch the newly created q3d project.
 
 q3d = pyaedt.Q3d(output_q3d)
-
-# q3d.plot(show=False,objects=q3d.nets,
-#          export_path=os.path.join(q3d.working_directory, "Q3D.jpg"), plot_air_objects=False) #objects=["1.2V_AVDLL_PLL", "1.2V_AVDDL", "1.2V_DVDDL"],
 q3d.modeler.delete("GND")
 q3d.delete_all_nets()
 
@@ -158,7 +155,8 @@ q3d.plot(show=False,objects=objs_copper_names, plot_as_separate_objects=False,
 ###############################################################################
 # Assign source and sink
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Use previously calculated positions to identify faces and
+# Use previously calculated positions to identify faces,
+# select the net "1_Top" and
 # assign sources and sinks on nets.
 
 sink_f = q3d.modeler.create_circle(q3d.PLANE.XY, location_u11_scl, 0.1)
@@ -197,7 +195,6 @@ setup.analyze()
 # Phi plot
 # ~~~~~~~~
 # Compute ACL solutions and plot them.
- #objects=["1.2V_AVDLL_PLL", "1.2V_AVDDL", "1.2V_DVDDL"],
 
 plot1 = q3d.post.create_fieldplot_surface(q3d.modeler.get_objects_by_material("copper"), "Phidc",
                                           intrinsincDict={"Freq": "1GHz"})
