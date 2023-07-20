@@ -4,7 +4,7 @@ import re
 import sys
 
 from pyaedt import __version__
-from pyaedt import pyaedt_logger
+from pyaedt.aedt_logger import pyaedt_logger
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import env_path
 from pyaedt.generic.general_methods import env_path_student
