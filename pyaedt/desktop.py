@@ -42,7 +42,7 @@ from pyaedt import pyaedt_function_handler
 from pyaedt import settings
 
 # from pyaedt.generic.general_methods import _pythonver
-from pyaedt.generic.general_methods import _desktop_sessions
+from pyaedt.generic.desktop_sessions import _desktop_sessions
 from pyaedt.generic.general_methods import active_sessions
 from pyaedt.generic.general_methods import com_active_sessions
 from pyaedt.generic.general_methods import grpc_active_sessions
@@ -296,9 +296,12 @@ def _close_aedt_application(close_desktop, pid, is_grpc_api):
         if close_desktop:
             try:
                 _main.oDesktop.QuitApplication()
-                _main.oDesktop.QuitApplication()
             except:  # pragma: no cover
                 warnings.warn("Something went wrong closing AEDT. Exception in _main.oDesktop.QuitApplication()")
+                pass
+            try:
+                _main.oDesktop.QuitApplication()
+            except:  # pragma: no cover
                 pass
         else:
             try:
@@ -324,7 +327,7 @@ def _close_aedt_application(close_desktop, pid, is_grpc_api):
             except:
                 logging.warning("Something went wrong releasing AEDT. Exception in _main.COMUtil.ReleaseCOMObjectScope")
                 pass
-    _delete_objects()
+    # _delete_objects()
     if not settings.remote_rpc_session and not is_ironpython and close_desktop:
         timeout = 10
         while pid in active_sessions():
