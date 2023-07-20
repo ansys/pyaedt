@@ -1162,9 +1162,9 @@ class Design(AedtObjects):
                     new_project_list = [i for i in self.odesktop.GetProjectList() if i not in project_list]
                     if new_project_list:
                         self._oproject = self.odesktop.SetActiveProject(new_project_list[0])
-                if ".aedt" in proj_name:
+                if proj_name.endswith(".aedt"):
                     self._oproject.Rename(proj_name, True)
-                else:
+                elif not proj_name.endswith(".aedtz"):
                     self._oproject.Rename(os.path.join(self.project_path, proj_name + ".aedt"), True)
                 self._add_handler()
                 self.logger.info("Project %s has been created.", self._oproject.GetName())
