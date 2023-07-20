@@ -663,10 +663,9 @@ def _retry_ntimes(n, function, *args, **kwargs):
     -------
 
     """
+    func_name = None
     if function.__name__ == "InvokeAedtObjMethod":
         func_name = args[1]
-    else:
-        func_name = None
     retry = 0
     ret_val = None
     inclusion_list = [
@@ -674,6 +673,7 @@ def _retry_ntimes(n, function, *args, **kwargs):
         "PasteDesign",
         "Paste",
         "PushExcitations",
+        "Rename",
     ]
     if func_name and func_name not in inclusion_list:
         try:
@@ -689,7 +689,7 @@ def _retry_ntimes(n, function, *args, **kwargs):
                     ret_val = function(*args, **kwargs)
                 except:
                     retry += 1
-                    time.sleep(0.1)
+                    time.sleep(1)
                 else:
                     if ret_val != None:
                         return ret_val
@@ -700,7 +700,7 @@ def _retry_ntimes(n, function, *args, **kwargs):
             ret_val = function(*args, **kwargs)
         except:
             retry += 1
-            time.sleep(0.1)
+            time.sleep(1)
         else:
             break
     if retry == n:
@@ -1006,6 +1006,8 @@ def number_aware_string_key(s):
 
 @pyaedt_function_handler()
 def _create_json_file(json_dict, full_json_path):
+    if not os.path.exists(os.path.dirname(full_json_path)):
+        os.makedirs(os.path.dirname(full_json_path))
     if not is_ironpython:
         with open(full_json_path, "w") as fp:
             json.dump(json_dict, fp, indent=4)
