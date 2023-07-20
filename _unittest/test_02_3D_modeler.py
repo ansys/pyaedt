@@ -336,6 +336,7 @@ class TestClass(BasisTest, object):
 
     def test_40_create_coordinate_system(self):
         cs = self.aedtapp.modeler.create_coordinate_system()
+        self.aedtapp.modeler.coordinate_systems
         cs1 = self.aedtapp.modeler.create_coordinate_system()
         assert cs
         assert cs.update()
