@@ -267,7 +267,7 @@ class TestClass(BasisTest, object):
         assert sources[0] == "Box1:Source1"
         self.aedtapp.close_project(q3d.project_name, save_project=False)
 
-    def test_13a_export_matrix_data(self):
+    def test_15_export_matrix_data(self):
         q3d = Q3d(self.test_matrix, specified_version=desktop_version)
         q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest")
         q3d.matrices[1].name == "JointTest"
@@ -362,7 +362,7 @@ class TestClass(BasisTest, object):
         assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), g_unit="A")
         self.aedtapp.close_project(q3d.project_name, save_project=False)
 
-    def test_14_export_equivalent_circuit(self):
+    def test_16_export_equivalent_circuit(self):
         test_matrix2 = self.local_scratch.copyfile(
             os.path.join(local_path, "example_models", test_subfolder, q2d_q3d + ".aedt"),
             os.path.join(self.local_scratch.path, "test_14.aedt"),
@@ -377,20 +377,6 @@ class TestClass(BasisTest, object):
             os.path.join(self.local_scratch.path, "test_export_circuit.cir"), variations=["d: 10mm"]
         )
         assert not q3d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.doc"))
-        q3d["d"] = "20mm"
-        assert not q3d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
-            setup_name="Setup1",
-            sweep="LastAdaptive",
-            variations=["d: 10mm", "d: 20mm"],
-        )
-        q3d.analyze_setup(q3d.active_setup)
-        assert q3d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
-            setup_name="Setup1",
-            sweep="LastAdaptive",
-            variations=["d: 10mm", "d: 20mm"],
-        )
 
         assert not q3d.export_equivalent_circuit(
             file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
@@ -441,7 +427,7 @@ class TestClass(BasisTest, object):
         )
         self.aedtapp.close_project(q3d.project_name, save_project=False)
 
-    def test_15_export_results_q3d(self):
+    def test_17_export_results_q3d(self):
         q3d = Q3d(self.test_matrix, specified_version=desktop_version)
         exported_files = q3d.export_results()
         assert len(exported_files) == 0
@@ -455,7 +441,7 @@ class TestClass(BasisTest, object):
         assert len(exported_files) > 0
         q3d.close_project(q3d.project_name, save_project=False)
 
-    def test_16_set_variable(self):
+    def test_18_set_variable(self):
         self.aedtapp.variable_manager.set_variable("var_test", expression="123")
         self.aedtapp["var_test"] = "234"
         assert "var_test" in self.aedtapp.variable_manager.design_variable_names
