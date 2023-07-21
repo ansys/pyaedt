@@ -190,6 +190,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Input validation for protection level legend table
         delegate = DoubleDelegate(decimals=2)
         self.protection_legend_table.setItemDelegateForColumn(0, delegate)
+        self.open_file_dialog()
 
     ###############################################################################
     # Open file dialog and select project
@@ -464,6 +465,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         msg.setWindowTitle("Closing GUI")
         msg.setText("Closing AEDT, please wait for GUI to close on its own.")
         x = msg.exec()
+        emitapp.close_project()
         emitapp.close_desktop()
 
 ###############################################################################
