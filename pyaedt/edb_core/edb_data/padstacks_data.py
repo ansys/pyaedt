@@ -690,8 +690,8 @@ class EDBPadstack(object):
         Returns
         -------
         str
-            Possible returned value : ``"through"``, ``"begin_on_upper_pad"``, ``"end_on_lower_pad"``,
-            ``"upper_pad_to_lower_pad"``, ``"undefined"``.
+            Possible returned values are ``"through"``, ``"begin_on_upper_pad"``,
+            ``"end_on_lower_pad"``, ``"upper_pad_to_lower_pad"``, and ``"undefined"``.
         """
         cloned_padstackdef_data = self._edb.definition.PadstackDefData(self.edb_padstack.GetData())
         hole_ange_type = int(cloned_padstackdef_data.GetHoleRange())
