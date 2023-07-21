@@ -2615,3 +2615,9 @@ class TestClass(BasisTest, object):
         assert padstack_instance.backdrill_top[0] == "signal1"
         assert padstack_instance.backdrill_top[1] == "200um"
         assert padstack_instance.backdrill_top[2] == "100um"
+        padstack_instance2 = edb.padstacks.place(position=[0.5, 0.5], net_name="test", definition_name="test1")
+        padstack_instance2.set_backdrill_bottom(drill_depth="signal1", drill_diameter="200um", offset="100um")
+        assert len(padstack_instance2.backdrill_bottom) == 3
+        assert padstack_instance2.backdrill_bottom[0] == "signal1"
+        assert padstack_instance2.backdrill_bottom[1] == "200um"
+        assert padstack_instance2.backdrill_bottom[2] == "100um"
