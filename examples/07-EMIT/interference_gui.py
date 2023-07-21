@@ -342,11 +342,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         if self.file_path_box.text() != "" and self.design_name_dropdown.currentText() != "":
             if self.previous_design != self.design_name_dropdown.currentText() or self.previous_project != self.file_path_box.text():
-                # emitapp.close_project()
                 self.previous_design = self.design_name_dropdown.currentText()
                 self.previous_project = self.file_path_box.text()
                 emitapp.set_active_design(self.design_name_dropdown.currentText())
-            
+
+                # Check if file is read-only
+                if emitapp.save_project() == False:
+                    msg = QtWidgets.QMessageBox()
+                    msg.setWindowTitle("Writing Error")
+                    msg.setText("An error occured while writing to the file. Is it readonly? Disk full? See AEDT log for more information.")
+                    x = msg.exec()
+                    return
+
                 # Get results and radios
                 self.rev = emitapp.results.analyze()
                 self.tx_interferer = InterfererType().TRANSMITTERS
@@ -389,11 +396,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.previous_project = self.file_path_box.text()
                 emitapp.set_active_design(self.design_name_dropdown.currentText())
 
+                # Check if file is read-only
+                if emitapp.save_project() == False:
+                    msg = QtWidgets.QMessageBox()
+                    msg.setWindowTitle("Writing Error")
+                    msg.setText("An error occured while writing to the file. Is it readonly? Disk full? See AEDT log for more information.")
+                    x = msg.exec()
+                    return
+                
                 # Get results and design radios
                 self.tx_interferer = InterfererType().TRANSMITTERS
-                if emitapp.save_project() == False:
-                    print("Read only project/directory")
-                    return
                 self.rev = emitapp.results.analyze()
                 self.rx_radios = self.rev.get_receiver_names()
                 self.tx_radios = self.rev.get_interferer_names(self.tx_interferer)
