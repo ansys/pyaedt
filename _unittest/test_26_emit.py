@@ -932,9 +932,8 @@ class TestClass(BasisTest, object):
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_interference_script(self):
-        sys.path.append("examples/07-EMIT")
-        from interference_classification import interference_type_classification
-        from interference_classification import protection_level_classification
+        from pyaedt.emit_core.interference_classification import interference_type_classification
+        from pyaedt.emit_core.interference_classification import protection_level_classification
 
         self.aedtapp = BasisTest.add_app(self, application=Emit)
         # place components
@@ -1079,7 +1078,7 @@ class TestClass(BasisTest, object):
             protection_filter = protection_filters[:ind] + protection_filters[ind + 1 :]
 
             interference_colors, interference_power_matrix = interference_type_classification(
-                self.aedtapp, use_filter=True, filter=interference_filter
+                self.aedtapp, use_filter=True, filter_list=interference_filter
             )
 
             protection_colors, protection_power_matrix = protection_level_classification(
@@ -1087,7 +1086,7 @@ class TestClass(BasisTest, object):
                 global_protection_level=True,
                 global_levels=[30, -4, -30, -104],
                 use_filter=True,
-                filter=protection_filter,
+                filter_list=protection_filter,
             )
 
             assert interference_colors == expected_interference_colors
