@@ -107,7 +107,7 @@
              <item>
               <widget class="QCheckBox" name="overload_check">
                <property name="text">
-                <string>Overlaod</string>
+                <string>Overload</string>
                </property>
                <property name="checked">
                 <bool>true</bool>
