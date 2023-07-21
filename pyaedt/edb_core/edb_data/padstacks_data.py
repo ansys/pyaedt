@@ -1098,7 +1098,7 @@ class EDBPadstackInstance(object):
         offset : float, str
             Offset for the backdrill. The default is ``0.0``. If the value is other than the
             default, the stub does not stop at the layer. In AEDT, this parameter is called
-            "Nfg stub length".
+            "Mfg stub length".
 
         Returns
         -------
