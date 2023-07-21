@@ -3,7 +3,6 @@ import os
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
-
 from pyaedt import Q2d
 
 test_subfolder = "T36"

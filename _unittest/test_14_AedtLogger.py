@@ -14,7 +14,6 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
 from _unittest.conftest import BasisTest
-
 from pyaedt import settings
 
 # Import required modules

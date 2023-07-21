@@ -3,7 +3,6 @@ import os
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 from _unittest.conftest import scratch_path
-
 from pyaedt import pyaedt_path
 from pyaedt.generic.pdf import AnsysReport
 

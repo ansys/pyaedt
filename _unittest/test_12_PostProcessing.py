@@ -4,7 +4,6 @@ import sys
 
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
-
 from pyaedt import Circuit
 from pyaedt import Maxwell2d
 from pyaedt import Q2d

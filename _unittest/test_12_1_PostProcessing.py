@@ -5,7 +5,6 @@ import uuid
 
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
-
 from pyaedt import Hfss
 from pyaedt import settings
 from pyaedt.generic.DataHandlers import json_to_dict
