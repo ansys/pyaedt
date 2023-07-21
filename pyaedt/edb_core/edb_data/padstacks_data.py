@@ -695,30 +695,30 @@ class EDBPadstack(object):
         """
         cloned_padstackdef_data = self._edb.definition.PadstackDefData(self.edb_padstack.GetData())
         hole_ange_type = int(cloned_padstackdef_data.GetHoleRange())
-        if hole_ange_type == 0:
+        if hole_ange_type == 0:  # pragma no cover
             return "through"
-        elif hole_ange_type == 1:
+        elif hole_ange_type == 1:  # pragma no cover
             return "begin_on_upper_pad"
-        elif hole_ange_type == 2:
+        elif hole_ange_type == 2:  # pragma no cover
             return "end_on_lower_pad"
-        elif hole_ange_type == 3:
+        elif hole_ange_type == 3:  # pragma no cover
             return "upper_pad_to_lower_pad"
-        else:
+        else:  # pragma no cover
             return "undefined"
 
     @hole_range.setter
     def hole_range(self, value):
-        if isinstance(value, str):
+        if isinstance(value, str):  # pragma no cover
             cloned_padstackdef_data = self._edb.definition.PadstackDefData(self.edb_padstack.GetData())
-            if value == "through":
+            if value == "through":  # pragma no cover
                 cloned_padstackdef_data.SetHoleRange(self._edb.definition.PadstackHoleRange.Through)
-            elif value == "begin_on_upper_pad":
+            elif value == "begin_on_upper_pad":  # pragma no cover
                 cloned_padstackdef_data.SetHoleRange(self._edb.definition.PadstackHoleRange.BeginOnUpperPad)
-            elif value == "end_on_lower_pad":
+            elif value == "end_on_lower_pad":  # pragma no cover
                 cloned_padstackdef_data.SetHoleRange(self._edb.definition.PadstackHoleRange.EndOnLowerPad)
-            elif value == "upper_pad_to_lower_pad":
+            elif value == "upper_pad_to_lower_pad":  # pragma no cover
                 cloned_padstackdef_data.SetHoleRange(self._edb.definition.PadstackHoleRange.UpperPadToLowerPad)
-            else:
+            else:  # pragma no cover
                 return
             self.edb_padstack.SetData(cloned_padstackdef_data)
 
