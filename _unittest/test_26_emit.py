@@ -928,13 +928,12 @@ class TestClass(BasisTest, object):
         assert len(radiosRX) == 2
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.2" or is_ironpython,
+        config["desktopVersion"] <= "2023.1" or is_ironpython,
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_interference_script(self):
-        sys.path.append("examples/07-EMIT")
-        from interference_classification import interference_type_classification
-        from interference_classification import protection_level_classification
+        from pyaedt.emit_core.interference_classification import interference_type_classification
+        from pyaedt.emit_core.interference_classification import protection_level_classification
 
         self.aedtapp = BasisTest.add_app(self, application=Emit)
         # place components
