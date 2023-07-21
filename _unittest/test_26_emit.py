@@ -928,7 +928,7 @@ class TestClass(BasisTest, object):
         assert len(radiosRX) == 2
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1" or is_ironpython,
+        config["desktopVersion"] <= "2023.2" or is_ironpython,
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_interference_script(self):
