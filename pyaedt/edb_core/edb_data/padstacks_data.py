@@ -1096,8 +1096,9 @@ class EDBPadstackInstance(object):
         drill_diameter : float, str
             Diameter of backdrill size.
         offset : float, str
-            Offset for the backdrill. It will not stop at the layer if value is not equal to zero. This offset is also
-            called Mfg stub length in Aedt.
+            Offset for the backdrill. The default is ``0.0``. If the value is other than the
+            default, the stub does not stop at the layer. In AEDT, this parameter is called
+            "Nfg stub length".
 
         Returns
         -------
@@ -1119,7 +1120,7 @@ class EDBPadstackInstance(object):
         Returns
         -------
         tuple
-            Tuple of the layer name, drill diameter and drill offset if it exists.
+            Tuple of the layer name, drill diameter, and drill offset if it exists.
         """
         layer = self._pedb.edb_api.cell.layer("", self._pedb.edb_api.cell.layer_type.SignalLayer)
         val = self._pedb.edb_value(0)
@@ -1151,10 +1152,11 @@ class EDBPadstackInstance(object):
         drill_depth : str
             Name of the drill to layer.
         drill_diameter : float, str
-            Diameter of backdrill size.
-        offset : float, str
-            Optional, if different to zero, assign an offset value for the backdrill. The stub will not stop at the
-            layer. This parameter is also called Mfg stub length in Aedt.
+            Diameter of the backdrill size.
+        offset : float, str, optional
+            Offset for the backdrill. The default is ``0.0``. If the value is other than the
+            default, the stub does not stop at the layer. In AEDT, this parameter is called
+            "Mfg stub length".
 
         Returns
         -------
