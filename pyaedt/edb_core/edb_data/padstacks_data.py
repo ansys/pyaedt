@@ -1097,7 +1097,7 @@ class EDBPadstackInstance(object):
             Diameter of backdrill size.
         offset : float, str
             Offset for the backdrill. It will not stop at the layer if value is not equal to zero. This offset is also
-            called Nfg stub length in Aedt.
+            called Mfg stub length in Aedt.
 
         Returns
         -------
