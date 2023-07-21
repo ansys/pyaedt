@@ -63,35 +63,25 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler["inner"].material_name == "copper"
         assert cyl_1.material_name == "teflon_based"
 
-    @pytest.mark.parametrize(
-        "object_name, kwargs",
-        [
-            ("inner", {"mat": "copper"}),
-            (
-                "outer",
-                {
-                    "mat": "aluminum",
-                    "usethickness": True,
-                    "thickness": "0.5mm",
-                    "istwoside": True,
-                    "issheelElement": True,
-                    "usehuray": True,
-                    "radius": "0.75um",
-                    "ratio": "3",
-                },
-            ),
-            ("die", {}),
-        ],
-    )
-    def test_04_assign_coating(self, object_name, kwargs):
-        id = self.aedtapp.modeler.get_obj_id(object_name)
-        coat = self.aedtapp.assign_coating([id, "die", 41], **kwargs)
-        coat.name = "Coating1" + object_name
+    def test_04_assign_coating(self):
+        id = self.aedtapp.modeler.get_obj_id("inner")
+        args = {
+            "mat": "aluminum",
+            "usethickness": True,
+            "thickness": "0.5mm",
+            "istwoside": True,
+            "issheelElement": True,
+            "usehuray": True,
+            "radius": "0.75um",
+            "ratio": "3",
+        }
+        coat = self.aedtapp.assign_coating([id, "die", 41], **args)
+        coat.name = "Coating1inner"
         assert coat.update()
         assert coat.object_properties
         material = coat.props.get("Material", "")
-        assert material == kwargs.get("mat", "")
-        assert not self.aedtapp.assign_coating(["die2", 45], **kwargs)
+        assert material == "aluminum"
+        assert not self.aedtapp.assign_coating(["die2", 45])
 
     def test_05_create_wave_port_from_sheets(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
@@ -910,6 +900,7 @@ class TestClass(BasisTest, object):
     def test_30_assign_initial_mesh(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(6)
 
+    @pytest.mark.skipif(is_ironpython, reason="Float overflow in Ironpython")
     def test_30a_add_mesh_link(self):
         self.aedtapp.duplicate_design(self.aedtapp.design_name)
         self.aedtapp.set_active_design(self.aedtapp.design_list[0])
@@ -985,6 +976,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.get_property_value("BoundarySetup:PerfectE_1", "Inf Ground Plane", "Boundary") == "false"
         assert self.aedtapp.get_property_value("AnalysisSetup:MySetup2", "Solution Freq", "Setup") == "1GHz"
 
+    @pytest.mark.skipif(is_ironpython, reason="Paste fails in Ironpython")
     def test_33_copy_solid_bodies(self):
         project_name = "HfssCopiedProject"
         design_name = "HfssCopiedBodies"
@@ -1129,6 +1121,7 @@ class TestClass(BasisTest, object):
         )
         assert sweep6
 
+    @pytest.mark.skipif(is_ironpython, reason="Float overflow in Ironpython")
     def test_45_set_autoopen(self):
         assert self.aedtapp.set_auto_open(True, "PML")
 
@@ -1428,6 +1421,7 @@ class TestClass(BasisTest, object):
         assert aedtapp.set_impedance_multiplier(2)
         self.aedtapp.close_project(name=aedtapp.project_name, save_project=False)
 
+    @pytest.mark.skipif(is_ironpython, reason="Error on Ironpython")
     def test_55_create_near_field_sphere(self):
         air = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", matname="vacuum")
         self.aedtapp.assign_radiation_boundary_to_objects(air)

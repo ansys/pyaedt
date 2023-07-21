@@ -143,6 +143,7 @@ def _download_file(directory, filename=None, destination=None, local_paths=[]):
             settings.remote_rpc_session.filemanager.makedirs(settings.remote_rpc_session_temp_folder)
         settings.remote_rpc_session.filemanager.upload(local_paths[-1], remote_path)
         local_paths[-1] = remote_path
+    return local_paths[-1]
 
 
 ###############################################################################
@@ -176,7 +177,7 @@ def download_aedb(destination=None):
     local_paths = []
     _download_file("pyaedt/edb/Galileo.aedb", "GRM32ER72A225KA35_25C_0V.sp", destination, local_paths)
     _download_file("pyaedt/edb/Galileo.aedb", "edb.def", destination, local_paths)
-    return local_paths
+    return local_paths[-1]
 
 
 def download_edb_merge_utility(force_download=False, destination=None):
@@ -366,7 +367,7 @@ def download_icepak(destination=None):
     >>> pathavoid
     'C:/Users/user/AppData/local/temp/pyaedtexamples/Graphic_Card.aedt'
     """
-
+    _download_file("pyaedt/icepak", "Graphics_card.aedt", destination)
     return _download_file("pyaedt/icepak", "Graphics_card.aedt", destination)
 
 
@@ -459,7 +460,7 @@ def download_touchstone(destination=None):
     """
     local_paths = []
     _download_file("pyaedt/touchstone", "SSN_ssn.s6p", destination, local_paths)
-    return local_paths
+    return local_paths[0]
 
 
 def download_sherlock(destination=None):
@@ -530,7 +531,7 @@ def download_leaf(destination=None):
     _download_file("pyaedt/nissan", "30DH_20C_smooth.tab", destination, local_paths)
     _download_file("pyaedt/nissan", "BH_Arnold_Magnetics_N30UH_80C.tab", destination, local_paths)
 
-    return local_paths
+    return local_paths[0], local_paths[1]
 
 
 def download_custom_reports(force_download=False, destination=None):
@@ -559,14 +560,14 @@ def download_custom_reports(force_download=False, destination=None):
     >>> path
     'C:/Users/user/AppData/local/temp/custom_reports'
     """
-
+    if not destination:
+        destination = EXAMPLES_PATH
     if force_download:
         local_path = os.path.join(destination, "custom_reports")
         if os.path.exists(local_path):
             shutil.rmtree(local_path, ignore_errors=True)
-    download_file("pyaedt/custom_reports")
-    if not destination:
-        destination = EXAMPLES_PATH
+    download_file("pyaedt/custom_reports", destination=destination)
+
     return os.path.join(destination, "custom_reports")
 
 

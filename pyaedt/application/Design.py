@@ -21,7 +21,7 @@ import threading
 import time
 import warnings
 
-from pyaedt import pyaedt_logger
+from pyaedt.aedt_logger import pyaedt_logger
 from pyaedt.application.Variables import DataSet
 from pyaedt.application.Variables import VariableManager
 from pyaedt.application.Variables import decompose_variable_value
@@ -1139,9 +1139,9 @@ class Design(AedtObjects):
                 raise Exception("Project doesn't exists. Check it and retry.")
             else:
                 self._oproject = self.odesktop.NewProject()
-                if ".aedt" in proj_name:
+                if proj_name.endswith(".aedt"):
                     self._oproject.Rename(proj_name, True)
-                else:
+                elif not proj_name.endswith(".aedtz"):
                     self._oproject.Rename(os.path.join(self.project_path, proj_name + ".aedt"), True)
                 self._add_handler()
                 self.logger.info("Project %s has been created.", self._oproject.GetName())
@@ -3904,3 +3904,20 @@ class Design(AedtObjects):
             if os.path.normpath(os.path.join(p.GetPath(), p.GetName()) + ".aedt") == os.path.normpath(project_path):
                 return p.GetName()
         return False
+
+    @pyaedt_function_handler
+    def set_temporary_directory(self, temp_dir_path):
+        """Set temporary directory path.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesktop.SetTempDirectory()
+        """
+        self.odesktop.SetTempDirectory(temp_dir_path)
+        return True

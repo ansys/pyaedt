@@ -114,14 +114,14 @@ class AedtObjWrapper:
         return "Instance of an Aedt object:" + str(self.objectID)
 
     def __Invoke__(self, funcName, argv):
+        if settings.enable_debug_grpc_api_logger:
+            settings.logger.debug("{} {}".format(funcName, argv))
         try:
-            if settings.enable_debug_grpc_api_logger:
-                settings.logger.debug("{}{}".format(funcName, argv))
             return _retry_ntimes(
                 settings.number_of_grpc_api_retries, AedtAPI.InvokeAedtObjMethod, self.objectID, funcName, argv
             )  # Call C function
-        except BaseException as e:
-            raise GrpcApiError("Failed to execute grpc AEDT command:  {}".format(funcName))
+        except:  # pragma: no cover
+            raise GrpcApiError("Failed to execute grpc AEDT command: {}".format(funcName))
 
     def __dir__(self):
         return self.__methodNames__
