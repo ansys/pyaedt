@@ -1,10 +1,10 @@
-import os
 from ctypes import CFUNCTYPE
 from ctypes import PyDLL
 from ctypes import c_bool
 from ctypes import c_int
 from ctypes import c_wchar_p
 from ctypes import py_object
+import os
 
 pathDir = os.environ["DesktopPluginPyAEDT"]  # DesktopPlugin
 pathDir = os.path.dirname(pathDir)  # PythonFiles

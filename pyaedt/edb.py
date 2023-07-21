@@ -3,6 +3,7 @@
 This module is implicitily loaded in HFSS 3D Layout when launched.
 
 """
+from itertools import combinations
 import os
 import shutil
 import sys
@@ -10,9 +11,7 @@ import tempfile
 import time
 import traceback
 import warnings
-from itertools import combinations
 
-import pyaedt.edb_core.general
 from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.edb_core import Components
@@ -28,18 +27,15 @@ from pyaedt.edb_core.edb_data.design_options import EdbDesignOptions
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import HfssSimulationSetup
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
-from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import (
-    SiwaveDCSimulationSetup,
-)
-from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import (
-    SiwaveSYZSimulationSetup,
-)
+from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveDCSimulationSetup
+from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveSYZSimulationSetup
 from pyaedt.edb_core.edb_data.sources import ExcitationDifferential
 from pyaedt.edb_core.edb_data.sources import ExcitationPorts
 from pyaedt.edb_core.edb_data.sources import ExcitationProbes
 from pyaedt.edb_core.edb_data.sources import ExcitationSources
 from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.edb_data.variables import Variable
+import pyaedt.edb_core.general
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.ipc2581.ipc2581 import Ipc2581
 from pyaedt.edb_core.materials import Materials

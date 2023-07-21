@@ -2,6 +2,7 @@ import os
 import xml.etree.ElementTree as ET
 
 from _unittest.conftest import BasisTest
+
 from pyaedt.misc.aedtlib_personalib_install import write_tab_config
 
 

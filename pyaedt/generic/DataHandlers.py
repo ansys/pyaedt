@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
+from collections import OrderedDict
+from decimal import Decimal
 import json
 import math
 import random
 import re
 import string
-from collections import OrderedDict
-from decimal import Decimal
 
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import settings

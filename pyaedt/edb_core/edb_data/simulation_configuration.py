@@ -1,6 +1,6 @@
+from collections import OrderedDict
 import json
 import os
-from collections import OrderedDict
 
 from pyaedt import generate_unique_name
 from pyaedt.edb_core.edb_data.sources import Source

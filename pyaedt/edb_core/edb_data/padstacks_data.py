@@ -1,6 +1,6 @@
+from collections import OrderedDict
 import math
 import warnings
-from collections import OrderedDict
 
 from pyaedt import is_ironpython
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue

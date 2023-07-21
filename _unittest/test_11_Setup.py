@@ -2,6 +2,7 @@
 # Setup paths for module imports
 from _unittest.conftest import BasisTest
 from _unittest.conftest import desktop_version
+
 from pyaedt import Circuit
 
 # Import required modules
