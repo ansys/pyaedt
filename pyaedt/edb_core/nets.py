@@ -238,7 +238,7 @@ class EdbNets(object):
             Threshold of capacitor value. Search extended net across capacitors which has value higher than the
             threshold.
         exception_list : list, optional
-            List of components which bypass threshold check.
+            List of components which bypass threshold check. The default is ``None``.
         Returns
         -------
         list
