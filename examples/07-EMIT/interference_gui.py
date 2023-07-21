@@ -39,13 +39,13 @@ for package in required_packages:
     if package not in installed_packages:
         install(package)
 
-# Import PySide2 and openpyxl libraries
+# Import PySide6 and openpyxl libraries
 from PySide6 import QtWidgets, QtUiTools, QtGui
 from openpyxl.styles import PatternFill
 import openpyxl
-# import PySide2
+# import PySide6
 
-# dirname = os.path.dirname(PySide2.__file__)
+# dirname = os.path.dirname(PySide6.__file__)
 # plugin_path = os.path.join(dirname, 'plugins', 'platforms')
 # os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = plugin_path
 
@@ -206,6 +206,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             # Close previous project and open specified one
             emitapp.close_project()       
             emitapp.load_project(self.file_path_box.text())
+
+            # Check if project is already open
+            if emitapp.lock_file == None:
+                msg = QtWidgets.QMessageBox()
+                msg.setWindowTitle("Error: Project already open")
+                msg.setText("Project is locked. Close or remove the lock before proceeding. See AEDT log for more information.")
+                x = msg.exec()
+                return
             
             # Populate design dropdown with all design names
             designs = emitapp.oproject.GetDesigns()
