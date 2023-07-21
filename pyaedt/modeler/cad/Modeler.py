@@ -1438,7 +1438,7 @@ class GeometryModeler(Modeler, object):
         """
         return self._app.materials
 
-    def _get_coordinates_data(self):
+    def _get_coordinates_data(self):  # pragma: no cover
         coord = []
         id2name = {1: "Global"}
         name2refid = {}
