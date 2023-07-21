@@ -1120,7 +1120,7 @@ class EDBPadstackInstance(object):
         Returns
         -------
         tuple
-            Tuple of the layer name, drill diameter and drill offset if it exists.
+            Tuple of the layer name, drill diameter, and drill offset if it exists.
         """
         layer = self._pedb.edb_api.cell.layer("", self._pedb.edb_api.cell.layer_type.SignalLayer)
         val = self._pedb.edb_value(0)
