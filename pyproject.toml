@@ -127,9 +127,11 @@ all = [
 name = "pyaedt"
 
 [project.urls]
-"Bug Tracker" = "https://github.com/pyansys/pyaedt/issues"
-"Documentation" = "https://aedt.docs.pyansys.com"
-"Source Code" = "https://github.com/pyansys/pyaedt"
+Bug Tracker = "https://github.com/ansys/pyaedt/issues"
+Documentation = "https://aedt.docs.pyansys.com"
+Source Code = "https://github.com/ansys/pyaedt"
+Discussions = "https://github.com/ansys/pyaedt/discussions"
+Releases = "https://github.com/ansys/pyaedt/releases"
 
 [tool.black]
 line-length = 120
