@@ -5,7 +5,6 @@ import sys
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import is_ironpython
-
 from pyaedt import Emit
 from pyaedt.emit_core.emit_constants import InterfererType
 from pyaedt.emit_core.emit_constants import ResultType
@@ -932,8 +931,12 @@ class TestClass(BasisTest, object):
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_interference_script(self):
-        from pyaedt.emit_core.interference_classification import interference_type_classification
-        from pyaedt.emit_core.interference_classification import protection_level_classification
+        from pyaedt.emit_core.interference_classification import (
+            interference_type_classification,
+        )
+        from pyaedt.emit_core.interference_classification import (
+            protection_level_classification,
+        )
 
         self.aedtapp = BasisTest.add_app(self, application=Emit)
         # place components

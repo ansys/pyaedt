@@ -4,7 +4,6 @@ import os.path
 
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
-
 from pyaedt import Icepak
 from pyaedt import settings
 from pyaedt.aedt_logger import AedtLogger

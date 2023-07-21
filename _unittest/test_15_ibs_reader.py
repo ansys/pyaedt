@@ -2,7 +2,6 @@ import os
 
 from _unittest.conftest import BasisTest
 from _unittest.conftest import local_path
-
 from pyaedt import Circuit
 from pyaedt.generic import ibis_reader
 

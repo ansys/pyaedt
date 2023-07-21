@@ -4,7 +4,6 @@ import os
 import sys
 
 from _unittest.conftest import BasisTest
-
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import isclose

@@ -3,7 +3,6 @@ import os
 
 from _unittest.conftest import BasisTest
 from _unittest.conftest import local_path
-
 from pyaedt import TwinBuilder
 from pyaedt.generic.general_methods import is_linux
 

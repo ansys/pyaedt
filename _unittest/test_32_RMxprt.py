@@ -1,7 +1,6 @@
 import os
 
 from _unittest.conftest import BasisTest
-
 from pyaedt import Rmxprt
 from pyaedt.generic.general_methods import is_linux
 

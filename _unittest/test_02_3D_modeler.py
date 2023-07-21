@@ -1,7 +1,6 @@
 # Setup paths for module imports
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
-
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.modeler.cad.Modeler import FaceCoordinateSystem
 from pyaedt.modeler.cad.Primitives import PolylineSegment

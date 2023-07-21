@@ -1,7 +1,6 @@
 #!/ekm/software/anaconda3/bin/python
 # Import required modules
 from _unittest.conftest import BasisTest
-
 from pyaedt import Maxwell2d
 from pyaedt.modeler.cad.polylines import Polyline
 

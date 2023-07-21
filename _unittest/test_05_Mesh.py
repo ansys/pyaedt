@@ -1,7 +1,6 @@
 # Import required modules
 from _unittest.conftest import BasisTest
 from _unittest.conftest import desktop_version
-
 from pyaedt import Maxwell3d
 
 try:
