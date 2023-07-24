@@ -86,6 +86,11 @@ class TestClass(BasisTest, object):
     def test_05b_add_pin_iport(self):
         mycap3 = self.aedtapp.modeler.schematic.create_capacitor(value=1e-12)
         assert self.aedtapp.modeler.schematic.add_pin_iports(mycap3.name, mycap3.id)
+        assert len(self.aedtapp.get_all_sparameter_list) == 3
+        assert len(self.aedtapp.get_all_return_loss_list()) == 2
+        assert len(self.aedtapp.get_all_insertion_loss_list()) == 2
+        assert len(self.aedtapp.get_next_xtalk_list()) == 1
+        assert len(self.aedtapp.get_fext_xtalk_list()) == 2
 
     def test_05c_create_component(self):
         assert self.aedtapp.modeler.schematic.create_new_component_from_symbol("Test", ["1", "2"])
