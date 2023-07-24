@@ -92,8 +92,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
-    "sphinx."
-    "ext.coverage",
+    "sphinx.ext.coverage",
     "sphinx_copybutton",
     "recommonmark",
     "sphinx.ext.graphviz",

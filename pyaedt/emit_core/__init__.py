@@ -3,7 +3,7 @@ from importlib import import_module
 import os
 import sys
 
-from pyaedt import pyaedt_logger as logger
+from pyaedt.aedt_logger import pyaedt_logger as logger
 from pyaedt.emit_core.emit_constants import InterfererType
 from pyaedt.emit_core.emit_constants import ResultType
 from pyaedt.emit_core.emit_constants import TxRxMode

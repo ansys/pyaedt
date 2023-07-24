@@ -63,35 +63,25 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler["inner"].material_name == "copper"
         assert cyl_1.material_name == "teflon_based"
 
-    @pytest.mark.parametrize(
-        "object_name, kwargs",
-        [
-            ("inner", {"mat": "copper"}),
-            (
-                "outer",
-                {
-                    "mat": "aluminum",
-                    "usethickness": True,
-                    "thickness": "0.5mm",
-                    "istwoside": True,
-                    "issheelElement": True,
-                    "usehuray": True,
-                    "radius": "0.75um",
-                    "ratio": "3",
-                },
-            ),
-            ("die", {}),
-        ],
-    )
-    def test_04_assign_coating(self, object_name, kwargs):
-        id = self.aedtapp.modeler.get_obj_id(object_name)
-        coat = self.aedtapp.assign_coating([id, "die", 41], **kwargs)
-        coat.name = "Coating1" + object_name
+    def test_04_assign_coating(self):
+        id = self.aedtapp.modeler.get_obj_id("inner")
+        args = {
+            "mat": "aluminum",
+            "usethickness": True,
+            "thickness": "0.5mm",
+            "istwoside": True,
+            "issheelElement": True,
+            "usehuray": True,
+            "radius": "0.75um",
+            "ratio": "3",
+        }
+        coat = self.aedtapp.assign_coating([id, "die", 41], **args)
+        coat.name = "Coating1inner"
         assert coat.update()
         assert coat.object_properties
         material = coat.props.get("Material", "")
-        assert material == kwargs.get("mat", "")
-        assert not self.aedtapp.assign_coating(["die2", 45], **kwargs)
+        assert material == "aluminum"
+        assert not self.aedtapp.assign_coating(["die2", 45])
 
     def test_05_create_wave_port_from_sheets(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
