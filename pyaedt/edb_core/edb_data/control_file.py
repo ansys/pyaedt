@@ -115,11 +115,14 @@ class ControlProperty:
                 pass
 
     def _write_xml(self, root):
-        if self.type == 0:
-            content = ET.SubElement(root, self.name)
-            double = ET.SubElement(content, "Double")
-            double.text = str(self.value)
-        else:
+        try:
+            if self.type == 0:
+                content = ET.SubElement(root, self.name)
+                double = ET.SubElement(content, "Double")
+                double.text = str(self.value)
+            else:
+                pass
+        except:
             pass
 
 
@@ -383,15 +386,15 @@ class ControlFileStackup:
             self._layers.append(ControlFileDielectric(layer_name, properties))
             return self._layers[-1]
 
-    def add_dielectric(self, layer_name, layer_index=0, material="", thickness=0.0, properties=None):
+    def add_dielectric(self, layer_name, layer_index=None, material="", thickness=0.0, properties=None):
         """Add a new dielectric.
 
         Parameters
         ----------
         layer_name : str
             Layer name.
-        layer_index : int
-            Dielectric layer index as they must be stacked
+        layer_index : int, Optional
+            Dielectric layer index as they must be stacked. If not provided the layer index will be incremented.
         material : str
             Material name.
         thickness : float
@@ -407,6 +410,10 @@ class ControlFileStackup:
             self._dielectrics.append(ControlFileDielectric(layer_name, properties))
             return self._dielectrics[-1]
         else:
+            if not layer_index and self.dielectrics:
+                layer_index = max([diel.properties["Index"] for diel in self.dielectrics]) + 1
+            else:
+                layer_index = 0
             properties = {"Index": layer_index, "Material": material, "Name": layer_name, "Thickness": thickness}
             self._dielectrics.append(ControlFileDielectric(layer_name, properties))
             return self._dielectrics[-1]
@@ -496,7 +503,7 @@ class ControlFileStackup:
         dielectrics = ET.SubElement(elayers, "Dielectrics")
         dielectrics.set("BaseElevation", str(self.dielectrics_base_elevation))
         # sorting dielectric layers
-        self._dielectrics = list(sorted(list(self._dielectrics), key=lambda x: x.properties["Index"], reverse=True))
+        self._dielectrics = list(sorted(list(self._dielectrics), key=lambda x: x.properties["Index"], reverse=False))
         for layer in self.dielectrics:
             layer._write_xml(dielectrics)
         layers = ET.SubElement(elayers, "Layers")
@@ -1153,17 +1160,23 @@ class ControlFile:
                         if st_el.attrib == "LengthUnits":
                             self.stackup.units = st_el.attrib
                         for layers_el in st_el:
+                            if "BaseElevation" in layers_el.attrib:
+                                self.stackup.dielectrics_base_elevation = layers_el.attrib["BaseElevation"]
                             for layer_el in layers_el:
                                 properties = {}
                                 layer_name = layer_el.attrib["Name"]
                                 for propname, prop_val in layer_el.attrib.items():
                                     properties[propname] = prop_val
                                 if layers_el.tag == "Dielectrics":
-                                    self.stackup.add_dielectric(layer_name, properties)
+                                    self.stackup.add_dielectric(
+                                        layer_name=layer_name,
+                                        material=properties["Material"],
+                                        thickness=properties["Thickness"],
+                                    )
                                 elif layers_el.tag == "Layers":
-                                    self.stackup.add_layer(layer_name, properties)
+                                    self.stackup.add_layer(layer_name=layer_name, properties=properties)
                                 elif layers_el.tag == "Vias":
-                                    via = self.stackup.add_via(layer_name, properties)
+                                    via = self.stackup.add_via(layer_name, properties=properties)
                                     for i in layer_el:
                                         if i.tag == "CreateViaGroups":
                                             via.create_via_group = True
