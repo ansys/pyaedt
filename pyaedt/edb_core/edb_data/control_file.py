@@ -386,7 +386,16 @@ class ControlFileStackup:
             self._layers.append(ControlFileDielectric(layer_name, properties))
             return self._layers[-1]
 
-    def add_dielectric(self, layer_name, layer_index=None, material="", thickness=0.0, properties=None):
+    def add_dielectric(
+        self,
+        layer_name,
+        layer_index=None,
+        material="",
+        thickness=0.0,
+        properties=None,
+        base_layer=None,
+        add_on_top=True,
+    ):
         """Add a new dielectric.
 
         Parameters
@@ -401,6 +410,13 @@ class ControlFileStackup:
             Layer thickness.
         properties : dict
             Dictionary with key and  property value.
+        base_layer : str,  Optional
+            Layer name used for layer placement. Default value is ``None``. This option is used for inserting
+            dielectric layer between tew existing ones. When no argument is provided the dielectric layer will be placed
+            on top if the stacked ones.
+        method : bool, Optional.
+            Provides the method to use when the argument ``base_layer`` is provided. When ``True`` the layer is added
+            on top on the base layer, when ``False`` it will be added below.
 
         Returns
         -------
@@ -410,9 +426,24 @@ class ControlFileStackup:
             self._dielectrics.append(ControlFileDielectric(layer_name, properties))
             return self._dielectrics[-1]
         else:
-            if not layer_index and self.dielectrics:
+            if not layer_index and self.dielectrics and not base_layer:
                 layer_index = max([diel.properties["Index"] for diel in self.dielectrics]) + 1
-            else:
+            elif base_layer and self.dielectrics:
+                if base_layer in [diel.properties["Name"] for diel in self.dielectrics]:
+                    base_layer_index = next(
+                        diel.properties["Index"] for diel in self.dielectrics if diel.properties["Name"] == base_layer
+                    )
+                    if add_on_top:
+                        layer_index = base_layer_index + 1
+                        for diel_layer in self.dielectrics:
+                            if diel_layer.properties["Index"] > base_layer_index:
+                                diel_layer.properties["Index"] += 1
+                    else:
+                        layer_index = base_layer_index
+                        for diel_layer in self.dielectrics:
+                            if diel_layer.properties["Index"] >= base_layer_index:
+                                diel_layer.properties["Index"] += 1
+            elif not layer_index:
                 layer_index = 0
             properties = {"Index": layer_index, "Material": material, "Name": layer_name, "Thickness": thickness}
             self._dielectrics.append(ControlFileDielectric(layer_name, properties))
