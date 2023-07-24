@@ -300,15 +300,16 @@ class ControlFileStackup:
         ----------
         material_name : str
             Material name.
-        permittivity : float
-            Material permittivity
-        dielectric_loss_tg : float
-            Material tangent losses
-        permeability : float
-            Material permeability
-        conductivity : float
-            Material conductivity
-        properties : dict
+        permittivity : float, optional
+            Material permittivity. The default is ``1.0``.
+        dielectric_loss_tg : float, optional
+            Material tangent losses. The default is ``0.0``.
+        permeability : float, optional
+            Material permeability. The default is ``1.0``.
+        conductivity : float, optional
+            Material conductivity. The default is ``0.0``.
+        properties : dict, optional
+            Specific material properties. The default is ``None``.
             Dictionary with key and material property value.
 
         Returns
