@@ -618,12 +618,13 @@ class Desktop(object):
 
         """Initialize desktop."""
 
-        # Used in unit tests. Env variable PYAEDT_NON_GRAPHICAL override the argument "non_graphical"
+        # Used in unit tests. The ``PYAEDT_NON_GRAPHICAL`` environment variable overrides
+        # the ``non_graphical`` argument.
         if os.getenv("PYAEDT_NON_GRAPHICAL", None) is not None:
             non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "false").lower() in ("true", "1", "t")
-        # used in toolkit scripts. Env variable PYAEDT_SCRIPT_PROCESS_ID override the argument "aedt_process_id"
+        # Used in toolkit scripts. The ``PYAEDT_SCRIPT_PROCESS_ID`` environment variable overrides
+        # the ``aedt_process_id`` argument.
         if os.getenv("PYAEDT_SCRIPT_PROCESS_ID", None):
-            # print("found process id")
             aedt_process_id = int(os.getenv("PYAEDT_SCRIPT_PROCESS_ID"))
         # Used in toolkit scripts. The ``PYAEDT_SCRIPT_VERSION`` environment variable overrides
         # the ``specified_version`` argument.
@@ -982,7 +983,7 @@ class Desktop(object):
         self_current_student_version = self.current_student_version
 
         if current_version == "":
-            raise Exception("AEDT is not installed on your system. Please install AEDT version 2022 R2 or higher.")
+            raise Exception("AEDT is not installed on your system. Install AEDT version 2022 R2 or higher.")
         if not specified_version:
             if student_version and self_current_student_version:
                 specified_version = self_current_student_version
@@ -1006,7 +1007,7 @@ class Desktop(object):
         elif float(specified_version[0:6]) < 2022.2:
             warnings.warn(
                 """PyAEDT has limited capabilities when used with an AEDT version earlier than 2022 R2.
-                Please update your AEDT installation to 2022 R2 or higher."""
+                Update your AEDT installation to 2022 R2 or higher."""
             )
         if not (specified_version in self.installed_versions):
             raise ValueError(
@@ -1027,7 +1028,7 @@ class Desktop(object):
         #         else:
         #             warnings.warn(
         #                 """PyAEDT has limited capabilities when used with an AEDT version earlier than 2022 R2.
-        #                 Please update your AEDT installation to 2022 R2 or higher."""
+        #                 Update your AEDT installation to 2022 R2 or higher."""
         #             )
         #     if student_version:
         #         specified_version += "SV"
