@@ -1282,3 +1282,18 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.assign_symmetry_wall(geometry=region_fc_ids[1:4])
         if not is_ironpython:
             assert not self.aedtapp.assign_symmetry_wall(geometry="surf01")
+
+    def test_66_update_3d_component(self):
+        file_path = self.local_scratch.path
+        file_name = "3DComp.a3dcomp"
+        self.aedtapp.insert_design("test_66")
+        self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
+        self.aedtapp.modeler.create_3dcomponent(os.path.join(file_path, file_name))
+        self.aedtapp.modeler.insert_3d_component(comp_file=os.path.join(file_path, file_name), name="test")
+        component_filepath = self.aedtapp.modeler.user_defined_components["test"].get_component_filepath()
+        assert component_filepath
+        comp = self.aedtapp.modeler.user_defined_components["test"].edit_definition()
+        comp.modeler.objects_by_name["surf1"].move([1, 1, 1])
+        comp.modeler.create_3dcomponent(component_filepath)
+        comp.close_project()
+        assert self.aedtapp.modeler.user_defined_components["test"].update_definition()
