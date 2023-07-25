@@ -71,12 +71,7 @@ class Settings(object):
 
     @property
     def retry_n_times_time_interval(self):
-        """Time interval between the retries by the ``_retry_n_times`` method.
-
-        Returns
-        -------
-        float
-        """
+        """Time interval between the retries by the ``_retry_n_times`` method."""
         return self._retry_n_times_time_interval
 
     @retry_n_times_time_interval.setter
@@ -85,12 +80,7 @@ class Settings(object):
 
     @property
     def number_of_grpc_api_retries(self):
-        """Number of gRPC API retries. The default is ``3``.
-
-        Returns
-        -------
-        int
-        """
+        """Number of gRPC API retries. The default is ``3``."""
         return self._number_of_grpc_api_retries
 
     @number_of_grpc_api_retries.setter
@@ -99,12 +89,7 @@ class Settings(object):
 
     # @property
     # def aedt_process_id(self):
-    #     """ID of the desktop process. The default is ``None``.
-    #
-    #     Returns
-    #     -------
-    #     int
-    #     """
+    #     """ID of the desktop process. The default is ``None``."""
     #     return self._aedt_process_id
     #
     # @aedt_process_id.setter
@@ -113,12 +98,7 @@ class Settings(object):
     #
     # @property
     # def is_student(self):
-    #     """Flag indicating whether the desktop process is set to the student version.
-    #
-    #     Returns
-    #     -------
-    #     bool
-    #     """
+    #     """Flag indicating whether the desktop process is set to the student version."""
     #     return self._is_student
     #
     # @is_student.setter
@@ -127,12 +107,7 @@ class Settings(object):
 
     @property
     def desktop_launch_timeout(self):
-        """Set the desktop launcher max timeout. Default is ``90`` seconds.
-
-        Returns
-        -------
-        int
-        """
+        """Timeout in seconds for trying to launch AEDT. Default is ``90`` seconds."""
         return self._desktop_launch_timeout
 
     @desktop_launch_timeout.setter
@@ -142,12 +117,7 @@ class Settings(object):
     @property
     def aedt_environment_variables(self):
         """Environment variables that are set before launching a new AEDT session.
-        The environment variables that enable the beta features are included.
-
-        Returns
-        -------
-        dict
-        """
+        The environment variables that enable the beta features are included."""
         return self._aedt_environment_variables
 
     @aedt_environment_variables.setter
@@ -176,7 +146,7 @@ class Settings(object):
 
     @property
     def lsf_aedt_command(self):
-        """Get or set the ``ansysedt`` command to launch. The default is ``"ansysedt"``.
+        """Command to launch the task in the LSF Scheduler. The default is ``"ansysedt"``.
         This attribute is valid only on Linux systems running LSF Scheduler."""
         return self._lsf_aedt_command
 
@@ -215,13 +185,8 @@ class Settings(object):
 
     @property
     def aedt_version(self):
-        """AEDT version in the form ``"2023.x"``. If AEDT version is 2022 R2 and later, the bounding box evaluation by exporting a SAT file is disabled.
-
-        Returns
-        -------
-        str
-            AEDT version in the form ``"2023.x"``.
-        """
+        """AEDT version in the form ``"2023.x"``. If AEDT version is 2022 R2 and later,
+        the bounding box evaluation by exporting a SAT file is disabled."""
         return self._aedt_version
 
     @aedt_version.setter
@@ -232,12 +197,7 @@ class Settings(object):
 
     @property
     def edb_dll_path(self):
-        """Optional path for the EDB DLL file.
-
-        Returns
-        -------
-        bool
-        """
+        """Optional path for the EDB DLL file."""
         return self._edb_dll_path
 
     @edb_dll_path.setter
@@ -247,12 +207,7 @@ class Settings(object):
 
     @property
     def global_log_file_size(self):
-        """Global PyAEDT log file size in MB. The default value is ``10``.
-
-        Returns
-        -------
-        bool
-        """
+        """Global PyAEDT log file size in MB. The default value is ``10``."""
         return self._global_log_file_size
 
     @global_log_file_size.setter
@@ -262,12 +217,7 @@ class Settings(object):
     @property
     def enable_global_log_file(self):
         """Flag for enabling and disabling the global PyAEDT log file located in the global temp folder.
-        The default is ``True``.
-
-        Returns
-        -------
-        bool
-        """
+        The default is ``True``."""
         return self._enable_global_log_file
 
     @enable_global_log_file.setter
@@ -277,12 +227,7 @@ class Settings(object):
     @property
     def enable_local_log_file(self):
         """Flag for enabling and disabling the local PyAEDT log file located
-        in the ``projectname.pyaedt`` project folder. The default is ``True``.
-
-        Returns
-        -------
-        bool
-        """
+        in the ``projectname.pyaedt`` project folder. The default is ``True``."""
         return self._enable_local_log_file
 
     @enable_local_log_file.setter
@@ -291,12 +236,7 @@ class Settings(object):
 
     @property
     def global_log_file_name(self):
-        """Get/Set the global pyaedt log file path. Default is pyaedt_username.log.
-
-        Returns
-        -------
-        str
-        """
+        """Global pyaedt log file path. Default is ``pyaedt_username.log``."""
         return self._global_log_file_name
 
     @global_log_file_name.setter
@@ -305,15 +245,9 @@ class Settings(object):
 
     @property
     def enable_pandas_output(self):
-        """
-        Flag for whether Pandas is to be used to export dictionaries and lists. This attribute
+        """Flag for whether Pandas is to be used to export dictionaries and lists. This attribute
         applies to Solution data output.  The default is ``False``. If ``True``, the property or
-        method returns a Pandas object. This property is valid only in the CPython environment.
-
-        Returns
-        -------
-        bool
-        """
+        method returns a Pandas object. This property is valid only in the CPython environment."""
         return self._enable_pandas_output
 
     @enable_pandas_output.setter
@@ -322,14 +256,8 @@ class Settings(object):
 
     @property
     def enable_debug_methods_argument_logger(self):
-        """
-        Flag for indicating whether to write out the method's arguments in the debug logger.
-         The default is ``False``.
-
-         Returns
-         -------
-         bool
-        """
+        """Flag for indicating whether to write out the method's arguments in the debug logger.
+         The default is ``False``."""
         return self._enable_debug_methods_argument_logger
 
     @enable_debug_methods_argument_logger.setter
@@ -340,12 +268,7 @@ class Settings(object):
     def force_error_on_missing_project(self):
         """Flag for whether to check the project path. The default is ``False``. If
         ``True``, when passing a project path, the project has to exist. Otherwise, an
-        error is raised.
-
-        Returns
-        -------
-        bool
-        """
+        error is raised."""
         return self._force_error_on_missing_project
 
     @force_error_on_missing_project.setter
@@ -354,12 +277,7 @@ class Settings(object):
 
     @property
     def disable_bounding_box_sat(self):
-        """Flag for enabling and disabling bounding box evaluation by exporting a SAT file.
-
-        Returns
-        -------
-        bool
-        """
+        """Flag for enabling and disabling bounding box evaluation by exporting a SAT file."""
         return self._disable_bounding_box_sat
 
     @disable_bounding_box_sat.setter
@@ -368,17 +286,11 @@ class Settings(object):
 
     @property
     def use_grpc_api(self):
-        """Flag for whether to use the gRPC API or legacy COM object.
-
-        Returns
-        -------
-        bool
-        """
+        """Flag for whether to use the gRPC API or legacy COM object."""
         return self._use_grpc_api
 
     @use_grpc_api.setter
     def use_grpc_api(self, val):
-        """Set/Get GRPC API usage or Legacy COM Object. This is the user setting."""
         self._use_grpc_api = val
 
     @property
@@ -400,7 +312,7 @@ class Settings(object):
 
     @property
     def enable_error_handler(self):
-        """Return the content for the environment variable."""
+        """Flag for enabling and disabling the internal PyAEDT error handling."""
         return self._enable_error_handler
 
     @enable_error_handler.setter
@@ -409,7 +321,7 @@ class Settings(object):
 
     @property
     def enable_desktop_logs(self):
-        """Get the content for the environment variable."""
+        """Flag for enabling and disabling the logging to AEDT message window."""
         return self._enable_desktop_logs
 
     @enable_desktop_logs.setter
@@ -418,7 +330,7 @@ class Settings(object):
 
     @property
     def enable_screen_logs(self):
-        """Get the content for the environment variable."""
+        """Flag for enabling and disabling the logging to STDOUT."""
         return self._enable_screen_logs
 
     @enable_screen_logs.setter
@@ -427,7 +339,7 @@ class Settings(object):
 
     @property
     def pyaedt_server_path(self):
-        """Get the content for the environment variable."""
+        """``PYAEDT_SERVER_AEDT_PATH`` environment variable."""
         return os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
 
     @pyaedt_server_path.setter
@@ -436,7 +348,7 @@ class Settings(object):
 
     @property
     def enable_file_logs(self):
-        """Get the content for the environment variable."""
+        """Flag for enabling and disabling the logging to file."""
         return self._enable_file_logs
 
     @enable_file_logs.setter
@@ -445,7 +357,7 @@ class Settings(object):
 
     @property
     def enable_logger(self):
-        """Return the Environment Variable Content."""
+        """Flag for enabling and disabling the logging overall."""
         return self._enable_logger
 
     @enable_logger.setter
@@ -454,7 +366,7 @@ class Settings(object):
 
     @property
     def logger_file_path(self):
-        """Return the Environment Variable Content."""
+        """PyAEDT log file path."""
         return self._logger_file_path
 
     @logger_file_path.setter
@@ -463,7 +375,8 @@ class Settings(object):
 
     @property
     def logger_formatter(self):
-        """Return the Environment Variable Content."""
+        """Message format of the log entries.
+        The default is ``'%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s'``"""
         return self._logger_formatter
 
     @logger_formatter.setter
@@ -472,7 +385,8 @@ class Settings(object):
 
     @property
     def logger_datefmt(self):
-        """Return the Environment Variable Content."""
+        """Date format of the log entries.
+        The default is ``'%Y/%m/%d %H.%M.%S'``"""
         return self._logger_datefmt
 
     @logger_datefmt.setter
@@ -481,25 +395,26 @@ class Settings(object):
 
     @property
     def enable_debug_edb_logger(self):
-        """Enable or disable Logger for any EDB API method."""
+        """Flag for enabling and disabling the logging for the EDB API methods."""
         return self._enable_debug_edb_logger
-
-    @property
-    def enable_debug_grpc_api_logger(self):
-        """Enable or disable Logger for any grpc API method."""
-        return self._enable_debug_grpc_api_logger
-
-    @enable_debug_grpc_api_logger.setter
-    def enable_debug_grpc_api_logger(self, val):
-        self._enable_debug_grpc_api_logger = val
 
     @enable_debug_edb_logger.setter
     def enable_debug_edb_logger(self, val):
         self._enable_debug_edb_logger = val
 
     @property
+    def enable_debug_grpc_api_logger(self):
+        """Flag for enabling and disabling the logging for the gRPC API calls."""
+        return self._enable_debug_grpc_api_logger
+
+    @enable_debug_grpc_api_logger.setter
+    def enable_debug_grpc_api_logger(self, val):
+        self._enable_debug_grpc_api_logger = val
+
+    @property
     def enable_debug_geometry_operator_logger(self):
-        """Return the Environment Variable Content."""
+        """Flag for enabling and disabling the logging for the geometry operators.
+        This setting is useful for debug purposes."""
         return self._enable_debug_geometry_operator_logger
 
     @enable_debug_geometry_operator_logger.setter
@@ -508,7 +423,8 @@ class Settings(object):
 
     @property
     def enable_debug_internal_methods_logger(self):
-        """Return the Environment Variable Content."""
+        """Flag for enabling and disabling the logging for internal methods.
+        This setting is useful for debug purposes."""
         return self._enable_debug_internal_methods_logger
 
     @enable_debug_internal_methods_logger.setter
@@ -517,7 +433,7 @@ class Settings(object):
 
     @property
     def enable_debug_logger(self):
-        """Return the Environment Variable Content."""
+        """Flag for enabling and disabling the debug level logger."""
         return self._enable_debug_logger
 
     @enable_debug_logger.setter
