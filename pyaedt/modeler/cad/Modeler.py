@@ -637,12 +637,15 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         """Coordinate System mode."""
         if self._mode:
             return self._mode
-        if "Axis" in self.props.get("Mode", ""):
-            self._mode = "axis"
-        elif "ZXZ" in self.props.get("Mode", ""):
-            self._mode = "zxz"
-        elif "ZYZ" in self.props.get("Mode", ""):
-            self._mode == "zyz"
+        try:
+            if "Axis" in self.props["Mode"]:
+                self._mode = "axis"
+            elif "ZXZ" in self.props["Mode"]:
+                self._mode = "zxz"
+            elif "ZYZ" in self.props["Mode"]:
+                self._mode = "zyz"
+        except:
+            pass
         return self._mode
 
     @mode.setter
