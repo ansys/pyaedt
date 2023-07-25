@@ -411,7 +411,7 @@ class ControlFileStackup:
             Layer thickness.
         properties : dict
             Dictionary with key and  property value.
-        base_layer : str,  Optional
+        base_layer : str,  optional
             Layer name used for layer placement. Default value is ``None``. This option is used for inserting
             dielectric layer between two existing ones. When no argument is provided the dielectric layer will be placed
             on top of the stacked ones.
