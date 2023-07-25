@@ -309,7 +309,9 @@ def _close_aedt_application(close_desktop, pid, is_grpc_api):
 
                 StandalonePyScriptWrapper.Release()
             except:  # pragma: no cover
-                warnings.warn("Something went wrong releasing AEDT. Exception in `StandalonePyScriptWrapper.Release()`.")
+                warnings.warn(
+                    "Something went wrong releasing AEDT. Exception in `StandalonePyScriptWrapper.Release()`."
+                )
                 pass
     elif not inside_desktop:
         if close_desktop:
@@ -325,7 +327,9 @@ def _close_aedt_application(close_desktop, pid, is_grpc_api):
                     _main.COMUtil.ReleaseCOMObjectScope(_main.COMUtil.PInvokeProxyAPI, scopeID)
                     scopeID += 1
             except:
-                logging.warning("Something went wrong releasing AEDT. Exception in `_main.COMUtil.ReleaseCOMObjectScope`.")
+                logging.warning(
+                    "Something went wrong releasing AEDT. Exception in `_main.COMUtil.ReleaseCOMObjectScope`."
+                )
                 pass
     # _delete_objects()
     if not settings.remote_rpc_session and not is_ironpython and close_desktop:

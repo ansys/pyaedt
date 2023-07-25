@@ -257,7 +257,7 @@ class Settings(object):
     @property
     def enable_debug_methods_argument_logger(self):
         """Flag for indicating whether to write out the method's arguments in the debug logger.
-         The default is ``False``."""
+        The default is ``False``."""
         return self._enable_debug_methods_argument_logger
 
     @enable_debug_methods_argument_logger.setter
