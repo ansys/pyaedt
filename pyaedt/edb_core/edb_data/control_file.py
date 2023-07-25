@@ -413,7 +413,7 @@ class ControlFileStackup:
             Dictionary with key and  property value.
         base_layer : str,  Optional
             Layer name used for layer placement. Default value is ``None``. This option is used for inserting
-            dielectric layer between tew existing ones. When no argument is provided the dielectric layer will be placed
+            dielectric layer between two existing ones. When no argument is provided the dielectric layer will be placed
             on top of the stacked ones.
         method : bool, Optional.
             Provides the method to use when the argument ``base_layer`` is provided. When ``True`` the layer is added
