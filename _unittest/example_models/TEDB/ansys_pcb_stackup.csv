@@ -1,0 +1,18 @@
+,Type,Material,Dielectric_Fill,Thickness
+1_Top,signal,copper,Solder Resist,3.5000000000000004e-05
+DE1,dielectric,Megtron4,,0.0001
+Inner1(GND1),signal,copper,Megtron4_2,1.7000000000000003e-05
+DE2,dielectric,Megtron4_2,,8.8e-05
+Inner2(PWR1),signal,copper,Megtron4_2,1.7000000000000003e-05
+DE3,dielectric,Megtron4,,0.0001
+Inner3(Sig1),signal,copper,Megtron4_3,1.7000000000000003e-05
+Megtron4-1mm,dielectric,Megtron4_3,,0.001
+Inner4(Sig2),signal,copper,Megtron4_3,1.7000000000000003e-05
+DE5,dielectric,Megtron4,,0.0001
+Inner5(PWR2),signal,copper,Megtron4_2,1.7000000000000003e-05
+DE6,dielectric,Megtron4_2,,8.8e-05
+Inner6(GND2),signal,copper,Megtron4_2,1.7000000000000003e-05
+DE7,dielectric,Megtron4,,0.0001
+16_Bottom,signal,copper,Solder Resist,3.5000000000000004e-05
+17_Bottom,signal,copper,Solder Resist,3.5000000000000004e-05
+18_Bottom,signal,copper,Solder Resist,3.5000000000000004e-05

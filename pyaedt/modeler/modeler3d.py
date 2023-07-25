@@ -355,9 +355,10 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                         if instance_dict["CS"] and instance_dict["CS"] != "Global":
                             cs = instance_dict["CS"]
                             cs_set.add(cs)
-                            while config_dict["coordinatesystems"][cs]["Reference CS"] != "Global":
-                                cs = config_dict["coordinatesystems"][cs]["Reference CS"]
-                                cs_set.add(cs)
+                            if cs in config_dict["coordinatesystems"]:
+                                while config_dict["coordinatesystems"][cs]["Reference CS"] != "Global":
+                                    cs = config_dict["coordinatesystems"][cs]["Reference CS"]
+                                    cs_set.add(cs)
                 out_dict["coordinatesystems"] = copy.deepcopy(config_dict["coordinatesystems"])
                 for cs in list(out_dict["coordinatesystems"]):
                     if cs not in cs_set:
@@ -1423,7 +1424,11 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             modify_props.append(["NAME:" + direction[i] + " Padding Data", "Value:=", padding_data[i]])
 
         try:
-            create_region_name = self.modeler.oeditor.GetChildObject(region_name).GetChildNames()[0]
+            region = self._app.get_oo_object(self._app.oeditor, region_name)
+            if not region:
+                self.logger.error("{} does not exist.".format(region))
+                return False
+            create_region_name = region.GetChildNames()[0]
             self.modeler.oeditor.ChangeProperty(
                 list(
                     [
@@ -1438,6 +1443,11 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                     ]
                 )
             )
+            create_region = self._app.get_oo_object(self._app.oeditor, region_name + "/" + create_region_name)
+            success = all(create_region.GetPropValue(lst[0].strip("NAME:")) == lst[-1] for lst in modify_props)
+            if not success:
+                self.logger.error("Settings update failed.")
+                return False
             return True
         except (GrpcApiError, SystemExit):
             return False
@@ -1467,21 +1477,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         >>> app.modeler.change_region_coordinate_system(region_cs="NewCS")
         """
         try:
-            create_region_name = self.modeler.oeditor.GetChildObject(region_name).GetChildNames()[0]
-            self.modeler.oeditor.ChangeProperty(
-                list(
-                    [
-                        "NAME:AllTabs",
-                        list(
-                            [
-                                "NAME:Geometry3DCmdTab",
-                                list(["NAME:PropServers", region_name + ":" + create_region_name]),
-                                list(["NAME:ChangedProps", list(["NAME:Coordinate System", "Value:=", region_cs])]),
-                            ]
-                        ),
-                    ]
-                )
-            )
-            return True
+            create_region_name = self._app.get_oo_object(self._app.oeditor, region_name).GetChildNames()[0]
+            create_region = self._app.get_oo_object(self._app.oeditor, region_name + "/" + create_region_name)
+            return create_region.SetPropValue("Coordinate System", region_cs)
         except (GrpcApiError, SystemExit):
             return False
