@@ -403,7 +403,7 @@ class ControlFileStackup:
         ----------
         layer_name : str
             Layer name.
-        layer_index : int, Optional
+        layer_index : int, optional
             Dielectric layer index as they must be stacked. If not provided the layer index will be incremented.
         material : str
             Material name.
