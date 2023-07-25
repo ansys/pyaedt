@@ -2575,7 +2575,16 @@ class Icepak(FieldAnalysis3D):
         return mats
 
     @pyaedt_function_handler()
-    def generate_fluent_mesh(self, object_lists=None):
+    def generate_fluent_mesh(
+        self,
+        object_lists=None,
+        meshtype="tetrahedral",
+        min_size=None,
+        max_size=None,
+        inflation_layer_number=3,
+        inflation_growth_rate=1.2,
+        mesh_growth_rate=1.2,
+    ):
         """Generate a Fluent mesh for a list of selected objects and assign the mesh automatically to the objects.
 
         Parameters
@@ -2583,7 +2592,18 @@ class Icepak(FieldAnalysis3D):
         object_lists : list, optional
             List of objects to compute the Fluent mesh on. The default is ``None``, in which case
             all fluids objects are used to compute the mesh.
-
+        meshtype : str, optional
+            Mesh type. Options are ``"tethraedral"`` or ``"hexcore"``.
+        min_size : float, optional
+            Minimum mesh size. Default is smallest edge of objects/20.
+        max_size : float, optional
+            Maximum mesh size. Default is smallest edge of objects/5.
+        inflation_layer_number : int, optional
+            Inflation layer number. Default is ``3``.
+        inflation_layer_first_height : float, optional
+            Minimum inflation layer size. Default is smallest edge of objects/20.
+        mesh_growth_rate: float, optional
+            Growth rate. Default is ``1.2``.
         Returns
         -------
         :class:`pyaedt.modules.Mesh.MeshOperation`
@@ -2597,6 +2617,22 @@ class Icepak(FieldAnalysis3D):
         if not object_lists:
             object_lists = self.get_liquid_objects()
             assert object_lists, "No Fluids objects found."
+        if not min_size or not max_size:
+            dims = []
+            # try:
+            #     dim = self.modeler["Region"].shortest_edge()[0].length
+            # except (AttributeError, KeyError, IndexError):
+            for obj in object_lists:
+                bb = self.modeler[obj].bounding_box
+                dd = [abs(bb[3] - bb[0]), abs(bb[4] - bb[1]), abs(bb[5] - bb[2])]
+                dims.append(min(dd))
+            dim = min(dims)
+            if not max_size:
+                max_size = dim / 5
+            if not min_size:
+                min_size = dim / 20
+            else:
+                min_size = min(min_size, max_size / 4)
         object_lists = self.modeler.convert_to_selections(object_lists, True)
         file_name = self.project_name
         sab_file_pointer = os.path.join(self.working_directory, file_name + ".sab")
@@ -2627,6 +2663,17 @@ class Icepak(FieldAnalysis3D):
         fluent_script.write("(%py-exec \"workflow.TaskObject['Import Geometry'].Execute()\")\n")
         fluent_script.write("(%py-exec \"workflow.TaskObject['Add Local Sizing'].AddChildToTask()\")\n")
         fluent_script.write("(%py-exec \"workflow.TaskObject['Add Local Sizing'].Execute()\")\n")
+        fluent_script.write("(%py-exec \"meshtype = '{}'\")\n".format(meshtype))
+        fluent_script.write('(%py-exec "gr = {}")\n'.format(mesh_growth_rate))
+        fluent_script.write('(%py-exec "maxsize = {}")\n'.format(max_size))
+        fluent_script.write('(%py-exec "minsize = {}")\n'.format(min_size))
+        fluent_script.write('(%py-exec "nlayers = {}")\n'.format(inflation_layer_number))
+        fluent_script.write('(%py-exec "pgr = {}")\n'.format(inflation_growth_rate))
+        mesh_settings = "(%py-exec \"workflow.TaskObject['Generate the Surface Mesh'].Arguments.setState"
+        mesh_settings += "({r'CFDSurfaceMeshControls': {r'CellsPerGap': 3,r'CurvatureNormalAngle': 18,"
+        mesh_settings += "r'MaxSize': maxsize,r'MinSize': minsize,r'GrowthRate': gr},})\")\n"
+
+        fluent_script.write(mesh_settings)
         fluent_script.write("(%py-exec \"workflow.TaskObject['Generate the Surface Mesh'].Execute()\")\n")
         cmd = "(%py-exec \"workflow.TaskObject['Describe Geometry'].UpdateChildTasks(SetupTypeChanged=False)\")\n"
         fluent_script.write(cmd)
@@ -2646,15 +2693,17 @@ class Icepak(FieldAnalysis3D):
         fluent_script.write("(%py-exec \"workflow.TaskObject['Update Boundaries'].Execute()\")\n")
         fluent_script.write("(%py-exec \"workflow.TaskObject['Update Regions'].Execute()\")\n")
         fluent_script.write("(%py-exec \"workflow.TaskObject['Add Boundary Layers'].AddChildToTask()\")\n")
+
         fluent_script.write("(%py-exec \"workflow.TaskObject['Add Boundary Layers'].InsertCompoundChildTask()\")\n")
         cmd = "(%py-exec \"workflow.TaskObject['smooth-transition_1']."
-        cmd += "Arguments.setState({r'BLControlName': r'smooth-transition_1',})\")\n"
+        cmd += "Arguments.setState({r'BLControlName': r'smooth-transition_1',"
+        cmd += "r'NumberOfLayers':nlayers, r'Rate':pgr})\")\n"
         fluent_script.write(cmd)
         fluent_script.write("(%py-exec \"workflow.TaskObject['Add Boundary Layers'].Arguments.setState({})\")\n")
         fluent_script.write("(%py-exec \"workflow.TaskObject['smooth-transition_1'].Execute()\")\n")
         # r'VolumeFill': r'hexcore' / r'tetrahedral'
         cmd = "(%py-exec \"workflow.TaskObject['Generate the Volume Mesh'].Arguments.setState({r'VolumeFill': "
-        cmd += "r'hexcore', r'VolumeMeshPreferences': {r'MergeBodyLabels': r'yes',},})\")\n"
+        cmd += "meshtype, r'VolumeMeshPreferences': {r'MergeBodyLabels': r'yes',},})\")\n"
         fluent_script.write(cmd)
         fluent_script.write("(%py-exec \"workflow.TaskObject['Generate the Volume Mesh'].Execute()\")\n")
         fluent_script.write("/file/hdf no\n")
