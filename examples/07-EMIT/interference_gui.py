@@ -17,7 +17,6 @@ import pyaedt
 import os
 import subprocess
 import pyaedt.generic.constants as consts
-from pyaedt.emit_core.interference_classification import interference_type_classification, protection_level_classification
 
 # Check that emit is a compatible version
 emitapp_desktop_version = "2023.2"
@@ -43,8 +42,9 @@ for package in required_packages:
 from PySide6 import QtWidgets, QtUiTools, QtGui
 from openpyxl.styles import PatternFill
 import openpyxl
-# import PySide6
 
+# Uncomment if there are Qt plugin errors
+# import PySide6
 # dirname = os.path.dirname(PySide6.__file__)
 # plugin_path = os.path.join(dirname, 'plugins', 'platforms')
 # os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = plugin_path
@@ -378,7 +378,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             # Iterate over all the transmitters and receivers and compute the power
             # at the input to each receiver due to each of the transmitters. Compute
             # which, if any, type of interference occured.
-            self.all_colors, self.power_matrix = interference_type_classification(emitapp, use_filter = True, filter_list = filter)
+            domain = emitapp.results.interaction_domain()
+            self.all_colors, self.power_matrix = self.rev.interference_type_classification(domain, use_filter = True, filter_list = filter)
 
             # Save project and plot results on table widget
             emitapp.save_project()
@@ -423,7 +424,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if self.tx_radios is None or self.rx_radios is None:
                 return
 
-            self.all_colors, self.power_matrix = protection_level_classification(emitapp, 
+            domain = emitapp.results.interaction_domain()
+            self.all_colors, self.power_matrix = self.rev.protection_level_classification(domain, 
                                                                                  self.global_protection_level, 
                                                                                  self.protection_levels['Global'], 
                                                                                  self.protection_levels, use_filter = True, 

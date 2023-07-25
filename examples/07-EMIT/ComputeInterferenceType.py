@@ -16,7 +16,6 @@ import pyaedt
 import os
 import pyaedt.generic.constants as consts
 import subprocess
-from pyaedt.emit_core.interference_classification import interference_type_classification, protection_level_classification
 
 # Check to see which Python libraries have been installed
 reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
@@ -67,6 +66,7 @@ rev = emitapp.results.analyze()
 tx_interferer = InterfererType().TRANSMITTERS
 rx_radios = rev.get_receiver_names()
 tx_radios = rev.get_interferer_names(tx_interferer)
+domain = emitapp.results.interaction_domain()
 
 if tx_radios is None or rx_radios is None:
     print("No recievers or transmitters in design.")
@@ -82,7 +82,7 @@ if tx_radios is None or rx_radios is None:
 
 power_matrix=[]
 all_colors=[]
-all_colors, power_matrix = interference_classification(emitapp, use_filter = False, filter = [])
+all_colors, power_matrix = rev.interference_type_classification(domain, use_filter = False, filter_list = [])
 
 ###############################################################################
 # Save project and close AEDT

@@ -18,7 +18,6 @@ import subprocess
 import pyaedt
 from pyaedt import Emit
 from pyaedt.emit_core.emit_constants import TxRxMode, ResultType, InterfererType
-from pyaedt.emit_core.interference_classification import interference_type_classification, protection_level_classification
 
 # Check to see which Python libraries have been installed
 reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
@@ -241,7 +240,7 @@ domain = emitapp.results.interaction_domain()
 power_matrix=[]
 all_colors=[]
 
-all_colors, power_matrix = protection_level_classification(emitapp, global_levels = protection_levels)
+all_colors, power_matrix = rev.protection_level_classification(domain, global_levels = protection_levels)
 
 # Create a scenario matrix-like view for the protection levels
 create_scenario_view(power_matrix, all_colors, tx_radios, rx_radios)
