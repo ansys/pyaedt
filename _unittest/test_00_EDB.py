@@ -2649,3 +2649,62 @@ class TestClass(BasisTest, object):
         assert padstack_instance2.backdrill_bottom[0] == "signal1"
         assert padstack_instance2.backdrill_bottom[1] == "200um"
         assert padstack_instance2.backdrill_bottom[2] == "100um"
+
+    def test_143_add_layer_api_with_control_file(self):
+        from pyaedt.edb_core.edb_data.control_file import ControlFile
+
+        ctrl = ControlFile()
+        # Material
+        ctrl.stackup.add_material(material_name="Copper", conductivity=5.56e7)
+        ctrl.stackup.add_material(material_name="BCB", permittivity=2.7)
+        ctrl.stackup.add_material(material_name="Silicon", conductivity=0.04)
+        ctrl.stackup.add_material(material_name="SiliconOxide", conductivity=4.4)
+        ctrl.stackup.units = "um"
+        assert len(ctrl.stackup.materials) == 4
+        assert ctrl.stackup.units == "um"
+        # Dielectrics
+        ctrl.stackup.add_dielectric(material="Silicon", layer_name="Silicon", thickness=180)
+        ctrl.stackup.add_dielectric(layer_index=1, material="SiliconOxide", layer_name="USG1", thickness=1.2)
+        assert next(diel for diel in ctrl.stackup.dielectrics if diel.name == "USG1").properties["Index"] == 1
+        ctrl.stackup.add_dielectric(material="BCB", layer_name="BCB2", thickness=9.5, base_layer="USG1")
+        ctrl.stackup.add_dielectric(
+            material="BCB", layer_name="BCB1", thickness=4.1, base_layer="BCB2", add_on_top=False
+        )
+        ctrl.stackup.add_dielectric(layer_index=4, material="BCB", layer_name="BCB3", thickness=6.5)
+        assert ctrl.stackup.dielectrics[0].properties["Index"] == 0
+        assert ctrl.stackup.dielectrics[1].properties["Index"] == 1
+        assert ctrl.stackup.dielectrics[2].properties["Index"] == 3
+        assert ctrl.stackup.dielectrics[3].properties["Index"] == 2
+        assert ctrl.stackup.dielectrics[4].properties["Index"] == 4
+        # Metal layer
+        ctrl.stackup.add_layer(
+            layer_name="9", elevation=185.3, material="Copper", target_layer="meta2", gds_type=0, thickness=6
+        )
+        assert [layer for layer in ctrl.stackup.layers if layer.name == "9"]
+        ctrl.stackup.add_layer(
+            layer_name="15", elevation=194.8, material="Copper", target_layer="meta3", gds_type=0, thickness=3
+        )
+        assert [layer for layer in ctrl.stackup.layers if layer.name == "15"]
+        # Via layer
+        ctrl.stackup.add_via(
+            layer_name="14", material="Copper", target_layer="via2", start_layer="meta2", stop_layer="meta3", gds_type=0
+        )
+        assert [layer for layer in ctrl.stackup.vias if layer.name == "14"]
+        # Port
+        ctrl.boundaries.add_port(
+            "test_port", x1=-21.1, y1=-288.7, layer1="meta3", x2=21.1, y2=-288.7, layer2="meta3", z0=50
+        )
+        assert ctrl.boundaries.ports
+        # setup using q3D for DC point
+        setup = ctrl.setups.add_setup("test_setup", "10GHz")
+        assert setup
+        setup.add_sweep(
+            name="test_sweep",
+            start="0GHz",
+            stop="20GHz",
+            step="10MHz",
+            sweep_type="Interpolating",
+            step_type="LinearStep",
+            use_q3d=True,
+        )
+        assert setup.sweeps
