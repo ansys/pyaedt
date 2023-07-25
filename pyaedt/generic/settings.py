@@ -308,7 +308,7 @@ class Settings(object):
         """
         Flag for whether Pandas is to be used to export dictionaries and lists. This attribute
         applies to Solution data output.  The default is ``False``. If ``True``, the property or
-        method returns a Pandas object. This property is valid only in the CPython environment. 
+        method returns a Pandas object. This property is valid only in the CPython environment.
 
         Returns
         -------
@@ -323,12 +323,12 @@ class Settings(object):
     @property
     def enable_debug_methods_argument_logger(self):
         """
-       Flag for indicating whether to write out the method's arguments in the debug logger.
-        The default is ``False``.
+        Flag for indicating whether to write out the method's arguments in the debug logger.
+         The default is ``False``.
 
-        Returns
-        -------
-        bool
+         Returns
+         -------
+         bool
         """
         return self._enable_debug_methods_argument_logger
 
