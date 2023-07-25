@@ -15,7 +15,8 @@ import sys
 try:
     import pyaedt
 except ImportError:
-    # debug only purpose. If Ribbon is added from a GitHub clone then we link pyaedt in personal lib.
+    # Debug only purpose. If the tool is added to the ribbon from a GitHub clone, then a link 
+    # to PyAEDT is created in the personal library.
     console_setup_dir = os.path.dirname(__file__)
     if "PersonalLib" in console_setup_dir:
         sys.path.append(os.path.join(console_setup_dir, "..", "..", ".."))

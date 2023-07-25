@@ -19,7 +19,7 @@ def list_installed_ansysem():
 
 
 def installed_versions():
-    """Installed AEDT versions.
+    """Get installed AEDT versions.
     This method returns a dictionary, with version as the key and installation path
     as the value."""
 

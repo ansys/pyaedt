@@ -625,7 +625,8 @@ class Desktop(object):
         if os.getenv("PYAEDT_SCRIPT_PROCESS_ID", None):
             # print("found process id")
             aedt_process_id = int(os.getenv("PYAEDT_SCRIPT_PROCESS_ID"))
-        # used in toolkit scripts. Env variable PYAEDT_SCRIPT_VERSION override the argument "specified_version"
+        # Used in toolkit scripts. The ``PYAEDT_SCRIPT_VERSION`` environment variable overrides
+        # the ``specified_version`` argument.
         if os.getenv("PYAEDT_SCRIPT_VERSION", None):
             specified_version = str(os.getenv("PYAEDT_SCRIPT_VERSION"))
 
@@ -692,7 +693,7 @@ class Desktop(object):
             starting_mode = "com"
         elif float(version_key) == 2022.2:
             if self.machine and self.port:
-                starting_mode = "grpc"  # if the user specifies machine and port, he wants to use grpc
+                starting_mode = "grpc"  # if the machine and port is specified, user wants to use gRPC
             elif settings.use_grpc_api is None:
                 starting_mode = "com"  # default if user doesn't specify use_grpc_api
             else:
