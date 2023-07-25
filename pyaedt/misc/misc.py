@@ -20,7 +20,8 @@ def list_installed_ansysem():
 
 def installed_versions():
     """Installed AEDT versions.
-    It returns a dictionary, version is the key, installation path is the value."""
+    This method returns a dictionary, with version as the key and installation path
+    as the value."""
 
     return_dict = {}
     version_list = list_installed_ansysem()
@@ -50,7 +51,7 @@ def installed_versions():
 
 
 def current_version():
-    """Current AEDT version."""
+    """Get the current AEDT version."""
     try:
         return list(installed_versions().keys())[0]
     except (NameError, IndexError):
@@ -58,7 +59,7 @@ def current_version():
 
 
 def current_student_version():
-    """Current student AEDT version."""
+    """Get the current AEDT student version."""
     for version_key in installed_versions():
         if "SV" in version_key:
             return version_key

@@ -281,7 +281,7 @@ def _close_aedt_application(close_desktop, pid, is_grpc_api):
     close_desktop : bool
         Whether to close the active AEDT session.
     pid : int
-        PID of the desktop application that is being closed.
+        Process ID of the desktop app that is being closed.
     is_grpc_api : bool
         Whether the active AEDT session is GRPC or COM.
 

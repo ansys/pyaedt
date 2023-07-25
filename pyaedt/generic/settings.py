@@ -71,7 +71,7 @@ class Settings(object):
 
     @property
     def retry_n_times_time_interval(self):
-        """Time interval between the retries of the method _retry_n_times.
+        """Time interval between the retries by the ``_retry_n_times`` method.
 
         Returns
         -------
@@ -85,7 +85,7 @@ class Settings(object):
 
     @property
     def number_of_grpc_api_retries(self):
-        """Number of Grpc API retries. Default is 3.
+        """Number of gRPC API retries. The default is ``3``.
 
         Returns
         -------
@@ -113,8 +113,7 @@ class Settings(object):
     #
     # @property
     # def is_student(self):
-    #     """Whether the desktop process is set to the student version. The
-    #     default is ``False``.
+    #     """Flag indicating whether the desktop process is set to the student version.
     #
     #     Returns
     #     -------
@@ -142,8 +141,8 @@ class Settings(object):
 
     @property
     def aedt_environment_variables(self):
-        """Set environment variables to be set before launching a new aedt session.
-        This includes beta features enablemement.
+        """Environment variables that are set before launching a new AEDT session.
+        The environment variables that enable the beta features are included.
 
         Returns
         -------
@@ -187,7 +186,7 @@ class Settings(object):
 
     @property
     def lsf_num_cores(self):
-        """Get or set the number of LSF cores. This attribute is valid only
+        """Number of LSF cores. This attribute is valid only
         on Linux systems running LSF Scheduler."""
         return self._lsf_num_cores
 
@@ -197,7 +196,7 @@ class Settings(object):
 
     @property
     def lsf_ram(self):
-        """Get or set the RAM allocated for the LSF job. This attribute is valid
+        """RAM allocated for the LSF job. This attribute is valid
         only on Linux systems running LSF Scheduler."""
         return self._lsf_ram
 
@@ -207,7 +206,7 @@ class Settings(object):
 
     @property
     def lsf_timeout(self):
-        """Get or set the timeout for starting the interactive session. The default is ``3600`` seconds."""
+        """Timeout in seconds for trying to start the interactive session. The default is ``3600`` seconds."""
         return self._lsf_timeout
 
     @lsf_timeout.setter
@@ -216,13 +215,12 @@ class Settings(object):
 
     @property
     def aedt_version(self):
-        """Get and set the aedt version.
-        It disables the sat bounding box for AEDT version > 2022.2.
+        """AEDT version in the form ``"2023.x"``. If AEDT version is 2022 R2 and later, the bounding box evaluation by exporting a SAT file is disabled.
 
         Returns
         -------
         str
-            Aedt version in the form ``"2023.x"``.
+            AEDT version in the form ``"2023.x"``.
         """
         return self._aedt_version
 
@@ -234,7 +232,7 @@ class Settings(object):
 
     @property
     def edb_dll_path(self):
-        """Get/Set an optional path for Edb Dll.
+        """Optional path for the EDB DLL file.
 
         Returns
         -------
@@ -249,7 +247,7 @@ class Settings(object):
 
     @property
     def global_log_file_size(self):
-        """Get/Set the global pyaedt log file size in Mbytes. The default value is ``10``.
+        """Global PyAEDT log file size in MB. The default value is ``10``.
 
         Returns
         -------
@@ -263,7 +261,8 @@ class Settings(object):
 
     @property
     def enable_global_log_file(self):
-        """Enable/Disable the global pyaedt log file logging in global temp folder. Default is `True`.
+        """Flag for enabling and disabling the global PyAEDT log file located in the global temp folder.
+        The default is ``True``.
 
         Returns
         -------
@@ -277,7 +276,8 @@ class Settings(object):
 
     @property
     def enable_local_log_file(self):
-        """Enable/Disable the local pyaedt log file logging in projectname.pyaedt project folder. Default is `True`.
+        """Flag for enabling and disabling the local PyAEDT log file located
+        in the ``projectname.pyaedt`` project folder. The default is ``True``.
 
         Returns
         -------
@@ -306,9 +306,9 @@ class Settings(object):
     @property
     def enable_pandas_output(self):
         """
-        Set/Get a flag to use Pandas to export dict and lists. This applies to Solution data output.
-        If ``True`` the property or method will return a pandas object in CPython environment.
-        Default is ``False``.
+        Flag for whether Pandas is to be used to export dictionaries and lists. This attribute
+        applies to Solution data output.  The default is ``False``. If ``True``, the property or
+        method returns a Pandas object. This property is valid only in the CPython environment. 
 
         Returns
         -------
@@ -323,8 +323,8 @@ class Settings(object):
     @property
     def enable_debug_methods_argument_logger(self):
         """
-        Set/Get a flag to plot methods argument in debug logger.
-        Default is ``False``.
+       Flag for indicating whether to write out the method's arguments in the debug logger.
+        The default is ``False``.
 
         Returns
         -------
@@ -338,9 +338,9 @@ class Settings(object):
 
     @property
     def force_error_on_missing_project(self):
-        """Set/Get a flag to check project path.
-        If ``True`` when passing a project path, the project has to exist otherwise it will raise an error.
-        Default is ``False``.
+        """Flag for whether to check the project path. The default is ``False``. If
+        ``True``, when passing a project path, the project has to exist. Otherwise, an
+        error is raised.
 
         Returns
         -------
@@ -354,7 +354,7 @@ class Settings(object):
 
     @property
     def disable_bounding_box_sat(self):
-        """Set/Get Bounding Box Sat enablement.
+        """Flag for enabling and disabling bounding box evaluation by exporting a SAT file.
 
         Returns
         -------
@@ -368,7 +368,7 @@ class Settings(object):
 
     @property
     def use_grpc_api(self):
-        """Set/Get GRPC API usage or Legacy COM Object. This is the user setting.
+        """Flag for whether to use the gRPC API or legacy COM object.
 
         Returns
         -------
@@ -383,7 +383,7 @@ class Settings(object):
 
     @property
     def logger(self):
-        """Get the active logger."""
+        """Active logger."""
         try:
             return logging.getLogger("Global")
         except:  # pragma: no cover
@@ -391,7 +391,7 @@ class Settings(object):
 
     # @property
     # def non_graphical(self):
-    #     """Get the value for the non-graphical flag."""
+    #     """Value for the non-graphical flag."""
     #     return self._non_graphical
     #
     # @non_graphical.setter
