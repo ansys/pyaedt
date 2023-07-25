@@ -2880,7 +2880,7 @@ class Hfss(FieldAnalysis3D, object):
                 props["Inductance"] = str(Lvalue) + "H"
             if Cvalue:
                 props["UseCap"] = True
-                props["Capacitance"] = str(Cvalue) + "F"
+                props["Capacitance"] = str(Cvalue) + "farad"
 
             return self._create_boundary(sourcename, props, "Lumped RLC")
         return False
