@@ -737,6 +737,24 @@ class TestClass(BasisTest, object):
         assert all(abs(o[i] - s) < tol for i, s in enumerate([1.82842712474619, 2.20832611206852, 9.0]))
         assert all(abs(q[i] - s) < tol for i, s in enumerate([-0.0, -0.09853761796664, 0.99513332666807, 0.0]))
         assert self.aedtapp.modeler.reference_cs_to_global(cs4)
+        box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
+        face = box.faces[0]
+        fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1])
+        new_fcs = self.aedtapp.modeler.duplicate_coordinate_system_to_global(fcs)
+        assert new_fcs
+        assert new_fcs.props == fcs.props
+        fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face, face.edges[1])
+        new_fcs = self.aedtapp.modeler.duplicate_coordinate_system_to_global(fcs)
+        assert new_fcs
+        assert new_fcs.props == fcs.props
+        fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face, face.edges[1].vertices[0])
+        new_fcs = self.aedtapp.modeler.duplicate_coordinate_system_to_global(fcs)
+        assert new_fcs
+        assert new_fcs.props == fcs.props
+        fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[1].vertices[0], face.edges[1])
+        new_fcs = self.aedtapp.modeler.duplicate_coordinate_system_to_global(fcs)
+        assert new_fcs
+        assert new_fcs.props == fcs.props
 
     def test_58_invert_cs(self):
         self.aedtapp.modeler.create_coordinate_system(
