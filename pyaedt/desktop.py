@@ -515,8 +515,9 @@ def is_student_version(oDesktop):
 
 def _init_desktop_from_design(*args, **kwargs):
     """Used to distinguish if the Desktop is initialized internally from Design or directly from the outside"""
-    Desktop._invoked_from_design = True
-    return Desktop(*args, **kwargs)
+    # Desktop._invoked_from_design = True
+    # return Desktop(*args, **kwargs)
+    return Desktop(*args, **dict(kwargs, from_design=True))
 
 
 class Desktop(object):
@@ -577,7 +578,7 @@ class Desktop(object):
     """
 
     # _sessions = {}
-    _invoked_from_design = False
+    # _invoked_from_design = False
 
     def __new__(cls, *args, **kwargs):
         specified_version = kwargs.get("specified_version") or None if not args else args[0]
@@ -589,7 +590,7 @@ class Desktop(object):
 
         if len(_desktop_sessions.keys()) > 0:
             print("Returning found desktop!")
-            cls._invoked_from_design = False
+            # cls._invoked_from_design = False
             return list(_desktop_sessions.values())[0]
         else:
             print("Initializing new desktop!")
@@ -605,14 +606,16 @@ class Desktop(object):
         machine="",
         port=0,
         aedt_process_id=None,
+        from_design=False,
     ):
         if getattr(self, "_initialized", None) is not None and self._initialized:
             return
         else:
             self._initialized = True
 
-        self._initialized_from_design = True if Desktop._invoked_from_design else False
-        Desktop._invoked_from_design = False
+        self._initialized_from_design = True if from_design else False
+        # self._initialized_from_design = True if Desktop._invoked_from_design else False
+        # Desktop._invoked_from_design = False
 
         self._connected_designs = 0
 
