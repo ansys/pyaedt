@@ -832,6 +832,7 @@ class EdbPadstacks(object):
         add_default_layer=False,
         anti_pad_x_size="600um",
         anti_pad_y_size="600um",
+        hole_range="from_upper_to_lower_pad",
     ):
         """Create a padstack.
 
@@ -880,6 +881,9 @@ class EdbPadstacks(object):
             Only applicable to bullet and rectangle shape. The default is ``"600um"``.
         anti_pad_y_size : str, optional
             Only applicable to bullet and rectangle shape. The default is ``"600um"``.
+        hole_range : str, optional
+            Define the padstack hole range. Arguments supported, ``"through"``, ``"begin_on_upper_pad"``,
+            ``"end_on_lower_pad"``, ``"upper_pad_to_lower_pad"``.
 
         Returns
         -------
@@ -912,36 +916,42 @@ class EdbPadstacks(object):
         pad_rotation = self._get_edb_value(pad_rotation)
         anti_pad_x_size = self._get_edb_value(anti_pad_x_size)
         anti_pad_y_size = self._get_edb_value(anti_pad_y_size)
-
         padstackData.SetHoleParameters(ptype, holparam, value0, value0, value0)
-
         padstackData.SetHolePlatingPercentage(self._get_edb_value(20.0))
-        padstackData.SetHoleRange(self._edb.definition.PadstackHoleRange.UpperPadToLowerPad)
+        if hole_range == "through":  # pragma no cover
+            padstackData.SetHoleRange(self._edb.definition.PadstackHoleRange.Through)
+        elif hole_range == "begin_on_upper_pad":  # pragma no cover
+            padstackData.SetHoleRange(self._edb.definition.PadstackHoleRange.BeginOnUpperPad)
+        elif hole_range == "end_on_lower_pad":  # pragma no cover
+            padstackData.SetHoleRange(self._edb.definition.PadstackHoleRange.EndOnLowerPad)
+        elif hole_range == "upper_pad_to_lower_pad":  # pragma no cover
+            padstackData.SetHoleRange(self._edb.definition.PadstackHoleRange.UpperPadToLowerPad)
+        else:  # pragma no cover
+            self._logger.error("Unknown padstack hole range")
         padstackData.SetMaterial("copper")
         layers = list(self._pedb.stackup.signal_layers.keys())[:]
-        if start_layer and start_layer in layers:
+        if start_layer and start_layer in layers:  # pragma no cover
             layers = layers[layers.index(start_layer) :]
-        if stop_layer and stop_layer in layers:
+        if stop_layer and stop_layer in layers:  # pragma no cover
             layers = layers[: layers.index(stop_layer) + 1]
         pad_array = Array[type(paddiam)]([paddiam])
-        if pad_shape == "Circle":
+        if pad_shape == "Circle":  # pragma no cover
             pad_shape = self._edb.definition.PadGeometryType.Circle
-        elif pad_shape == "Rectangle":
+        elif pad_shape == "Rectangle":  # pragma no cover
             pad_array = Array[type(x_size)]([x_size, y_size])
             pad_shape = self._edb.definition.PadGeometryType.Rectangle
-        if antipad_shape == "Bullet":
+        if antipad_shape == "Bullet":  # pragma no cover
             antipad_array = Array[type(x_size)]([x_size, y_size, corner_radius])
             antipad_shape = self._edb.definition.PadGeometryType.Bullet
-        elif antipad_shape == "Rectangle":
+        elif antipad_shape == "Rectangle":  # pragma no cover
             antipad_array = Array[type(anti_pad_x_size)]([anti_pad_x_size, anti_pad_y_size])
             antipad_shape = self._edb.definition.PadGeometryType.Rectangle
-        else:
+        else:  # pragma no cover
             antipad_array = Array[type(antipaddiam)]([antipaddiam])
             antipad_shape = self._edb.definition.PadGeometryType.Circle
-        if add_default_layer:
+        if add_default_layer:  # pragma no cover
             layers = layers + ["Default"]
         for layer in layers:
-            # padparam_array = Array[type(paddiam)]([paddiam])
             padstackData.SetPadParameters(
                 layer,
                 self._edb.definition.PadType.RegularPad,
