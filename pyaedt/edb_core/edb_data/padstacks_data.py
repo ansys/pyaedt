@@ -1101,26 +1101,31 @@ class EDBPadstackInstance(object):
         Returns
         -------
         tuple
-            Tuple of the layer name and drill diameter.
+            Tuple of the layer name, drill diameter, and offset if it exists.
         """
         layer = self._pedb.edb_api.cell.layer("", self._pedb.edb_api.cell.layer_type.SignalLayer)
         val = self._pedb.edb_value(0)
+        offset = self._pedb.edb_value(0.0)
         if is_ironpython:  # pragma: no cover
             diameter = _clr.StrongBox[type(val)]()
             drill_to_layer = _clr.StrongBox[self._pedb.edb_api.Cell.ILayerReadOnly]()
-            flag = self._edb_padstackinstance.GetBackDrillParametersLayerValue(drill_to_layer, diameter, False)
+            flag = self._edb_padstackinstance.GetBackDrillParametersLayerValue(drill_to_layer, offset, diameter, False)
         else:
             (
                 flag,
                 drill_to_layer,
+                offset,
                 diameter,
-            ) = self._edb_padstackinstance.GetBackDrillParametersLayerValue(layer, val, False)
+            ) = self._edb_padstackinstance.GetBackDrillParametersLayerValue(layer, offset, val, False)
         if flag:
-            return drill_to_layer.GetName(), diameter.ToString()
+            if offset.ToDouble():
+                return drill_to_layer.GetName(), diameter.ToString(), offset.ToString()
+            else:
+                return drill_to_layer.GetName(), diameter.ToString()
         else:
             return
 
-    def set_backdrill_top(self, drill_depth, drill_diameter):
+    def set_backdrill_top(self, drill_depth, drill_diameter, offset=0.0):
         """Set backdrill from top.
 
         Parameters
@@ -1129,6 +1134,10 @@ class EDBPadstackInstance(object):
             Name of the drill to layer.
         drill_diameter : float, str
             Diameter of backdrill size.
+        offset : float, str
+            Offset for the backdrill. The default is ``0.0``. If the value is other than the
+            default, the stub does not stop at the layer. In AEDT, this parameter is called
+            "Mfg stub length".
 
         Returns
         -------
@@ -1137,7 +1146,11 @@ class EDBPadstackInstance(object):
         """
         layer = self._pedb.stackup.layers[drill_depth]._edb_layer
         val = self._pedb.edb_value(drill_diameter)
-        return self._edb_padstackinstance.SetBackDrillParameters(layer, val, False)
+        offset = self._pedb.edb_value(offset)
+        if offset.ToDouble():
+            return self._edb_padstackinstance.SetBackDrillParameters(layer, offset, val, False)
+        else:
+            return self._edb_padstackinstance.SetBackDrillParameters(layer, val, False)
 
     @property
     def backdrill_bottom(self):
@@ -1146,26 +1159,31 @@ class EDBPadstackInstance(object):
         Returns
         -------
         tuple
-            Tuple of the layer name and drill diameter.
+            Tuple of the layer name, drill diameter, and drill offset if it exists.
         """
         layer = self._pedb.edb_api.cell.layer("", self._pedb.edb_api.cell.layer_type.SignalLayer)
         val = self._pedb.edb_value(0)
+        offset = self._pedb.edb_value(0.0)
         if is_ironpython:  # pragma: no cover
             diameter = _clr.StrongBox[type(val)]()
             drill_to_layer = _clr.StrongBox[self._pedb.edb_api.Cell.ILayerReadOnly]()
-            flag = self._edb_padstackinstance.GetBackDrillParametersLayerValue(drill_to_layer, diameter, True)
+            flag = self._edb_padstackinstance.GetBackDrillParametersLayerValue(drill_to_layer, offset, diameter, True)
         else:
             (
                 flag,
                 drill_to_layer,
+                offset,
                 diameter,
-            ) = self._edb_padstackinstance.GetBackDrillParametersLayerValue(layer, val, True)
+            ) = self._edb_padstackinstance.GetBackDrillParametersLayerValue(layer, offset, val, True)
         if flag:
-            return drill_to_layer.GetName(), diameter.ToString()
+            if offset.ToDouble():
+                return drill_to_layer.GetName(), diameter.ToString(), offset.ToString()
+            else:
+                return drill_to_layer.GetName(), diameter.ToString()
         else:
             return
 
-    def set_backdrill_bottom(self, drill_depth, drill_diameter):
+    def set_backdrill_bottom(self, drill_depth, drill_diameter, offset=0.0):
         """Set backdrill from bottom.
 
         Parameters
@@ -1173,7 +1191,11 @@ class EDBPadstackInstance(object):
         drill_depth : str
             Name of the drill to layer.
         drill_diameter : float, str
-            Diameter of backdrill size.
+            Diameter of the backdrill size.
+        offset : float, str, optional
+            Offset for the backdrill. The default is ``0.0``. If the value is other than the
+            default, the stub does not stop at the layer. In AEDT, this parameter is called
+            "Mfg stub length".
 
         Returns
         -------
@@ -1182,7 +1204,11 @@ class EDBPadstackInstance(object):
         """
         layer = self._pedb.stackup.layers[drill_depth]._edb_layer
         val = self._pedb.edb_value(drill_diameter)
-        return self._edb_padstackinstance.SetBackDrillParameters(layer, val, True)
+        offset = self._pedb.edb_value(offset)
+        if offset.ToDouble():
+            return self._edb_padstackinstance.SetBackDrillParameters(layer, offset, val, True)
+        else:
+            return self._edb_padstackinstance.SetBackDrillParameters(layer, val, True)
 
     @property
     def start_layer(self):
