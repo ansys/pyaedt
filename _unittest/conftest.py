@@ -100,22 +100,35 @@ desktop_version = config["desktopVersion"]
 new_thread = config["NewThread"]
 
 
-test_folder = "unit_test" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-for filename in os.listdir(tempfile.gettempdir()):
-    file_path = os.path.join(tempfile.gettempdir(), filename)
-    try:
-        if os.path.isfile(file_path) and "tmp" in file_path:
-            os.unlink(file_path)
-        if (
-            os.path.isdir(file_path)
-            and "pyaedt" in file_path
-            or "scratch" in file_path
-            or file_path.startswith("_")
-            or ".aedb" in file_path
-        ):
-            shutil.rmtree(file_path, ignore_errors=True)
-    except Exception as e:
-        print("Failed to delete %s. Reason: %s" % (file_path, e))
+import random
+import string
+
+def generate_random_string(length):
+    characters = string.ascii_letters + string.digits
+    random_string = ''.join(random.sample(characters, length))
+    return random_string
+
+def generate_random_ident():
+    ident = "-"+ generate_random_string(6) +"-"+ generate_random_string(6) +"-"+ generate_random_string(6)
+    return ident
+
+
+test_folder = "unit_test" + generate_random_ident()
+# for filename in os.listdir(tempfile.gettempdir()):
+#     file_path = os.path.join(tempfile.gettempdir(), filename)
+#     try:
+#         if os.path.isfile(file_path) and "tmp" in file_path:
+#             os.unlink(file_path)
+#         if (
+#             os.path.isdir(file_path)
+#             and "pyaedt" in file_path
+#             or "scratch" in file_path
+#             or file_path.startswith("_")
+#             or ".aedb" in file_path
+#         ):
+#             shutil.rmtree(file_path, ignore_errors=True)
+#     except Exception as e:
+#         print("Failed to delete %s. Reason: %s" % (file_path, e))
 scratch_path = os.path.join(tempfile.gettempdir(), test_folder)
 if not os.path.exists(scratch_path):
     try:
@@ -128,7 +141,7 @@ logger = pyaedt_logger
 
 class BasisTest(object):
     def my_setup(self, launch_desktop=True):
-        scratch_path = tempfile.gettempdir()
+        # scratch_path = tempfile.gettempdir()
         self.local_scratch = Scratch(scratch_path)
         self.aedtapps = []
         self.edbapps = []
