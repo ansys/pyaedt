@@ -2712,14 +2712,17 @@ class Icepak(FieldAnalysis3D):
         fluent_script.write("/file/stop-transcript\n")
         fluent_script.write("/exit,\n")
         fluent_script.close()
-
+        cmd = os.path.join(self.desktop_install_dir, "fluent", "ntbin", "win64", "fluent.exe")
+        if is_linux:  # pragma: no cover
+            cmd = os.path.join(ansys_install_dir, "fluent", "bin", "fluent")
         # Fluent command line parameters: -meshing -i <journal> -hidden -tm<x> (# processors for meshing) -wait
         fl_ucommand = [
-            os.path.join(self.desktop_install_dir, "fluent", "ntbin", "win64", "fluent.exe"),
+            cmd,
             "3d",
             "-meshing",
             "-hidden",
-            "-i" + '"' + fl_uscript_file_pointer + '"',
+            "-i",
+            '"' + fl_uscript_file_pointer + '"',
         ]
         self.logger.info("Fluent is starting in BG.")
         subprocess.call(fl_ucommand)
