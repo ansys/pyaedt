@@ -857,6 +857,22 @@ class Geometries3DLayout(Objec3DLayout, object):
         self._name = name
 
     @property
+    def obounding_box(self):
+        """Bounding box of a specified object.
+
+        Returns
+        -------
+        list
+            List of [LLx, LLy, URx, URy] coordinates.
+
+        References
+        ----------
+
+        >>> oEditor.GetBBox
+        """
+        return self._primitives.obounding_box(self.name)
+
+    @property
     def name(self):
         """Name of Primitive."""
         return self._name
