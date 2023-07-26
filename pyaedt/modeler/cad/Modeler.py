@@ -15,10 +15,10 @@ import math
 import os
 import warnings
 
+# from pyaedt.generic.general_methods import property
+from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.constants import AEDT_UNITS
-
-# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -97,6 +97,125 @@ class BaseCoordinateSystem(PropsManager, object):
         self._modeler = modeler
         self.model_units = self._modeler.model_units
         self.name = name
+
+    def _get_coordinates_data(self):
+        self._props = {}
+        id2name = {1: "Global"}
+        name2refid = {}
+        if self._modeler._app.design_properties and "ModelSetup" in self._modeler._app.design_properties:
+            cs = self._modeler._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
+                "CoordinateSystems"
+            ]
+            for ds in cs:
+                try:
+                    if isinstance(cs[ds], (OrderedDict, dict)):
+                        if cs[ds]["OperationType"] == "CreateRelativeCoordinateSystem":
+                            props = cs[ds]["RelativeCSParameters"]
+                            name = cs[ds]["Attributes"]["Name"]
+                            if name != self.name:
+                                continue
+                            cs_id = cs[ds]["ID"]
+                            id2name[cs_id] = name
+                            name2refid[name] = cs[ds]["ReferenceCoordSystemID"]
+                            self._props = CsProps(self, props)
+                            if "ZXZ" in props["Mode"]:
+                                self.mode = "zxz"
+                            elif "ZYZ" in props["Mode"]:
+                                self.mode = "zyz"
+                            else:
+                                self.mode = "axis"
+                        elif cs[ds]["OperationType"] == "CreateFaceCoordinateSystem":
+                            name = cs[ds]["Attributes"]["Name"]
+                            if name != self.name:
+                                continue
+                            cs_id = cs[ds]["ID"]
+                            id2name[cs_id] = name
+                            op_id = cs[ds]["PlaceHolderOperationID"]
+                            geometry_part = self._modeler._app.design_properties["ModelSetup"]["GeometryCore"][
+                                "GeometryOperations"
+                            ]["ToplevelParts"]["GeometryPart"]
+                            if isinstance(geometry_part, (OrderedDict, dict)):
+                                op = geometry_part["Operations"]["FaceCSHolderOperation"]
+                                if isinstance(op, (OrderedDict, dict)):
+                                    if op["ID"] == op_id:
+                                        props = op["FaceCSParameters"]
+                                        self._props = CsProps(self, props)
+                                elif isinstance(op, list):
+                                    for iop in op:
+                                        if iop["ID"] == op_id:
+                                            props = iop["FaceCSParameters"]
+                                            self._props = CsProps(self, props)
+                                            break
+                            elif isinstance(geometry_part, list):
+                                for gp in geometry_part:
+                                    op = gp["Operations"]["FaceCSHolderOperation"]
+                                    if isinstance(op, (OrderedDict, dict)):
+                                        if op["ID"] == op_id:
+                                            props = op["FaceCSParameters"]
+                                            self._props = CsProps(self, props)
+                                    elif isinstance(op, list):
+                                        for iop in op:
+                                            if iop["ID"] == op_id:
+                                                props = iop["FaceCSParameters"]
+                                                self._props = CsProps(self, props)
+                                                break
+                    elif isinstance(cs[ds], list):
+                        for el in cs[ds]:
+                            if el["OperationType"] == "CreateRelativeCoordinateSystem":
+                                props = el["RelativeCSParameters"]
+                                name = el["Attributes"]["Name"]
+                                if name != self.name:
+                                    continue
+                                cs_id = el["ID"]
+                                id2name[cs_id] = name
+                                name2refid[name] = el["ReferenceCoordSystemID"]
+                                self._props = CsProps(self, props)
+                                if "ZXZ" in props["Mode"]:
+                                    self.mode = "zxz"
+                                elif "ZYZ" in props["Mode"]:
+                                    self.mode = "zyz"
+                                else:
+                                    self.mode = "axis"
+                            elif el["OperationType"] == "CreateFaceCoordinateSystem":
+                                name = el["Attributes"]["Name"]
+                                if name != self.name:
+                                    continue
+                                cs_id = el["ID"]
+                                id2name[cs_id] = name
+                                op_id = el["PlaceHolderOperationID"]
+                                geometry_part = self._modeler._app.design_properties["ModelSetup"]["GeometryCore"][
+                                    "GeometryOperations"
+                                ]["ToplevelParts"]["GeometryPart"]
+                                if isinstance(geometry_part, (OrderedDict, dict)):
+                                    op = geometry_part["Operations"]["FaceCSHolderOperation"]
+                                    if isinstance(op, (OrderedDict, dict)):
+                                        if op["ID"] == op_id:
+                                            props = op["FaceCSParameters"]
+                                            self._props = CsProps(self, props)
+                                    elif isinstance(op, list):
+                                        for iop in op:
+                                            if iop["ID"] == op_id:
+                                                props = iop["FaceCSParameters"]
+                                                self._props = CsProps(self, props)
+                                                break
+                                elif isinstance(geometry_part, list):
+                                    for gp in geometry_part:
+                                        try:
+                                            op = gp["Operations"]["FaceCSHolderOperation"]
+                                        except KeyError:
+                                            continue
+                                        if isinstance(op, (OrderedDict, dict)):
+                                            if op["ID"] == op_id:
+                                                props = op["FaceCSParameters"]
+                                                self._props = CsProps(self, props)
+                                        elif isinstance(op, list):
+                                            for iop in op:
+                                                if iop["ID"] == op_id:
+                                                    props = iop["FaceCSParameters"]
+                                                    self._props = CsProps(self, props)
+                                                    break
+                except:
+                    pass
 
     @pyaedt_function_handler()
     def _dim_arg(self, value, units=None):
@@ -249,21 +368,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
         """
         if self._props or settings.aedt_version <= "2022.2" or self.name is None:
             return self._props
-        obj1 = self._modeler.oeditor.GetChildObject(self.name)
-        props = {}
-        origin = obj1.GetPropValue("Origin")
-        props["Origin"] = origin
-        move_cs_to_end = obj1.GetPropValue("Always Move CS to End")
-        props["MoveToEnd"] = move_cs_to_end
-        move_cs_to_end = obj1.GetPropValue("Axis")
-        props["WhichAxis"] = move_cs_to_end
-        move_cs_to_end = obj1.GetPropValue("Z Rotation Angle")
-        props["ZRotationAngle"] = move_cs_to_end
-        move_cs_to_end = obj1.GetPropValue("Position Offset XY/X")
-        props["XOffset"] = move_cs_to_end
-        move_cs_to_end = obj1.GetPropValue("Position Offset XY/Y")
-        props["YOffset"] = move_cs_to_end
-        self._props = CsProps(self, props)
+        self._get_coordinates_data()
         return self._props
 
     @property
@@ -532,12 +637,15 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         """Coordinate System mode."""
         if self._mode:
             return self._mode
-        if "Axis" in self.props.get("Mode", ""):
-            self._mode = "axis"
-        elif "ZXZ" in self.props.get("Mode", ""):
-            self._mode = "zxz"
-        elif "ZYZ" in self.props.get("Mode", ""):
-            self._mode == "zyz"
+        try:
+            if "Axis" in self.props["Mode"]:
+                self._mode = "axis"
+            elif "ZXZ" in self.props["Mode"]:
+                self._mode = "zxz"
+            elif "ZYZ" in self.props["Mode"]:
+                self._mode = "zyz"
+        except:
+            pass
         return self._mode
 
     @mode.setter
@@ -554,29 +662,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         """
         if self._props or settings.aedt_version <= "2022.2" or self.name is None:
             return self._props
-        obj1 = self._modeler.oeditor.GetChildObject(self.name)
-        props = {}
-        origin = obj1.GetPropValue("Origin")
-        props["OriginX"] = origin[1]
-        props["OriginY"] = origin[3]
-        props["OriginZ"] = origin[5]
-        props["Mode"] = obj1.GetPropValue("Mode")
-        if "X Axis" in obj1.GetPropNames():
-            axisvec = obj1.GetPropValue("X Axis")
-            props["XAxisXvec"] = axisvec[1]
-            props["XAxisYvec"] = axisvec[3]
-            props["XAxisZvec"] = axisvec[5]
-            ypoint = obj1.GetPropValue("Y Point")
-
-            props["YAxisXvec"] = ypoint[1]
-            props["YAxisYvec"] = ypoint[3]
-            props["YAxisZvec"] = ypoint[5]
-        else:
-            props["Phi"] = obj1.GetPropValue("Phi")
-            props["Theta"] = obj1.GetPropValue("Theta")
-            props["Psi"] = obj1.GetPropValue("Psi")
-        self._props = CsProps(self, props)
-        return self._props
+        self._get_coordinates_data()
 
     @property
     def ref_cs(self):
@@ -1360,7 +1446,7 @@ class GeometryModeler(Modeler, object):
         """
         return self._app.materials
 
-    def _get_coordinates_data(self):
+    def _get_coordinates_data(self):  # pragma: no cover
         coord = []
         id2name = {1: "Global"}
         name2refid = {}
@@ -2108,24 +2194,67 @@ class GeometryModeler(Modeler, object):
             cs = self.coordinate_systems[cs_names.index(coordinate_system)]
         else:  # pragma: no cover
             raise AttributeError("coordinate_system must either be a string or a CoordinateSystem object.")
-        o, q = self.reference_cs_to_global(coordinate_system)
-        x, y, _ = GeometryOperators.quaternion_to_axis(q)
-        reference_cs = "Global"
-        name = cs.name + "_RefToGlobal"
-        if name in cs_names:
-            name = cs.name + generate_unique_name("_RefToGlobal")
-        cs = CoordinateSystem(self)
-        if cs:
-            result = cs.create(
-                origin=o,
-                reference_cs=reference_cs,
-                name=name,
-                mode="axis",
-                x_pointing=x,
-                y_pointing=y,
-            )
-            if result:
-                return cs
+        if isinstance(cs, CoordinateSystem):
+            o, q = self.reference_cs_to_global(coordinate_system)
+            x, y, _ = GeometryOperators.quaternion_to_axis(q)
+            reference_cs = "Global"
+            name = cs.name + "_RefToGlobal"
+            if name in cs_names:
+                name = cs.name + generate_unique_name("_RefToGlobal")
+            cs = CoordinateSystem(self)
+            if cs:
+                result = cs.create(
+                    origin=o,
+                    reference_cs=reference_cs,
+                    name=name,
+                    mode="axis",
+                    x_pointing=x,
+                    y_pointing=y,
+                )
+                if result:
+                    return cs
+        elif isinstance(cs, FaceCoordinateSystem):
+            name = cs.name + "_RefToGlobal"
+            if name in cs_names:
+                name = cs.name + generate_unique_name("_RefToGlobal")
+            face_cs = FaceCoordinateSystem(self, props=cs.props, name=name, face_id=cs.face_id)
+            obj = [obj for obj in self._app.modeler.object_list for face in obj.faces if face.id == face_cs.face_id][0]
+            face = [face for face in obj.faces if face.id == face_cs.face_id][0]
+            if face_cs.props["Origin"]["PositionType"] == "FaceCenter":
+                origin = face
+            elif face_cs.props["Origin"]["PositionType"] == "EdgeCenter":
+                origin = [edge for edge in face.edges if edge.id == face_cs.props["Origin"]["EntityID"]][0]
+            elif face_cs.props["Origin"]["PositionType"] == "OnVertex":
+                edge = [
+                    edge
+                    for edge in face.edges
+                    for vertex in edge.vertices
+                    if vertex.id == face_cs.props["Origin"]["EntityID"]
+                ][0]
+                origin = [v for v in edge.vertices if v.id == face_cs.props["Origin"]["EntityID"]][0]
+            if face_cs.props["AxisPosn"]["PositionType"] == "EdgeCenter":
+                axis_position = [edge for edge in face.edges if edge.id == face_cs.props["AxisPosn"]["EntityID"]][0]
+            elif face_cs.props["AxisPosn"]["PositionType"] == "OnVertex":
+                edge = [
+                    edge
+                    for edge in face.edges
+                    for vertex in edge.vertices
+                    if vertex.id == face_cs.props["AxisPosn"]["EntityID"]
+                ][0]
+                axis_position = [v for v in edge.vertices if v.id == face_cs.props["AxisPosn"]["EntityID"]][0]
+            if face_cs:
+                result = face_cs.create(
+                    face=face,
+                    origin=origin,
+                    axis_position=axis_position,
+                    axis=face_cs.props["WhichAxis"],
+                    name=name,
+                    offset=[face_cs["XOffset"], face_cs["YOffset"]],
+                    rotation=decompose_variable_value(face_cs["ZRotationAngle"])[0],
+                    always_move_to_end=face_cs["MoveToEnd"],
+                )
+                if result:
+                    return cs
         return False
 
     @pyaedt_function_handler()

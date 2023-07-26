@@ -805,6 +805,53 @@ class UserDefinedComponent(object):
         )
 
     @pyaedt_function_handler()
+    def get_component_filepath(self):
+        """Get 3d component file path.
+
+        Returns
+        -------
+        str
+            Path of the 3d component file.
+        """
+
+        return self._primitives._app.get_oo_object(self._primitives._app.oeditor, self.definition_name).GetPropValue(
+            "3D Component File Path"
+        )
+
+    @pyaedt_function_handler()
+    def update_definition(self, password="", new_filepath=""):
+        """Update 3d component definition.
+
+        Parameters
+        ----------
+        password : str, optional
+            Password for encrypted models. The default value is ``""``.
+        new_filepath : str, optional
+            New path containing the 3d component file. The default value is ``""``, which means
+            that the 3d component file has not changed.
+
+        Returns
+        -------
+        bool
+            True if successful.
+        """
+
+        self._primitives._app.oeditor.UpdateComponentDefinition(
+            [
+                "NAME:UpdateDefinitionData",
+                "ForLocalEdit:=",
+                False,
+                "DefinitionNames:=",
+                self.definition_name,
+                "Passwords:=",
+                [password],
+                "NewFilePath:=",
+                new_filepath,
+            ]
+        )
+        return True
+
+    @pyaedt_function_handler()
     def edit_definition(self, password=""):
         """Edit 3d Definition. Open AEDT Project and return Pyaedt Object.
 

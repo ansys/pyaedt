@@ -211,7 +211,7 @@ class EdbNets(object):
         return self._nets_by_comp_dict
 
     @property
-    def componets_by_nets(self):
+    def components_by_nets(self):
         # type: () -> dict
         """Get all component instances grouped by nets."""
         for comp, i in self._pedb.components.instances.items():
@@ -238,7 +238,7 @@ class EdbNets(object):
             Threshold of capacitor value. Search extended net across capacitors which has value higher than the
             threshold.
         exception_list : list, optional
-            List of components which bypass threshold check.
+            List of components which bypass threshold check. The default is ``None``.
         Returns
         -------
         list
@@ -254,7 +254,7 @@ class EdbNets(object):
             exception_list = []
         self._extendend_nets = []
         all_nets = list(self.nets.keys())[:]
-        net_dicts = self._comps_by_nets_dict if self._comps_by_nets_dict else self.componets_by_nets
+        net_dicts = self._comps_by_nets_dict if self._comps_by_nets_dict else self.components_by_nets
         comp_dict = self._nets_by_comp_dict if self._nets_by_comp_dict else self.nets_by_components
 
         def get_net_list(net_name, _net_list):
