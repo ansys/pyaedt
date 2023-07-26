@@ -2920,19 +2920,26 @@ class Edb(Database):
             if simulation_setup.solver_type == SolverType.Hfss3dLayout:
                 if simulation_setup.generate_excitations:
                     self.logger.info("Creating HFSS ports for signal nets.")
+                    source_type = SourceType.CoaxPort
+                    if not simulation_setup.generate_solder_balls:
+                        source_type = SourceType.CircPort
                     for cmp in simulation_setup.components:
                         self.components.create_port_on_component(
                             cmp,
                             net_list=simulation_setup.signal_nets,
                             do_pingroup=False,
                             reference_net=simulation_setup.power_nets,
-                            port_type=SourceType.CoaxPort,
+                            port_type=source_type,
                         )
-                    if not self.hfss.set_coax_port_attributes(simulation_setup):  # pragma: no cover
+                    if simulation_setup.generate_solder_balls and not self.hfss.set_coax_port_attributes(
+                        simulation_setup
+                    ):  # pragma: no cover
                         self.logger.error("Failed to configure coaxial port attributes.")
                     self.logger.info("Number of ports: {}".format(self.hfss.get_ports_number()))
                     self.logger.info("Configure HFSS extents.")
-                    if simulation_setup.trim_reference_size:  # pragma: no cover
+                    if (
+                        simulation_setup.generate_solder_balls and simulation_setup.trim_reference_size
+                    ):  # pragma: no cover
                         self.logger.info(
                             "Trimming the reference plane for coaxial ports: {0}".format(
                                 bool(simulation_setup.trim_reference_size)
