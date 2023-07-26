@@ -105,6 +105,7 @@ class TestClass(BasisTest, object):
         assert poly.top_edge_x == 2
         assert poly.top_edge_y == 3
         assert poly.placement_layer == "1_Top"
+        assert poly.obounding_box
         poly.placement_layer = "16_Bottom"
         assert poly.placement_layer == "16_Bottom"
         poly.placement_layer = "1_Top"
