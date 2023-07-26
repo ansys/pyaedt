@@ -2600,9 +2600,9 @@ class Icepak(FieldAnalysis3D):
             Maximum mesh size. Default is smallest edge of objects/5.
         inflation_layer_number : int, optional
             Inflation layer number. Default is ``3``.
-        inflation_layer_first_height : float, optional
-            Minimum inflation layer size. Default is smallest edge of objects/20.
-        mesh_growth_rate: float, optional
+        inflation_growth_rate : float, optional
+            Inflation layer size. Default is ``1.2``.
+        mesh_growth_rate : float, optional
             Growth rate. Default is ``1.2``.
         Returns
         -------
