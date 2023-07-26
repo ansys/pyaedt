@@ -2131,6 +2131,9 @@ class PostProcessor(PostProcessorCommon, object):
         isvector=False,
         intrinsics=None,
         phase=None,
+        object_name = "AllObjects",
+        object_type = "volume",
+        adjacent_side = False
     ):
         """Use the field calculator to Compute Scalar of a Field.
 
@@ -2138,6 +2141,9 @@ class PostProcessor(PostProcessorCommon, object):
         ----------
         quantity_name : str
             Name of the quantity to export. For example, ``"Temp"``.
+        scalar_function : str, optional
+            The name of the scalar function. For example, ``"Maximum"``, ``"Integrate"``.
+            The default is ``"Maximum"``.
         solution : str, optional
             Name of the solution in the format ``"solution : sweep"``. The default is ``None``.
         variation_dict : dict, optional
@@ -2150,6 +2156,13 @@ class PostProcessor(PostProcessorCommon, object):
             calculation. The default is ``None``.
         phase : str, optional
             Field phase. The default is ``None``.
+        object_name : str, optional
+            Name of the object. For example, ``"Box1"``. The default is ``"AllObjects"``.
+        object_type : str, optional
+            Type of the object - ``"volume"``, ``"surface"``, ``"point"``. The default is ``"volume"``.
+        adjacent_side : bool, optional
+            To query quantity value on adjacent side for object_type = "surface", pass ``True``.
+            The default is ``False``.
 
         Returns
         -------
@@ -2185,9 +2198,17 @@ class PostProcessor(PostProcessorCommon, object):
             except:
                 self.logger.info("Quantity {} not present. Trying to get it from Stack".format(quantity_name))
                 self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
-        obj_list = "AllObjects"
+        obj_list = object_name
         if scalar_function:
-            self.ofieldsreporter.EnterVol(obj_list)
+            if object_type == "volume":
+                self.ofieldsreporter.EnterVol(obj_list)
+            elif object_type == "surface":
+                if adjacent_side:
+                    self.ofieldsreporter.EnterAdjacentSurf(obj_list)
+                else:
+                    self.ofieldsreporter.EnterSurf(obj_list)
+            elif object_type == "point":
+                self.ofieldsreporter.EnterPoint(obj_list)
             self.ofieldsreporter.CalcOp(scalar_function)
         if not variation_dict:
             variation_dict = self._app.available_variations.nominal_w_values
