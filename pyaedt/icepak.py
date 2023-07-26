@@ -2604,6 +2604,7 @@ class Icepak(FieldAnalysis3D):
             Inflation layer size. Default is ``1.2``.
         mesh_growth_rate : float, optional
             Growth rate. Default is ``1.2``.
+
         Returns
         -------
         :class:`pyaedt.modules.Mesh.MeshOperation`
