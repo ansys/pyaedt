@@ -15,6 +15,7 @@ from _unittest.conftest import local_path
 # Import required modules
 from pyaedt import Hfss3dLayout
 from pyaedt import is_ironpython
+from pyaedt import is_linux
 
 test_subfolder = "T40"
 
@@ -338,7 +339,7 @@ class TestClass(BasisTest, object):
         assert "var_test" in self.aedtapp.variable_manager.design_variable_names
         assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
 
-    @pytest.mark.skipif(is_ironpython, reason="Not Supported.")
+    @pytest.mark.skipif(is_ironpython or is_linux, reason="Not Supported.")
     def test_19_dcir(self):
         import pandas as pd
 
