@@ -2724,7 +2724,8 @@ class Icepak(FieldAnalysis3D):
             "-i",
             '"' + fl_uscript_file_pointer + '"',
         ]
-        self.logger.info("Fluent is starting in BG.")
+        self.logger.info("Fluent is starting in Background with command line")
+        self.logger.info(" ".join(fl_ucommand))
         subprocess.call(fl_ucommand)
         if os.path.exists(mesh_file_pointer + ".trn"):
             os.remove(mesh_file_pointer + ".trn")
