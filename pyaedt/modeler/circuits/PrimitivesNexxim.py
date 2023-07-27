@@ -1821,8 +1821,8 @@ class NexximComponents(CircuitComponents):
         :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
-        Example
-        -------
+        Examples
+        --------
         >>> from pyaedt import Circuit
         >>> cir = Circuit(specified_version="2023.2")
         >>> model = os.path.join("Your path", "test.lib")
