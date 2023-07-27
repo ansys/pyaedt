@@ -6,11 +6,11 @@ try:
 except ImportError:
     pass
 
-from _unittest.conftest import BasisTest
+# from _unittest.conftest import BasisTest
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 
-from pyaedt import Hfss
+# from pyaedt import Hfss
 from pyaedt import is_ironpython
 from pyaedt import is_linux
 
@@ -25,8 +25,8 @@ if desktop_version > "2022.2":
     person = "person3_231"
     vehicle = "vehicle1_231"
     bird = "bird1_231"
-    sbr_platform = "satellite_231"
-    array = "array_231"
+    sbr_platform_name = "satellite_231"
+    array_name = "array_231"
 
 else:
     test_project_name = "Cassegrain"
@@ -34,30 +34,63 @@ else:
     person = "person3"
     vehicle = "vehicle1"
     bird = "bird1"
-    sbr_platform = "satellite"
-    array = "array"
+    sbr_platform_name = "satellite"
+    array_name = "array"
 test_subfolder = "T17"
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(
-            self,
-            project_name=test_project_name,
-            design_name="Cassegrain_reflectors",
-            solution_type="SBR+",
-            subfolder=test_subfolder,
-        )
-        self.source = Hfss(self.aedtapp.project_name, "feeder", specified_version=desktop_version)
-        self.sbr_platform = BasisTest.add_app(self, project_name=sbr_platform, subfolder=test_subfolder)
-        self.array = BasisTest.add_app(self, project_name=array, subfolder=test_subfolder)
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(project_name=test_project_name, design_name="Cassegrain_reflectors", solution_type="SBR+", subfolder=test_subfolder)
+    return app
+
+@pytest.fixture(scope="class")
+def source(add_app, aedtapp):
+    app = add_app(project_name=aedtapp.project_name, design_name="feeder", just_open=True)
+    return app
+
+@pytest.fixture(scope="class")
+def sbr_platform(add_app):
+    app = add_app(project_name=sbr_platform_name, subfolder=test_subfolder)
+    return app
+
+@pytest.fixture(scope="class")
+def array(add_app):
+    app = add_app(project_name=array_name, subfolder=test_subfolder)
+    return app
+
+
+class TestClass:
+    # def setup_class(self):
+    #     BasisTest.my_setup(self)
+    #     self.aedtapp = BasisTest.add_app(
+    #         self,
+    #         project_name=test_project_name,
+    #         design_name="Cassegrain_reflectors",
+    #         solution_type="SBR+",
+    #         subfolder=test_subfolder,
+    #     )
+    #     self.source = Hfss(self.aedtapp.project_name, "feeder", specified_version=desktop_version)
+    #     self.sbr_platform = BasisTest.add_app(self, project_name=sbr_platform, subfolder=test_subfolder)
+    #     self.array = BasisTest.add_app(self, project_name=array, subfolder=test_subfolder)
+    #     if not is_ironpython and not is_linux:
+    #         # this should be changed upstream to use a HOME or TEMP folder by default...
+    #         osmnx.settings.cache_folder = os.path.join(self.local_scratch.path, "cache")
+    #
+    # def teardown_class(self):
+    #     BasisTest.my_teardown(self)
+
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp,source,sbr_platform,array, local_scratch):
+        self.aedtapp = aedtapp
+        self.source = source
+        self.sbr_platform = sbr_platform
+        self.array = array
+        self.local_scratch = local_scratch
         if not is_ironpython and not is_linux:
             # this should be changed upstream to use a HOME or TEMP folder by default...
-            osmnx.settings.cache_folder = os.path.join(self.local_scratch.path, "cache")
+            osmnx.settings.cache_folder = os.path.join(local_scratch.path, "cache")
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
 
     def test_01_open_source(self):
         assert self.aedtapp.create_sbr_linked_antenna(self.source, target_cs="feederPosition", fieldtype="farfield")
@@ -176,8 +209,9 @@ class TestClass(BasisTest, object):
         assert setup.props["ChannelConfiguration"] == "IQChannels"
         assert sweep.props["Sim. Setups"] == [setup.name]
 
-    def test_11_add_sbr_boundaries_in_hfss_solution(self):
-        hfss_terminal = Hfss(solution_type="Terminal", specified_version=desktop_version)
+    def test_11_add_sbr_boundaries_in_hfss_solution(self, add_app):
+        # hfss_terminal = Hfss(solution_type="Terminal", specified_version=desktop_version)
+        hfss_terminal = add_app(solution_type="Terminal")
 
         # sbr file based antenna should only work for SBR+ solution.
         assert not hfss_terminal.create_sbr_file_based_antenna(
