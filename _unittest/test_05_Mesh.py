@@ -132,8 +132,9 @@ class TestClass:
             == False
         )
 
-    def test_07_maxwell_mesh(self):
-        m3d = Maxwell3d(specified_version=desktop_version)
+    def test_07_maxwell_mesh(self, add_app):
+        # m3d = Maxwell3d(specified_version=desktop_version)
+        m3d = add_app(application=Maxwell3d)
         o = m3d.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box_Mesh")
         rot = m3d.mesh.assign_rotational_layer(o.name, meshop_name="Rotational", total_thickness="5mm")
         assert rot.props["Number of Layers"] == "3"
