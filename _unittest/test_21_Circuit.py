@@ -408,6 +408,33 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2345", False)
         assert not self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2346")
 
+    def test_29a_create_circuit_from_spice_edit_symbol(self):
+        model = os.path.join(local_path, "example_models", test_subfolder, "test.lib")
+        assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model_path=model, edit_symbol=False)
+        assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(
+            model_path=model, edit_symbol=False, symbol_name="invalid"
+        )
+        assert not self.aedtapp.modeler.schematic.create_component_from_spicemodel(model_path=model, edit_symbol=True)
+        components_catalog = self.aedtapp.modeler.components.components_catalog.components
+        symbol_key = "Capacitors:CAP_"
+        component = components_catalog[symbol_key]
+        component_name = component.name
+        assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(
+            model_path=model, model_name="GRM1234", edit_symbol=True, symbol_key=symbol_key, symbol_name=component_name
+        )
+        symbol_key = "Inductors:IND_"
+        component = components_catalog[symbol_key]
+        component_name = component.name
+        assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(
+            model_path=model, model_name="GRM1234", edit_symbol=True, symbol_key=symbol_key, symbol_name=component_name
+        )
+        symbol_key = "Resistors:RES_"
+        component = components_catalog[symbol_key]
+        component_name = component.name
+        assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(
+            model_path=model, model_name="GRM1234", edit_symbol=True, symbol_key=symbol_key, symbol_name=component_name
+        )
+
     def test_30_create_subcircuit(self):
         subcircuit = self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0], angle=0)
         assert type(subcircuit.location) is list

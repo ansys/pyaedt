@@ -1788,8 +1788,22 @@ class NexximComponents(CircuitComponents):
         return models
 
     @pyaedt_function_handler()
-    def create_component_from_spicemodel(self, model_path, model_name=None, create_component=True, location=None):
+    def create_component_from_spicemodel(
+        self,
+        model_path,
+        model_name=None,
+        create_component=True,
+        location=None,
+        edit_symbol=False,
+        symbol_key="",
+        symbol_name="",
+    ):
         """Create and place a new component based on a spice .lib file.
+
+        In order for the user to edit the symbol and provide the correct symbol key and name,
+        it's possible to access the component catalog through
+        ``self.aedtapp.modeler.components.components_catalog.components`` where the key refers to the
+        component class type and the name to the component name.
 
         Parameters
         ----------
@@ -1801,23 +1815,59 @@ class NexximComponents(CircuitComponents):
             If set to ``True``, create a spice model component. Otherwise, only import the spice model.
         location : list, optional
             Position in the schematic of the new component.
+        edit_symbol : bool, optional
+            Whether to edit the symbol of the spice model component.
+            The default value is ``False``.
+        symbol_key : string, optional
+            Key of component catalog to refer to a specific class of components.
+            Default value is an empty string.
+        symbol_name : string, optional
+            Symbol name.
+            Default value is an empty string.
 
         Returns
         -------
         :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
+
+        Example
+        -------
+        >>> from pyaedt import Circuit
+        >>> cir = Circuit(specified_version="2023.2")
+        >>> components_catalog = self.aedtapp.modeler.components.components_catalog.components
+        >>> symbol_key = "Capacitors:Cap_"
+        >>> component = components_catalog[symbol_key]
+        >>> component_name = component.name
+        >>> model = os.path.join(local_path, "test.lib")
+        >>> cir.modeler.schematic.create_component_from_spicemodel(model_path=model,
+        >>>                                                        edit_symbol=True,
+        >>>                                                        symbol_key=symbol_key,
+        >>>                                                        symbol_name=symbol_name)
+        >>>
+        >>> cir.release_desktop(False, False)
         """
         models = self._parse_spice_model(model_path)
         if not model_name and models:
             model_name = models[0]
         elif model_name not in models:
             return False
+        if edit_symbol and not symbol_key and not symbol_name:
+            return False
+        elif edit_symbol and symbol_key and symbol_name:
+            components_catalog = self._app.modeler.components.components_catalog.components
+            if symbol_key not in list(components_catalog.keys()):
+                return False
+            else:
+                if components_catalog[symbol_key].name != symbol_name:
+                    return False
+        elif not edit_symbol:
+            symbol_name = ""
         arg = ["NAME:Options", "Mode:=", 2, "Overwrite:=", False, "SupportsSimModels:=", False, "LoadOnly:=", False]
         arg2 = ["NAME:Models"]
         for el in models:
             arg2.append(el + ":=")
             if el == model_name:
-                arg2.append([True, "", "", False])
+                arg2.append([True, symbol_name, "", False])
             else:
                 arg2.append([False, "", "", False])
         arg.append(arg2)
