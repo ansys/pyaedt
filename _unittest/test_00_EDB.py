@@ -1341,8 +1341,8 @@ class TestClass(BasisTest, object):
         sim_setup.open_edb_after_build = False
         sim_setup.batch_solve_settings.output_aedb = os.path.join(self.local_scratch.path, "build.aedb")
         original_path = edb.edbpath
-        assert not sim_setup.batch_solve_settings.use_pyaedt_cutout
-        assert sim_setup.batch_solve_settings.use_default_cutout
+        assert sim_setup.batch_solve_settings.use_pyaedt_cutout
+        assert not sim_setup.batch_solve_settings.use_default_cutout
         sim_setup.batch_solve_settings.use_pyaedt_cutout = True
         assert sim_setup.batch_solve_settings.use_pyaedt_cutout
         assert not sim_setup.batch_solve_settings.use_default_cutout
@@ -1620,7 +1620,7 @@ class TestClass(BasisTest, object):
         with open(cfg_file, "w") as f:
             f.writelines("SolverType = 'Hfss3dLayout'\n")
             f.writelines("PowerNets = ['GND']\n")
-            f.writelines("Components = ['U1', 'U2']")
+            f.writelines("Components = ['U1', 'U7']")
 
         sim_config = SimulationConfiguration(cfg_file)
         assert edbapp.build_simulation_project(sim_config)

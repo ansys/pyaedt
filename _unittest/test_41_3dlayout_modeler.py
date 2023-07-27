@@ -509,7 +509,7 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(is_ironpython, reason="Not supported with IronPython")
     def test_19B_analyze_setup(self):
         assert self.solve.mesh.generate_mesh("Setup1")
-        assert self.solve.analyze_setup("Setup1")
+        assert self.solve.analyze_setup("Setup1", num_cores=2)
         self.solve.save_project()
         assert os.path.exists(self.solve.export_profile("Setup1"))
         assert os.path.exists(self.solve.export_mesh_stats("Setup1"))
