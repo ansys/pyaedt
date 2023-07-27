@@ -1,5 +1,5 @@
 # Import required modules
-from _unittest.conftest import BasisTest
+# from _unittest.conftest import BasisTest
 from _unittest.conftest import desktop_version
 
 from pyaedt import Maxwell3d
@@ -9,14 +9,26 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(project_name="Test05")
+    return app
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, project_name="Test05")
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+class TestClass:
+    # def setup_class(self):
+    #     BasisTest.my_setup(self)
+    #     self.aedtapp = BasisTest.add_app(self, project_name="Test05")
+    #
+    # def teardown_class(self):
+    #     BasisTest.my_teardown(self)
+    #
+
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp,  local_scratch):
+        self.aedtapp = aedtapp
+        self.local_scratch = local_scratch
+
 
     def test_01_assign_model_resolution(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
