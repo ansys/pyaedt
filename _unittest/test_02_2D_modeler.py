@@ -3,7 +3,7 @@ import math
 import os
 import sys
 
-from _unittest.conftest import BasisTest
+# from _unittest.conftest import BasisTest
 
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import is_linux
@@ -14,19 +14,29 @@ from pyaedt.maxwell import Maxwell2d
 
 try:
     import filecmp
-
     import pytest  # noqa: F401
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, design_name="2D_Primitives", application=Maxwell2d)
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(design_name="2D_Primitives", application=Maxwell2d)
+    return app
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+class TestClass:
+    # def setup_class(self):
+    #     BasisTest.my_setup(self)
+    #     self.aedtapp = BasisTest.add_app(self, design_name="2D_Primitives", application=Maxwell2d)
+    #
+    # def teardown_class(self):
+    #     BasisTest.my_teardown(self)
+
+
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, local_scratch):
+        self.aedtapp = aedtapp
+        self.local_scratch = local_scratch
 
     def test_01_model_units(self):
         model_units = self.aedtapp.modeler.model_units
