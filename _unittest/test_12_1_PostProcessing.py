@@ -592,7 +592,6 @@ class TestClass:
 
     def test_55_reload(self, add_app):
         self.aedtapp.save_project()
-        # app2 = Hfss(self.aedtapp.project_name, specified_version=config["desktopVersion"])
         app2 = add_app(project_name=self.aedtapp.project_name, just_open=True)
         assert len(app2.post.field_plots) == len(self.aedtapp.post.field_plots)
 
