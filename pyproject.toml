@@ -78,9 +78,9 @@ doc = [
     "pyvista==0.38.0; python_version <= '3.7'",
     "recommonmark==0.7.1",
     "scikit-learn==1.3.0",
-    "Sphinx==7.0.1",
+    "Sphinx==7.1.0",
     "sphinx-autobuild==2021.3.14",
-    "sphinx-autodoc-typehints==1.23.3",
+    "sphinx-autodoc-typehints==1.24.0",
     "sphinx-copybutton==0.5.2",
     "sphinx-gallery==0.13.0",
     "sphinx-notfound-page==0.8.3",
@@ -127,9 +127,11 @@ all = [
 name = "pyaedt"
 
 [project.urls]
-"Bug Tracker" = "https://github.com/pyansys/pyaedt/issues"
-"Documentation" = "https://aedt.docs.pyansys.com"
-"Source Code" = "https://github.com/pyansys/pyaedt"
+Bugs = "https://github.com/ansys/pyaedt/issues"
+Documentation = "https://aedt.docs.pyansys.com"
+Source = "https://github.com/ansys/pyaedt"
+Discussions = "https://github.com/ansys/pyaedt/discussions"
+Releases = "https://github.com/ansys/pyaedt/releases"
 
 [tool.black]
 line-length = 120
