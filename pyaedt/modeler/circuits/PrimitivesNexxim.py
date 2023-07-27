@@ -1825,16 +1825,10 @@ class NexximComponents(CircuitComponents):
         -------
         >>> from pyaedt import Circuit
         >>> cir = Circuit(specified_version="2023.2")
-        >>> components_catalog = self.aedtapp.modeler.components.components_catalog.components
-        >>> symbol_key = "Capacitors:Cap_"
-        >>> component = components_catalog[symbol_key]
-        >>> component_name = component.name
-        >>> model = os.path.join(local_path, "test.lib")
+        >>> model = os.path.join("Your path", "test.lib")
         >>> cir.modeler.schematic.create_component_from_spicemodel(model_path=model,
-        >>>                                                        edit_symbol=True,
-        >>>                                                        symbol_key=symbol_key,
-        >>>                                                        symbol_name=symbol_name)
-        >>>
+        >>>                                                        model_name="GRM1234",
+        >>>                                                        symbol_name="nexx_cap")
         >>> cir.release_desktop(False, False)
         """
         models = self._parse_spice_model(model_path)
