@@ -209,7 +209,7 @@ class TestClass(BasisTest, object):
         LNA_setup.props["SweepDefinition"]["Data"] = " ".join(sweep_list)
         assert LNA_setup.update()
 
-    @pytest.mark.skipif(is_linux, reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(is_ironpython or is_linux, reason="Skipped because Desktop is crashing")
     def test_10_q2d_link(self):
         self.aedtapp.insert_design("test_link")
         q2d = Q2d(self.q3d, specified_version=desktop_version)
@@ -220,7 +220,7 @@ class TestClass(BasisTest, object):
         assert c1.parameters["Length"] == "25mm"
         assert c1.parameters["r1"] == "0.3mm"
 
-    @pytest.mark.skipif(is_linux, reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(is_ironpython or is_linux, reason="Skipped because Desktop is crashing")
     def test_10_q3d_link(self):
         q3d = Q3d(self.q3d, specified_version=desktop_version)
 
@@ -230,7 +230,7 @@ class TestClass(BasisTest, object):
         assert q3d_comp
         assert len(q3d_comp.pins) == 4
 
-    @pytest.mark.skipif(is_linux, reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(is_ironpython or is_linux, reason="Skipped because Desktop is crashing")
     def test_10_hfss_link(self):
         hfss = Hfss(self.q3d, specified_version=desktop_version)
 
@@ -242,7 +242,7 @@ class TestClass(BasisTest, object):
             hfss, solution_name="Setup2 : Sweep", tline_port="1"
         )
 
-    @pytest.mark.skipif(is_linux, reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(is_ironpython or is_linux, reason="Skipped because Desktop is crashing")
     def test_11_siwave_link(self):
         model = os.path.join(local_path, "example_models", test_subfloder, "Galileo_um.siw")
         model_out = self.local_scratch.copyfile(model)
