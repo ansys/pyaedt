@@ -160,9 +160,9 @@ class TestClass:
         new_design = self.aedtapp.copy_design_from(origin, "myduplicateddesign")
         assert new_design in self.aedtapp.design_list
 
-    def test_16_renamedesign(self):
-        test_project = self.aedtapp.project_file
-        self.aedtapp.load_project(project_file=test_project, close_active_proj=True, design_name="myname")
+    def test_16_renamedesign(self, add_app, test_project_file):
+        prj_file = test_project_file(test_project_name)
+        self.aedtapp.load_project(project_file=prj_file, close_active_proj=True, design_name="myname")
         assert "myname" in [
             design["Name"]
             for design in self.aedtapp.project_properties["AnsoftProject"][model_names[self.aedtapp.design_type]]

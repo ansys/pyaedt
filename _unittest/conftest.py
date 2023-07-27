@@ -89,9 +89,11 @@ config = {
 # Check for the local config file, override defaults if found
 local_config_file = os.path.join(local_path, "local_config.json")
 if os.path.exists(local_config_file):
-    local_config = {}
-    with open(local_config_file) as f:
-        local_config = json.load(f)
+    try:
+        with open(local_config_file) as f:
+            local_config = json.load(f)
+    except:  # pragma: no cover
+        local_config = {}
     config.update(local_config)
 
 NONGRAPHICAL = config["NonGraphical"]
@@ -181,6 +183,20 @@ def add_app(local_scratch):
             )
 
     return _method
+
+@pytest.fixture(scope="module")
+def test_project_file(local_scratch):
+
+    def _method(project_name=None):
+        project_file = os.path.join(local_scratch.path, project_name + ".aedt")
+        if os.path.exists(project_file):
+            return project_file
+        else:
+            return None
+
+    return _method
+
+
 
 @pytest.fixture(scope="module")
 def add_edb(local_scratch):
