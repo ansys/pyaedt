@@ -9,11 +9,11 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
 # Setup paths for module imports
-from _unittest.conftest import BasisTest
+# from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
 
-from pyaedt import Hfss
+# from pyaedt import Hfss
 from pyaedt import generate_unique_name
 from pyaedt.generic.constants import AXIS
 from pyaedt.generic.general_methods import is_ironpython
@@ -28,7 +28,7 @@ test = sys.modules.keys()
 scdoc = "input.scdoc"
 step = "input.stp"
 component3d = "new.a3dcomp"
-encrypted_cylinder = "encrypted_cylinder.a3dcomp"
+encrypted_cyl = "encrypted_cylinder.a3dcomp"
 layout_comp = "Layoutcomponent_231.aedbcomp"
 test_subfolder = "T08"
 if config["desktopVersion"] > "2022.2":
@@ -43,26 +43,65 @@ else:
     polyline = "polyline"
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, project_name="test_primitives", design_name="3D_Primitives")
-        scdoc_file = os.path.join(local_path, "example_models", test_subfolder, scdoc)
-        self.local_scratch.copyfile(scdoc_file)
-        self.step_file = os.path.join(local_path, "example_models", test_subfolder, step)
-        self.component3d_file = os.path.join(self.local_scratch.path, component3d)
-        self.encrypted_cylinder = os.path.join(local_path, "example_models", test_subfolder, encrypted_cylinder)
-        test_98_project = os.path.join(local_path, "example_models", test_subfolder, assembly2 + ".aedt")
-        self.test_98_project = self.local_scratch.copyfile(test_98_project)
-        test_99_project = os.path.join(local_path, "example_models", test_subfolder, assembly + ".aedt")
-        self.test_99_project = self.local_scratch.copyfile(test_99_project)
-        self.flatten = BasisTest.add_app(self, project_name=components_flatten, subfolder=test_subfolder)
-        test_54b_project = os.path.join(local_path, "example_models", test_subfolder, polyline + ".aedt")
-        self.test_54b_project = self.local_scratch.copyfile(test_54b_project)
-        self.layout_component = os.path.join(local_path, "example_models", test_subfolder, layout_comp)
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(project_name="test_primitives", design_name="3D_Primitives")
+    return app
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+@pytest.fixture(scope="class")
+def flatten(add_app):
+    app = add_app(project_name=components_flatten, subfolder=test_subfolder)
+    return app
+
+
+@pytest.fixture(scope="class", autouse=True)
+def examples(local_scratch):
+    scdoc_file = os.path.join(local_path, "example_models", test_subfolder, scdoc)
+    scdoc_file = local_scratch.copyfile(scdoc_file)
+    step_file = os.path.join(local_path, "example_models", test_subfolder, step)
+    component3d_file = os.path.join(local_scratch.path, component3d)
+    encrypted_cylinder = os.path.join(local_path, "example_models", test_subfolder, encrypted_cyl)
+    test_98_project = os.path.join(local_path, "example_models", test_subfolder, assembly2 + ".aedt")
+    test_98_project = local_scratch.copyfile(test_98_project)
+    test_99_project = os.path.join(local_path, "example_models", test_subfolder, assembly + ".aedt")
+    test_99_project = local_scratch.copyfile(test_99_project)
+    layout_component = os.path.join(local_path, "example_models", test_subfolder, layout_comp)
+    return scdoc_file, step_file, component3d_file, encrypted_cylinder, test_98_project, test_99_project, layout_component
+
+
+class TestClass:
+    # def setup_class(self):
+    #     BasisTest.my_setup(self)
+    #     self.aedtapp = BasisTest.add_app(self, project_name="test_primitives", design_name="3D_Primitives")
+    #     scdoc_file = os.path.join(local_path, "example_models", test_subfolder, scdoc)
+    #     self.local_scratch.copyfile(scdoc_file)
+    #     self.step_file = os.path.join(local_path, "example_models", test_subfolder, step)
+    #     self.component3d_file = os.path.join(self.local_scratch.path, component3d)
+    #     self.encrypted_cylinder = os.path.join(local_path, "example_models", test_subfolder, encrypted_cylinder)
+    #     test_98_project = os.path.join(local_path, "example_models", test_subfolder, assembly2 + ".aedt")
+    #     self.test_98_project = self.local_scratch.copyfile(test_98_project)
+    #     test_99_project = os.path.join(local_path, "example_models", test_subfolder, assembly + ".aedt")
+    #     self.test_99_project = self.local_scratch.copyfile(test_99_project)
+    #     self.flatten = BasisTest.add_app(self, project_name=components_flatten, subfolder=test_subfolder)
+    #     test_54b_project = os.path.join(local_path, "example_models", test_subfolder, polyline + ".aedt")
+    #     self.test_54b_project = self.local_scratch.copyfile(test_54b_project)
+    #     self.layout_component = os.path.join(local_path, "example_models", test_subfolder, layout_comp)
+    #
+    # def teardown_class(self):
+    #     BasisTest.my_teardown(self)
+
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, flatten, local_scratch, examples):
+        self.aedtapp = aedtapp
+        self.flatten = flatten
+        self.local_scratch = local_scratch
+        self.scdoc_file = examples[0]
+        self.step_file = examples[1]
+        self.component3d_file = examples[2]
+        self.encrypted_cylinder = examples[3]
+        self.test_98_project = examples[4]
+        self.test_99_project = examples[5]
+        self.layout_component = examples[6]
 
     def create_copper_box(self, name=None):
         if not name:
@@ -978,8 +1017,9 @@ class TestClass(BasisTest, object):
 
         self.aedtapp.modeler.model_units = save_model_units
 
-    def test_54b_open_and_load_a_polyline(self):
-        aedtapp = Hfss(self.test_54b_project, specified_version=config["desktopVersion"])
+    def test_54b_open_and_load_a_polyline(self, add_app):
+        # aedtapp = Hfss(self.test_54b_project, specified_version=config["desktopVersion"])
+        aedtapp = add_app(project_name=polyline, subfolder=test_subfolder)
         # self.aedtapp.load_project(self.test_54b_project)
 
         poly1 = aedtapp.modeler["Inductor1"]
@@ -1085,7 +1125,7 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(config["NonGraphical"] or is_ironpython, reason="Not running in non-graphical mode")
     def test_62_import_space_claim(self):
         self.aedtapp.insert_design("SCImport")
-        assert self.aedtapp.modeler.import_spaceclaim_document(os.path.join(self.local_scratch.path, scdoc))
+        assert self.aedtapp.modeler.import_spaceclaim_document(self.scdoc_file)
         assert len(self.aedtapp.modeler.objects) == 1
 
     def test_63_import_step(self):
