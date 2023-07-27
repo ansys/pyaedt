@@ -15,6 +15,9 @@ except ImportError:  # pragma: no cover
 
 from pyaedt import is_linux
 
+@pytest.fixture(scope="module", autouse=True)
+def desktop():
+    return
 
 class TestClass:
     # def setup_class(self):

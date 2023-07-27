@@ -59,6 +59,10 @@ def target_path4(local_scratch):
     local_scratch.copyfolder(example_project4, target_path4)
     return target_path4
 
+@pytest.fixture(scope="module", autouse=True)
+def desktop():
+    return
+
 @pytest.mark.skipif(config["skip_edb"], reason="Skipping on IPY and optionally on CPython.")
 class TestClass:
     # def setup_class(self):

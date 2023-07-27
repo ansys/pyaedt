@@ -26,6 +26,9 @@ def is_vector_equal(v, r):
     n = math.sqrt(t)
     return n < 1e-12
 
+@pytest.fixture(scope="module", autouse=True)
+def desktop():
+    return
 
 class TestClass:
     # def setup_class(self):
