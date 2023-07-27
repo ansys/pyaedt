@@ -1,7 +1,7 @@
 # standard imports
 import os
 
-from _unittest.conftest import BasisTest
+# from _unittest.conftest import BasisTest
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 
@@ -18,14 +18,27 @@ except ImportError:
 
 test_subfolder = "T03"
 
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(project_name="Test03")
+    return app
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, project_name="Test03")
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+
+class TestClass:
+    # def setup_class(self):
+    #     BasisTest.my_setup(self)
+    #     self.aedtapp = BasisTest.add_app(self, project_name="Test03")
+    #
+    # def teardown_class(self):
+    #     BasisTest.my_teardown(self)
+
+
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp,  local_scratch):
+        self.aedtapp = aedtapp
+        self.local_scratch = local_scratch
+
 
     def test_01_vaacum(self):
         assert "vacuum" in list(self.aedtapp.materials.material_keys.keys())
