@@ -1,12 +1,10 @@
 import os
 import time
 
-from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
 
 from pyaedt import Circuit  # Setup paths for module imports
-from pyaedt import Edb
 from pyaedt import is_ironpython
 from pyaedt import is_linux
 
@@ -30,23 +28,51 @@ touchstone2 = "Galileo_V3P3S0.ts"
 ami_project = "AMI_Example"
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, original_project_name, application=Circuit, subfolder=test_subfolder)
-        self.aedtapp.modeler.schematic_units = "mil"
-        self.circuitprj = BasisTest.add_app(self, diff_proj_name, application=Circuit, subfolder=test_subfolder)
-        netlist_file1 = os.path.join(local_path, "example_models", test_subfolder, netlist1)
-        netlist_file2 = os.path.join(local_path, "example_models", test_subfolder, netlist2)
-        touchstone_file = os.path.join(local_path, "example_models", test_subfolder, touchstone)
-        touchstone_file2 = os.path.join(local_path, "example_models", test_subfolder, touchstone2)
-        self.local_scratch.copyfile(netlist_file1)
-        self.local_scratch.copyfile(netlist_file2)
-        self.local_scratch.copyfile(touchstone_file)
-        self.local_scratch.copyfile(touchstone_file2)
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(original_project_name, application=Circuit, subfolder=test_subfolder)
+    app.modeler.schematic_units = "mil"
+    return app
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+@pytest.fixture(scope="class")
+def circuitprj(add_app):
+    app = add_app(diff_proj_name, application=Circuit, subfolder=test_subfolder)
+    return app
+
+@pytest.fixture(scope="class", autouse=True)
+def examples(local_scratch):
+    netlist_file1 = os.path.join(local_path, "example_models", test_subfolder, netlist1)
+    netlist_file2 = os.path.join(local_path, "example_models", test_subfolder, netlist2)
+    touchstone_file = os.path.join(local_path, "example_models", test_subfolder, touchstone)
+    touchstone_file2 = os.path.join(local_path, "example_models", test_subfolder, touchstone2)
+    local_scratch.copyfile(netlist_file1)
+    local_scratch.copyfile(netlist_file2)
+    local_scratch.copyfile(touchstone_file)
+    local_scratch.copyfile(touchstone_file2)
+    
+class TestClass:
+    # def setup_class(self):
+    #     BasisTest.my_setup(self)
+    #     self.aedtapp = BasisTest.add_app(self, original_project_name, application=Circuit, subfolder=test_subfolder)
+    #     self.aedtapp.modeler.schematic_units = "mil"
+    #     self.circuitprj = BasisTest.add_app(self, diff_proj_name, application=Circuit, subfolder=test_subfolder)
+    #     netlist_file1 = os.path.join(local_path, "example_models", test_subfolder, netlist1)
+    #     netlist_file2 = os.path.join(local_path, "example_models", test_subfolder, netlist2)
+    #     touchstone_file = os.path.join(local_path, "example_models", test_subfolder, touchstone)
+    #     touchstone_file2 = os.path.join(local_path, "example_models", test_subfolder, touchstone2)
+    #     self.local_scratch.copyfile(netlist_file1)
+    #     self.local_scratch.copyfile(netlist_file2)
+    #     self.local_scratch.copyfile(touchstone_file)
+    #     self.local_scratch.copyfile(touchstone_file2)
+    #
+    # def teardown_class(self):
+    #     BasisTest.my_teardown(self)
+
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, circuitprj, local_scratch):
+        self.aedtapp = aedtapp
+        self.circuitprj = circuitprj
+        self.local_scratch = local_scratch
 
     def test_01a_create_inductor(self):
         myind = self.aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1000, 1000])
@@ -276,9 +302,9 @@ class TestClass(BasisTest, object):
         setup_name = "Dom_AMI"
         assert self.aedtapp.create_setup(setup_name, "NexximAMI")
 
-    def test_20_create_AMI_plots(self):
-        ami_design = BasisTest.add_app(
-            self, ami_project, design_name="Models Init Only", application=Circuit, subfolder=test_subfolder
+    def test_20_create_AMI_plots(self, add_app):
+        ami_design = add_app(
+            ami_project, design_name="Models Init Only", application=Circuit, subfolder=test_subfolder
         )
         report_name = "MyReport"
         assert (
@@ -669,7 +695,7 @@ class TestClass(BasisTest, object):
         c.sources["freq_pyaedt"].delete()
         assert len(c.source_objects) == 5
 
-    def test_41_assign_excitations(self):
+    def test_41_assign_excitations(self, add_app):
         c = self.aedtapp
         port = c.modeler.schematic.create_interface_port(name="Port1")
 
@@ -715,7 +741,7 @@ class TestClass(BasisTest, object):
         c.excitations["PortTest"].delete()
         assert len(c.excitation_objets) == 0
         self.aedtapp.save_project()
-        c = Circuit(designname="sources", specified_version=config["desktopVersion"])
+        c = add_app(application=Circuit, design_name="sources")
         assert c.sources
 
     def test_41_set_variable(self):
@@ -823,11 +849,12 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(
         is_ironpython or config["NonGraphical"], reason="Change property doesn't work in non-graphical mode."
     )
-    def test_45_create_circuit_from_multizone_layout(self):
-        source_path = os.path.join(local_path, "example_models", "multi_zone_project.aedb")
-        target_path = os.path.join(self.local_scratch.path, "test_multi_zone", "test_45.aedb")
-        self.local_scratch.copyfolder(source_path, target_path)
-        edb = Edb(edbpath=target_path, edbversion=self.aedtapp._aedt_version)
+    def test_45_create_circuit_from_multizone_layout(self, add_edb):
+        # source_path = os.path.join(local_path, "example_models", "multi_zone_project.aedb")
+        # target_path = os.path.join(self.local_scratch.path, "test_multi_zone", "test_45.aedb")
+        # self.local_scratch.copyfolder(source_path, target_path)
+        # edb = Edb(edbpath=target_path, edbversion=self.aedtapp._aedt_version)
+        edb = add_edb(project_name="multi_zone_project")
         common_reference_net = "gnd"
         edb_zones = edb.copy_zones()
         assert edb_zones
