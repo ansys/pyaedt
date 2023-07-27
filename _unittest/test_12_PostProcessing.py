@@ -2,7 +2,7 @@
 import os
 import sys
 
-from _unittest.conftest import BasisTest
+# from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 
 from pyaedt import Circuit
@@ -46,28 +46,92 @@ ami = "ami"
 test_subfolder = "T12"
 settings.enable_pandas_output = True
 
+@pytest.fixture(scope="class")
+def field_test(add_app):
+    app = add_app(project_name=test_field_name, subfolder=test_subfolder)
+    return app
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        # set a scratch directory and the environment / test data
-        BasisTest.my_setup(self)
-        self.field_test = BasisTest.add_app(self, project_name=test_field_name, subfolder=test_subfolder)
-        self.circuit_test = BasisTest.add_app(
-            self, project_name=test_circuit_name, design_name="Diode", application=Circuit, subfolder=test_subfolder
-        )
-        self.diff_test = Circuit(
-            designname="diff", projectname=self.circuit_test.project_name, specified_version=config["desktopVersion"]
-        )
-        self.sbr_test = BasisTest.add_app(self, project_name=sbr_file, subfolder=test_subfolder)
-        self.q3dtest = BasisTest.add_app(self, project_name=q3d_file, application=Q3d, subfolder=test_subfolder)
-        self.q2dtest = Q2d(projectname=self.q3dtest.project_name, specified_version=config["desktopVersion"])
-        self.eye_test = BasisTest.add_app(self, project_name=eye_diagram, application=Circuit, subfolder=test_subfolder)
-        self.ami_test = BasisTest.add_app(self, project_name=ami, application=Circuit, subfolder=test_subfolder)
-        self.array_test = BasisTest.add_app(self, project_name=array, subfolder=test_subfolder)
-        self.m2dtest = BasisTest.add_app(self, project_name=m2d_file, application=Maxwell2d, subfolder=test_subfolder)
+@pytest.fixture(scope="class")
+def circuit_test(add_app):
+    app = add_app(project_name=test_circuit_name, design_name="Diode", application=Circuit, subfolder=test_subfolder)
+    return app
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+@pytest.fixture(scope="class")
+def diff_test(add_app, circuit_test):
+    app = add_app(project_name=circuit_test.project_name, design_name="diff", application=Circuit, just_open=True)
+    return app
+
+@pytest.fixture(scope="class")
+def sbr_test(add_app):
+    app = add_app(project_name=sbr_file, subfolder=test_subfolder)
+    return app
+
+@pytest.fixture(scope="class")
+def q3dtest(add_app):
+    app = add_app(project_name=q3d_file, application=Q3d, subfolder=test_subfolder)
+    return app
+
+@pytest.fixture(scope="class")
+def q2dtest(add_app, q3dtest):
+    app = add_app(project_name=q3dtest.project_name, application=Q2d, just_open=True)
+    return app
+
+@pytest.fixture(scope="class")
+def eye_test(add_app, q3dtest):
+    app = add_app(project_name=eye_diagram, application=Circuit, subfolder=test_subfolder)
+    return app
+
+@pytest.fixture(scope="class")
+def ami_test(add_app, q3dtest):
+    app = add_app(project_name=ami, application=Circuit, subfolder=test_subfolder)
+    return app
+
+@pytest.fixture(scope="class")
+def array_test(add_app, q3dtest):
+    app = add_app(project_name=array, subfolder=test_subfolder)
+    return app
+
+@pytest.fixture(scope="class")
+def m2dtest(add_app, q3dtest):
+    app = add_app(project_name=m2d_file, application=Maxwell2d, subfolder=test_subfolder)
+    return app
+
+
+class TestClass:
+    # def setup_class(self):
+    #     # set a scratch directory and the environment / test data
+    #     BasisTest.my_setup(self)
+    #     self.field_test = BasisTest.add_app(self, project_name=test_field_name, subfolder=test_subfolder)
+    #     self.circuit_test = BasisTest.add_app(
+    #         self, project_name=test_circuit_name, design_name="Diode", application=Circuit, subfolder=test_subfolder
+    #     )
+    #     self.diff_test = Circuit(
+    #         designname="diff", projectname=self.circuit_test.project_name, specified_version=config["desktopVersion"]
+    #     )
+    #     self.sbr_test = BasisTest.add_app(self, project_name=sbr_file, subfolder=test_subfolder)
+    #     self.q3dtest = BasisTest.add_app(self, project_name=q3d_file, application=Q3d, subfolder=test_subfolder)
+    #     self.q2dtest = Q2d(projectname=self.q3dtest.project_name, specified_version=config["desktopVersion"])
+    #     self.eye_test = BasisTest.add_app(self, project_name=eye_diagram, application=Circuit, subfolder=test_subfolder)
+    #     self.ami_test = BasisTest.add_app(self, project_name=ami, application=Circuit, subfolder=test_subfolder)
+    #     self.array_test = BasisTest.add_app(self, project_name=array, subfolder=test_subfolder)
+    #     self.m2dtest = BasisTest.add_app(self, project_name=m2d_file, application=Maxwell2d, subfolder=test_subfolder)
+    #
+    # def teardown_class(self):
+    #     BasisTest.my_teardown(self)
+
+    @pytest.fixture(autouse=True)
+    def init(self, m2dtest,array_test,ami_test,eye_test,q2dtest,q3dtest,sbr_test,diff_test,circuit_test,field_test, local_scratch):
+        self.m2dtest = m2dtest
+        self.array_test = array_test
+        self.ami_test = ami_test
+        self.eye_test = eye_test
+        self.q2dtest = q2dtest
+        self.q3dtest = q3dtest
+        self.sbr_test = sbr_test
+        self.diff_test = diff_test
+        self.circuit_test = circuit_test
+        self.field_test = field_test
+        self.local_scratch = local_scratch
 
     def test_09_manipulate_report(self):
         variations = self.field_test.available_variations.nominal_w_values_dict
