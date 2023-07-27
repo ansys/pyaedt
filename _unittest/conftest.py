@@ -157,8 +157,8 @@ def desktop():
 @pytest.fixture(scope="module")
 def add_app(local_scratch):
 
-    def _method(project_name=None, design_name=None, solution_type=None, application=None, subfolder=""):
-        if project_name:
+    def _method(project_name=None, design_name=None, solution_type=None, application=None, subfolder="", just_open=False):
+        if project_name and not just_open:
             example_project = os.path.join(local_path, "example_models", subfolder, project_name + ".aedt")
             example_folder = os.path.join(local_path, "example_models", subfolder, project_name + ".aedb")
             if os.path.exists(example_project):
@@ -171,6 +171,8 @@ def add_app(local_scratch):
             if os.path.exists(example_folder):
                 target_folder = os.path.join(local_scratch.path, project_name + ".aedb")
                 local_scratch.copyfolder(example_folder, target_folder)
+        elif project_name and just_open:
+            test_project = project_name
         else:
             test_project = None
         if not application:
