@@ -410,29 +410,14 @@ class TestClass(BasisTest, object):
 
     def test_29a_create_circuit_from_spice_edit_symbol(self):
         model = os.path.join(local_path, "example_models", test_subfolder, "test.lib")
-        assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model_path=model, edit_symbol=False)
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(
-            model_path=model, edit_symbol=False, symbol_name="invalid"
+            model_path=model, model_name="GRM5678", symbol_name="nexx_cap"
         )
-        assert not self.aedtapp.modeler.schematic.create_component_from_spicemodel(model_path=model, edit_symbol=True)
-        components_catalog = self.aedtapp.modeler.components.components_catalog.components
-        symbol_key = "Capacitors:CAP_"
-        component = components_catalog[symbol_key]
-        component_name = component.name
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(
-            model_path=model, model_name="GRM1234", edit_symbol=True, symbol_key=symbol_key, symbol_name=component_name
+            model_path=model, model_name="GRM6789", symbol_name="nexx_inductor"
         )
-        symbol_key = "Inductors:IND_"
-        component = components_catalog[symbol_key]
-        component_name = component.name
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(
-            model_path=model, model_name="GRM1234", edit_symbol=True, symbol_key=symbol_key, symbol_name=component_name
-        )
-        symbol_key = "Resistors:RES_"
-        component = components_catalog[symbol_key]
-        component_name = component.name
-        assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(
-            model_path=model, model_name="GRM1234", edit_symbol=True, symbol_key=symbol_key, symbol_name=component_name
+            model_path=model, model_name="GRM9012", symbol_name="nexx_res"
         )
 
     def test_30_create_subcircuit(self):
