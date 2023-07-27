@@ -1,7 +1,9 @@
 # standard imports
 # Setup paths for module imports
-from _unittest.conftest import BasisTest
+# from _unittest.conftest import BasisTest
 from _unittest.conftest import desktop_version
+
+import pytest
 
 from pyaedt import Circuit
 
@@ -12,14 +14,24 @@ if desktop_version > "2022.2":
 else:
     test_project_name = "coax_setup"
 
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(project_name=test_project_name, subfolder=test_subfolder)
+    return app
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, subfolder=test_subfolder)
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+class TestClass:
+    # def setup_class(self):
+    #     BasisTest.my_setup(self)
+    #     self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, subfolder=test_subfolder)
+    #
+    # def teardown_class(self):
+    #     BasisTest.my_teardown(self)
+
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp,  local_scratch):
+        self.aedtapp = aedtapp
+        self.local_scratch = local_scratch
 
     def test_01_create_hfss_setup(self):
         setup1 = self.aedtapp.create_setup("My_HFSS_Setup", self.aedtapp.SETUPS.HFSSDrivenDefault)
