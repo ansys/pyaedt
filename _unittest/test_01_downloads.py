@@ -2,7 +2,7 @@
 import os
 import tempfile
 
-from _unittest.conftest import BasisTest
+# from _unittest.conftest import BasisTest
 from _unittest.conftest import is_ironpython
 
 from pyaedt import downloads
@@ -16,14 +16,18 @@ except ImportError:  # pragma: no cover
 from pyaedt import is_linux
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        # set a scratch directory and the environment / test data
-        self.examples = downloads
-        pass
+class TestClass:
+    # def setup_class(self):
+    #     # set a scratch directory and the environment / test data
+    #     self.examples = downloads
+    #     pass
+    #
+    # def teardown_class(self):
+    #     del self.examples
 
-    def teardown_class(self):
-        del self.examples
+    @pytest.fixture(autouse=True)
+    def init(self):
+        self.examples = downloads
 
     def test_00_download_edb(self):
         assert self.examples.download_aedb()
