@@ -1,12 +1,12 @@
 # standard imports
 import os
 
-from _unittest.conftest import BasisTest
+# from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 
-from pyaedt import Desktop
+# from pyaedt import Desktop
 from pyaedt import get_pyaedt_app
 
 try:
@@ -28,14 +28,23 @@ if config["desktopVersion"] > "2022.2":
 else:
     test_project_name = "Coax_HFSS"
 
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(test_project_name, subfolder=test_subfolder)
+    return app
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, test_project_name, subfolder=test_subfolder)
+class TestClass:
+    # def setup_class(self):
+    #     BasisTest.my_setup(self)
+    #     self.aedtapp = BasisTest.add_app(self, test_project_name, subfolder=test_subfolder)
+    #
+    # def teardown_class(self):
+    #     BasisTest.my_teardown(self)
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, local_scratch):
+        self.aedtapp = aedtapp
+        self.local_scratch = local_scratch
 
     def test_app(self):
         assert self.aedtapp
@@ -152,7 +161,8 @@ class TestClass(BasisTest, object):
         assert new_design in self.aedtapp.design_list
 
     def test_16_renamedesign(self):
-        self.aedtapp.load_project(project_file=self.test_project, close_active_proj=True, design_name="myname")
+        test_project = self.aedtapp.project_file
+        self.aedtapp.load_project(project_file=test_project, close_active_proj=True, design_name="myname")
         assert "myname" in [
             design["Name"]
             for design in self.aedtapp.project_properties["AnsoftProject"][model_names[self.aedtapp.design_type]]
@@ -294,8 +304,8 @@ class TestClass(BasisTest, object):
         app = get_pyaedt_app(self.aedtapp.project_name, self.aedtapp.design_name)
         assert app.design_type == "HFSS"
 
-    def test_29_change_registry_key(self):
-        desktop = Desktop(desktop_version, new_desktop_session=False)
+    def test_29_change_registry_key(self, desktop):
+        # desktop = Desktop(desktop_version, new_desktop_session=False)
         assert not desktop.change_registry_key("test_key_string", "test_string")
         assert not desktop.change_registry_key("test_key_int", 2)
         assert not desktop.change_registry_key("test_key", 2.0)
@@ -333,6 +343,7 @@ class TestClass(BasisTest, object):
         settings.force_error_on_missing_project = True
         assert settings.force_error_on_missing_project == True
         e = None
+        exception_raised = False
         try:
             h = Hfss("c:/dummy/test.aedt", specified_version=desktop_version)
         except Exception as e:
@@ -341,8 +352,9 @@ class TestClass(BasisTest, object):
         assert exception_raised
         settings.force_error_on_missing_project = False
 
-    def test_35_get_app(self):
-        d = Desktop(desktop_version, new_desktop_session=False)
+    def test_35_get_app(self, desktop):
+        # d = Desktop(desktop_version, new_desktop_session=False)
+        d = desktop
         assert d[[0, 0]]
         assert not d[[test_project_name, "myname"]]
         assert d[[0, "mydesign"]]
@@ -382,16 +394,16 @@ class TestClass(BasisTest, object):
         except:
             assert True
 
-    def test_37_add_custom_toolkit(self):
-        desktop = Desktop(desktop_version, new_desktop_session=False)
+    def test_37_add_custom_toolkit(self, desktop):
+        # desktop = Desktop(desktop_version, new_desktop_session=False)
         assert desktop.get_available_toolkits()
 
     @pytest.mark.skipif(is_ironpython, reason="not supported.")
-    def test_38_toolkit(self):
+    def test_38_toolkit(self, desktop):
         file = os.path.join(self.local_scratch.path, "test.py")
         with open(file, "w") as f:
             f.write("import pyaedt\n")
-        desktop = Desktop(desktop_version, new_desktop_session=False)
+        # desktop = Desktop(desktop_version, new_desktop_session=False)
         assert desktop.add_script_to_menu(
             "test_toolkit",
             file,
