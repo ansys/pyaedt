@@ -3,7 +3,7 @@ import os
 import sys
 import uuid
 
-from _unittest.conftest import BasisTest
+# from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 
 from pyaedt import Hfss
@@ -46,14 +46,26 @@ test_subfolder = "T12"
 settings.enable_pandas_output = True
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        # set a scratch directory and the environment / test data
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, subfolder=test_subfolder)
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(project_name=test_project_name, subfolder=test_subfolder)
+    return app
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+
+class TestClass:
+    # def setup_class(self):
+    #     # set a scratch directory and the environment / test data
+    #     BasisTest.my_setup(self)
+    #     self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, subfolder=test_subfolder)
+    #
+    # def teardown_class(self):
+    #     BasisTest.my_teardown(self)
+
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp,  local_scratch):
+        self.aedtapp = aedtapp
+        self.local_scratch = local_scratch
+
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Failing on build machine when running in parallel.")
     def test_01_export_model_picture(self):
