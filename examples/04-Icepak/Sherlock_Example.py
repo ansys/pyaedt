@@ -16,7 +16,7 @@ import datetime
 
 # Set paths
 project_folder = pyaedt.generate_unique_folder_name()
-input_dir = pyaedt.downloads.download_sherlock()
+input_dir = pyaedt.downloads.download_sherlock(destination=project_folder)
 
 ###############################################################################
 # Set non-graphical mode
@@ -164,14 +164,27 @@ ipk.plot(show=False, export_path=os.path.join(project_folder, "Sherlock_Example.
 # ~~~~~~~~~~~~~~~~~
 # Set up boundaries.
 
-ipk.mesh.automatic_mesh_pcb(4)
+# Mesh settings that is tailored for PCB
+
+ipk.globalMeshSettings(3, gap_min_elements='1', noOgrids=True, MLM_en=True,
+                            MLM_Type='2D', edge_min_elements='2', object='Region')
 
 setup1 = ipk.create_setup()
 setup1.props["Solution Initialization - Y Velocity"] = "1m_per_sec"
 setup1.props["Radiation Model"] = "Discrete Ordinates Model"
 setup1.props["Include Gravity"] = True
 setup1.props["Secondary Gradient"] = True
+setup1.props["Convergence Criteria - Max Iterations"] = 100
 ipk.assign_openings(ipk.modeler.get_object_faces("Region"))
+
+###############################################################################
+# Create point monitor
+# ~~~~~~~~~~~~~~~~~~~~
+
+point1 = ipk.assign_point_monitor(ipk.modeler["COMP_U10"].top_face_z.center, monitor_name="Point1")
+ipk.modeler.set_working_coordinate_system("Global")
+line = ipk.modeler.create_polyline([ipk.modeler["COMP_U10"].top_face_z.vertices[0].position, ipk.modeler["COMP_U10"].top_face_z.vertices[2].position], non_model=True)
+ipk.post.create_report(expressions="Point1.Temperature", primary_sweep_variable="X")
 
 ###############################################################################
 # Check for intersections
@@ -180,6 +193,30 @@ ipk.assign_openings(ipk.modeler.get_object_faces("Region"))
 # assigning priorities.
 
 ipk.assign_priority_on_intersections()
+
+###############################################################################
+# Compute power budget
+# ~~~~~~~~~~~~~~~~~~~~
+
+power_budget, total = ipk.post.power_budget("W" )
+print(total)
+
+###############################################################################
+# Analyze the model
+# ~~~~~~~~~~~~~~~~~
+
+ipk.analyze_nominal()
+
+###############################################################################
+# Get solution data and plots
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+face_u10 = [i.id for i in ipk.modeler["COMP_U10"].faces]
+plot1 = ipk.post.create_fieldplot_surface(face_u10, "SurfTemperature")
+plot1.export_image(os.path.join(project_folder, "temperature_u10.jpg"))
+face_u9 = [i.id for i in ipk.modeler["COMP_U9"].faces]
+plot2 = ipk.post.create_fieldplot_surface(face_u9, "SurfPressure")
+plot2.export_image(os.path.join(project_folder, "pressure_u9.jpg"))
 
 ###############################################################################
 # Save project and release AEDT
@@ -192,3 +229,5 @@ end = time.time() - start
 print("Elapsed time: {}".format(datetime.timedelta(seconds=end)))
 print("Project Saved in {} ".format(ipk.project_file))
 ipk.release_desktop()
+
+
