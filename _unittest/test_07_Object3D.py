@@ -1,7 +1,7 @@
 # standard imports
 import math
 
-from _unittest.conftest import BasisTest
+# from _unittest.conftest import BasisTest
 
 from pyaedt.generic.general_methods import _to_boolean
 from pyaedt.generic.general_methods import _uname
@@ -16,14 +16,25 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(project_name="Test07")
+    return app
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, project_name="Test07")
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+class TestClass:
+    # def setup_class(self):
+    #     BasisTest.my_setup(self)
+    #     self.aedtapp = BasisTest.add_app(self, project_name="Test07")
+    #
+    # def teardown_class(self):
+    #     BasisTest.my_teardown(self)
+
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp,  local_scratch):
+        self.aedtapp = aedtapp
+        self.local_scratch = local_scratch
+
 
     def create_example_coil(self, name=None):
         if not name:
