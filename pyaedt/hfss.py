@@ -2880,7 +2880,7 @@ class Hfss(FieldAnalysis3D, object):
                 props["Inductance"] = str(Lvalue) + "H"
             if Cvalue:
                 props["UseCap"] = True
-                props["Capacitance"] = str(Cvalue) + "F"
+                props["Capacitance"] = str(Cvalue) + "farad"
 
             return self._create_boundary(sourcename, props, "Lumped RLC")
         return False
@@ -5792,14 +5792,14 @@ class Hfss(FieldAnalysis3D, object):
             return False
 
     @pyaedt_function_handler()
-    def set_impedance_multiplier(self, impedance):
+    def set_impedance_multiplier(self, multiplier):
         # type: (float) -> bool
         """Set impedance multiplier.
 
         Parameters
         ----------
-        impedance : float
-            Impedance.
+        multiplier : float
+            Impedance Multiplier.
 
         Returns
         -------
@@ -5827,7 +5827,7 @@ class Hfss(FieldAnalysis3D, object):
             if self.solution_type not in ["Modal"]:
                 self.logger.error("Symmetry is only available with 'Modal' solution type.")
                 return False
-            self.oboundary.ChangeImpedanceMult(impedance)
+            self.oboundary.ChangeImpedanceMult(multiplier)
             return True
         except:
             return False

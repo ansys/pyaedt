@@ -48,6 +48,9 @@ class EdbNets(object):
 
     def __init__(self, p_edb):
         self._pedb = p_edb
+        self._nets = {}
+        self._nets_by_comp_dict = {}
+        self._comps_by_nets_dict = {}
 
     @property
     def _edb(self):
@@ -88,10 +91,10 @@ class EdbNets(object):
         dict[str, :class:`pyaedt.edb_core.edb_data.nets_data.EDBNetsData`]
             Dictionary of nets.
         """
-        nets = {}
+
         for net in self._layout.nets:
-            nets[net.name] = EDBNetsData(net.api_object, self._pedb)
-        return nets
+            self._nets[net.name] = EDBNetsData(net.api_object, self._pedb)
+        return self._nets
 
     @property
     def netlist(self):
@@ -198,6 +201,100 @@ class EdbNets(object):
                 if total_plane_area / (total_plane_area + total_trace_area) > threshold:
                     pwr_gnd_nets.append(EDBNetsData(net.api_object, self._pedb))
         return pwr_gnd_nets
+
+    @property
+    def nets_by_components(self):
+        # type: () -> dict
+        """Get all nets for each component instance."""
+        for comp, i in self._pedb.components.instances.items():
+            self._nets_by_comp_dict[comp] = i.nets
+        return self._nets_by_comp_dict
+
+    @property
+    def components_by_nets(self):
+        # type: () -> dict
+        """Get all component instances grouped by nets."""
+        for comp, i in self._pedb.components.instances.items():
+            for n in i.nets:
+                if n in self._comps_by_nets_dict:
+                    self._comps_by_nets_dict[n].append(comp)
+                else:
+                    self._comps_by_nets_dict[n] = [comp]
+        return self._comps_by_nets_dict
+
+    @pyaedt_function_handler()
+    def get_extended_nets(self, resistor_below=10, inductor_below=1, capacitor_above=1, exception_list=None):
+        # type: (int | float, int | float, int |float, list) -> list
+        """Get extended net and associated components.
+
+        Parameters
+        ----------
+        resistor_below : int, float, optional
+            Threshold of resistor value. Search extended net across resistors which has value lower than the threshold.
+        inductor_below : int, float, optional
+            Threshold of inductor value. Search extended net across inductances which has value lower than the
+            threshold.
+        capacitor_above : int, float, optional
+            Threshold of capacitor value. Search extended net across capacitors which has value higher than the
+            threshold.
+        exception_list : list, optional
+            List of components which bypass threshold check. The default is ``None``.
+        Returns
+        -------
+        list
+            List of all extended nets.
+
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> app = Edb()
+        >>> app.nets.get_extended_nets()
+        """
+        if exception_list is None:
+            exception_list = []
+        self._extendend_nets = []
+        all_nets = list(self.nets.keys())[:]
+        net_dicts = self._comps_by_nets_dict if self._comps_by_nets_dict else self.components_by_nets
+        comp_dict = self._nets_by_comp_dict if self._nets_by_comp_dict else self.nets_by_components
+
+        def get_net_list(net_name, _net_list):
+            comps = []
+            if net_name in net_dicts:
+                comps = net_dicts[net_name]
+
+            for vals in comps:
+                refdes = vals
+                cmp = self._pedb.components.instances[refdes]
+                is_enabled = cmp.is_enabled
+                if not is_enabled:
+                    continue
+                val_type = cmp.type
+                if val_type not in ["Inductor", "Resistor", "Capacitor"]:
+                    continue
+                val_value = cmp.rlc_values
+                if refdes in exception_list:
+                    pass
+                elif val_type == "Inductor" and val_value[1] < inductor_below:
+                    pass
+                elif val_type == "Resistor" and val_value[0] < resistor_below:
+                    pass
+                elif val_type == "Capacitor" and val_value[2] > capacitor_above:
+                    pass
+                else:
+                    continue
+
+                for net in comp_dict[refdes]:
+                    if net not in _net_list:
+                        _net_list.append(net)
+                        get_net_list(net, _net_list)
+
+        while len(all_nets) > 0:
+            new_ext = [all_nets[0]]
+            get_net_list(new_ext[0], new_ext)
+            all_nets = [i for i in all_nets if i not in new_ext]
+            self._extendend_nets.append(new_ext)
+
+        return self._extendend_nets
 
     @staticmethod
     def _eval_arc_points(p1, p2, h, n=6, tol=1e-12):

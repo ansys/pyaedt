@@ -228,7 +228,8 @@ class VertexPrimitive(EdgeTypePrimitive, object):
             return self._position
         try:
             vertex_data = list(self.oeditor.GetVertexPosition(self.id))
-            return [float(i) for i in vertex_data]
+            self._position = [float(i) for i in vertex_data]
+            return self._position
         except Exception as e:
             return None
 
@@ -598,7 +599,7 @@ class FacePrimitive(object):
         try:
             return [float(i) for i in self.oeditor.GetFaceCenter(self.id)]
         except:  # pragma: no cover
-            vtx = self.vertices
+            vtx = self.vertices[:]
             if len(vtx) > 1:
                 return GeometryOperators.get_polygon_centroid([pos.position for pos in vtx])
             elif len(vtx) <= 1:
