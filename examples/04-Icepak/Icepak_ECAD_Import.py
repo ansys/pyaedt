@@ -50,13 +50,15 @@ ipk.autosave_disable()                                                    # Save
 # Import the IDF files
 # ~~~~~~~~~~~~~~~~~~~~
 # Sample *.bdf and *.ldf files are presented here.
+#
 # .. image:: ../../_static/bdf.png
-# :width: 400
-# :alt: BDF image
+#  :width: 400
+#  :alt: BDF image
+#
 # .. image:: ../../_static/ldf.png
-# :width: 400
-# :alt: LDF image
-
+#  :width: 400
+#  :alt: LDF image
+#
 # Imports the idf files with several filtering options incluing caps, resistors, inductors, power, size, ...
 # There are also options for the PCB creation (number o flayers, copper percentages, layer sizes). 
 # In this examples, the default values are used for the PCB.
