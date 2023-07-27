@@ -590,9 +590,10 @@ class TestClass:
         self.aedtapp.modeler.create_polyline([udp1, udp2], name="Poly1", non_model=True)
         assert self.aedtapp.post.create_fieldplot_line("Poly1", "Mag_E", setup_name, intrinsic)
 
-    def test_55_reload(self):
+    def test_55_reload(self, add_app):
         self.aedtapp.save_project()
-        app2 = Hfss(self.aedtapp.project_name, specified_version=config["desktopVersion"])
+        # app2 = Hfss(self.aedtapp.project_name, specified_version=config["desktopVersion"])
+        app2 = add_app(project_name=self.aedtapp.project_name, just_open=True)
         assert len(app2.post.field_plots) == len(self.aedtapp.post.field_plots)
 
     def test_58_test_no_report(self):
