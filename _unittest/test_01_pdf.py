@@ -14,13 +14,16 @@ except ImportError:
 
 tol = 1e-12
 
+@pytest.fixture(scope="module", autouse=True)
+def desktop():
+    return
 
 class TestClass(object):
-    def setup_class(self):
-        pass
-
-    def teardown_class(self):
-        pass
+    # def setup_class(self):
+    #     pass
+    #
+    # def teardown_class(self):
+    #     pass
 
     def test_create_pdf(self, local_scratch):
         template_path = os.path.join(pyaedt_path, "dlls", "PDFReport", "AnsysTemplate.json")
