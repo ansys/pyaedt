@@ -45,10 +45,11 @@ def examples(local_scratch):
     netlist_file2 = os.path.join(local_path, "example_models", test_subfolder, netlist2)
     touchstone_file = os.path.join(local_path, "example_models", test_subfolder, touchstone)
     touchstone_file2 = os.path.join(local_path, "example_models", test_subfolder, touchstone2)
-    local_scratch.copyfile(netlist_file1)
-    local_scratch.copyfile(netlist_file2)
-    local_scratch.copyfile(touchstone_file)
-    local_scratch.copyfile(touchstone_file2)
+    netlist_file1 = local_scratch.copyfile(netlist_file1)
+    netlist_file2 = local_scratch.copyfile(netlist_file2)
+    touchstone_file = local_scratch.copyfile(touchstone_file)
+    touchstone_file2 = local_scratch.copyfile(touchstone_file2)
+    return netlist_file1, netlist_file2, touchstone_file, touchstone_file2
     
 class TestClass:
     # def setup_class(self):
@@ -69,10 +70,14 @@ class TestClass:
     #     BasisTest.my_teardown(self)
 
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp, circuitprj, local_scratch):
+    def init(self, aedtapp, circuitprj, local_scratch, examples):
         self.aedtapp = aedtapp
         self.circuitprj = circuitprj
         self.local_scratch = local_scratch
+        self.netlist_file1 = examples[0]
+        self.netlist_file2 = examples[1]
+        self.touchstone_file = examples[2]
+        self.touchstone_file2 = examples[3]
 
     def test_01a_create_inductor(self):
         myind = self.aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1000, 1000])
@@ -174,19 +179,19 @@ class TestClass:
 
     def test_08_import_mentor_netlist(self):
         self.aedtapp.insert_design("MentorSchematicImport")
-        assert self.aedtapp.create_schematic_from_mentor_netlist(os.path.join(self.local_scratch.path, netlist2))
+        assert self.aedtapp.create_schematic_from_mentor_netlist(self.netlist_file2)
         pass
 
     def test_09_import_netlist(self):
         self.aedtapp.insert_design("SchematicImport")
         self.aedtapp.modeler.schematic.limits_mils = 5000
-        assert self.aedtapp.create_schematic_from_netlist(os.path.join(self.local_scratch.path, netlist1))
+        assert self.aedtapp.create_schematic_from_netlist(self.netlist_file1)
 
     def test_10_import_touchstone(self):
         self.aedtapp.insert_design("Touchstone_import")
         self.aedtapp.modeler.schematic_units = "mils"
-        ports = self.aedtapp.import_touchstone_solution(os.path.join(self.local_scratch.path, touchstone))
-        ports2 = self.aedtapp.import_touchstone_solution(os.path.join(self.local_scratch.path, touchstone2))
+        ports = self.aedtapp.import_touchstone_solution(self.touchstone_file)
+        ports2 = self.aedtapp.import_touchstone_solution(self.touchstone_file2)
         numports = len(ports)
         assert numports == 6
         numports2 = len(ports2)
@@ -200,9 +205,7 @@ class TestClass:
             assert touchstone_data
 
     def test_11_export_fullwave(self):
-        output = self.aedtapp.export_fullwave_spice(
-            os.path.join(self.local_scratch.path, touchstone), is_solution_file=True
-        )
+        output = self.aedtapp.export_fullwave_spice(self.touchstone_file, is_solution_file=True)
         assert output
 
     def test_12_connect_components(self):
@@ -254,7 +257,7 @@ class TestClass:
     def test_16_read_touchstone(self):
         from pyaedt.generic.touchstone_parser import read_touchstone
 
-        data = read_touchstone(os.path.join(self.local_scratch.path, touchstone))
+        data = read_touchstone(self.touchstone_file)
         assert len(data.port_names) > 0
 
     def test_17_create_setup(self):
