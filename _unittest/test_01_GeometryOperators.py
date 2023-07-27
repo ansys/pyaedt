@@ -1,6 +1,6 @@
 import math
 
-from _unittest.conftest import BasisTest
+# from _unittest.conftest import BasisTest
 
 from pyaedt.generic.constants import AXIS
 from pyaedt.generic.constants import PLANE
@@ -27,12 +27,12 @@ def is_vector_equal(v, r):
     return n < 1e-12
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        pass
-
-    def teardown_class(self):
-        pass
+class TestClass:
+    # def setup_class(self):
+    #     pass
+    #
+    # def teardown_class(self):
+    #     pass
 
     def test_List2list(self):
         from pyaedt.generic.clr_module import Double
