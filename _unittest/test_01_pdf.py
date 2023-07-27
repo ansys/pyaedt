@@ -2,7 +2,7 @@ import os
 
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
-from _unittest.conftest import scratch_path
+# from _unittest.conftest import scratch_path
 
 from pyaedt import pyaedt_path
 from pyaedt.generic.pdf import AnsysReport
@@ -22,7 +22,7 @@ class TestClass(object):
     def teardown_class(self):
         pass
 
-    def test_create_pdf(self):
+    def test_create_pdf(self, local_scratch):
         template_path = os.path.join(pyaedt_path, "dlls", "PDFReport", "AnsysTemplate.json")
         report = AnsysReport(project_name="Coaxial", design_name="Design1", tempplate_json_file=template_path)
         report.aedt_version = desktop_version
@@ -48,4 +48,4 @@ class TestClass(object):
         report.add_section()
         report.add_chart([0, 1, 2, 3, 4, 5], [10, 20, 4, 30, 40, 12], "Freq", "Val", "MyTable")
         report.add_toc()
-        assert os.path.exists(report.save_pdf(scratch_path, "my_firstpdf.pdf"))
+        assert os.path.exists(report.save_pdf(local_scratch.path, "my_firstpdf.pdf"))
