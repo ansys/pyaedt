@@ -351,16 +351,13 @@ class TestClass(BasisTest, object):
         # place components and generate the appropriate number of revisions
         rad1 = self.aedtapp.modeler.components.create_component("UE - Handheld")
         ant1 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad1 and ant1:
-            ant1.move_and_connect_to(rad1)
+        ant1.move_and_connect_to(rad1)
         rad2 = self.aedtapp.modeler.components.create_component("Bluetooth")
         ant2 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad2 and ant2:
-            ant2.move_and_connect_to(rad2)
+        ant2.move_and_connect_to(rad2)
         rad3 = self.aedtapp.modeler.components.create_component("Bluetooth")
         ant3 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad3 and ant3:
-            ant3.move_and_connect_to(rad3)
+        ant3.move_and_connect_to(rad3)
         rev = self.aedtapp.results.analyze()
         assert len(self.aedtapp.results.revisions) == 1
         assert rev.name == "Revision 10"
@@ -371,14 +368,12 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.results.revisions) == 1
         rad4 = self.aedtapp.modeler.components.create_component("Bluetooth")
         ant4 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad4 and ant4:
-            ant4.move_and_connect_to(rad4)
+        ant4.move_and_connect_to(rad4)
         rev2 = self.aedtapp.results.analyze()
         assert len(self.aedtapp.results.revisions) == 2
         rad5 = self.aedtapp.modeler.components.create_component("HAVEQUICK Airborne")
         ant5 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad5 and ant5:
-            ant4.move_and_connect_to(rad5)
+        ant4.move_and_connect_to(rad5)
         assert len(self.aedtapp.results.revisions) == 2
         # validate notes can be get/set
         rev2.notes = "Added Bluetooth and an antenna"
@@ -425,15 +420,12 @@ class TestClass(BasisTest, object):
         rad1 = self.aedtapp.modeler.components.create_component("UE - Handheld")
         ant1 = self.aedtapp.modeler.components.create_component("Antenna")
         rad2 = self.aedtapp.modeler.components.create_component("Bluetooth")
-        if rad1 and ant1:
-            ant1.move_and_connect_to(rad1)
+        ant1.move_and_connect_to(rad1)
         ant2 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad2 and ant2:
-            ant2.move_and_connect_to(rad2)
+        ant2.move_and_connect_to(rad2)
         rad3 = self.aedtapp.modeler.components.create_component("Bluetooth")
         ant3 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad3 and ant3:
-            ant3.move_and_connect_to(rad3)
+        ant3.move_and_connect_to(rad3)
         # Change the sampling
         modeRx = TxRxMode.RX
         sampling = rad3.get_sampling()
@@ -721,19 +713,21 @@ class TestClass(BasisTest, object):
         # place components and generate the appropriate number of revisions
         rad1 = self.aedtapp.modeler.components.create_component("UE - Handheld")
         ant1 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad1 and ant1:
-            ant1.move_and_connect_to(rad1)
+        ant1.move_and_connect_to(rad1)
         bands = rad1.bands()
         for band in bands:
             band.enabled = True
         rad2 = self.aedtapp.modeler.components.create_component("Bluetooth Low Energy (LE)")
         ant2 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad2 and ant2:
-            ant2.move_and_connect_to(rad2)
+        ant2.move_and_connect_to(rad2)
         rad3 = self.aedtapp.modeler.components.create_component("Bluetooth Low Energy (LE)")
         ant3 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad3 and ant3:
-            ant3.move_and_connect_to(rad3)
+        ant3.move_and_connect_to(rad3)
+        # give the bluetooth radios different transmit power levels
+        for b in rad2.bands():
+            b.set_band_power_level(0.0)
+        for b in rad3.bands():
+            b.set_band_power_level(10.0)
         rev = self.aedtapp.results.analyze()
         assert len(self.aedtapp.results.revisions) == 1
         if self.aedtapp._emit_api is not None:
@@ -769,8 +763,7 @@ class TestClass(BasisTest, object):
             assert not rev.is_domain_valid(domain)
             rad4 = self.aedtapp.modeler.components.create_component("MD400C")
             ant4 = self.aedtapp.modeler.components.create_component("Antenna")
-            if rad4 and ant4:
-                ant4.move_and_connect_to(rad4)
+            ant4.move_and_connect_to(rad4)
             self.aedtapp.oeditor.Delete([rad1.name, ant1.name])
             rev2 = self.aedtapp.results.analyze()
             domain2 = self.aedtapp.results.interaction_domain()
@@ -784,7 +777,7 @@ class TestClass(BasisTest, object):
             worst_domain = interaction3.get_worst_instance(ResultType.EMI).get_domain()
             assert worst_domain.receiver_name == rad4.name
             assert len(worst_domain.interferer_names) == 1
-            assert worst_domain.interferer_names[0] == rad2.name
+            assert worst_domain.interferer_names[0] == rad3.name  # rad3 has the higher transmit power
             domain2.set_receiver(rad3.name)
             assert rev2.is_domain_valid(domain2)
             interaction3 = rev2.run(domain2)
@@ -792,7 +785,8 @@ class TestClass(BasisTest, object):
             assert interaction3.is_valid()
             worst_domain = interaction3.get_worst_instance(ResultType.EMI).get_domain()
             assert worst_domain.receiver_name == rad3.name
-            assert worst_domain.interferer_names[0] == rad2.name
+            assert len(worst_domain.interferer_names) == 1
+            assert worst_domain.interferer_names[0] == rad2.name  # rad3 is the receiver in this domain
 
     @pytest.mark.skipif(
         config["desktopVersion"] < "2024.1" or is_ironpython,
@@ -803,20 +797,16 @@ class TestClass(BasisTest, object):
         # place components and generate the appropriate number of revisions
         rad1 = self.aedtapp.modeler.components.create_component("Bluetooth")
         ant1 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad1 and ant1:
-            ant1.move_and_connect_to(rad1)
+        ant1.move_and_connect_to(rad1)
         rad2 = self.aedtapp.modeler.components.create_component("MD401C")
         ant2 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad2 and ant2:
-            ant2.move_and_connect_to(rad2)
+        ant2.move_and_connect_to(rad2)
         rad3 = self.aedtapp.modeler.components.create_component("MD400C")
         ant3 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad3 and ant3:
-            ant3.move_and_connect_to(rad3)
+        ant3.move_and_connect_to(rad3)
         rad4 = self.aedtapp.modeler.components.create_component("LT401")
         ant4 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad4 and ant4:
-            ant4.move_and_connect_to(rad4)
+        ant4.move_and_connect_to(rad4)
         assert len(self.aedtapp.results.revisions) == 0
         rev = self.aedtapp.results.analyze()
         assert len(self.aedtapp.results.revisions) == 1
@@ -863,12 +853,10 @@ class TestClass(BasisTest, object):
         # place components and generate the appropriate number of revisions
         rad1 = self.aedtapp.modeler.components.create_component("MD400C")
         ant1 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad1 and ant1:
-            ant1.move_and_connect_to(rad1)
+        ant1.move_and_connect_to(rad1)
         rad2 = self.aedtapp.modeler.components.create_component("MD400C")
         ant2 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad2 and ant2:
-            ant2.move_and_connect_to(rad2)
+        ant2.move_and_connect_to(rad2)
 
         assert len(self.aedtapp.results.revisions) == 0
         rev = self.aedtapp.results.analyze()
@@ -876,13 +864,11 @@ class TestClass(BasisTest, object):
 
         rad3 = self.aedtapp.modeler.components.create_component("Mini UAS Video RT Airborne")
         ant3 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad3 and ant3:
-            ant3.move_and_connect_to(rad3)
+        ant3.move_and_connect_to(rad3)
 
         rad4 = self.aedtapp.modeler.components.create_component("GPS Airborne Receiver")
         ant4 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad4 and ant4:
-            ant4.move_and_connect_to(rad4)
+        ant4.move_and_connect_to(rad4)
 
         rev2 = self.aedtapp.results.analyze()
         assert len(self.aedtapp.results.revisions) == 2
@@ -939,16 +925,13 @@ class TestClass(BasisTest, object):
         # place components
         rad1 = self.aedtapp.modeler.components.create_component("Bluetooth Low Energy (LE)")
         ant1 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad1 and ant1:
-            ant1.move_and_connect_to(rad1)
+        ant1.move_and_connect_to(rad1)
         rad2 = self.aedtapp.modeler.components.create_component("GPS Receiver")
         ant2 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad2 and ant2:
-            ant2.move_and_connect_to(rad2)
+        ant2.move_and_connect_to(rad2)
         rad3 = self.aedtapp.modeler.components.create_component("WiFi - 802.11-2012")
         ant3 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad3 and ant3:
-            ant3.move_and_connect_to(rad3)
+        ant3.move_and_connect_to(rad3)
 
         # Reduce the bluetooth transmit power
         bands = rad1.bands()
@@ -1014,16 +997,13 @@ class TestClass(BasisTest, object):
         # place components
         rad1 = self.aedtapp.modeler.components.create_component("Bluetooth Low Energy (LE)")
         ant1 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad1 and ant1:
-            ant1.move_and_connect_to(rad1)
+        ant1.move_and_connect_to(rad1)
         rad2 = self.aedtapp.modeler.components.create_component("GPS Receiver")
         ant2 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad2 and ant2:
-            ant2.move_and_connect_to(rad2)
+        ant2.move_and_connect_to(rad2)
         rad3 = self.aedtapp.modeler.components.create_component("WiFi - 802.11-2012")
         ant3 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad3 and ant3:
-            ant3.move_and_connect_to(rad3)
+        ant3.move_and_connect_to(rad3)
 
         # Reduce the bluetooth transmit power
         bands = rad1.bands()
@@ -1104,16 +1084,13 @@ class TestClass(BasisTest, object):
         # place components
         rad1 = self.aedtapp.modeler.components.create_component("Bluetooth Low Energy (LE)")
         ant1 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad1 and ant1:
-            ant1.move_and_connect_to(rad1)
+        ant1.move_and_connect_to(rad1)
         rad2 = self.aedtapp.modeler.components.create_component("GPS Receiver")
         ant2 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad2 and ant2:
-            ant2.move_and_connect_to(rad2)
+        ant2.move_and_connect_to(rad2)
         rad3 = self.aedtapp.modeler.components.create_component("WiFi - 802.11-2012")
         ant3 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad3 and ant3:
-            ant3.move_and_connect_to(rad3)
+        ant3.move_and_connect_to(rad3)
 
         # Reduce the bluetooth transmit power
         bands = rad1.bands()
