@@ -165,6 +165,7 @@ ipk.plot(show=False, export_path=os.path.join(project_folder, "Sherlock_Example.
 # Set up boundaries.
 
 # Mesh settings that is tailored for PCB
+# Max iterations is set to 20 for quick demonstration, please increase to at least 100 for better accuracy.
 
 ipk.globalMeshSettings(3, gap_min_elements='1', noOgrids=True, MLM_en=True,
                             MLM_Type='2D', edge_min_elements='2', object='Region')
@@ -174,7 +175,7 @@ setup1.props["Solution Initialization - Y Velocity"] = "1m_per_sec"
 setup1.props["Radiation Model"] = "Discrete Ordinates Model"
 setup1.props["Include Gravity"] = True
 setup1.props["Secondary Gradient"] = True
-setup1.props["Convergence Criteria - Max Iterations"] = 100
+setup1.props["Convergence Criteria - Max Iterations"] = 20
 ipk.assign_openings(ipk.modeler.get_object_faces("Region"))
 
 ###############################################################################
