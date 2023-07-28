@@ -1,7 +1,7 @@
 # Setup paths for module imports
 import os
 
-from _unittest.conftest import BasisTest
+# from _unittest.conftest import BasisTest
 from _unittest.conftest import local_path
 
 from pyaedt import TwinBuilder
@@ -13,22 +13,40 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 test_subfolder = "T21"
 
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(project_name="TwinBuilderProject", design_name="TwinBuilderDesign1", application=TwinBuilder)
+    app.modeler.schematic_units = "mil"
+    return app
+
+@pytest.fixture(scope="class", autouse=True)
+def examples(local_scratch):
+    netlist1 = os.path.join(local_path, "example_models", test_subfolder, "netlist_small.cir")
+    netlist_file1 = local_scratch.copyfile(netlist1)
+    return netlist_file1, None
+
 
 @pytest.mark.skipif(is_linux, reason="Emit API fails on linux.")
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        project_name = "TwinBuilderProject"
-        design_name = "TwinBuilderDesign1"
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(
-            self, project_name=project_name, design_name=design_name, application=TwinBuilder
-        )
-        self.aedtapp.modeler.schematic_units = "mil"
-        netlist1 = os.path.join(local_path, "example_models", test_subfolder, "netlist_small.cir")
-        self.netlist_file1 = self.local_scratch.copyfile(netlist1)
+class TestClass:
+    # def setup_class(self):
+    #     project_name = "TwinBuilderProject"
+    #     design_name = "TwinBuilderDesign1"
+    #     BasisTest.my_setup(self)
+    #     self.aedtapp = BasisTest.add_app(
+    #         self, project_name=project_name, design_name=design_name, application=TwinBuilder
+    #     )
+    #     self.aedtapp.modeler.schematic_units = "mil"
+    #     netlist1 = os.path.join(local_path, "example_models", test_subfolder, "netlist_small.cir")
+    #     self.netlist_file1 = self.local_scratch.copyfile(netlist1)
+    #
+    # def teardown_class(self):
+    #     BasisTest.my_teardown(self)
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, local_scratch, examples):
+        self.aedtapp = aedtapp
+        self.local_scratch = local_scratch
+        self.netlist_file1 = examples[0]
 
     def test_01_create_resistor(self):
         id = self.aedtapp.modeler.schematic.create_resistor("Resistor1", 10, [0, 0])
