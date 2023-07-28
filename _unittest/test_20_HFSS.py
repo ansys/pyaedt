@@ -8,14 +8,14 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 # Setup paths for module imports
-from _unittest.conftest import BasisTest
+# from _unittest.conftest import BasisTest
 from _unittest.conftest import desktop_version
 from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
 from _unittest.conftest import settings
 
 # Import required modules
-from pyaedt import Hfss
+# from pyaedt import Hfss
 from pyaedt.generic.near_field_import import convert_nearfield_data
 
 test_subfolder = "T20"
@@ -26,14 +26,32 @@ else:
     diff_proj_name = "differential_pairs"
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, "Test_20", "test_20")
-        self.fall_back_name = self.aedtapp.design_name
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(project_name="Test_20", design_name="test_20")
+    return app
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+@pytest.fixture(scope="class")
+def fall_back_name(aedtapp):
+    name = aedtapp.design_name
+    return name
+
+
+class TestClass:
+    # def setup_class(self):
+    #     BasisTest.my_setup(self)
+    #     self.aedtapp = BasisTest.add_app(self, "Test_20", "test_20")
+    #     self.fall_back_name = self.aedtapp.design_name
+    #
+    # def teardown_class(self):
+    #     BasisTest.my_teardown(self)
+
+
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, fall_back_name, local_scratch):
+        self.aedtapp = aedtapp
+        self.fall_back_name = fall_back_name
+        self.local_scratch = local_scratch
 
     def test_01_save(self):
         project_name = "Test_Exercse201119"
@@ -977,10 +995,11 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.get_property_value("AnalysisSetup:MySetup2", "Solution Freq", "Setup") == "1GHz"
 
     @pytest.mark.skipif(is_ironpython, reason="Paste fails in Ironpython")
-    def test_33_copy_solid_bodies(self):
+    def test_33_copy_solid_bodies(self, add_app):
         project_name = "HfssCopiedProject"
         design_name = "HfssCopiedBodies"
-        new_design = Hfss(projectname=project_name, designname=design_name, specified_version=desktop_version)
+        # new_design = Hfss(projectname=project_name, designname=design_name, specified_version=desktop_version)
+        new_design = add_app(project_name=project_name, design_name=design_name)
         num_orig_bodies = len(self.aedtapp.modeler.solid_names)
         assert new_design.copy_solid_bodies_from(self.aedtapp, no_vacuum=False, no_pec=False)
         assert len(new_design.modeler.solid_bodies) == num_orig_bodies
@@ -1278,14 +1297,15 @@ class TestClass(BasisTest, object):
         # Chirp IQ doppler setup only works within an SBR+ solution.
         assert self.aedtapp.create_sbr_chirp_iq_doppler_setup(sweep_time_duration=10) == (False, False)
 
-    def test_50_set_differential_pair(self):
-        example_project = os.path.join(local_path, "example_models", test_subfolder, diff_proj_name + ".aedt")
-        test_project = self.local_scratch.copyfile(example_project)
-        self.local_scratch.copyfolder(
-            os.path.join(local_path, "example_models", test_subfolder, diff_proj_name + ".aedb"),
-            os.path.join(self.local_scratch.path, diff_proj_name + ".aedb"),
-        )
-        hfss1 = Hfss(projectname=test_project, designname="Hfss_Terminal", specified_version=desktop_version)
+    def test_50_set_differential_pair(self, add_app):
+        # example_project = os.path.join(local_path, "example_models", test_subfolder, diff_proj_name + ".aedt")
+        # test_project = self.local_scratch.copyfile(example_project)
+        # self.local_scratch.copyfolder(
+        #     os.path.join(local_path, "example_models", test_subfolder, diff_proj_name + ".aedb"),
+        #     os.path.join(self.local_scratch.path, diff_proj_name + ".aedb"),
+        # )
+        # hfss1 = Hfss(projectname=test_project, designname="Hfss_Terminal", specified_version=desktop_version)
+        hfss1 = add_app(project_name=diff_proj_name, design_name="Hfss_Terminal", subfolder=test_subfolder)
         assert hfss1.set_differential_pair(
             positive_terminal="P2_T1",
             negative_terminal="P2_T2",
@@ -1297,7 +1317,8 @@ class TestClass(BasisTest, object):
             matched=False,
         )
         assert not hfss1.set_differential_pair(positive_terminal="P2_T1", negative_terminal="P2_T3")
-        hfss2 = Hfss(designname="Hfss_Transient", specified_version=desktop_version)
+        # hfss2 = Hfss(designname="Hfss_Transient", specified_version=desktop_version)
+        hfss2 = add_app(design_name="Hfss_Transient")
         assert hfss2.set_differential_pair(
             positive_terminal="P2_T1",
             negative_terminal="P2_T2",
@@ -1364,8 +1385,9 @@ class TestClass(BasisTest, object):
         )
         assert len(exported_files) > 0
 
-    def test_52_crate_setup_hybrid_sbr(self):
-        aedtapp = Hfss(projectname="test_52", specified_version=desktop_version)
+    def test_52_crate_setup_hybrid_sbr(self, add_app):
+        # aedtapp = Hfss(projectname="test_52", specified_version=desktop_version)
+        aedtapp = add_app(project_name="test_52")
         udp = aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 200
         aedtapp.modeler.create_cylinder(aedtapp.AXIS.X, udp, 3, coax_dimension, 0, "inner")
@@ -1379,8 +1401,9 @@ class TestClass(BasisTest, object):
         self.aedtapp.close_project(name=aedtapp.project_name, save_project=False)
 
     @pytest.mark.skipif(is_ironpython, reason="Method usese Pandas")
-    def test_53_import_source_excitation(self):
-        aedtapp = Hfss(solution_type="Modal", projectname="test_53", specified_version=desktop_version)
+    def test_53_import_source_excitation(self, add_app):
+        # aedtapp = Hfss(solution_type="Modal", projectname="test_53", specified_version=desktop_version)
+        aedtapp = add_app(solution_type="Modal", project_name="test_53")
         freq_domain = os.path.join(local_path, "example_models", test_subfolder, "S Parameter Table 1.csv")
         time_domain = os.path.join(local_path, "example_models", test_subfolder, "Sinusoidal.csv")
 
@@ -1401,8 +1424,9 @@ class TestClass(BasisTest, object):
         )
         self.aedtapp.close_project(name=aedtapp.project_name, save_project=False)
 
-    def test_54_assign_symmetry(self):
-        aedtapp = Hfss(projectname="test_54", specified_version=desktop_version)
+    def test_54_assign_symmetry(self, add_app):
+        # aedtapp = Hfss(projectname="test_54", specified_version=desktop_version)
+        aedtapp = add_app(project_name="test_54")
         aedtapp.modeler.create_box([0, -100, 0], [200, 200, 200], name="SymmetryForFaces")
         ids = [i.id for i in aedtapp.modeler["SymmetryForFaces"].faces]
         assert aedtapp.assign_symmetry(ids)
