@@ -2,7 +2,7 @@
 import os
 import shutil
 
-from _unittest.conftest import BasisTest
+# from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
@@ -31,27 +31,65 @@ if config["desktopVersion"] > "2022.2":
 else:
     core_loss_file = "PlanarTransformer"
 transient = "Transient_StrandedWindings"
-cyl_gap = "Motor3D_cyl_gap"
-layout_component = "LayoutForce"
+cyl_gap_name = "Motor3D_cyl_gap"
+layout_component_name = "LayoutForce"
+
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(application=Maxwell3d, solution_type="EddyCurrent")
+    return app
+
+@pytest.fixture(scope="class")
+def m3dtransient(add_app):
+    app = add_app(application=Maxwell3d, project_name=transient, subfolder=test_subfolder)
+    return app
+
+@pytest.fixture(scope="class")
+def cyl_gap(add_app):
+    app = add_app(application=Maxwell3d, project_name=cyl_gap_name, subfolder=test_subfolder)
+    return app
+
+@pytest.fixture(scope="class")
+def layout_comp(add_app):
+    if desktop_version > "2023.1":
+        app = add_app(application=Maxwell3d, project_name=layout_component_name, subfolder=test_subfolder)
+    else:
+        app=None
+    return app
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, application=Maxwell3d, solution_type="EddyCurrent")
-        example_project = os.path.join(local_path, "example_models", test_subfolder, core_loss_file + ".aedt")
-        self.file_path = self.local_scratch.copyfile(example_project)
-        self.m3dtransient = BasisTest.add_app(
-            self, application=Maxwell3d, project_name=transient, subfolder=test_subfolder
-        )
-        self.cyl_gap = BasisTest.add_app(self, application=Maxwell3d, project_name=cyl_gap, subfolder=test_subfolder)
-        if desktop_version > "2023.1":
-            self.layout_comp = BasisTest.add_app(
-                self, application=Maxwell3d, project_name=layout_component, subfolder=test_subfolder
-            )
+@pytest.fixture(scope="class", autouse=True)
+def examples(local_scratch):
+    example_project = os.path.join(local_path, "example_models", test_subfolder, core_loss_file + ".aedt")
+    file_path = local_scratch.copyfile(example_project)
+    return file_path
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+class TestClass:
+    # def setup_class(self):
+    #     BasisTest.my_setup(self)
+    #     self.aedtapp = BasisTest.add_app(self, application=Maxwell3d, solution_type="EddyCurrent")
+    #     example_project = os.path.join(local_path, "example_models", test_subfolder, core_loss_file + ".aedt")
+    #     self.file_path = self.local_scratch.copyfile(example_project)
+    #     self.m3dtransient = BasisTest.add_app(
+    #         self, application=Maxwell3d, project_name=transient, subfolder=test_subfolder
+    #     )
+    #     self.cyl_gap = BasisTest.add_app(self, application=Maxwell3d, project_name=cyl_gap, subfolder=test_subfolder)
+    #     if desktop_version > "2023.1":
+    #         self.layout_comp = BasisTest.add_app(
+    #             self, application=Maxwell3d, project_name=layout_component, subfolder=test_subfolder
+    #         )
+    #
+    # def teardown_class(self):
+    #     BasisTest.my_teardown(self)
+
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, m3dtransient,cyl_gap,layout_comp, local_scratch, examples):
+        self.aedtapp = aedtapp
+        self.m3dtransient = m3dtransient
+        self.cyl_gap = cyl_gap
+        self.layout_comp = layout_comp
+        self.local_scratch = local_scratch
+        self.file_path = examples[0]
 
     def test_01_create_primitive(self):
         self.aedtapp.modeler.model_units = "mm"
@@ -435,14 +473,16 @@ class TestClass(BasisTest, object):
         assert bound
         assert bound.props["Velocity"] == "1m_per_sec"
 
-    def test_31_core_losses(self):
-        m3d1 = Maxwell3d(self.file_path, specified_version=desktop_version)
+    def test_31_core_losses(self, add_app):
+        # m3d1 = Maxwell3d(self.file_path, specified_version=desktop_version)
+        m3d1 = add_app(application=Maxwell3d, project_name=core_loss_file, subfolder=test_subfolder)
         assert m3d1.set_core_losses(["PQ_Core_Bottom", "PQ_Core_Top"])
         assert m3d1.set_core_losses(["PQ_Core_Bottom"], False)
         self.aedtapp.close_project(m3d1.project_name, False)
 
-    def test_32_matrix(self):
-        m3d = Maxwell3d(specified_version=desktop_version, designname="Matrix1")
+    def test_32_matrix(self, add_app):
+        # m3d = Maxwell3d(specified_version=desktop_version, designname="Matrix1")
+        m3d = add_app(application=Maxwell3d, design_name="Matrix1")
         m3d.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
         m3d.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", matname="aluminum")
         m3d.modeler.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", matname="aluminum")
@@ -473,8 +513,9 @@ class TestClass(BasisTest, object):
         L = m3d.assign_matrix(sources="Current1")
         assert not L
 
-    def test_32B_matrix(self):
-        m3d = Maxwell3d(specified_version=desktop_version, designname="Matrix2")
+    def test_32B_matrix(self, add_app):
+        # m3d = Maxwell3d(specified_version=desktop_version, designname="Matrix2")
+        m3d = add_app(application=Maxwell3d, design_name="Matrix2")
         m3d.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
         m3d.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", matname="aluminum")
         m3d.modeler.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", matname="aluminum")
