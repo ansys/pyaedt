@@ -9,6 +9,7 @@ from pyaedt import Circuit
 from pyaedt import Maxwell2d
 from pyaedt import Q2d
 from pyaedt import Q3d
+from pyaedt import Icepak
 from pyaedt import settings
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import is_linux
@@ -43,6 +44,7 @@ else:
 test_circuit_name = "Switching_Speed_FET_And_Diode"
 eye_diagram = "SimpleChannel"
 ami = "ami"
+ipk_post_proj = "for_icepak_post"
 test_subfolder = "T12"
 settings.enable_pandas_output = True
 
@@ -65,7 +67,7 @@ class TestClass(BasisTest, object):
         self.ami_test = BasisTest.add_app(self, project_name=ami, application=Circuit, subfolder=test_subfolder)
         self.array_test = BasisTest.add_app(self, project_name=array, subfolder=test_subfolder)
         self.m2dtest = BasisTest.add_app(self, project_name=m2d_file, application=Maxwell2d, subfolder=test_subfolder)
-
+        self.icepak_post = BasisTest.add_app(self, project_name=ipk_post_proj, application=Icepak, subfolder=test_subfolder)
     def teardown_class(self):
         BasisTest.my_teardown(self)
 
@@ -772,3 +774,65 @@ class TestClass(BasisTest, object):
         assert self.field_test.available_variations.variations()
         assert self.field_test.cleanup_solution(vars, entire_solution=False)
         assert self.field_test.cleanup_solution(vars, entire_solution=True)
+
+    def test_76_ipk_get_scalar_field_value(self):
+        assert self.icepak_post.post.get_scalar_field_value(
+        "Heat_Flow_Rate",
+        scalar_function="Integrate",
+        solution=None,
+        variation_dict=['power_block:=', ['0.25W'], 'power_source:=', ['0.075W']],
+        isvector=False,
+        intrinsics=None,
+        phase=None,
+        object_name = "cube2",
+        object_type = "surface",
+        adjacent_side = False
+        )
+        assert self.icepak_post.post.get_scalar_field_value(
+        "Heat_Flow_Rate",
+        scalar_function="Integrate",
+        solution=None,
+        variation_dict=['power_block:=', ['0.6W'], 'power_source:=', ['0.15W']],
+        isvector=False,
+        intrinsics=None,
+        phase=None,
+        object_name = "cube2",
+        object_type = "surface",
+        adjacent_side = False
+        )
+        assert self.icepak_post.post.get_scalar_field_value(
+        "Temperature",
+        scalar_function="Maximum",
+        solution=None,
+        variation_dict=['power_block:=', ['0.6W'], 'power_source:=', ['0.15W']],
+        isvector=False,
+        intrinsics=None,
+        phase=None,
+        object_name = "cube1",
+        object_type = "volume",
+        adjacent_side = False
+        )
+        assert self.icepak_post.post.get_scalar_field_value(
+        "Temperature",
+        scalar_function="Maximum",
+        solution=None,
+        variation_dict=['power_block:=', ['0.6W'], 'power_source:=', ['0.15W']],
+        isvector=False,
+        intrinsics=None,
+        phase=None,
+        object_name = "cube2",
+        object_type = "surface",
+        adjacent_side = False
+        )
+        assert self.icepak_post.post.get_scalar_field_value(
+        "Temperature",
+        scalar_function="Value",
+        solution=None,
+        variation_dict=None,
+        isvector=False,
+        intrinsics=None,
+        phase=None,
+        object_name = "Point1",
+        object_type = "point",
+        adjacent_side = False
+        )
