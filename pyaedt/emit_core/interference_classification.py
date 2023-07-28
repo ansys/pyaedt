@@ -76,7 +76,7 @@ def interference_type_classification(emitapp, use_filter=False, filter_list=None
                     for tx_freq in tx_freqs:
                         domain.set_interferer(tx_radio, tx_band, tx_freq)
                         instance = interaction.get_instance(domain)
-                        tx_prob = instance.get_largest_problem_type(mode_power).replace(" ", "").split(":")[1]
+                        tx_prob = instance.get_largest_problem_type(ResultType.EMI).replace(" ", "").split(":")[1]
                         if (
                             rx_start_freq - rx_channel_bandwidth / 2
                             <= tx_freq
@@ -95,7 +95,7 @@ def interference_type_classification(emitapp, use_filter=False, filter_list=None
 
                         # Save the worst case interference values
                         if instance.get_value(mode_power) > max_power and in_filters:
-                            prob = instance.get_largest_problem_type(mode_power)
+                            prob = instance.get_largest_problem_type(ResultType.EMI)
                             max_power = instance.get_value(mode_power)
                             largest_rx_prob = rx_prob
                             largest_tx_prob = prob.replace(" ", "").split(":")

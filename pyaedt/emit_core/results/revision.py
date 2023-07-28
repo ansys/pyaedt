@@ -2,6 +2,7 @@ import warnings
 
 from pyaedt.emit_core.emit_constants import InterfererType
 from pyaedt.emit_core.emit_constants import TxRxMode
+from pyaedt.emit_core.emit_constants import EmiCategoryFilter
 
 # from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -398,3 +399,36 @@ class Revision:
         if self.revision_loaded:
             engine = self.emit_project._emit_api.get_engine()
             engine.max_n_to_1_instances = max_instances
+
+    def get_emi_category_filter_enabled(self, category: EmiCategoryFilter) -> bool:
+        """Get whether the EMI category filter is enabled.
+
+        Parameters
+        ----------
+        category : :class:`EmiCategoryFilter`
+            The EMI category filter.
+
+        Returns
+        -------
+        bool
+            ``True`` when the EMI category filter is enabled.
+        """
+        if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
+            raise RuntimeError("This function only supported in AEDT version 2024.1 and later.")
+        engine = self.emit_project._emit_api.get_engine()
+        return engine.get_emi_category_filter_enabled(category)
+
+    def set_emi_category_filter_enabled(self, category: EmiCategoryFilter, enabled: bool):
+        """Set whether the EMI category filter is enabled.
+
+        Parameters
+        ----------
+        category : :class:`EmiCategoryFilter`
+            The EMI category filter.
+        enabled : bool
+            Whether to enable the EMI category filter.
+        """
+        if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
+            raise RuntimeError("This function only supported in AEDT version 2024.1 and later.")
+        engine = self.emit_project._emit_api.get_engine()
+        engine.set_emi_category_filter_enabled(category, enabled)

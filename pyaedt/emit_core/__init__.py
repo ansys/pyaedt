@@ -8,6 +8,7 @@ from pyaedt.emit_core.emit_constants import InterfererType
 from pyaedt.emit_core.emit_constants import ResultType
 from pyaedt.emit_core.emit_constants import TxRxMode
 from pyaedt.emit_core.emit_constants import UnitType
+from pyaedt.emit_core.emit_constants import EmiCategoryFilter
 
 EMIT_API_PYTHON = None
 
@@ -44,6 +45,15 @@ def _init_enums():
     UnitType.VOLTAGE = emit_api_python().unit_type().voltage
     UnitType.DATA_RATE = emit_api_python().unit_type().dataRate
     UnitType.RESISTANCE = emit_api_python().unit_type().resistance
+
+    emi_cat_filter = emit_api_python().emi_category_filter()
+    EmiCategoryFilter.IN_CHANNEL_TX_FUNDAMENTAL = emi_cat_filter.in_channel_tx_fundamental
+    EmiCategoryFilter.IN_CHANNEL_TX_HARMONIC_SPURIOUS = emi_cat_filter.in_channel_tx_harmonic_spurious
+    EmiCategoryFilter.IN_CHANNEL_TX_INTERMOD = emi_cat_filter.in_channel_tx_intermod
+    EmiCategoryFilter.IN_CHANNEL_TX_BROADBAND = emi_cat_filter.in_channel_tx_broadband
+    EmiCategoryFilter.OUT_OF_CHANNEL_TX_FUNDAMENTAL = emi_cat_filter.out_of_channel_tx_fundamental
+    EmiCategoryFilter.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS = emi_cat_filter.out_of_channel_tx_harmonic_spurious
+    EmiCategoryFilter.OUT_OF_CHANNEL_TX_INTERMOD = emi_cat_filter.out_of_channel_tx_intermod
 
 
 # need this as a function so that it can be set

@@ -10,6 +10,7 @@ from pyaedt import Emit
 from pyaedt.emit_core.emit_constants import InterfererType
 from pyaedt.emit_core.emit_constants import ResultType
 from pyaedt.emit_core.emit_constants import TxRxMode
+from pyaedt.emit_core.emit_constants import EmiCategoryFilter
 from pyaedt.emit_core.interference_classification import interference_type_classification
 from pyaedt.emit_core.interference_classification import protection_level_classification
 from pyaedt.generic import constants as consts
@@ -1269,3 +1270,52 @@ class TestClass(BasisTest, object):
         for key in antenna_nodes.keys():
             assert antenna_nodes[key].name == antenna_names[i]
             i += 1
+
+    @pytest.mark.skipif(
+        config["desktopVersion"] < "2024.1" or is_ironpython, reason="Skipped on versions earlier than 2024.1"
+    )
+    def test_result_categories(self):
+        # set up project and run
+        self.aedtapp = BasisTest.add_app(self, application=Emit)
+        rad1 = self.aedtapp.modeler.components.create_component("GPS Receiver")
+        ant1 = self.aedtapp.modeler.components.create_component("Antenna")
+        ant1.move_and_connect_to(rad1)
+        for band in rad1.bands():
+            band.enabled = True
+        rad2 = self.aedtapp.modeler.components.create_component("Bluetooth Low Energy (LE)")
+        ant2 = self.aedtapp.modeler.components.create_component("Antenna")
+        ant2.move_and_connect_to(rad2)
+        rev = self.aedtapp.results.analyze()
+        domain = self.aedtapp.results.interaction_domain()
+        interaction = rev.run(domain)
+
+        # initially all categories are enabled
+        for category in EmiCategoryFilter.members():
+            assert rev.get_emi_category_filter_enabled(category)
+
+        # confirm the emi value when all categories are enabled
+        instance = interaction.get_worst_instance(ResultType.EMI)
+        assert instance.get_value(ResultType.EMI) == 16.64
+        assert instance.get_largest_emi_problem_type() == "In-Channel: Broadband"
+
+        # disable one category and confirm the emi value changes
+        rev.set_emi_category_filter_enabled(EmiCategoryFilter.IN_CHANNEL_TX_BROADBAND, False)
+        instance = interaction.get_worst_instance(ResultType.EMI)
+        assert instance.get_value(ResultType.EMI) == 2.0
+        assert instance.get_largest_emi_problem_type() == "Out-of-Channel: Tx Fundamental"
+
+        # disable another category and confirm the emi value changes
+        rev.set_emi_category_filter_enabled(EmiCategoryFilter.OUT_OF_CHANNEL_TX_FUNDAMENTAL, False)
+        instance = interaction.get_worst_instance(ResultType.EMI)
+        assert instance.get_value(ResultType.EMI) == -58.0
+        assert instance.get_largest_emi_problem_type() == "Out-of-Channel: Tx Harmonic/Spurious"
+
+        # disable last existing category and confirm expected exceptions and error messages
+        rev.set_emi_category_filter_enabled(EmiCategoryFilter.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS, False)
+        instance = interaction.get_worst_instance(ResultType.EMI)
+        with pytest.raises(RuntimeError) as e:
+            instance.get_value(ResultType.EMI)
+            assert "Unable to evaluate value: No power received." in str(e)
+        with pytest.raises(RuntimeError) as e:
+            instance.get_largest_emi_problem_type()
+            assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e)
