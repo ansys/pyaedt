@@ -2224,17 +2224,11 @@ class PostProcessor(PostProcessorCommon, object):
                     variation_dict.append(phase)
                 else:
                     variation_dict.append("0deg")
-        file_name = os.path.join(self._app.working_directory, generate_unique_name("temp_fld") + ".fld")
-        self.ofieldsreporter.CalculatorWrite(file_name, ["Solution:=", solution], variation_dict)
-        value = None
-        if os.path.exists(file_name) or settings.remote_rpc_session:
-            with open_file(file_name, "r") as f:
-                lines = f.readlines()
-                lines = [line.strip() for line in lines]
-                value = lines[-1]
-            os.remove(file_name)
+
+        self.ofieldsreporter.ClcEval(solution, variation_dict)
+        value = self.ofieldsreporter.GetTopEntryValue(solution, variation_dict)
         self.ofieldsreporter.CalcStack("clear")
-        return float(value)
+        return float(value[0])
 
     @pyaedt_function_handler()
     def export_field_file_on_grid(
