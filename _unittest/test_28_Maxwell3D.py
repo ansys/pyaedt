@@ -58,12 +58,6 @@ def layout_comp(add_app):
     return app
 
 
-@pytest.fixture(scope="class", autouse=True)
-def examples(local_scratch):
-    example_project = os.path.join(local_path, "example_models", test_subfolder, core_loss_file + ".aedt")
-    file_path = local_scratch.copyfile(example_project)
-    return file_path
-
 class TestClass:
     # def setup_class(self):
     #     BasisTest.my_setup(self)
@@ -83,13 +77,12 @@ class TestClass:
     #     BasisTest.my_teardown(self)
 
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp, m3dtransient,cyl_gap,layout_comp, local_scratch, examples):
+    def init(self, aedtapp, m3dtransient,cyl_gap,layout_comp, local_scratch):
         self.aedtapp = aedtapp
         self.m3dtransient = m3dtransient
         self.cyl_gap = cyl_gap
         self.layout_comp = layout_comp
         self.local_scratch = local_scratch
-        self.file_path = examples[0]
 
     def test_01_create_primitive(self):
         self.aedtapp.modeler.model_units = "mm"
