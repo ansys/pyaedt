@@ -804,6 +804,18 @@ class TestClass(BasisTest, object):
             adjacent_side=False,
         )
         assert self.icepak_post.post.get_scalar_field_value(
+            "Heat_Flow_Rate",
+            scalar_function="Integrate",
+            solution=None,
+            variation_dict=["power_block:=", ["0.6W"], "power_source:=", ["0.15W"]],
+            isvector=False,
+            intrinsics=None,
+            phase=None,
+            object_name="cube2",
+            object_type="surface",
+            adjacent_side=True,
+        )
+        assert self.icepak_post.post.get_scalar_field_value(
             "Temperature",
             scalar_function="Maximum",
             solution=None,
