@@ -24,7 +24,7 @@ def emit_api_python():
     return EMIT_API_PYTHON
 
 
-def _init_enums():
+def _init_enums(aedt_version):
     ResultType.EMI = emit_api_python().result_type().emi
     ResultType.DESENSE = emit_api_python().result_type().desense
     ResultType.SENSITIVITY = emit_api_python().result_type().sensitivity
@@ -46,14 +46,16 @@ def _init_enums():
     UnitType.DATA_RATE = emit_api_python().unit_type().dataRate
     UnitType.RESISTANCE = emit_api_python().unit_type().resistance
 
-    emi_cat_filter = emit_api_python().emi_category_filter()
-    EmiCategoryFilter.IN_CHANNEL_TX_FUNDAMENTAL = emi_cat_filter.in_channel_tx_fundamental
-    EmiCategoryFilter.IN_CHANNEL_TX_HARMONIC_SPURIOUS = emi_cat_filter.in_channel_tx_harmonic_spurious
-    EmiCategoryFilter.IN_CHANNEL_TX_INTERMOD = emi_cat_filter.in_channel_tx_intermod
-    EmiCategoryFilter.IN_CHANNEL_TX_BROADBAND = emi_cat_filter.in_channel_tx_broadband
-    EmiCategoryFilter.OUT_OF_CHANNEL_TX_FUNDAMENTAL = emi_cat_filter.out_of_channel_tx_fundamental
-    EmiCategoryFilter.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS = emi_cat_filter.out_of_channel_tx_harmonic_spurious
-    EmiCategoryFilter.OUT_OF_CHANNEL_TX_INTERMOD = emi_cat_filter.out_of_channel_tx_intermod
+    numeric_version = int(aedt_version[-3:])
+    if numeric_version >= 241:
+        emi_cat_filter = emit_api_python().emi_category_filter()
+        EmiCategoryFilter.IN_CHANNEL_TX_FUNDAMENTAL = emi_cat_filter.in_channel_tx_fundamental
+        EmiCategoryFilter.IN_CHANNEL_TX_HARMONIC_SPURIOUS = emi_cat_filter.in_channel_tx_harmonic_spurious
+        EmiCategoryFilter.IN_CHANNEL_TX_INTERMOD = emi_cat_filter.in_channel_tx_intermod
+        EmiCategoryFilter.IN_CHANNEL_TX_BROADBAND = emi_cat_filter.in_channel_tx_broadband
+        EmiCategoryFilter.OUT_OF_CHANNEL_TX_FUNDAMENTAL = emi_cat_filter.out_of_channel_tx_fundamental
+        EmiCategoryFilter.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS = emi_cat_filter.out_of_channel_tx_harmonic_spurious
+        EmiCategoryFilter.OUT_OF_CHANNEL_TX_INTERMOD = emi_cat_filter.out_of_channel_tx_intermod
 
 
 # need this as a function so that it can be set
@@ -72,4 +74,4 @@ def _set_api(aedt_version):
         global EMIT_API_PYTHON
         EMIT_API_PYTHON = import_module("EmitApiPython")
         logger.info("Loaded {}".format(EMIT_API_PYTHON.EmitApi().get_version(True)))
-        _init_enums()
+        _init_enums(aedt_version)
