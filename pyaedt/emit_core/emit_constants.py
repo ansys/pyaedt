@@ -10,7 +10,9 @@ Because the members must be reassigned at runtime, the Enum class cannot be used
 class MutableEnum:
     @classmethod
     def members(cls):
-        members = [getattr(cls, attr) for attr in dir(cls) if not callable(getattr(cls, attr)) and not attr.startswith("__")]
+        members = [
+            getattr(cls, attr) for attr in dir(cls) if not callable(getattr(cls, attr)) and not attr.startswith("__")
+        ]
         if members[0] is None:
             raise Exception(f"Enum is uninitialized. Create a pyaedt.Emit() object before using {cls.__name__}.")
         return members

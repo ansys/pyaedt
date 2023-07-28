@@ -1,8 +1,8 @@
 import warnings
 
+from pyaedt.emit_core.emit_constants import EmiCategoryFilter
 from pyaedt.emit_core.emit_constants import InterfererType
 from pyaedt.emit_core.emit_constants import TxRxMode
-from pyaedt.emit_core.emit_constants import EmiCategoryFilter
 
 # from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
