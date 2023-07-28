@@ -2148,6 +2148,7 @@ class PostProcessor(PostProcessorCommon, object):
             Name of the solution in the format ``"solution : sweep"``. The default is ``None``.
         variation_dict : dict, optional
             Dictionary of all variation variables with their values.
+            e.g. ``['power_block:=', ['0.6W'], 'power_source:=', ['0.15W']]``
             The default is ``None``.
         isvector : bool, optional
             Whether the quantity is a vector. The  default is ``False``.
@@ -2157,9 +2158,11 @@ class PostProcessor(PostProcessorCommon, object):
         phase : str, optional
             Field phase. The default is ``None``.
         object_name : str, optional
-            Name of the object. For example, ``"Box1"``. The default is ``"AllObjects"``.
+            Name of the object. For example, ``"Box1"``.
+            The default is ``"AllObjects"``.
         object_type : str, optional
-            Type of the object - ``"volume"``, ``"surface"``, ``"point"``. The default is ``"volume"``.
+            Type of the object - ``"volume"``, ``"surface"``, ``"point"``.
+            The default is ``"volume"``.
         adjacent_side : bool, optional
             To query quantity value on adjacent side for object_type = "surface", pass ``True``.
             The default is ``False``.
@@ -2177,7 +2180,8 @@ class PostProcessor(PostProcessorCommon, object):
         >>> oModule.CalcOp
         >>> oModule.EnterQty
         >>> oModule.EnterVol
-        >>> oModule.CalculatorWrite
+        >>> oModule.ClcEval
+        >>> GetTopEntryValue
         """
         self.logger.info("Exporting {} field. Be patient".format(quantity_name))
         if not solution:
