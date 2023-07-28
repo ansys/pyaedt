@@ -7,10 +7,10 @@ from _unittest.conftest import config
 from _unittest.conftest import is_ironpython
 
 from pyaedt import Emit
+from pyaedt.emit_core.emit_constants import EmiCategoryFilter
 from pyaedt.emit_core.emit_constants import InterfererType
 from pyaedt.emit_core.emit_constants import ResultType
 from pyaedt.emit_core.emit_constants import TxRxMode
-from pyaedt.emit_core.emit_constants import EmiCategoryFilter
 from pyaedt.emit_core.interference_classification import interference_type_classification
 from pyaedt.emit_core.interference_classification import protection_level_classification
 from pyaedt.generic import constants as consts
