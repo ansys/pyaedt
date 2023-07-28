@@ -970,9 +970,9 @@ class TestClass(BasisTest, object):
         expected_protection_power = [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]]
         protection_levels = {
             "Global": [30.0, -4.0, -30.0, -104.0],
-            "Bluetooth Low Energy (LE)": [30.0, -4.0, -22.0, -104.0],
-            "GPS Receiver": [30.0, -22.0, -30.0, -104.0],
-            "WiFi - 802.11-2012": [-22.0, -25.0, -30.0, -104.0],
+            "Bluetooth": [30.0, -4.0, -22.0, -104.0],
+            "GPS": [30.0, -22.0, -30.0, -104.0],
+            "WiFi": [-22.0, -25.0, -30.0, -104.0],
         }
 
         protection_colors = []
@@ -988,7 +988,7 @@ class TestClass(BasisTest, object):
         config["desktopVersion"] <= "2023.1" or is_ironpython,
         reason="Skipped on versions earlier than 2023.2",
     )
-    def test_interference_scripts_filtering(self):
+    def test_interference_filtering(self):
         self.aedtapp = BasisTest.add_app(self, project_name="interference", application=Emit, subfolder=test_subfolder)
 
         # Generate a revision
@@ -998,8 +998,6 @@ class TestClass(BasisTest, object):
         domain = self.aedtapp.results.interaction_domain()
         interference_colors = []
         interference_power_matrix = []
-        protection_colors = []
-        protection_power_matrix = []
         all_interference_colors = [
             [["white", "green", "yellow"], ["orange", "green", "white"]],
             [["white", "green", "yellow"], ["red", "green", "white"]],
@@ -1012,6 +1010,35 @@ class TestClass(BasisTest, object):
             [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]],
             [["N/A", "<= -200", -20.0], [-20.0, "<= -200", "N/A"]],
         ]
+        interference_filters = [
+            "TxFundamental:In-band",
+            ["TxHarmonic/Spurious:In-band", "Intermod:In-band", "Broadband:In-band"],
+            "TxFundamental:Out-of-band",
+            ["TxHarmonic/Spurious:Out-of-band", "Intermod:Out-of-band", "Broadband:Out-of-band"],
+        ]
+
+        for ind in range(4):
+            expected_interference_colors = all_interference_colors[ind]
+            expected_interference_power = all_interference_power[ind]
+            interference_filter = interference_filters[:ind] + interference_filters[ind + 1 :]
+
+            interference_colors, interference_power_matrix = rev.interference_type_classification(
+                domain, use_filter=True, filter_list=interference_filter
+            )
+
+            assert interference_colors == expected_interference_colors
+            assert interference_power_matrix == expected_interference_power
+
+    def test_protection_filtering(self):
+        self.aedtapp = BasisTest.add_app(self, project_name="interference", application=Emit, subfolder=test_subfolder)
+
+        # Generate a revision
+        rev = self.aedtapp.results.analyze()
+
+        # Test with active filtering
+        domain = self.aedtapp.results.interaction_domain()
+        protection_colors = []
+        protection_power_matrix = []
         all_protection_colors = [
             [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]],
             [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]],
@@ -1024,25 +1051,12 @@ class TestClass(BasisTest, object):
             [["N/A", "< -200", "< -200"], ["< -200", "< -200", "N/A"]],
             [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]],
         ]
-        interference_filters = [
-            "TxFundamental:In-band",
-            ["TxHarmonic/Spurious:In-band", "Intermod:In-band", "Broadband:In-band"],
-            "TxFundamental:Out-of-band",
-            ["TxHarmonic/Spurious:Out-of-band", "Intermod:Out-of-band", "Broadband:Out-of-band"],
-        ]
         protection_filters = ["damage", "overload", "intermodulation", "desensitization"]
 
         for ind in range(4):
-            expected_interference_colors = all_interference_colors[ind]
-            expected_interference_power = all_interference_power[ind]
             expected_protection_colors = all_protection_colors[ind]
             expected_protection_power = all_protection_power[ind]
-            interference_filter = interference_filters[:ind] + interference_filters[ind + 1 :]
             protection_filter = protection_filters[:ind] + protection_filters[ind + 1 :]
-
-            interference_colors, interference_power_matrix = rev.interference_type_classification(
-                domain, use_filter=True, filter_list=interference_filter
-            )
 
             protection_colors, protection_power_matrix = rev.protection_level_classification(
                 domain,
@@ -1052,8 +1066,6 @@ class TestClass(BasisTest, object):
                 filter_list=protection_filter,
             )
 
-            assert interference_colors == expected_interference_colors
-            assert interference_power_matrix == expected_interference_power
             assert protection_colors == expected_protection_colors
             assert protection_power_matrix == expected_protection_power
 
