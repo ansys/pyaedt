@@ -2131,9 +2131,9 @@ class PostProcessor(PostProcessorCommon, object):
         isvector=False,
         intrinsics=None,
         phase=None,
-        object_name = "AllObjects",
-        object_type = "volume",
-        adjacent_side = False
+        object_name="AllObjects",
+        object_type="volume",
+        adjacent_side=False,
     ):
         """Use the field calculator to Compute Scalar of a Field.
 
