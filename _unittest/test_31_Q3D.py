@@ -1,6 +1,7 @@
 import os
+import pytest
 
-from _unittest.conftest import BasisTest
+# from _unittest.conftest import BasisTest
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 
@@ -17,19 +18,39 @@ else:
 
 test_subfolder = "T31"
 
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(application=Q3d)
+    return app
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, application=Q3d)
-        example_project = os.path.join(local_path, "example_models", test_subfolder, bondwire_project_name)
-        self.test_project = self.local_scratch.copyfile(example_project)
-        self.test_matrix = self.local_scratch.copyfile(
-            os.path.join(local_path, "example_models", test_subfolder, q2d_q3d + ".aedt")
-        )
+@pytest.fixture(scope="class", autouse=True)
+def examples(local_scratch):
+    example_project = os.path.join(local_path, "example_models", test_subfolder, bondwire_project_name)
+    test_project = local_scratch.copyfile(example_project)
+    test_matrix = local_scratch.copyfile(
+        os.path.join(local_path, "example_models", test_subfolder, q2d_q3d + ".aedt")
+    )
+    return test_project, test_matrix
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+class TestClass:
+    # def setup_class(self):
+    #     BasisTest.my_setup(self)
+    #     self.aedtapp = BasisTest.add_app(self, application=Q3d)
+    #     example_project = os.path.join(local_path, "example_models", test_subfolder, bondwire_project_name)
+    #     self.test_project = self.local_scratch.copyfile(example_project)
+    #     self.test_matrix = self.local_scratch.copyfile(
+    #         os.path.join(local_path, "example_models", test_subfolder, q2d_q3d + ".aedt")
+    #     )
+    #
+    # def teardown_class(self):
+    #     BasisTest.my_teardown(self)
+
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, examples, local_scratch):
+        self.aedtapp = aedtapp
+        self.local_scratch = local_scratch
+        self.test_project = examples[0]
+        self.test_matrix = examples[1]
 
     def test_01_save(self):
         test_project = os.path.join(self.local_scratch.path, test_project_name + ".aedt")
@@ -190,8 +211,9 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.mesh.initial_mesh_settings
         assert self.aedtapp.mesh.initial_mesh_settings.props
 
-    def test_13_matrix_reduction(self):
-        q3d = Q3d(self.test_matrix, specified_version=desktop_version)
+    def test_13_matrix_reduction(self, add_app):
+        # q3d = Q3d(self.test_matrix, specified_version=desktop_version)
+        q3d = add_app(application=Q3d, project_name=self.test_matrix, just_open=True)
         assert q3d.matrices[0].name == "Original"
         assert len(q3d.matrices[0].sources()) > 0
         assert len(q3d.matrices[0].sources(False)) > 0
@@ -235,8 +257,9 @@ class TestClass(BasisTest, object):
         ]
         self.aedtapp.close_project(q3d.project_name, save_project=False)
 
-    def test_14_edit_sources(self):
-        q3d = Q3d(self.test_matrix, specified_version=desktop_version)
+    def test_14_edit_sources(self, add_app):
+        # q3d = Q3d(self.test_matrix, specified_version=desktop_version)
+        q3d = add_app(application=Q3d, project_name=self.test_matrix, just_open=True)
         sources_cg = {"Box1": ("2V", "45deg"), "Box1_2": "4V"}
         sources_ac = {"Box1:Source1": "2A"}
         assert q3d.edit_sources(sources_cg, sources_ac)
@@ -267,8 +290,9 @@ class TestClass(BasisTest, object):
         assert sources[0] == "Box1:Source1"
         self.aedtapp.close_project(q3d.project_name, save_project=False)
 
-    def test_15_export_matrix_data(self):
-        q3d = Q3d(self.test_matrix, specified_version=desktop_version)
+    def test_15_export_matrix_data(self, add_app):
+        # q3d = Q3d(self.test_matrix, specified_version=desktop_version)
+        q3d = add_app(application=Q3d, project_name=self.test_matrix, just_open=True)
         q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest")
         q3d.matrices[1].name == "JointTest"
         q3d.insert_reduced_matrix("JoinParallel", ["Source1", "Source2"], "JointTest2")
@@ -362,16 +386,13 @@ class TestClass(BasisTest, object):
         assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), g_unit="A")
         self.aedtapp.close_project(q3d.project_name, save_project=False)
 
-    def test_16_export_equivalent_circuit(self):
+    def test_16_export_equivalent_circuit(self, add_app):
         test_matrix2 = self.local_scratch.copyfile(
             os.path.join(local_path, "example_models", test_subfolder, q2d_q3d + ".aedt"),
             os.path.join(self.local_scratch.path, "test_14.aedt"),
         )
-        test_matrix2 = self.local_scratch.copyfile(
-            os.path.join(local_path, "example_models", test_subfolder, q2d_q3d + ".aedt"),
-            os.path.join(self.local_scratch.path, "test_14.aedt"),
-        )
-        q3d = Q3d(test_matrix2, specified_version=desktop_version)
+        # q3d = Q3d(self.test_matrix, specified_version=desktop_version)
+        q3d = add_app(application=Q3d, project_name=test_matrix2, just_open=True)
         q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest")
         assert q3d.matrices[1].name == "JointTest"
         q3d["d"] = "10mm"
@@ -434,8 +455,9 @@ class TestClass(BasisTest, object):
         )
         self.aedtapp.close_project(q3d.project_name, save_project=False)
 
-    def test_17_export_results_q3d(self):
-        q3d = Q3d(self.test_matrix, specified_version=desktop_version)
+    def test_17_export_results_q3d(self, add_app):
+        # q3d = Q3d(self.test_matrix, specified_version=desktop_version)
+        q3d = add_app(application=Q3d, project_name=self.test_matrix, just_open=True)
         exported_files = q3d.export_results()
         assert len(exported_files) == 0
         for setup_name in q3d.setup_names:
