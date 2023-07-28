@@ -4,7 +4,7 @@ from collections import OrderedDict
 import os
 import shutil
 
-from _unittest.conftest import BasisTest
+# from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
 
@@ -27,26 +27,45 @@ else:
 ctrl_prg = "TimeStepCtrl"
 ctrl_prg_file = "timestep_only.py"
 
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(project_name=test_name, design_name="Basis_Model_For_Test", application=Maxwell2d, subfolder=test_subfolder)
+    if config["desktopVersion"] < "2023.1":
+        app.duplicate_design("design_for_test")
+        app.set_active_design("Basis_Model_For_Test")
+    return app
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(
-            self,
-            project_name=test_name,
-            design_name="Basis_Model_For_Test",
-            application=Maxwell2d,
-            subfolder=test_subfolder,
-        )
-        if config["desktopVersion"] < "2023.1":
-            self.aedtapp.duplicate_design("design_for_test")
-            self.aedtapp.set_active_design("Basis_Model_For_Test")
-        self.m2d_ctrl_prg = BasisTest.add_app(
-            self, application=Maxwell2d, project_name=ctrl_prg, subfolder=test_subfolder
-        )
+@pytest.fixture(scope="class")
+def m2d_ctrl_prg(add_app):
+    app = add_app(application=Maxwell2d, project_name=ctrl_prg, subfolder=test_subfolder)
+    return app
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+
+class TestClass:
+    # def setup_class(self):
+    #     BasisTest.my_setup(self)
+    #     self.aedtapp = BasisTest.add_app(
+    #         self,
+    #         project_name=test_name,
+    #         design_name="Basis_Model_For_Test",
+    #         application=Maxwell2d,
+    #         subfolder=test_subfolder,
+    #     )
+    #     if config["desktopVersion"] < "2023.1":
+    #         self.aedtapp.duplicate_design("design_for_test")
+    #         self.aedtapp.set_active_design("Basis_Model_For_Test")
+    #     self.m2d_ctrl_prg = BasisTest.add_app(
+    #         self, application=Maxwell2d, project_name=ctrl_prg, subfolder=test_subfolder
+    #     )
+    #
+    # def teardown_class(self):
+    #     BasisTest.my_teardown(self)
+
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, m2d_ctrl_prg, local_scratch):
+        self.aedtapp = aedtapp
+        self.m2d_ctrl_prg = m2d_ctrl_prg
+        self.local_scratch = local_scratch
 
     def test_03_assign_initial_mesh_from_slider(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(4)
