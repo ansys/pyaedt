@@ -7,10 +7,10 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
-from _unittest.conftest import BasisTest
+# from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 
-from pyaedt import Hfss
+# from pyaedt import Hfss
 from pyaedt import Hfss3dLayout
 from pyaedt import Icepak
 from pyaedt import Q2d
@@ -37,42 +37,96 @@ hfss3dl_existing_setup_proj_name = "existing_hfss3dl_setup_v{}{}".format(
 )
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        # set a scratch directory and the environment / test data
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, subfolder=test_subfolder)
-        self.q3dtest = BasisTest.add_app(self, project_name=q3d_file, application=Q3d, subfolder=test_subfolder)
-        self.q2dtest = Q2d(projectname=q3d_file, specified_version=config["desktopVersion"])
-        self.icepak_a = BasisTest.add_app(self, project_name=ipk_name + "_a", application=Icepak)
-        self.icepak_b = BasisTest.add_app(self, project_name=ipk_name + "_b", application=Icepak)
-        self.hfss3dl_a = BasisTest.add_app(
-            self, project_name=diff_proj_name, application=Hfss3dLayout, subfolder=test_subfolder
-        )
-        self.hfss3dl_b = BasisTest.add_app(
-            self, project_name=hfss3dl_existing_setup_proj_name, application=Hfss3dLayout, subfolder=test_subfolder
-        )
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(project_name=test_project_name, subfolder=test_subfolder)
+    return app
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
 
-    def test_01_hfss_export(self):
+@pytest.fixture(scope="class")
+def q3dtest(add_app):
+    app = add_app(project_name=q3d_file, application=Q3d, subfolder=test_subfolder)
+    return app
+
+
+@pytest.fixture(scope="class")
+def q2dtest(add_app):
+    app = add_app(project_name=q3d_file, application=Q2d, just_open=True)
+    return app
+
+
+@pytest.fixture(scope="class")
+def icepak_a(add_app):
+    app = add_app(project_name=ipk_name + "_a", application=Icepak)
+    return app
+
+
+@pytest.fixture(scope="class")
+def icepak_b(add_app):
+    app = add_app(project_name=ipk_name + "_b", application=Icepak)
+    return app
+
+
+@pytest.fixture(scope="class")
+def hfss3dl_a(add_app):
+    app = add_app(project_name=diff_proj_name, application=Hfss3dLayout, subfolder=test_subfolder)
+    return app
+
+
+@pytest.fixture(scope="class")
+def hfss3dl_b(add_app):
+    app = add_app(project_name=hfss3dl_existing_setup_proj_name, application=Hfss3dLayout, subfolder=test_subfolder)
+    return app
+
+
+class TestClass:
+    # def setup_class(self):
+    #     # set a scratch directory and the environment / test data
+    #     BasisTest.my_setup(self)
+    #     self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, subfolder=test_subfolder)
+    #     self.q3dtest = BasisTest.add_app(self, project_name=q3d_file, application=Q3d, subfolder=test_subfolder)
+    #     self.q2dtest = Q2d(projectname=q3d_file, specified_version=config["desktopVersion"])
+    #     self.icepak_a = BasisTest.add_app(self, project_name=ipk_name + "_a", application=Icepak)
+    #     self.icepak_b = BasisTest.add_app(self, project_name=ipk_name + "_b", application=Icepak)
+    #     self.hfss3dl_a = BasisTest.add_app(
+    #         self, project_name=diff_proj_name, application=Hfss3dLayout, subfolder=test_subfolder
+    #     )
+    #     self.hfss3dl_b = BasisTest.add_app(
+    #         self, project_name=hfss3dl_existing_setup_proj_name, application=Hfss3dLayout, subfolder=test_subfolder
+    #     )
+    #
+    # def teardown_class(self):
+    #     BasisTest.my_teardown(self)
+
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, q3dtest, q2dtest, icepak_a, icepak_b, hfss3dl_a, hfss3dl_b, local_scratch):
+        self.aedtapp = aedtapp
+        self.q3dtest = q3dtest
+        self.q2dtest = q2dtest
+        self.icepak_a = icepak_a
+        self.icepak_b = icepak_b
+        self.hfss3dl_a = hfss3dl_a
+        self.hfss3dl_b = hfss3dl_b
+        self.local_scratch = local_scratch
+
+    def test_01_hfss_export(self, add_app):
         self.aedtapp.mesh.assign_length_mesh("sub")
         conf_file = self.aedtapp.configurations.export_config()
         assert os.path.exists(conf_file)
         filename = self.aedtapp.design_name
         file_path = os.path.join(self.aedtapp.working_directory, filename + ".x_b")
         self.aedtapp.export_3d_model(filename, self.aedtapp.working_directory, ".x_b", [], [])
-        app = Hfss(
-            projectname="new_proj", solution_type=self.aedtapp.solution_type, specified_version=config["desktopVersion"]
-        )
+        # app = Hfss(
+        #   projectname="new_proj", solution_type=self.aedtapp.solution_type, specified_version=config["desktopVersion"]
+        # )
+        app = add_app(project_name="new_proj", solution_type=self.aedtapp.solution_type, just_open=True)
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
         assert isinstance(out, dict)
         assert app.configurations.results.global_import_success
         app.close_project(save_project=False)
 
-    def test_02_q3d_export(self):
+    def test_02_q3d_export(self, add_app):
         self.q3dtest.modeler.create_coordinate_system()
         conf_file = self.q3dtest.configurations.export_config()
         assert os.path.exists(conf_file)
@@ -80,14 +134,15 @@ class TestClass(BasisTest, object):
         file_path = os.path.join(self.q3dtest.working_directory, filename + ".x_b")
         self.q3dtest.export_3d_model(filename, self.q3dtest.working_directory, ".x_b", [], [])
         time.sleep(1)
-        app = Q3d(projectname="new_proj_Q3d", specified_version=config["desktopVersion"])
+        # app = Q3d(projectname="new_proj_Q3d", specified_version=config["desktopVersion"])
+        app = add_app(application=Q3d, project_name="new_proj_Q3d")
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
         assert isinstance(out, dict)
         assert app.configurations.results.global_import_success
         app.close_project(save_project=False)
 
-    def test_03_q2d_export(self):
+    def test_03_q2d_export(self, add_app):
         conf_file = self.q2dtest.configurations.export_config()
 
         assert os.path.exists(conf_file)
@@ -95,7 +150,8 @@ class TestClass(BasisTest, object):
         file_path = os.path.join(self.q2dtest.working_directory, filename + ".x_b")
         self.q2dtest.export_3d_model(filename, self.q2dtest.working_directory, ".x_b", [], [])
         time.sleep(1)
-        app = Q2d(projectname="new_proj_Q2d", specified_version=config["desktopVersion"])
+        # app = Q2d(projectname="new_proj_Q2d", specified_version=config["desktopVersion"])
+        app = add_app(application=Q2d, project_name="new_proj_Q2d")
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
         assert isinstance(out, dict)
@@ -138,7 +194,7 @@ class TestClass(BasisTest, object):
         assert self.q2dtest.configurations.options.import_parametrics
         app.close_project(save_project=False)
 
-    def test_04a_icepak(self):
+    def test_04a_icepak(self, add_app):
         box1 = self.icepak_a.modeler.create_box([0, 0, 0], [10, 10, 10])
         self.icepak_a.monitor.assign_point_monitor_to_vertex(box1.vertices[0].id)
         box1.surface_material_name = "Shellac-Dull-surface"
@@ -193,7 +249,8 @@ class TestClass(BasisTest, object):
         assert self.icepak_a.configurations.export_config()
         f.delete()
         file_path = os.path.join(self.icepak_a.working_directory, filename + ".x_b")
-        app = Icepak(projectname="new_proj_Ipk_a", specified_version=config["desktopVersion"])
+        # app = Icepak(projectname="new_proj_Ipk_a", specified_version=config["desktopVersion"])
+        app = add_app(application=Icepak, project_name="new_proj_Ipk_a", just_open=True)
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
         assert isinstance(out, dict)
@@ -204,7 +261,7 @@ class TestClass(BasisTest, object):
         is_ironpython or (config["desktopVersion"] < "2023.1" and config["use_grpc"]),
         reason="Not working in 2022.2 GRPC",
     )
-    def test_04b_icepak(self):
+    def test_04b_icepak(self, add_app):
         box1 = self.icepak_b.modeler.create_box([0, 0, 0], [10, 10, 10])
         box1.surface_material_name = "Shellac-Dull-surface"
         region = self.icepak_b.modeler["Region"]
@@ -259,7 +316,8 @@ class TestClass(BasisTest, object):
         conf_file = self.icepak_b.configurations.export_config()
         assert os.path.exists(conf_file)
         file_path = os.path.join(self.icepak_b.working_directory, filename + ".x_b")
-        app = Icepak(projectname="new_proj_Ipk", specified_version=config["desktopVersion"])
+        # app = Icepak(projectname="new_proj_Ipk", specified_version=config["desktopVersion"])
+        app = add_app(application=Icepak, project_name="new_proj_Ipk", just_open=True)
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
         assert isinstance(out, dict)
