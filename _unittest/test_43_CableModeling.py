@@ -1,6 +1,6 @@
 import os
 
-from _unittest.conftest import BasisTest
+# from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
 
@@ -21,25 +21,51 @@ else:
 test_subfloder = "T43"
 
 
-@pytest.mark.skipif(config["desktopVersion"] > "2022.2", reason="AEDT Crashes")
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(
-            self, project_name=project_name, design_name="HFSSDesign1", subfolder=test_subfloder
-        )
-        self.dict_in = json_to_dict(
-            os.path.join(
-                local_path,
-                "example_models",
-                test_subfloder,
-                "cable_modeling_json_files",
-                "set_cable_properties.json",
-            )
-        )
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(project_name=project_name, design_name="HFSSDesign1", subfolder=test_subfloder)
+    return app
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+
+@pytest.fixture(scope="class", autouse=True)
+def dict_in(local_scratch):
+    dict_in_tmp = json_to_dict(
+        os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "set_cable_properties.json",
+        )
+    )
+    return dict_in_tmp
+
+
+@pytest.mark.skipif(config["desktopVersion"] > "2022.2", reason="AEDT Crashes")
+class TestClass:
+    # def setup_class(self):
+    #     BasisTest.my_setup(self)
+    #     self.aedtapp = BasisTest.add_app(
+    #         self, project_name=project_name, design_name="HFSSDesign1", subfolder=test_subfloder
+    #     )
+    #     self.dict_in = json_to_dict(
+    #         os.path.join(
+    #             local_path,
+    #             "example_models",
+    #             test_subfloder,
+    #             "cable_modeling_json_files",
+    #             "set_cable_properties.json",
+    #         )
+    #     )
+    #
+    # def teardown_class(self):
+    #     BasisTest.my_teardown(self)
+
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, dict_in, local_scratch):
+        self.aedtapp = aedtapp
+        self.dict_in = dict_in
+        self.local_scratch = local_scratch
 
     def test_01_working_dir(self):
         Cable(self.aedtapp, self.dict_in)
