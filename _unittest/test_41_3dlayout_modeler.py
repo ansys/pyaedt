@@ -1,12 +1,12 @@
 import os
 
-from _unittest.conftest import BasisTest
+# from _unittest.conftest import desktop_version
+# from _unittest.conftest import BasisTest
 from _unittest.conftest import config
-from _unittest.conftest import desktop_version
 from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
 
-from pyaedt import Hfss
+# from pyaedt import Hfss
 from pyaedt import Hfss3dLayout
 from pyaedt import Maxwell3d
 
@@ -29,22 +29,56 @@ else:
     diff_proj_name = "differential_pairs_t41"
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, application=Hfss3dLayout)
-        self.hfss3dl = BasisTest.add_app(
-            self, project_name=diff_proj_name, application=Hfss3dLayout, subfolder=test_subfolder
-        )
-        example_project = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
-        self.target_path = os.path.join(self.local_scratch.path, "Package_test_41.aedb")
-        self.local_scratch.copyfolder(example_project, self.target_path)
-        self.solve = BasisTest.add_app(
-            self, project_name=test_solve, application=Hfss3dLayout, subfolder=test_subfolder
-        )
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(project_name=test_project_name, application=Hfss3dLayout)
+    return app
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+
+@pytest.fixture(scope="class")
+def hfss3dl(add_app):
+    app = add_app(project_name=diff_proj_name, application=Hfss3dLayout, subfolder=test_subfolder)
+    return app
+
+
+@pytest.fixture(scope="class")
+def solve(add_app):
+    app = add_app(project_name=test_solve, application=Hfss3dLayout, subfolder=test_subfolder)
+    return app
+
+
+@pytest.fixture(scope="class", autouse=True)
+def examples(local_scratch):
+    example_project = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
+    target_path = os.path.join(local_scratch.path, "Package_test_41.aedb")
+    local_scratch.copyfolder(example_project, target_path)
+    return target_path, None
+
+
+class TestClass:
+    # def setup_class(self):
+    #     BasisTest.my_setup(self)
+    #     self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, application=Hfss3dLayout)
+    #     self.hfss3dl = BasisTest.add_app(
+    #         self, project_name=diff_proj_name, application=Hfss3dLayout, subfolder=test_subfolder
+    #     )
+    #     example_project = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
+    #     self.target_path = os.path.join(self.local_scratch.path, "Package_test_41.aedb")
+    #     self.local_scratch.copyfolder(example_project, self.target_path)
+    #     self.solve = BasisTest.add_app(
+    #         self, project_name=test_solve, application=Hfss3dLayout, subfolder=test_subfolder
+    #     )
+    #
+    # def teardown_class(self):
+    #     BasisTest.my_teardown(self)
+
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, hfss3dl, solve, local_scratch, examples):
+        self.aedtapp = aedtapp
+        self.hfss3dl = hfss3dl
+        self.solve = solve
+        self.local_scratch = local_scratch
+        self.target_path = examples[0]
 
     def test_01_creatematerial(self):
         mymat = self.aedtapp.materials.add_material("myMaterial")
@@ -247,12 +281,13 @@ class TestClass(BasisTest, object):
         assert pad1.create()
 
     def test_11_create_via(self):
-        cvia = self.aedtapp.modeler.create_via("PlanarEMVia", x=0, y=0, name="port_via")
+        tmp = self.aedtapp.modeler.vias
+        cvia = self.aedtapp.modeler.create_via("PlanarEMVia", x=1.1, y=0, name="port_via")
         via = cvia.name
         assert isinstance(via, str)
         assert self.aedtapp.modeler.vias[via].name == via == "port_via"
         assert self.aedtapp.modeler.vias[via].prim_type == "via"
-        assert self.aedtapp.modeler.vias[via].location[0] == float(0)
+        assert self.aedtapp.modeler.vias[via].location[0] == float(1.1)
         assert self.aedtapp.modeler.vias[via].location[1] == float(0)
         assert self.aedtapp.modeler.vias[via].angle == "0deg"
 
@@ -473,6 +508,7 @@ class TestClass(BasisTest, object):
         )
         assert sweep6.props["Sweeps"]["Data"] == "1GHz 2GHz 3GHz 4GHz"
 
+        exception_raised = False
         try:
             sweep7 = self.aedtapp.create_single_point_sweep(
                 setupname=setup_name,
@@ -680,8 +716,8 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.import_ipc2581(dxf_file, aedb_path=aedb_file, control_file="")
 
     @pytest.mark.skipif(config["desktopVersion"] < "2022.2", reason="Not working on AEDT 22R1")
-    def test_40_test_flex(self):
-        flex = BasisTest.add_app(self, project_name=test_rigid_flex, application=Hfss3dLayout, subfolder=test_subfolder)
+    def test_40_test_flex(self, add_app):
+        flex = add_app(project_name=test_rigid_flex, application=Hfss3dLayout, subfolder=test_subfolder)
         assert flex.enable_rigid_flex()
         pass
 
@@ -697,15 +733,16 @@ class TestClass(BasisTest, object):
         assert not self.aedtapp.modeler.create_polygon_void("Top", points2, "another_object", name="poly_43_void")
 
     @pytest.mark.skipif(is_ironpython or config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
-    def test_42_post_processing(self):
-        test_post1 = BasisTest.add_app(self, project_name=test_post, application=Maxwell3d, subfolder=test_subfolder)
+    def test_42_post_processing(self, add_app):
+        test_post1 = add_app(project_name=test_post, application=Maxwell3d, subfolder=test_subfolder)
         assert test_post1.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
             "Mag_Volume_Force_Density",
             intrinsics={"Time": "1ms"},
             plot_name="Test_Layers",
         )
-        test_post2 = Hfss(projectname=test_post1.project_name)
+        # test_post2 = Hfss(projectname=test_post1.project_name)
+        test_post2 = add_app(project_name=test_post1.project_name, just_open=True)
         assert test_post2.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
             "Mag_E",
@@ -715,9 +752,9 @@ class TestClass(BasisTest, object):
         self.aedtapp.close_project(test_post2.project_name)
 
     @pytest.mark.skipif(is_ironpython or config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
-    def test_42_post_processing_3d_layout(self):
-        test = BasisTest.add_app(
-            self, project_name="test_post_3d_layout_solved_23R2", application=Hfss3dLayout, subfolder=test_subfolder
+    def test_42_post_processing_3d_layout(self, add_app):
+        test = add_app(
+            project_name="test_post_3d_layout_solved_23R2", application=Hfss3dLayout, subfolder=test_subfolder
         )
         assert test.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
@@ -780,10 +817,11 @@ class TestClass(BasisTest, object):
     def test_95_create_text(self):
         assert self.aedtapp.modeler.create_text("test", [0, 0])
 
-    def test_96_change_nets_visibility(self):
+    def test_96_change_nets_visibility(self, add_app):
         project_name = "ipc_out"
         design_name = "Galileo_um"
-        hfss3d = Hfss3dLayout(projectname=project_name, designname=design_name, specified_version=desktop_version)
+        # hfss3d = Hfss3dLayout(projectname=project_name, designname=design_name, specified_version=desktop_version)
+        hfss3d = add_app(application=Hfss3dLayout, project_name=project_name, design_name=design_name, just_open=True)
         # hide all
         assert hfss3d.modeler.change_net_visibility(visible=False)
         # hide all
