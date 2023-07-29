@@ -260,7 +260,8 @@ class TestClass:
         assert self.edbapp.nets.find_or_create_net(start_with="g", end_with="d")
         assert self.edbapp.nets.find_or_create_net(end_with="d")
         assert self.edbapp.nets.find_or_create_net(contain="usb")
-        self.edbapp.nets["AVCC_1V3"].get_extended_net()
+        assert self.edbapp.nets["AVCC_1V3"].get_extended_net()
+        assert self.edbapp.nets.get_extended_nets()
 
     def test_011_assign_rlc(self):
         assert self.edbapp.components.set_component_rlc("C1", res_value=1e-3, cap_value="10e-6", isparallel=False)

@@ -89,7 +89,7 @@ def interference_type_classification(emitapp, use_filter=False, filter_list=None
 
                         # Check if problem type is in filtered list of problem types to analyze
                         if use_filter:
-                            in_filters = any(prob_filter_val in sublist for sublist in filter)
+                            in_filters = any(prob_filter_val in sublist for sublist in filter_list)
                         else:
                             in_filters = True
 
