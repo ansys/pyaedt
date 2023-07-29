@@ -1,5 +1,5 @@
 # Import required modules
-from _unittest.conftest import BasisTest
+# from _unittest.conftest import BasisTest
 from _unittest.conftest import NONGRAPHICAL
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
@@ -21,13 +21,18 @@ except ImportError:  # pragma: no cover
     import _unittest_ironpython.conf_unittest as pytest
 
 
-@pytest.mark.skipif(config["skip_desktop_test"], reason="Desktop tests are not selected by default.")
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        pass
+@pytest.fixture(scope="module", autouse=True)
+def desktop():
+    return
 
-    def teardown_class(self):
-        pass
+
+@pytest.mark.skipif(config["skip_desktop_test"], reason="Desktop tests are not selected by default.")
+class TestClass:
+    # def setup_class(self):
+    #     pass
+    #
+    # def teardown_class(self):
+    #     pass
 
     def test_run_desktop_mechanical(self):
         aedtapp = Mechanical(specified_version=desktop_version, non_graphical=NONGRAPHICAL)
