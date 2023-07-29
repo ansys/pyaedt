@@ -24,9 +24,11 @@ import os
 import shutil
 import sys
 import tempfile
-# import time
 
 from pyaedt.generic.settings import settings
+
+# import time
+
 
 settings.enable_local_log_file = False
 settings.enable_global_log_file = False
@@ -105,20 +107,19 @@ settings.use_grpc_api = config["use_grpc"]
 logger = pyaedt_logger
 
 
-
 import random
 import string
 
+
 def generate_random_string(length):
     characters = string.ascii_letters + string.digits
-    random_string = ''.join(random.sample(characters, length))
+    random_string = "".join(random.sample(characters, length))
     return random_string
 
+
 def generate_random_ident():
-    ident = "-"+ generate_random_string(6) +"-"+ generate_random_string(6) +"-"+ generate_random_string(6)
+    ident = "-" + generate_random_string(6) + "-" + generate_random_string(6) + "-" + generate_random_string(6)
     return ident
-
-
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -145,6 +146,7 @@ def local_scratch(init_scratch):
     yield scratch
     scratch.remove()
 
+
 @pytest.fixture(scope="module", autouse=True)
 def desktop():
     d = Desktop(desktop_version, NONGRAPHICAL, new_thread)
@@ -154,10 +156,12 @@ def desktop():
 
     d.release_desktop(True, True)
 
+
 @pytest.fixture(scope="module")
 def add_app(local_scratch):
-
-    def _method(project_name=None, design_name=None, solution_type=None, application=None, subfolder="", just_open=False):
+    def _method(
+        project_name=None, design_name=None, solution_type=None, application=None, subfolder="", just_open=False
+    ):
         if project_name and not just_open:
             example_project = os.path.join(local_path, "example_models", subfolder, project_name + ".aedt")
             example_folder = os.path.join(local_path, "example_models", subfolder, project_name + ".aedb")
@@ -178,17 +182,17 @@ def add_app(local_scratch):
         if not application:
             application = Hfss
         return application(
-                projectname=test_project,
-                designname=design_name,
-                solution_type=solution_type,
-                specified_version=desktop_version,
-            )
+            projectname=test_project,
+            designname=design_name,
+            solution_type=solution_type,
+            specified_version=desktop_version,
+        )
 
     return _method
 
+
 @pytest.fixture(scope="module")
 def test_project_file(local_scratch):
-
     def _method(project_name=None):
         project_file = os.path.join(local_scratch.path, project_name + ".aedt")
         if os.path.exists(project_file):
@@ -199,10 +203,8 @@ def test_project_file(local_scratch):
     return _method
 
 
-
 @pytest.fixture(scope="module")
 def add_edb(local_scratch):
-
     def _method(project_name=None, subfolder=""):
         if project_name:
             example_folder = os.path.join(local_path, "example_models", subfolder, project_name + ".aedb")
@@ -214,14 +216,13 @@ def add_edb(local_scratch):
         else:
             target_folder = os.path.join(local_scratch.path, generate_unique_name("TestEdb") + ".aedb")
         return Edb(
-                target_folder,
-                edbversion=desktop_version,
-            )
+            target_folder,
+            edbversion=desktop_version,
+        )
 
     return _method
 
 
-#
 # class BasisTest(object):
 #     def my_setup(self, launch_desktop=True):
 #         scratch_path = tempfile.gettempdir()
