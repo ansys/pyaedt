@@ -358,13 +358,13 @@ def force_close_desktop():
             del Module.pyaedt_initialized
         except:
             pass
+        successfully_closed = False
         try:
             os.kill(pid, 9)
             del Module.oDesktop
             successfully_closed = True
         except:
             pyaedt_logger.error("Something went wrong in closing AEDT.")
-            successfully_closed = False
         finally:
             log = logging.getLogger("Global")
             handlers = log.handlers[:]
