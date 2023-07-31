@@ -32,7 +32,7 @@ in a folder and then run this Python command:
     pip install --no-cache-dir --no-index --find-links=/path/to/pyaedt/wheelhouse pyaedt
 
 
-Another option for installnig a wheelhouse is to download the
+Another option for installing a wheelhouse is to download the
 :download:`Python file for installing PyAEDT <../Resources/PyAEDTInstallerFromDesktop.py>`.
 You can then run this file directly from AEDT **Script** menu, passing the wheelhouse file as
 an argument.
@@ -49,7 +49,7 @@ Up until AEDT 2022R2, the method for connecting Python to AEDT-API used COM.
 COM is a technology which requires interfaces, classes, objects, and methods to be registered in Windows Registry.
 All communication between Python and the AEDT API were translated through an intermediate layer by a
 third-party module, pywin32. Usage of this module was limited to the Windows OS only.
-Python.NET was added to make the connection to the AEDT API.
+``Python.NET`` was added to make the connection to the AEDT API.
 
 In 2022 R2, a new technology, gRPC, was added to replace COM. gRPC is a modern framework
 that uses remote procedure calls to communicate with the API.
@@ -68,11 +68,11 @@ that uses remote procedure calls to communicate with the API.
      - gRPC Beta
      - gRPC Available
    * - AEDT
-     - Only Python.NET
-     - Python.NET default.
+     - Only ``Python.NET``
+     - ``Python.NET`` default.
        gRPC: pyaedt.settings.use_grpc_api = True
      - gRPC default
-       Python.NET: pyaedt.settings.use_grpc_api = False
+       ``Python.NET``: pyaedt.settings.use_grpc_api = False
 
 The preceding options are available only in Windows. Linux uses gRPC in any version as it is the only way to connect
 to AEDT API.
@@ -158,7 +158,7 @@ Then start the ``ansysedt.exe`` as file as the gRPC server.
     ansysedt -grpcsrv 50051
 
 The gRPC trace is printed on the terminal console. Capture the output as the ``server.txt`` file.
-In another termina, run these commands:
+In another terminal, run these commands:
 
 .. code:: python
 
