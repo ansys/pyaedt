@@ -670,15 +670,15 @@ class Revision:
         Parameters
         ----------
         category : :class:`EmiCategoryFilter`
-            The EMI category filter.
+            EMI category filter.
 
         Returns
         -------
         bool
-            ``True`` when the EMI category filter is enabled.
+            ``True`` when the EMI category filter is enabled, ``False`` otherwise.
         """
         if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
-            raise RuntimeError("This function only supported in AEDT version 2024.1 and later.")
+            raise RuntimeError("This function is only supported in AEDT version 2024 R1 and later.")
         engine = self.emit_project._emit_api.get_engine()
         return engine.get_emi_category_filter_enabled(category)
 
@@ -688,11 +688,11 @@ class Revision:
         Parameters
         ----------
         category : :class:`EmiCategoryFilter`
-            The EMI category filter.
+            EMI category filter.
         enabled : bool
             Whether to enable the EMI category filter.
         """
         if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
-            raise RuntimeError("This function only supported in AEDT version 2024.1 and later.")
+            raise RuntimeError("This function is only supported in AEDT version 2024 R1 and later.")
         engine = self.emit_project._emit_api.get_engine()
         engine.set_emi_category_filter_enabled(category, enabled)
