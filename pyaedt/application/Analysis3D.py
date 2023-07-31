@@ -1213,7 +1213,7 @@ class FieldAnalysis3D(Analysis, object):
 
         """
         if self.desktop_class.non_graphical:
-            self.logger.error("Method is supported only in graphical mode")
+            self.logger.error("Method is supported only in graphical mode.")
             return False
         layers = self.get_dxf_layers(file_path)
         for layer in layers_list:

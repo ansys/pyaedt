@@ -283,7 +283,7 @@ def _close_aedt_application(close_desktop, pid, is_grpc_api):
     pid : int
         Process ID of the desktop app that is being closed.
     is_grpc_api : bool
-        Whether the active AEDT session is GRPC or COM.
+        Whether the active AEDT session is gRPC or COM.
 
     Returns
     -------
@@ -514,7 +514,8 @@ def is_student_version(oDesktop):
 
 
 def _init_desktop_from_design(*args, **kwargs):
-    """Used to distinguish if the Desktop is initialized internally from Design or directly from the outside"""
+    """Distinguishes if the ``Desktop`` class is initialized internally from the ``Design``
+    class or directly from the user. For example, ``desktop=Desktop()``)."""
     Desktop._invoked_from_design = True
     return Desktop(*args, **kwargs)
 
@@ -844,7 +845,7 @@ class Desktop(object):
         current_is_student = is_student_version(self._main.oDesktop)
         if student_version ^ current_is_student:
             self._logger.warning(
-                "AEDT started as {} Version, but requested as {} Version.".format(
+                "AEDT started as {} version, but requested as {} version.".format(
                     "Student" if current_is_student else "Regular", "Student" if student_version else "Regular"
                 )
             )
@@ -961,7 +962,7 @@ class Desktop(object):
 
     @property
     def current_student_version(self):
-        """Current student AEDT version."""
+        """Current AEDT student  version."""
         return current_student_version()
 
     @property
@@ -1002,12 +1003,12 @@ class Desktop(object):
 
         if float(specified_version[0:6]) < 2019:
             raise ValueError(
-                "PyAEDT supports AEDT version 2021 R1 and later. Recommended version is 2022 R2 or higher."
+                "PyAEDT supports AEDT version 2021 R1 and later. Recommended version is 2022 R2 or later."
             )
         elif float(specified_version[0:6]) < 2022.2:
             warnings.warn(
                 """PyAEDT has limited capabilities when used with an AEDT version earlier than 2022 R2.
-                Update your AEDT installation to 2022 R2 or higher."""
+                Update your AEDT installation to 2022 R2 or later."""
             )
         if not (specified_version in self.installed_versions):
             raise ValueError(
