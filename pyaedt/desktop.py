@@ -1002,9 +1002,7 @@ class Desktop(object):
             specified_version += "SV"
 
         if float(specified_version[0:6]) < 2019:
-            raise ValueError(
-                "PyAEDT supports AEDT version 2021 R1 and later. Recommended version is 2022 R2 or later."
-            )
+            raise ValueError("PyAEDT supports AEDT version 2021 R1 and later. Recommended version is 2022 R2 or later.")
         elif float(specified_version[0:6]) < 2022.2:
             warnings.warn(
                 """PyAEDT has limited capabilities when used with an AEDT version earlier than 2022 R2.
