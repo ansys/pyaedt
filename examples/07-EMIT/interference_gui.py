@@ -17,7 +17,6 @@ import pyaedt
 import os
 import subprocess
 import pyaedt.generic.constants as consts
-from pyaedt.emit_core.interference_classification import interference_type_classification, protection_level_classification
 
 # Check that emit is a compatible version
 emitapp_desktop_version = "2023.2"
@@ -34,15 +33,21 @@ def install(package):
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', package])
 
 # Install required libraries for GUI and Excel exporting (internet connection needed)
-required_packages = ['PySide2', 'openpyxl']
+required_packages = ['PySide6', 'openpyxl']
 for package in required_packages:
     if package not in installed_packages:
         install(package)
 
-# Import PySide2 and openpyxl libraries
-from PySide2 import QtWidgets, QtUiTools, QtGui
+# Import PySide6 and openpyxl libraries
+from PySide6 import QtWidgets, QtUiTools, QtGui
 from openpyxl.styles import PatternFill
 import openpyxl
+
+# Uncomment if there are Qt plugin errors
+# import PySide6
+# dirname = os.path.dirname(PySide6.__file__)
+# plugin_path = os.path.join(dirname, 'plugins', 'platforms')
+# os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = plugin_path
 
 # Launch EMIT
 non_graphical = False
@@ -57,7 +62,7 @@ import EmitApiPython
 api = EmitApiPython.EmitApi()
 
 # Define .ui file for GUI
-cwd = os.getcwd()
+cwd = os.path.dirname(os.path.realpath(__file__))
 Ui_MainWindow, _ = QtUiTools.loadUiType(cwd + "\\interference_gui.ui")
 
 class DoubleDelegate(QtWidgets.QStyledItemDelegate):
@@ -106,6 +111,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.protection_save_img_btn = self.findChild(QtWidgets.QPushButton, 'protection_save_img_btn')
 
         # Setup for protection level buttons and table
+        self.protection_results_btn.setEnabled(False)
         self.protection_export_btn.setEnabled(False)
         self.protection_save_img_btn.setEnabled(False)
         self.file_select_btn.clicked.connect(self.open_file_dialog) 
@@ -139,6 +145,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.interference_save_img_btn = self.findChild(QtWidgets.QPushButton, 'interference_save_img_btn')
         
         # Setup for interference type buttons and table
+        self.interference_results_btn.setEnabled(False)
         self.interference_export_btn.setEnabled(False)
         self.interference_save_img_btn.setEnabled(False)
         self.interference_export_btn.clicked.connect(self.save_results_excel)
@@ -183,6 +190,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Input validation for protection level legend table
         delegate = DoubleDelegate(decimals=2)
         self.protection_legend_table.setItemDelegateForColumn(0, delegate)
+        self.open_file_dialog()
 
     ###############################################################################
     # Open file dialog and select project
@@ -198,6 +206,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             # Close previous project and open specified one
             emitapp.close_project()       
             emitapp.load_project(self.file_path_box.text())
+
+            # Check if project is already open
+            if emitapp.lock_file == None:
+                msg = QtWidgets.QMessageBox()
+                msg.setWindowTitle("Error: Project already open")
+                msg.setText("Project is locked. Close or remove the lock before proceeding. See AEDT log for more information.")
+                x = msg.exec()
+                return
             
             # Populate design dropdown with all design names
             designs = emitapp.oproject.GetDesigns()
@@ -217,6 +233,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.protection_levels['Global'] = values
 
             self.radio_specific_levels.setEnabled(True)
+            self.protection_results_btn.setEnabled(True)
+            self.interference_results_btn.setEnabled(True)
     
     ###############################################################################
     # Enable radio specific proteciton levels
@@ -333,11 +351,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         if self.file_path_box.text() != "" and self.design_name_dropdown.currentText() != "":
             if self.previous_design != self.design_name_dropdown.currentText() or self.previous_project != self.file_path_box.text():
-                # emitapp.close_project()
                 self.previous_design = self.design_name_dropdown.currentText()
                 self.previous_project = self.file_path_box.text()
                 emitapp.set_active_design(self.design_name_dropdown.currentText())
-            
+
+                # Check if file is read-only
+                if emitapp.save_project() == False:
+                    msg = QtWidgets.QMessageBox()
+                    msg.setWindowTitle("Writing Error")
+                    msg.setText("An error occured while writing to the file. Is it readonly? Disk full? See AEDT log for more information.")
+                    x = msg.exec()
+                    return
+
                 # Get results and radios
                 self.rev = emitapp.results.analyze()
                 self.tx_interferer = InterfererType().TRANSMITTERS
@@ -353,7 +378,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             # Iterate over all the transmitters and receivers and compute the power
             # at the input to each receiver due to each of the transmitters. Compute
             # which, if any, type of interference occured.
-            self.all_colors, self.power_matrix = interference_type_classification(emitapp, use_filter = True, filter = filter)
+            domain = emitapp.results.interaction_domain()
+            self.all_colors, self.power_matrix = self.rev.interference_type_classification(domain, use_filter = True, filter_list = filter)
 
             # Save project and plot results on table widget
             emitapp.save_project()
@@ -380,6 +406,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.previous_project = self.file_path_box.text()
                 emitapp.set_active_design(self.design_name_dropdown.currentText())
 
+                # Check if file is read-only
+                if emitapp.save_project() == False:
+                    msg = QtWidgets.QMessageBox()
+                    msg.setWindowTitle("Writing Error")
+                    msg.setText("An error occured while writing to the file. Is it readonly? Disk full? See AEDT log for more information.")
+                    x = msg.exec()
+                    return
+                
                 # Get results and design radios
                 self.tx_interferer = InterfererType().TRANSMITTERS
                 self.rev = emitapp.results.analyze()
@@ -390,11 +424,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if self.tx_radios is None or self.rx_radios is None:
                 return
 
-            self.all_colors, self.power_matrix = protection_level_classification(emitapp, 
+            domain = emitapp.results.interaction_domain()
+            self.all_colors, self.power_matrix = self.rev.protection_level_classification(domain, 
                                                                                  self.global_protection_level, 
                                                                                  self.protection_levels['Global'], 
                                                                                  self.protection_levels, use_filter = True, 
-                                                                                 filter = filter)
+                                                                                 filter_list = filter)
 
             self.populate_table()
     
@@ -436,6 +471,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     # ~~~~~~~~~~~~~~~~~
     # Close AEDT if the GUI is closed.
     def closeEvent(self, event):
+        msg = QtWidgets.QMessageBox()
+        msg.setWindowTitle("Closing GUI")
+        msg.setText("Closing AEDT, please wait for GUI to close on its own.")
+        x = msg.exec()
+        emitapp.close_project()
         emitapp.close_desktop()
 
 ###############################################################################
@@ -448,4 +488,4 @@ if __name__ == '__main__':
     app = QtWidgets.QApplication([])
     window = MainWindow()
     # window.show()
-    # app.exec_()
+    # app.exec()

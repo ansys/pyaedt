@@ -776,7 +776,7 @@ class TestClass(BasisTest, object):
         )
 
     def test_95_create_text(self):
-        assert self.aedtapp.modeler.create_text("test", [0, 0])
+        assert self.aedtapp.modeler.create_text("test", [0, 0], "SIwave Regions")
 
     def test_96_change_nets_visibility(self):
         project_name = "ipc_out"
