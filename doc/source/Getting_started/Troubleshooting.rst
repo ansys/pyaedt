@@ -96,6 +96,7 @@ This can be done even without PyAEDT to check that everything is setup correctly
 variables have been correctly setup.
 
 .. code:: python
+
     import sys
     sys.path.append(r"ANSYSEM_ROOT231\PythonFiles\DesktopPlugin")
     import ScriptEnv
@@ -119,11 +120,13 @@ This may be due to:
 In case of issues with proxy, you may try the following environment variable:
 
 .. code:: python
+
     export no_proxy=localhost,127.0.0.1
 
 Run your PyAEDT script. If it still fails, then try:
 
 .. code:: python
+
     export http_proxy=
 
 Run your PyAEDT script. If the errors still persists, try the following:
