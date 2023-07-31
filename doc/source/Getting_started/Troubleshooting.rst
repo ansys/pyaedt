@@ -57,7 +57,7 @@ requires all interfaces to be registered in the Windows Registry.
 Communication between Python and the AEDT API were translated through an intermediate layer using
 `pywin32 <https://github.com/mhammond/pywin32>`_. The recent addition of
 `PythonNET <https://pythonnet.github.io/pythonnet/>`_ improves
-cross-platform support and replacement of the COM interface by `GRPC <https://grpc.io/>`_,
+cross-platform support and the COM interface is replaced by `GRPC <https://grpc.io/>`_,
 for 2022R2 and later.
 
 
@@ -81,12 +81,12 @@ for 2022R2 and later.
        PythonNET: pyaedt.settings.use_grpc_api = False
 
 The options shown here apply only to the Windows platform.
-On Linux, the Python interface to AEDT always uses GRPC.
+On Linux, the Python interface to AEDT uses GRPC for all versions.
 
 
-How to check that Electronics Desktop API is working and correctly configured
------------------------------------------------------------------------------
-To start the Electronics desktop server in GRPC mode use the following syntax:
+Check the Electronics Desktop API configuration
+-----------------------------------------------------
+To start the Electronics Desktop server in GRPC mode use the following syntax:
 
 .. code:: bat
    :caption: Windows
@@ -99,15 +99,17 @@ To start the Electronics desktop server in GRPC mode use the following syntax:
    path\to\AnsysEM\v231\Lin64\ansysedt -grpcsrv 50352
 
 The server port number is used by AEDT to listen and receive
-command from PyAEDT client instances. This configuration
+commands from PyAEDT client instances. This configuration
 supports multiple sessions of AEDT running on a single server
 and listening on the same port.
 
-Check that AEDT GRPC API can run
---------------------------------
-Native Electronics Desktop API command can be used to launch Electronics Desktop from command line.
-This can be done even without PyAEDT to check that everything is setup correctly and all environment
-variables have been correctly setup.
+Check the GRPC Interface
+------------------------
+The native Electronics Desktop API can be used to launch
+Electronics Desktop from the command line.
+This can be done even without PyAEDT to check that everything is set up correctly
+and all environment
+variables have been defined.
 
 .. code:: python
 
