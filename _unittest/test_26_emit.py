@@ -942,8 +942,8 @@ class TestClass:
         config["desktopVersion"] <= "2023.1" or is_ironpython,
         reason="Skipped on versions earlier than 2023.2",
     )
-    def test_interference_scripts_no_filter(self):
-        self.aedtapp = BasisTest.add_app(self, project_name="interference", application=Emit, subfolder=test_subfolder)
+    def test_interference_scripts_no_filter(self, add_app):
+        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=test_subfolder)
 
         # Generate a revision
         rev = self.aedtapp.results.analyze()
@@ -969,8 +969,8 @@ class TestClass:
         assert protection_colors == expected_protection_colors
         assert protection_power_matrix == expected_protection_power
 
-    def test_radio_protection_levels(self):
-        self.aedtapp = BasisTest.add_app(self, project_name="interference", application=Emit, subfolder=test_subfolder)
+    def test_radio_protection_levels(self, add_app):
+        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=test_subfolder)
 
         # Generate a revision
         rev = self.aedtapp.results.analyze()
@@ -999,8 +999,8 @@ class TestClass:
         config["desktopVersion"] <= "2023.1" or is_ironpython,
         reason="Skipped on versions earlier than 2023.2",
     )
-    def test_interference_filtering(self):
-        self.aedtapp = BasisTest.add_app(self, project_name="interference", application=Emit, subfolder=test_subfolder)
+    def test_interference_filtering(self, add_app):
+        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=test_subfolder)
 
         # Generate a revision
         rev = self.aedtapp.results.analyze()
@@ -1040,8 +1040,8 @@ class TestClass:
             assert interference_colors == expected_interference_colors
             assert interference_power_matrix == expected_interference_power
 
-    def test_protection_filtering(self):
-        self.aedtapp = BasisTest.add_app(self, project_name="interference", application=Emit, subfolder=test_subfolder)
+    def test_protection_filtering(self, add_app):
+        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=test_subfolder)
 
         # Generate a revision
         rev = self.aedtapp.results.analyze()
