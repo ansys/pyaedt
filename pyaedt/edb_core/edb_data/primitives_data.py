@@ -110,10 +110,11 @@ class EDBPrimitivesMain:
     @net_name.setter
     def net_name(self, name):
         if isinstance(name, str):
-            self.net.SetName(name)
+            net = self._app.nets.nets[name].net_object
+            self.primitive_object.SetNet(net)
         else:
             try:
-                self.net.SetName(name.GetName())
+                self.net = name
             except:
                 self._app.logger.error("Failed to set net name.")
 

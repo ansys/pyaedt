@@ -2872,7 +2872,20 @@ class Edb(Database):
                         if len(simulation_setup.etching_factor_instances) > idx:
                             self.stackup[layer].etch_factor = float(simulation_setup.etching_factor_instances[idx])
 
+            if not simulation_setup.signal_nets and simulation_setup.components:
+                nets_to_include = []
+                pnets = list(self.nets.power_nets.keys())[:]
+                for el in simulation_setup.components:
+                    nets_to_include.append([i for i in self.components[el].nets if i not in pnets])
+                simulation_setup.signal_nets = [
+                    i
+                    for i in list(set.intersection(*map(set, nets_to_include)))
+                    if i not in simulation_setup.power_nets and i != ""
+                ]
             self.nets.classify_nets(simulation_setup.power_nets, simulation_setup.signal_nets)
+            if not simulation_setup.power_nets or not simulation_setup.signal_nets:
+                self.logger.info("Disabling cutout as no signals or power nets have been defined.")
+                simulation_setup.do_cutout_subdesign = False
             if simulation_setup.do_cutout_subdesign:
                 self.logger.info("Cutting out using method: {0}".format(simulation_setup.cutout_subdesign_type))
                 if simulation_setup.use_default_cutout:
