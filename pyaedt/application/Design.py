@@ -472,6 +472,7 @@ class Design(AedtObjects):
         del self._variable_manager[key]
 
     def _init_variables(self):
+        self.__aedt_version = ""
         self._modeler = None
         self._post = None
         self._materials = None
@@ -566,16 +567,11 @@ class Design(AedtObjects):
 
         >>> oDesktop.GetVersion()
         """
-        version = self.odesktop.GetVersion()
-        return get_version_env_variable(version)
+        return get_version_env_variable(self.desktop_class.aedt_version_id)
 
     @property
     def _aedt_version(self):
-        if self.odesktop:
-            v = self.odesktop.GetVersion()
-            if v:
-                return v[0:6]
-        return ""
+        return self.desktop_class.aedt_version_id
 
     @property
     def design_name(self):
