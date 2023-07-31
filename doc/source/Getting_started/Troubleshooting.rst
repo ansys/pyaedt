@@ -78,7 +78,7 @@ to AEDT API.
 
 How to check that Electronics Desktop API is working and correctly configured
 -----------------------------------------------------------------------------
-To start Electronics desktop server in GRPC mode use the following syntax:
+To start Electronics desktop server in gRPC mode use the following syntax:
 
 .. code:: python
 
