@@ -151,7 +151,7 @@ Then start ansysedt.exe as GRPC server.
 
 .. code:: python
 
-    >./ansysedt -grpcsrv 50051
+    ansysedt -grpcsrv 50051
 
 The GRPC trace is printed on the terminal console. Capture the output as the server.txt file.
 In another terminal:
