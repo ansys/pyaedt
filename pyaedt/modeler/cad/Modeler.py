@@ -2217,9 +2217,11 @@ class GeometryModeler(Modeler, object):
             name = cs.name + "_RefToGlobal"
             if name in cs_names:
                 name = cs.name + generate_unique_name("_RefToGlobal")
-            face_cs = FaceCoordinateSystem(self, props=cs.props, name=name, face_id=cs.face_id)
-            obj = [obj for obj in self._app.modeler.object_list for face in obj.faces if face.id == face_cs.face_id][0]
-            face = [face for face in obj.faces if face.id == face_cs.face_id][0]
+            face_cs = FaceCoordinateSystem(self, props=cs.props, name=name, face_id=cs.props["FaceID"])
+            obj = [
+                obj for obj in self._app.modeler.object_list for face in obj.faces if face.id == face_cs.props["FaceID"]
+            ][0]
+            face = [face for face in obj.faces if face.id == face_cs.props["FaceID"]][0]
             if face_cs.props["Origin"]["PositionType"] == "FaceCenter":
                 origin = face
             elif face_cs.props["Origin"]["PositionType"] == "EdgeCenter":
@@ -2254,7 +2256,7 @@ class GeometryModeler(Modeler, object):
                     always_move_to_end=face_cs["MoveToEnd"],
                 )
                 if result:
-                    return cs
+                    return face_cs
         return False
 
     @pyaedt_function_handler()

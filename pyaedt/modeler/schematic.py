@@ -79,16 +79,6 @@ class ModelerCircuit(Modeler):
         >>> oEditor = oDesign.SetActiveEditor("SchematicEditor")"""
         return self._app.oeditor
 
-    @property
-    def obounding_box(self):
-        """Bounding box.
-
-        References
-        ----------
-
-        >>> oEditor.GetModelBoundingBox()"""
-        return self.oeditor.GetModelBoundingBox()
-
     @pyaedt_function_handler()
     def zoom_to_fit(self):
         """Zoom To Fit.

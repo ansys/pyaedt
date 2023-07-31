@@ -1788,7 +1788,15 @@ class NexximComponents(CircuitComponents):
         return models
 
     @pyaedt_function_handler()
-    def create_component_from_spicemodel(self, model_path, model_name=None, create_component=True, location=None):
+    def create_component_from_spicemodel(
+        self,
+        model_path,
+        model_name=None,
+        create_component=True,
+        location=None,
+        symbol_path="Nexxim Circuit Elements\\Nexxim_symbols:",
+        symbol_name="",
+    ):
         """Create and place a new component based on a spice .lib file.
 
         Parameters
@@ -1801,11 +1809,27 @@ class NexximComponents(CircuitComponents):
             If set to ``True``, create a spice model component. Otherwise, only import the spice model.
         location : list, optional
             Position in the schematic of the new component.
+        symbol_path : str, optional
+            Path to the symbol library.
+            Default value is ``"Nexxim Circuit Elements\\Nexxim_symbols:"``.
+        symbol_name : str, optional
+            Symbol name to replace the spice model with.
+            Default value is an empty string which means the default symbol for spice is used.
 
         Returns
         -------
         :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
+
+        Examples
+        --------
+        >>> from pyaedt import Circuit
+        >>> cir = Circuit(specified_version="2023.2")
+        >>> model = os.path.join("Your path", "test.lib")
+        >>> cir.modeler.schematic.create_component_from_spicemodel(model_path=model,
+        >>>                                                        model_name="GRM1234",
+        >>>                                                        symbol_name="nexx_cap")
+        >>> cir.release_desktop(False, False)
         """
         models = self._parse_spice_model(model_path)
         if not model_name and models:
@@ -1817,7 +1841,10 @@ class NexximComponents(CircuitComponents):
         for el in models:
             arg2.append(el + ":=")
             if el == model_name:
-                arg2.append([True, "", "", False])
+                if symbol_path and symbol_name:
+                    arg2.append([True, symbol_path + symbol_name, "", False])
+                else:
+                    arg2.append([True, "", "", False])
             else:
                 arg2.append([False, "", "", False])
         arg.append(arg2)

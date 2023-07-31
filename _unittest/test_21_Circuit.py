@@ -408,6 +408,18 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2345", False)
         assert not self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2346")
 
+    def test_29a_create_circuit_from_spice_edit_symbol(self):
+        model = os.path.join(local_path, "example_models", test_subfolder, "test.lib")
+        assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(
+            model_path=model, model_name="GRM5678", symbol_name="nexx_cap"
+        )
+        assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(
+            model_path=model, model_name="GRM6789", symbol_name="nexx_inductor"
+        )
+        assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(
+            model_path=model, model_name="GRM9012", symbol_name="nexx_res"
+        )
+
     def test_30_create_subcircuit(self):
         subcircuit = self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0], angle=0)
         assert type(subcircuit.location) is list
