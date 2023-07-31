@@ -2,10 +2,12 @@ import os
 
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
-# from _unittest.conftest import scratch_path
 
 from pyaedt import pyaedt_path
 from pyaedt.generic.pdf import AnsysReport
+
+# from _unittest.conftest import scratch_path
+
 
 try:
     import pytest  # noqa: F401
@@ -14,9 +16,11 @@ except ImportError:
 
 tol = 1e-12
 
+
 @pytest.fixture(scope="module", autouse=True)
 def desktop():
     return
+
 
 class TestClass(object):
     # def setup_class(self):

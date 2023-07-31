@@ -1,8 +1,6 @@
 # standard imports
 import math
 
-# from _unittest.conftest import BasisTest
-
 from pyaedt.generic.general_methods import _to_boolean
 from pyaedt.generic.general_methods import _uname
 from pyaedt.generic.general_methods import is_ironpython
@@ -11,10 +9,14 @@ from pyaedt.generic.general_methods import time_fn
 from pyaedt.modeler.cad.elements3d import EdgePrimitive
 from pyaedt.modeler.cad.elements3d import FacePrimitive
 
+# from _unittest.conftest import BasisTest
+
+
 try:
     import pytest
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
+
 
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
@@ -31,10 +33,9 @@ class TestClass:
     #     BasisTest.my_teardown(self)
 
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp,  local_scratch):
+    def init(self, aedtapp, local_scratch):
         self.aedtapp = aedtapp
         self.local_scratch = local_scratch
-
 
     def create_example_coil(self, name=None):
         if not name:

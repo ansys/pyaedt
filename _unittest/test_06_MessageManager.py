@@ -16,6 +16,7 @@ except ImportError:
 
 LOGGER = logging.getLogger(__name__)
 
+
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
     app = add_app()
@@ -58,10 +59,9 @@ class TestClass:
     #     BasisTest.my_teardown(self)
 
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp,  local_scratch):
+    def init(self, aedtapp, local_scratch):
         self.aedtapp = aedtapp
         self.local_scratch = local_scratch
-
 
     def test_00_global_messenger(self):
         msg = AedtLogger()

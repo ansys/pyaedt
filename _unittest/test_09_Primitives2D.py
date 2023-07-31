@@ -12,6 +12,7 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
+
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
     app = add_app(design_name="2D_Primitives_2", solution_type="TransientXY", application=Maxwell2d)
@@ -29,7 +30,7 @@ class TestClass:
     #     BasisTest.my_teardown(self)
 
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp,  local_scratch):
+    def init(self, aedtapp, local_scratch):
         self.aedtapp = aedtapp
         self.local_scratch = local_scratch
 

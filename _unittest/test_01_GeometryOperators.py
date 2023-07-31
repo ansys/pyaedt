@@ -1,7 +1,5 @@
 import math
 
-# from _unittest.conftest import BasisTest
-
 from pyaedt.generic.constants import AXIS
 from pyaedt.generic.constants import PLANE
 from pyaedt.generic.constants import SWEEPDRAFT
@@ -9,6 +7,9 @@ from pyaedt.generic.constants import unit_converter
 from pyaedt.modeler.calculators import StandardWaveguide as wg
 from pyaedt.modeler.calculators import TransmissionLine as tl
 from pyaedt.modeler.geometry_operators import GeometryOperators as go
+
+# from _unittest.conftest import BasisTest
+
 
 try:
     import pytest  # noqa: F401
@@ -26,9 +27,11 @@ def is_vector_equal(v, r):
     n = math.sqrt(t)
     return n < 1e-12
 
+
 @pytest.fixture(scope="module", autouse=True)
 def desktop():
     return
+
 
 class TestClass:
     # def setup_class(self):

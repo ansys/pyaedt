@@ -1,9 +1,10 @@
 import os
-import pytest
 
 # from _unittest.conftest import BasisTest
 from _unittest.conftest import config
-from _unittest.conftest import local_path
+
+# from _unittest.conftest import local_path
+import pytest
 
 from pyaedt import Q2d
 
@@ -16,10 +17,12 @@ else:
     q2d_solved_sweep = "q2d_solved_sweep"
     q2d_solved_nominal = "q2d_solved_nominal"
 
+
 @pytest.fixture(scope="class")
 def q2d_solved_sweep_app(add_app):
     app = add_app(application=Q2d, project_name=q2d_solved_sweep, subfolder=test_subfolder)
     return app
+
 
 @pytest.fixture(scope="class")
 def q2d_solved_nominal_app(add_app):
@@ -35,7 +38,7 @@ class TestClass:
     #     BasisTest.my_teardown(self)
 
     @pytest.fixture(autouse=True)
-    def init(self, q2d_solved_sweep_app,q2d_solved_nominal_app, local_scratch):
+    def init(self, q2d_solved_sweep_app, q2d_solved_nominal_app, local_scratch):
         self.q2d_solved_sweep_app = q2d_solved_sweep_app
         self.q2d_solved_nominal_app = q2d_solved_nominal_app
         self.local_scratch = local_scratch

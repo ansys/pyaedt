@@ -2,7 +2,7 @@
 import os
 
 # from _unittest.conftest import BasisTest
-from _unittest.conftest import desktop_version
+# from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 
 from pyaedt import Icepak
@@ -18,11 +18,11 @@ except ImportError:
 
 test_subfolder = "T03"
 
+
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
     app = add_app(project_name="Test03")
     return app
-
 
 
 class TestClass:
@@ -33,12 +33,10 @@ class TestClass:
     # def teardown_class(self):
     #     BasisTest.my_teardown(self)
 
-
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp,  local_scratch):
+    def init(self, aedtapp, local_scratch):
         self.aedtapp = aedtapp
         self.local_scratch = local_scratch
-
 
     def test_01_vaacum(self):
         assert "vacuum" in list(self.aedtapp.materials.material_keys.keys())

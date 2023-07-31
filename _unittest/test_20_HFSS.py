@@ -9,7 +9,7 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 # Setup paths for module imports
 # from _unittest.conftest import BasisTest
-from _unittest.conftest import desktop_version
+# from _unittest.conftest import desktop_version
 from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
 from _unittest.conftest import settings
@@ -31,6 +31,7 @@ def aedtapp(add_app):
     app = add_app(project_name="Test_20", design_name="test_20")
     return app
 
+
 @pytest.fixture(scope="class")
 def fall_back_name(aedtapp):
     name = aedtapp.design_name
@@ -45,7 +46,6 @@ class TestClass:
     #
     # def teardown_class(self):
     #     BasisTest.my_teardown(self)
-
 
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, fall_back_name, local_scratch):

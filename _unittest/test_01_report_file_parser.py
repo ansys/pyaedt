@@ -1,4 +1,5 @@
 import os
+
 import pytest
 
 from pyaedt.generic.report_file_parser import parse_rdat_file
@@ -6,9 +7,11 @@ from pyaedt.generic.report_file_parser import parse_rdat_file
 local_path = os.path.dirname(os.path.realpath(__file__))
 test_subfolder = "TReport"
 
+
 @pytest.fixture(scope="module", autouse=True)
 def desktop():
     return
+
 
 def test_report_file_parser():
     data = parse_rdat_file(os.path.join(local_path, "example_models", test_subfolder, "test_report.rdat"))

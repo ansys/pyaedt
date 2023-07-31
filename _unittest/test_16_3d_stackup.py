@@ -4,10 +4,12 @@
 # Import required modules
 import pytest
 
+
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
     app = add_app(project_name="Test_16")
     return app
+
 
 @pytest.fixture(scope="class")
 def st(aedtapp):

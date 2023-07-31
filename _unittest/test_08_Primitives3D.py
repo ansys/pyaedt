@@ -48,6 +48,7 @@ def aedtapp(add_app):
     app = add_app(project_name="test_primitives", design_name="3D_Primitives")
     return app
 
+
 @pytest.fixture(scope="class")
 def flatten(add_app):
     app = add_app(project_name=components_flatten, subfolder=test_subfolder)
@@ -66,7 +67,15 @@ def examples(local_scratch):
     test_99_project = os.path.join(local_path, "example_models", test_subfolder, assembly + ".aedt")
     test_99_project = local_scratch.copyfile(test_99_project)
     layout_component = os.path.join(local_path, "example_models", test_subfolder, layout_comp)
-    return scdoc_file, step_file, component3d_file, encrypted_cylinder, test_98_project, test_99_project, layout_component
+    return (
+        scdoc_file,
+        step_file,
+        component3d_file,
+        encrypted_cylinder,
+        test_98_project,
+        test_99_project,
+        layout_component,
+    )
 
 
 class TestClass:

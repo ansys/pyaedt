@@ -25,6 +25,7 @@ except ImportError:
 
 test_subfolder = "T26"
 
+
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
     app = add_app(application=Emit)

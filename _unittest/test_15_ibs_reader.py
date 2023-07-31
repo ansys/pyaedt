@@ -1,13 +1,14 @@
 import os
-import pytest
 
 # from _unittest.conftest import BasisTest
 from _unittest.conftest import local_path
+import pytest
 
 from pyaedt import Circuit
 from pyaedt.generic import ibis_reader
 
 test_subfolder = "T15"
+
 
 @pytest.fixture(scope="class")
 def aedtapp(add_app):

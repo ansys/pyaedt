@@ -27,13 +27,17 @@ else:
 ctrl_prg = "TimeStepCtrl"
 ctrl_prg_file = "timestep_only.py"
 
+
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
-    app = add_app(project_name=test_name, design_name="Basis_Model_For_Test", application=Maxwell2d, subfolder=test_subfolder)
+    app = add_app(
+        project_name=test_name, design_name="Basis_Model_For_Test", application=Maxwell2d, subfolder=test_subfolder
+    )
     if config["desktopVersion"] < "2023.1":
         app.duplicate_design("design_for_test")
         app.set_active_design("Basis_Model_For_Test")
     return app
+
 
 @pytest.fixture(scope="class")
 def m2d_ctrl_prg(add_app):

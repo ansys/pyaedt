@@ -1,9 +1,9 @@
 import os
-import pytest
 
 # from _unittest.conftest import BasisTest
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
+import pytest
 
 from pyaedt import Q2d
 
@@ -15,17 +15,18 @@ if desktop_version > "2022.2":
 else:
     q2d_q3d = "q2d_q3d"
 
+
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
     app = add_app(application=Q2d)
     return app
 
+
 @pytest.fixture(scope="class", autouse=True)
 def examples(local_scratch):
-    test_matrix = local_scratch.copyfile(
-        os.path.join(local_path, "example_models", test_subfolder, q2d_q3d + ".aedt")
-    )
+    test_matrix = local_scratch.copyfile(os.path.join(local_path, "example_models", test_subfolder, q2d_q3d + ".aedt"))
     return test_matrix, None
+
 
 class TestClass:
     # def setup_class(self):

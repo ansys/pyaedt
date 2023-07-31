@@ -2,7 +2,6 @@
 # Setup paths for module imports
 # from _unittest.conftest import BasisTest
 from _unittest.conftest import desktop_version
-
 import pytest
 
 from pyaedt import Circuit
@@ -13,6 +12,7 @@ if desktop_version > "2022.2":
     test_project_name = "coax_setup_231"
 else:
     test_project_name = "coax_setup"
+
 
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
@@ -29,7 +29,7 @@ class TestClass:
     #     BasisTest.my_teardown(self)
 
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp,  local_scratch):
+    def init(self, aedtapp, local_scratch):
         self.aedtapp = aedtapp
         self.local_scratch = local_scratch
 

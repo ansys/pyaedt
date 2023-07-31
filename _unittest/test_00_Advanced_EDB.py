@@ -25,10 +25,12 @@ except ImportError:  # pragma: no cover
 
 test_subfolder = "TEDB"
 
+
 @pytest.fixture(scope="class")
 def edbapp(add_edb):
     app = add_edb(test_project_name, subfolder=test_subfolder)
     return app
+
 
 @pytest.fixture(scope="class", autouse=True)
 def target_path(local_scratch):
@@ -37,12 +39,14 @@ def target_path(local_scratch):
     local_scratch.copyfolder(example_project, target_path)
     return target_path
 
+
 @pytest.fixture(scope="class", autouse=True)
 def target_path2(local_scratch):
     example_project2 = os.path.join(local_path, "example_models", test_subfolder, "simple.aedb")
     target_path2 = os.path.join(local_scratch.path, "simple_00.aedb")
     local_scratch.copyfolder(example_project2, target_path2)
     return target_path2
+
 
 @pytest.fixture(scope="class", autouse=True)
 def target_path3(local_scratch):
@@ -59,9 +63,11 @@ def target_path4(local_scratch):
     local_scratch.copyfolder(example_project4, target_path4)
     return target_path4
 
+
 @pytest.fixture(scope="module", autouse=True)
 def desktop():
     return
+
 
 @pytest.mark.skipif(config["skip_edb"], reason="Skipping on IPY and optionally on CPython.")
 class TestClass:
@@ -88,7 +94,7 @@ class TestClass:
     #     del self.edbapp
 
     @pytest.fixture(autouse=True)
-    def init(self, edbapp, local_scratch,target_path,target_path2,target_path3,target_path4):
+    def init(self, edbapp, local_scratch, target_path, target_path2, target_path3, target_path4):
         self.edbapp = edbapp
         self.local_scratch = local_scratch
         self.target_path = target_path

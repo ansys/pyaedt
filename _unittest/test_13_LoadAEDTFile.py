@@ -3,11 +3,11 @@ import base64
 import filecmp
 import os
 import sys
-import pytest
 
 # from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+import pytest
 
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
@@ -42,40 +42,48 @@ def _write_jpg(design_info, scratch):
         f.write(bs)
     return filename
 
+
 @pytest.fixture(scope="class")
 def coax(add_app):
     app = add_app(project_name=test_project_name, subfolder=test_subfolder)
     return app
+
 
 @pytest.fixture(scope="class")
 def cs(add_app):
     app = add_app(project_name=cs_name, subfolder=test_subfolder)
     return app
 
+
 @pytest.fixture(scope="class")
 def cs1(add_app):
     app = add_app(project_name=cs1_name, subfolder=test_subfolder)
     return app
+
 
 @pytest.fixture(scope="class")
 def cs2(add_app):
     app = add_app(project_name=cs2_name, subfolder=test_subfolder)
     return app
 
+
 @pytest.fixture(scope="class")
 def cs3(add_app):
     app = add_app(project_name=cs3_name, subfolder=test_subfolder)
     return app
+
 
 @pytest.fixture(scope="class")
 def mat1(add_app):
     app = add_app(project_name="Add_material")
     return app
 
+
 @pytest.fixture(scope="class")
 def project_dict(add_app):
     hfss_file = os.path.join(local_path, "example_models", test_subfolder, test_project_name + ".aedt")
     return load_entire_aedt_file(hfss_file)
+
 
 @pytest.fixture(scope="class")
 def project_sub_key(add_app):
@@ -101,7 +109,7 @@ class TestClass:
     #     BasisTest.my_teardown(self)
 
     @pytest.fixture(autouse=True)
-    def init(self, coax, cs,cs1,cs2,cs3,mat1,project_dict,project_sub_key,test_project_file,  local_scratch):
+    def init(self, coax, cs, cs1, cs2, cs3, mat1, project_dict, project_sub_key, test_project_file, local_scratch):
         self.coax = coax
         self.cs = cs
         self.cs1 = cs1
@@ -112,7 +120,6 @@ class TestClass:
         self.project_sub_key = project_sub_key
         self.multiple_cs_project = test_project_file(cs3_name)
         self.local_scratch = local_scratch
-
 
     def test_01_check_top_level_keys(self):
         assert "AnsoftProject" in list(self.project_dict.keys())

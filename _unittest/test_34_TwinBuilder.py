@@ -13,11 +13,13 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 test_subfolder = "T21"
 
+
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
     app = add_app(project_name="TwinBuilderProject", design_name="TwinBuilderDesign1", application=TwinBuilder)
     app.modeler.schematic_units = "mil"
     return app
+
 
 @pytest.fixture(scope="class", autouse=True)
 def examples(local_scratch):

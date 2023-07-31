@@ -23,6 +23,7 @@ from pyaedt.generic.general_methods import is_ironpython
 
 settings.enable_desktop_logs = True
 
+
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
     settings.enable_local_log_file = True

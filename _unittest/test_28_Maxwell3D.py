@@ -34,27 +34,31 @@ transient = "Transient_StrandedWindings"
 cyl_gap_name = "Motor3D_cyl_gap"
 layout_component_name = "LayoutForce"
 
+
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
     app = add_app(application=Maxwell3d, solution_type="EddyCurrent")
     return app
+
 
 @pytest.fixture(scope="class")
 def m3dtransient(add_app):
     app = add_app(application=Maxwell3d, project_name=transient, subfolder=test_subfolder)
     return app
 
+
 @pytest.fixture(scope="class")
 def cyl_gap(add_app):
     app = add_app(application=Maxwell3d, project_name=cyl_gap_name, subfolder=test_subfolder)
     return app
+
 
 @pytest.fixture(scope="class")
 def layout_comp(add_app):
     if desktop_version > "2023.1":
         app = add_app(application=Maxwell3d, project_name=layout_component_name, subfolder=test_subfolder)
     else:
-        app=None
+        app = None
     return app
 
 
@@ -77,7 +81,7 @@ class TestClass:
     #     BasisTest.my_teardown(self)
 
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp, m3dtransient,cyl_gap,layout_comp, local_scratch):
+    def init(self, aedtapp, m3dtransient, cyl_gap, layout_comp, local_scratch):
         self.aedtapp = aedtapp
         self.m3dtransient = m3dtransient
         self.cyl_gap = cyl_gap
