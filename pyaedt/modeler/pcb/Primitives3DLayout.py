@@ -1478,7 +1478,7 @@ class Primitives3DLayout(object):
             self.oeditor.CreatePortsOnComponentsByNet(["NAME:Components", comp.name], [], "Port", "0", "0", "0")
         return comp  #
 
-    def create_text(self, text, position, angle=0, font_size=12):
+    def create_text(self, text, position, placement_layer="PostProcessing", angle=0, font_size=12):
         """Create a text primitive object.
 
         Parameters
@@ -1487,6 +1487,8 @@ class Primitives3DLayout(object):
             Name for the text primitive object.
         position : list
             Position of the text.
+        placement_layer : str, optional
+            Layer where text will be placed. The default value is ``"PostProcessing"``.
         angle : float, optional
             Angle of the text. The default value is ``0``.
         font_size : int, optional
@@ -1505,7 +1507,7 @@ class Primitives3DLayout(object):
                 "Name:=",
                 name,
                 "LayerName:=",
-                "Postprocessing",
+                placement_layer,
                 "x:=",
                 position[0],
                 "y:=",
