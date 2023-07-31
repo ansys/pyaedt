@@ -1738,7 +1738,7 @@ class Analysis(Design, object):
             except:
                 if set_custom_dso:
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
-                self.logger.error("Error in Solving All Setups")
+                self.logger.error("Error in solving all setups (AnalyzeAll).")
                 return False
         elif name in self.existing_analysis_setups:
             try:
