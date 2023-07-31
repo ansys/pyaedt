@@ -344,8 +344,15 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 
-# virtual environment
+# Environments
+.env
+.venv
+env/
 /venv/
+venv/
+ENV/
+env.bak/
+venv.bak/
 
 # sphinx build
 doc/_build/
