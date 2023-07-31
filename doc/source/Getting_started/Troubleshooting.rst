@@ -1,6 +1,6 @@
 Troubleshooting
 ===============
-This section contains common issues and suggestion around PyAEDT installation and usage.
+This section contains common issues and suggestions related to installation and use of PyAEDT.
 
 Installation
 ~~~~~~~~~~~~
@@ -18,23 +18,30 @@ Desktop 2023 R2.
 
 Error installing PyAEDT using pip
 ---------------------------------
-1. Check if internet connection is working.
-2. Check if firewall allows connections to pypi.com.
+1. **Proxy Server** If your company uses a proxy server you may have to update some settings at the command line.
+   See the `pip documentation <https://pip.pypa.io/en/stable/user_guide/#using-a-proxy-server>`_ for details.
+2. **Install Permission** Make sure you have write access to the directory where the Python interpreter is
+   installed.  This is more reason to use a `virtual environment <https://docs.python.org/3/library/venv.html>`_.
+3. **Firewall** Some corporate firewalls may block pip. If you face this issue you'll have to work with your IT
+   administrator to enable pip. The proxy server settings (described above) allow you to explicitly define
+   the ports used by pip.
 
-In case downloads from pypi are not allowed in your organization try using a wheelhouse.
-A wheelhouse is a zip containing all needed packages that can be installed offline.
-PyAEDT wheelhouse can be found at `Releases <https://github.com/ansys/pyaedt/releases>`_.
-After downloading the wheelhouse zip specific for your distribution and Python release, unzip it in a folder and,
-then, run the Python command:
+If downloads from `pypi <https://pypi.org/>`_ are not allowed, you may use a
+`wheelhouse <https://pypi.org/project/Wheelhouse/>`_.
+The wheelhouse file contains all dependencies for pyaedt and allows full installation without a need to
+download additional files.
+The wheelhouse for PyAEDT can be found `here <https://github.com/ansys/pyaedt/releases>`_.
+After downloading the wheelhouse for your distribution and Python release, unzip the file to a folder and
+run the Python command:
 
-.. code:: python
+.. code:: pycon
 
-    pip install --no-cache-dir --no-index --find-links=/path/to/pyaedt/wheelhouse pyaedt
+    >>> pip install --no-cache-dir --no-index --find-links=/path/to/pyaedt/wheelhouse pyaedt
 
 
-In addition user can install a wheelhouse using the following file
-:download:`PyAEDT Installer Python file <../Resources/PyAEDTInstallerFromDesktop.py>`
-this can be run directly from AEDT Script menu and the wheelhouse zip file can be passed as an argument.
+Another option to install PyAedt from the wheelhouse is to download the following file
+:download:`PyAEDT Installer Python file <../Resources/PyAEDTInstallerFromDesktop.py>`.
+Run this script directly from AEDT and pass the wheelhouse file name as an argument.
 
 
 
@@ -44,13 +51,14 @@ Run PyAEDT
 
 COM vs GRPC
 -----------
-Up until AEDT 2022R2, the method for connecting Python to AEDT-API used COM.
-COM is a technology which requires interfaces, classes, objects and methods to be registered in Windows Registry.
-All communication between Python and AEDT-API were translated through an intermediate layer by a
-third party module called pywin32. This module usage was limited to Windows OS only.
-PythonNET was added to make the connection to the AEDT-API.
-In 2022R2, a new technology was added to replace COM: GRPC. GRPC is a modern remote procedure calls framework
-to communicate with the API via remote calls.
+Prior to the 2022R2 release CPython automation in AEDT used
+`COM <https://learn.microsoft.com/en-us/windows/win32/com/com-objects-and-interfaces>`_  which
+requires all interfaces to be registered in the Windows Registry.
+Communication between Python and the AEDT API were translated through an intermediate layer using
+`pywin32 <https://github.com/mhammond/pywin32>`_. The recent addition of
+`PythonNET <https://pythonnet.github.io/pythonnet/>`_ improves
+cross-platform support and replacement of the COM interface by `GRPC <https://grpc.io/>`_,
+for 2022R2 and later.
 
 
 .. list-table:: GRPC Compatibility Table
@@ -72,21 +80,27 @@ to communicate with the API via remote calls.
      - GRPC default
        PythonNET: pyaedt.settings.use_grpc_api = False
 
-Above options are available only in windows. Linux uses GRPC in any version as it is the only way to connect
-to AEDT API.
+The options shown here apply only to the Windows platform.
+On Linux, the Python interface to AEDT always uses GRPC.
 
 
 How to check that Electronics Desktop API is working and correctly configured
 -----------------------------------------------------------------------------
-To start Electronics desktop server in GRPC mode use the following syntax:
+To start the Electronics desktop server in GRPC mode use the following syntax:
 
-.. code:: python
+.. code:: bat
+   :caption: Windows
 
-   path\to\AnsysEM\v231\Win64\ansysedt.exe -grpcsrv 50001   # Windows
-   path\to\AnsysEM\v231\Lin64\ansysedt -grpcsrv 50352       # Linux
+   path\to\AnsysEM\v231\Win64\ansysedt.exe -grpcsrv 50001
 
-The number on which the server is running is the port that AEDT should use to listen and receive
-any command from PyAEDT. This allows to have multiple AEDT sessions running on the same machine
+.. code:: console
+   :caption: Linux
+
+   path\to\AnsysEM\v231\Lin64\ansysedt -grpcsrv 50352
+
+The server port number is used by AEDT to listen and receive
+command from PyAEDT client instances. This configuration
+supports multiple sessions of AEDT running on a single server
 and listening on the same port.
 
 Check that AEDT GRPC API can run
