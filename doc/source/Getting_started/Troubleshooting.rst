@@ -45,7 +45,7 @@ Run PyAEDT
 COM vs GRPC
 -----------
 Up until AEDT 2022R2, the method for connecting Python to AEDT-API used COM.
-COM is an a technology which requires interfaces, classes, objects and methods to be registered in Windows Registry.
+COM is a technology which requires interfaces, classes, objects and methods to be registered in Windows Registry.
 All communication between Python and AEDT-API were translated through an intermediate layer by a
 third party module called pywin32. This module usage was limited to Windows OS only.
 PythonNET was added to make the connection to the AEDT-API.
@@ -72,13 +72,13 @@ to communicate with the API via remote calls.
      - GRPC default
        PythonNET: pyaedt.settings.use_grpc_api = False
 
-Above options are available only in windows. Linux uses grpc in any version as it is the only way to connect
+Above options are available only in windows. Linux uses GRPC in any version as it is the only way to connect
 to AEDT API.
 
 
 How to check that Electronics Desktop API is working and correctly configured
 -----------------------------------------------------------------------------
-To start Electronics desktop server in grpc mode use the following syntax:
+To start Electronics desktop server in GRPC mode use the following syntax:
 
 .. code:: python
 
@@ -131,7 +131,7 @@ Run your PyAEDT script. If it still fails, then try:
 
 Run your PyAEDT script. If the errors still persists, try the following:
 
-1. Check that AEDT starts correctly from command line using grpc port option
+1. Check that AEDT starts correctly from command line using GRPC port option
 2. enable all debug log variables and check logs.
 
 .. code:: python
@@ -164,5 +164,5 @@ In another terminal:
     export GRPC_VERBOSITY=DEBUG
     export GRPC_TRACE=all
 
-Run the PyAedt script(make sure it is trying to connect to the same port as the GRPC server).
+Run the PyAEDT script(make sure it is trying to connect to the same port as the GRPC server).
 Capture the output as the client.txt file. Send all the logs generated to Ansys Support.
