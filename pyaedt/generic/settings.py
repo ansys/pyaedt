@@ -107,7 +107,7 @@ class Settings(object):
 
     @property
     def desktop_launch_timeout(self):
-        """Timeout in seconds for trying to launch AEDT. Default is ``90`` seconds."""
+        """Timeout in seconds for trying to launch AEDT. The default is ``90`` seconds."""
         return self._desktop_launch_timeout
 
     @desktop_launch_timeout.setter
@@ -116,8 +116,8 @@ class Settings(object):
 
     @property
     def aedt_environment_variables(self):
-        """Environment variables that are set before launching a new AEDT session.
-        The environment variables that enable the beta features are included."""
+        """Environment variables that are set before launching a new AEDT session,
+        including those that enable the beta features."""
         return self._aedt_environment_variables
 
     @aedt_environment_variables.setter
@@ -185,8 +185,8 @@ class Settings(object):
 
     @property
     def aedt_version(self):
-        """AEDT version in the form ``"2023.x"``. If AEDT version is 2022 R2 and later,
-        the bounding box evaluation by exporting a SAT file is disabled."""
+        """AEDT version in the form ``"2023.x"``. In AEDT 2022 R2 and later,
+        bounding box evaluation by exporting a SAT file is disabled."""
         return self._aedt_version
 
     @aedt_version.setter
@@ -321,7 +321,7 @@ class Settings(object):
 
     @property
     def enable_desktop_logs(self):
-        """Flag for enabling and disabling the logging to AEDT message window."""
+        """Flag for enabling and disabling the logging to the AEDT message window."""
         return self._enable_desktop_logs
 
     @enable_desktop_logs.setter
@@ -348,7 +348,7 @@ class Settings(object):
 
     @property
     def enable_file_logs(self):
-        """Flag for enabling and disabling the logging to file."""
+        """Flag for enabling and disabling the logging to a file."""
         return self._enable_file_logs
 
     @enable_file_logs.setter

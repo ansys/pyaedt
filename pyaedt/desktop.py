@@ -514,7 +514,8 @@ def is_student_version(oDesktop):
 
 
 def _init_desktop_from_design(*args, **kwargs):
-    """Used to distinguish if the Desktop is initialized internally from Design or directly from the outside"""
+    """Used to distinguish if ``Desktop`` class is initialized internally from ``Design`` class
+    or directly from the user (e.g. ``desktop=Desktop()``)"""
     Desktop._invoked_from_design = True
     return Desktop(*args, **kwargs)
 
