@@ -84,7 +84,7 @@ config = {
     "skip_edb": False,
     "skip_debug": False,
     "local": False,
-    "use_grpc": True,
+    "use_grpc": False,
     "disable_sat_bounding_box": True,
 }
 
