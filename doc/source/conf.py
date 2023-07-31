@@ -92,8 +92,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
-    "sphinx."
-    "ext.coverage",
+    "sphinx.ext.coverage",
     "sphinx_copybutton",
     "recommonmark",
     "sphinx.ext.graphviz",
@@ -213,7 +212,7 @@ pyvista.OFF_SCREEN = True
 # pyvista.set_plot_theme('document')
 
 # must be less than or equal to the XVFB window size
-pyvista.rcParams["window_size"] = np.array([1024, 768])
+pyvista.global_theme["window_size"] = np.array([1024, 768])
 
 # Save figures in specified directory
 pyvista.FIGURE_PATH = os.path.join(os.path.abspath("./images/"), "auto-generated/")

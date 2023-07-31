@@ -2,6 +2,7 @@
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 
+from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.modeler.cad.Modeler import FaceCoordinateSystem
 from pyaedt.modeler.cad.Primitives import PolylineSegment
@@ -737,6 +738,80 @@ class TestClass(BasisTest, object):
         assert all(abs(o[i] - s) < tol for i, s in enumerate([1.82842712474619, 2.20832611206852, 9.0]))
         assert all(abs(q[i] - s) < tol for i, s in enumerate([-0.0, -0.09853761796664, 0.99513332666807, 0.0]))
         assert self.aedtapp.modeler.reference_cs_to_global(cs4)
+        box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
+        face = box.faces[0]
+        fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1])
+        new_fcs = self.aedtapp.modeler.duplicate_coordinate_system_to_global(fcs)
+        assert new_fcs
+        assert new_fcs.props["Origin"] == fcs.props["Origin"]
+        assert new_fcs.props["AxisPosn"] == fcs.props["AxisPosn"]
+        assert new_fcs.props["MoveToEnd"] == fcs.props["MoveToEnd"]
+        assert new_fcs.props["FaceID"] == fcs.props["FaceID"]
+        assert new_fcs.props["WhichAxis"] == fcs.props["WhichAxis"]
+        assert int(decompose_variable_value(new_fcs.props["ZRotationAngle"])[0]) == int(
+            decompose_variable_value(fcs.props["ZRotationAngle"])[0]
+        )
+        assert (
+            decompose_variable_value(new_fcs.props["ZRotationAngle"])[1]
+            == decompose_variable_value(fcs.props["ZRotationAngle"])[1]
+        )
+        assert new_fcs.props["XOffset"] == fcs.props["XOffset"]
+        assert new_fcs.props["YOffset"] == fcs.props["YOffset"]
+        assert new_fcs.props["AutoAxis"] == fcs.props["AutoAxis"]
+        fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face, face.edges[1])
+        new_fcs = self.aedtapp.modeler.duplicate_coordinate_system_to_global(fcs)
+        assert new_fcs
+        assert new_fcs.props["Origin"] == fcs.props["Origin"]
+        assert new_fcs.props["AxisPosn"] == fcs.props["AxisPosn"]
+        assert new_fcs.props["MoveToEnd"] == fcs.props["MoveToEnd"]
+        assert new_fcs.props["FaceID"] == fcs.props["FaceID"]
+        assert new_fcs.props["WhichAxis"] == fcs.props["WhichAxis"]
+        assert int(decompose_variable_value(new_fcs.props["ZRotationAngle"])[0]) == int(
+            decompose_variable_value(fcs.props["ZRotationAngle"])[0]
+        )
+        assert (
+            decompose_variable_value(new_fcs.props["ZRotationAngle"])[1]
+            == decompose_variable_value(fcs.props["ZRotationAngle"])[1]
+        )
+        assert new_fcs.props["XOffset"] == fcs.props["XOffset"]
+        assert new_fcs.props["YOffset"] == fcs.props["YOffset"]
+        assert new_fcs.props["AutoAxis"] == fcs.props["AutoAxis"]
+        fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face, face.edges[1].vertices[0])
+        new_fcs = self.aedtapp.modeler.duplicate_coordinate_system_to_global(fcs)
+        assert new_fcs
+        assert new_fcs.props["Origin"] == fcs.props["Origin"]
+        assert new_fcs.props["AxisPosn"] == fcs.props["AxisPosn"]
+        assert new_fcs.props["MoveToEnd"] == fcs.props["MoveToEnd"]
+        assert new_fcs.props["FaceID"] == fcs.props["FaceID"]
+        assert new_fcs.props["WhichAxis"] == fcs.props["WhichAxis"]
+        assert int(decompose_variable_value(new_fcs.props["ZRotationAngle"])[0]) == int(
+            decompose_variable_value(fcs.props["ZRotationAngle"])[0]
+        )
+        assert (
+            decompose_variable_value(new_fcs.props["ZRotationAngle"])[1]
+            == decompose_variable_value(fcs.props["ZRotationAngle"])[1]
+        )
+        assert new_fcs.props["XOffset"] == fcs.props["XOffset"]
+        assert new_fcs.props["YOffset"] == fcs.props["YOffset"]
+        assert new_fcs.props["AutoAxis"] == fcs.props["AutoAxis"]
+        fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[1].vertices[0], face.edges[1])
+        new_fcs = self.aedtapp.modeler.duplicate_coordinate_system_to_global(fcs)
+        assert new_fcs
+        assert new_fcs.props["Origin"] == fcs.props["Origin"]
+        assert new_fcs.props["AxisPosn"] == fcs.props["AxisPosn"]
+        assert new_fcs.props["MoveToEnd"] == fcs.props["MoveToEnd"]
+        assert new_fcs.props["FaceID"] == fcs.props["FaceID"]
+        assert new_fcs.props["WhichAxis"] == fcs.props["WhichAxis"]
+        assert int(decompose_variable_value(new_fcs.props["ZRotationAngle"])[0]) == int(
+            decompose_variable_value(fcs.props["ZRotationAngle"])[0]
+        )
+        assert (
+            decompose_variable_value(new_fcs.props["ZRotationAngle"])[1]
+            == decompose_variable_value(fcs.props["ZRotationAngle"])[1]
+        )
+        assert new_fcs.props["XOffset"] == fcs.props["XOffset"]
+        assert new_fcs.props["YOffset"] == fcs.props["YOffset"]
+        assert new_fcs.props["AutoAxis"] == fcs.props["AutoAxis"]
 
     def test_58_invert_cs(self):
         self.aedtapp.modeler.create_coordinate_system(

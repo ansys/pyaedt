@@ -146,7 +146,6 @@ class EDBNetsData(NetDotNet):
         list[
             dict[str, :class: `pyaedt.edb_core.edb_data.nets_data.EDBNetsData`],
             dict[str, :class: `pyaedt.edb_core.edb_data.components_data.EDBComponent`],
-            dict[str, :class: `pyaedt.edb_core.edb_data.components_data.EDBComponent`],
             ]
         Examples
         --------
@@ -154,37 +153,21 @@ class EDBNetsData(NetDotNet):
         >>> app = Edb()
         >>> app.nets["BST_V3P3_S5"].get_extended_net()
         """
-        if exception_list is None:
-            exception_list = []
-        all_nets = self._app.nets.nets
-        nets = {self.name: all_nets[self.name]}
-        rlc_serial = {}
-        comps = {}
+        exts = self._app.nets.get_extended_nets(resistor_below, inductor_below, capacitor_above, exception_list)
+        for i in exts:
+            if self.name in i:
+                extended = i
+        output_nets = [{i: self._app.nets[i]} for i in extended]
+        comps_common = {}
+        for net in extended:
+            comps_common.update(
+                {
+                    i: v
+                    for i, v in self._app._nets[net].components.items()
+                    if list(set(v.nets).intersection(extended)) != [net]
+                }
+            )
 
-        def get_net_list(net_name, _net_list, _rlc_serial, _comp, exception_list):
-            edb_net = all_nets[net_name]
-            for refdes, val in edb_net.components.items():
-                if not val.is_enabled:
-                    continue
+        rlc_common = {i: v for i, v in comps_common.items() if v.type in ["Resistor", "Inductor", "Capacitor"]}
 
-                if refdes in exception_list:
-                    pass
-                elif val.type == "Inductor" and val.rlc_values[1] < inductor_below and val.is_enabled:
-                    pass
-                elif val.type == "Resistor" and val.rlc_values[0] < resistor_below and val.is_enabled:
-                    pass
-                elif val.type == "Capacitor" and val.rlc_values[2] > capacitor_above and val.is_enabled:
-                    pass
-                else:
-                    _comp[refdes] = val
-                    continue
-
-                _rlc_serial[refdes] = val
-                for net in val.nets:
-                    if net not in _net_list:
-                        _net_list[net] = all_nets[net]
-                        get_net_list(net, _net_list, _rlc_serial, _comp, exception_list)
-
-        get_net_list(self.name, nets, rlc_serial, comps, exception_list)
-
-        return [nets, rlc_serial, comps]
+        return output_nets, rlc_common

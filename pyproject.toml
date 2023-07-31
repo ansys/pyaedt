@@ -50,7 +50,7 @@ tests = [
     "pytest==7.4.0",
     "pytest-cov==4.1.0",
     "pytest-xdist==3.3.1",
-    "pyvista==0.40.2; python_version > '3.7'",
+    "pyvista==0.41.1; python_version > '3.7'",
     "pyvista==0.38.0; python_version <= '3.7'",
     "scikit-learn==1.3.0",
     "SRTM.py",
@@ -74,13 +74,13 @@ doc = [
     "osmnx",
     "pypandoc==1.11",
     "pytest-sphinx==0.5.0",
-    "pyvista==0.40.2; python_version > '3.7'",
+    "pyvista==0.41.1; python_version > '3.7'",
     "pyvista==0.38.0; python_version <= '3.7'",
     "recommonmark==0.7.1",
     "scikit-learn==1.3.0",
-    "Sphinx==7.0.1",
+    "Sphinx==7.1.0",
     "sphinx-autobuild==2021.3.14",
-    "sphinx-autodoc-typehints==1.23.3",
+    "sphinx-autodoc-typehints==1.24.0",
     "sphinx-copybutton==0.5.2",
     "sphinx-gallery==0.13.0",
     "sphinx-notfound-page==0.8.3",
@@ -99,7 +99,7 @@ full = [
     "pandas==1.3.5; python_version <= '3.7'",
     "pandas==2.0.3; python_version > '3.7'",
     "osmnx",
-    "pyvista==0.40.2; python_version > '3.7'",
+    "pyvista==0.41.1; python_version > '3.7'",
     "pyvista==0.38.0; python_version <= '3.7'",
     "SRTM.py",
     "utm",
@@ -115,7 +115,7 @@ all = [
     "pandas==1.3.5; python_version <= '3.7'",
     "pandas==2.0.3; python_version > '3.7'",
     "osmnx",
-    "pyvista==0.40.2; python_version > '3.7'",
+    "pyvista==0.41.1; python_version > '3.7'",
     "pyvista==0.38.0; python_version <= '3.7'",
     "SRTM.py",
     "utm",
@@ -127,9 +127,11 @@ all = [
 name = "pyaedt"
 
 [project.urls]
-"Bug Tracker" = "https://github.com/pyansys/pyaedt/issues"
-"Documentation" = "https://aedt.docs.pyansys.com"
-"Source Code" = "https://github.com/pyansys/pyaedt"
+Bugs = "https://github.com/ansys/pyaedt/issues"
+Documentation = "https://aedt.docs.pyansys.com"
+Source = "https://github.com/ansys/pyaedt"
+Discussions = "https://github.com/ansys/pyaedt/discussions"
+Releases = "https://github.com/ansys/pyaedt/releases"
 
 [tool.black]
 line-length = 120
