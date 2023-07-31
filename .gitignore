@@ -348,8 +348,8 @@ healthchecksdb
 .env
 .venv
 env/
-/venv/
 venv/
+/venv/
 ENV/
 env.bak/
 venv.bak/
