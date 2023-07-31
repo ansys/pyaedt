@@ -186,7 +186,7 @@ class Settings(object):
     @property
     def aedt_version(self):
         """AEDT version in the form ``"2023.x"``. In AEDT 2022 R2 and later,
-        bounding box evaluation by exporting a SAT file is disabled."""
+        evaluating a bounding box by exporting a SAT file is disabled."""
         return self._aedt_version
 
     @aedt_version.setter
@@ -236,7 +236,7 @@ class Settings(object):
 
     @property
     def global_log_file_name(self):
-        """Global pyaedt log file path. Default is ``pyaedt_username.log``."""
+        """Global PyAEDT log file path. The default is ``pyaedt_username.log``."""
         return self._global_log_file_name
 
     @global_log_file_name.setter
@@ -245,7 +245,7 @@ class Settings(object):
 
     @property
     def enable_pandas_output(self):
-        """Flag for whether Pandas is to be used to export dictionaries and lists. This attribute
+        """Flag for whether Pandas is being used to export dictionaries and lists. This attribute
         applies to Solution data output.  The default is ``False``. If ``True``, the property or
         method returns a Pandas object. This property is valid only in the CPython environment."""
         return self._enable_pandas_output
@@ -256,7 +256,7 @@ class Settings(object):
 
     @property
     def enable_debug_methods_argument_logger(self):
-        """Flag for indicating whether to write out the method's arguments in the debug logger.
+        """Flag for whether to write out the method's arguments in the debug logger.
         The default is ``False``."""
         return self._enable_debug_methods_argument_logger
 
