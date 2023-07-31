@@ -45,7 +45,7 @@ Run PyAEDT
 COM vs GRPC
 -----------
 Up until AEDT 2022R2, the method for connecting Python to AEDT-API used COM.
-COM is a technology which requires interfaces, classes, objects and methods to be registered in Windows Registry.
+COM is a technology which requires interfaces, classes, objects, and methods to be registered in Windows Registry.
 All communication between Python and AEDT-API were translated through an intermediate layer by a
 third party module called pywin32. This module usage was limited to Windows OS only.
 PythonNET was added to make the connection to the AEDT-API.
