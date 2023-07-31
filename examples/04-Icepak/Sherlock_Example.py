@@ -175,7 +175,7 @@ setup1.props["Solution Initialization - Y Velocity"] = "1m_per_sec"
 setup1.props["Radiation Model"] = "Discrete Ordinates Model"
 setup1.props["Include Gravity"] = True
 setup1.props["Secondary Gradient"] = True
-setup1.props["Convergence Criteria - Max Iterations"] = 20
+setup1.props["Convergence Criteria - Max Iterations"] = 10
 ipk.assign_openings(ipk.modeler.get_object_faces("Region"))
 
 ###############################################################################
