@@ -1751,12 +1751,12 @@ class Matrix(object):
                 self._operations[-1], len(source_names), "', '".join(source_names)
             )
         elif self._operations[-1] == "Parallel" or self._operations[-1] == "DiffPair":
-            id = 0
+            id_ = 0
             for el in self._app.boundaries:
                 if el.name == source_names[0]:
-                    id = self._app.modeler[el.props["Objects"][0]].id
+                    id_ = self._app.modeler[el.props["Objects"][0]].id_
             command = "{}(SelectionArray[{}: '{}'], OverrideInfo({}, '{}'))".format(
-                self._operations[-1], len(source_names), "', '".join(source_names), id, new_name
+                self._operations[-1], len(source_names), "', '".join(source_names), id_, new_name
             )
         else:
             command = "{}('{}')".format(self._operations[-1], "', '".join(source_names))
