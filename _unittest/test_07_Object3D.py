@@ -185,7 +185,7 @@ class TestClass(BasisTest, object):
         self.aedtapp["mat_sweep_test"] = '["myMat", "myMat2"]'
         box = self.aedtapp.modeler["MyBox"]
         box.material_name = "mat_sweep_test[0]"
-        assert self.aedtapp.modeler.get_objects_by_material(materialname="mat_sweep_test[0]")[0].name == "MyBox"
+        assert self.aedtapp.modeler.get_objects_by_material(materialname="myMat")[0].name == "MyBox"
 
     def test_05_object3d_properties_transparency(self):
         o = self.create_copper_box("TransparencyBox")
@@ -625,3 +625,12 @@ class TestClass(BasisTest, object):
                     assert subtract_child[child].props["Height"] == "20meter"
                     subtract_child[child].props["Height"] = "24meter"
                     assert subtract_child[child].props["Height"] == "24meter"
+
+    @pytest.mark.skipif(is_ironpython, reason="requires pyvista")
+    def test_29_test_nets(self):
+        self.aedtapp.insert_design("nets")
+        self.aedtapp.modeler.create_box([0, 0, 0], [5, 10, 10], matname="copper")
+        self.aedtapp.modeler.create_box([30, 0, 0], [5, 10, 10], matname="copper")
+        self.aedtapp.modeler.create_box([60, 0, 0], [5, 10, 10], matname="vacuum")
+        nets = self.aedtapp.identify_touching_conductors()
+        assert len(nets) == 2

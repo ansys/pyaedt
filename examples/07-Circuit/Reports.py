@@ -16,7 +16,7 @@ import pyaedt
 
 # Set local path to path for PyAEDT
 temp_folder = pyaedt.generate_unique_folder_name()
-project_path = pyaedt.downloads.download_custom_reports(temp_folder)
+project_path = pyaedt.downloads.download_custom_reports(destination=temp_folder)
 
 ###############################################################################
 # Launch AEDT
@@ -28,8 +28,7 @@ desktopVersion = "2023.1"
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
-# documentation only.
+# Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 # The Boolean parameter ``new_thread`` defines whether to create a new instance
 # of AEDT or try to connect to an existing instance of it.
@@ -43,7 +42,7 @@ NewThread = True
 # Launch AEDT with Circuit. The :class:`pyaedt.Desktop` class initializes AEDT
 # and starts the specified version in the specified mode.
 
-cir = pyaedt.Circuit(projectname=os.path.join(project_path, 'CISPR25_Radiated_Emissions_Example22R1.aedtz'),
+cir = pyaedt.Circuit(projectname=os.path.join(project_path, 'CISPR25_Radiated_Emissions_Example23R1.aedtz'),
                      non_graphical=non_graphical,
                      specified_version=desktopVersion,
                      new_desktop_session=True

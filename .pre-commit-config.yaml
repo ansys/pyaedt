@@ -17,7 +17,7 @@ exclude: |
 
 repos:
 - repo: https://github.com/psf/black
-  rev: 23.3.0  # IF VERSION CHANGES --> MODIFY "blacken-docs" MANUALLY AS WELL!!
+  rev: 23.7.0  # IF VERSION CHANGES --> MODIFY "blacken-docs" MANUALLY AS WELL!!
   hooks:
   - id: black
     args:
@@ -38,7 +38,7 @@ repos:
       - --max-line-length=120
 
 - repo: https://github.com/codespell-project/codespell
-  rev: v2.2.4
+  rev: v2.2.5
   hooks:
   - id: codespell
     args: ["--ignore-words=ignore_words.txt"]
@@ -52,12 +52,12 @@ repos:
 
 # validate GitHub workflow files
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0.23.0
+  rev: 0.23.3
   hooks:
     - id: check-github-workflows
 
 - repo: https://github.com/asottile/blacken-docs
-  rev: 1.13.0
+  rev: 1.15.0
   hooks:
   -   id: blacken-docs
       additional_dependencies: [black==23.1.0]

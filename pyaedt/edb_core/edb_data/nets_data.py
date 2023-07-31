@@ -1,9 +1,12 @@
+from pyaedt.edb_core.dotnet.database import NetDotNet
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
-from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
+from pyaedt.edb_core.edb_data.primitives_data import cast
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
-class EDBNetsData(object):
+class EDBNetsData(NetDotNet):
     """Manages EDB functionalities for a primitives.
     It Inherits EDB Object properties.
 
@@ -13,7 +16,7 @@ class EDBNetsData(object):
     >>> edb = Edb(myedb, edbversion="2021.2")
     >>> edb_net = edb.nets.nets["GND"]
     >>> edb_net.name # Class Property
-    >>> edb_net.GetName() # EDB Object Property
+    >>> edb_net.name # EDB Object Property
     """
 
     def __getattr__(self, key):
@@ -30,20 +33,7 @@ class EDBNetsData(object):
         self._core_components = core_app.components
         self._core_primitive = core_app.modeler
         self.net_object = raw_net
-
-    @property
-    def name(self):
-        """Return the Net Name.
-
-        Returns
-        -------
-        str
-        """
-        return self.net_object.GetName()
-
-    @name.setter
-    def name(self, val):
-        self.net_object.SetName(val)
+        NetDotNet.__init__(self, self._app, raw_net)
 
     @property
     def primitives(self):
@@ -53,7 +43,7 @@ class EDBNetsData(object):
         -------
         list of :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`
         """
-        return [EDBPrimitives(i, self._app) for i in self.net_object.Primitives]
+        return [cast(i, self._app) for i in self.net_object.Primitives]
 
     @property
     def padstack_instances(self):
@@ -68,23 +58,6 @@ class EDBNetsData(object):
         ]
 
     @property
-    def is_power_ground(self):
-        """Either to get/set boolean for power/ground net.
-
-        Returns
-        -------
-        bool
-        """
-        return self.net_object.IsPowerGround()
-
-    @is_power_ground.setter
-    def is_power_ground(self, val):
-        if isinstance(val, bool):
-            self.net_object.SetIsPowerGround(val)
-        else:
-            raise AttributeError("Value has to be a boolean.")
-
-    @property
     def components(self):
         """Return the list of components that touch the net.
 
@@ -97,11 +70,6 @@ class EDBNetsData(object):
             if self.name in val.nets:
                 comps[el] = val
         return comps
-
-    @pyaedt_function_handler
-    def delete(self):
-        """Delete this net from layout."""
-        self.net_object.Delete()
 
     @pyaedt_function_handler()
     def plot(
@@ -155,3 +123,51 @@ class EDBNetsData(object):
                 if width < current_value:
                     current_value = width
         return current_value
+
+    @pyaedt_function_handler
+    def get_extended_net(self, resistor_below=10, inductor_below=1, capacitor_above=1, exception_list=None):
+        # type: (int | float, int | float, int |float, list) -> dict
+        """Get extended net and associated components.
+
+        Parameters
+        ----------
+        resistor_below : int, float, optional
+            Threshold of resistor value. Search extended net across resistors which has value lower than the threshold.
+        inductor_below : int, float, optional
+            Threshold of inductor value. Search extended net across inductances which has value lower than the
+            threshold.
+        capacitor_above : int, float, optional
+            Threshold of capacitor value. Search extended net across capacitors which has value higher than the
+            threshold.
+        exception_list : list, optional
+            List of components which bypass threshold check.
+        Returns
+        -------
+        list[
+            dict[str, :class: `pyaedt.edb_core.edb_data.nets_data.EDBNetsData`],
+            dict[str, :class: `pyaedt.edb_core.edb_data.components_data.EDBComponent`],
+            ]
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> app = Edb()
+        >>> app.nets["BST_V3P3_S5"].get_extended_net()
+        """
+        exts = self._app.nets.get_extended_nets(resistor_below, inductor_below, capacitor_above, exception_list)
+        for i in exts:
+            if self.name in i:
+                extended = i
+        output_nets = [{i: self._app.nets[i]} for i in extended]
+        comps_common = {}
+        for net in extended:
+            comps_common.update(
+                {
+                    i: v
+                    for i, v in self._app._nets[net].components.items()
+                    if list(set(v.nets).intersection(extended)) != [net]
+                }
+            )
+
+        rlc_common = {i: v for i, v in comps_common.items() if v.type in ["Resistor", "Inductor", "Capacitor"]}
+
+        return output_nets, rlc_common

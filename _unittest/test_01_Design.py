@@ -91,6 +91,10 @@ class TestClass(BasisTest, object):
         assert os.path.exists(self.aedtapp.toolkit_directory)
         assert os.path.exists(self.aedtapp.working_directory)
 
+    def test_06a_set_temp_dir(self):
+        assert os.path.exists(self.aedtapp.set_temporary_directory(os.path.join(self.local_scratch.path, "temp_dir")))
+        assert self.aedtapp.set_temporary_directory(os.path.join(self.local_scratch.path, "temp_dir"))
+
     def test_08_objects(self):
         print(self.aedtapp.oboundary)
         print(self.aedtapp.oanalysis)
@@ -283,6 +287,7 @@ class TestClass(BasisTest, object):
             assert str(type(self.aedtapp.odesktop)) in [
                 "<class 'win32com.client.CDispatch'>",
                 "<class 'PyDesktopPlugin.AedtObjWrapper'>",
+                "<class 'pyaedt.generic.grpc_plugin.AedtObjWrapper'>",
             ]
 
     def test_28_get_pyaedt_app(self):
@@ -380,3 +385,15 @@ class TestClass(BasisTest, object):
     def test_37_add_custom_toolkit(self):
         desktop = Desktop(desktop_version, new_desktop_session=False)
         assert desktop.get_available_toolkits()
+
+    @pytest.mark.skipif(is_ironpython, reason="not supported.")
+    def test_38_toolkit(self):
+        file = os.path.join(self.local_scratch.path, "test.py")
+        with open(file, "w") as f:
+            f.write("import pyaedt\n")
+        desktop = Desktop(desktop_version, new_desktop_session=False)
+        assert desktop.add_script_to_menu(
+            "test_toolkit",
+            file,
+        )
+        assert desktop.remove_script_from_menu("test_toolkit")

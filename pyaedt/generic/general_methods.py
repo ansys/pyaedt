@@ -42,6 +42,12 @@ except ImportError:
     ET = None
 
 
+class GrpcApiError(Exception):
+    """ """
+
+    pass
+
+
 class MethodNotSupportedError(Exception):
     """ """
 
@@ -53,6 +59,16 @@ def _write_mes(mes_text):
     parts = [mes_text[i : i + 250] for i in range(0, len(mes_text), 250)]
     for el in parts:
         settings.logger.error(el)
+
+
+def _get_args_dicts(func, args, kwargs):
+    if int(sys.version[0]) > 2:
+        args_name = list(OrderedDict.fromkeys(inspect.getfullargspec(func)[0] + list(kwargs.keys())))
+        args_dict = OrderedDict(list(itertools.zip_longest(args_name, args)) + list(kwargs.items()))
+    else:
+        args_name = list(OrderedDict.fromkeys(inspect.getargspec(func)[0] + list(kwargs.keys())))
+        args_dict = OrderedDict(list(itertools.izip(args_name, args)) + list(kwargs.iteritems()))
+    return args_dict
 
 
 def _exception(ex_info, func, args, kwargs, message="Type Error"):
@@ -75,50 +91,77 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     -------
 
     """
+
     tb_data = ex_info[2]
     tb_trace = traceback.format_tb(tb_data)
-    if len(tb_trace) > 1:
-        tblist = tb_trace[1].split("\n")
-    else:
-        tblist = tb_trace[0].split("\n")
+    _write_mes("{} on {}".format(message.upper(), func.__name__))
+    try:
+        _write_mes(ex_info[1].args[0])
+    except (IndexError, AttributeError):
+        pass
+    for trace in traceback.format_stack():
+        if func.__name__ in trace:
+            for el in trace.split("\n"):
+                _write_mes(el)
+    for trace in tb_trace:
+        tblist = trace.split("\n")
+        for el in tblist:
+            if func.__name__ in el:
+                _write_mes(el)
 
     message_to_print = ""
+    messages = ""
     try:
-        messages = list(sys.modules["__main__"].oDesktop.GetMessages("", "", 2))
-    except AttributeError:
-        messages = []
-    except TypeError:
-        messages = []
-    if messages:
-        message_to_print = messages[-1]
-    for el in tblist:
-        if func.__name__ in el:
-            _write_mes("Error in : " + el)
-    _write_mes("{} - {} -  {}.".format(ex_info[1], func.__name__, message.upper()))
+        messages = list(sys.modules["__main__"].oDesktop.GetMessages("", "", 2))[-1].lower()
+    except (GrpcApiError, AttributeError, TypeError, IndexError):
+        pass
+    if "error" in messages:
+        message_to_print = messages[messages.index("[error]") :]
+    # _write_mes("{} - {} -  {}.".format(ex_info[1], func.__name__, message.upper()))
 
     if message_to_print:
-        _write_mes(message_to_print)
-    _write_mes("Arguments with values: ")
+        _write_mes("Last Electronics Desktop Message - " + message_to_print)
+
     args_name = []
     try:
-        if int(sys.version[0]) > 2:
-            args_name = list(OrderedDict.fromkeys(inspect.getfullargspec(func)[0] + list(kwargs.keys())))
-            args_dict = OrderedDict(list(itertools.zip_longest(args_name, args)) + list(kwargs.items()))
-        else:
-            args_name = list(OrderedDict.fromkeys(inspect.getargspec(func)[0] + list(kwargs.keys())))
-            args_dict = OrderedDict(list(itertools.izip(args_name, args)) + list(kwargs.iteritems()))
+        args_dict = _get_args_dicts(func, args, kwargs)
+        first_time_log = True
 
         for el in args_dict:
-            if el != "self":
+            if el != "self" and args_dict[el]:
+                if first_time_log:
+                    _write_mes("Method arguments: ")
+                    first_time_log = False
                 _write_mes("    {} = {} ".format(el, args_dict[el]))
     except:
         pass
     args = [func.__name__] + [i for i in args_name if i not in ["self"]]
-    _write_mes(
-        "Check Online documentation on: https://aedt.docs.pyansys.com/version/stable/search.html?q={}".format(
-            "+".join(args)
+    if not func.__name__.startswith("_"):
+        _write_mes(
+            "Check Online documentation on: https://aedt.docs.pyansys.com/version/stable/search.html?q={}".format(
+                "+".join(args)
+            )
         )
-    )
+
+
+def normalize_path(path_in, sep=None):
+    """Normalize path separators.
+
+    Parameters
+    ----------
+    path_in : str
+        Path to normalize.
+    sep : str, optional
+        Separator.
+
+    Returns
+    -------
+    str
+        Path normalized to new separator.
+    """
+    if sep is None:
+        sep = os.sep
+    return path_in.replace("\\", sep).replace("/", sep)
 
 
 def _check_types(arg):
@@ -142,7 +185,7 @@ def _function_handler_wrapper(user_function):
             try:
                 settings.time_tick = time.time()
                 out = user_function(*args, **kwargs)
-                if settings.enable_debug_logger:
+                if settings.enable_debug_logger or settings.enable_debug_edb_logger:
                     _log_method(user_function, args, kwargs)
                 return out
             except TypeError:
@@ -178,6 +221,9 @@ def _function_handler_wrapper(user_function):
                     print("")
                 if settings.enable_file_logs:
                     settings.logger.error(message)
+                return False
+            except GrpcApiError:
+                _exception(sys.exc_info(), user_function, args, kwargs, "AEDT grpc API call Error")
                 return False
             except BaseException:
                 _exception(sys.exc_info(), user_function, args, kwargs, "General or AEDT Error")
@@ -259,7 +305,6 @@ def check_and_download_file(local_path, remote_path, overwrite=True):
     return remote_path
 
 
-@pyaedt_function_handler()
 def check_if_path_exists(path):
     """Check whether a path exists or not local or remote machine (for remote sessions only).
 
@@ -302,7 +347,6 @@ def check_and_download_folder(local_path, remote_path, overwrite=True):
     return remote_path
 
 
-@pyaedt_function_handler()
 def open_file(file_path, file_options="r"):
     """Open a file and return the object.
 
@@ -346,8 +390,7 @@ def _log_method(func, new_args, new_kwargs):
         or "edb_core" in str(func) + str(new_args)
     ):
         return
-    line_begin = "    Implicit Arguments: "
-    line_begin2 = "    Explicit Arguments: "
+    line_begin = "ARGUMENTS: "
     message = []
     delta = time.time() - settings.time_tick
     m, s = divmod(delta, 60)
@@ -360,28 +403,21 @@ def _log_method(func, new_args, new_kwargs):
         time_msg = " {}h {}m {}sec.".format(h, m, int(s))
     else:
         time_msg = "  {}m {}sec {}msec.".format(m, int(s), int(msec))
-    if new_args and settings.enable_debug_methods_argument_logger:
-        object_name = str([new_args[0]])[1:-1]
-        id = object_name.find(" object at ")
-        if id >= 0:
+    if settings.enable_debug_methods_argument_logger:
+        args_dict = _get_args_dicts(func, new_args, new_kwargs)
+        id = 0
+        if new_args:
+            object_name = str([new_args[0]])[1:-1]
+            id = object_name.find(" object at ")
+        if id > 0:
             object_name = object_name[1:id]
-            message.append(" '{}' has been executed in {}".format(object_name + "." + str(func.__name__), time_msg))
-            if new_args[1:]:
-                message.append(line_begin + str(new_args[1:])[1:-1])
-            if new_kwargs:
-                message.append(line_begin2 + str(new_kwargs)[1:-1])
-
+            message.append("'{}' was run in {}".format(object_name + "." + str(func.__name__), time_msg))
         else:
-            message.append(" '{}' has been executed in {}".format(str(func.__name__), time_msg))
-            if new_args[1:]:
-                message.append(line_begin + str(new_args[1:])[1:-1])
-            if new_kwargs:
-                message.append(line_begin2 + str(new_kwargs)[1:-1])
-
-    else:
-        message.append(" '{}' has been executed in: {}".format(str(func.__name__), time_msg))
-        if new_kwargs and settings.enable_debug_methods_argument_logger:
-            message.append(line_begin2 + str(new_kwargs)[1:-1])
+            message.append("'{}' was run in {}".format(str(func.__name__), time_msg))
+        message.append(line_begin)
+        for k, v in args_dict.items():
+            if k != "self":
+                message.append("    {} = {}".format(k, v))
     for m in message:
         settings.logger.debug(m)
 
@@ -627,25 +663,35 @@ def _retry_ntimes(n, function, *args, **kwargs):
     -------
 
     """
+    func_name = None
+    if function.__name__ == "InvokeAedtObjMethod":
+        func_name = args[1]
     retry = 0
     ret_val = None
+    inclusion_list = [
+        "CreateVia",
+        "PasteDesign",
+        "Paste",
+        "PushExcitations",
+        "Rename",
+        "RestoreProjectArchive",
+    ]
+    # if func_name and func_name not in inclusion_list and not func_name.startswith("Get"):
+    if func_name and func_name not in inclusion_list:
+        n = 1
     while retry < n:
         try:
             ret_val = function(*args, **kwargs)
-            if not ret_val and type(ret_val) is not float and type(ret_val) is not int:
-                ret_val = True
         except:
             retry += 1
-            time.sleep(0.1)
+            time.sleep(1)
         else:
-            break
+            return ret_val
     if retry == n:
         if "__name__" in dir(function):
             raise AttributeError("Error in Executing Method {}.".format(function.__name__))
         else:
             raise AttributeError("Error in Executing Method.")
-
-    return ret_val
 
 
 def time_fn(fn, *args, **kwargs):
@@ -942,6 +988,8 @@ def number_aware_string_key(s):
 
 @pyaedt_function_handler()
 def _create_json_file(json_dict, full_json_path):
+    if not os.path.exists(os.path.dirname(full_json_path)):
+        os.makedirs(os.path.dirname(full_json_path))
     if not is_ironpython:
         with open(full_json_path, "w") as fp:
             json.dump(json_dict, fp, indent=4)
@@ -1029,9 +1077,9 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
         List of gRPC ports.
     """
     if student_version:
-        keys = ["ansysedtsv.exe"]
+        keys = ["ansysedtsv.exe", "ansysedtsv"]
     else:
-        keys = ["ansysedt.exe"]
+        keys = ["ansysedt.exe", "ansysedt"]
     if version and "." in version:
         version = version[-4:].replace(".", "")
     sessions = []
@@ -1073,12 +1121,12 @@ def active_sessions(version=None, student_version=False, non_graphical=False):
         List of AEDT PIDs.
     """
     if student_version:
-        keys = ["ansysedtsv.exe"]
+        keys = ["ansysedtsv.exe", "ansysedtsv"]
     else:
-        keys = ["ansysedt.exe"]
+        keys = ["ansysedt.exe", "ansysedt"]
     if version and "." in version:
         version = version[-4:].replace(".", "")
-    if version < "222":
+    if version and version < "222":
         version = version[:2] + "." + version[2]
     sessions = []
     for p in psutil.process_iter():
@@ -1390,7 +1438,9 @@ class PropsManager(object):
         -------
         list
         """
-        return self._recursive_list(self.props)
+        if self.props:
+            return self._recursive_list(self.props)
+        return []
 
     @pyaedt_function_handler()
     def update(self):
@@ -1694,6 +1744,24 @@ class Help:  # pragma: no cover
         self._launch_ur(url)
 
 
+# class Property(property):
+#
+#     @pyaedt_function_handler()
+#     def getter(self, fget):
+#         """Property getter."""
+#         return self.__class__.__base__(fget, self.fset, self.fdel, self.__doc__)
+#
+#     @pyaedt_function_handler()
+#     def setter(self, fset):
+#         """Property setter."""
+#         return self.__class__.__base__(self.fget, fset, self.fdel, self.__doc__)
+#
+#     @pyaedt_function_handler()
+#     def deleter(self, fdel):
+#         """Property deleter."""
+#         return self.__class__.__base__(self.fget, self.fset, fdel, self.__doc__)
+
+
 class Settings(object):
     """Manages all PyAEDT environment variables and global settings."""
 
@@ -1707,6 +1775,7 @@ class Settings(object):
         self._logger_formatter = "%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s"
         self._logger_datefmt = "%Y/%m/%d %H.%M.%S"
         self._enable_debug_edb_logger = False
+        self._enable_debug_grpc_api_logger = False
         self._enable_debug_methods_argument_logger = False
         self._enable_debug_geometry_operator_logger = False
         self._enable_debug_internal_methods_logger = False
@@ -1746,10 +1815,58 @@ class Settings(object):
             "ANSYSEM_FEATURE_SF222134_CABLE_MODELING_ENHANCEMENTS_ENABLE": "1",
             "ANSYSEM_FEATURE_F395486_RIGID_FLEX_BENDING_ENABLE": "1",
             "ANSYSEM_FEATURE_S432616_LAYOUT_COMPONENT_IN_3D_ENABLE": "1",
+            "ANSYSEM_FEATURE_F545177_ECAD_INTEGRATION_WITH_APHI_ENABLE": "1",
+            "ANSYSEM_FEATURE_F650636_MECH_LAYOUT_COMPONENT_ENABLE": "1",
         }
         if is_linux:
             self._aedt_environment_variables["ANS_NODEPCHECK"] = "1"
         self._desktop_launch_timeout = 90
+        self._aedt_process_id = None
+        self._is_student = False
+        self._number_of_grpc_api_retries = 3
+
+    @property
+    def number_of_grpc_api_retries(self):
+        """Number of Grpc API retries. Default is 3.
+
+        Returns
+        -------
+        int
+        """
+        return self._number_of_grpc_api_retries
+
+    @number_of_grpc_api_retries.setter
+    def number_of_grpc_api_retries(self, value):
+        self._number_of_grpc_api_retries = int(value)
+
+    @property
+    def aedt_process_id(self):
+        """ID of the desktop process. The default is ``None``.
+
+        Returns
+        -------
+        int
+        """
+        return self._aedt_process_id
+
+    @aedt_process_id.setter
+    def aedt_process_id(self, value):
+        self._aedt_process_id = int(value)
+
+    @property
+    def is_student(self):
+        """Whether the desktop process is set to the student version. The
+        default is ``False``.
+
+        Returns
+        -------
+        bool
+        """
+        return self._is_student
+
+    @is_student.setter
+    def is_student(self, value):
+        self._is_student = value
 
     @property
     def desktop_launch_timeout(self):
@@ -2106,8 +2223,17 @@ class Settings(object):
 
     @property
     def enable_debug_edb_logger(self):
-        """Return the Environment Variable Content."""
+        """Enable or disable Logger for any EDB API method."""
         return self._enable_debug_edb_logger
+
+    @property
+    def enable_debug_grpc_api_logger(self):
+        """Enable or disable Logger for any grpc API method."""
+        return self._enable_debug_grpc_api_logger
+
+    @enable_debug_grpc_api_logger.setter
+    def enable_debug_grpc_api_logger(self, val):
+        self._enable_debug_grpc_api_logger = val
 
     @enable_debug_edb_logger.setter
     def enable_debug_edb_logger(self, val):
@@ -2141,5 +2267,6 @@ class Settings(object):
         self._enable_debug_logger = val
 
 
+# property = Property
 settings = Settings()
 online_help = Help()

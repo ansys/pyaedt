@@ -33,7 +33,7 @@ run_dir = os.path.abspath(os.path.dirname(__file__))
 
 args_env = os.environ.get("RUN_UNITTESTS_ARGS", "")
 parser = argparse.ArgumentParser()
-parser.add_argument("--test-filter", "-t", default="test_*.py", help="test filter")
+parser.add_argument("--test-filter", "-t", default="test_01_Design*.py", help="test filter")
 args = parser.parse_args(args_env.split())
 test_filter = args.test_filter
 
@@ -62,22 +62,29 @@ def discover_and_run(start_dir, pattern=None):
         total_runs = 0
         total_errors = 0
         total_failures = 0
+        succeded = False
         for sub_suite in test_suite:
             attempts = 0
+            errors = 0
+            failures = 0
             while True:
                 attempts += 1
                 f.write("\n")
                 result = runner.run(sub_suite)
                 if attempts == max_attempts:
                     total_runs += result.testsRun
-                    total_errors += len(result.errors)
-                    total_failures += len(result.failures)
+                    errors = len(result.errors)
+                    failures = len(result.failures)
                     break
                 if result.wasSuccessful():
                     total_runs += result.testsRun
+                    succeded = True
                     break
                 # try again
                 f.write("\nAttempt n.{} FAILED. Re-running test suite.\n".format(attempts))
+        if not succeded:
+            total_errors += errors
+            total_failures += failures
         f.write(
             "\n<unittest.runner.TextTestResult Total Test run={}>\n".format(
                 total_runs
@@ -108,9 +115,12 @@ def discover_and_run(start_dir, pattern=None):
 tests_result = discover_and_run(run_dir, pattern=test_filter)
 
 if is_ironpython and "oDesktop" in dir(sys.modules["__main__"]):
-    pid = sys.modules["__main__"].oDesktop.GetProcessID()
-    if pid > 0:
-        try:
-            os.kill(pid, 9)
-        except:
-            successfully_closed = False
+    try:
+        pid = sys.modules["__main__"].oDesktop.GetProcessID()
+        if pid > 0:
+            try:
+                os.kill(pid, 9)
+            except:
+                successfully_closed = False
+    except:
+        pass

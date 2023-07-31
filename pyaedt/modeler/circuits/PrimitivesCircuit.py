@@ -6,7 +6,8 @@ import warnings
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 from pyaedt.generic.constants import AEDT_UNITS
-from pyaedt.generic.general_methods import _retry_ntimes
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import filter_string
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
@@ -290,7 +291,7 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -323,7 +324,7 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -345,7 +346,7 @@ class CircuitComponents(object):
                 return self.components[el]
 
     @pyaedt_function_handler()
-    def create_model_from_touchstone(self, touchstone_full_path, model_name=None):
+    def create_model_from_touchstone(self, touchstone_full_path, model_name=None, show_bitmap=True):
         """Create a model from a Touchstone file.
 
         Parameters
@@ -354,6 +355,9 @@ class CircuitComponents(object):
             Full path to the Touchstone file.
         model_name : str, optional
             Name of the model. The default is ``None``.
+        show_bitmap : bool, optional
+            Show bitmap image of schematic component.
+            The default value is ``True``.
 
         Returns
         -------
@@ -367,13 +371,15 @@ class CircuitComponents(object):
         >>> oComponentManager.Add
         """
 
-        def _parse_ports_name(file):
+        def _parse_ports_name(file, num_terminal):
             """Parse and interpret the option line in the touchstone file.
 
             Parameters
             ----------
             file : str
                 Path of the Touchstone file.
+            num_terminal : int
+                Number of terminals.
 
             Returns
             -------
@@ -383,11 +389,14 @@ class CircuitComponents(object):
             """
             portnames = []
             line = file.readline()
-            while not line.startswith("! Port"):
+            while not line.startswith("! Port") and line.find("S11") == -1:
                 line = file.readline()
-            while line.startswith("! Port"):
-                portnames.append(line.split(" = ")[1].strip())
-                line = file.readline()
+            if line.startswith("! Port"):
+                while line.startswith("! Port"):
+                    portnames.append(line.split(" = ")[1].strip())
+                    line = file.readline()
+            else:  # pragma: no cover
+                portnames = ["Port" + str(n) for n in range(1, num_terminal + 1)]
             return portnames
 
         if not model_name:
@@ -396,8 +405,14 @@ class CircuitComponents(object):
             model_name = generate_unique_name(model_name, n=2)
         num_terminal = int(os.path.splitext(touchstone_full_path)[1].lower().strip(".sp"))
         with open_file(touchstone_full_path, "r") as f:
-            port_names = _parse_ports_name(f)
-        image_subcircuit_path = os.path.join(self._modeler._app.desktop_install_dir, "syslib", "Bitmaps", "nport.bmp")
+            port_names = _parse_ports_name(f, num_terminal)
+        image_subcircuit_path = ""
+        bmp_file_name = ""
+        if show_bitmap:
+            image_subcircuit_path = os.path.join(
+                self._modeler._app.desktop_install_dir, "syslib", "Bitmaps", "nport.bmp"
+            )
+            bmp_file_name = os.path.basename(image_subcircuit_path)
 
         if not port_names:
             port_names = ["Port" + str(i + 1) for i in range(num_terminal)]
@@ -531,7 +546,7 @@ class CircuitComponents(object):
                 "InfoHelpFile:=",
                 "",
                 "IconFile:=",
-                "nport.bmp",
+                bmp_file_name,
                 "Library:=",
                 "",
                 "OriginalLocation:=",
@@ -610,6 +625,7 @@ class CircuitComponents(object):
         model_name,
         location=[],
         angle=0,
+        show_bitmap=True,
     ):
         """Create a component from a Touchstone model.
 
@@ -622,10 +638,13 @@ class CircuitComponents(object):
             Position on the X  and Y axis.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
+        show_bitmap : bool, optional
+            Show bitmap image of schematic component.
+            The default value is ``True``.
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -634,14 +653,23 @@ class CircuitComponents(object):
         >>> oModelManager.Add
         >>> oComponentManager.Add
         >>> oEditor.CreateComponent
+
+        Examples
+        --------
+
+        >>> from pyaedt import Circuit
+        >>> cir = Circuit()
+        >>> comps = cir.modeler.components
+        >>> s_parameter_path = os.path.join("your_path", "s_param_file_name.s4p")
+        >>> circuit_comp = comps.create_touchsthone_component(s_parameter_path, location=[0.0, 0.0], show_bitmap=False)
         """
         xpos, ypos = self._get_location(location)
         id = self.create_unique_id()
         if os.path.exists(model_name):
-            model_name = self.create_model_from_touchstone(model_name)
+            model_name = self.create_model_from_touchstone(model_name, show_bitmap=show_bitmap)
         arg1 = ["NAME:ComponentProps", "Name:=", model_name, "Id:=", str(id)]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
-        id = _retry_ntimes(10, self.oeditor.CreateComponent, arg1, arg2)
+        id = self.oeditor.CreateComponent(arg1, arg2)
         id = int(id.split(";")[1])
         self.add_id_to_component(id)
         return self.components[id]
@@ -679,7 +707,7 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -696,7 +724,7 @@ class CircuitComponents(object):
         xpos, ypos = self._get_location(location)
 
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
-        id = _retry_ntimes(10, self.oeditor.CreateComponent, arg1, arg2)
+        id = self.oeditor.CreateComponent(arg1, arg2)
         id = int(id.split(";")[1])
         # self.refresh_all_ids()
         self.add_id_to_component(id)
@@ -778,9 +806,7 @@ class CircuitComponents(object):
                     nexxim_data = list(nexxim[nexxim.index(el) + 1])
                     nexxim_data[1] = "\n".join(global_netlist_list).replace("\\", "/")
                     nexxim[nexxim.index(el) + 1] = nexxim_data
-        _retry_ntimes(
-            10,
-            self.o_component_manager.Edit,
+        self.o_component_manager.Edit(
             name,
             ["Name:" + component_name, ["NAME:CosimDefinitions", nexxim, "DefaultCosim:=", "DefaultNetlist"]],
         )
@@ -907,9 +933,7 @@ class CircuitComponents(object):
                 elif el == "GRef:=":
                     nexxim_data = list(nexxim[nexxim.index(el) + 1])
                     nexxim[nexxim.index(el) + 1] = nexxim_data
-        _retry_ntimes(
-            10,
-            self.o_component_manager.Edit,
+        self.o_component_manager.Edit(
             name,
             ["Name:" + component_name, ["NAME:CosimDefinitions", nexxim, "DefaultCosim:=", "DefaultNetlist"]],
         )
@@ -959,7 +983,7 @@ class CircuitComponents(object):
             Number of components.
 
         """
-        obj = _retry_ntimes(10, self.oeditor.GetAllElements)
+        obj = self.oeditor.GetAllElements()
         for el in obj:
             name = el.split(";")
             if len(name) > 1 and str(id) == name[1]:
@@ -1016,12 +1040,12 @@ class CircuitComponents(object):
         >>> oEditor.GetComponentPins
         """
         if isinstance(partid, CircuitComponent):
-            pins = _retry_ntimes(10, self.oeditor.GetComponentPins, partid.composed_name)
+            pins = self.oeditor.GetComponentPins(partid.composed_name)
         elif isinstance(partid, str):
-            pins = _retry_ntimes(10, self.oeditor.GetComponentPins, partid)
+            pins = self.oeditor.GetComponentPins(partid)
             # pins = self.oeditor.GetComponentPins(partid)
         else:
-            pins = _retry_ntimes(10, self.oeditor.GetComponentPins, self.components[partid].composed_name)
+            pins = self.oeditor.GetComponentPins(self.components[partid].composed_name)
             # pins = self.oeditor.GetComponentPins(self.components[partid].composed_name)
         return list(pins)
 
@@ -1048,15 +1072,11 @@ class CircuitComponents(object):
 
         """
         if isinstance(partid, str):
-            x = _retry_ntimes(30, self.oeditor.GetComponentPinLocation, partid, pinname, True)
-            y = _retry_ntimes(30, self.oeditor.GetComponentPinLocation, partid, pinname, False)
+            x = self.oeditor.GetComponentPinLocation(partid, pinname, True)
+            y = self.oeditor.GetComponentPinLocation(partid, pinname, False)
         else:
-            x = _retry_ntimes(
-                30, self.oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, True
-            )
-            y = _retry_ntimes(
-                30, self.oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, False
-            )
+            x = self.oeditor.GetComponentPinLocation(self.components[partid].composed_name, pinname, True)
+            y = self.oeditor.GetComponentPinLocation(self.components[partid].composed_name, pinname, False)
         return self._convert_point_to_units([x, y])
 
     @pyaedt_function_handler()
@@ -1116,7 +1136,7 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.Line`
+        :class:`pyaedt.modeler.cad.object3dcircuit.Line`
             Line Object.
 
         >>> oEditor.CreateLine
@@ -1142,7 +1162,7 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.Wire`
+        :class:`pyaedt.modeler.cad.object3dcircuit.Wire`
             Wire Object.
 
         References
@@ -1155,7 +1175,7 @@ class CircuitComponents(object):
         arg1 = ["NAME:WireData", "Name:=", wire_name, "Id:=", wire_id, "Points:=", points]
         arg2 = ["NAME:Attributes", "Page:=", 1]
         try:
-            wire_id = _retry_ntimes(10, self.oeditor.CreateWire, arg1, arg2)
+            wire_id = self.oeditor.CreateWire(arg1, arg2)
             w = Wire(self._modeler)
             for segment in self._app.oeditor.GetWireSegments(wire_id):
                 key = "SegmentID_{}".format(segment.split(" ")[3])
@@ -1211,7 +1231,7 @@ class ComponentInfo(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References

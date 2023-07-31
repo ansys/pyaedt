@@ -41,11 +41,13 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+          architecture: 'x86'
 
       - name: 'Install pyaedt'
         run: |
           python -m venv .pyaedt_test_env
           export ANSYSEM_ROOT231=/apps/AnsysEM/v231/Linux64
+          export ANSYSEM_ROOT232=/apps/AnsysEM/v232/Linux64
           export LD_LIBRARY_PATH=$ANSYSEM_ROOT231/common/mono/Linux64/lib64:$ANSYSEM_ROOT231/Delcross:$LD_LIBRARY_PATH
           source .pyaedt_test_env/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U

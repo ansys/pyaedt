@@ -2,6 +2,7 @@
 import logging
 from logging.handlers import RotatingFileHandler
 import os
+import shutil
 import sys
 import tempfile
 import time
@@ -143,33 +144,35 @@ class AedtLogger(object):
         else:
             self.formatter = logging.Formatter(settings.logger_formatter, datefmt=settings.logger_datefmt)
         global_handler = False
-        for handler in self._global.handlers:
-            if settings.global_log_file_name in str(handler):
-                global_handler = True
-                break
-        log_file = os.path.join(tempfile.gettempdir(), settings.global_log_file_name)
-        my_handler = RotatingFileHandler(
-            log_file,
-            mode="a",
-            maxBytes=float(settings.global_log_file_size) * 1024 * 1024,
-            backupCount=2,
-            encoding=None,
-            delay=0,
-        )
-        my_handler.setFormatter(self.formatter)
-        my_handler.setLevel(self.level)
-        if not global_handler and settings.global_log_file_name:
-            self._global.addHandler(my_handler)
-        self._files_handlers.append(my_handler)
+        if settings.enable_global_log_file:
+            for handler in self._global.handlers:
+                if settings.global_log_file_name in str(handler):
+                    global_handler = True
+                    break
+            log_file = os.path.join(tempfile.gettempdir(), settings.global_log_file_name)
+            my_handler = RotatingFileHandler(
+                log_file,
+                mode="a",
+                maxBytes=float(settings.global_log_file_size) * 1024 * 1024,
+                backupCount=2,
+                encoding=None,
+                delay=0,
+            )
+            my_handler.setFormatter(self.formatter)
+            my_handler.setLevel(self.level)
+            if not global_handler and settings.global_log_file_name:
+                self._global.addHandler(my_handler)
+            self._files_handlers.append(my_handler)
         if self.filename and os.path.exists(self.filename):
-            os.remove(self.filename)
+            shutil.rmtree(self.filename, ignore_errors=True)
         if self.filename and settings.enable_local_log_file:
             self.add_file_logger(self.filename, "Global", level)
 
         if to_stdout:
+            settings.enable_screen_logs = True
             self._std_out_handler = logging.StreamHandler(sys.stdout)
             self._std_out_handler.setLevel(level)
-            _logger_stdout_formatter = logging.Formatter("pyaedt %(levelname)s: %(message)s")
+            _logger_stdout_formatter = logging.Formatter("PyAEDT %(levelname)s: %(message)s")
 
             self._std_out_handler.setFormatter(_logger_stdout_formatter)
             self._global.addHandler(self._std_out_handler)
@@ -283,7 +286,6 @@ class AedtLogger(object):
         -------
 
         """
-        """Reset actual timer from now."""
         if time_val:
             self._timer = time_val
         else:
@@ -317,6 +319,10 @@ class AedtLogger(object):
         design_name = design_name or self._design_name
         if self._log_on_desktop or aedt_messages:
             global_message_data = self._desktop.GetMessages("", "", level)
+            # if a 3d component is open, GetMessages without the project name argument returns messages with
+            # "(3D Component)" appended to project name
+            if not any(msg in global_message_data for msg in self._desktop.GetMessages(project_name, "", 0)):
+                project_name = project_name + " (3D Component)"
             return MessageList(global_message_data, project_name, design_name)
         return MessageList([], project_name, design_name)
 
@@ -462,7 +468,7 @@ class AedtLogger(object):
             try:
                 self._desktop.AddMessage(proj_name, des_name, message_type, message_text)
             except:
-                print("pyaedt INFO: Failed in Adding Desktop Message")
+                print("PyAEDT INFO: Failed in Adding Desktop Message")
 
     def _log_on_handler(self, message_type, message_text, *args, **kwargs):
         if not (self._log_on_file or self._log_on_screen) or not self._global:

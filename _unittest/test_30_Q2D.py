@@ -9,10 +9,10 @@ from pyaedt import Q2d
 test_project_name = "coax_Q2D"
 test_subfolder = "T30"
 if desktop_version > "2022.2":
-    q2d_q3d = "q2d_q3d_231.aedt"
+    q2d_q3d = "q2d_q3d_231"
 
 else:
-    q2d_q3d = "q2d_q3d.aedt"
+    q2d_q3d = "q2d_q3d"
 
 
 class TestClass(BasisTest, object):
@@ -20,7 +20,7 @@ class TestClass(BasisTest, object):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, application=Q2d)
         self.test_matrix = self.local_scratch.copyfile(
-            os.path.join(local_path, "example_models", test_subfolder, q2d_q3d)
+            os.path.join(local_path, "example_models", test_subfolder, "{}.aedt".format(q2d_q3d))
         )
 
     def teardown_class(self):
@@ -67,9 +67,10 @@ class TestClass(BasisTest, object):
         o = self.aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", matname="Copper")
         o = self.aedtapp.create_rectangle([0, 0], [5, 3], name="Rectangle2", matname="Copper")
         assert self.aedtapp.auto_assign_conductors()
+        assert self.aedtapp.boundaries[0].object_properties
         assert len(self.aedtapp.boundaries) == 2
 
-    def test_10_toggle_condcutor(self):
+    def test_10_toggle_conductor(self):
         assert self.aedtapp.toggle_conductor_type("Rectangle1", "ReferenceGround")
         assert not self.aedtapp.toggle_conductor_type("Rectangle3", "ReferenceGround")
         assert not self.aedtapp.toggle_conductor_type("Rectangle2", "ReferenceggGround")
@@ -259,7 +260,7 @@ class TestClass(BasisTest, object):
             file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), file_type="test"
         )
         assert q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name=q2d_q3d[:-5]
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name=q2d_q3d
         )
         assert not q2d.export_equivalent_circuit(
             file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name="test"

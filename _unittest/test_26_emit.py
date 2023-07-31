@@ -7,7 +7,11 @@ from _unittest.conftest import config
 from _unittest.conftest import is_ironpython
 
 from pyaedt import Emit
-from pyaedt.emit_core import EmitConstants as econsts
+from pyaedt.emit_core.emit_constants import InterfererType
+from pyaedt.emit_core.emit_constants import ResultType
+from pyaedt.emit_core.emit_constants import TxRxMode
+from pyaedt.emit_core.interference_classification import interference_type_classification
+from pyaedt.emit_core.interference_classification import protection_level_classification
 from pyaedt.generic import constants as consts
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitAntennaComponent
@@ -60,7 +64,9 @@ class TestClass(BasisTest, object):
         self.aedtapp = BasisTest.add_app(self, application=Emit)
         radio = self.aedtapp.modeler.components.create_component("New Radio", "TestRadio")
         assert radio.name == "TestRadio"
+        assert radio.composed_name == "TestRadio"
         assert isinstance(radio, EmitComponent)
+
         antenna = self.aedtapp.modeler.components.create_component("Antenna", "TestAntenna")
         assert antenna.name == "TestAntenna"
         assert isinstance(antenna, EmitAntennaComponent)
@@ -378,18 +384,32 @@ class TestClass(BasisTest, object):
         notes = rev2.notes
         assert rev2.name == "Revision 13"
         assert notes == "Added Bluetooth and an antenna"
+
         # get the initial revision
         rev3 = self.aedtapp.results.get_revision("Revision 10")
         assert rev3.name == "Revision 10"
         assert rev3.revision_number == 10
         assert rev_timestamp == rev3.timestamp
+
+        # test result_mode_error(), try to access unloaded revision
+        receivers = rev2.get_receiver_names()
+        assert receivers is None
+        transmitters = rev2.get_interferer_names()
+        assert transmitters is None
+        bands = rev2.get_band_names(rad5)
+        assert bands is None
+        freqs = rev2.get_active_frequencies(rad5, "Band", TxRxMode.TX)
+        assert freqs is None
+
         # get the most recent revision
         # there are changes, so it should be a new revision
         rev4 = self.aedtapp.results.analyze()
         assert rev4.name == "Revision 16"
+
         # get the initial revision
         rev5 = self.aedtapp.results.get_revision("Revision 10")
         assert rev5.name == "Revision 10"
+
         # get the most recent revision
         # no changes, so it should be the most recent revision
         rev6 = self.aedtapp.results.analyze()
@@ -414,7 +434,7 @@ class TestClass(BasisTest, object):
         if rad3 and ant3:
             ant3.move_and_connect_to(rad3)
         # Change the sampling
-        modeRx = econsts.tx_rx_mode().rx
+        modeRx = TxRxMode.RX
         sampling = rad3.get_sampling()
         assert sampling.node_name == "NODE-*-RF Systems-*-RF System-*-Radios-*-Bluetooth-*-Sampling"
         sampling.set_channel_sampling(percentage=25)
@@ -498,6 +518,11 @@ class TestClass(BasisTest, object):
         for bn in band_nodes:
             bn.enabled = True
 
+        band_node = rad4.band_node("Invalid")
+        assert band_node is None
+        band_node = rad4.band_node("U-NII-5-8 QPSK R=0.75 (Bw 80 MHz)")
+        assert band_node.enabled
+
         # Set up the results
         rev = self.aedtapp.results.analyze()
 
@@ -506,31 +531,31 @@ class TestClass(BasisTest, object):
         assert radios == ["Radio", "Bluetooth Low Energy (LE)", "WiFi - 802.11-2012", "WiFi 6"]
 
         # Get the Bands
-        bands = rev.get_band_names(radios[0], econsts.tx_rx_mode().rx)
+        bands = rev.get_band_names(radios[0], TxRxMode.RX)
         assert bands == ["Band"]
 
         # Get the Freqs
-        freqs = rev.get_active_frequencies(radios[0], bands[0], econsts.tx_rx_mode().rx, "MHz")
+        freqs = rev.get_active_frequencies(radios[0], bands[0], TxRxMode.RX, "MHz")
         assert freqs == [100.0]
 
         # Test error for trying to get BOTH tx and rx freqs
         exception_raised = False
         try:
-            freqs = rev.get_active_frequencies(radios[0], bands[0], econsts.tx_rx_mode().both, "MHz")
+            freqs = rev.get_active_frequencies(radios[0], bands[0], TxRxMode.BOTH, "MHz")
         except:
             exception_raised = True
         assert exception_raised
 
         # Get WiFi 2012 Rx Bands
-        bands = rev.get_band_names(radios[2], econsts.tx_rx_mode().rx)
+        bands = rev.get_band_names(radios[2], TxRxMode.RX)
         assert len(bands) == 16
 
         # Get WiFi 2012 Tx Bands
-        bands = rev.get_band_names(radios[2], econsts.tx_rx_mode().tx)
+        bands = rev.get_band_names(radios[2], TxRxMode.TX)
         assert len(bands) == 16
 
         # Get WiFi 2012 All Bands
-        bands = rev.get_band_names(radios[2], econsts.tx_rx_mode().both)
+        bands = rev.get_band_names(radios[2], TxRxMode.BOTH)
         assert len(bands) == 32
 
         # Get WiFi 2012 All Bands (default args)
@@ -542,15 +567,15 @@ class TestClass(BasisTest, object):
         assert len(bands) == 192
 
         # Get WiFi 6 Rx Bands
-        bands = rev.get_band_names(radios[3], econsts.tx_rx_mode().rx)
+        bands = rev.get_band_names(radios[3], TxRxMode.RX)
         assert len(bands) == 192
 
         # Get WiFi 6 Tx Bands
-        bands = rev.get_band_names(radios[3], econsts.tx_rx_mode().tx)
+        bands = rev.get_band_names(radios[3], TxRxMode.TX)
         assert len(bands) == 192
 
         # Get WiFi 6 All Bands
-        bands = rev.get_band_names(radios[3], econsts.tx_rx_mode().both)
+        bands = rev.get_band_names(radios[3], TxRxMode.BOTH)
         assert len(bands) == 192
 
         # Add an emitter
@@ -558,15 +583,15 @@ class TestClass(BasisTest, object):
         rev2 = self.aedtapp.results.analyze()
 
         # Get emitters only
-        emitters = rev2.get_interferer_names(econsts.interferer_type().emitters)
+        emitters = rev2.get_interferer_names(InterfererType.EMITTERS)
         assert emitters == ["USB_3.x"]
 
         # Get transmitters only
-        transmitters = rev2.get_interferer_names(econsts.interferer_type().transmitters)
+        transmitters = rev2.get_interferer_names(InterfererType.TRANSMITTERS)
         assert transmitters == ["Radio", "Bluetooth Low Energy (LE)", "WiFi - 802.11-2012", "WiFi 6"]
 
         # Get all interferers
-        all_ix = rev2.get_interferer_names(econsts.interferer_type().transmitters_and_emitters)
+        all_ix = rev2.get_interferer_names(InterfererType.TRANSMITTERS_AND_EMITTERS)
         assert all_ix == ["Radio", "Bluetooth Low Energy (LE)", "WiFi - 802.11-2012", "WiFi 6", "USB_3.x"]
 
     @pytest.mark.skipif(
@@ -663,22 +688,15 @@ class TestClass(BasisTest, object):
             py_version = "EmitApiPython311"
         assert str(type(domain)) == "<class '{}.InteractionDomain'>".format(py_version)
 
-        mode = econsts.tx_rx_mode()
-        mode_rx = econsts.tx_rx_mode().rx
-        mode_tx = econsts.tx_rx_mode().tx
-        mode_both = econsts.tx_rx_mode().both
-        assert str(type(mode)) == "<class '{}.tx_rx_mode'>".format(py_version)
-        assert str(type(mode_rx)) == "<class '{}.tx_rx_mode'>".format(py_version)
-        assert str(type(mode_tx)) == "<class '{}.tx_rx_mode'>".format(py_version)
-        assert str(type(mode_both)) == "<class '{}.tx_rx_mode'>".format(py_version)
-        result_type = econsts.result_type()
-        result_type_sensitivity = econsts.result_type().sensitivity
-        result_type_emi = econsts.result_type().emi
-        result_type_desense = econsts.result_type().desense
-        assert str(type(result_type)) == "<class '{}.result_type'>".format(py_version)
-        assert str(type(result_type_sensitivity)) == "<class '{}.result_type'>".format(py_version)
-        assert str(type(result_type_emi)) == "<class '{}.result_type'>".format(py_version)
-        assert str(type(result_type_desense)) == "<class '{}.result_type'>".format(py_version)
+        # assert str(type(TxRxMode)) == "<class '{}.tx_rx_mode'>".format(py_version)
+        assert str(type(TxRxMode.RX)) == "<class '{}.tx_rx_mode'>".format(py_version)
+        assert str(type(TxRxMode.TX)) == "<class '{}.tx_rx_mode'>".format(py_version)
+        assert str(type(TxRxMode.BOTH)) == "<class '{}.tx_rx_mode'>".format(py_version)
+        # assert str(type(ResultType)) == "<class '{}.result_type'>".format(py_version)
+        assert str(type(ResultType.SENSITIVITY)) == "<class '{}.result_type'>".format(py_version)
+        assert str(type(ResultType.EMI)) == "<class '{}.result_type'>".format(py_version)
+        assert str(type(ResultType.DESENSE)) == "<class '{}.result_type'>".format(py_version)
+        assert str(type(ResultType.POWER_AT_RX)) == "<class '{}.result_type'>".format(py_version)
 
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions earlier than 2023.2"
@@ -732,6 +750,9 @@ class TestClass(BasisTest, object):
             assert engine is not None
             assert engine.is_domain_valid(domain)
             assert rev.is_domain_valid(domain)
+            interaction_unrun = rev.get_interaction(domain)
+            assert interaction_unrun is not None
+            assert not interaction_unrun.is_valid()
             interaction = engine.run(domain)
             assert interaction is not None
             assert interaction.is_valid()
@@ -753,28 +774,30 @@ class TestClass(BasisTest, object):
             rev2 = self.aedtapp.results.analyze()
             domain2 = self.aedtapp.results.interaction_domain()
             domain2.set_receiver("MD400C")
+            if config["desktopVersion"] >= "2024.1":
+                rev2.max_n_to_1_instances = 0
             assert rev2.is_domain_valid(domain2)
             interaction3 = rev2.run(domain2)
             assert interaction3 is not None
             assert interaction3.is_valid()
-            modeEmi = econsts.result_type().emi
-            worst_domain = interaction3.get_worst_instance(modeEmi).get_domain()
+            worst_domain = interaction3.get_worst_instance(ResultType.EMI).get_domain()
             assert worst_domain.receiver_name == rad4.name
+            assert len(worst_domain.interferer_names) == 1
             assert worst_domain.interferer_names[0] == rad2.name
             domain2.set_receiver(rad3.name)
             assert rev2.is_domain_valid(domain2)
             interaction3 = rev2.run(domain2)
             assert interaction3 is not None
             assert interaction3.is_valid()
-            worst_domain = interaction3.get_worst_instance(modeEmi).get_domain()
+            worst_domain = interaction3.get_worst_instance(ResultType.EMI).get_domain()
             assert worst_domain.receiver_name == rad3.name
             assert worst_domain.interferer_names[0] == rad2.name
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1" or is_ironpython,
-        reason="Skipped on versions earlier than 2023.2",
+        config["desktopVersion"] < "2024.1" or is_ironpython,
+        reason="Skipped on versions earlier than 2024.1",
     )
-    def test_N_to_1_feature(self):
+    def test_optimal_n_to_1_feature(self):
         self.aedtapp = BasisTest.add_app(self, application=Emit)
         # place components and generate the appropriate number of revisions
         rad1 = self.aedtapp.modeler.components.create_component("Bluetooth")
@@ -797,37 +820,38 @@ class TestClass(BasisTest, object):
         rev = self.aedtapp.results.analyze()
         assert len(self.aedtapp.results.revisions) == 1
         radiosRX = rev.get_receiver_names()
-        bandsRX = rev.get_band_names(radiosRX[0], econsts.tx_rx_mode().rx)
+        bandsRX = rev.get_band_names(radiosRX[0], TxRxMode.RX)
         radiosTX = rev.get_interferer_names()
         domain = self.aedtapp.results.interaction_domain()
         domain.set_receiver(radiosRX[0], bandsRX[0])
-        domain.set_interferer(radiosTX[0])
-        assert len(domain.interferer_names) == 1
-        interaction = self.aedtapp.results.revisions[-1].run(domain)
-        # TODO: Update after Optimal N-1 changes are merged
-        # set multiple interferers
-        # verify interferer_names and results
 
-        # instance = interaction.get_worst_instance(econsts.result_type().sensitivity)
-        # assert instance.get_value(econsts.result_type().emi) == 82.04
-        # assert instance.get_value(econsts.result_type().desense) == 13.42
-        # assert instance.get_value(econsts.result_type().sensitivity) == -56.58
-        # assert instance.get_value(econsts.result_type().powerAtRx) == 62.03
-        # assert instance.get_largest_problem_type(econsts.result_type().emi) == "Out-of-Channel: Tx Fundamental"
-        # domain2 = self.aedtapp.results.interaction_domain()
-        # rx_frequencies = rev.get_active_frequencies(radiosRX[0], bandsRX[0], econsts.tx_rx_mode().rx, "Hz")
-        # domain2.set_receiver(radiosRX[0], bandsRX[0], rx_frequencies[0], "Hz")
-        # radiosTX = rev.get_interferer_names(econsts.interferer_type().transmitters)
-        # bandsTX = rev.get_band_names(radiosTX[0], econsts.tx_rx_mode().tx)
-        # tx_frequencies = rev.get_active_frequencies(radiosTX[0], bandsTX[0], econsts.tx_rx_mode().tx, "Hz")
-        # domain2.set_interferer(radiosTX[0], bandsTX[0], tx_frequencies[0], "Hz")
-        # exception_raised = False
-        # try:
-        #     instance = interaction.get_instance(domain2)
-        # except RuntimeError as e:
-        #     exception_raised = True
-        #     assert e.args[0] == "ERROR: Instance data for multiple simultaneous interferers not available."
-        # assert exception_raised
+        # check max_n_to_1_instances can be set to different values
+        self.aedtapp.results.revisions[-1].max_n_to_1_instances = 1
+        assert self.aedtapp.results.revisions[-1].max_n_to_1_instances == 1
+        self.aedtapp.results.revisions[-1].max_n_to_1_instances = 0
+        assert self.aedtapp.results.revisions[-1].max_n_to_1_instances == 0
+
+        # get number of 1-1 instances
+        assert self.aedtapp.results.revisions[-1].get_instance_count(domain) == 105702
+        interaction = self.aedtapp.results.revisions[-1].run(domain)
+        instance = interaction.get_worst_instance(ResultType.EMI)
+        assert instance.get_value(ResultType.EMI) == 76.02
+
+        # rerun with N-1
+        self.aedtapp.results.revisions[-1].max_n_to_1_instances = 2**25
+        assert self.aedtapp.results.revisions[-1].max_n_to_1_instances == 2**25
+        assert self.aedtapp.results.revisions[-1].get_instance_count(domain) == 23305632
+        interaction = self.aedtapp.results.revisions[-1].run(domain)
+        instance = interaction.get_worst_instance(ResultType.EMI)
+        domain2 = instance.get_domain()
+        assert len(domain2.interferer_names) == 2
+        assert instance.get_value(ResultType.EMI) == 82.04
+        # rerun with 1-1 only (forced by domain)
+        domain.set_interferer(radiosTX[0])
+        assert self.aedtapp.results.revisions[-1].get_instance_count(domain) == 19829
+        interaction = self.aedtapp.results.revisions[-1].run(domain)
+        instance = interaction.get_worst_instance(ResultType.EMI)
+        assert instance.get_value(ResultType.EMI) == 76.02
 
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2023.1" or is_ironpython,
@@ -863,17 +887,17 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.results.revisions) == 2
         domain = self.aedtapp.results.interaction_domain()
         radiosRX = rev2.get_receiver_names()
-        bandsRX = rev2.get_band_names(radiosRX[0], econsts.tx_rx_mode().rx)
+        bandsRX = rev2.get_band_names(radiosRX[0], TxRxMode.RX)
         domain.set_receiver(radiosRX[0], bandsRX[0])
-        radiosTX = rev2.get_interferer_names(econsts.interferer_type().transmitters)
-        bandsTX = rev2.get_band_names(radiosTX[0], econsts.tx_rx_mode().tx)
+        radiosTX = rev2.get_interferer_names(InterfererType.TRANSMITTERS)
+        bandsTX = rev2.get_band_names(radiosTX[0], TxRxMode.TX)
         domain.set_interferer(radiosTX[0], bandsTX[0])
         assert len(self.aedtapp.results.revisions) == 2
         radiosRX = rev2.get_receiver_names()
-        bandsRX = rev2.get_band_names(radiosRX[0], econsts.tx_rx_mode().rx)
+        bandsRX = rev2.get_band_names(radiosRX[0], TxRxMode.RX)
         domain.set_receiver(radiosRX[0], bandsRX[0])
-        radiosTX = rev2.get_interferer_names(econsts.interferer_type().transmitters)
-        bandsTX = rev2.get_band_names(radiosTX[0], econsts.tx_rx_mode().tx)
+        radiosTX = rev2.get_interferer_names(InterfererType.TRANSMITTERS)
+        bandsTX = rev2.get_band_names(radiosTX[0], TxRxMode.TX)
         domain.set_interferer(radiosTX[0], bandsTX[0])
         assert domain.receiver_name == "MD400C"
         assert domain.receiver_band_name == "Rx"
@@ -893,17 +917,306 @@ class TestClass(BasisTest, object):
 
         rev3 = self.aedtapp.results.analyze()
         assert len(self.aedtapp.results.revisions) == 2
-        radiosTX = rev3.get_interferer_names(econsts.interferer_type().transmitters)
+        radiosTX = rev3.get_interferer_names(InterfererType.TRANSMITTERS)
         radiosRX = rev3.get_receiver_names()
         assert len(radiosTX) == 3
         assert len(radiosRX) == 4
 
         rev4 = self.aedtapp.results.get_revision(rev.name)
         assert len(self.aedtapp.results.revisions) == 2
-        radiosTX = rev4.get_interferer_names(econsts.interferer_type().transmitters)
+        radiosTX = rev4.get_interferer_names(InterfererType.TRANSMITTERS)
         radiosRX = rev4.get_receiver_names()
         assert len(radiosTX) == 2
         assert len(radiosRX) == 2
+
+    @pytest.mark.skipif(
+        config["desktopVersion"] <= "2023.1" or is_ironpython,
+        reason="Skipped on versions earlier than 2023.2",
+    )
+    def test_interference_script(self):
+        self.aedtapp.insert_design("interference")
+        # place components
+        rad1 = self.aedtapp.modeler.components.create_component("Bluetooth Low Energy (LE)")
+        ant1 = self.aedtapp.modeler.components.create_component("Antenna")
+        if rad1 and ant1:
+            ant1.move_and_connect_to(rad1)
+        rad2 = self.aedtapp.modeler.components.create_component("GPS Receiver")
+        ant2 = self.aedtapp.modeler.components.create_component("Antenna")
+        if rad2 and ant2:
+            ant2.move_and_connect_to(rad2)
+        rad3 = self.aedtapp.modeler.components.create_component("WiFi - 802.11-2012")
+        ant3 = self.aedtapp.modeler.components.create_component("Antenna")
+        if rad3 and ant3:
+            ant3.move_and_connect_to(rad3)
+
+        # Reduce the bluetooth transmit power
+        bands = rad1.bands()
+        for band in bands:
+            band.set_band_power_level(-20)
+
+        # Enable L2 P(Y) GPS Band
+        bands = rad2.bands()
+        for band in bands:
+            for child in band.children:
+                if "L2 P(Y)" in band.node_name:
+                    band.enabled = True
+                else:
+                    band.enabled = False
+
+        # Enable HR-DSSS Ch 1-13 Wifi band
+        bands = rad3.bands()
+        for band in bands:
+            if "HR-DSSS" in band.node_name:
+                if "Ch 1-13" in band.node_name:
+                    band.enabled = True
+                    band.set_band_power_level(-20)
+
+        # Generate a revision
+        assert len(self.aedtapp.results.revisions) == 0
+        rev = self.aedtapp.results.analyze()
+        assert len(self.aedtapp.results.revisions) == 1
+
+        # Get list of RX and TX radios
+        radiosRX = rev.get_receiver_names()
+        radiosTX = rev.get_interferer_names(InterfererType.TRANSMITTERS)
+
+        assert len(radiosRX) == 3
+        assert len(radiosTX) == 2
+
+        rx_bands = ["Band", "L2 P(Y)", "HR-DSSS Rx - Ch 1-13"]
+        tx_bands = ["Band", "HR-DSSS Tx - Ch 1-13"]
+
+        for i in range(len(radiosRX)):
+            assert rx_bands[i] == rev.get_band_names(radiosRX[i], TxRxMode.RX)[0]
+
+        for i in range(len(radiosTX)):
+            assert tx_bands[i] == rev.get_band_names(radiosTX[i], TxRxMode.TX)[0]
+
+        # Test with no filtering
+        expected_interference_colors = [["white", "green", "yellow"], ["red", "green", "white"]]
+        expected_interference_power = [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]]
+
+        interference_colors = []
+        interference_power_matrix = []
+        protection_colors = []
+        protection_power_matrix = []
+        interference_colors, interference_power_matrix = interference_type_classification(self.aedtapp)
+        assert interference_colors == expected_interference_colors
+        assert interference_power_matrix == expected_interference_power
+
+    @pytest.mark.skipif(
+        config["desktopVersion"] <= "2023.1" or is_ironpython,
+        reason="Skipped on versions earlier than 2023.2",
+    )
+    def test_protection_level_classification_script(self):
+        self.aedtapp.insert_design("interference2")
+        # place components
+        rad1 = self.aedtapp.modeler.components.create_component("Bluetooth Low Energy (LE)")
+        ant1 = self.aedtapp.modeler.components.create_component("Antenna")
+        if rad1 and ant1:
+            ant1.move_and_connect_to(rad1)
+        rad2 = self.aedtapp.modeler.components.create_component("GPS Receiver")
+        ant2 = self.aedtapp.modeler.components.create_component("Antenna")
+        if rad2 and ant2:
+            ant2.move_and_connect_to(rad2)
+        rad3 = self.aedtapp.modeler.components.create_component("WiFi - 802.11-2012")
+        ant3 = self.aedtapp.modeler.components.create_component("Antenna")
+        if rad3 and ant3:
+            ant3.move_and_connect_to(rad3)
+
+        # Reduce the bluetooth transmit power
+        bands = rad1.bands()
+        for band in bands:
+            band.set_band_power_level(-20)
+
+        # Enable L2 P(Y) GPS Band
+        bands = rad2.bands()
+        for band in bands:
+            for child in band.children:
+                if "L2 P(Y)" in band.node_name:
+                    band.enabled = True
+                else:
+                    band.enabled = False
+
+        # Enable HR-DSSS Ch 1-13 Wifi band
+        bands = rad3.bands()
+        for band in bands:
+            if "HR-DSSS" in band.node_name:
+                if "Ch 1-13" in band.node_name:
+                    band.enabled = True
+                    band.set_band_power_level(-20)
+
+        # Generate a revision
+        assert len(self.aedtapp.results.revisions) == 0
+        rev = self.aedtapp.results.analyze()
+        assert len(self.aedtapp.results.revisions) == 1
+
+        # Get list of RX and TX radios
+        radiosRX = rev.get_receiver_names()
+        radiosTX = rev.get_interferer_names(InterfererType.TRANSMITTERS)
+
+        assert len(radiosRX) == 3
+        assert len(radiosTX) == 2
+
+        rx_bands = ["Band", "L2 P(Y)", "HR-DSSS Rx - Ch 1-13"]
+        tx_bands = ["Band", "HR-DSSS Tx - Ch 1-13"]
+
+        for i in range(len(radiosRX)):
+            assert rx_bands[i] == rev.get_band_names(radiosRX[i], TxRxMode.RX)[0]
+
+        for i in range(len(radiosTX)):
+            assert tx_bands[i] == rev.get_band_names(radiosTX[i], TxRxMode.TX)[0]
+        expected_protection_colors = [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]]
+        expected_protection_power = [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]]
+        protection_colors, protection_power_matrix = protection_level_classification(
+            self.aedtapp, global_protection_level=True, global_levels=[30, -4, -30, -104]
+        )
+
+        assert protection_colors == expected_protection_colors
+        assert protection_power_matrix == expected_protection_power
+
+        # Test protection level with radio-specific protection levels
+        expected_protection_colors = [["white", "orange", "red"], ["yellow", "orange", "white"]]
+        expected_protection_power = [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]]
+        protection_levels = {
+            "Global": [30.0, -4.0, -30.0, -104.0],
+            "Bluetooth Low Energy (LE)": [30.0, -4.0, -22.0, -104.0],
+            "GPS Receiver": [30.0, -22.0, -30.0, -104.0],
+            "WiFi - 802.11-2012": [-22.0, -25.0, -30.0, -104.0],
+        }
+
+        protection_colors = []
+        protection_power_matrix = []
+        protection_colors, protection_power_matrix = protection_level_classification(
+            self.aedtapp, global_protection_level=False, protection_levels=protection_levels
+        )
+
+        assert protection_colors == expected_protection_colors
+        assert protection_power_matrix == expected_protection_power
+
+    @pytest.mark.skipif(
+        config["desktopVersion"] <= "2023.1" or is_ironpython,
+        reason="Skipped on versions earlier than 2023.2",
+    )
+    def test_intersection_filters_script(self):
+        self.aedtapp.insert_design("interference3")
+        # place components
+        rad1 = self.aedtapp.modeler.components.create_component("Bluetooth Low Energy (LE)")
+        ant1 = self.aedtapp.modeler.components.create_component("Antenna")
+        if rad1 and ant1:
+            ant1.move_and_connect_to(rad1)
+        rad2 = self.aedtapp.modeler.components.create_component("GPS Receiver")
+        ant2 = self.aedtapp.modeler.components.create_component("Antenna")
+        if rad2 and ant2:
+            ant2.move_and_connect_to(rad2)
+        rad3 = self.aedtapp.modeler.components.create_component("WiFi - 802.11-2012")
+        ant3 = self.aedtapp.modeler.components.create_component("Antenna")
+        if rad3 and ant3:
+            ant3.move_and_connect_to(rad3)
+
+        # Reduce the bluetooth transmit power
+        bands = rad1.bands()
+        for band in bands:
+            band.set_band_power_level(-20)
+
+        # Enable L2 P(Y) GPS Band
+        bands = rad2.bands()
+        for band in bands:
+            for child in band.children:
+                if "L2 P(Y)" in band.node_name:
+                    band.enabled = True
+                else:
+                    band.enabled = False
+
+        # Enable HR-DSSS Ch 1-13 Wifi band
+        bands = rad3.bands()
+        for band in bands:
+            if "HR-DSSS" in band.node_name:
+                if "Ch 1-13" in band.node_name:
+                    band.enabled = True
+                    band.set_band_power_level(-20)
+
+        # Generate a revision
+        assert len(self.aedtapp.results.revisions) == 0
+        rev = self.aedtapp.results.analyze()
+        assert len(self.aedtapp.results.revisions) == 1
+
+        # Get list of RX and TX radios
+        radiosRX = rev.get_receiver_names()
+        radiosTX = rev.get_interferer_names(InterfererType.TRANSMITTERS)
+
+        assert len(radiosRX) == 3
+        assert len(radiosTX) == 2
+
+        rx_bands = ["Band", "L2 P(Y)", "HR-DSSS Rx - Ch 1-13"]
+        tx_bands = ["Band", "HR-DSSS Tx - Ch 1-13"]
+
+        for i in range(len(radiosRX)):
+            assert rx_bands[i] == rev.get_band_names(radiosRX[i], TxRxMode.RX)[0]
+
+        for i in range(len(radiosTX)):
+            assert tx_bands[i] == rev.get_band_names(radiosTX[i], TxRxMode.TX)[0]
+        # Test with active filtering
+        interference_colors = []
+        interference_power_matrix = []
+        protection_colors = []
+        protection_power_matrix = []
+        all_interference_colors = [
+            [["white", "green", "yellow"], ["orange", "green", "white"]],
+            [["white", "green", "yellow"], ["red", "green", "white"]],
+            [["white", "green", "green"], ["red", "green", "white"]],
+            [["white", "white", "yellow"], ["red", "white", "white"]],
+        ]
+        all_interference_power = [
+            [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]],
+            [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]],
+            [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]],
+            [["N/A", "<= -200", -20.0], [-20.0, "<= -200", "N/A"]],
+        ]
+        all_protection_colors = [
+            [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]],
+            [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]],
+            [["white", "white", "white"], ["white", "white", "white"]],
+            [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]],
+        ]
+        all_protection_power = [
+            [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]],
+            [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]],
+            [["N/A", "< -200", "< -200"], ["< -200", "< -200", "N/A"]],
+            [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]],
+        ]
+        interference_filters = [
+            "TxFundamental:In-band",
+            ["TxHarmonic/Spurious:In-band", "Intermod:In-band", "Broadband:In-band"],
+            "TxFundamental:Out-of-band",
+            ["TxHarmonic/Spurious:Out-of-band", "Intermod:Out-of-band", "Broadband:Out-of-band"],
+        ]
+        protection_filters = ["damage", "overload", "intermodulation", "desensitization"]
+
+        for ind in range(4):
+            expected_interference_colors = all_interference_colors[ind]
+            expected_interference_power = all_interference_power[ind]
+            expected_protection_colors = all_protection_colors[ind]
+            expected_protection_power = all_protection_power[ind]
+            interference_filter = interference_filters[:ind] + interference_filters[ind + 1 :]
+            protection_filter = protection_filters[:ind] + protection_filters[ind + 1 :]
+
+            interference_colors, interference_power_matrix = interference_type_classification(
+                self.aedtapp, use_filter=True, filter_list=interference_filter
+            )
+
+            protection_colors, protection_power_matrix = protection_level_classification(
+                self.aedtapp,
+                global_protection_level=True,
+                global_levels=[30, -4, -30, -104],
+                use_filter=True,
+                filter_list=protection_filter,
+            )
+
+            assert interference_colors == expected_interference_colors
+            assert interference_power_matrix == expected_interference_power
+            assert protection_colors == expected_protection_colors
+            assert protection_power_matrix == expected_protection_power
 
     """
     .. note::
@@ -924,3 +1237,35 @@ class TestClass(BasisTest, object):
         for link in self.aedtapp.couplings.coupling_names:
             assert link == "ATA_Analysis"
             self.aedtapp.couplings.update_link(link)
+
+        # test deleting a link
+        self.aedtapp.couplings.delete_link("ATA_Analysis")
+        links = self.aedtapp.couplings.linkable_design_names
+        assert len(links) == 1
+
+        # test adding a link
+        self.aedtapp.couplings.add_link("ATA_Analysis")
+        links = self.aedtapp.couplings.linkable_design_names
+        assert len(links) == 0
+        for link in self.aedtapp.couplings.coupling_names:
+            assert link == "ATA_Analysis"
+
+        self.aedtapp.close_project()
+
+        self.aedtapp = BasisTest.add_app(
+            self, project_name="Tutorial 4 - Completed", application=Emit, subfolder=test_subfolder
+        )
+        # test CAD nodes
+        cad_nodes = self.aedtapp.couplings.cad_nodes
+        assert len(cad_nodes) == 1
+        for key in cad_nodes.keys():
+            assert cad_nodes[key]["Name"] == "Fighter_Jet"
+
+        # test antenna nodes
+        antenna_nodes = self.aedtapp.couplings.antenna_nodes
+        assert len(antenna_nodes) == 4
+        antenna_names = ["GPS", "UHF-1", "UHF-2", "VHF-UHF"]
+        i = 0
+        for key in antenna_nodes.keys():
+            assert antenna_nodes[key].name == antenna_names[i]
+            i += 1

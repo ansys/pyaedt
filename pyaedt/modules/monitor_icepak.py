@@ -3,8 +3,44 @@ import re
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.constants import SI_UNITS
 from pyaedt.generic.constants import unit_system
+
+# from pyaedt.generic.general_methods import property
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
+
+quantities_dict = {  # pragma: no cover
+    8: "Speed",
+    9: "Pressure",
+    10: "TKE",
+    11: "Epsilon",
+    12: "ViscosityRatio",
+    16: "MassFlow",
+    17: "VolumeFlow",
+    18: "WallYPlus",
+    19: "Temperature",
+    20: "K_X",
+    21: "K_Y",
+    22: "K_Z",
+    29: "HeatFlux",
+    31: "HeatFlowRate",
+}
+
+quantities_type_dict = {  # pragma: no cover
+    "Speed": ["Point"],
+    "Pressure": ["Point"],
+    "TKE": ["Point"],
+    "Epsilon": ["Point"],
+    "ViscosityRatio": ["Point"],
+    "MassFlow": ["Face"],
+    "VolumeFlow": ["Face"],
+    "WallYPlus": ["Point"],
+    "Temperature": ["Point", "Face"],
+    "K_X": ["Point"],
+    "K_Y": ["Point"],
+    "K_Z": ["Point"],
+    "HeatFlux": ["Point"],
+    "HeatFlowRate": ["Face"],
+}
 
 
 class Monitor:
@@ -31,8 +67,16 @@ class Monitor:
         return None
 
     @pyaedt_function_handler
+    def _check_quantities(self, quantities):
+        if all(q in quantities_dict.values() for q in quantities):
+            return [monitor_type for q in quantities for monitor_type in quantities_type_dict[q]]
+        else:
+            self._app.logger.error("Invalid quantities selected.")
+            return []
+
+    @pyaedt_function_handler
     def _generate_monitor_names(self, name, n):
-        """Create list of names for monitor objects following Icepak naming rules.
+        """Create a list of names for monitor objects following Icepak naming rules.
 
         Parameters
         ----------
@@ -69,22 +113,6 @@ class Monitor:
 
     @pyaedt_function_handler
     def _load_monitor_objects(self, aedtfile_monitor_dict):
-        quantities_dict = {  # pragma: no cover
-            8: "Speed",
-            9: "Pressure",
-            10: "TKE",
-            11: "Epsilon",
-            12: "ViscosityRatio",
-            16: "MassFlow",
-            17: "VolumeFlow",
-            18: "WallYPlus",
-            19: "Temperature",
-            20: "K_X",
-            21: "K_Y",
-            22: "K_Z",
-            29: "HeatFlux",
-            31: "HeatFlowRate",
-        }
         for monitor_name, monitor_prop in aedtfile_monitor_dict.items():
             if "Faces" in monitor_prop.keys():
                 self._face_monitors[monitor_name] = FaceMonitor(
@@ -146,7 +174,7 @@ class Monitor:
 
     @property
     def face_monitors(self):
-        """Get face monitor objects.
+        """Get point monitor objects.
 
         Returns
         -------
@@ -189,8 +217,10 @@ class Monitor:
 
         Parameters
         ----------
-        point_position : list
-            List of the ``[x, y, z]`` coordinates for the point or list of list of coordinates.
+        point_position : list or str
+            List of the ``[x, y, z]`` coordinates for the point or name of the point.
+            Also, multiple monitor assignment with list of list with coordinates or list
+            of strings with points names.
         monitor_quantity : str or list, optional
             Quantity being monitored.  The default is ``"Temperature"``.
         monitor_name : str, optional
@@ -214,41 +244,52 @@ class Monitor:
         ['monitor1', 'monitor2']
 
         """
-        point_names = []
-        if not isinstance(point_position[0], list):
-            point_position = [point_position]
+        if isinstance(point_position[0], str):
+            if isinstance(point_position, list):
+                point_names = point_position
+            else:
+                point_names = [point_position]
+            point_position = []
+        else:
+            point_names = []
+            if not isinstance(point_position[0], list):
+                point_position = [point_position]
+
         if not isinstance(monitor_quantity, list):
             monitor_quantity = [monitor_quantity]
-        for p_p in point_position:
-            point_name = generate_unique_name("Point")
-            self._app.modeler.oeditor.CreatePoint(
-                [
-                    "NAME:PointParameters",
-                    "PointX:=",
-                    self._app.modeler._arg_with_dim(p_p[0]),
-                    "PointY:=",
-                    self._app.modeler._arg_with_dim(p_p[1]),
-                    "PointZ:=",
-                    self._app.modeler._arg_with_dim(p_p[2]),
-                ],
-                ["NAME:Attributes", "Name:=", point_name, "Color:=", "(143 175 143)"],
+        if "Point" in self._check_quantities(monitor_quantity):
+            for p_p in point_position:
+                point_name = generate_unique_name("Point")
+                self._app.modeler.oeditor.CreatePoint(
+                    [
+                        "NAME:PointParameters",
+                        "PointX:=",
+                        self._app.modeler._arg_with_dim(p_p[0]),
+                        "PointY:=",
+                        self._app.modeler._arg_with_dim(p_p[1]),
+                        "PointZ:=",
+                        self._app.modeler._arg_with_dim(p_p[2]),
+                    ],
+                    ["NAME:Attributes", "Name:=", point_name, "Color:=", "(143 175 143)"],
+                )
+                point_names.append(point_name)
+            if not monitor_name:
+                monitor_name = generate_unique_name("Monitor")
+            self._omonitor.AssignPointMonitor(
+                ["NAME:" + monitor_name, "Quantities:=", monitor_quantity, "Points:=", point_names]
             )
-            point_names.append(point_name)
-        if not monitor_name:
-            monitor_name = generate_unique_name("Monitor")
-        self._omonitor.AssignPointMonitor(
-            ["NAME:" + monitor_name, "Quantities:=", monitor_quantity, "Points:=", point_names]
-        )
-        try:
-            monitor_names = self._generate_monitor_names(monitor_name, len(point_position))
-            for i, mn in enumerate(monitor_names):
-                self._point_monitors[mn] = PointMonitor(mn, "Point", point_names[i], monitor_quantity, self._app)
-        except:  # pragma: no cover
-            return False
-        if len(monitor_names) == 1:
-            return monitor_names[0]
+            try:
+                monitor_names = self._generate_monitor_names(monitor_name, len(point_names))
+                for i, mn in enumerate(monitor_names):
+                    self._point_monitors[mn] = PointMonitor(mn, "Point", point_names[i], monitor_quantity, self._app)
+            except:  # pragma: no cover
+                return False
+            if len(monitor_names) == 1:
+                return monitor_names[0]
+            else:
+                return monitor_names
         else:
-            return monitor_names
+            return False
 
     @pyaedt_function_handler()
     def assign_point_monitor_to_vertex(self, vertex_id, monitor_quantity="Temperature", monitor_name=None):
@@ -281,19 +322,21 @@ class Monitor:
             monitor_quantity = [monitor_quantity]
         if not monitor_name:
             monitor_name = generate_unique_name("Monitor")
-        self._omonitor.AssignPointMonitor(
-            ["NAME:" + monitor_name, "Quantities:=", monitor_quantity, "Vertices:=", vertex_id]
-        )
-        try:
-            monitor_names = self._generate_monitor_names(monitor_name, len(vertex_id))
-            for i, mn in enumerate(monitor_names):
-                self._point_monitors[mn] = PointMonitor(mn, "Vertex", vertex_id[i], monitor_quantity, self._app)
-        except:  # pragma: no cover
-            return False
-        if len(monitor_names) == 1:
-            return monitor_names[0]
-        else:
-            return monitor_names
+        if "Point" in self._check_quantities(monitor_quantity):
+            self._omonitor.AssignPointMonitor(
+                ["NAME:" + monitor_name, "Quantities:=", monitor_quantity, "Vertices:=", vertex_id]
+            )
+            try:
+                monitor_names = self._generate_monitor_names(monitor_name, len(vertex_id))
+                for i, mn in enumerate(monitor_names):
+                    self._point_monitors[mn] = PointMonitor(mn, "Vertex", vertex_id[i], monitor_quantity, self._app)
+            except:  # pragma: no cover
+                return False
+            if len(monitor_names) == 1:
+                return monitor_names[0]
+            else:
+                return monitor_names
+        return False
 
     @pyaedt_function_handler()
     def assign_surface_monitor(self, surface_name, monitor_quantity="Temperature", monitor_name=None):
@@ -335,19 +378,22 @@ class Monitor:
             monitor_quantity = [monitor_quantity]
         if not monitor_name:
             monitor_name = generate_unique_name("Monitor")
-        self._omonitor.AssignFaceMonitor(
-            ["NAME:" + monitor_name, "Quantities:=", monitor_quantity, "Objects:=", surface_name]
-        )
-        try:
-            monitor_names = self._generate_monitor_names(monitor_name, len(surface_name))
-            for i, mn in enumerate(monitor_names):
-                self._face_monitors[mn] = FaceMonitor(mn, "Surface", surface_name[i], monitor_quantity, self._app)
-        except:  # pragma: no cover
-            return False
-        if len(monitor_names) == 1:
-            return monitor_names[0]
+        if "Face" in self._check_quantities(monitor_quantity):
+            self._omonitor.AssignFaceMonitor(
+                ["NAME:" + monitor_name, "Quantities:=", monitor_quantity, "Objects:=", surface_name]
+            )
+            try:
+                monitor_names = self._generate_monitor_names(monitor_name, len(surface_name))
+                for i, mn in enumerate(monitor_names):
+                    self._face_monitors[mn] = FaceMonitor(mn, "Surface", surface_name[i], monitor_quantity, self._app)
+            except:  # pragma: no cover
+                return False
+            if len(monitor_names) == 1:
+                return monitor_names[0]
+            else:
+                return monitor_names
         else:
-            return monitor_names
+            return False
 
     @pyaedt_function_handler()
     def assign_face_monitor(self, face_id, monitor_quantity="Temperature", monitor_name=None):
@@ -379,17 +425,22 @@ class Monitor:
             monitor_quantity = [monitor_quantity]
         if not monitor_name:
             monitor_name = generate_unique_name("Monitor")
-        self._omonitor.AssignFaceMonitor(["NAME:" + monitor_name, "Quantities:=", monitor_quantity, "Faces:=", face_id])
-        try:
-            monitor_names = self._generate_monitor_names(monitor_name, len(face_id))
-            for i, mn in enumerate(monitor_names):
-                self._face_monitors[mn] = FaceMonitor(mn, "Face", face_id[i], monitor_quantity, self._app)
-        except:  # pragma: no cover
-            return False
-        if len(monitor_names) == 1:
-            return monitor_names[0]
+        if "Face" in self._check_quantities(monitor_quantity):
+            self._omonitor.AssignFaceMonitor(
+                ["NAME:" + monitor_name, "Quantities:=", monitor_quantity, "Faces:=", face_id]
+            )
+            try:
+                monitor_names = self._generate_monitor_names(monitor_name, len(face_id))
+                for i, mn in enumerate(monitor_names):
+                    self._face_monitors[mn] = FaceMonitor(mn, "Face", face_id[i], monitor_quantity, self._app)
+            except:  # pragma: no cover
+                return False
+            if len(monitor_names) == 1:
+                return monitor_names[0]
+            else:
+                return monitor_names
         else:
-            return monitor_names
+            return False
 
     @pyaedt_function_handler()
     def assign_point_monitor_in_object(self, name, monitor_quantity="Temperature", monitor_name=None):
@@ -434,24 +485,29 @@ class Monitor:
             monitor_name = generate_unique_name("Monitor")
         elif monitor_name in original_monitors:
             monitor_name = generate_unique_name(monitor_name)
-        existing_names = list(set(name_sel).intersection(self._app.modeler.object_names))
-        if existing_names:
-            self._omonitor.AssignPointMonitor(
-                ["NAME:" + monitor_name, "Quantities:=", monitor_quantity, "Objects:=", existing_names]
-            )
+        if "Point" in self._check_quantities(monitor_quantity):
+            existing_names = list(set(name_sel).intersection(self._app.modeler.object_names))
+            if existing_names:
+                self._omonitor.AssignPointMonitor(
+                    ["NAME:" + monitor_name, "Quantities:=", monitor_quantity, "Objects:=", existing_names]
+                )
+            else:
+                self._app.logger.error("Object is not present in the design")
+                return False
+            try:
+                monitor_names = self._generate_monitor_names(monitor_name, len(existing_names))
+                for i, mn in enumerate(monitor_names):
+                    self._point_monitors[mn] = PointMonitor(
+                        mn, "Object", existing_names[i], monitor_quantity, self._app
+                    )
+            except:  # pragma: no cover
+                return False
+            if len(monitor_names) == 1:
+                return monitor_names[0]
+            else:
+                return monitor_names
         else:
-            self._app.logger.error("Object is not present in the design")
             return False
-        try:
-            monitor_names = self._generate_monitor_names(monitor_name, len(existing_names))
-            for i, mn in enumerate(monitor_names):
-                self._point_monitors[mn] = PointMonitor(mn, "Object", existing_names[i], monitor_quantity, self._app)
-        except:  # pragma: no cover
-            return False
-        if len(monitor_names) == 1:
-            return monitor_names[0]
-        else:
-            return monitor_names
 
     @pyaedt_function_handler()
     def delete_monitor(self, monitor_name):
