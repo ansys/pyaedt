@@ -722,10 +722,10 @@ class TestClass(BasisTest, object):
         ant3 = self.aedtapp.modeler.components.create_component("Antenna")
         ant3.move_and_connect_to(rad3)
         # give the bluetooth radios different transmit power levels
-        for b in rad2.bands():
-            b.set_band_power_level(0.0)
-        for b in rad3.bands():
-            b.set_band_power_level(10.0)
+        for band in rad2.bands():
+            band.set_band_power_level(0.0)
+        for band in rad3.bands():
+            band.set_band_power_level(10.0)
         rev = self.aedtapp.results.analyze()
         assert len(self.aedtapp.results.revisions) == 1
         if self.aedtapp._emit_api is not None:
