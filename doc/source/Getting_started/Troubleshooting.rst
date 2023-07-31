@@ -5,10 +5,10 @@ This section contains common issues and suggestion around PyAEDT installation an
 Installation
 ~~~~~~~~~~~~
 
-Error instally Python or Conda
-------------------------------
+Error installing Python or Conda
+--------------------------------
 It may happen, that IT Department doesn't allow users to install a Python interpreter in the machine.
-In this case user can use the interpreter avaialable in installation path of Ansys Electronics Desktop.
+In this case user can use the interpreter available in installation path of Ansys Electronics Desktop.
 Please note that Python 3.7 is available in AEDT <= 2023R1 while Python 3.10 is available on Ansys Electronics
 Desktop 2023 R2.
 
@@ -25,7 +25,7 @@ In case downloads from pypi are not allowed in your organization try using a whe
 A wheelhouse is a zip containing all needed packages that can be installed offline.
 PyAEDT wheelhouse can be found at `Releases <https://github.com/ansys/pyaedt/releases>`_.
 After downloading the wheelhouse zip specific for your distribution and Python release, unzip it in a folder and,
-then, run the python command:
+then, run the Python command:
 
 .. code:: python
 
@@ -42,13 +42,12 @@ this can be run directly from AEDT Script menu and the wheelhouse zip file can b
 Run PyAEDT
 ~~~~~~~~~~
 
-COM vs Grpc
+COM vs GRPC
 -----------
 Up until AEDT 2022R2, the method for connecting Python to AEDT-API used COM.
-COM is an “old” technology which requires interfaces, classes, objects and methods to be registered in Windows Registry.
-
+COM is an a technology which requires interfaces, classes, objects and methods to be registered in Windows Registry.
 All communication between Python and AEDT-API were translated through an intermediate layer by a
-3rd party module called pywin32. This module usage was limited to Windows OS only.
+third party module called pywin32. This module usage was limited to Windows OS only.
 PythonNET was added to make the connection to the AEDT-API.
 In 2022R2, a new technology was added to replace COM: GRPC. GRPC is a modern remote procedure calls framework
 to communicate with the API via remote calls.
@@ -86,8 +85,9 @@ To start Electronics desktop server in grpc mode use the following syntax:
    path\to\AnsysEM\v231\Win64\ansysedt.exe -grpcsrv 50001   # Windows
    path\to\AnsysEM\v231\Lin64\ansysedt -grpcsrv 50352       # Linux
 
-The number on which the server is running is the port that AEDT will use to listen and receive any command from PyAEDT.
-This allows to have multiple AEDT sessions running on the same machine and listening on the same port.
+The number on which the server is running is the port that AEDT should use to listen and receive
+any command from PyAEDT. This allows to have multiple AEDT sessions running on the same machine
+and listening on the same port.
 
 Check that AEDT GRPC API can run
 --------------------------------
@@ -97,7 +97,7 @@ variables have been correctly setup.
 
 .. code:: python
     import sys
-    sys.path.append(r"ANSYSEM_ROOT231\PythonFiles\DesktopPlugin")  #where ANSYSEM_ROOT231 is an
+    sys.path.append(r"ANSYSEM_ROOT231\PythonFiles\DesktopPlugin")
     import ScriptEnv
     print(dir())
     ScriptEnv.Initialize("", False, "", 50051)
@@ -114,21 +114,21 @@ This may be due to:
  - Proxy
  - Permissions
  - License
- - Scheduler used to launch AEDT (eg. LSF)
+ - Scheduler used to launch AEDT like LSF
 
 In case of issues with proxy, you may try the following environment variable:
 
 .. code:: python
     export no_proxy=localhost,127.0.0.1
 
-Run your pyAEDT script. If it still fails, then try:
+Run your PyAEDT script. If it still fails, then try:
 
 .. code:: python
     export http_proxy=
 
-Run your pyAEDT script. If the errors still persists, try the following:
+Run your PyAEDT script. If the errors still persists, try the following:
 
-1. Check that AEDT starts correctly from command line using grpcsrv port
+1. Check that AEDT starts correctly from command line using grpc port option
 2. enable all debug log variables and check logs.
 
 .. code:: python
@@ -153,7 +153,7 @@ Then start ansysedt.exe as GRPC server.
 
     >./ansysedt -grpcsrv 50051
 
-The GRPC trace will be printed on the terminal console. may capture the output as the server.txt file.
+The GRPC trace is printed on the terminal console. Capture the output as the server.txt file.
 In another terminal:
 
 .. code:: python
