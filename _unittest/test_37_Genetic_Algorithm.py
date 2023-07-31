@@ -3,10 +3,16 @@ import time
 
 # from _unittest.conftest import BasisTest
 import numpy as np
+import pytest
 
 from pyaedt.generic.python_optimizers import GeneticAlgorithm as ga
 
 # Setup paths for module imports
+
+
+@pytest.fixture(scope="module", autouse=True)
+def desktop():
+    return
 
 
 class TestClass:

@@ -90,6 +90,16 @@ class PrimitiveDotNet:
     def net(self):
         return self.prim_obj.GetNet()
 
+    @net.setter
+    def net(self, value):
+        try:
+            if "net" in dir(value):
+                self.prim_obj.SetNet(value.net_obj)
+            else:
+                self.prim_obj.SetNet(value)
+        except TypeError:
+            self._app.logger.error("Error setting net object")
+
     @property
     def polygon_data(self):
         """:class:`PolygonData <ansys.edb.geometry.PolygonData>`: Outer contour of the Polygon object."""

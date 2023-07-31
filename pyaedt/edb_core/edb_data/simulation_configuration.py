@@ -31,7 +31,7 @@ class SimulationConfigurationBatch(object):
         self._cutout_subdesign_type = CutoutSubdesignType.Conformal  # Conformal
         self._cutout_subdesign_expansion = 0.001
         self._cutout_subdesign_round_corner = True
-        self._use_default_cutout = True
+        self._use_default_cutout = False
         self._generate_excitations = True
         self._add_frequency_sweep = True
         self._include_only_selected_nets = False
@@ -261,7 +261,8 @@ class SimulationConfigurationBatch(object):
 
     @property
     def use_default_cutout(self):  # pragma: no cover
-        """Whether the default EDB cutout or a new PyAEDT cutout is used.
+        """Whether to use the default EDB cutout. The default is ``False``, in which case
+        a new PyAEDT cutout is used.
 
         Returns
         -------

@@ -6,6 +6,7 @@ import sys
 from _unittest.conftest import config
 
 from pyaedt import Circuit
+from pyaedt import Icepak
 from pyaedt import Maxwell2d
 from pyaedt import Q2d
 from pyaedt import Q3d
@@ -43,53 +44,70 @@ else:
 test_circuit_name = "Switching_Speed_FET_And_Diode"
 eye_diagram = "SimpleChannel"
 ami = "ami"
+ipk_post_proj = "for_icepak_post"
 test_subfolder = "T12"
 settings.enable_pandas_output = True
+
 
 @pytest.fixture(scope="class")
 def field_test(add_app):
     app = add_app(project_name=test_field_name, subfolder=test_subfolder)
     return app
 
+
 @pytest.fixture(scope="class")
 def circuit_test(add_app):
     app = add_app(project_name=test_circuit_name, design_name="Diode", application=Circuit, subfolder=test_subfolder)
     return app
+
 
 @pytest.fixture(scope="class")
 def diff_test(add_app, circuit_test):
     app = add_app(project_name=circuit_test.project_name, design_name="diff", application=Circuit, just_open=True)
     return app
 
+
 @pytest.fixture(scope="class")
 def sbr_test(add_app):
     app = add_app(project_name=sbr_file, subfolder=test_subfolder)
     return app
+
 
 @pytest.fixture(scope="class")
 def q3dtest(add_app):
     app = add_app(project_name=q3d_file, application=Q3d, subfolder=test_subfolder)
     return app
 
+
 @pytest.fixture(scope="class")
 def q2dtest(add_app, q3dtest):
     app = add_app(project_name=q3dtest.project_name, application=Q2d, just_open=True)
     return app
+
 
 @pytest.fixture(scope="class")
 def eye_test(add_app, q3dtest):
     app = add_app(project_name=eye_diagram, application=Circuit, subfolder=test_subfolder)
     return app
 
+
+@pytest.fixture(scope="class")
+def icepak_post(add_app):
+    app = add_app(project_name=ipk_post_proj, application=Icepak, subfolder=test_subfolder)
+    return app
+
+
 @pytest.fixture(scope="class")
 def ami_test(add_app, q3dtest):
     app = add_app(project_name=ami, application=Circuit, subfolder=test_subfolder)
     return app
 
+
 @pytest.fixture(scope="class")
 def array_test(add_app, q3dtest):
     app = add_app(project_name=array, subfolder=test_subfolder)
     return app
+
 
 @pytest.fixture(scope="class")
 def m2dtest(add_app, q3dtest):
@@ -111,7 +129,7 @@ class TestClass:
     #     self.sbr_test = BasisTest.add_app(self, project_name=sbr_file, subfolder=test_subfolder)
     #     self.q3dtest = BasisTest.add_app(self, project_name=q3d_file, application=Q3d, subfolder=test_subfolder)
     #     self.q2dtest = Q2d(projectname=self.q3dtest.project_name, specified_version=config["desktopVersion"])
-    #     self.eye_test = BasisTest.add_app(self, project_name=eye_diagram, application=Circuit, subfolder=test_subfolder)
+    #     self.eye_test=BasisTest.add_app(self, project_name=eye_diagram, application=Circuit, subfolder=test_subfolder)
     #     self.ami_test = BasisTest.add_app(self, project_name=ami, application=Circuit, subfolder=test_subfolder)
     #     self.array_test = BasisTest.add_app(self, project_name=array, subfolder=test_subfolder)
     #     self.m2dtest = BasisTest.add_app(self, project_name=m2d_file, application=Maxwell2d, subfolder=test_subfolder)
@@ -120,7 +138,22 @@ class TestClass:
     #     BasisTest.my_teardown(self)
 
     @pytest.fixture(autouse=True)
-    def init(self, m2dtest,array_test,ami_test,eye_test,q2dtest,q3dtest,sbr_test,diff_test,circuit_test,field_test, local_scratch):
+    def init(
+        self,
+        icepak_post,
+        m2dtest,
+        array_test,
+        ami_test,
+        eye_test,
+        q2dtest,
+        q3dtest,
+        sbr_test,
+        diff_test,
+        circuit_test,
+        field_test,
+        local_scratch,
+    ):
+        self.icepak_post = icepak_post
         self.m2dtest = m2dtest
         self.array_test = array_test
         self.ami_test = ami_test
@@ -836,3 +869,77 @@ class TestClass:
         assert self.field_test.available_variations.variations()
         assert self.field_test.cleanup_solution(vars, entire_solution=False)
         assert self.field_test.cleanup_solution(vars, entire_solution=True)
+
+    def test_76_ipk_get_scalar_field_value(self):
+        assert self.icepak_post.post.get_scalar_field_value(
+            "Heat_Flow_Rate",
+            scalar_function="Integrate",
+            solution=None,
+            variation_dict=["power_block:=", ["0.25W"], "power_source:=", ["0.075W"]],
+            isvector=False,
+            intrinsics=None,
+            phase=None,
+            object_name="cube2",
+            object_type="surface",
+            adjacent_side=False,
+        )
+        assert self.icepak_post.post.get_scalar_field_value(
+            "Heat_Flow_Rate",
+            scalar_function="Integrate",
+            solution=None,
+            variation_dict=["power_block:=", ["0.6W"], "power_source:=", ["0.15W"]],
+            isvector=False,
+            intrinsics=None,
+            phase=None,
+            object_name="cube2",
+            object_type="surface",
+            adjacent_side=False,
+        )
+        assert self.icepak_post.post.get_scalar_field_value(
+            "Heat_Flow_Rate",
+            scalar_function="Integrate",
+            solution=None,
+            variation_dict=["power_block:=", ["0.6W"], "power_source:=", ["0.15W"]],
+            isvector=False,
+            intrinsics=None,
+            phase=None,
+            object_name="cube2",
+            object_type="surface",
+            adjacent_side=True,
+        )
+        assert self.icepak_post.post.get_scalar_field_value(
+            "Temperature",
+            scalar_function="Maximum",
+            solution=None,
+            variation_dict=["power_block:=", ["0.6W"], "power_source:=", ["0.15W"]],
+            isvector=False,
+            intrinsics=None,
+            phase=None,
+            object_name="cube1",
+            object_type="volume",
+            adjacent_side=False,
+        )
+        assert self.icepak_post.post.get_scalar_field_value(
+            "Temperature",
+            scalar_function="Maximum",
+            solution=None,
+            variation_dict=["power_block:=", ["0.6W"], "power_source:=", ["0.15W"]],
+            isvector=False,
+            intrinsics=None,
+            phase=None,
+            object_name="cube2",
+            object_type="surface",
+            adjacent_side=False,
+        )
+        assert self.icepak_post.post.get_scalar_field_value(
+            "Temperature",
+            scalar_function="Value",
+            solution=None,
+            variation_dict=None,
+            isvector=False,
+            intrinsics=None,
+            phase=None,
+            object_name="Point1",
+            object_type="point",
+            adjacent_side=False,
+        )

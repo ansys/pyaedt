@@ -34,10 +34,12 @@ def aedtapp(add_app):
     app.modeler.schematic_units = "mil"
     return app
 
+
 @pytest.fixture(scope="class")
 def circuitprj(add_app):
     app = add_app(diff_proj_name, application=Circuit, subfolder=test_subfolder)
     return app
+
 
 @pytest.fixture(scope="class", autouse=True)
 def examples(local_scratch):
@@ -50,7 +52,8 @@ def examples(local_scratch):
     touchstone_file = local_scratch.copyfile(touchstone_file)
     touchstone_file2 = local_scratch.copyfile(touchstone_file2)
     return netlist_file1, netlist_file2, touchstone_file, touchstone_file2
-    
+
+
 class TestClass:
     # def setup_class(self):
     #     BasisTest.my_setup(self)
@@ -306,9 +309,7 @@ class TestClass:
         assert self.aedtapp.create_setup(setup_name, "NexximAMI")
 
     def test_20_create_AMI_plots(self, add_app):
-        ami_design = add_app(
-            ami_project, design_name="Models Init Only", application=Circuit, subfolder=test_subfolder
-        )
+        ami_design = add_app(ami_project, design_name="Models Init Only", application=Circuit, subfolder=test_subfolder)
         report_name = "MyReport"
         assert (
             ami_design.post.create_ami_initial_response_plot(
@@ -436,6 +437,18 @@ class TestClass:
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model)
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2345", False)
         assert not self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2346")
+
+    def test_29a_create_circuit_from_spice_edit_symbol(self):
+        model = os.path.join(local_path, "example_models", test_subfolder, "test.lib")
+        assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(
+            model_path=model, model_name="GRM5678", symbol_name="nexx_cap"
+        )
+        assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(
+            model_path=model, model_name="GRM6789", symbol_name="nexx_inductor"
+        )
+        assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(
+            model_path=model, model_name="GRM9012", symbol_name="nexx_res"
+        )
 
     def test_30_create_subcircuit(self):
         subcircuit = self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0], angle=0)

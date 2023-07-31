@@ -28,10 +28,12 @@ if config["desktopVersion"] > "2022.2":
 else:
     test_project_name = "Coax_HFSS"
 
+
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
     app = add_app(test_project_name, subfolder=test_subfolder)
     return app
+
 
 class TestClass:
     # def setup_class(self):
@@ -366,14 +368,17 @@ class TestClass:
         assert d[[1, 0]]
         assert "Test" in d[[1, 0]].project_name
 
-    def test_36_test_load(self):
+    def test_36_test_load(self, add_app):
         file_name = os.path.join(self.local_scratch.path, "test_36.aedt")
-        hfss = Hfss(projectname=file_name, specified_version=desktop_version)
+        # hfss = Hfss(projectname=file_name, specified_version=desktop_version)
+        hfss = add_app(project_name=file_name, just_open=True)
         hfss.save_project()
         assert hfss
-        h3d = Hfss3dLayout(file_name, specified_version=desktop_version)
+        # h3d = Hfss3dLayout(file_name, specified_version=desktop_version)
+        h3d = add_app(project_name=file_name, application=Hfss3dLayout, just_open=True)
         assert h3d
-        h3d = Hfss3dLayout(file_name, specified_version=desktop_version)
+        # h3d = Hfss3dLayout(file_name, specified_version=desktop_version)
+        h3d = add_app(project_name=file_name, application=Hfss3dLayout, just_open=True)
         assert h3d
         file_name2 = os.path.join(self.local_scratch.path, "test_36_2.aedt")
         file_name2_lock = os.path.join(self.local_scratch.path, "test_36_2.aedt.lock")

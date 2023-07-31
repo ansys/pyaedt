@@ -1,13 +1,13 @@
 # standard imports
 import os
 
+# from _unittest.conftest import desktop_version
 # from _unittest.conftest import BasisTest
 from _unittest.conftest import config
-from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 
-from pyaedt import Circuit
 # from pyaedt import Hfss
+from pyaedt import Circuit
 from pyaedt import Q2d
 from pyaedt import Q3d
 from pyaedt import is_ironpython
@@ -257,40 +257,41 @@ class TestClass:
         LNA_setup.props["SweepDefinition"]["Data"] = " ".join(sweep_list)
         assert LNA_setup.update()
 
-    @pytest.mark.skipif(is_linux, reason="Skipped because Desktop is crashing")
-    def test_10_q3d_link(self, add_app):
+    @pytest.mark.skipif(is_ironpython or is_linux, reason="Skipped because Desktop is crashing")
+    def test_10_q2d_link(self, add_app):
         self.aedtapp.insert_design("test_link")
-        q2d = Q2d(self.q3d, specified_version=desktop_version)
-        proj_path = self.q3d
-        proj_name = q2d.project_name
+        # q2d = Q2d(self.q3d, specified_version=desktop_version)
+        q2d = add_app(application=Q2d, project_name=self.q3d, just_open=True)
         c1 = self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q2d, extrusion_length=25)
         assert c1
         assert len(c1.pins) == 6
         assert c1.parameters["Length"] == "25mm"
         assert c1.parameters["r1"] == "0.3mm"
-        if proj_name in self.aedtapp.project_list:
-            proj_path = proj_name
-        # q3d = Q3d(proj_path, specified_version=desktop_version)
-        q3d = add_app(application=Q3d, project_name=proj_path, just_open=True)
+
+    @pytest.mark.skipif(is_ironpython or is_linux, reason="Skipped because Desktop is crashing")
+    def test_10_q3d_link(self, add_app):
+        q3d = add_app(application=Q3d, project_name=self.q3d, just_open=True)
 
         q3d_comp = self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
             q3d, solution_name="Setup1 : LastAdaptive"
         )
         assert q3d_comp
         assert len(q3d_comp.pins) == 4
-        # hfss = Hfss(proj_path, specified_version=desktop_version)
-        hfss = add_app(project_name=proj_path, just_open=True)
+
+    @pytest.mark.skipif(is_ironpython or is_linux, reason="Skipped because Desktop is crashing")
+    def test_10_hfss_link(self, add_app):
+        hfss = add_app(project_name=self.q3d, just_open=True)
 
         hfss_comp = self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(hfss, solution_name="Setup1 : Sweep")
         assert hfss_comp
         assert len(hfss_comp.pins) == 2
         # hfss = Hfss(proj_path, specified_version=desktop_version)
-        hfss2 = add_app(project_name=proj_path, just_open=True)
+        hfss2 = add_app(project_name=self.q3d, just_open=True)
         assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
             hfss2, solution_name="Setup2 : Sweep", tline_port="1"
         )
 
-    @pytest.mark.skipif(is_linux, reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(is_ironpython or is_linux, reason="Skipped because Desktop is crashing")
     def test_11_siwave_link(self):
         model = os.path.join(local_path, "example_models", test_subfloder, "Galileo_um.siw")
         model_out = self.local_scratch.copyfile(model)
