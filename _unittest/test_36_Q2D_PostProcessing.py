@@ -43,7 +43,7 @@ class TestClass:
         self.q2d_solved_nominal_app = q2d_solved_nominal_app
         self.local_scratch = local_scratch
 
-    def test_01_export_w_elements_from_sweep(self):
+    def test_01_export_w_elements_from_sweep(self, q2d_solved_sweep_app, local_scratch):
         # test_project = self.local_scratch.copyfile(
         #     os.path.join(local_path, "example_models", test_subfolder, q2d_solved_sweep + ".aedtz")
         # )
@@ -59,15 +59,15 @@ class TestClass:
         #     finally:
         #         q2d.close_project(save_project=False)
 
-        export_folder = os.path.join(self.local_scratch.path, "export_folder")
-        files = self.q2d_solved_sweep_app.export_w_elements(False, export_folder)
+        export_folder = os.path.join(local_scratch.path, "export_folder")
+        files = q2d_solved_sweep_app.export_w_elements(False, export_folder)
         assert len(files) == 3
         for file in files:
             _, ext = os.path.splitext(file)
             assert ext == ".sp"
             assert os.path.isfile(file)
 
-    def test_02_export_w_elements_from_nominal(self):
+    def test_02_export_w_elements_from_nominal(self, q2d_solved_nominal_app, local_scratch):
         # test_project = self.local_scratch.copyfile(
         #     os.path.join(local_path, "example_models", test_subfolder, q2d_solved_nominal + ".aedtz")
         # )
@@ -83,15 +83,15 @@ class TestClass:
         #     finally:
         #         q2d.close_project(save_project=False)
 
-        export_folder = os.path.join(self.local_scratch.path, "export_folder")
-        files = self.q2d_solved_nominal_app.export_w_elements(False, export_folder)
+        export_folder = os.path.join(local_scratch.path, "export_folder")
+        files = q2d_solved_nominal_app.export_w_elements(False, export_folder)
         assert len(files) == 1
         for file in files:
             _, ext = os.path.splitext(file)
             assert ext == ".sp"
             assert os.path.isfile(file)
 
-    def test_03_export_w_elements_to_working_directory(self):
+    def test_03_export_w_elements_to_working_directory(self, q2d_solved_nominal_app):
         # test_project = self.local_scratch.copyfile(
         #     os.path.join(local_path, "example_models", test_subfolder, q2d_solved_nominal + ".aedtz")
         # )
@@ -108,7 +108,7 @@ class TestClass:
         #     finally:
         #         q2d.close_project(save_project=False)
 
-        files = self.q2d_solved_nominal_app.export_w_elements(False)
+        files = q2d_solved_nominal_app.export_w_elements(False)
         assert len(files) == 1
         for file in files:
             _, ext = os.path.splitext(file)

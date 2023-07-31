@@ -109,16 +109,10 @@ class TestClass:
     #     BasisTest.my_teardown(self)
 
     @pytest.fixture(autouse=True)
-    def init(self, coax, cs, cs1, cs2, cs3, mat1, project_dict, project_sub_key, test_project_file, local_scratch):
-        self.coax = coax
-        self.cs = cs
-        self.cs1 = cs1
-        self.cs2 = cs2
-        self.cs3 = cs3
-        self.mat1 = mat1
+    def init(self, project_dict, project_sub_key, test_project_file, local_scratch):
         self.project_dict = project_dict
         self.project_sub_key = project_sub_key
-        self.multiple_cs_project = test_project_file(cs3_name)
+        self.multiple_cs_project = test_project_file(cs3_name, subfolder=test_subfolder)
         self.local_scratch = local_scratch
 
     def test_01_check_top_level_keys(self):
@@ -156,15 +150,14 @@ class TestClass:
         # implicitly this will test to make sure no exception is thrown by load_entire_aedt_file
         assert load_entire_aedt_file(self.multiple_cs_project)
 
-    def test_06_check_coordinate_system_retrival(self):
-        cs = self.cs.modeler.coordinate_systems
-        assert cs
-        cs = self.cs1.modeler.coordinate_systems
-        assert cs
-        cs = self.cs2.modeler.coordinate_systems
-        assert cs
-        cs = self.cs3.modeler.coordinate_systems
-        assert cs
+    @pytest.mark.parametrize(
+        "cs_app",
+        ["cs", "cs1", "cs2", "cs3"],
+    )
+    def test_06_check_coordinate_system_retrival(self, cs_app, request):
+        cs_fixt = request.getfixturevalue(cs_app)
+        coordinate_systems = cs_fixt.modeler.coordinate_systems
+        assert coordinate_systems
 
     def test_07_load_material_file(self):
         mat_file = os.path.join(local_path, "example_models", test_subfolder, "material_sample.amat")
@@ -185,10 +178,10 @@ class TestClass:
         assert dd["mat_example_2"]["mass_density"] == "7140"
         assert dd["mat_example_2"]["specific_heat"] == "389"
 
-    def test_08_add_material_from_amat(self):
+    def test_08_add_material_from_amat(self, mat1):
         mat_file = os.path.join(local_path, "example_models", test_subfolder, "material_sample.amat")
         dd = load_entire_aedt_file(mat_file)
-        newmat = self.mat1.materials.add_material("foe_mat", props=dd["mat_example_1"])
+        newmat = mat1.materials.add_material("foe_mat", props=dd["mat_example_1"])
         assert newmat.conductivity.value == "1100000"
         assert newmat.thermal_conductivity.value == "13.8"
         assert newmat.mass_density.value == "8055"

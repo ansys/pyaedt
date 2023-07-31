@@ -89,18 +89,15 @@ class TestClass:
     #     BasisTest.my_teardown(self)
 
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp, source, sbr_platform, array, local_scratch):
+    def init(self, aedtapp, local_scratch):
         self.aedtapp = aedtapp
-        self.source = source
-        self.sbr_platform = sbr_platform
-        self.array = array
         self.local_scratch = local_scratch
         if not is_ironpython and not is_linux:
             # this should be changed upstream to use a HOME or TEMP folder by default...
             osmnx.settings.cache_folder = os.path.join(local_scratch.path, "cache")
 
-    def test_01_open_source(self):
-        assert self.aedtapp.create_sbr_linked_antenna(self.source, target_cs="feederPosition", fieldtype="farfield")
+    def test_01_open_source(self, source):
+        assert self.aedtapp.create_sbr_linked_antenna(source, target_cs="feederPosition", fieldtype="farfield")
         assert len(self.aedtapp.native_components) == 1
 
     def test_02_add_antennas(self):
@@ -236,12 +233,12 @@ class TestClass:
             assert os.path.exists(parts_dict["parts"][part]["file_name"])
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not supported.")
-    def test_13_link_array(self):
+    def test_13_link_array(self, sbr_platform, array):
         # self.array.setups[0].props["MaximumPasses"] = 1
-        assert self.sbr_platform.create_sbr_linked_antenna(self.array, target_cs="antenna_CS", fieldtype="farfield")
-        self.sbr_platform.analyze(num_cores=2)
-        ffdata = self.sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere_name="3D")
-        ffdata2 = self.sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere_name="3D", overwrite=False)
+        assert sbr_platform.create_sbr_linked_antenna(array, target_cs="antenna_CS", fieldtype="farfield")
+        sbr_platform.analyze(num_cores=2)
+        ffdata = sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere_name="3D")
+        ffdata2 = sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere_name="3D", overwrite=False)
 
         ffdata.plot_2d_cut(
             primary_sweep="theta",

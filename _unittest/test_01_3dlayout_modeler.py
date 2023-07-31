@@ -73,10 +73,8 @@ class TestClass:
     #     BasisTest.my_teardown(self)
 
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp, hfss3dl, solve, local_scratch, examples):
+    def init(self, aedtapp, local_scratch, examples):
         self.aedtapp = aedtapp
-        self.hfss3dl = hfss3dl
-        self.solve = solve
         self.local_scratch = local_scratch
         self.target_path = examples[0]
 
@@ -545,23 +543,23 @@ class TestClass:
         assert self.aedtapp.mesh.generate_mesh("RFBoardSetup3")
 
     @pytest.mark.skipif(is_ironpython, reason="Not supported with IronPython")
-    def test_19B_analyze_setup(self):
-        assert self.solve.mesh.generate_mesh("Setup1")
-        assert self.solve.analyze_setup("Setup1", num_cores=2)
-        self.solve.save_project()
-        assert os.path.exists(self.solve.export_profile("Setup1"))
-        assert os.path.exists(self.solve.export_mesh_stats("Setup1"))
+    def test_19B_analyze_setup(self, solve):
+        assert solve.mesh.generate_mesh("Setup1")
+        assert solve.analyze_setup("Setup1", num_cores=2)
+        solve.save_project()
+        assert os.path.exists(solve.export_profile("Setup1"))
+        assert os.path.exists(solve.export_mesh_stats("Setup1"))
 
     @pytest.mark.skipif(is_linux or is_ironpython, reason="To be investigated on linux.")
-    def test_19C_export_touchsthone(self):
-        filename = os.path.join(self.solve.working_directory, "touchstone.s2p")
+    def test_19C_export_touchsthone(self, solve):
+        filename = os.path.join(solve.working_directory, "touchstone.s2p")
         solution_name = "Setup1"
         sweep_name = "Sweep1"
-        assert self.solve.export_touchstone(solution_name, sweep_name, filename)
+        assert solve.export_touchstone(solution_name, sweep_name, filename)
         assert os.path.exists(filename)
-        assert self.solve.export_touchstone(solution_name)
+        assert solve.export_touchstone(solution_name)
         sweep_name = None
-        assert self.solve.export_touchstone(solution_name, sweep_name)
+        assert solve.export_touchstone(solution_name, sweep_name)
 
     @pytest.mark.skipif(is_ironpython, reason="Not supported with IronPython")
     def test_19D_export_to_hfss(self):
@@ -581,32 +579,32 @@ class TestClass:
         assert setup.export_to_q3d(file_fullname)
 
     @pytest.mark.skipif(is_ironpython, reason="To be investigated on linux.")
-    def test_19F_export_results(self):
-        files = self.solve.export_results()
+    def test_19F_export_results(self, solve):
+        files = solve.export_results()
         assert len(files) > 0
 
-    def test_20_set_export_touchstone(self):
-        assert self.solve.set_export_touchstone(True)
-        assert self.solve.set_export_touchstone(False)
+    def test_20_set_export_touchstone(self, solve):
+        assert solve.set_export_touchstone(True)
+        assert solve.set_export_touchstone(False)
 
     def test_21_variables(self):
         assert isinstance(self.aedtapp.available_variations.nominal_w_values_dict, dict)
         assert isinstance(self.aedtapp.available_variations.nominal_w_values, list)
 
-    def test_21_get_all_sparameter_list(self):
-        assert self.solve.get_all_sparameter_list == ["S(Port1,Port1)", "S(Port1,Port2)", "S(Port2,Port2)"]
+    def test_21_get_all_sparameter_list(self, solve):
+        assert solve.get_all_sparameter_list == ["S(Port1,Port1)", "S(Port1,Port2)", "S(Port2,Port2)"]
 
-    def test_22_get_all_return_loss_list(self):
-        assert self.solve.get_all_return_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
+    def test_22_get_all_return_loss_list(self, solve):
+        assert solve.get_all_return_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
 
-    def test_23_get_all_insertion_loss_list(self):
-        assert self.solve.get_all_insertion_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
+    def test_23_get_all_insertion_loss_list(self, solve):
+        assert solve.get_all_insertion_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
 
-    def test_24_get_next_xtalk_list(self):
-        assert self.solve.get_next_xtalk_list() == ["S(Port1,Port2)"]
+    def test_24_get_next_xtalk_list(self, solve):
+        assert solve.get_next_xtalk_list() == ["S(Port1,Port2)"]
 
-    def test_25_get_fext_xtalk_list(self):
-        assert self.solve.get_fext_xtalk_list() == ["S(Port1,Port2)", "S(Port2,Port1)"]
+    def test_25_get_fext_xtalk_list(self, solve):
+        assert solve.get_fext_xtalk_list() == ["S(Port1,Port2)", "S(Port2,Port1)"]
 
     def test_26_duplicate(self):
         assert self.aedtapp.modeler.duplicate("myrectangle", 2, [1, 1])
@@ -765,9 +763,9 @@ class TestClass:
         self.aedtapp.close_project(test.project_name)
 
     @pytest.mark.skipif(is_linux, reason="Bug on linux")
-    def test_90_set_differential_pairs(self):
+    def test_90_set_differential_pairs(self, hfss3dl):
         assert not self.aedtapp.get_differential_pairs()
-        assert self.hfss3dl.set_differential_pair(
+        assert hfss3dl.set_differential_pair(
             positive_terminal="Port3",
             negative_terminal="Port4",
             common_name=None,
@@ -777,18 +775,18 @@ class TestClass:
             active=True,
             matched=False,
         )
-        assert self.hfss3dl.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
-        assert self.hfss3dl.get_differential_pairs()
-        assert self.hfss3dl.get_traces_for_plot(differential_pairs=["Diff1"], category="dB(S")
+        assert hfss3dl.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
+        assert hfss3dl.get_differential_pairs()
+        assert hfss3dl.get_traces_for_plot(differential_pairs=["Diff1"], category="dB(S")
 
     @pytest.mark.skipif(is_linux, reason="Bug on linux")
-    def test_91_load_and_save_diff_pair_file(self):
+    def test_91_load_and_save_diff_pair_file(self, hfss3dl):
         diff_def_file = os.path.join(local_path, "example_models", test_subfolder, "differential_pairs_definition.txt")
         diff_file = self.local_scratch.copyfile(diff_def_file)
-        assert self.hfss3dl.load_diff_pairs_from_file(diff_file)
+        assert hfss3dl.load_diff_pairs_from_file(diff_file)
 
         diff_file2 = os.path.join(self.local_scratch.path, "diff_file2.txt")
-        assert self.hfss3dl.save_diff_pairs_to_file(diff_file2)
+        assert hfss3dl.save_diff_pairs_to_file(diff_file2)
         with open(diff_file2, "r") as fh:
             lines = fh.read().splitlines()
         assert len(lines) == 3

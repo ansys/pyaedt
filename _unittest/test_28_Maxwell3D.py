@@ -81,11 +81,8 @@ class TestClass:
     #     BasisTest.my_teardown(self)
 
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp, m3dtransient, cyl_gap, layout_comp, local_scratch):
+    def init(self, aedtapp, local_scratch):
         self.aedtapp = aedtapp
-        self.m3dtransient = m3dtransient
-        self.cyl_gap = cyl_gap
-        self.layout_comp = layout_comp
         self.local_scratch = local_scratch
 
     def test_01_create_primitive(self):
@@ -715,8 +712,8 @@ class TestClass:
         box3 = self.aedtapp.modeler.create_box([-50, -50, -50], [1, 1, 1], matname="copper")
         assert len(self.aedtapp.get_conduction_paths()) == 2
 
-    def test_42_harmonic_forces(self):
-        assert self.m3dtransient.enable_harmonic_force(
+    def test_42_harmonic_forces(self, m3dtransient):
+        assert m3dtransient.enable_harmonic_force(
             ["Stator"],
             force_type=2,
             window_function="Rectangular",
@@ -724,21 +721,21 @@ class TestClass:
             last_cycles_number=3,
             calculate_force="Harmonic",
         )
-        self.m3dtransient.save_project()
-        self.m3dtransient.analyze(self.m3dtransient.active_setup, num_cores=2)
-        assert self.m3dtransient.export_element_based_harmonic_force(
+        m3dtransient.save_project()
+        m3dtransient.analyze(m3dtransient.active_setup, num_cores=2)
+        assert m3dtransient.export_element_based_harmonic_force(
             start_frequency=1, stop_frequency=100, number_of_frequency=None
         )
-        assert self.m3dtransient.export_element_based_harmonic_force(number_of_frequency=5)
+        assert m3dtransient.export_element_based_harmonic_force(number_of_frequency=5)
 
-    def test_43_eddy_effect_transient(self):
-        assert self.m3dtransient.eddy_effects_on(["Rotor"], activate_eddy_effects=True)
+    def test_43_eddy_effect_transient(self, m3dtransient):
+        assert m3dtransient.eddy_effects_on(["Rotor"], activate_eddy_effects=True)
 
-    def test_44_assign_master_slave(self):
+    def test_44_assign_master_slave(self, m3dtransient):
         faces = [
-            x.faces for x in self.m3dtransient.modeler.object_list if x.name == "PeriodicBC1" or x.name == "PeriodicBC2"
+            x.faces for x in m3dtransient.modeler.object_list if x.name == "PeriodicBC1" or x.name == "PeriodicBC2"
         ]
-        assert self.m3dtransient.assign_master_slave(
+        assert m3dtransient.assign_master_slave(
             master_entity=faces[0],
             slave_entity=faces[1],
             u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
@@ -746,7 +743,7 @@ class TestClass:
             u_vector_origin_coordinates_slave=["0mm", "0mm", "0mm"],
             u_vector_pos_coordinates_slave=["0mm", "-100mm", "0mm"],
         )
-        assert self.m3dtransient.assign_master_slave(
+        assert m3dtransient.assign_master_slave(
             master_entity=faces[0],
             slave_entity=faces[1],
             u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
@@ -755,7 +752,7 @@ class TestClass:
             u_vector_pos_coordinates_slave=["0mm", "-100mm", "0mm"],
             bound_name="test",
         )
-        assert self.m3dtransient.assign_master_slave(
+        assert m3dtransient.assign_master_slave(
             master_entity=faces[0],
             slave_entity=faces[1],
             u_vector_origin_coordinates_master="0mm",
@@ -763,7 +760,7 @@ class TestClass:
             u_vector_origin_coordinates_slave=["0mm", "0mm", "0mm"],
             u_vector_pos_coordinates_slave=["0mm", "-100mm", "0mm"],
         ) == (False, False)
-        assert self.m3dtransient.assign_master_slave(
+        assert m3dtransient.assign_master_slave(
             master_entity=faces[0],
             slave_entity=faces[1],
             u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
@@ -771,7 +768,7 @@ class TestClass:
             u_vector_origin_coordinates_slave=["0mm", "0mm", "0mm"],
             u_vector_pos_coordinates_slave=["0mm", "-100mm", "0mm"],
         ) == (False, False)
-        assert self.m3dtransient.assign_master_slave(
+        assert m3dtransient.assign_master_slave(
             master_entity=faces[0],
             slave_entity=faces[1],
             u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
@@ -781,31 +778,31 @@ class TestClass:
         ) == (False, False)
 
     @pytest.mark.skipif(is_ironpython, reason="Fails on Ironpython")
-    def test_45_add_mesh_link(self):
-        self.m3dtransient.duplicate_design(self.m3dtransient.design_name)
-        self.m3dtransient.set_active_design(self.m3dtransient.design_list[1])
-        assert self.m3dtransient.setups[0].add_mesh_link(design_name=self.m3dtransient.design_list[0])
-        meshlink_props = self.m3dtransient.setups[0].props["MeshLink"]
+    def test_45_add_mesh_link(self, m3dtransient):
+        m3dtransient.duplicate_design(m3dtransient.design_name)
+        m3dtransient.set_active_design(m3dtransient.design_list[1])
+        assert m3dtransient.setups[0].add_mesh_link(design_name=m3dtransient.design_list[0])
+        meshlink_props = m3dtransient.setups[0].props["MeshLink"]
         assert meshlink_props["Project"] == "This Project*"
         assert meshlink_props["PathRelativeTo"] == "TargetProject"
-        assert meshlink_props["Design"] == self.m3dtransient.design_list[0]
+        assert meshlink_props["Design"] == m3dtransient.design_list[0]
         assert meshlink_props["Soln"] == "Setup1 : LastAdaptive"
-        assert not self.m3dtransient.setups[0].add_mesh_link(design_name="")
-        assert self.m3dtransient.setups[0].add_mesh_link(
-            design_name=self.m3dtransient.design_list[0], solution_name="Setup1 : LastAdaptive"
+        assert not m3dtransient.setups[0].add_mesh_link(design_name="")
+        assert m3dtransient.setups[0].add_mesh_link(
+            design_name=m3dtransient.design_list[0], solution_name="Setup1 : LastAdaptive"
         )
-        assert not self.m3dtransient.setups[0].add_mesh_link(
-            design_name=self.m3dtransient.design_list[0], solution_name="Setup_Test : LastAdaptive"
+        assert not m3dtransient.setups[0].add_mesh_link(
+            design_name=m3dtransient.design_list[0], solution_name="Setup_Test : LastAdaptive"
         )
-        assert self.m3dtransient.setups[0].add_mesh_link(
-            design_name=self.m3dtransient.design_list[0],
-            parameters_dict=self.m3dtransient.available_variations.nominal_w_values_dict,
+        assert m3dtransient.setups[0].add_mesh_link(
+            design_name=m3dtransient.design_list[0],
+            parameters_dict=m3dtransient.available_variations.nominal_w_values_dict,
         )
         example_project = os.path.join(local_path, "example_models", test_subfolder, transient + ".aedt")
         example_project_copy = os.path.join(self.local_scratch.path, transient + "_copy.aedt")
         shutil.copyfile(example_project, example_project_copy)
-        assert self.m3dtransient.setups[0].add_mesh_link(
-            design_name=self.m3dtransient.design_list[0], project_name=example_project_copy
+        assert m3dtransient.setups[0].add_mesh_link(
+            design_name=m3dtransient.design_list[0], project_name=example_project_copy
         )
 
     def test_46_set_variable(self):
@@ -847,49 +844,49 @@ class TestClass:
             input_objects_list="impedance_box", simplify_type="Polygon Fit", extrusion_axis="U"
         )
 
-    def test_49_cylindrical_gap(self):
+    def test_49_cylindrical_gap(self, cyl_gap):
         [
             x.delete()
-            for x in self.cyl_gap.mesh.meshoperations[:]
+            for x in cyl_gap.mesh.meshoperations[:]
             if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
         ]
-        assert self.cyl_gap.mesh.assign_cylindrical_gap("Band", meshop_name="cyl_gap_test")
-        assert not self.cyl_gap.mesh.assign_cylindrical_gap(["Band", "Inner_Band"])
-        assert not self.cyl_gap.mesh.assign_cylindrical_gap("Band")
+        assert cyl_gap.mesh.assign_cylindrical_gap("Band", meshop_name="cyl_gap_test")
+        assert not cyl_gap.mesh.assign_cylindrical_gap(["Band", "Inner_Band"])
+        assert not cyl_gap.mesh.assign_cylindrical_gap("Band")
         [
             x.delete()
-            for x in self.cyl_gap.mesh.meshoperations[:]
+            for x in cyl_gap.mesh.meshoperations[:]
             if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
         ]
-        assert self.cyl_gap.mesh.assign_cylindrical_gap(
+        assert cyl_gap.mesh.assign_cylindrical_gap(
             "Band", meshop_name="cyl_gap_test", clone_mesh=True, band_mapping_angle=1
         )
         [
             x.delete()
-            for x in self.cyl_gap.mesh.meshoperations[:]
+            for x in cyl_gap.mesh.meshoperations[:]
             if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
         ]
-        assert self.cyl_gap.mesh.assign_cylindrical_gap("Band", meshop_name="cyl_gap_test", clone_mesh=False)
+        assert cyl_gap.mesh.assign_cylindrical_gap("Band", meshop_name="cyl_gap_test", clone_mesh=False)
         [
             x.delete()
-            for x in self.cyl_gap.mesh.meshoperations[:]
+            for x in cyl_gap.mesh.meshoperations[:]
             if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
         ]
-        assert self.cyl_gap.mesh.assign_cylindrical_gap("Band")
-        assert not self.cyl_gap.mesh.assign_cylindrical_gap(
+        assert cyl_gap.mesh.assign_cylindrical_gap("Band")
+        assert not cyl_gap.mesh.assign_cylindrical_gap(
             "Band", meshop_name="cyl_gap_test", clone_mesh=True, band_mapping_angle=7
         )
-        assert not self.cyl_gap.mesh.assign_cylindrical_gap(
+        assert not cyl_gap.mesh.assign_cylindrical_gap(
             "Band", meshop_name="cyl_gap_test", clone_mesh=True, band_mapping_angle=2, moving_side_layers=0
         )
-        assert not self.cyl_gap.mesh.assign_cylindrical_gap(
+        assert not cyl_gap.mesh.assign_cylindrical_gap(
             "Band", meshop_name="cyl_gap_test", clone_mesh=True, band_mapping_angle=2, static_side_layers=0
         )
 
-    def test_50_objects_segmentation(self):
+    def test_50_objects_segmentation(self, cyl_gap):
         segments_number = 5
         object_name = "PM_I1"
-        sheets = self.cyl_gap.modeler.objects_segmentation(
+        sheets = cyl_gap.modeler.objects_segmentation(
             object_name, segments_number=segments_number, apply_mesh_sheets=True
         )
         assert isinstance(sheets, tuple)
@@ -899,8 +896,8 @@ class TestClass:
         assert len(sheets[0][object_name]) == segments_number - 1
         segments_number = 4
         object_name = "PM_I1_1"
-        magnet_id = [obj.id for obj in self.cyl_gap.modeler.object_list if obj.name == object_name][0]
-        sheets = self.cyl_gap.modeler.objects_segmentation(
+        magnet_id = [obj.id for obj in cyl_gap.modeler.object_list if obj.name == object_name][0]
+        sheets = cyl_gap.modeler.objects_segmentation(
             magnet_id, segments_number=segments_number, apply_mesh_sheets=True
         )
         assert isinstance(sheets, tuple)
@@ -908,21 +905,21 @@ class TestClass:
         assert len(sheets[0][object_name]) == segments_number - 1
         segmentation_thickness = 1
         object_name = "PM_O1"
-        magnet = [obj for obj in self.cyl_gap.modeler.object_list if obj.name == object_name][0]
-        sheets = self.cyl_gap.modeler.objects_segmentation(
+        magnet = [obj for obj in cyl_gap.modeler.object_list if obj.name == object_name][0]
+        sheets = cyl_gap.modeler.objects_segmentation(
             magnet, segmentation_thickness=segmentation_thickness, apply_mesh_sheets=True
         )
         assert isinstance(sheets, tuple)
         assert isinstance(sheets[0][object_name], list)
         segments_number = round(magnet.top_edge_y.length / segmentation_thickness)
         assert len(sheets[0][object_name]) == segments_number - 1
-        assert not self.cyl_gap.modeler.objects_segmentation(object_name)
-        assert not self.cyl_gap.modeler.objects_segmentation(
+        assert not cyl_gap.modeler.objects_segmentation(object_name)
+        assert not cyl_gap.modeler.objects_segmentation(
             object_name, segments_number=segments_number, segmentation_thickness=segmentation_thickness
         )
         object_name = "PM_O1_1"
         segments_number = 10
-        sheets = self.cyl_gap.modeler.objects_segmentation(object_name, segments_number=segments_number)
+        sheets = cyl_gap.modeler.objects_segmentation(object_name, segments_number=segments_number)
         assert isinstance(sheets, dict)
         assert isinstance(sheets[object_name], list)
         assert len(sheets[object_name]) == segments_number - 1
@@ -942,23 +939,23 @@ class TestClass:
         assert self.aedtapp.assign_flux_tangential(box.faces[0].id, "FluxExample")
 
     @pytest.mark.skipif(is_ironpython or desktop_version < "2023.2", reason="Method available in beta from 2023.2")
-    def test_53_assign_layout_force(self):
+    def test_53_assign_layout_force(self, layout_comp):
         nets_layers = {
             "<no-net>": ["<no-layer>", "TOP", "UNNAMED_000", "UNNAMED_002"],
             "GND": ["BOTTOM", "Region", "UNNAMED_010", "UNNAMED_012"],
             "V3P3_S5": ["LYR_1", "LYR_2", "UNNAMED_006", "UNNAMED_008"],
         }
-        assert self.layout_comp.assign_layout_force(nets_layers, "LC1_1")
-        assert not self.layout_comp.assign_layout_force(nets_layers, "LC1_3")
+        assert layout_comp.assign_layout_force(nets_layers, "LC1_1")
+        assert not layout_comp.assign_layout_force(nets_layers, "LC1_3")
         nets_layers = {"1V0": "Bottom Solder"}
-        assert self.layout_comp.assign_layout_force(nets_layers, "LC1_1")
+        assert layout_comp.assign_layout_force(nets_layers, "LC1_1")
 
     @pytest.mark.skipif(is_ironpython or desktop_version < "2023.2", reason="Method available in beta from 2023.2")
-    def test_54_enable_harmonic_force_layout(self):
-        comp = self.layout_comp.modeler.user_defined_components["LC1_1"]
+    def test_54_enable_harmonic_force_layout(self, layout_comp):
+        comp = layout_comp.modeler.user_defined_components["LC1_1"]
         layers = list(comp.layout_component.layers.keys())
         nets = list(comp.layout_component.nets.keys())
-        self.layout_comp.enable_harmonic_force_on_layout_component(
+        layout_comp.enable_harmonic_force_on_layout_component(
             comp.name,
             {nets[0]: layers[1::2], nets[1]: layers[1::2]},
             force_type=2,
@@ -971,7 +968,7 @@ class TestClass:
             use_number_of_cycles_for_stop_time=True,
             number_of_cycles_for_stop_time=1,
         )
-        self.layout_comp.solution_type = "Magnetostatic"
-        assert not self.layout_comp.enable_harmonic_force_on_layout_component(
+        layout_comp.solution_type = "Magnetostatic"
+        assert not layout_comp.enable_harmonic_force_on_layout_component(
             comp.name, {nets[0]: layers[1::2], nets[1]: layers[1::2]}
         )

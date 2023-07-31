@@ -193,8 +193,11 @@ def add_app(local_scratch):
 
 @pytest.fixture(scope="module")
 def test_project_file(local_scratch):
-    def _method(project_name=None):
-        project_file = os.path.join(local_scratch.path, project_name + ".aedt")
+    def _method(project_name=None, subfolder=None):
+        if subfolder:
+            project_file = os.path.join(local_path, "example_models", subfolder, project_name + ".aedt")
+        else:
+            project_file = os.path.join(local_scratch.path, project_name + ".aedt")
         if os.path.exists(project_file):
             return project_file
         else:
