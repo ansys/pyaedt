@@ -135,7 +135,7 @@ This may be due to:
 
 In case of issues with proxy, you may try the following environment variable:
 
-.. code:: python
+.. code:: console
 
     export no_proxy=localhost,127.0.0.1
 
