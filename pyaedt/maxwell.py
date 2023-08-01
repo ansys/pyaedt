@@ -2786,7 +2786,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Newly created object. ``False`` if it fails.
+            Newly created object when successful, ``False`` when failed.
 
         References
         ----------
