@@ -25,15 +25,15 @@ m2d = pyaedt.Maxwell2d(
 
 ##################################################################################
 # Import geometry as a DXF file
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-DXFPath = "D:/Ansys_logo_2D.dxf" # store this somewhere?
+DXFPath = pyaedt.downloads.download_file("dxf", "Ansys_logo_2D.dxf")
 dxf_layers = m2d.get_dxf_layers(DXFPath)
 m2d.import_dxf(DXFPath, dxf_layers, scale=1E-05)
 
 ##################################################################################
 # Define variables
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~
 # Define conductor thickness in z-direction, material array with 4 materials,
 # and MaterialIndex referring to the material array
 
@@ -46,18 +46,21 @@ no_materials = 4
 
 ##################################################################################
 # Assign materials
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~
 # Voltage ports will be defined as perfect electric conductor (pec), conductor
 # gets the material defined by the 0th entry of the material array
 
 m2d.assign_material(["ANSYS_LOGO_2D_1", "ANSYS_LOGO_2D_2"], "pec")
-conductor = m2d.modeler.get_object_from_name("ANSYS_LOGO_2D_3")
-conductor.material_name = "ConductorMaterial[MaterialIndex]"
+m2d.modeler["ANSYS_LOGO_2D_3"].material_name = "ConductorMaterial[MaterialIndex]"
+m2d.modeler["ANSYS_LOGO_2D_4"].material_name = "ConductorMaterial[MaterialIndex]"
+m2d.modeler["ANSYS_LOGO_2D_5"].material_name = "ConductorMaterial[MaterialIndex]"
+m2d.modeler["ANSYS_LOGO_2D_6"].material_name = "ConductorMaterial[MaterialIndex]"
+m2d.modeler["ANSYS_LOGO_2D_7"].material_name = "vacuum"
 
 
 ##################################################################################
 # Assign voltages
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~
 # 1V and 0V
 
 m2d.assign_voltage(["ANSYS_LOGO_2D_1"], amplitude=1, name="1V")
@@ -65,21 +68,21 @@ m2d.assign_voltage(["ANSYS_LOGO_2D_2"], amplitude=0, name="0V")
 
 ##################################################################################
 # Setup conductance calculation
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # 1V is the source, 0V ground
 
 m2d.assign_matrix(sources=['1V'], group_sources=['0V'], matrix_name="Matrix1")
 
 ##################################################################################
 # Assign mesh operation
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~
 # 3mm on the conductor
 
 m2d.mesh.assign_length_mesh(["ANSYS_LOGO_2D_3"], meshop_name="conductor", maxlength=3, maxel=None)
 
 ##################################################################################
 # Create simulation setup and enable expression cache
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create simulation setup with minimum 4 adaptive passes to ensure convergence.
 # Enable expression cache to observe the convergence.
 
@@ -94,7 +97,7 @@ setup1.analyze()
 
 ##################################################################################
 # Create parametric sweep
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~
 # Create parametric sweep to sweep all the entries in the material array.
 # Save fields and mesh and use the mesh for all the materials.
 
@@ -108,7 +111,7 @@ param_sweep.analyze()
 
 ##################################################################################
 # Create resistance report
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~
 # Create R. vs. material report
 
 variations = {"MaterialIndex": ["All"], "MaterialThickness": ["Nominal"]}
@@ -124,14 +127,16 @@ m2d.post.create_report(
 
 ##################################################################################
 # Field overlay
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~
 # Plot electric field and current density on the conductor surface
 
-conductor_surface = m2d.modeler.get_object_faces(conductor.name)
+conductor_surface = m2d.modeler["ANSYS_LOGO_2D_1"].faces + m2d.modeler["ANSYS_LOGO_2D_2"].faces + m2d.modeler[
+    "ANSYS_LOGO_2D_3"].faces + m2d.modeler["ANSYS_LOGO_2D_4"].faces + m2d.modeler["ANSYS_LOGO_2D_5"].faces + \
+                    m2d.modeler["ANSYS_LOGO_2D_6"].faces
 m2d.post.create_fieldplot_surface(conductor_surface, "Mag_E", plot_name="Electric Field")
 m2d.post.create_fieldplot_surface(conductor_surface, "Mag_J", plot_name="Current Density")
-
+m2d.post.plot_field("Mag_E", conductor_surface, plot_cad_objs=False, show=False)
 ##################################################################################
 # Release desktop
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~
 m2d.release_desktop()
