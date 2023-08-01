@@ -69,16 +69,14 @@ framework that can run in any environment and supports client/server remote call
 Starting from 2022R2 and later, the AEDT API has replaced COM interface with gRPC interface.
 
 
-.. list-table:: *gRPC Compatibility Table:*
-   :widths: 55 55 55 55
+.. list-table:: *gRPC Compatibility:*
+   :widths: 65 65 65
    :header-rows: 1
 
-   * - Version:
-     - < 2022R2
+   * - < 2022R2
      - 2022R2
      - > 2022R2
-   * - Interface:
-     - Only Python.NET
+   * - Only Python.NET
      - Default: Python.NET
        Enable gRPC: ``pyaedt.settings.use_grpc_api = True``
      - Default: gRPC
