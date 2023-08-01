@@ -230,6 +230,11 @@ class TestClass(BasisTest, object):
         assert self.edbapp.nets["AVCC_1V3"].get_extended_net()
         assert self.edbapp.nets.get_extended_nets()
 
+        self.edbapp.extended_nets.create("new_ex_net", "GND")
+        extended_net = self.edbapp.extended_nets["new_ex_net"]
+        assert "GND" in extended_net.nets
+
+
     def test_011_assign_rlc(self):
         assert self.edbapp.components.set_component_rlc("C1", res_value=1e-3, cap_value="10e-6", isparallel=False)
         assert self.edbapp.components.set_component_rlc("L10", res_value=1e-3, ind_value="10e-6", isparallel=True)

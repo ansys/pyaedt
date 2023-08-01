@@ -1,3 +1,4 @@
+from pyaedt.edb_core.dotnet.database import ExtendedNetDotNet
 from pyaedt.edb_core.dotnet.database import NetDotNet
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.primitives_data import cast
@@ -171,3 +172,32 @@ class EDBNetsData(NetDotNet):
         rlc_common = {i: v for i, v in comps_common.items() if v.type in ["Resistor", "Inductor", "Capacitor"]}
 
         return output_nets, rlc_common
+
+
+class EDBExtendedNetData(ExtendedNetDotNet):
+    """Manages EDB functionalities for a primitives.
+    It Inherits EDB Object properties.
+
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edb = Edb(myedb, edbversion="2021.2")
+    >>> edb_extended_net = edb.nets.extended_nets["GND"]
+    >>> edb_extended_net.name # Class Property
+    """
+
+    def __init__(self, core_app, raw_extended_net=None):
+        self._app = core_app
+        self._core_components = core_app.components
+        self._core_primitive = core_app.modeler
+        self._core_nets = core_app.nets
+        self.extended_net_object = raw_extended_net
+        ExtendedNetDotNet.__init__(self, self._app, raw_extended_net)
+
+    @pyaedt_function_handler
+    def add_nets(self, net_names: list[str]):
+        flag = True
+        for i in net_names:
+            flag = flag and self.add_net(i)
+        return flag
+

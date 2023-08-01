@@ -6,6 +6,7 @@ import time
 import warnings
 
 from pyaedt.edb_core.edb_data.nets_data import EDBNetsData
+from pyaedt.edb_core.edb_data.nets_data import EDBExtendedNetData
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
 from pyaedt.edb_core.general import convert_py_list_to_net_list
@@ -49,6 +50,7 @@ class EdbNets(object):
     def __init__(self, p_edb):
         self._pedb = p_edb
         self._nets = {}
+        self._extended_nets = {}
         self._nets_by_comp_dict = {}
         self._comps_by_nets_dict = {}
 
@@ -252,7 +254,7 @@ class EdbNets(object):
         """
         if exception_list is None:
             exception_list = []
-        self._extendend_nets = []
+        _extended_nets = []
         all_nets = list(self.nets.keys())[:]
         net_dicts = self._comps_by_nets_dict if self._comps_by_nets_dict else self.components_by_nets
         comp_dict = self._nets_by_comp_dict if self._nets_by_comp_dict else self.nets_by_components
@@ -292,9 +294,9 @@ class EdbNets(object):
             new_ext = [all_nets[0]]
             get_net_list(new_ext[0], new_ext)
             all_nets = [i for i in all_nets if i not in new_ext]
-            self._extendend_nets.append(new_ext)
+            _extended_nets.append(new_ext)
 
-        return self._extendend_nets
+        return _extended_nets
 
     @staticmethod
     def _eval_arc_points(p1, p2, h, n=6, tol=1e-12):

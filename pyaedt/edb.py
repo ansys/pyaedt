@@ -15,6 +15,7 @@ import warnings
 from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.edb_core import Components
+from pyaedt.edb_core import EdbExtendedNets
 from pyaedt.edb_core import EdbHfss
 from pyaedt.edb_core import EdbLayout
 from pyaedt.edb_core import EdbNets
@@ -261,6 +262,7 @@ class Edb(Database):
         self._siwave = None
         self._hfss = None
         self._nets = None
+        self._extended_nets = None
         self._setups = {}
         self._layout_instance = None
         self._variables = None
@@ -277,6 +279,7 @@ class Edb(Database):
         self._siwave = EdbSiwave(self)
         self._hfss = EdbHfss(self)
         self._nets = EdbNets(self)
+        self._extended_nets = EdbExtendedNets(self)
         self._core_primitives = EdbLayout(self)
         self._stackup2 = self._stackup
         self._materials = Materials(self)
@@ -877,6 +880,24 @@ class Edb(Database):
         if not self._nets and self.active_db:
             self._nets = EdbNets(self)
         return self._nets
+
+    @property
+    def extended_nets(self):
+        """Core nets.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.nets.EdbExtendedNets`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> edbapp.extended_nets
+        """
+
+        if not self._extended_nets and self.active_db:
+            self._extended_nets = EdbExtendedNets(self)
+        return self._extended_nets
 
     @property
     def core_primitives(self):  # pragma: no cover
