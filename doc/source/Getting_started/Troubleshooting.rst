@@ -139,7 +139,7 @@ In case of issues with proxy, you may try the following environment variable:
 
     export no_proxy=localhost,127.0.0.1
 
-Run your PyAEDT script. If it still fails, then try:
+Run your PyAEDT script. If it still fails, the proxy server can be disabled using
 
 .. code:: console
 
