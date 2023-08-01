@@ -39,7 +39,7 @@ run the Python command:
     >>> pip install --no-cache-dir --no-index --find-links=/path/to/pyaedt/wheelhouse pyaedt
 
 
-Another option to install PyAedt from the wheelhouse is to download the following file
+Another option to install PyAEDT from the wheelhouse is to download the following file
 :download:`PyAEDT Installer Python file <../Resources/PyAEDTInstallerFromDesktop.py>`.
 Run this script directly from AEDT and pass the wheelhouse file name as an argument.
 
@@ -55,10 +55,11 @@ Prior to the 2022R2 release CPython automation in AEDT used
 `COM <https://learn.microsoft.com/en-us/windows/win32/com/com-objects-and-interfaces>`_  which
 requires all interfaces to be registered in the Windows Registry.
 Communication between Python and the AEDT API were translated through an intermediate layer using
-`pywin32 <https://github.com/mhammond/pywin32>`_. The recent addition of
-`PythonNET <https://pythonnet.github.io/pythonnet/>`_ improves
-cross-platform support and the COM interface is replaced by `gRPC <https://grpc.io/>`_,
-for 2022R2 and later.
+`pywin32 <https://github.com/mhammond/pywin32>`_ and  `PythonNET <https://pythonnet.github.io/pythonnet/>`_.
+
+`gRPC <https://grpc.io/>`_ is a modern open source high performance Remote Procedure Call (RPC)
+framework that can run in any environment and supports client/server remote calls.
+Starting from 2022R2 and later, AEDT API has replaced COM interface with gRPC interface.
 
 
 .. list-table:: gRPC Compatibility Table
@@ -103,7 +104,7 @@ commands from PyAEDT client instances. This configuration
 supports multiple sessions of AEDT running on a single server
 and listening on the same port.
 
-Check the gRPC Interface
+Check the gRPC interface
 ------------------------
 The native Electronics Desktop API can be used to launch
 Electronics Desktop from the command line.
