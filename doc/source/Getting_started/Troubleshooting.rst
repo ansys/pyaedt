@@ -7,7 +7,7 @@ Installation
 
 Error installing Python or Conda
 --------------------------------
-Sometimes users are not allowed to install a Python interpreter.
+Sometimes companies do not allow installation of a Python interpreter.
 In this case, a Python interpreter is available in installation path of
 Ansys Electronics Desktop.
 Note that Python 3.7 is available in AEDT <= 2023R1 while Ansys Electronics Desktop 2023 R2
