@@ -84,9 +84,9 @@ Starting from 2022R2 and later, AEDT API has replaced COM interface with gRPC in
    * - AEDT
      - Only ``Python.NET``
      - ``Python.NET`` default.
-       `gRPC: pyaedt.settings.use_grpc_api = True`
+       ``gRPC: pyaedt.settings.use_grpc_api = True``
      - gRPC default
-       ``Python.NET``: `pyaedt.settings.use_grpc_api = False`
+       ``Python.NET``: ``pyaedt.settings.use_grpc_api = False``
 
 The options shown here apply only to the Windows platform.
 On Linux, the Python interface to AEDT uses gRPC for all versions.
