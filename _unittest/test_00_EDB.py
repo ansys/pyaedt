@@ -234,6 +234,9 @@ class TestClass(BasisTest, object):
         extended_net = self.edbapp.extended_nets["new_ex_net"]
         assert "GND" in extended_net.nets
 
+        diff_pair = self.edbapp.differential_pairs.create("new_pair1", "PCIe_Gen4_RX1_P", "PCIe_Gen4_RX1_N")
+        assert diff_pair.positive_net.name == "PCIe_Gen4_RX1_P"
+        assert diff_pair.negative_net.name == "PCIe_Gen4_RX1_N"
 
     def test_011_assign_rlc(self):
         assert self.edbapp.components.set_component_rlc("C1", res_value=1e-3, cap_value="10e-6", isparallel=False)

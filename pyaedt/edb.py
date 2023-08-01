@@ -20,6 +20,7 @@ from pyaedt.edb_core import EdbHfss
 from pyaedt.edb_core import EdbLayout
 from pyaedt.edb_core import EdbNets
 from pyaedt.edb_core import EdbSiwave
+from pyaedt.edb_core import EdbDifferentialPair
 from pyaedt.edb_core.dotnet.database import Database
 from pyaedt.edb_core.dotnet.layout import LayoutDotNet
 from pyaedt.edb_core.edb_data.control_file import ControlFile
@@ -263,6 +264,7 @@ class Edb(Database):
         self._hfss = None
         self._nets = None
         self._extended_nets = None
+        self._differential_pairs = None
         self._setups = {}
         self._layout_instance = None
         self._variables = None
@@ -280,6 +282,7 @@ class Edb(Database):
         self._hfss = EdbHfss(self)
         self._nets = EdbNets(self)
         self._extended_nets = EdbExtendedNets(self)
+        self._differential_pairs = EdbDifferentialPair(self)
         self._core_primitives = EdbLayout(self)
         self._stackup2 = self._stackup
         self._materials = Materials(self)
@@ -898,6 +901,23 @@ class Edb(Database):
         if not self._extended_nets and self.active_db:
             self._extended_nets = EdbExtendedNets(self)
         return self._extended_nets
+
+    @property
+    def differential_pairs(self):
+        """Core nets.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.nets.EdbDifferentialPairs`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> edbapp.differential_pairs
+        """
+        if not self._differential_pairs and self.active_db:
+            self._differential_pairs = EdbDifferentialPair(self)
+        return self._differential_pairs
 
     @property
     def core_primitives(self):  # pragma: no cover

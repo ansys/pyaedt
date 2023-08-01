@@ -221,7 +221,7 @@ class NetDotNet:
 class NetClassDotNet:
 
     def __init__(self, app):
-        self.cell_extended_net = app._edb.Cell.ExtendedNet
+        self.cell_diff_pair = app._edb.Cell.ExtendedNet
 
         self.edb_api = app._edb
         self._app = app
@@ -249,7 +249,7 @@ class ExtendedNetDotNet(NetClassDotNet):
         """Edb Dotnet Api Database `Edb.ExtendedNet.FindByName`."""
         return ExtendedNetDotNet(self._app, self.cell_extended_net.FindByName(layout, net))
 
-    def create(self, name):
+    def api_create(self, name):
         """Edb Dotnet Api Database `Edb.ExtendedNet.Create`."""
         return ExtendedNetDotNet(self._app, self.cell_extended_net.Create(self._app.active_layout, name))
 
@@ -280,6 +280,64 @@ class ExtendedNetDotNet(NetClassDotNet):
         if self.api_object:
             edb_api_net = self.edb_api.Cell.Net.FindByName(self._app.active_layout, name)
             return self.api_object.AddNet(edb_api_net)
+
+
+class DifferentialPairDotNet(NetClassDotNet):
+
+    def __init__(self, app, api_object=None):
+        super().__init__(app)
+        self.cell_diff_pair = app._edb.Cell.DifferentialPair
+
+        self.api_object = api_object
+
+    @property
+    def api_class(self):  # pragma: no cover
+        """Return Ansys.Ansoft.Edb class object."""
+        return self.cell_diff_pair
+
+    def find_by_name(self, layout, net):
+        """Edb Dotnet Api Database `Edb.DifferentialPair.FindByName`."""
+        return DifferentialPairDotNet(self._app, self.cell_diff_pair.FindByName(layout, net))
+
+    def api_create(self, name, net_name_p, net_name_n):
+        """Edb Dotnet Api Database `Edb.DifferentialPair.Create`."""
+        edb_api_net_p = self.edb_api.Cell.Net.FindByName(self._app.active_layout, net_name_p)
+        edb_api_net_n = self.edb_api.Cell.Net.FindByName(self._app.active_layout, net_name_n)
+        return DifferentialPairDotNet(self._app, self.cell_diff_pair.Create(self._app.active_layout, name, edb_api_net_p, edb_api_net_n))
+
+    def delete(self):
+        """Edb Dotnet Api Database `Edb.DifferentialPair.Delete`."""
+        if self.api_object:
+            self.api_object.Delete()
+            self.api_object = None
+
+    @property
+    def name(self):
+        """Edb Dotnet Api Database `net.name` and  `DifferentialPair.SetName()`."""
+        if self.api_object:
+            return self.api_object.GetName()
+
+    @name.setter
+    def name(self, value):
+        if self.api_object:
+            self.api_object.SetName(value)
+
+    @property
+    def is_null(self):
+        """Edb Dotnet Api Database `DifferentialPair.IsNull()`."""
+        if self.api_object:
+            return self.api_object.IsNull()
+
+    @property
+    def api_positive_net(self):
+        if self.api_object:
+            return self.api_object.GetPositiveNet()
+
+    @property
+    def api_negative_net(self):
+        if self.api_object:
+            return self.api_object.GetNegativeNet()
+
 
 class CellClassDotNet:
     def __getattr__(self, key):
@@ -1085,3 +1143,4 @@ class Database(EdbDotNet):
         hdl = Convert.ToUInt64(hdb)
         self._db = self.edb_api.database.Attach(hdl)
         return self._db
+

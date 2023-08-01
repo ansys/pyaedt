@@ -1,4 +1,5 @@
 from pyaedt.edb_core.dotnet.database import ExtendedNetDotNet
+from pyaedt.edb_core.dotnet.database import DifferentialPairDotNet
 from pyaedt.edb_core.dotnet.database import NetDotNet
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.primitives_data import cast
@@ -191,7 +192,6 @@ class EDBExtendedNetData(ExtendedNetDotNet):
         self._core_components = core_app.components
         self._core_primitive = core_app.modeler
         self._core_nets = core_app.nets
-        self.extended_net_object = raw_extended_net
         ExtendedNetDotNet.__init__(self, self._app, raw_extended_net)
 
     @pyaedt_function_handler
@@ -201,3 +201,29 @@ class EDBExtendedNetData(ExtendedNetDotNet):
             flag = flag and self.add_net(i)
         return flag
 
+
+class EDBDifferentialPairData(DifferentialPairDotNet):
+    """Manages EDB functionalities for a primitives.
+    It Inherits EDB Object properties.
+
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edb = Edb(myedb, edbversion="2021.2")
+    >>> edb.differential_pairs.differential_pairs
+    """
+
+    def __init__(self, core_app, api_object=None):
+        self._app = core_app
+        self._core_components = core_app.components
+        self._core_primitive = core_app.modeler
+        self._core_nets = core_app.nets
+        DifferentialPairDotNet.__init__(self, self._app, api_object)
+
+    @property
+    def positive_net(self):
+        return EDBNetsData(self.api_positive_net, self._app)
+
+    @property
+    def negative_net(self):
+        return EDBNetsData(self.api_negative_net, self._app)
