@@ -2793,7 +2793,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         >>> oModule.AssignTangentialHField
         """
-        if self.solution_type not in ["EddyCurrent"]:
+        if self.solution_type not in ["EddyCurrent", "Magnetostatic"]:
             self.logger.error("Tangential H Field is applicable only to Eddy current.")
             return False
         objects = self.modeler.convert_to_selections(faces, True)
@@ -2811,9 +2811,11 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                 }
             )
         props["ComponentXReal"] = x_component_real
-        props["ComponentXImag"] = x_component_imag
+        if self.solution_type == "EddyCurrent":
+            props["ComponentXImag"] = x_component_imag
         props["ComponentYReal"] = y_component_real
-        props["ComponentYImag"] = y_component_imag
+        if self.solution_type == "EddyCurrent":
+            props["ComponentYImag"] = y_component_imag
         if not origin and isinstance(objects[0], int):
             edges = self.modeler.get_face_edges(objects[0])
             origin = self.oeditor.GetEdgePositionAtNormalizedParameter(edges[0], 0)
