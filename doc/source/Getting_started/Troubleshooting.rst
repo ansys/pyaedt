@@ -133,7 +133,7 @@ This may be due to:
  - License
  - Scheduler used to launch AEDT like LSF
 
-In case of issues with proxy, you may try the following environment variable:
+In case of issues due to use of a proxy server, you may set the following environment variable:
 
 .. code:: console
 
