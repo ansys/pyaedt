@@ -141,7 +141,7 @@ In case of issues with proxy, you may try the following environment variable:
 
 Run your PyAEDT script. If it still fails, then try:
 
-.. code:: python
+.. code:: console
 
     export http_proxy=
 
