@@ -27,10 +27,15 @@ m2d = pyaedt.Maxwell2d(
 ##################################################################################
 # Import geometry as a DXF file
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# User can test importing a dxf or a parasolid file by commenting/uncommenting
+# following lines.
+# Dxf import only works in graphical mode.
 
-DXFPath = pyaedt.downloads.download_file("dxf", "Ansys_logo_2D.dxf")
-dxf_layers = m2d.get_dxf_layers(DXFPath)
-m2d.import_dxf(DXFPath, dxf_layers, scale=1E-05)
+# DXFPath = pyaedt.downloads.download_file("dxf", "Ansys_logo_2D.dxf")
+# dxf_layers = m2d.get_dxf_layers(DXFPath)
+# m2d.import_dxf(DXFPath, dxf_layers, scale=1E-05)
+ParasolidPath = pyaedt.downloads.download_file("x_t", "Ansys_logo_2D.x_t")
+m2d.modeler.import_3d_cad(ParasolidPath)
 
 ##################################################################################
 # Define variables
@@ -171,7 +176,7 @@ animated.focal_point = [0, 0, 0]
 animated.roll_angle = 0
 animated.elevation_angle = 0
 animated.azimuth_angle = 0
-animated.animate(os.path.join(m2d.working_directory, "Image.gif"))
+animated.animate()
 
 
 ##################################################################################

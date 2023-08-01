@@ -206,7 +206,7 @@ print(total)
 # Analyze the model
 # ~~~~~~~~~~~~~~~~~
 
-ipk.analyze_nominal()
+ipk.analyze(num_cores=2)
 
 ###############################################################################
 # Get solution data and plots

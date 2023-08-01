@@ -62,8 +62,8 @@ import EmitApiPython
 api = EmitApiPython.EmitApi()
 
 # Define .ui file for GUI
-cwd = os.path.dirname(os.path.realpath(__file__))
-Ui_MainWindow, _ = QtUiTools.loadUiType(cwd + "\\interference_gui.ui")
+ui_file = pyaedt.downloads.download_file("emit", "interference_gui.ui")
+Ui_MainWindow, _ = QtUiTools.loadUiType(ui_file)
 
 class DoubleDelegate(QtWidgets.QStyledItemDelegate):
     def __init__(self, decimals):
@@ -487,5 +487,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 if __name__ == '__main__':
     app = QtWidgets.QApplication([])
     window = MainWindow()
-    # window.show()
-    # app.exec()
+    if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
+        window.show()
+        app.exec()
