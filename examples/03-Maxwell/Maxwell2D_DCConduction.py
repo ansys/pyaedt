@@ -27,9 +27,9 @@ m2d = pyaedt.Maxwell2d(
 ##################################################################################
 # Import geometry as a DXF file
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# User can test importing a dxf or a parasolid file by commenting/uncommenting
-# following lines.
-# Dxf import only works in graphical mode.
+# You can test importing a DXF or a Parasolid file by commenting/uncommenting
+# the following lines.
+# Importing DXF files only works in graphical mode.
 
 # DXFPath = pyaedt.downloads.download_file("dxf", "Ansys_logo_2D.dxf")
 # dxf_layers = m2d.get_dxf_layers(DXFPath)
