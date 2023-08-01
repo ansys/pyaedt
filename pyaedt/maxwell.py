@@ -2764,21 +2764,23 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         faces : list of int  or :class:`pyaedt.modeler.cad.object3d.Object3d`
             List of objects to assign an end connection to.
         x_component_real : float, str, optional
-            X Component value real part. Default value is ``0``.
+            X component value real part. The default is ``0``.
         x_component_imag : float, str, optional
-            X Component value imaginary part. Default value is ``0``.
+            X component value imaginary part. The default is ``0``.
         y_component_real : float, str, optional
-            Y Component value real part. Default value is ``0``.
+            Y component value real part. The default is ``0``.
         y_component_imag : float, str, optional
-            Y Component value imaginary part. Default value is ``0``.
+            Y component value imaginary part. The default is ``0``.
         coordinate_system : str, optional
-            Coordinate system to use for UV vector.
+            Coordinate system to use for the UV vector.
         origin : list, optional
-            Origin of the UV vector. Default is ``None`` to take the bottom left vertex.
+            Origin of the UV vector. The default is ``None`, in which case the bottom
+            left vertex is used.
         u_pos : list, optional
-            Direction of the U vector. Default is ``None`` to take the top left vertex.
+            Direction of the U vector. The default is ``None``, in which case the top
+            left vertex is used.
         reverse : bool, optional
-            Whether if the vector is reversed or not. Default is ``False``.
+            Whether the vector is reversed. The default is ``False``.
         bound_name : str, optional
             Name of the end connection boundary. The default is ``None``, in which case the
             default name is used.
