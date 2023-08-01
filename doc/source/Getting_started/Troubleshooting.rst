@@ -89,7 +89,7 @@ Check the AEDT API configuration
 --------------------------------
 To start the Electronics Desktop server in gRPC mode use the following syntax:
 
-.. code:: bat
+.. code:: console
    :caption: Windows
 
    path\to\AnsysEM\v231\Win64\ansysedt.exe -grpcsrv 50001
