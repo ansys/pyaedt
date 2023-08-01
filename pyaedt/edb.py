@@ -15,12 +15,12 @@ import warnings
 from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.edb_core import Components
+from pyaedt.edb_core import EdbDifferentialPair
 from pyaedt.edb_core import EdbExtendedNets
 from pyaedt.edb_core import EdbHfss
 from pyaedt.edb_core import EdbLayout
 from pyaedt.edb_core import EdbNets
 from pyaedt.edb_core import EdbSiwave
-from pyaedt.edb_core import EdbDifferentialPair
 from pyaedt.edb_core.dotnet.database import Database
 from pyaedt.edb_core.dotnet.layout import LayoutDotNet
 from pyaedt.edb_core.edb_data.control_file import ControlFile

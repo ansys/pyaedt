@@ -1,9 +1,8 @@
 from __future__ import absolute_import  # noreorder
 
-from pyaedt.edb_core.edb_data.nets_data import EDBExtendedNetData
 from pyaedt.edb_core.edb_data.nets_data import EDBDifferentialPairData
+from pyaedt.edb_core.edb_data.nets_data import EDBExtendedNetData
 from pyaedt.edb_core.edb_data.nets_data import EDBNetsData
-
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -41,6 +40,7 @@ class EdbCommon:
         """Edb logger."""
         return self._pedb.logger
 
+
 class EdbExtendedNets(EdbCommon, object):
     """Manages EDB methods for nets management accessible from `Edb.extended_nets` property.
 
@@ -73,7 +73,6 @@ class EdbExtendedNets(EdbCommon, object):
         super().__init__(p_edb)
         self._extended_nets = {}
 
-
     @property
     def extended_nets(self):
         """Extended nets.
@@ -88,7 +87,7 @@ class EdbExtendedNets(EdbCommon, object):
         return self._extended_nets
 
     @pyaedt_function_handler
-    def create(self, name, net:list[str]) -> EDBExtendedNetData:
+    def create(self, name, net: list[str]) -> EDBExtendedNetData:
         """
 
         Parameters
@@ -180,5 +179,3 @@ class EdbDifferentialPair(EdbCommon, object):
         api_diff_pair = diff_pair.api_create(name, net_p, net_n)
 
         return self.differential_pairs[name]
-
-
