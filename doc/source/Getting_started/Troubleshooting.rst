@@ -69,8 +69,8 @@ framework that can run in any environment and supports client/server remote call
 Starting from 2022R2 and later, AEDT API has replaced COM interface with gRPC interface.
 
 
-.. list-table:: gRPC Compatibility Table
-   :widths: 25 25 75 75
+.. list-table:: *gRPC Compatibility Table:*
+   :widths: 25 35 70 70
    :header-rows: 1
 
    * -
