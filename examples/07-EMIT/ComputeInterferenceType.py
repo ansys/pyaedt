@@ -68,7 +68,7 @@ tx_radios = rev.get_interferer_names(tx_interferer)
 domain = emitapp.results.interaction_domain()
 
 if tx_radios is None or rx_radios is None:
-    print("No receivers or transmitters in design.")
+    print("No receivers or transmitters are in the design.")
     sys.exit()
 
 
