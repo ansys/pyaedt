@@ -1,4 +1,5 @@
 from __future__ import absolute_import  # noreorder
+
 from typing import Union
 
 from pyaedt.edb_core.edb_data.nets_data import EDBDifferentialPairData
@@ -87,7 +88,7 @@ class EdbExtendedNets(EdbCommon, object):
         return nets
 
     @pyaedt_function_handler
-    def create(self, name, net:Union[str, list[str]]) -> EDBExtendedNetData:
+    def create(self, name, net: Union[str, list[str]]) -> EDBExtendedNetData:
         """
 
         Parameters

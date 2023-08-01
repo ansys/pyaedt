@@ -192,7 +192,9 @@ class EDBExtendedNetData(ExtendedNetDotNet):
 
     @property
     def rlc(self):
-        return {name: comp for name, comp in self.components.items() if comp.type in ["Inductor", "Resistor", "Capacitor"]}
+        return {
+            name: comp for name, comp in self.components.items() if comp.type in ["Inductor", "Resistor", "Capacitor"]
+        }
 
     @property
     def serial_rlc(self):

@@ -296,12 +296,12 @@ class EdbNets(object):
             all_nets = [i for i in all_nets if i not in new_ext]
             _extended_nets.append(new_ext)
 
-            if len(new_ext)>1:
+            if len(new_ext) > 1:
                 i = new_ext[0]
                 for i in new_ext:
                     if not i.lower().startswith("unnamed"):
                         break
-                self._pedb.extended_nets.create(i , new_ext)
+                self._pedb.extended_nets.create(i, new_ext)
         return _extended_nets
 
     @staticmethod
