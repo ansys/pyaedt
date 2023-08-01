@@ -7,10 +7,13 @@ Installation
 
 Error installing Python or Conda
 --------------------------------
-It may happen, that IT Department doesn't allow users to install a Python interpreter in the machine.
-In this case user can use the interpreter available in installation path of Ansys Electronics Desktop.
-Please note that Python 3.7 is available in AEDT <= 2023R1 while Python 3.10 is available on Ansys Electronics
-Desktop 2023 R2.
+Sometimes users are not allowed to install a Python interpreter.
+In this case, a Python interpreter is available in installation path of
+Ansys Electronics Desktop.
+Note that Python 3.7 is available in AEDT <= 2023R1 while Ansys Electronics Desktop 2023 R2
+is shipped with Python 3.10.
+
+*Python 3.7 Path in the 23R1 Installation:*
 
 .. code:: python
 
@@ -19,10 +22,13 @@ Desktop 2023 R2.
 
 Error installing PyAEDT using pip
 ---------------------------------
-1. **Proxy Server** If your company uses a proxy server you may have to update some settings at the command line.
+1. **Proxy Server** If your company uses a proxy server you may have to update proxy
+   settings at the command line.
    See the `pip documentation <https://pip.pypa.io/en/stable/user_guide/#using-a-proxy-server>`_ for details.
 2. **Install Permission** Make sure you have write access to the directory where the Python interpreter is
-   installed. This is more reason to use a `virtual environment <https://docs.python.org/3/library/venv.html>`_.
+   installed. The use of a `virtual environment <https://docs.python.org/3/library/venv.html>`_ helps
+   mitigate this issue by placing the Python interpreter and dependencies in a location that is owned
+   by the user.
 3. **Firewall** Some corporate firewalls may block pip. If you face this issue you'll have to work with your IT
    administrator to enable pip. The proxy server settings (described above) allow you to explicitly define
    the ports used by pip.
