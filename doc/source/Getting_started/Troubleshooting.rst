@@ -13,7 +13,7 @@ Ansys Electronics Desktop.
 Note that Python 3.7 is available in AEDT <= 2023R1 while Ansys Electronics Desktop 2023 R2
 is shipped with Python 3.10.
 
-*Python 3.7 Path in the 23R1 Installation:*
+*Python 3.7 interpreter path in the 23R1 Installation:*
 
 .. code:: python
 
