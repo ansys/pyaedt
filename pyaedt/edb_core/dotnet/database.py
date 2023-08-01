@@ -219,7 +219,6 @@ class NetDotNet:
 
 
 class NetClassDotNet:
-
     def __init__(self, app):
         self.cell_diff_pair = app._edb.Cell.ExtendedNet
 
@@ -233,7 +232,6 @@ class NetClassDotNet:
 
 
 class ExtendedNetDotNet(NetClassDotNet):
-
     def __init__(self, app, api_object=None):
         super().__init__(app)
         self.cell_extended_net = app._edb.Cell.ExtendedNet
@@ -283,7 +281,6 @@ class ExtendedNetDotNet(NetClassDotNet):
 
 
 class DifferentialPairDotNet(NetClassDotNet):
-
     def __init__(self, app, api_object=None):
         super().__init__(app)
         self.cell_diff_pair = app._edb.Cell.DifferentialPair
@@ -303,7 +300,9 @@ class DifferentialPairDotNet(NetClassDotNet):
         """Edb Dotnet Api Database `Edb.DifferentialPair.Create`."""
         edb_api_net_p = self.edb_api.Cell.Net.FindByName(self._app.active_layout, net_name_p)
         edb_api_net_n = self.edb_api.Cell.Net.FindByName(self._app.active_layout, net_name_n)
-        return DifferentialPairDotNet(self._app, self.cell_diff_pair.Create(self._app.active_layout, name, edb_api_net_p, edb_api_net_n))
+        return DifferentialPairDotNet(
+            self._app, self.cell_diff_pair.Create(self._app.active_layout, name, edb_api_net_p, edb_api_net_n)
+        )
 
     def delete(self):
         """Edb Dotnet Api Database `Edb.DifferentialPair.Delete`."""
@@ -1143,4 +1142,3 @@ class Database(EdbDotNet):
         hdl = Convert.ToUInt64(hdb)
         self._db = self.edb_api.database.Attach(hdl)
         return self._db
-
