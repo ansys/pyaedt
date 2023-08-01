@@ -133,15 +133,15 @@ This may be due to:
  - License
  - Scheduler used to launch AEDT like LSF
 
-In case of issues with proxy, you may try the following environment variable:
+In case of issues due to use of a proxy server, you may set the following environment variable:
 
-.. code:: python
+.. code:: console
 
     export no_proxy=localhost,127.0.0.1
 
-Run your PyAEDT script. If it still fails, then try:
+Run your PyAEDT script. If it still fails, the proxy server can be disabled using
 
-.. code:: python
+.. code:: console
 
     export http_proxy=
 
