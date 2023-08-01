@@ -66,22 +66,18 @@ Communication between Python and the AEDT API were translated through an interme
 
 `gRPC <https://grpc.io/>`_ is a modern open source high performance Remote Procedure Call (RPC)
 framework that can run in any environment and supports client/server remote calls.
-Starting from 2022R2 and later, AEDT API has replaced COM interface with gRPC interface.
+Starting from 2022R2 and later, the AEDT API has replaced COM interface with gRPC interface.
 
 
 .. list-table:: *gRPC Compatibility Table:*
-   :widths: 25 35 70 70
+   :widths: 45 45 65 65
    :header-rows: 1
 
-   * -
+   * - AEDT Version:
      - < 2022R2
      - 2022R2
      - > 2022R2
-   * - AEDT
-     - Only ``Python.NET``
-     - gRPC Beta
-     - gRPC Available
-   * - AEDT
+   * - PyAedt Interface
      - Only ``Python.NET``
      - ``Python.NET`` default.
        ``gRPC: pyaedt.settings.use_grpc_api = True``
