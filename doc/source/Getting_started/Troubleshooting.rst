@@ -1,16 +1,16 @@
 Troubleshooting
 ===============
-This section contains common issues and suggestions around PyAEDT installation and usage.
+This section contains common issues and suggestions related to installation and use of PyAEDT.
 
 Installation
 ~~~~~~~~~~~~
 
 Error installing Python or Conda
 --------------------------------
-Some IT department do not allow you to install a Python interpreter in your machine.
-In this case, you can use the interpreter available in the AEDT installation path. In AEDT
-2023 R1 and earlier, Python 3.7 is available. In AEDT 2023 R2 and later, Python 3.10 is
-available.
+It may happen, that IT Department doesn't allow users to install a Python interpreter in the machine.
+In this case user can use the interpreter available in installation path of Ansys Electronics Desktop.
+Please note that Python 3.7 is available in AEDT <= 2023R1 while Python 3.10 is available on Ansys Electronics
+Desktop 2023 R2.
 
 .. code:: python
    path\to\AnsysEM\v231\commonfiles\CPython\3_7\winx64\Release\python"
@@ -18,24 +18,30 @@ available.
 
 Error installing PyAEDT using pip
 ---------------------------------
-1. Check if your internet connection is working.
-2. Check if your firewall allows connections to pypi.com.
+1. **Proxy Server** If your company uses a proxy server you may have to update some settings at the command line.
+   See the `pip documentation <https://pip.pypa.io/en/stable/user_guide/#using-a-proxy-server>`_ for details.
+2. **Install Permission** Make sure you have write access to the directory where the Python interpreter is
+   installed.  This is more reason to use a `virtual environment <https://docs.python.org/3/library/venv.html>`_.
+3. **Firewall** Some corporate firewalls may block pip. If you face this issue you'll have to work with your IT
+   administrator to enable pip. The proxy server settings (described above) allow you to explicitly define
+   the ports used by pip.
 
-If your organization does not allow downloads from pypi.com, try using a wheelhouse.
-A wheelhouse is a compressed file containing all needed packages that can be installed offline.
-The PyAEDT wheelhouse can be found on the `Releases <https://github.com/ansys/pyaedt/releases>`_
-page. After downloading the wheelhouse specific for your distribution and Python release, unzip it
-in a folder and then run this Python command:
+If downloads from `pypi <https://pypi.org/>`_ are not allowed, you may use a
+`wheelhouse <https://pypi.org/project/Wheelhouse/>`_.
+The wheelhouse file contains all dependencies for pyaedt and allows full installation without a need to
+download additional files.
+The wheelhouse for PyAEDT can be found `here <https://github.com/ansys/pyaedt/releases>`_.
+After downloading the wheelhouse for your distribution and Python release, unzip the file to a folder and
+run the Python command:
 
-.. code:: python
+.. code:: pycon
 
-    pip install --no-cache-dir --no-index --find-links=/path/to/pyaedt/wheelhouse pyaedt
+    >>> pip install --no-cache-dir --no-index --find-links=/path/to/pyaedt/wheelhouse pyaedt
 
 
-Another option for installing a wheelhouse is to download the
-:download:`Python file for installing PyAEDT <../Resources/PyAEDTInstallerFromDesktop.py>`.
-You can then run this file directly from AEDT **Script** menu, passing the wheelhouse file as
-an argument.
+Another option to install PyAedt from the wheelhouse is to download the following file
+:download:`PyAEDT Installer Python file <../Resources/PyAEDTInstallerFromDesktop.py>`.
+Run this script directly from AEDT and pass the wheelhouse file name as an argument.
 
 
 
@@ -45,14 +51,14 @@ Run PyAEDT
 
 COM vs GRPC
 -----------
-Up until AEDT 2022R2, the method for connecting Python to AEDT-API used COM.
-COM is a technology which requires interfaces, classes, objects, and methods to be registered in Windows Registry.
-All communication between Python and the AEDT API were translated through an intermediate layer by a
-third-party module, pywin32. Usage of this module was limited to the Windows OS only.
-``Python.NET`` was added to make the connection to the AEDT API.
-
-In 2022 R2, a new technology, gRPC, was added to replace COM. gRPC is a modern framework
-that uses remote procedure calls to communicate with the API.
+Prior to the 2022R2 release CPython automation in AEDT used
+`COM <https://learn.microsoft.com/en-us/windows/win32/com/com-objects-and-interfaces>`_  which
+requires all interfaces to be registered in the Windows Registry.
+Communication between Python and the AEDT API were translated through an intermediate layer using
+`pywin32 <https://github.com/mhammond/pywin32>`_. The recent addition of
+`PythonNET <https://pythonnet.github.io/pythonnet/>`_ improves
+cross-platform support and the COM interface is replaced by `GRPC <https://grpc.io/>`_,
+for 2022R2 and later.
 
 
 .. list-table:: GRPC Compatibility Table
@@ -60,42 +66,50 @@ that uses remote procedure calls to communicate with the API.
    :header-rows: 1
 
    * -
-     - <2022 R2
-     - 2022 R2
-     - >2022 R2
+     - <2022R2
+     - 2022R2
+     - >2022R2
    * - AEDT
-     - Only Python,NET
-     - gRPC Beta
-     - gRPC Available
+     - Only PythonNET
+     - GRPC Beta
+     - GRPC Available
    * - AEDT
-     - Only ``Python.NET``
-     - ``Python.NET`` default.
-       gRPC: pyaedt.settings.use_grpc_api = True
-     - gRPC default
-       ``Python.NET``: pyaedt.settings.use_grpc_api = False
+     - Only PythonNET
+     - PythonNET default.
+       GRPC: pyaedt.settings.use_grpc_api = True
+     - GRPC default
+       PythonNET: pyaedt.settings.use_grpc_api = False
 
-The preceding options are available only in Windows. Linux uses gRPC in any version as it is the only way to connect
-to AEDT API.
+The options shown here apply only to the Windows platform.
+On Linux, the Python interface to AEDT uses GRPC for all versions.
 
 
-How to check that the AEDT API is working and correctly configured
----------------------------------------------------------------------------
-To start the AEDT server in gRPC mode, use this syntax:
+Check the Electronics Desktop API configuration
+-----------------------------------------------------
+To start the Electronics Desktop server in GRPC mode use the following syntax:
 
-.. code:: python
+.. code:: bat
+   :caption: Windows
 
-   path\to\AnsysEM\v231\Win64\ansysedt.exe -grpcsrv 50001   # Windows
-   path/to/AnsysEM/v231/Lin64/ansysedt -grpcsrv 50352       # Linux
+   path\to\AnsysEM\v231\Win64\ansysedt.exe -grpcsrv 50001
 
-The port that the server is running on is the port that AEDT should use to listen and receive
-any command from PyAEDT. This allows you to have multiple AEDT sessions running on the same machine
+.. code:: console
+   :caption: Linux
+
+   path\to\AnsysEM\v231\Lin64\ansysedt -grpcsrv 50352
+
+The server port number is used by AEDT to listen and receive
+commands from PyAEDT client instances. This configuration
+supports multiple sessions of AEDT running on a single server
 and listening on the same port.
 
-Check that the AEDT gRPC API can run
--------------------------------------------
-Native AEDT API commands can be used to launch the AEDT server from the command line.
-You can run these commands even without PyAEDT to check that everything is set up correctly, 
-including environment variables.
+Check the GRPC Interface
+------------------------
+The native Electronics Desktop API can be used to launch
+Electronics Desktop from the command line.
+This can be done even without PyAEDT to check that everything is set up correctly
+and all environment
+variables have been defined.
 
 .. code:: python
 
@@ -110,30 +124,31 @@ including environment variables.
 
 Failures in connecting to GRPC API
 ----------------------------------
-On Linux, PyAEDT can fail to initialize a new AEDT session or connect to an existing one.
-Here are likely causes:
+On Linux, it may happens that PyAEDT fails to initialize a new session of Electronics Desktop
+or to connect to an existing one.
+This may be due to:
  - Firewall
  - Proxy
  - Permissions
  - License
- - Scheduler (like LSF) used to launch AEDT 
+ - Scheduler used to launch AEDT like LSF
 
-In case of issues with the proxy, you can try using this environment variable:
+In case of issues with proxy, you may try the following environment variable:
 
 .. code:: python
 
     export no_proxy=localhost,127.0.0.1
 
-If running your PyAEDT script still fails, then try adding this:
+Run your PyAEDT script. If it still fails, then try:
 
 .. code:: python
 
     export http_proxy=
 
-If running your PyAEDT script fails once again, perform these steps:
+Run your PyAEDT script. If the errors still persists, try the following:
 
-1. Check that AEDT starts correctly from the command line using the gRPC port option.
-2. Enable all debug log variables as shown in the following code so that you can check the logs.
+1. Check that AEDT starts correctly from command line using GRPC port option
+2. enable all debug log variables and check logs.
 
 .. code:: python
 
@@ -144,27 +159,26 @@ If running your PyAEDT script fails once again, perform these steps:
     export ANSOFT_DEBUG_MODE=3
 
 
-Turn on the gRPC trace on the server side too:
+Turn on the GRPC trace on the server side too:
 
 .. code:: python
 
     export GRPC_VERBOSITY=DEBUG
     export GRPC_TRACE=all
 
-Then start the ``ansysedt.exe`` as file as the gRPC server.
+Then start ansysedt.exe as GRPC server.
 
 .. code:: python
 
     ansysedt -grpcsrv 50051
 
-The gRPC trace is printed on the terminal console. Capture the output as the ``server.txt`` file.
-In another terminal, run these commands:
+The GRPC trace is printed on the terminal console. Capture the output as the server.txt file.
+In another terminal:
 
 .. code:: python
 
     export GRPC_VERBOSITY=DEBUG
     export GRPC_TRACE=all
 
-Run the PyAEDT script, making sure that it is trying to connect to the same port as the gRPC server.
-Capture the output as the ``client.txt`` file.
-Send all the logs generated to Ansys Support.
+Run the PyAEDT script(make sure it is trying to connect to the same port as the GRPC server).
+Capture the output as the client.txt file. Send all the logs generated to Ansys Support.
