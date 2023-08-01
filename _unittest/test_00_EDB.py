@@ -227,12 +227,16 @@ class TestClass(BasisTest, object):
         assert self.edbapp.nets.find_or_create_net(start_with="g", end_with="d")
         assert self.edbapp.nets.find_or_create_net(end_with="d")
         assert self.edbapp.nets.find_or_create_net(contain="usb")
+        assert self.edbapp.nets.generate_extended_nets()
+        assert self.edbapp.extended_nets["NetD3_2"]
+        assert self.edbapp.extended_nets["NetD3_2"].nets
+        assert self.edbapp.extended_nets["NetD3_2"].components
+        assert self.edbapp.extended_nets["NetD3_2"].rlc
+        assert self.edbapp.extended_nets["NetD3_2"].serial_rlc
+
         assert self.edbapp.nets["AVCC_1V3"].get_extended_net()
-        assert self.edbapp.nets.get_extended_nets()
 
         self.edbapp.extended_nets.create("new_ex_net", "GND")
-        extended_net = self.edbapp.extended_nets["new_ex_net"]
-        assert "GND" in extended_net.nets
 
         diff_pair = self.edbapp.differential_pairs.create("new_pair1", "PCIe_Gen4_RX1_P", "PCIe_Gen4_RX1_N")
         assert diff_pair.positive_net.name == "PCIe_Gen4_RX1_P"

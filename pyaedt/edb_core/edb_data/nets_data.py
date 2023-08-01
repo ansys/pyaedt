@@ -155,24 +155,9 @@ class EDBNetsData(NetDotNet):
         >>> app = Edb()
         >>> app.nets["BST_V3P3_S5"].get_extended_net()
         """
-        exts = self._app.nets.get_extended_nets(resistor_below, inductor_below, capacitor_above, exception_list)
-        for i in exts:
-            if self.name in i:
-                extended = i
-        output_nets = [{i: self._app.nets[i]} for i in extended]
-        comps_common = {}
-        for net in extended:
-            comps_common.update(
-                {
-                    i: v
-                    for i, v in self._app._nets[net].components.items()
-                    if list(set(v.nets).intersection(extended)) != [net]
-                }
-            )
-
-        rlc_common = {i: v for i, v in comps_common.items() if v.type in ["Resistor", "Inductor", "Capacitor"]}
-
-        return output_nets, rlc_common
+        for name, obj in self._app.extended_nets.extended_nets.items():
+            if self.name in obj.nets:
+                return obj
 
 
 class EDBExtendedNetData(ExtendedNetDotNet):
@@ -193,6 +178,35 @@ class EDBExtendedNetData(ExtendedNetDotNet):
         self._core_primitive = core_app.modeler
         self._core_nets = core_app.nets
         ExtendedNetDotNet.__init__(self, self._app, raw_extended_net)
+
+    @property
+    def nets(self):
+        return {name: self._core_nets[name] for name in self.api_nets}
+
+    @property
+    def components(self):
+        comps = {}
+        for name, obj in self.nets.items():
+            comps.update(obj.components)
+        return comps
+
+    @property
+    def rlc(self):
+        return {name: comp for name, comp in self.components.items() if comp.type in ["Inductor", "Resistor", "Capacitor"]}
+
+    @property
+    def serial_rlc(self):
+        comps_common = {}
+        nets = self.nets
+        for net in nets:
+            comps_common.update(
+                {
+                    i: v
+                    for i, v in self._app._nets[net].components.items()
+                    if list(set(v.nets).intersection(nets)) != [net]
+                }
+            )
+        return comps_common
 
     @pyaedt_function_handler
     def add_nets(self, net_names: list[str]):

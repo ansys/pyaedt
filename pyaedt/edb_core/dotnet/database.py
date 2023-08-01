@@ -228,7 +228,7 @@ class NetClassDotNet:
         self.api_object = None
 
     @property
-    def nets(self):
+    def api_nets(self):
         return {i.GetName(): i for i in list(self.api_object.Nets)}
 
 

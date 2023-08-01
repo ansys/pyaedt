@@ -1,4 +1,5 @@
 from __future__ import absolute_import  # noreorder
+from typing import Union
 
 from pyaedt.edb_core.edb_data.nets_data import EDBExtendedNetData
 from pyaedt.edb_core.edb_data.nets_data import EDBDifferentialPairData
@@ -71,8 +72,6 @@ class EdbExtendedNets(EdbCommon, object):
 
     def __init__(self, p_edb):
         super().__init__(p_edb)
-        self._extended_nets = {}
-
 
     @property
     def extended_nets(self):
@@ -83,12 +82,13 @@ class EdbExtendedNets(EdbCommon, object):
         dict[str, :class:`pyaedt.edb_core.edb_data.nets_data.EDBExtendedNetsData`]
             Dictionary of extended nets.
         """
+        nets = {}
         for extended_net in self._layout.extended_nets:
-            self._extended_nets[extended_net.GetName()] = EDBExtendedNetData(self._pedb, extended_net)
-        return self._extended_nets
+            nets[extended_net.GetName()] = EDBExtendedNetData(self._pedb, extended_net)
+        return nets
 
     @pyaedt_function_handler
-    def create(self, name, net:list[str]) -> EDBExtendedNetData:
+    def create(self, name, net:Union[str, list[str]]) -> EDBExtendedNetData:
         """
 
         Parameters
@@ -100,16 +100,16 @@ class EdbExtendedNets(EdbCommon, object):
         -------
 
         """
-        if name in self._extended_nets:
+        if name in self.extended_nets:
             self._pedb.logger.error("{} already exists.".format(name))
             return False
 
         extended_net = EDBExtendedNetData(self._pedb)
         api_extended_net = extended_net.api_create(name)
         if isinstance(net, str):
-            api_extended_net.add_net(net)
-        else:
-            api_extended_net.add_nets(net)
+            net = [net]
+        for i in net:
+            api_extended_net.add_net(i)
 
         return self.extended_nets[name]
 

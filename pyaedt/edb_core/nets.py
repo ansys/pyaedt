@@ -50,7 +50,6 @@ class EdbNets(object):
     def __init__(self, p_edb):
         self._pedb = p_edb
         self._nets = {}
-        self._extended_nets = {}
         self._nets_by_comp_dict = {}
         self._comps_by_nets_dict = {}
 
@@ -225,7 +224,7 @@ class EdbNets(object):
         return self._comps_by_nets_dict
 
     @pyaedt_function_handler()
-    def get_extended_nets(self, resistor_below=10, inductor_below=1, capacitor_above=1, exception_list=None):
+    def generate_extended_nets(self, resistor_below=10, inductor_below=1, capacitor_above=1, exception_list=None):
         # type: (int | float, int | float, int |float, list) -> list
         """Get extended net and associated components.
 
@@ -273,6 +272,7 @@ class EdbNets(object):
                 val_type = cmp.type
                 if val_type not in ["Inductor", "Resistor", "Capacitor"]:
                     continue
+
                 val_value = cmp.rlc_values
                 if refdes in exception_list:
                     pass
@@ -296,6 +296,12 @@ class EdbNets(object):
             all_nets = [i for i in all_nets if i not in new_ext]
             _extended_nets.append(new_ext)
 
+            if len(new_ext)>1:
+                i = new_ext[0]
+                for i in new_ext:
+                    if not i.lower().startswith("unnamed"):
+                        break
+                self._pedb.extended_nets.create(i , new_ext)
         return _extended_nets
 
     @staticmethod
