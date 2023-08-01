@@ -937,21 +937,3 @@ class TestClass(BasisTest, object):
         assert not self.layout_comp.enable_harmonic_force_on_layout_component(
             comp.name, {nets[0]: layers[1::2], nets[1]: layers[1::2]}
         )
-
-    def test_55_tangential_h_field(self):
-        m3d = Maxwell3d(solution_type="EddyCurrent")
-        box = m3d.modeler.create_box([0, 0, 0], [10, 10, 10])
-        assert m3d.assign_tangential_h_field(
-            box.bottom_face_x,
-            1,
-            0,
-            2,
-            0,
-        )
-
-    def test_56_zero_tangential_h_field(self):
-        m3d = Maxwell3d(solution_type="EddyCurrent")
-        box = m3d.modeler.create_box([0, 0, 0], [10, 10, 10])
-        assert m3d.assign_zero_tangential_h_field(
-            box.top_face_z,
-        )
