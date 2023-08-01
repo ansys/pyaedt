@@ -13,6 +13,7 @@ Please note that Python 3.7 is available in AEDT <= 2023R1 while Python 3.10 is 
 Desktop 2023 R2.
 
 .. code:: python
+
    path\to\AnsysEM\v231\commonfiles\CPython\3_7\winx64\Release\python"
 
 
@@ -34,7 +35,7 @@ The wheelhouse for PyAEDT can be found `here <https://github.com/ansys/pyaedt/re
 After downloading the wheelhouse for your distribution and Python release, unzip the file to a folder and
 run the Python command:
 
-.. code:: pycon
+.. code:: python
 
     >>> pip install --no-cache-dir --no-index --find-links=/path/to/pyaedt/wheelhouse pyaedt
 
