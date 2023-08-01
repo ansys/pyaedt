@@ -5,6 +5,7 @@ This example uses PyAEDT to set up a resistance calculation
 and solve it using the Maxwell 2D DCConduction solver.
 Keywords: DXF import, material sweep, expression cache
 """
+import os.path
 
 import pyaedt
 
@@ -52,10 +53,6 @@ no_materials = 4
 
 m2d.assign_material(["ANSYS_LOGO_2D_1", "ANSYS_LOGO_2D_2"], "pec")
 m2d.modeler["ANSYS_LOGO_2D_3"].material_name = "ConductorMaterial[MaterialIndex]"
-m2d.modeler["ANSYS_LOGO_2D_4"].material_name = "ConductorMaterial[MaterialIndex]"
-m2d.modeler["ANSYS_LOGO_2D_5"].material_name = "ConductorMaterial[MaterialIndex]"
-m2d.modeler["ANSYS_LOGO_2D_6"].material_name = "ConductorMaterial[MaterialIndex]"
-m2d.modeler["ANSYS_LOGO_2D_7"].material_name = "vacuum"
 
 
 ##################################################################################
@@ -130,12 +127,48 @@ m2d.post.create_report(
 # ~~~~~~~~~~~~~
 # Plot electric field and current density on the conductor surface
 
-conductor_surface = m2d.modeler["ANSYS_LOGO_2D_1"].faces + m2d.modeler["ANSYS_LOGO_2D_2"].faces + m2d.modeler[
-    "ANSYS_LOGO_2D_3"].faces + m2d.modeler["ANSYS_LOGO_2D_4"].faces + m2d.modeler["ANSYS_LOGO_2D_5"].faces + \
-                    m2d.modeler["ANSYS_LOGO_2D_6"].faces
+conductor_surface = m2d.modeler["ANSYS_LOGO_2D_3"].faces
 m2d.post.create_fieldplot_surface(conductor_surface, "Mag_E", plot_name="Electric Field")
 m2d.post.create_fieldplot_surface(conductor_surface, "Mag_J", plot_name="Current Density")
-m2d.post.plot_field("Mag_E", conductor_surface, plot_cad_objs=False, show=False)
+
+##################################################################################
+# Field overlay
+# ~~~~~~~~~~~~~
+# Plot electric field using pyvista and saving to an image
+
+py_vista_plot = m2d.post.plot_field("Mag_E", conductor_surface, plot_cad_objs=False, show=False)
+py_vista_plot.isometric_view = False
+py_vista_plot.camera_position = [0, 0, 7]
+py_vista_plot.focal_point = [0, 0, 0]
+py_vista_plot.roll_angle = 0
+py_vista_plot.elevation_angle = 0
+py_vista_plot.azimuth_angle = 0
+py_vista_plot.plot(os.path.join(m2d.working_directory, "Image.jpg"))
+
+##################################################################################
+# Field animation
+# ~~~~~~~~~~~~~~~
+# Plot  current density vs the Material index.
+
+animated = m2d.post.plot_animated_field(
+    quantity="Mag_J",
+    object_list=conductor_surface,
+    export_path=m2d.working_directory,
+    variation_variable="MaterialIndex",
+    variation_list=[0,1,2,3],
+    show=False,
+    export_gif=False,
+    log_scale=True,
+)
+animated.isometric_view = False
+animated.camera_position = [0, 0, 7]
+animated.focal_point = [0, 0, 0]
+animated.roll_angle = 0
+animated.elevation_angle = 0
+animated.azimuth_angle = 0
+animated.animate(os.path.join(m2d.working_directory, "Image.gif"))
+
+
 ##################################################################################
 # Release desktop
 # ~~~~~~~~~~~~~~~
