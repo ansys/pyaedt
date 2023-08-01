@@ -74,9 +74,9 @@ Starting from 2022R2 and later, AEDT API has replaced COM interface with gRPC in
    :header-rows: 1
 
    * -
-     - <2022R2
+     - < 2022R2
      - 2022R2
-     - >2022R2
+     - > 2022R2
    * - AEDT
      - Only ``Python.NET``
      - gRPC Beta
