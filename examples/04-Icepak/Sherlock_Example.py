@@ -175,7 +175,7 @@ setup1.props["Solution Initialization - Y Velocity"] = "1m_per_sec"
 setup1.props["Radiation Model"] = "Discrete Ordinates Model"
 setup1.props["Include Gravity"] = True
 setup1.props["Secondary Gradient"] = True
-setup1.props["Convergence Criteria - Max Iterations"] = 10
+setup1.props["Convergence Criteria - Max Iterations"] = 5
 ipk.assign_openings(ipk.modeler.get_object_faces("Region"))
 
 ###############################################################################
@@ -207,17 +207,15 @@ print(total)
 # ~~~~~~~~~~~~~~~~~
 
 ipk.analyze(num_cores=2)
+ipk.save_project()
 
 ###############################################################################
 # Get solution data and plots
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-face_u10 = [i.id for i in ipk.modeler["COMP_U10"].faces]
-plot1 = ipk.post.create_fieldplot_surface(face_u10, "SurfTemperature")
+plot1 = ipk.post.create_fieldplot_surface(ipk.modeler["COMP_U10"].faces, "SurfTemperature")
 plot1.export_image(os.path.join(project_folder, "temperature_u10.jpg"))
-face_u9 = [i.id for i in ipk.modeler["COMP_U9"].faces]
-plot2 = ipk.post.create_fieldplot_surface(face_u9, "SurfPressure")
-plot2.export_image(os.path.join(project_folder, "pressure_u9.jpg"))
+
 
 ###############################################################################
 # Save project and release AEDT
