@@ -85,14 +85,20 @@ Starting from 2022R2 and later, AEDT API has replaced COM interface with gRPC in
 The options shown here apply only to the Windows platform.
 On Linux, the Python interface to AEDT uses gRPC for all versions.
 
+.. _GRPC ref:
 
 Check the AEDT API configuration
 --------------------------------
 To start the Electronics Desktop server in gRPC mode use the following syntax:
 
+*Windows*
+
 .. code:: console
+   :caption: Windows
 
    path\to\AnsysEM\v231\Win64\ansysedt.exe -grpcsrv 50001
+
+*Linux*
 
 .. code:: console
 
@@ -122,33 +128,36 @@ variables have been defined.
 
 
 
-Failures in connecting to gRPC API
-----------------------------------
-On Linux, it may happens that PyAEDT fails to initialize a new session of Electronics Desktop
-or to connect to an existing one.
+Failure connecting to the gRPC server
+-------------------------------------
+On Linux, PyAEDT may fail to initialize a new instance of the gRPC server
+or to connect to an existing server session.
 This may be due to:
  - Firewall
  - Proxy
  - Permissions
  - License
- - Scheduler used to launch AEDT like LSF
+ - Scheduler (for example if the gRPC server was started from LSF, Slurm, ...)
 
-In case of issues due to use of a proxy server, you may set the following environment variable:
+In case of issues due to use of a proxy server, you may set the following environment variable to
+disable the proxy server for the *localhost*.
 
 .. code:: console
 
     export no_proxy=localhost,127.0.0.1
 
-Run your PyAEDT script. If it still fails, the proxy server can be disabled using
+Run your PyAEDT script.
+
+If it still fails, the proxy server can be disabled:
 
 .. code:: console
 
     export http_proxy=
 
-Run your PyAEDT script. If the errors still persists, try the following:
+Run your PyAEDT script. If the errors persist try the following:
 
-1. Check that AEDT starts correctly from command line using gRPC port option
-2. enable all debug log variables and check logs.
+1. Check that AEDT starts correctly from command line using the :ref:`GRPC ref`
+2. Enable debugging.
 
 .. code:: console
 
@@ -159,26 +168,31 @@ Run your PyAEDT script. If the errors still persists, try the following:
     export ANSOFT_DEBUG_MODE=3
 
 
-Turn on the gRPC trace on the server side too:
+Enable the gRPC trace on the server:
 
 .. code:: console
 
     export GRPC_VERBOSITY=DEBUG
     export GRPC_TRACE=all
 
-Then start ansysedt.exe as gRPC server.
+Then start ansysedt.exe as a gRPC server.
 
 .. code:: console
 
-    ansysedt -grpcsrv 50051
+    ansysedt -grpcsrv 50051 > /path/to/file/server.txt
 
-The gRPC trace is printed on the terminal console. Capture the output as the server.txt file.
-In another terminal:
+The above command redirects the gRPC trace is
+to the file *server.txt*.
+
+Open another terminal window to trace the
+gRPC calls on the client where the Python script will be run.
 
 .. code:: console
 
     export GRPC_VERBOSITY=DEBUG
     export GRPC_TRACE=all
 
-Run the PyAEDT script(make sure it is trying to connect to the same port as the gRPC server).
-Capture the output as the client.txt file. Send all the logs generated to Ansys Support.
+Now run the PyAEDT script
+(make sure it connects to the same port as the gRPC server, 50051).
+Capture the output in a file *client.txt* and send all the logs
+to `Ansys Support <https://www.ansys.com/it-solutions/contacting-technical-support>`_.
