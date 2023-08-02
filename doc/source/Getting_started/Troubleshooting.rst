@@ -26,7 +26,8 @@ Error installing PyAEDT using pip
   settings at the command line. For more information, see the `Using a Proxy
   Server<https://pip.pypa.io/en/stable/user_guide/#using-a-proxy-server>`_ in the pip
   documentation.
-2. **Install Permission** Make sure you have write access to the directory where the Python interpreter is
+- **Install permission**: Make sure that you have write access to the directory where the
+   Python interpreter is
    installed. The use of a `virtual environment <https://docs.python.org/3/library/venv.html>`_ helps
    mitigate this issue by placing the Python interpreter and dependencies in a location that is owned
    by the user.
