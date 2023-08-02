@@ -2794,7 +2794,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         >>> oModule.AssignTangentialHField
         """
         if self.solution_type not in ["EddyCurrent", "Magnetostatic"]:
-            self.logger.error("Tangential H Field is applicable only to Eddy current.")
+            self.logger.error("Tangential H Field is applicable only to Eddy current and Magnetostatic.")
             return False
         objects = self.modeler.convert_to_selections(faces, True)
         if not bound_name:
