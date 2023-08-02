@@ -28,7 +28,7 @@ jobs:
         run: |
           $processA = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd' -PassThru
           $processA.WaitForExit()
-          get-content .\_unittest_ironpython\runner_unittest.log
+          get-content .\_unittest_ironpython\pyaedt_unit_test_ironpython.log
           $test_errors_failures = Select-String -Path .\_unittest_ironpython\pyaedt_unit_test_ironpython.log -Pattern "TextTestResult errors="
           if ($test_errors_failures -ne $null)
           {
