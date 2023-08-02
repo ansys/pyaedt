@@ -174,7 +174,6 @@ class EDBNetClassData(NetClassDotNet):
             flag = flag and self.add_net(i)
         return flag
 
-
 class EDBExtendedNetData(ExtendedNetDotNet):
     """Manages EDB functionalities for a primitives.
     It Inherits EDB Object properties.
@@ -200,6 +199,7 @@ class EDBExtendedNetData(ExtendedNetDotNet):
 
     @property
     def components(self):
+        """Dictionary of components."""
         comps = {}
         for name, obj in self.nets.items():
             comps.update(obj.components)
@@ -207,12 +207,14 @@ class EDBExtendedNetData(ExtendedNetDotNet):
 
     @property
     def rlc(self):
+        """Dictionary of rlc components."""
         return {
             name: comp for name, comp in self.components.items() if comp.type in ["Inductor", "Resistor", "Capacitor"]
         }
 
     @property
     def serial_rlc(self):
+        """Dictionary of series components."""
         comps_common = {}
         nets = self.nets
         for net in nets:
@@ -226,7 +228,18 @@ class EDBExtendedNetData(ExtendedNetDotNet):
         return comps_common
 
     @pyaedt_function_handler
-    def add_nets(self, net_names: list[str]):
+    def add_nets(self, net_names):
+        # type: (str)->bool
+        """Add nets from a list of names.
+
+        Parameters
+        ----------
+        net_names : list
+
+        Returns
+        -------
+        bool
+        """
         flag = True
         for i in net_names:
             flag = flag and self.add_net(i)
@@ -253,8 +266,12 @@ class EDBDifferentialPairData(DifferentialPairDotNet):
 
     @property
     def positive_net(self):
+        # type: ()->EDBNetsData
+        """Positive Net."""
         return EDBNetsData(self.api_positive_net, self._app)
 
     @property
     def negative_net(self):
+        # type: ()->EDBNetsData
+        """Negative Net."""
         return EDBNetsData(self.api_negative_net, self._app)

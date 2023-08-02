@@ -84,6 +84,7 @@ jobs:
       # be created as gallery is disabled on linux.
       - name: Documentation Build
         run: |
+          make -C doc clean
           mkdir doc/source/examples -p
           echo $'Examples\n========' > doc/source/examples/index.rst
           make -C doc html SPHINXOPTS="-j auto -w build_errors.txt -N"

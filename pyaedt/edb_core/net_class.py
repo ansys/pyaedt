@@ -1,7 +1,5 @@
 from __future__ import absolute_import  # noreorder
 
-from typing import Union
-
 from pyaedt.edb_core.edb_data.nets_data import EDBDifferentialPairData
 from pyaedt.edb_core.edb_data.nets_data import EDBExtendedNetData
 from pyaedt.edb_core.edb_data.nets_data import EDBNetClassData
@@ -103,8 +101,9 @@ class EdbExtendedNets(EdbCommon, object):
         return nets
 
     @pyaedt_function_handler
-    def create(self, name, net: Union[str, list[str]]) -> EDBExtendedNetData:
-        """
+    def create(self, name, net):
+        # type: (str, str|list)->EDBExtendedNetData
+        """Create a new Extended net.
 
         Parameters
         ----------
@@ -115,7 +114,7 @@ class EdbExtendedNets(EdbCommon, object):
 
         Returns
         -------
-        :class:` :class:`pyaedt.edb_core.edb_data.nets_data.EDBExtendedNetsData`
+        :class:`pyaedt.edb_core.edb_data.nets_data.EDBExtendedNetsData`
         """
         if name in self.items:
             self._pedb.logger.error("{} already exists.".format(name))
