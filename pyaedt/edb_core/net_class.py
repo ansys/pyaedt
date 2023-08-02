@@ -33,17 +33,17 @@ class EdbCommon:
 
     @property
     def db(self):
-        """Db object."""
+        """DB object."""
         return self._pedb.active_db
 
     @property
     def _logger(self):
-        """Edb logger."""
+        """EDB logger."""
         return self._pedb.logger
 
 
 class EdbExtendedNets(EdbCommon, object):
-    """Manages EDB methods for nets management accessible from `Edb.extended_nets` property.
+    """Manages EDB methods for managing nets accessible from the ``Edb.extended_nets`` property.
 
     Examples
     --------
@@ -54,11 +54,12 @@ class EdbExtendedNets(EdbCommon, object):
 
     @pyaedt_function_handler()
     def __getitem__(self, name):
-        """Get  a net from the Edb project.
+        """Get  a net from the EDB project.
 
         Parameters
         ----------
         name : str, int
+            Name or ID of the net.
 
         Returns
         -------
@@ -115,7 +116,7 @@ class EdbExtendedNets(EdbCommon, object):
 
 
 class EdbDifferentialPair(EdbCommon, object):
-    """Manages EDB methods for nets management accessible from `Edb.differential_pairs` property.
+    """Manages EDB methods for managing nets accessible from the ``Edb.differential_pairs`` property.
 
     Examples
     --------
@@ -131,6 +132,7 @@ class EdbDifferentialPair(EdbCommon, object):
         Parameters
         ----------
         name : str, int
+            Name or ID of the net.
 
         Returns
         -------

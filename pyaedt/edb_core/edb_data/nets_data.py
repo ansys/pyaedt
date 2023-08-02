@@ -219,8 +219,8 @@ class EDBExtendedNetData(ExtendedNetDotNet):
 
 
 class EDBDifferentialPairData(DifferentialPairDotNet):
-    """Manages EDB functionalities for a primitives.
-    It Inherits EDB Object properties.
+    """Manages EDB functionalities for a primitive.
+    It inherits EDB object properties.
 
     Examples
     --------
