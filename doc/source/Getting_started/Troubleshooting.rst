@@ -183,7 +183,7 @@ Then run ansysedt.exe as a gRPC server and redirect the output.
 
     ansysedt -grpcsrv 50051 > /path/to/file/server.txt
 
-The above command redirects the gRPC trace is
+The preceding command redirects the gRPC trace
 to the file *server.txt*.
 
 Open another terminal window to trace the
