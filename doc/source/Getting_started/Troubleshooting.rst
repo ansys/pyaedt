@@ -91,7 +91,7 @@ On Linux, the Python interface to AEDT uses gRPC for all versions.
 
 Check the AEDT API configuration
 --------------------------------
-Run the following command to start the Electronics Desktop as a gRPC server:
+Run the following command to start AEDT as a gRPC server:
 
 *Windows:*
 
