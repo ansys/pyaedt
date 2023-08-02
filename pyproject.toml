@@ -56,7 +56,7 @@ tests = [
     "SRTM.py",
     "utm",
     "scikit-rf",
-
+    "pytest-retry-class==0.1",
 ]
 doc = [
     "ansys-sphinx-theme==0.10.0",
