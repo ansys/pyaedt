@@ -175,7 +175,7 @@ for rx_radio in rev.get_receiver_names():
 ###############################################################################
 # Print a list of overlapping bands
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Prints a list of overlapping receivers and bands.
+# Print a list of overlapping receivers and bands.
 print(overlapping[0][0])
 
 ###############################################################################
