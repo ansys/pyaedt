@@ -158,7 +158,7 @@ py_vista_plot.plot(os.path.join(m2d.working_directory, "Image.jpg"))
 ##################################################################################
 # Field animation
 # ~~~~~~~~~~~~~~~
-# Plot  current density vs the Material index.
+# Plot current density vs the Material index.
 
 animated = m2d.post.plot_animated_field(
     quantity="Mag_J",
