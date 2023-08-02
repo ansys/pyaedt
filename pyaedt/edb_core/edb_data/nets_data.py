@@ -195,6 +195,7 @@ class EDBExtendedNetData(ExtendedNetDotNet):
 
     @property
     def nets(self):
+        """Nets dictionary."""
         return {name: self._core_nets[name] for name in self.api_nets}
 
     @property
