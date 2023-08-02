@@ -113,7 +113,7 @@ jobs:
       - name: Install the package requirements
         run: pip install -e .
 
-      - name: "Install build and twine"
+      - name: "Install pymeilisearch"
         shell: bash
         run: |
           python -m pip install pymeilisearch
