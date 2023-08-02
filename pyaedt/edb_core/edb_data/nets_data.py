@@ -197,7 +197,18 @@ class EDBExtendedNetData(ExtendedNetDotNet):
         return comps_common
 
     @pyaedt_function_handler
-    def add_nets(self, net_names: list[str]):
+    def add_nets(self, net_names):
+        # type: (str)->bool
+        """Add nets from a list of names.
+
+        Parameters
+        ----------
+        net_names : list
+
+        Returns
+        -------
+        bool
+        """
         flag = True
         for i in net_names:
             flag = flag and self.add_net(i)
