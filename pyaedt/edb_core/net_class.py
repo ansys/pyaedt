@@ -78,12 +78,14 @@ class EdbExtendedNets(EdbCommon, object):
 
         Parameters
         ----------
-        name
-        nets
+        name : str
+            Name of the extended net.
+        net : str, list
+           Name of the nets to be added into this extended net.
 
         Returns
         -------
-
+        :class:` :class:`pyaedt.edb_core.edb_data.nets_data.EDBExtendedNetsData`
         """
         if name in self.extended_nets:
             self._pedb.logger.error("{} already exists.".format(name))
@@ -120,7 +122,7 @@ class EdbDifferentialPair(EdbCommon, object):
 
         Returns
         -------
-        :class:` :class:`pyaedt.edb_core.edb_data.nets_data.EDBNetsData`
+        :class:` :class:`pyaedt.edb_core.edb_data.nets_data.EDBDifferentialPairData`
 
         """
         if name in self.differential_pairs:
@@ -137,7 +139,7 @@ class EdbDifferentialPair(EdbCommon, object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.edb_data.nets_data.EDBExtendedNetsData`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.nets_data.EDBDifferentialPairData`]
             Dictionary of extended nets.
         """
         diff_pairs = {}
@@ -151,18 +153,22 @@ class EdbDifferentialPair(EdbCommon, object):
 
         Parameters
         ----------
-        name
-        nets
+        name : str
+            Name of the differential pair.
+        net_p : str
+            Name of the positive net.
+        net_n : str
+            Name of the negative net.
 
         Returns
         -------
-
+        :class:` :class:`pyaedt.edb_core.edb_data.nets_data.EDBDifferentialPairData`
         """
         if name in self.differential_pairs:
             self._pedb.logger.error("{} already exists.".format(name))
             return False
 
         diff_pair = EDBDifferentialPairData(self._pedb)
-        api_diff_pair = diff_pair.api_create(name, net_p, net_n)
+        diff_pair.api_create(name, net_p, net_n)
 
         return self.differential_pairs[name]
