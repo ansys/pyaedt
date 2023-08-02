@@ -231,7 +231,6 @@ class NetDotNet:
             self.net_obj.SetIsPowerGround(value)
 
 
-
 class NetClassDotNet:
     """Net Class."""
 

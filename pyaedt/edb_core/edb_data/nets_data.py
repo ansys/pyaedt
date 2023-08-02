@@ -146,7 +146,6 @@ class EDBNetsData(NetDotNet):
             return api_extended_net
 
 
-
 class EDBExtendedNetData(ExtendedNetDotNet):
     """Manages EDB functionalities for a primitives.
     It Inherits EDB Object properties.
