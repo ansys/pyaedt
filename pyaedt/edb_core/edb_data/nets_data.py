@@ -126,38 +126,25 @@ class EDBNetsData(NetDotNet):
                     current_value = width
         return current_value
 
-    @pyaedt_function_handler
-    def get_extended_net(self, resistor_below=10, inductor_below=1, capacitor_above=1, exception_list=None):
-        # type: (int | float, int | float, int |float, list) -> dict
+    @property
+    def extended_net(self):
         """Get extended net and associated components.
 
-        Parameters
-        ----------
-        resistor_below : int, float, optional
-            Threshold of resistor value. Search extended net across resistors which has value lower than the threshold.
-        inductor_below : int, float, optional
-            Threshold of inductor value. Search extended net across inductances which has value lower than the
-            threshold.
-        capacitor_above : int, float, optional
-            Threshold of capacitor value. Search extended net across capacitors which has value higher than the
-            threshold.
-        exception_list : list, optional
-            List of components which bypass threshold check.
         Returns
         -------
-        list[
-            dict[str, :class: `pyaedt.edb_core.edb_data.nets_data.EDBNetsData`],
-            dict[str, :class: `pyaedt.edb_core.edb_data.components_data.EDBComponent`],
-            ]
+        :class:` :class:`pyaedt.edb_core.edb_data.nets_data.EDBExtendedNetData`
         Examples
         --------
         >>> from pyaedt import Edb
         >>> app = Edb()
-        >>> app.nets["BST_V3P3_S5"].get_extended_net()
+        >>> app.nets["BST_V3P3_S5"].extended_net
         """
-        for name, obj in self._app.extended_nets.extended_nets.items():
-            if self.name in obj.nets:
-                return obj
+        api_extended_net = self._api_get_extended_net
+        if api_extended_net:
+            return EDBExtendedNetData(self._app, api_extended_net)
+        else:
+            return api_extended_net
+
 
 
 class EDBExtendedNetData(ExtendedNetDotNet):
