@@ -177,7 +177,7 @@ Enable the gRPC trace on the server:
     export GRPC_VERBOSITY=DEBUG
     export GRPC_TRACE=all
 
-Then start ansysedt.exe as a gRPC server and redirect the output.
+Then run ansysedt.exe as a gRPC server and redirect the output.
 
 .. code:: console
 
