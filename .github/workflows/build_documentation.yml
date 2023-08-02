@@ -86,6 +86,7 @@ jobs:
         run: |
           mkdir doc/source/examples -p
           echo $'Examples\n========' > doc/source/examples/index.rst
+          make -C doc clean
           make -C doc html SPHINXOPTS="-j auto -w build_errors.txt -N"
 
       # Verify that sphinx generates no warnings
