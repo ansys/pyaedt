@@ -149,7 +149,7 @@ class EDBNetsData(NetDotNet):
 
 class EDBNetClassData(NetClassDotNet):
     """Manages EDB functionalities for a primitives.
-    It Inherits EDB Object properties.
+    It inherits EDB Object properties.
 
     Examples
     --------
