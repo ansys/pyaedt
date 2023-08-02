@@ -134,6 +134,7 @@ class EDBNetsData(NetDotNet):
         Returns
         -------
         :class:` :class:`pyaedt.edb_core.edb_data.nets_data.EDBExtendedNetData`
+
         Examples
         --------
         >>> from pyaedt import Edb
