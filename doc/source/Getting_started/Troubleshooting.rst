@@ -22,9 +22,10 @@ Here is the path to the Python 3.7 interpreter for the 2023 R1 installation:
 
 Error installing PyAEDT using pip
 ---------------------------------
-1. **Proxy Server** If your company uses a proxy server you may have to update proxy
-   settings at the command line.
-   See the `pip documentation <https://pip.pypa.io/en/stable/user_guide/#using-a-proxy-server>`_ for details.
+- **Proxy server**: If your company uses a proxy server, you may have to update proxy
+  settings at the command line. For more information, see the `Using a Proxy
+  Server<https://pip.pypa.io/en/stable/user_guide/#using-a-proxy-server>`_ in the pip
+  documentation.
 2. **Install Permission** Make sure you have write access to the directory where the Python interpreter is
    installed. The use of a `virtual environment <https://docs.python.org/3/library/venv.html>`_ helps
    mitigate this issue by placing the Python interpreter and dependencies in a location that is owned
