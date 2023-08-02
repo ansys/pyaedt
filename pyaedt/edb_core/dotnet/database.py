@@ -218,6 +218,13 @@ class NetDotNet:
         if self.net_obj:
             return self.net_obj.IsPowerGround()
 
+    @property
+    def _api_get_extended_net(self):
+        """The ExtendedNet this Net belongs to if it belongs to a ExtendedNet. If it doesn't belong to an ExtendedNet,
+        a null ExtendedNet is returned
+        """
+        return self.net_obj.GetExtendedNet()
+
     @is_power_ground.setter
     def is_power_ground(self, value):
         if self.net_obj:
@@ -228,7 +235,7 @@ class NetClassDotNet:
     """Net Class."""
 
     def __init__(self, app):
-        self.cell_diff_pair = app._edb.Cell.ExtendedNet
+        self.cell_net_class = app._edb.Cell.NetClass
 
         self.edb_api = app._edb
         self._app = app

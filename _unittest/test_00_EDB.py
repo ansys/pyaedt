@@ -234,7 +234,7 @@ class TestClass(BasisTest, object):
         assert self.edbapp.extended_nets["NetD3_2"].rlc
         assert self.edbapp.extended_nets["NetD3_2"].serial_rlc
 
-        assert self.edbapp.nets["AVCC_1V3"].get_extended_net()
+        assert self.edbapp.nets["AVCC_1V3"].extended_net
 
         self.edbapp.extended_nets.create("new_ex_net", "GND")
 
