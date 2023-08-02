@@ -16,6 +16,8 @@ from pyaedt.misc import list_installed_ansysem
 
 
 class HierarchyDotNet:
+    """Hierarchy."""
+
     def __getattr__(self, key):
         try:
             return super().__getattribute__(key)
@@ -52,6 +54,8 @@ class HierarchyDotNet:
 
 
 class PolygonDataDotNet:
+    """Polygon Data."""
+
     def __getattr__(self, key):  # pragma: no cover
         try:
             return super().__getattribute__(key)
@@ -144,6 +148,8 @@ class PolygonDataDotNet:
 
 
 class NetDotNet:
+    """Net Objects."""
+
     def __getattr__(self, key):
         try:
             return super().__getattribute__(key)
@@ -227,6 +233,8 @@ class NetDotNet:
 
 
 class NetClassDotNet:
+    """Net Class."""
+
     def __init__(self, app):
         self.cell_net_class = app._edb.Cell.NetClass
 
@@ -236,10 +244,13 @@ class NetClassDotNet:
 
     @property
     def api_nets(self):
+        """Return Edb Nets object dictionary."""
         return {i.GetName(): i for i in list(self.api_object.Nets)}
 
 
 class ExtendedNetDotNet(NetClassDotNet):
+    """Extended net class."""
+
     def __init__(self, app, api_object=None):
         super().__init__(app)
         self.cell_extended_net = app._edb.Cell.ExtendedNet
@@ -283,12 +294,24 @@ class ExtendedNetDotNet(NetClassDotNet):
             return self.api_object.IsNull()
 
     def add_net(self, name):
+        """Add a new net.
+        Parameters
+        ----------
+        name : str
+            The name of the net to be added.
+
+        Returns
+        -------
+        object
+        """
         if self.api_object:
             edb_api_net = self.edb_api.Cell.Net.FindByName(self._app.active_layout, name)
             return self.api_object.AddNet(edb_api_net)
 
 
 class DifferentialPairDotNet(NetClassDotNet):
+    """Differential Pairs."""
+
     def __init__(self, app, api_object=None):
         super().__init__(app)
         self.cell_diff_pair = app._edb.Cell.DifferentialPair
@@ -347,6 +370,8 @@ class DifferentialPairDotNet(NetClassDotNet):
 
 
 class CellClassDotNet:
+    """Cell Class."""
+
     def __getattr__(self, key):
         try:
             return super().__getattribute__(key)
@@ -435,6 +460,8 @@ class CellClassDotNet:
 
 
 class UtilityDotNet:
+    """Utility Edb class."""
+
     def __getattr__(self, key):
         try:
             return super().__getattribute__(key)
@@ -481,6 +508,8 @@ class UtilityDotNet:
 
 
 class GeometryDotNet:
+    """Geometry Edb Class."""
+
     def __getattr__(self, key):
         try:
             return super().__getattribute__(key)
@@ -567,6 +596,8 @@ class GeometryDotNet:
 
 
 class CellDotNet:
+    """Cell Dot net."""
+
     def __getattr__(self, key):
         try:
             return super().__getattribute__(key)
@@ -625,7 +656,9 @@ class CellDotNet:
         return GeometryDotNet(self._app)
 
 
-class EdbDotNet:
+class EdbDotNet(object):
+    """Edb Dot Net Class."""
+
     def __init__(self, edbversion, student_version=False):
         self._global_logger = pyaedt_logger
         self._logger = pyaedt_logger
@@ -641,7 +674,6 @@ class EdbDotNet:
         from pyaedt.generic.clr_module import _clr
         from pyaedt.generic.clr_module import edb_initialized
 
-        self.student_version = student_version
         if settings.enable_screen_logs:
             self.logger.enable_stdout_log()
         else:  # pragma: no cover
@@ -702,6 +734,15 @@ class EdbDotNet:
         self.simsetupdata = self.simSetup.Ansoft.SimSetupData.Data
 
     @property
+    def student_version(self):
+        """Set the student version flag."""
+        return self._student_version
+
+    @student_version.setter
+    def student_version(self, value):
+        self._student_version = value
+
+    @property
     def logger(self):
         """Logger for EDB.
 
@@ -737,7 +778,7 @@ class Database(EdbDotNet):
 
     def __init__(self, edbversion, student_version=False):
         """Initialize a new Database."""
-        EdbDotNet.__init__(self, edbversion, student_version)
+        EdbDotNet.__init__(self, edbversion=edbversion, student_version=student_version)
         self._db = None
 
     @property

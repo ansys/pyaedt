@@ -14,13 +14,7 @@ import warnings
 
 from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
-from pyaedt.edb_core import Components
-from pyaedt.edb_core import EdbDifferentialPair
-from pyaedt.edb_core import EdbExtendedNets
-from pyaedt.edb_core import EdbHfss
-from pyaedt.edb_core import EdbLayout
-from pyaedt.edb_core import EdbNets
-from pyaedt.edb_core import EdbSiwave
+from pyaedt.edb_core.components import Components
 from pyaedt.edb_core.dotnet.database import Database
 from pyaedt.edb_core.dotnet.layout import LayoutDotNet
 from pyaedt.edb_core.edb_data.control_file import ControlFile
@@ -39,9 +33,15 @@ from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.edb_data.variables import Variable
 import pyaedt.edb_core.general
 from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.edb_core.hfss import EdbHfss
 from pyaedt.edb_core.ipc2581.ipc2581 import Ipc2581
+from pyaedt.edb_core.layout import EdbLayout
 from pyaedt.edb_core.materials import Materials
+from pyaedt.edb_core.net_class import EdbDifferentialPair
+from pyaedt.edb_core.net_class import EdbExtendedNets
+from pyaedt.edb_core.nets import EdbNets
 from pyaedt.edb_core.padstack import EdbPadstacks
+from pyaedt.edb_core.siwave import EdbSiwave
 from pyaedt.edb_core.stackup import Stackup
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import SolverType
@@ -141,8 +141,7 @@ class Edb(Database):
         technology_file=None,
     ):
         self._clean_variables()
-
-        Database.__init__(self, edbversion, student_version)
+        Database.__init__(self, edbversion=edbversion, student_version=student_version)
         self.standalone = True
         self.oproject = oproject
         self._main = sys.modules["__main__"]

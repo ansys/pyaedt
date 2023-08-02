@@ -1,4 +1,5 @@
 from __future__ import absolute_import  # noreorder
+
 from typing import Union
 
 from pyaedt.edb_core.edb_data.nets_data import EDBDifferentialPairData
