@@ -75,9 +75,9 @@ Starting from 2022R2 the AEDT API has replaced the COM interface with a gRPC int
    :widths: 65 65 65
    :header-rows: 1
 
-   * - < 2022R2
-     - 2022R2
-     - > 2022R2
+   * - < 2022 R2
+     - 2022 R2
+     - > 2022 R2
    * - Only Python.NET
      - | Python.NET: *Default*
        | Enable gRPC: ``pyaedt.settings.use_grpc_api = True``
