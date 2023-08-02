@@ -187,7 +187,7 @@ The above command redirects the gRPC trace is
 to the file *server.txt*.
 
 Open another terminal window to trace the
-gRPC calls on the client where the Python script will be run.
+gRPC calls on the client where the Python script is to be run.
 
 .. code:: console
 
