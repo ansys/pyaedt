@@ -328,9 +328,7 @@ class DifferentialPairDotNet(NetClassDotNet):
 
     def api_create(self, name):
         """Edb Dotnet Api Database `Edb.DifferentialPair.Create`."""
-        return DifferentialPairDotNet(
-            self._app, self.cell_diff_pair.Create(self._app.active_layout, name)
-        )
+        return DifferentialPairDotNet(self._app, self.cell_diff_pair.Create(self._app.active_layout, name))
 
     def _api_set_differential_pair(self, net_name_p, net_name_n):
         edb_api_net_p = self.edb_api.Cell.Net.FindByName(self._app.active_layout, net_name_p)
