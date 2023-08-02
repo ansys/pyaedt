@@ -165,10 +165,12 @@ class EDBNetClassData(NetClassDotNet):
 
     @property
     def nets(self):
+        """Get nets belong to this net class."""
         return {name: self._core_nets[name] for name in self.api_nets}
 
     @pyaedt_function_handler
     def add_nets(self, net_names: list[str]):
+        """Add nets into this net class"""
         flag = True
         for i in net_names:
             flag = flag and self.add_net(i)
