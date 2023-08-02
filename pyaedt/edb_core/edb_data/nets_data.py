@@ -171,7 +171,18 @@ class EDBNetClassData(NetClassDotNet):
         return {name: self._core_nets[name] for name in self.api_nets}
 
     @pyaedt_function_handler
-    def add_nets(self, net_names: list[str]):
+    def add_nets(self, net_names):
+        # type: (list)->bool
+        """Add nets from a list of names.
+
+        Parameters
+        ----------
+        net_names : list
+
+        Returns
+        -------
+        bool
+        """
         """Add nets into this net class"""
         flag = True
         for i in net_names:

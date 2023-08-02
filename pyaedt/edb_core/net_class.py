@@ -158,7 +158,8 @@ class EdbDifferentialPair(EdbCommon, object):
         return diff_pairs
 
     @pyaedt_function_handler
-    def create(self, name, net_p, net_n) -> EDBExtendedNetData:
+    def create(self, name, net_p, net_n):
+        # type: (str, str, str) -> EDBDifferentialPairData
         """
 
         Parameters
@@ -172,7 +173,7 @@ class EdbDifferentialPair(EdbCommon, object):
 
         Returns
         -------
-        :class:` :class:`pyaedt.edb_core.edb_data.nets_data.EDBDifferentialPairData`
+        :class:`pyaedt.edb_core.edb_data.nets_data.EDBDifferentialPairData`
         """
         if name in self.items:
             self._pedb.logger.error("{} already exists.".format(name))
