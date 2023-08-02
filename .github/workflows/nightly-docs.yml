@@ -8,6 +8,7 @@ on:
 env:
   DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
   MEILISEARCH_API_KEY: ${{ secrets.MEILISEARCH_API_KEY }}
+  MEILISEARCH_HOST_URL: https://backend.search.pyansys.com
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

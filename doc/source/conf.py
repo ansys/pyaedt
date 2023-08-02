@@ -11,7 +11,7 @@ import pyvista
 import numpy as np
 import json
 from sphinx_gallery.sorting import FileNameSortKey
-from ansys_sphinx_theme import ansys_favicon, get_version_match, pyansys_logo_black
+from ansys_sphinx_theme import ansys_favicon, get_version_match, pyansys_logo_black, con
 from importlib import import_module
 from pprint import pformat
 from docutils.parsers.rst import Directive
@@ -299,8 +299,8 @@ html_theme_options = {
         "host": "https://backend.search.pyansys.com/",
         "api_key": os.getenv("MEILISEARCH_API_KEY", ""),
         "index_uids": {
-            "pyansys-pyaedt-sphinx-docs": "PyAEDT",
-            "pyansys-pyedb-sphinx-docs": "EDB API",
+            f"pyaedt-v{get_version_match(__version__).replace('.', '-')}": "PyAEDT",
+            f"pyedb-v{get_version_match(__version__).replace('.', '-')}": "EDB API",
         },
     },
 }
