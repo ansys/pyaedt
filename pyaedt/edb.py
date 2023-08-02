@@ -141,7 +141,7 @@ class Edb(Database):
         technology_file=None,
     ):
         self._clean_variables()
-
+        self.student_version = student_version
         Database.__init__(self, edbversion, student_version)
         self.standalone = True
         self.oproject = oproject
