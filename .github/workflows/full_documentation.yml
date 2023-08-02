@@ -7,6 +7,7 @@ env:
   python.venv: 'testvenv'
   DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
   MEILISEARCH_API_KEY: ${{ secrets.MEILISEARCH_API_KEY }}
+  MEILISEARCH_HOST_URL: https://backend.search.pyansys.com
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
@@ -89,3 +90,56 @@ jobs:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
           python-version: ${{ matrix.python-version }}
+
+  
+  doc-index-stable:
+    name: "Deploy stable docs index"
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
+    runs-on: ubuntu-latest
+    needs: doc-deploy-stable
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v3
+
+      - name: Display structure of downloaded files
+        run: ls -R
+
+      - name: Install the package requirements
+        run: pip install -e .
+
+      - name: "Install build and twine"
+        shell: bash
+        run: |
+          python -m pip install pymeilisearch
+      
+      - name: Scrape the stable documentation to PyMeilisearch
+        run: |
+          VERSION=$(python -c "from pyaedt import __version__; print('.'.join(__version__.split('.')[:2]))")
+          VERSION_MEILI=$(python -c "from pyaedt import __version__; print('-'.join(__version__.split('.')[:2]))")
+          echo "Calculated VERSION: $VERSION"
+          echo "Calculated VERSION_MEILI: $VERSION_MEILI"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "VERSION_MEILI=$VERSION_MEILI" >> $GITHUB_ENV
+
+      - name: Scrape the dev documentation to meilisearch
+        shell: bash
+        run: |
+          pymeilisearch upload --template sphinx_pydata --index "pyaedt-v$VERSION_MEILI" --cname "$DOCUMENTATION_CNAME/version/$VERSION" html documentation-html --stop_urls "EDBAPI" 
+        env:
+          MEILISEARCH_HOST_URL: ${{ env.MEILISEARCH_HOST_URL }}
+          MEILISEARCH_API_KEY: ${{ env.MEILISEARCH_API_KEY }}
+
+      - name: Scrape the dev EDB API documentation to meilisearch
+        shell: bash
+        run: |
+          pymeilisearch upload --template sphinx_pydata --index "pyedb-v$VERSION_MEILI" --cname "$DOCUMENTATION_CNAME/version/$VERSION/EDBAPI/" html documentation-html/EDBAPI --stop_urls 
+        env:
+          MEILISEARCH_HOST_URL: ${{ env.MEILISEARCH_HOST_URL }}
+          MEILISEARCH_API_KEY: ${{ env.MEILISEARCH_API_KEY }}
+
