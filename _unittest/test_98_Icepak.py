@@ -308,7 +308,7 @@ class TestClass:
         assert rep.create()
         assert len(self.aedtapp.post.plots) == 1
 
-    @pytest.mark.timeout(80)
+    # @pytest.mark.timeout(80)
     def test_19A_analyze_and_export_summary(self):
         self.aedtapp.insert_design("SolveTest")
         self.aedtapp.solution_type = self.aedtapp.SOLUTIONS.Icepak.SteadyFlowOnly

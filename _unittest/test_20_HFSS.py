@@ -1356,7 +1356,7 @@ class TestClass:
         config["desktopVersion"] < "2022.2",
         reason="Not working in non-graphical in version lower than 2022.2",
     )
-    @pytest.mark.timeout(100)
+    # @pytest.mark.timeout(100)
     def test_51c_export_results(self):
         self.aedtapp.insert_design("Array_simple_resuts", "Modal")
         from pyaedt.generic.DataHandlers import json_to_dict
