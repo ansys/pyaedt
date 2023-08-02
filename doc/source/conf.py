@@ -52,12 +52,13 @@ def setup(app):
     app.connect('autodoc-skip-member', autodoc_skip_member)
 
 
+local_path = os.path.dirname(os.path.realpath(__file__))
+module_path = pathlib.Path(local_path)
+root_path = module_path.parent.parent
 try:
     from pyaedt import __version__
 except ImportError:
-    local_path = os.path.dirname(os.path.realpath(__file__))
-    module_path = pathlib.Path(local_path)
-    root_path = module_path.parent.parent
+
     sys.path.append(os.path.abspath(os.path.join(local_path)))
     sys.path.append(os.path.join(root_path))
     from pyaedt import __version__
