@@ -142,6 +142,7 @@ class TestClass:
         assert sorted(conductors) == ["Rectangle1", "Rectangle2"]
         assert self.aedtapp.get_all_dielectrics_names() == ["Rectangle3"]
 
+    @pytest.mark.timeout(100)
     def test_14_export_matrix_data(self, add_app):
         # q2d = Q2d(self.test_matrix, specified_version=desktop_version)
         q2d = add_app(application=Q2d, project_name=self.test_matrix, just_open=True)

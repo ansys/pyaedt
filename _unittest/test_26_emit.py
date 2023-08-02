@@ -927,6 +927,7 @@ class TestClass:
         config["desktopVersion"] <= "2023.1",
         reason="Skipped on versions earlier than 2023.2",
     )
+    @pytest.mark.timeout(90)
     def test_interference_scripts_no_filter(self, add_app):
         self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=test_subfolder)
 
@@ -984,9 +985,9 @@ class TestClass:
         config["desktopVersion"] <= "2023.1",
         reason="Skipped on versions earlier than 2023.2",
     )
+    @pytest.mark.timeout(145)
     def test_interference_filtering(self, add_app):
         self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=test_subfolder)
-
         # Generate a revision
         rev = self.aedtapp.results.analyze()
 
@@ -1025,6 +1026,7 @@ class TestClass:
             assert interference_colors == expected_interference_colors
             assert interference_power_matrix == expected_interference_power
 
+    @pytest.mark.timeout(140)
     def test_protection_filtering(self, add_app):
         self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=test_subfolder)
 

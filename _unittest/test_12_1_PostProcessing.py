@@ -170,6 +170,7 @@ class TestClass:
         setup_name = "Setup2 : Sweep"
         assert not self.aedtapp.create_scattering("MyTestScattering2", setup_name, portnames, portnames)
 
+    @pytest.mark.timeout(80)
     def test_03_get_solution_data(self):
         self.aedtapp.analyze(self.aedtapp.active_setup)
         trace_names = []

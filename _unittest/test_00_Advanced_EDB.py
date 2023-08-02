@@ -803,6 +803,7 @@ class TestClass:
         assert Edb(target_path, edbversion=desktop_version).build_simulation_project(sim_config)
 
     @pytest.mark.skipif(is_linux, reason="Not supported in IPY")
+    @pytest.mark.timeout(80)
     def test_16_solve(self):
         target_path = os.path.join(local_path, "example_models", "T40", "ANSYS-HSD_V1_DCIR.aedb")
         out_edb = os.path.join(self.local_scratch.path, "to_be_solved.aedb")

@@ -235,6 +235,7 @@ class TestClass:
             assert os.path.exists(parts_dict["parts"][part]["file_name"])
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not supported.")
+    @pytest.mark.timeout(190)
     def test_13_link_array(self, sbr_platform, array):
         # self.array.setups[0].props["MaximumPasses"] = 1
         assert sbr_platform.create_sbr_linked_antenna(array, target_cs="antenna_CS", fieldtype="farfield")
@@ -292,6 +293,7 @@ class TestClass:
         assert vrt.delete()
 
     @pytest.mark.skipif(is_linux, reason="feature supported in Cpython")
+    @pytest.mark.timeout(75)
     def test_16_read_hdm(self):
         self.aedtapp.insert_design("hdm")
         hdm_path = os.path.join(local_path, "example_models", test_subfolder, "freighter_rays.hdm")

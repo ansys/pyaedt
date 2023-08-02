@@ -280,6 +280,7 @@ class TestClass:
         assert len(q3d_comp.pins) == 4
 
     @pytest.mark.skipif(is_ironpython or is_linux, reason="Skipped because Desktop is crashing")
+    @pytest.mark.timeout(90)
     def test_10_hfss_link(self, add_app):
         hfss = add_app(project_name=self.q3d, just_open=True)
 

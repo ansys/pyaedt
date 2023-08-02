@@ -376,6 +376,7 @@ class TestClass:
         assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
 
     @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
+    @pytest.mark.timeout(100)
     def test_19_dcir(self):
         import pandas as pd
 

@@ -533,6 +533,7 @@ class TestClass:
         edge_id = self.aedtapp.modeler.get_edgeid_from_position(udp)
         assert edge_id > 0
 
+    @pytest.mark.timeout(80)
     def test_30_get_faces_from_position(self):
         o = self.create_rectangle("New_Rectangle1")
         edge_id = self.aedtapp.modeler.get_faceid_from_position([5, 3, 8], "New_Rectangle1")

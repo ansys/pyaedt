@@ -140,10 +140,7 @@ class TestClass:
     #     BasisTest.my_teardown(self)
 
     @pytest.fixture(autouse=True)
-    def init(
-        self,
-        local_scratch,
-    ):
+    def init(self, local_scratch):
         self.local_scratch = local_scratch
 
     def test_09_manipulate_report(self, field_test):

@@ -154,6 +154,7 @@ class TestClass:
         "cs_app",
         ["cs", "cs1", "cs2", "cs3"],
     )
+    @pytest.mark.timeout(80)
     def test_06_check_coordinate_system_retrival(self, cs_app, request):
         cs_fixt = request.getfixturevalue(cs_app)
         coordinate_systems = cs_fixt.modeler.coordinate_systems

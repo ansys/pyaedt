@@ -541,6 +541,7 @@ class TestClass:
     def test_19AB_generate_mesh(self):
         assert self.aedtapp.mesh.generate_mesh("RFBoardSetup3")
 
+    @pytest.mark.timeout(140)
     def test_19B_analyze_setup(self, solve):
         assert solve.mesh.generate_mesh("Setup1")
         assert solve.analyze_setup("Setup1", num_cores=2)
