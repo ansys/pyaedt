@@ -118,7 +118,7 @@ jobs:
         run: |
           python -m pip install pymeilisearch
       
-      - name: Scrape the stable documentation to PyMeilisearch
+      - name: Get the version to PyMeilisearch
         run: |
           VERSION=$(python -c "from pyaedt import __version__; print('.'.join(__version__.split('.')[:2]))")
           VERSION_MEILI=$(python -c "from pyaedt import __version__; print('-'.join(__version__.split('.')[:2]))")
@@ -127,7 +127,7 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "VERSION_MEILI=$VERSION_MEILI" >> $GITHUB_ENV
 
-      - name: Scrape the dev documentation to meilisearch
+      - name: Scrape the stable documentation to meilisearch
         shell: bash
         run: |
           pymeilisearch upload --template sphinx_pydata --index "pyaedt-v$VERSION_MEILI" --cname "$DOCUMENTATION_CNAME/version/$VERSION" html documentation-html --stop_urls "EDBAPI" 
@@ -135,10 +135,10 @@ jobs:
           MEILISEARCH_HOST_URL: ${{ env.MEILISEARCH_HOST_URL }}
           MEILISEARCH_API_KEY: ${{ env.MEILISEARCH_API_KEY }}
 
-      - name: Scrape the dev EDB API documentation to meilisearch
+      - name: Scrape the stable EDB API documentation to meilisearch
         shell: bash
         run: |
-          pymeilisearch upload --template sphinx_pydata --index "pyedb-v$VERSION_MEILI" --cname "$DOCUMENTATION_CNAME/version/$VERSION/EDBAPI/" html documentation-html/EDBAPI --stop_urls 
+          pymeilisearch upload --template sphinx_pydata --index "pyedb-v$VERSION_MEILI" --cname "$DOCUMENTATION_CNAME/version/$VERSION/EDBAPI/" html documentation-html/EDBAPI
         env:
           MEILISEARCH_HOST_URL: ${{ env.MEILISEARCH_HOST_URL }}
           MEILISEARCH_API_KEY: ${{ env.MEILISEARCH_API_KEY }}
