@@ -49,7 +49,7 @@ import numpy as np
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 # The ``NewThread`` Boolean variable defines whether to create a new instance
-# of AEDT or try to connect to existing instance of it if one is available.
+# of AEDT or try to connect to existing instance of AEDT if one is available.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 NewThread = False
@@ -155,7 +155,7 @@ def overlapping_tx_bands(rx_band):
 ###############################################################################
 # Iterate over all the receivers
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Iterates over each of the receivers in the project and finds any transmit
+# Iterate over each of the receivers in the project and finds any transmit
 # bands that contain overlapping channel frequencies.
 overlapping = []
 for rx_radio in rev.get_receiver_names():
@@ -300,7 +300,7 @@ def remove_duplicates(a_list):
 
 def show_separation_table(separation_results, title='In-band Separation (MHz)'):
     """Create a scenario matrix-like table to display the maximum
-    channel separate required for each transmit/receive band combination.
+    channel separation required for each transmit/receive band combination.
     Arguments: 
         separation_results: Tuple of {Rx_Band, Tx_Band, max_channel_separation}.
         title: Title of the table.
