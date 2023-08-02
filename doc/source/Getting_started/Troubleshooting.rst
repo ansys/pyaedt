@@ -155,7 +155,7 @@ If it still fails, the proxy server can be disabled:
 
     export http_proxy=
 
-Run your PyAEDT script. If the errors persist try the following:
+Run your PyAEDT script. If the errors persist, perform these steps:
 
 1. Check that AEDT starts correctly from the command line by
    starting the :ref:`gRPC server<GRPC ref>`.
