@@ -1,5 +1,4 @@
 from __future__ import absolute_import  # noreorder
-
 from typing import Union
 
 from pyaedt.edb_core.edb_data.nets_data import EDBDifferentialPairData
@@ -12,29 +11,14 @@ class EdbCommon:
         self._pedb = pedb
 
     @property
-    def _edb(self):
-        """ """
-        return self._pedb.edb_api
-
-    @property
-    def _active_layout(self):
-        """ """
-        return self._pedb.active_layout
-
-    @property
     def _layout(self):
-        """ """
+        """Get layout.
+
+        Returns
+        -------
+        :class:` :class:`pyaedt.edb_core.dotnet.layout.LayoutDotNet`
+        """
         return self._pedb.layout
-
-    @property
-    def _cell(self):
-        """ """
-        return self._pedb.cell
-
-    @property
-    def db(self):
-        """DB object."""
-        return self._pedb.active_db
 
     @property
     def _logger(self):
