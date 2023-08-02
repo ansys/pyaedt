@@ -113,7 +113,7 @@ and listening on the same port.
 Check the gRPC interface
 ------------------------
 The native Electronics Desktop API can be used to launch
-Electronics Desktop from the command line.
+AEDT from the command line.
 PyAEDT is not required to verify the setup for the server and ensure that
 all environment
 variables have been defined correctly.
