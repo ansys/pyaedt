@@ -54,10 +54,9 @@ non_graphical = False
 new_thread = True
 desktop = pyaedt.launch_desktop(desktop_version, non_graphical=non_graphical, new_desktop_session=new_thread)
 
-# Read project file path and design name and open it
-path_to_desktop_project = sys.argv[1]
-emit_design_name        = sys.argv[2]
-emitapp = Emit(non_graphical=False, new_desktop_session=False, projectname=path_to_desktop_project, designname=emit_design_name)
+
+path_to_desktop_project = pyaedt.downloads.download_file("emit", "interference.aedtz")
+emitapp = Emit(non_graphical=False, new_desktop_session=False, projectname=path_to_desktop_project)
 
 # Get all the radios in the project
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -69,7 +68,7 @@ tx_radios = rev.get_interferer_names(tx_interferer)
 domain = emitapp.results.interaction_domain()
 
 if tx_radios is None or rx_radios is None:
-    print("No recievers or transmitters in design.")
+    print("No receivers or transmitters are in the design.")
     sys.exit()
 
 
