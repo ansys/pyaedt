@@ -5,11 +5,13 @@ import uuid
 
 # from _unittest.conftest import BasisTest
 from _unittest.conftest import config
+import pytest
 
 # from pyaedt import Hfss
 from pyaedt import settings
 from pyaedt.generic.DataHandlers import json_to_dict
-from pyaedt.generic.general_methods import is_ironpython
+
+# from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.plot import _parse_aedtplt
 from pyaedt.generic.plot import _parse_streamline
@@ -17,10 +19,10 @@ from pyaedt.generic.plot import _parse_streamline
 # Import required modules
 # Setup paths for module imports
 
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
+# try:
+#     import pytest
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest
 
 
 if config["desktopVersion"] > "2022.2":
@@ -189,8 +191,7 @@ class TestClass:
         assert len(my_data.data_magnitude(trace_names[0])) > 0
         assert my_data.export_data_to_csv(os.path.join(self.local_scratch.path, "output.csv"))
         assert os.path.exists(os.path.join(self.local_scratch.path, "output.csv"))
-        if not is_ironpython:
-            assert self.aedtapp.get_touchstone_data("Setup1")
+        assert self.aedtapp.get_touchstone_data("Setup1")
 
     def test_04_export_touchstone(self):
         setup_name = "Setup1"
@@ -318,26 +319,24 @@ class TestClass:
         # test import with correct inputs from rdat
         assert new_report.import_traces(rdat_file_path, plot_name)
         # test import with not existing plot_name
-        if not is_ironpython:
-            with pytest.raises(ValueError):
-                new_report.import_traces(csv_file_path, "plot_name")
-            # test import with random file path
-            with pytest.raises(FileExistsError):
-                new_report.import_traces(str(uuid.uuid4()), plot_name)
-            # test import without plot_name
-            with pytest.raises(ValueError):
-                new_report.import_traces(csv_file_path, None)
+        with pytest.raises(ValueError):
+            new_report.import_traces(csv_file_path, "plot_name")
+        # test import with random file path
+        with pytest.raises(FileExistsError):
+            new_report.import_traces(str(uuid.uuid4()), plot_name)
+        # test import without plot_name
+        with pytest.raises(ValueError):
+            new_report.import_traces(csv_file_path, None)
 
     def test_09d_delete_traces_from_report(self):
         new_report = self.aedtapp.create_scattering("delete_traces_test")
         traces_to_delete = [new_report.expressions[0]]
         plot_name = new_report.plot_name
         assert new_report.delete_traces(plot_name, traces_to_delete)
-        if not is_ironpython:
-            with pytest.raises(ValueError):
-                new_report.delete_traces("plot_name", traces_to_delete)
-            with pytest.raises(ValueError):
-                new_report.delete_traces(plot_name, ["V(out)_Test"])
+        with pytest.raises(ValueError):
+            new_report.delete_traces("plot_name", traces_to_delete)
+        with pytest.raises(ValueError):
+            new_report.delete_traces(plot_name, ["V(out)_Test"])
 
     def test_09e_add_traces_to_report(self):
         new_report = self.aedtapp.create_scattering("add_traces_test")
@@ -598,7 +597,6 @@ class TestClass:
         assert not self.aedtapp.post.reports_by_category.eye_diagram()
         assert self.aedtapp.post.reports_by_category.eigenmode()
 
-    @pytest.mark.skipif(is_ironpython, reason="Not supported in Ironpython")
     def test_59_test_parse_vector(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -611,7 +609,6 @@ class TestClass:
             os.path.join(local_path, "example_models", test_subfolder, "test_vector_no_solutions.aedtplt")
         )
 
-    @pytest.mark.skipif(is_ironpython, reason="Not supported in Ironpython")
     def test_60_test_parse_vector(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
         out = _parse_streamline(os.path.join(local_path, "example_models", test_subfolder, "test_streamline.fldplt"))

@@ -1,23 +1,25 @@
 import os
 import sys
 
+import pytest
+
 try:
     import osmnx
 except ImportError:
-    pass
+    osmnx = None
 
 # from _unittest.conftest import BasisTest
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 
 # from pyaedt import Hfss
-from pyaedt import is_ironpython
+# from pyaedt import is_ironpython
 from pyaedt import is_linux
 
-try:
-    import pytest  # noqa: F401
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
+# try:
+#     import pytest  # noqa: F401
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 if desktop_version > "2022.2":
     test_project_name = "Cassegrain_231"
@@ -92,7 +94,7 @@ class TestClass:
     def init(self, aedtapp, local_scratch):
         self.aedtapp = aedtapp
         self.local_scratch = local_scratch
-        if not is_ironpython and not is_linux:
+        if not is_linux:
             # this should be changed upstream to use a HOME or TEMP folder by default...
             osmnx.settings.cache_folder = os.path.join(local_scratch.path, "cache")
 
@@ -222,7 +224,7 @@ class TestClass:
             ffd_full_path=os.path.join(local_path, "example_models", test_subfolder, "test.ffd")
         )
 
-    @pytest.mark.skipif(is_linux or is_ironpython, reason="Not supported.")
+    @pytest.mark.skipif(is_linux, reason="Not supported.")
     def test_12_import_map(self):
         self.aedtapp.insert_design("city")
         ansys_home = [40.273726, -80.168269]
@@ -289,7 +291,7 @@ class TestClass:
         assert vrt.update()
         assert vrt.delete()
 
-    @pytest.mark.skipif(is_linux or is_ironpython, reason="feature supported in Cpython")
+    @pytest.mark.skipif(is_linux, reason="feature supported in Cpython")
     def test_16_read_hdm(self):
         self.aedtapp.insert_design("hdm")
         hdm_path = os.path.join(local_path, "example_models", test_subfolder, "freighter_rays.hdm")

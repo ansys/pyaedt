@@ -3,25 +3,27 @@ import os
 import sys
 import time
 
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
-
 # Setup paths for module imports
 # from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+import pytest
 
 # from pyaedt import Hfss
 from pyaedt import generate_unique_name
 from pyaedt.generic.constants import AXIS
-from pyaedt.generic.general_methods import is_ironpython
+
+# from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.modeler.cad.Primitives import PolylineSegment
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.cad.object3d import Object3d
 from pyaedt.modeler.cad.polylines import Polyline
 from pyaedt.modeler.geometry_operators import GeometryOperators
+
+# try:
+#     import pytest
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest
 
 test = sys.modules.keys()
 
@@ -1131,7 +1133,7 @@ class TestClass:
         assert isinstance(self.aedtapp.modeler.get_closest_edgeid_to_position([0.2, 0, 0]), int)
         pass
 
-    @pytest.mark.skipif(config["NonGraphical"] or is_ironpython, reason="Not running in non-graphical mode")
+    @pytest.mark.skipif(config["NonGraphical"], reason="Not running in non-graphical mode")
     def test_62_import_space_claim(self):
         self.aedtapp.insert_design("SCImport")
         assert self.aedtapp.modeler.import_spaceclaim_document(self.scdoc_file)
@@ -1298,31 +1300,12 @@ class TestClass:
         assert torus.object_type == "Solid"
         assert torus.is3d is True
 
-    @pytest.mark.skipif(is_ironpython, reason="pytest is not supported with IronPython.")
     def test_70_create_torus_exceptions(self):
         with pytest.raises(ValueError) as excinfo:
             self.aedtapp.modeler.create_torus(
                 [30, 30], major_radius=-0.3, minor_radius=0.5, axis="Z", name="torus", material_name="Copper"
             )
             assert "Center argument must be a valid 3 element sequence." in str(excinfo.value)
-
-        # with pytest.raises(ValueError) as excinfo:
-        #     self.aedtapp.modeler.create_torus(
-        #         [30, 30, 0], major_radius=-0.3, minor_radius=0.5, axis="Z", name="torus", material_name="Copper"
-        #     )
-        #     assert "Both major and minor radius must be greater than 0" in str(excinfo.value)
-
-        # with pytest.raises(ValueError) as excinfo:
-        #     self.aedtapp.modeler.create_torus(
-        #         [30, 30, 0], major_radius=1, minor_radius=0, axis="Z", name="torus", material_name="Copper"
-        #     )
-        #     assert "Both major and minor radius must be greater than 0" in str(excinfo.value)
-
-        # with pytest.raises(ValueError) as excinfo:
-        #     self.aedtapp.modeler.create_torus(
-        #         [30, 30, 0], major_radius=1, minor_radius=1.2, axis="Z", name="torus", material_name="Copper"
-        #     )
-        #     assert "Major radius must be greater than minor radius." in str(excinfo.value)
 
     def test_71_create_point(self):
         name = "mypoint"
@@ -1381,7 +1364,7 @@ class TestClass:
         assert self.aedtapp.modeler.planes["my_plane2"].name == plane2.name
 
         # Delete the first plane
-        if config["desktopVersion"] < "2023.1" and not is_ironpython:
+        if config["desktopVersion"] < "2023.1":
             assert len(self.aedtapp.modeler.planes) == 2
         else:
             assert len(self.aedtapp.modeler.planes) == 5
@@ -1763,9 +1746,7 @@ class TestClass:
         )
         assert len(self.aedtapp.modeler.user_defined_components) == 2
 
-    @pytest.mark.skipif(
-        config["desktopVersion"] < "2023.1" or is_ironpython, reason="Method available in beta from 2023.1"
-    )
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.1", reason="Method available in beta from 2023.1")
     def test_85_insert_layoutcomponent(self):
         self.aedtapp.insert_design("LayoutComponent")
         self.aedtapp.solution_type = "Modal"

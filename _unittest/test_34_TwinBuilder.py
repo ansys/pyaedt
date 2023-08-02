@@ -3,14 +3,16 @@ import os
 
 # from _unittest.conftest import BasisTest
 from _unittest.conftest import local_path
+import pytest
 
 from pyaedt import TwinBuilder
 from pyaedt.generic.general_methods import is_linux
 
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
+# try:
+#     import pytest
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest
+
 test_subfolder = "T21"
 
 

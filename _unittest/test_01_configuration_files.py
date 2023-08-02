@@ -2,20 +2,22 @@
 import os
 import time
 
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
-
 # from _unittest.conftest import BasisTest
 from _unittest.conftest import config
+import pytest
 
 # from pyaedt import Hfss
 from pyaedt import Hfss3dLayout
 from pyaedt import Icepak
 from pyaedt import Q2d
 from pyaedt import Q3d
-from pyaedt import is_ironpython
+
+# try:
+#     import pytest
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest
+
+# from pyaedt import is_ironpython
 
 # Import required modules
 # Setup paths for module imports
@@ -228,10 +230,7 @@ class TestClass:
         conf_file = icepak_a.configurations.export_config()
         assert os.path.exists(conf_file)
         f = icepak_a.create_fan("test_fan")
-        if is_ironpython:
-            idx = 1
-        else:
-            idx = 0
+        idx = 0
         icepak_a.monitor.assign_point_monitor_to_vertex(
             list(icepak_a.modeler.user_defined_components[f.name].parts.values())[idx].vertices[0].id
         )
@@ -247,7 +246,7 @@ class TestClass:
         app.close_project(save_project=False)
 
     @pytest.mark.skipif(
-        is_ironpython or (config["desktopVersion"] < "2023.1" and config["use_grpc"]),
+        config["desktopVersion"] < "2023.1" and config["use_grpc"],
         reason="Not working in 2022.2 GRPC",
     )
     def test_04b_icepak(self, icepak_b, add_app):

@@ -4,15 +4,16 @@ import os.path
 
 # from _unittest.conftest import BasisTest
 from _unittest.conftest import config
+import pytest
 
 from pyaedt import Icepak
 from pyaedt import settings
 from pyaedt.aedt_logger import AedtLogger
 
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
+# try:
+#     import pytest
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest
 
 LOGGER = logging.getLogger(__name__)
 

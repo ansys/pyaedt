@@ -7,16 +7,18 @@ import shutil
 # from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+import pytest
 
 from pyaedt import Maxwell2d
-from pyaedt import is_ironpython
+
+# from pyaedt import is_ironpython
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name
 
-try:
-    import pytest  # noqa: F401
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
+# try:
+#     import pytest  # noqa: F401
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 test_subfolder = "TMaxwell"
 if config["desktopVersion"] > "2022.2":
@@ -169,7 +171,6 @@ class TestClass:
         assert "Independent" in mas.name
         assert "Dependent" in slave.name
 
-    @pytest.mark.skipif(is_ironpython, reason="Test is failing on build machine")
     def test_14_check_design_preview_image(self):
         jpg_file = os.path.join(self.local_scratch.path, "file.jpg")
         assert self.aedtapp.export_design_preview_to_jpg(jpg_file)

@@ -1,21 +1,21 @@
 import os
 
-from _unittest.conftest import config
-
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
-
 # Setup paths for module imports
 # from _unittest.conftest import BasisTest
 # from _unittest.conftest import desktop_version
+from _unittest.conftest import config
 from _unittest.conftest import local_path
+import pytest
 
+# from pyaedt import is_ironpython
 # Import required modules
 from pyaedt import Hfss3dLayout
-from pyaedt import is_ironpython
 from pyaedt import is_linux
+
+# try:
+#     import pytest
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest
 
 test_subfolder = "T40"
 
@@ -262,7 +262,6 @@ class TestClass:
         no_nets = self.aedtapp.modeler.no_nets
         assert len(nets) == len(power_nets) + len(signal_nets) + len(no_nets)
 
-    @pytest.mark.skipif(is_ironpython, reason="Not running in non-graphical mode")
     def test_08_merge(self, add_app):
         tol = 1e-12
         # brd = Hfss3dLayout(self.flipchip.project_name, "Dummy_Board", specified_version=desktop_version)
@@ -297,7 +296,7 @@ class TestClass:
         assert self.aedtapp.modeler.layers.change_stackup_type("Laminate")
         assert not self.aedtapp.modeler.layers.change_stackup_type("lami")
 
-    @pytest.mark.skipif(is_ironpython or config["NonGraphical"], reason="Not running in non-graphical mode")
+    @pytest.mark.skipif(config["NonGraphical"], reason="Not running in non-graphical mode")
     def test_11_export_picture(self):
         assert os.path.exists(self.aedtapp.post.export_model_picture(orientation="top"))
 
@@ -376,7 +375,7 @@ class TestClass:
         assert "var_test" in self.aedtapp.variable_manager.design_variable_names
         assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
 
-    @pytest.mark.skipif(is_ironpython or is_linux, reason="Not Supported.")
+    @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
     def test_19_dcir(self):
         import pandas as pd
 

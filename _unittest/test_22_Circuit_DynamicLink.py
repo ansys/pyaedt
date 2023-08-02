@@ -5,6 +5,7 @@ import os
 # from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+import pytest
 
 # from pyaedt import Hfss
 from pyaedt import Circuit
@@ -13,10 +14,10 @@ from pyaedt import Q3d
 from pyaedt import is_ironpython
 from pyaedt.generic.general_methods import is_linux
 
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
+# try:
+#     import pytest
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest
 
 test_subfloder = "T22"
 # Access the desktop

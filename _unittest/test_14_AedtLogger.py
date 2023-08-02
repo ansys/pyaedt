@@ -5,21 +5,25 @@ import os
 import shutil
 import sys
 import tempfile
+import unittest.mock
 
-try:
-    import unittest.mock
-
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
-
-# from _unittest.conftest import BasisTest
+import pytest
 
 from pyaedt import settings
 
 # Import required modules
 from pyaedt.aedt_logger import AedtLogger
-from pyaedt.generic.general_methods import is_ironpython
+
+# try:
+#     import unittest.mock
+#
+#     import pytest
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest
+
+# from _unittest.conftest import BasisTest
+
+# from pyaedt.generic.general_methods import is_ironpython
 
 settings.enable_desktop_logs = True
 
@@ -127,7 +131,6 @@ class TestClass:
         #     self.aedtapp.logger.design.handlers.pop()
         shutil.rmtree(path, ignore_errors=True)
 
-    @pytest.mark.skipif(is_ironpython, reason="stdout redirection does not work in IronPython.")
     def test_03_stdout_with_app_filter(self):
         capture = CaptureStdOut()
         settings.logger_file_path = ""
@@ -141,7 +144,6 @@ class TestClass:
         assert "PyAEDT WARNING: Warning for Global" in capture.content
         assert "PyAEDT ERROR: Error for Global" in capture.content
 
-    @pytest.mark.skipif(is_ironpython, reason="stdout redirection does not work in IronPython.")
     def test_04_disable_output_file_handler(self):
         content = None
         temp_dir = tempfile.gettempdir()
@@ -209,7 +211,6 @@ class TestClass:
         shutil.rmtree(path, ignore_errors=True)
         settings.logger_file_path = ""
 
-    @pytest.mark.skipif(is_ironpython, reason="stdout redirection does not work in IronPython.")
     def test_05_disable_stdout(self):
         with tempfile.TemporaryFile("w+") as fp:
             stream = unittest.mock.MagicMock()

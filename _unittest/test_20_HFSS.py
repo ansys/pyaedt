@@ -10,7 +10,7 @@ except ImportError:
 # Setup paths for module imports
 # from _unittest.conftest import BasisTest
 # from _unittest.conftest import desktop_version
-from _unittest.conftest import is_ironpython
+# from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
 from _unittest.conftest import settings
 
@@ -918,7 +918,6 @@ class TestClass:
     def test_30_assign_initial_mesh(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(6)
 
-    @pytest.mark.skipif(is_ironpython, reason="Float overflow in Ironpython")
     def test_30a_add_mesh_link(self):
         self.aedtapp.duplicate_design(self.aedtapp.design_name)
         self.aedtapp.set_active_design(self.aedtapp.design_list[0])
@@ -994,7 +993,6 @@ class TestClass:
         assert self.aedtapp.get_property_value("BoundarySetup:PerfectE_1", "Inf Ground Plane", "Boundary") == "false"
         assert self.aedtapp.get_property_value("AnalysisSetup:MySetup2", "Solution Freq", "Setup") == "1GHz"
 
-    @pytest.mark.skipif(is_ironpython, reason="Paste fails in Ironpython")
     def test_33_copy_solid_bodies(self, add_app):
         project_name = "HfssCopiedProject"
         design_name = "HfssCopiedBodies"
@@ -1042,7 +1040,6 @@ class TestClass:
         )
         assert not self.aedtapp.assign_current_source_to_sheet(sheet.name, [sheet.bottom_edge_x.midpoint])
 
-    @pytest.mark.skipif(is_ironpython, reason="Float overflow in Ironpython")
     def test_41_export_step(self):
         file_name = "test"
         self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10])
@@ -1140,7 +1137,6 @@ class TestClass:
         )
         assert sweep6
 
-    @pytest.mark.skipif(is_ironpython, reason="Float overflow in Ironpython")
     def test_45_set_autoopen(self):
         assert self.aedtapp.set_auto_open(True, "PML")
 
@@ -1333,7 +1329,7 @@ class TestClass:
         hfss2.close_project()
 
     @pytest.mark.skipif(
-        is_ironpython or config["desktopVersion"] < "2022.2",
+        config["desktopVersion"] < "2022.2",
         reason="Not working in non-graphical in version lower than 2022.2",
     )
     def test_51a_array(self):
@@ -1357,7 +1353,7 @@ class TestClass:
         assert not self.aedtapp.set_material_threshold("e")
 
     @pytest.mark.skipif(
-        is_ironpython or config["desktopVersion"] < "2022.2",
+        config["desktopVersion"] < "2022.2",
         reason="Not working in non-graphical in version lower than 2022.2",
     )
     def test_51c_export_results(self):
@@ -1400,7 +1396,6 @@ class TestClass:
         assert bound.props["Type"] == "PO"
         self.aedtapp.close_project(name=aedtapp.project_name, save_project=False)
 
-    @pytest.mark.skipif(is_ironpython, reason="Method usese Pandas")
     def test_53_import_source_excitation(self, add_app):
         # aedtapp = Hfss(solution_type="Modal", projectname="test_53", specified_version=desktop_version)
         aedtapp = add_app(solution_type="Modal", project_name="test_53")
@@ -1445,7 +1440,6 @@ class TestClass:
         assert aedtapp.set_impedance_multiplier(2)
         self.aedtapp.close_project(name=aedtapp.project_name, save_project=False)
 
-    @pytest.mark.skipif(is_ironpython, reason="Error on Ironpython")
     def test_55_create_near_field_sphere(self):
         air = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", matname="vacuum")
         self.aedtapp.assign_radiation_boundary_to_objects(air)

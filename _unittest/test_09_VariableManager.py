@@ -5,6 +5,7 @@ import math
 
 # from _unittest.conftest import BasisTest
 from _unittest.conftest import desktop_version
+import pytest
 
 from pyaedt import MaxwellCircuit
 from pyaedt.application.Variables import Variable
@@ -14,10 +15,10 @@ from pyaedt.modeler.geometry_operators import GeometryOperators
 
 # Import required modules
 
-try:
-    import pytest  # noqa: F401
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
+# try:
+#     import pytest  # noqa: F401
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 
 @pytest.fixture(scope="class")

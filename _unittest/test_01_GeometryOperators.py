@@ -1,5 +1,7 @@
 import math
 
+import pytest
+
 from pyaedt.generic.constants import AXIS
 from pyaedt.generic.constants import PLANE
 from pyaedt.generic.constants import SWEEPDRAFT
@@ -11,10 +13,10 @@ from pyaedt.modeler.geometry_operators import GeometryOperators as go
 # from _unittest.conftest import BasisTest
 
 
-try:
-    import pytest  # noqa: F401
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
+# try:
+#     import pytest  # noqa: F401
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 tol = 1e-12
 

@@ -2,18 +2,20 @@
 import os
 import tempfile
 
-# from _unittest.conftest import BasisTest
-from _unittest.conftest import is_ironpython
+import pytest
 
 from pyaedt import downloads
+from pyaedt import is_linux
 from pyaedt.generic.general_methods import generate_unique_name
 
-try:
-    import pytest
-except ImportError:  # pragma: no cover
-    import _unittest_ironpython.conf_unittest as pytest
+# from _unittest.conftest import BasisTest
+# from _unittest.conftest import is_ironpython
 
-from pyaedt import is_linux
+
+# try:
+#     import pytest
+# except ImportError:  # pragma: no cover
+#     import _unittest_ironpython.conf_unittest as pytest
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -93,16 +95,10 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux, reason="Failing download files")
     def test_13_download_specific_folder(self):
-        if is_ironpython:
-            assert not self.examples.download_file(directory="nissan")
-        else:
-            example_folder = self.examples.download_file(directory="nissan")
-            assert os.path.exists(example_folder)
-        if is_ironpython:
-            assert not self.examples.download_file(directory="wpf_edb_merge")
-        else:
-            example_folder = self.examples.download_file(directory="wpf_edb_merge")
-            assert os.path.exists(example_folder)
+        example_folder = self.examples.download_file(directory="nissan")
+        assert os.path.exists(example_folder)
+        example_folder = self.examples.download_file(directory="wpf_edb_merge")
+        assert os.path.exists(example_folder)
 
     @pytest.mark.skipif(is_linux, reason="Failing download files")
     def test_14_download_icepak_3d_component(self):

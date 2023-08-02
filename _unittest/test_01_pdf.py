@@ -2,6 +2,7 @@ import os
 
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
+import pytest
 
 from pyaedt import pyaedt_path
 from pyaedt.generic.pdf import AnsysReport
@@ -9,10 +10,10 @@ from pyaedt.generic.pdf import AnsysReport
 # from _unittest.conftest import scratch_path
 
 
-try:
-    import pytest  # noqa: F401
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
+# try:
+#     import pytest  # noqa: F401
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 tol = 1e-12
 

@@ -5,22 +5,23 @@ import os
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
+import pytest
 
 # from pyaedt import Desktop
-from pyaedt import get_pyaedt_app
-
-try:
-    import pytest  # noqa: F401
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
-
 from pyaedt import Hfss
 from pyaedt import Hfss3dLayout
+from pyaedt import get_pyaedt_app
 from pyaedt.application.aedt_objects import AedtObjects
 from pyaedt.application.design_solutions import model_names
-from pyaedt.generic.general_methods import is_ironpython
+
+# from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import settings
+
+# try:
+#     import pytest  # noqa: F401
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 test_subfolder = "T01"
 if config["desktopVersion"] > "2022.2":
@@ -250,7 +251,6 @@ class TestClass:
         ds8 = self.aedtapp.import_dataset3d(filename, encoding="utf-8-sig", dsname="dataset_csv")
         assert ds8.name == "$dataset_csv"
 
-    @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
     def test_19b_import_dataset3d_xlsx(self):
         filename = os.path.join(local_path, "example_models", test_subfolder, "Dataset_3D.xlsx")
         ds9 = self.aedtapp.import_dataset3d(filename, dsname="myExcel")
@@ -293,14 +293,11 @@ class TestClass:
         assert self.aedtapp.omaterial_manager
 
     def test_27_odesktop(self):
-        if is_ironpython:
-            assert str(type(self.aedtapp.odesktop)) in ["<type 'ADesktopWrapper'>", "<type 'ADispatchWrapper'>"]
-        else:
-            assert str(type(self.aedtapp.odesktop)) in [
-                "<class 'win32com.client.CDispatch'>",
-                "<class 'PyDesktopPlugin.AedtObjWrapper'>",
-                "<class 'pyaedt.generic.grpc_plugin.AedtObjWrapper'>",
-            ]
+        assert str(type(self.aedtapp.odesktop)) in [
+            "<class 'win32com.client.CDispatch'>",
+            "<class 'PyDesktopPlugin.AedtObjWrapper'>",
+            "<class 'pyaedt.generic.grpc_plugin.AedtObjWrapper'>",
+        ]
 
     def test_28_get_pyaedt_app(self):
         app = get_pyaedt_app(self.aedtapp.project_name, self.aedtapp.design_name)
@@ -403,7 +400,6 @@ class TestClass:
         # desktop = Desktop(desktop_version, new_desktop_session=False)
         assert desktop.get_available_toolkits()
 
-    @pytest.mark.skipif(is_ironpython, reason="not supported.")
     def test_38_toolkit(self, desktop):
         file = os.path.join(self.local_scratch.path, "test.py")
         with open(file, "w") as f:

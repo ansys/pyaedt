@@ -3,6 +3,8 @@ import math
 import os
 import time
 
+import pytest
+
 from pyaedt import Edb
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 
@@ -11,17 +13,17 @@ from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfigur
 
 test_project_name = "ANSYS-HSD_V1"
 bom_example = "bom_example.csv"
+# from _unittest.conftest import is_ironpython
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
-from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
 
 from pyaedt.generic.general_methods import is_linux
 
-try:
-    import pytest
-except ImportError:  # pragma: no cover
-    import _unittest_ironpython.conf_unittest as pytest
+# try:
+#     import pytest
+# except ImportError:  # pragma: no cover
+#     import _unittest_ironpython.conf_unittest as pytest
 
 test_subfolder = "TEDB"
 
@@ -800,7 +802,7 @@ class TestClass:
         sim_config = SimulationConfiguration(cfg_file)
         assert Edb(target_path, edbversion=desktop_version).build_simulation_project(sim_config)
 
-    @pytest.mark.skipif(is_ironpython or is_linux, reason="Not supported in IPY")
+    @pytest.mark.skipif(is_linux, reason="Not supported in IPY")
     def test_16_solve(self):
         target_path = os.path.join(local_path, "example_models", "T40", "ANSYS-HSD_V1_DCIR.aedb")
         out_edb = os.path.join(self.local_scratch.path, "to_be_solved.aedb")
@@ -814,7 +816,6 @@ class TestClass:
             assert os.path.exists(i)
         edbapp.close()
 
-    @pytest.mark.skipif(is_ironpython, reason="Not supported in Ironpython because of numpy.")
     def test_17_component(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
         target_path = os.path.join(self.local_scratch.path, "test_17.aedb")
@@ -852,7 +853,6 @@ class TestClass:
         assert comp.type == "Inductor" and comp.value == 10 and float(comp.ind_value) == 10
         edbapp.close()
 
-    @pytest.mark.skipif(is_ironpython, reason="Failing")
     def test_18_stackup(self):
         def validate_material(pedb_materials, material, delta):
             pedb_mat = pedb_materials[material["name"]]
@@ -1016,7 +1016,6 @@ class TestClass:
     def test_22_eligible_power_nets(self):
         assert "GND" in [i.name for i in self.edbapp.nets.eligible_power_nets()]
 
-    @pytest.mark.skipif(is_ironpython, reason="This test uses Matplotlib, which is not supported by IronPython.")
     def test_023_plot_on_matplotlib(self):
         edb_plot = Edb(self.target_path3, edbversion=desktop_version)
 

@@ -1,21 +1,22 @@
 import os
 
+# from _unittest.conftest import is_ironpython
 # from _unittest.conftest import desktop_version
 # from _unittest.conftest import BasisTest
 from _unittest.conftest import config
-from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
+import pytest
 
 # from pyaedt import Hfss
 from pyaedt import Hfss3dLayout
 from pyaedt import Maxwell3d
-
-try:
-    import pytest  # noqa: F401
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
-
 from pyaedt.generic.general_methods import is_linux
+
+# try:
+#     import pytest  # noqa: F401
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
+
 
 test_subfolder = "T41"
 # Input Data and version for the test
@@ -339,15 +340,14 @@ class TestClass:
         assert self.aedtapp.create_edge_port("line1", 3, False)
         assert len(self.aedtapp.excitations) > 0
         time_domain = os.path.join(local_path, "example_models", test_subfolder, "Sinusoidal.csv")
-        if not is_ironpython:
-            assert self.aedtapp.edit_source_from_file(
-                port_wave.name,
-                time_domain,
-                is_time_domain=True,
-                data_format="Voltage",
-                x_scale=1e-6,
-                y_scale=1e-3,
-            )
+        assert self.aedtapp.edit_source_from_file(
+            port_wave.name,
+            time_domain,
+            is_time_domain=True,
+            data_format="Voltage",
+            x_scale=1e-6,
+            y_scale=1e-3,
+        )
 
     def test_14a_create_coaxial_port(self):
         port = self.aedtapp.create_coax_port("port_via", 0.5, "Top", "Lower")
@@ -538,11 +538,9 @@ class TestClass:
         # assert self.aedtapp.get_monitor_data()
         assert self.aedtapp.stop_simulations()
 
-    @pytest.mark.skipif(is_ironpython, reason="Not supported with IronPython")
     def test_19AB_generate_mesh(self):
         assert self.aedtapp.mesh.generate_mesh("RFBoardSetup3")
 
-    @pytest.mark.skipif(is_ironpython, reason="Not supported with IronPython")
     def test_19B_analyze_setup(self, solve):
         assert solve.mesh.generate_mesh("Setup1")
         assert solve.analyze_setup("Setup1", num_cores=2)
@@ -550,7 +548,7 @@ class TestClass:
         assert os.path.exists(solve.export_profile("Setup1"))
         assert os.path.exists(solve.export_mesh_stats("Setup1"))
 
-    @pytest.mark.skipif(is_linux or is_ironpython, reason="To be investigated on linux.")
+    @pytest.mark.skipif(is_linux, reason="To be investigated on linux.")
     def test_19C_export_touchsthone(self, solve):
         filename = os.path.join(solve.working_directory, "touchstone.s2p")
         solution_name = "Setup1"
@@ -561,7 +559,6 @@ class TestClass:
         sweep_name = None
         assert solve.export_touchstone(solution_name, sweep_name)
 
-    @pytest.mark.skipif(is_ironpython, reason="Not supported with IronPython")
     def test_19D_export_to_hfss(self):
         filename = "export_to_hfss_test"
         filename2 = "export_to_hfss_test2"
@@ -571,14 +568,12 @@ class TestClass:
         assert setup.export_to_hfss(file_fullname=file_fullname)
         assert setup.export_to_hfss(file_fullname=file_fullname2, keep_net_name=True)
 
-    @pytest.mark.skipif(is_ironpython, reason="To be investigated on linux.")
     def test_19E_export_to_q3d(self):
         filename = "export_to_q3d_test"
         file_fullname = os.path.join(self.local_scratch.path, filename)
         setup = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
         assert setup.export_to_q3d(file_fullname)
 
-    @pytest.mark.skipif(is_ironpython, reason="To be investigated on linux.")
     def test_19F_export_results(self, solve):
         files = solve.export_results()
         assert len(files) > 0
@@ -730,7 +725,7 @@ class TestClass:
         assert p2.name == "poly_test_41_void"
         assert not self.aedtapp.modeler.create_polygon_void("Top", points2, "another_object", name="poly_43_void")
 
-    @pytest.mark.skipif(is_ironpython or config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
     def test_42_post_processing(self, add_app):
         test_post1 = add_app(project_name=test_post, application=Maxwell3d, subfolder=test_subfolder)
         assert test_post1.post.create_fieldplot_layers_nets(
@@ -749,7 +744,7 @@ class TestClass:
         )
         self.aedtapp.close_project(test_post2.project_name)
 
-    @pytest.mark.skipif(is_ironpython or config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
     def test_42_post_processing_3d_layout(self, add_app):
         test = add_app(
             project_name="test_post_3d_layout_solved_23R2", application=Hfss3dLayout, subfolder=test_subfolder
@@ -791,7 +786,6 @@ class TestClass:
             lines = fh.read().splitlines()
         assert len(lines) == 3
 
-    @pytest.mark.skipif(is_ironpython, reason="Crash on Ironpython")
     def test_92_import_edb(self):
         assert self.aedtapp.import_edb(self.target_path)
 

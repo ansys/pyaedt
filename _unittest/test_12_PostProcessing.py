@@ -4,6 +4,7 @@ import sys
 
 # from _unittest.conftest import BasisTest
 from _unittest.conftest import config
+import pytest
 
 from pyaedt import Circuit
 from pyaedt import Icepak
@@ -11,7 +12,8 @@ from pyaedt import Maxwell2d
 from pyaedt import Q2d
 from pyaedt import Q3d
 from pyaedt import settings
-from pyaedt.generic.general_methods import is_ironpython
+
+# from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.plot import _parse_aedtplt
 from pyaedt.generic.plot import _parse_streamline
@@ -19,10 +21,10 @@ from pyaedt.generic.plot import _parse_streamline
 # Import required modules
 # Setup paths for module imports
 
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
+# try:
+#     import pytest
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest
 
 
 if config["desktopVersion"] > "2022.2":
@@ -210,10 +212,9 @@ class TestClass:
             context="3D",
             report_category="Far Fields",
         )
-        if not is_ironpython:
-            assert data.plot(is_polar=True)
-            assert data.plot_3d()
-            assert field_test.post.create_3d_plot(data)
+        assert data.plot(is_polar=True)
+        assert data.plot_3d()
+        assert field_test.post.create_3d_plot(data)
 
     def test_09_manipulate_report_D(self, field_test):
         variations = field_test.available_variations.nominal_w_values_dict
@@ -229,10 +230,9 @@ class TestClass:
             context=context,
             report_category="Far Fields",
         )
-        if not is_ironpython:
-            assert data.plot(is_polar=True)
-            assert data.plot_3d()
-            assert field_test.post.create_3d_plot(data)
+        assert data.plot(is_polar=True)
+        assert data.plot_3d()
+        assert field_test.post.create_3d_plot(data)
         assert data.primary_sweep == "Theta"
         assert len(data.data_magnitude("GainTotal")) > 0
         assert not data.data_magnitude("GainTotal2")
@@ -283,8 +283,7 @@ class TestClass:
             expression="RealizedGainTotal",
             domain={"Context": "3D", "SourceContext": "1:1"},
         )
-        if not is_ironpython:
-            assert data_farfield2.plot(math_formula="db20", is_polar=True)
+        assert data_farfield2.plot(math_formula="db20", is_polar=True)
 
     def test_09b_export_report_A(self, circuit_test):
         files = circuit_test.export_results()
@@ -385,22 +384,18 @@ class TestClass:
             context="Differential Pairs",
         )
         assert data1.primary_sweep == "Freq"
-        if not is_ironpython:
-            data1.plot(math_formula="db20")
+        data1.plot(math_formula="db20")
         data1.primary_sweep = "l1"
         assert data1.primary_sweep == "l1"
         assert len(data1.data_magnitude()) == 5
-        if is_ironpython:
-            assert not data1.plot("S(Diff1, Diff1)")
-        else:
-            assert data1.plot("S(Diff1, Diff1)")
-            assert data1.plot(math_formula="db20")
-            assert data1.plot(math_formula="db10")
-            assert data1.plot(math_formula="mag")
-            assert data1.plot(math_formula="re")
-            assert data1.plot(math_formula="im")
-            assert data1.plot(math_formula="phasedeg")
-            assert data1.plot(math_formula="phaserad")
+        assert data1.plot("S(Diff1, Diff1)")
+        assert data1.plot(math_formula="db20")
+        assert data1.plot(math_formula="db10")
+        assert data1.plot(math_formula="mag")
+        assert data1.plot(math_formula="re")
+        assert data1.plot(math_formula="im")
+        assert data1.plot(math_formula="phasedeg")
+        assert data1.plot(math_formula="phaserad")
 
         assert diff_test.create_touchstone_report(
             plot_name="Diff_plot",
@@ -410,10 +405,7 @@ class TestClass:
         )
 
     def test_51_get_efields(self, field_test):
-        if is_ironpython:
-            assert True
-        else:
-            assert field_test.post.get_efields_data(ff_setup="3D")
+        assert field_test.post.get_efields_data(ff_setup="3D")
 
     @pytest.mark.skipif(
         is_linux or sys.version_info < (3, 8), reason="plot_scene method is not supported in ironpython"
@@ -502,7 +494,6 @@ class TestClass:
         assert not q2dtest.post.reports_by_category.near_field()
         assert not q2dtest.post.reports_by_category.eigenmode()
 
-    @pytest.mark.skipif(is_ironpython, reason="Not supported in Ironpython")
     def test_59_test_parse_vector(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -515,7 +506,6 @@ class TestClass:
             os.path.join(local_path, "example_models", test_subfolder, "test_vector_no_solutions.aedtplt")
         )
 
-    @pytest.mark.skipif(is_ironpython, reason="Not supported in Ironpython")
     def test_60_test_parse_vector(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
         out = _parse_streamline(os.path.join(local_path, "example_models", test_subfolder, "test_streamline.fldplt"))
@@ -764,20 +754,19 @@ class TestClass:
             ignore_bits,
             plot_type,
         )
-        if not is_ironpython:
-            ignore_bits = 5
-            unit_interval = 0.1e-9
-            plot_type = "InitialWave"
-            data1 = ami_test.post.sample_ami_waveform(
-                setup_name,
-                probe_name,
-                source_name,
-                ami_test.available_variations.nominal,
-                unit_interval,
-                ignore_bits,
-                plot_type,
-            )
-            assert len(data1[0]) == 45
+        ignore_bits = 5
+        unit_interval = 0.1e-9
+        plot_type = "InitialWave"
+        data1 = ami_test.post.sample_ami_waveform(
+            setup_name,
+            probe_name,
+            source_name,
+            ami_test.available_variations.nominal,
+            unit_interval,
+            ignore_bits,
+            plot_type,
+        )
+        assert len(data1[0]) == 45
 
         settings.enable_pandas_output = False
         ignore_bits = 5

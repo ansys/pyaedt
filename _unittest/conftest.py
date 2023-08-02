@@ -25,6 +25,8 @@ import shutil
 import sys
 import tempfile
 
+import pytest
+
 from pyaedt.generic.settings import settings
 
 # import time
@@ -42,15 +44,16 @@ settings.desktop_launch_timeout = 180
 from pyaedt.aedt_logger import pyaedt_logger
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import inside_desktop
-from pyaedt.generic.general_methods import is_ironpython
+
+# from pyaedt.generic.general_methods import is_ironpython
 
 # from pyaedt.generic.general_methods import is_windows
 
 
-if not is_ironpython:
-    import pytest
-else:
-    import _unittest_ironpython.conf_unittest as pytest
+# if not is_ironpython:
+#     import pytest
+# else:
+#     import _unittest_ironpython.conf_unittest as pytest
 
 
 local_path = os.path.dirname(os.path.realpath(__file__))

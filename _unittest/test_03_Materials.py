@@ -4,17 +4,19 @@ import os
 # from _unittest.conftest import BasisTest
 # from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
+import pytest
 
 from pyaedt import Icepak
 from pyaedt import Maxwell3d
-from pyaedt import is_ironpython
+
+# from pyaedt import is_ironpython
 from pyaedt.modules.Material import MatProperties
 from pyaedt.modules.Material import SurfMatProperties
 
-try:
-    import pytest  # noqa: F401
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
+# try:
+#     import pytest  # noqa: F401
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 test_subfolder = "T03"
 
@@ -202,7 +204,6 @@ class TestClass:
         assert "al-extruded1" in self.aedtapp.materials.material_keys.keys()
         assert self.aedtapp.materials["al-extruded1"].thermal_conductivity.thermalmodifier
 
-    @pytest.mark.skipif(is_ironpython, reason="Requires Pandas Support")
     def test_08B_import_materials_from_excel(self):
         mats = self.aedtapp.materials.import_materials_from_excel(
             os.path.join(local_path, "example_models", test_subfolder, "mats.xlsx")

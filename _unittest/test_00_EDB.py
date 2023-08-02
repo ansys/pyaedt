@@ -4,6 +4,8 @@ import os
 # Import required modules
 import sys
 
+import pytest
+
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
 from pyaedt.edb_core.edb_data.edbvalue import EdbValue
@@ -14,19 +16,19 @@ from pyaedt.generic.general_methods import check_numeric_equivalence
 
 test_project_name = "ANSYS-HSD_V1"
 bom_example = "bom_example.csv"
+# from _unittest.conftest import is_ironpython
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
-from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
 from _unittest.conftest import settings
 
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SourceType
 
-try:
-    import pytest
-except ImportError:  # pragma: no cover
-    import _unittest_ironpython.conf_unittest as pytest
+# try:
+#     import pytest
+# except ImportError:  # pragma: no cover
+#     import _unittest_ironpython.conf_unittest as pytest
 
 test_subfolder = "TEDB"
 
@@ -94,7 +96,6 @@ class TestClass:
         self.target_path2 = target_path2
         self.target_path4 = target_path4
 
-    @pytest.mark.skipif(is_ironpython, reason="Method not supported anymore in Ironpython")
     def test_000_export_ipc2581(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1_cut.aedb")
         target_path = os.path.join(self.local_scratch.path, "ANSYS-HSD_V1_ipc.aedb")
@@ -227,9 +228,8 @@ class TestClass:
             padstack_instance = test_prop[padstack.id]
             assert padstack_instance.is_pin
             assert padstack_instance.position
-            if not is_ironpython:
-                assert padstack_instance.start_layer in padstack_instance.layer_range_names
-                assert padstack_instance.stop_layer in padstack_instance.layer_range_names
+            assert padstack_instance.start_layer in padstack_instance.layer_range_names
+            assert padstack_instance.stop_layer in padstack_instance.layer_range_names
             padstack_instance.position = [0.001, 0.002]
             assert padstack_instance.position == [0.001, 0.002]
             assert padstack_instance.parametrize_position()
@@ -414,12 +414,11 @@ class TestClass:
         assert "Vsource_" in self.edbapp.siwave.create_voltage_source_on_net("U1", "USB3_D_P", "U1", "GND", 3.3, 0)
         pins = self.edbapp.components.get_pin_from_component("U1")
         assert "VSource_" in self.edbapp.siwave.create_voltage_source_on_pin(pins[300], pins[10], 3.3, 0)
-        if not is_ironpython:
-            assert len(self.edbapp.sources) > 0
-            assert len(self.edbapp.probes) == 0
-            assert list(self.edbapp.sources.values())[0].magnitude == 3.3
-            list(self.edbapp.sources.values())[0].phase = 1
-            assert list(self.edbapp.sources.values())[0].phase == 1
+        assert len(self.edbapp.sources) > 0
+        assert len(self.edbapp.probes) == 0
+        assert list(self.edbapp.sources.values())[0].magnitude == 3.3
+        list(self.edbapp.sources.values())[0].phase = 1
+        assert list(self.edbapp.sources.values())[0].phase == 1
 
     def test_042_create_current_source(self):
         assert self.edbapp.siwave.create_current_source_on_net("U1", "USB3_D_N", "U1", "GND", 0.1, 0) != ""
@@ -702,26 +701,18 @@ class TestClass:
         spice_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC.mod")
         edbapp.components.instances["R8"].assign_spice_model(spice_path)
         edbapp.nets.nets
-        if is_ironpython:
-            assert not edbapp.cutout(
-                signal_list=["1V0"],
-                reference_list=["GND"],
-                extent_type="Bounding",
-                number_of_threads=4,
-            )
-        else:
-            assert edbapp.cutout(
-                signal_list=["1V0"],
-                reference_list=["GND"],
-                extent_type="Bounding",
-                number_of_threads=4,
-                extent_defeature=0.001,
-                preserve_components_with_model=True,
-            )
-            assert "A0_N" not in edbapp.nets.nets
-            assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND", order_by_area=True), list)
-            assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND", keep_only_main_net=True), list)
-            assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND", clean_disjoints_less_than=0.005), list)
+        assert edbapp.cutout(
+            signal_list=["1V0"],
+            reference_list=["GND"],
+            extent_type="Bounding",
+            number_of_threads=4,
+            extent_defeature=0.001,
+            preserve_components_with_model=True,
+        )
+        assert "A0_N" not in edbapp.nets.nets
+        assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND", order_by_area=True), list)
+        assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND", keep_only_main_net=True), list)
+        assert isinstance(edbapp.nets.find_and_fix_disjoint_nets("GND", clean_disjoints_less_than=0.005), list)
         edbapp.close()
 
     @pytest.mark.skipif(sys.version_info < (3, 8), reason="Method works in CPython only")
@@ -1019,15 +1010,14 @@ class TestClass:
         assert self.edbapp.components["C2"].is_enabled is True
 
     def test_088_create_symmetric_stackup(self):
-        if not is_ironpython:
-            app_edb = Edb(edbversion=desktop_version)
-            assert not app_edb.stackup.create_symmetric_stackup(9)
-            assert app_edb.stackup.create_symmetric_stackup(8)
-            app_edb.close()
+        app_edb = Edb(edbversion=desktop_version)
+        assert not app_edb.stackup.create_symmetric_stackup(9)
+        assert app_edb.stackup.create_symmetric_stackup(8)
+        app_edb.close()
 
-            app_edb = Edb(edbversion=desktop_version)
-            assert app_edb.stackup.create_symmetric_stackup(8, soldermask=False)
-            app_edb.close()
+        app_edb = Edb(edbversion=desktop_version)
+        assert app_edb.stackup.create_symmetric_stackup(8, soldermask=False)
+        app_edb.close()
 
     def test_089_create_rectangle(self):
         rect = self.edbapp.modeler.create_rectangle("1_Top", "SIG1", ["0", "0"], ["2mm", "3mm"])
@@ -1045,7 +1035,6 @@ class TestClass:
             representation_type="CenterWidthHeight",
         )
 
-    @pytest.mark.skipif(is_ironpython, reason="Failing Subtract")
     def test_089B_circle_boolean(self):
         poly = self.edbapp.modeler.create_polygon_from_points([[0, 0], [100, 0], [100, 100], [0, 100]], "1_Top")
         assert poly
@@ -1540,20 +1529,13 @@ class TestClass:
         sim_setup.mesh_sizefactor = 1.9
         assert not sim_setup.do_lambda_refinement
         edb.hfss.configure_hfss_analysis_setup(sim_setup)
-        if is_ironpython:
-            mesh_size_factor = (
-                list(edb.active_cell.SimulationSetups)[0]
-                .GetSimSetupInfo()
-                .SimulationSettings.InitialMeshSettings.MeshSizefactor
-            )
-        else:
-            mesh_size_factor = (
-                list(edb.active_cell.SimulationSetups)[0]
-                .GetSimSetupInfo()
-                .get_SimulationSettings()
-                .get_InitialMeshSettings()
-                .get_MeshSizefactor()
-            )
+        mesh_size_factor = (
+            list(edb.active_cell.SimulationSetups)[0]
+            .GetSimSetupInfo()
+            .get_SimulationSettings()
+            .get_InitialMeshSettings()
+            .get_MeshSizefactor()
+        )
         assert mesh_size_factor == 1.9
 
     def test_120_edb_create_port(self):
@@ -1734,7 +1716,6 @@ class TestClass:
         assert edbapp.stackup.add_layer("new_bottom", "1_Top", "add_at_elevation", "dielectric", elevation=0.0003)
         edbapp.close()
 
-    @pytest.mark.skipif(is_ironpython, reason="Requires Pandas")
     def test_125_stackup(self):
         edbapp = Edb(edbversion=desktop_version)
         import_method = edbapp.stackup.load
@@ -1754,7 +1735,6 @@ class TestClass:
 
         edbapp.close()
 
-    @pytest.mark.skipif(is_ironpython, reason="Requires Pandas")
     def test_125b_stackup(self):
         edbapp = Edb(edbversion=desktop_version)
         import_method = edbapp.stackup.import_stackup
@@ -1801,7 +1781,6 @@ class TestClass:
         assert layer.material == "copper"
         edbapp.close()
 
-    @pytest.mark.skipif(is_ironpython, reason="Requires Numpy")
     def test_126_comp_def(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
         target_path = os.path.join(self.local_scratch.path, "test_0126.aedb")

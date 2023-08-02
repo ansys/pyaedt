@@ -1,9 +1,11 @@
 # standard imports
 import math
 
+import pytest
+
+# from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import _to_boolean
 from pyaedt.generic.general_methods import _uname
-from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import isclose
 from pyaedt.generic.general_methods import time_fn
 from pyaedt.modeler.cad.elements3d import EdgePrimitive
@@ -12,10 +14,10 @@ from pyaedt.modeler.cad.elements3d import FacePrimitive
 # from _unittest.conftest import BasisTest
 
 
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
+# try:
+#     import pytest
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest
 
 
 @pytest.fixture(scope="class")
@@ -489,9 +491,8 @@ class TestClass:
                 for face in face_object:
                     assert (face.area - 105) < 0
 
-        if not is_ironpython:
-            with pytest.raises(ValueError):
-                self.aedtapp.modeler.object_list[0].faces_by_area(100, "<<")
+        with pytest.raises(ValueError):
+            self.aedtapp.modeler.object_list[0].faces_by_area(100, "<<")
 
     def test_25_edges_by_length(self):
         edges_equal = []
@@ -539,9 +540,8 @@ class TestClass:
                 for edge in edge_object:
                     assert (edge.length - 15) < 0
 
-        if not is_ironpython:
-            with pytest.raises(ValueError):
-                self.aedtapp.modeler.object_list[0].edges_by_length(10, "<<")
+        with pytest.raises(ValueError):
+            self.aedtapp.modeler.object_list[0].edges_by_length(10, "<<")
 
     def test_26_unclassified_object(self):
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
@@ -638,7 +638,6 @@ class TestClass:
                     subtract_child[child].props["Height"] = "24meter"
                     assert subtract_child[child].props["Height"] == "24meter"
 
-    @pytest.mark.skipif(is_ironpython, reason="requires pyvista")
     def test_29_test_nets(self):
         self.aedtapp.insert_design("nets")
         self.aedtapp.modeler.create_box([0, 0, 0], [5, 10, 10], matname="copper")

@@ -3,14 +3,16 @@ import os
 # from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+import pytest
 
 from pyaedt import Hfss3dLayout
-from pyaedt import is_ironpython
 
-try:
-    import pytest  # noqa: F401
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
+# from pyaedt import is_ironpython
+#
+# try:
+#     import pytest  # noqa: F401
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 config["NonGraphical"] = False
 test_subfolder = "T44"
@@ -27,7 +29,6 @@ def hfss3dl(add_app):
     return app
 
 
-@pytest.mark.skipif(is_ironpython, reason="Not supported by Ironpython")
 class TestClass:
     # def setup_class(self):
     #     BasisTest.my_setup(self)
@@ -47,22 +48,20 @@ class TestClass:
         self.local_scratch = local_scratch
 
     def test_01_get_touchstone_data(self):
-        if not is_ironpython:
-            assert isinstance(self.hfss3dl.get_touchstone_data("Setup1"), list)
-            ts_data = self.hfss3dl.get_touchstone_data("Setup1")[0]
-            assert ts_data.get_return_loss_index()
-            assert ts_data.get_insertion_loss_index_from_prefix("diff1", "diff2")
-            assert ts_data.get_next_xtalk_index()
-            assert ts_data.get_fext_xtalk_index_from_prefix("diff1", "diff2")
+        assert isinstance(self.hfss3dl.get_touchstone_data("Setup1"), list)
+        ts_data = self.hfss3dl.get_touchstone_data("Setup1")[0]
+        assert ts_data.get_return_loss_index()
+        assert ts_data.get_insertion_loss_index_from_prefix("diff1", "diff2")
+        assert ts_data.get_next_xtalk_index()
+        assert ts_data.get_fext_xtalk_index_from_prefix("diff1", "diff2")
 
     def test_02_read_ts_file(self):
-        if not is_ironpython:
-            from pyaedt.generic.touchstone_parser import TouchstoneData
+        from pyaedt.generic.touchstone_parser import TouchstoneData
 
-            ts1 = TouchstoneData(touchstone_file=os.path.join(test_T44_dir, "port_order_1234.s8p"))
-            assert ts1.get_mixed_mode_touchstone_data()
-            ts2 = TouchstoneData(touchstone_file=os.path.join(test_T44_dir, "port_order_1324.s8p"))
-            assert ts1.get_mixed_mode_touchstone_data(port_ordering="1324")
+        ts1 = TouchstoneData(touchstone_file=os.path.join(test_T44_dir, "port_order_1234.s8p"))
+        assert ts1.get_mixed_mode_touchstone_data()
+        ts2 = TouchstoneData(touchstone_file=os.path.join(test_T44_dir, "port_order_1324.s8p"))
+        assert ts1.get_mixed_mode_touchstone_data(port_ordering="1324")
 
-            assert ts1.plot_insertion_losses(plot=False)
-            assert ts1.get_worst_curve(curve_list=ts1.get_return_loss_index(), plot=False)
+        assert ts1.plot_insertion_losses(plot=False)
+        assert ts1.get_worst_curve(curve_list=ts1.get_return_loss_index(), plot=False)

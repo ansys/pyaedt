@@ -1,9 +1,12 @@
 # Setup paths for module imports
 # from _unittest.conftest import BasisTest
+
 from _unittest.conftest import config
+import pytest
 
 from pyaedt.application.Variables import decompose_variable_value
-from pyaedt.generic.general_methods import is_ironpython
+
+# from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.modeler.cad.Modeler import FaceCoordinateSystem
 from pyaedt.modeler.cad.Primitives import PolylineSegment
 
@@ -18,10 +21,10 @@ if config["desktopVersion"] > "2022.2":
 else:
     test_project_name = "Coax_HFSS_t02"
 
-if is_ironpython:
-    tol = 5e-4
-else:
-    tol = 1e-12
+# if is_ironpython:
+#     tol = 5e-4
+# else:
+tol = 1e-12
 
 
 @pytest.fixture(scope="class")
@@ -681,10 +684,9 @@ class TestClass:
         objects_in_bounding_box = self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
         assert len(objects_in_bounding_box) == 0
 
-        if not is_ironpython:
-            with pytest.raises(ValueError):
-                bounding_box = [100, 200, 100, -100, -300]
-                self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
+        with pytest.raises(ValueError):
+            bounding_box = [100, 200, 100, -100, -300]
+            self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
 
     def test_53_wrap_sheet(self):
         rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [2.5, 0, 10], [5, 15], "wrap")
@@ -868,7 +870,6 @@ class TestClass:
             ],
         )
 
-    @pytest.mark.skipif(is_ironpython, reason="pytest.raises not available")
     def test_59b_region_property_failing(self):
         self.aedtapp.modeler.create_air_region()
         assert not self.aedtapp.modeler.change_region_coordinate_system(region_cs="NoCS")

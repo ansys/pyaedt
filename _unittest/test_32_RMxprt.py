@@ -1,15 +1,17 @@
 import os
 
+import pytest
+
 from pyaedt import Rmxprt
 from pyaedt.generic.general_methods import is_linux
 
 # from _unittest.conftest import BasisTest
 
+# try:
+#     import pytest
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest
 
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
 test_project_name = "motor"
 
 

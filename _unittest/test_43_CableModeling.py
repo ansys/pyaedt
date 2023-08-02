@@ -3,15 +3,16 @@ import os
 # from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+import pytest
 
-from pyaedt import is_ironpython
+# from pyaedt import is_ironpython
 from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.modules.CableModeling import Cable
 
-try:
-    import pytest  # noqa: F401
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
+# try:
+#     import pytest  # noqa: F401
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest
 
 if config["desktopVersion"] > "2022.2":
     project_name = "cable_modeling_231"
@@ -749,7 +750,6 @@ class TestClass:
         self.dict_in["Source_prop"]["SourcesToRemove"] = "non_existing_source"
         assert not Cable(self.aedtapp, self.dict_in).remove_source()
 
-    @pytest.mark.skipif(is_ironpython, reason="Failing in Ironpython. Needs to be investigated.")
     def test_15_add_cable_harness(self):
         self.dict_in["Add_Cable"] = "False"
         self.dict_in["Update_Cable"] = "False"

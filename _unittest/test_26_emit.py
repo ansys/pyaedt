@@ -4,7 +4,7 @@ import sys
 
 # from _unittest.conftest import BasisTest
 from _unittest.conftest import config
-from _unittest.conftest import is_ironpython
+import pytest
 
 from pyaedt import Emit
 from pyaedt.emit_core.emit_constants import InterfererType
@@ -16,10 +16,13 @@ from pyaedt.modeler.circuits.PrimitivesEmit import EmitAntennaComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponents
 
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
+# from _unittest.conftest import is_ironpython
+
+
+# try:
+#     import pytest
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest
 
 test_subfolder = "T26"
 
@@ -66,9 +69,7 @@ class TestClass:
                 assert str(type(self.aedtapp._emit_api)) == "<class 'EmitApiPython311.EmitApi'>"
                 assert self.aedtapp.results is not None
 
-    @pytest.mark.skipif(
-        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2021.2"
-    )
+    @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2021.2")
     def test_create_components(self, add_app):
         self.aedtapp = add_app(application=Emit)
         radio = self.aedtapp.modeler.components.create_component("New Radio", "TestRadio")
@@ -141,9 +142,7 @@ class TestClass:
         assert terminator.name == "TestTerminator"
         assert isinstance(terminator, EmitComponent)
 
-    @pytest.mark.skipif(
-        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2021.2"
-    )
+    @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2021.2")
     def test_connect_components(self, add_app):
         self.aedtapp = add_app(application=Emit)
         radio = self.aedtapp.modeler.components.create_component("New Radio")
@@ -171,9 +170,7 @@ class TestClass:
         assert connected_comp == radio3.name
         assert connected_port == rad3_port
 
-    @pytest.mark.skipif(
-        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2022 R2."
-    )
+    @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2022 R2.")
     def test_radio_component(self, add_app):
         self.aedtapp = add_app(application=Emit)
         radio = self.aedtapp.modeler.components.create_component("New Radio")
@@ -233,9 +230,7 @@ class TestClass:
             band_power = radio.band_tx_power(band, "kW")
             assert band_power == 0.01
 
-    @pytest.mark.skipif(
-        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2022 R2."
-    )
+    @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2022 R2.")
     def test_emit_power_conversion(self):
         # Test power unit conversions (dBm to user_units)
         powers = [10, 20, 30, 40, 50]
@@ -284,9 +279,7 @@ class TestClass:
         bad_units = consts.unit_converter(power, "Power", "w", "dBm")
         assert bad_units == power
 
-    @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions earlier than 2023 R2."
-    )
+    @pytest.mark.skipif(config["desktopVersion"] <= "2023.1", reason="Skipped on versions earlier than 2023 R2.")
     def test_units_getters(self, add_app):
         self.aedtapp = add_app(application=Emit)
 
@@ -333,9 +326,7 @@ class TestClass:
         valid = self.aedtapp.set_units(unit_system, units)
         assert valid is False
 
-    @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions earlier than 2023 R2."
-    )
+    @pytest.mark.skipif(config["desktopVersion"] <= "2023.1", reason="Skipped on versions earlier than 2023 R2.")
     def test_antenna_component(self, add_app):
         self.aedtapp = add_app(application=Emit)
         antenna = self.aedtapp.modeler.components.create_component("Antenna")
@@ -350,7 +341,7 @@ class TestClass:
         assert position == (0.0, 0.0, 0.0)
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1" or is_ironpython,
+        config["desktopVersion"] <= "2023.1",
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_revision_generation(self, add_app):
@@ -425,7 +416,7 @@ class TestClass:
         assert rev6.name == "Revision 16"
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1" or is_ironpython,
+        config["desktopVersion"] <= "2023.1",
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_manual_revision_access_test_getters(self, add_app):
@@ -497,7 +488,7 @@ class TestClass:
         assert len(rx_frequencies) == 79
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1" or is_ironpython,
+        config["desktopVersion"] <= "2023.1",
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_radio_band_getters(self, add_app):
@@ -603,9 +594,7 @@ class TestClass:
         all_ix = rev2.get_interferer_names(InterfererType.TRANSMITTERS_AND_EMITTERS)
         assert all_ix == ["Radio", "Bluetooth Low Energy (LE)", "WiFi - 802.11-2012", "WiFi 6", "USB_3.x"]
 
-    @pytest.mark.skipif(
-        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2021.2"
-    )
+    @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2021.2")
     def test_sampling_getters(self, add_app):
         self.aedtapp = add_app(application=Emit)
         rad, ant = self.aedtapp.modeler.components.create_radio_antenna("New Radio")
@@ -659,9 +648,7 @@ class TestClass:
         assert sampling.props["SpecifyPercentage"] == "false"
         assert sampling.props["NumberChannels"] == "1000"
 
-    @pytest.mark.skipif(
-        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2021.2"
-    )
+    @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2021.2")
     def test_radio_getters(self, add_app):
         self.aedtapp = add_app(application=Emit)
         rad, ant = self.aedtapp.modeler.components.create_radio_antenna("New Radio")
@@ -680,7 +667,7 @@ class TestClass:
         assert emitter.is_emitter()
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1" or is_ironpython,
+        config["desktopVersion"] <= "2023.1",
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_static_type_generation(self):
@@ -707,9 +694,7 @@ class TestClass:
         assert str(type(ResultType.DESENSE)) == "<class '{}.result_type'>".format(py_version)
         assert str(type(ResultType.POWER_AT_RX)) == "<class '{}.result_type'>".format(py_version)
 
-    @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions earlier than 2023.2"
-    )
+    @pytest.mark.skipif(config["desktopVersion"] <= "2023.1", reason="Skipped on versions earlier than 2023.2")
     def test_version(self, add_app):
         self.aedtapp = add_app(application=Emit)
         less_info = self.aedtapp.version(False)
@@ -720,7 +705,7 @@ class TestClass:
             assert len(more_info) > len(less_info)
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1" or is_ironpython,
+        config["desktopVersion"] <= "2023.1",
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_analyze_manually(self, add_app):
@@ -803,7 +788,7 @@ class TestClass:
             assert worst_domain.interferer_names[0] == rad2.name
 
     @pytest.mark.skipif(
-        config["desktopVersion"] < "2024.1" or is_ironpython,
+        config["desktopVersion"] < "2024.1",
         reason="Skipped on versions earlier than 2024.1",
     )
     def test_optimal_n_to_1_feature(self, add_app):
@@ -863,7 +848,7 @@ class TestClass:
         assert instance.get_value(ResultType.EMI) == 76.02
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1" or is_ironpython,
+        config["desktopVersion"] <= "2023.1",
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_availability_1_to_1(self, add_app):
@@ -939,7 +924,7 @@ class TestClass:
         assert len(radiosRX) == 2
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1" or is_ironpython,
+        config["desktopVersion"] <= "2023.1",
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_interference_scripts_no_filter(self, add_app):
@@ -996,7 +981,7 @@ class TestClass:
         assert protection_power_matrix == expected_protection_power
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1" or is_ironpython,
+        config["desktopVersion"] <= "2023.1",
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_interference_filtering(self, add_app):
@@ -1087,9 +1072,7 @@ class TestClass:
 
     """
 
-    @pytest.mark.skipif(
-        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2021.2"
-    )
+    @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2021.2")
     def test_couplings(self, add_app):
         self.aedtapp = add_app(project_name="Cell Phone RFI Desense", application=Emit, subfolder=test_subfolder)
 
