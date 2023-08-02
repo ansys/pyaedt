@@ -26,31 +26,10 @@ jobs:
       - name: 'Run Unit Tests in Ironpython'
         timeout-minutes: 60
         run: |
-          Remove-Item d:\Temp\* -Recurse -Force
-          Set-Item -Path env:ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3 -Value "1"
-          Set-Item -Path env:ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE -Value "1"
-          Set-Item -Path env:ANSYSEM_FEATURE_SF159726_SCRIPTOBJECT_ENABLE -Value "1"
-          Set-Item -Path env:ANSYSEM_FEATURE_SF222134_CABLE_MODELING_ENHANCEMENTS_ENABLE -Value "1"
-          Set-Item -Path env:ANSYSEM_FEATURE_F395486_RIGID_FLEX_BENDING_ENABLE -Value "1"
-          Set-Item -Path env:ANSYSEM_FEATURE_S432616_LAYOUT_COMPONENT_IN_3D_ENABLE -Value "1"
-          $processA = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd --test-filter test_0*.py' -PassThru
-          $processB = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd --test-filter test_1*.py' -PassThru
-          $processC = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd --test-filter test_2*.py' -PassThru
-          $processD = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd --test-filter test_3*.py' -PassThru
-          $processE = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd --test-filter test_4*.py' -PassThru
-          $processF = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd --test-filter test_9*.py' -PassThru
-
-          $processC.WaitForExit()
-          $processD.WaitForExit()
-          $processE.WaitForExit()
+          $processA = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd' -PassThru
           $processA.WaitForExit()
-          $processB.WaitForExit()
-          $processF.WaitForExit()
-
           get-content .\_unittest_ironpython\runner_unittest.log
-
-          $test_errors_failures = Select-String -Path .\_unittest_ironpython\runner_unittest.log -Pattern "TextTestResult errors="
-
+          $test_errors_failures = Select-String -Path .\_unittest_ironpython\pyaedt_unit_test_ironpython.log -Pattern "TextTestResult errors="
           if ($test_errors_failures -ne $null)
           {
           exit 1
