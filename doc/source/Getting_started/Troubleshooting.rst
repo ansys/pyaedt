@@ -140,7 +140,7 @@ This may be due to:
  - License
  - Scheduler (for example if the gRPC server was started from LSF or Slurm)
 
-In case of issues due to use of a proxy server, you may set the following environment variable to
+For issues related to use of a proxy server, you may set the following environment variable to
 disable the proxy server for the *localhost*.
 
 .. code:: console
