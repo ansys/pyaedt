@@ -34,6 +34,7 @@ The following class is the container of data management for nets, extended nets 
    :nosignatures:
 
    EDBNetsData
+   EDBNetClassData
    EDBExtendedNetData
    EDBDifferentialPairData
 

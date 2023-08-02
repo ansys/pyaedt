@@ -218,7 +218,7 @@ class EDBExtendedNetData(ExtendedNetDotNet):
     def components(self):
         """Dictionary of components."""
         comps = {}
-        for name, obj in self.nets.items():
+        for _, obj in self.nets.items():
             comps.update(obj.components)
         return comps
 

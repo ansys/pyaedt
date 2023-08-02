@@ -180,6 +180,6 @@ class EdbDifferentialPair(EdbCommon, object):
             return False
 
         diff_pair = EDBDifferentialPairData(self._pedb)
-        diff_pair.api_create(name, net_p, net_n)
+        diff_pair.api_create(name)._api_set_differential_pair(net_p, net_n)
 
         return self.items[name]

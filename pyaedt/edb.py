@@ -263,8 +263,6 @@ class Edb(Database):
         self._siwave = None
         self._hfss = None
         self._nets = None
-        self._extended_nets = None
-        self._differential_pairs = None
         self._setups = {}
         self._layout_instance = None
         self._variables = None
@@ -281,8 +279,6 @@ class Edb(Database):
         self._siwave = EdbSiwave(self)
         self._hfss = EdbHfss(self)
         self._nets = EdbNets(self)
-        self._extended_nets = EdbExtendedNets(self)
-        self._differential_pairs = EdbDifferentialPair(self)
         self._core_primitives = EdbLayout(self)
         self._stackup2 = self._stackup
         self._materials = Materials(self)
@@ -915,9 +911,8 @@ class Edb(Database):
         >>> edbapp.extended_nets
         """
 
-        if not self._extended_nets and self.active_db:
-            self._extended_nets = EdbExtendedNets(self)
-        return self._extended_nets
+        if self.active_db:
+            return EdbExtendedNets(self)
 
     @property
     def differential_pairs(self):
@@ -932,9 +927,8 @@ class Edb(Database):
         >>> edbapp = pyaedt.Edb("myproject.aedb")
         >>> edbapp.differential_pairs
         """
-        if not self._differential_pairs and self.active_db:
-            self._differential_pairs = EdbDifferentialPair(self)
-        return self._differential_pairs
+        if self.active_db:
+            return EdbDifferentialPair(self)
 
     @property
     def core_primitives(self):  # pragma: no cover

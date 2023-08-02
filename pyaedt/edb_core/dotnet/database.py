@@ -326,13 +326,16 @@ class DifferentialPairDotNet(NetClassDotNet):
         """Edb Dotnet Api Database `Edb.DifferentialPair.FindByName`."""
         return DifferentialPairDotNet(self._app, self.cell_diff_pair.FindByName(layout, net))
 
-    def api_create(self, name, net_name_p, net_name_n):
+    def api_create(self, name):
         """Edb Dotnet Api Database `Edb.DifferentialPair.Create`."""
+        return DifferentialPairDotNet(
+            self._app, self.cell_diff_pair.Create(self._app.active_layout, name)
+        )
+
+    def _api_set_differential_pair(self, net_name_p, net_name_n):
         edb_api_net_p = self.edb_api.Cell.Net.FindByName(self._app.active_layout, net_name_p)
         edb_api_net_n = self.edb_api.Cell.Net.FindByName(self._app.active_layout, net_name_n)
-        return DifferentialPairDotNet(
-            self._app, self.cell_diff_pair.Create(self._app.active_layout, name, edb_api_net_p, edb_api_net_n)
-        )
+        self.api_object.SetDifferentialPair(edb_api_net_p, edb_api_net_n)
 
     def delete(self):
         """Edb Dotnet Api Database `Edb.DifferentialPair.Delete`."""
