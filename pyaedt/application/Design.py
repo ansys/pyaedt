@@ -240,19 +240,25 @@ class Design(AedtObjects):
             self.design_solutions = DesignSolution(None, design_type, self._aedt_version)
         self.design_solutions._solution_type = solution_type
         self._temp_solution_type = solution_type
-        self.oproject = project_name
-        self.odesign = design_name
-        AedtObjects.__init__(self, is_inherithed=True)
-        self.logger.info("Aedt Objects initialized")
+        try:
+            self.oproject = project_name
+            self.odesign = design_name
+            AedtObjects.__init__(self, is_inherithed=True)
+            self.logger.info("Aedt Objects correctly read")
 
-        if t:
-            t.join()
-
-        self._variable_manager = VariableManager(self)
-        self._project_datasets = []
-        self._design_datasets = []
-        # _mtime = self.project_time_stamp
-        self.logger.info("Variable Manager initialized")
+            if t:
+                t.join()
+            self._variable_manager = VariableManager(self)
+            self._project_datasets = []
+            self._design_datasets = []
+            # _mtime = self.project_time_stamp
+        except:
+            self.logger.error("Failed to initialize Project or design.")
+            try:
+                self.release_desktop(self.desktop_class.launched_by_pyaedt, self.desktop_class.launched_by_pyaedt)
+            except:
+                self.logger.error("Failed to release AEDT")
+            raise Exception("Failed to initialize Design")
 
     @property
     def desktop_class(self):

@@ -34,8 +34,10 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
     """
 
     def __init__(self, application):
+        application.logger.reset_timer()
         GeometryModeler.__init__(self, application, is3d=True)
         Primitives3D.__init__(self)
+        application.info_timer("Modeler3D class has been initialized!")
 
     def __get__(self, instance, owner):
         self._app = instance

@@ -123,6 +123,8 @@ class AedtLogger(object):
     """
 
     def __init__(self, level=logging.DEBUG, filename=None, to_stdout=False):
+        self._std_out_handler = None
+        self._files_handlers = []
         self.level = level
         self.filename = filename or settings.logger_file_path
         settings.logger_file_path = self.filename
@@ -132,13 +134,11 @@ class AedtLogger(object):
             self._global.addHandler(logging.NullHandler())
             return
 
-        self._files_handlers = []
         self._projects = {}
 
         self._global.setLevel(level)
         self._global.addFilter(AppFilter())
 
-        self._std_out_handler = None
         if settings.formatter:
             self.formatter = settings.formatter
         else:
@@ -587,16 +587,18 @@ class AedtLogger(object):
     def disable_desktop_log(self):
         """Disable the log in AEDT."""
         self._log_on_desktop = False
+        self.info("Log on Desktop Message Manager is disabled")
 
     def enable_desktop_log(self):
         """Enable the log in AEDT."""
         self._log_on_desktop = True
+        self.info("Log on Desktop Message Manager is enabled")
 
     def disable_stdout_log(self):
         """Disable printing log messages to stdout."""
         self._log_on_screen = False
         self._global.removeHandler(self._std_out_handler)
-        self.info("StdOut has been disabled")
+        self.info("StdOut is disabled")
 
     def enable_stdout_log(self):
         """Enable printing log messages to stdout."""
@@ -609,7 +611,7 @@ class AedtLogger(object):
             self._std_out_handler.setFormatter(_logger_stdout_formatter)
             self._global.addHandler(self._std_out_handler)
         self._global.addHandler(self._std_out_handler)
-        self.info("StdOut has been enabled")
+        self.info("StdOut is enabled")
 
     def disable_log_on_file(self):
         """Disable writing log messages to an output file."""
@@ -617,14 +619,14 @@ class AedtLogger(object):
         for _file_handler in self._files_handlers:
             _file_handler.close()
             self._global.removeHandler(_file_handler)
-        self.info("Log on file has been disabled")
+        self.info("Log on file is disabled")
 
     def enable_log_on_file(self):
         """Enable writing log messages to an output file."""
         self._log_on_file = True
         for _file_handler in self._files_handlers:
             self._global.addHandler(_file_handler)
-        self.info("Log on file has been enabled")
+        self.info("Log on file is enabled")
 
     def info(self, msg, *args, **kwargs):
         """Write an info message to the global logger."""

@@ -330,6 +330,7 @@ class Mesh(object):
     """
 
     def __init__(self, app):
+        app.logger.reset_timer()
         self._app = app
         self._odesign = self._app.odesign
         self.modeler = self._app.modeler
@@ -337,6 +338,7 @@ class Mesh(object):
         self.id = 0
         self._meshoperations = None
         self._globalmesh = None
+        app.logger.info_timer("Mesh class has been initialized!")
 
     @pyaedt_function_handler()
     def __getitem__(self, part_id):

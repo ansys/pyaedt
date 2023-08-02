@@ -191,14 +191,14 @@ class Edb(Database):
             self.create_edb()
             if settings.enable_local_log_file and self.log_name:
                 self._logger = self._global_logger.add_file_logger(self.log_name, "Edb")
-            self.logger.info("EDB %s was created correctly.", self.edbpath)
+            self.logger.info("EDB %s created correctly.", self.edbpath)
         elif ".aedb" in edbpath:
             self.edbpath = edbpath
             if settings.enable_local_log_file and self.log_name:
                 self._logger = self._global_logger.add_file_logger(self.log_name, "Edb")
             self.open_edb()
         if self.active_cell:
-            self.logger.info("EDB was initialized.")
+            self.logger.info("EDB initialized.")
         else:
             self.logger.info("Failed to initialize DLLs.")
 
@@ -280,8 +280,6 @@ class Edb(Database):
         self._core_primitives = EdbLayout(self)
         self._stackup2 = self._stackup
         self._materials = Materials(self)
-
-        self.logger.info("Objects Initialized")
 
     @property
     def cell_names(self):
