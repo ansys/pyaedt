@@ -11,7 +11,7 @@ Sometimes companies do not allow installation of a Python interpreter.
 In this case, you can use the Python interpreter available in the AEDT installation.
 
 .. note::
-Python 3.7 is available in AEDT 2023 R1 and earlier. Python 3.10 is available in ASEDT 2023 R2.
+Python 3.7 is available in AEDT 2023 R1 and earlier. Python 3.10 is available in AEDT 2023 R2.
 
 Here is the path to the Python 3.7 interpreter for the 2023 R1 installation:
 
