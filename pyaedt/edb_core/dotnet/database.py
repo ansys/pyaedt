@@ -286,6 +286,16 @@ class ExtendedNetDotNet(NetClassDotNet):
             return self.api_object.IsNull()
 
     def add_net(self, name):
+        """Add a new net.
+        Parameters
+        ----------
+        name : str
+            The name of the net to be added.
+
+        Returns
+        -------
+        object
+        """
         if self.api_object:
             edb_api_net = self.edb_api.Cell.Net.FindByName(self._app.active_layout, name)
             return self.api_object.AddNet(edb_api_net)
@@ -716,6 +726,15 @@ class EdbDotNet(object):
         self.simsetupdata = self.simSetup.Ansoft.SimSetupData.Data
 
     @property
+    def student_version(self):
+        """Set the student version flag."""
+        return self._student_version
+
+    @student_version.setter
+    def student_version(self, value):
+        self._student_version = value
+
+    @property
     def logger(self):
         """Logger for EDB.
 
@@ -751,7 +770,7 @@ class Database(EdbDotNet):
 
     def __init__(self, edbversion, student_version=False):
         """Initialize a new Database."""
-        EdbDotNet.__init__(self, edbversion, student_version)
+        EdbDotNet.__init__(self, edbversion=edbversion, student_version=student_version)
         self._db = None
 
     @property
