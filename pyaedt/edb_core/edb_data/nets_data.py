@@ -246,7 +246,7 @@ class EDBExtendedNetData(ExtendedNetDotNet):
 
     @pyaedt_function_handler
     def add_nets(self, net_names):
-        # type: (str)->bool
+        # type: (list)->bool
         """Add nets from a list of names.
 
         Parameters
