@@ -31,8 +31,8 @@ Error installing PyAEDT using pip
    installed. The use of a `virtual environment <https://docs.python.org/3/library/venv.html>`_ helps
    mitigate this issue by placing the Python interpreter and dependencies in a location that is owned
    by the user.
-3. **Firewall** Some corporate firewalls may block pip. If you face this issue you'll have to work with your IT
-   administrator to enable pip. The proxy server settings (described above) allow you to explicitly define
+- **Firewall**: Some corporate firewalls may block pip. If you face this issue, you'll have to work with your IT
+   administrator to enable pip. The proxy server settings (described earlier) allow you to explicitly define
    the ports used by pip.
 
 If downloads from `pypi <https://pypi.org/>`_ are not allowed, you may use a
