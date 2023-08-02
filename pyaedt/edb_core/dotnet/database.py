@@ -359,11 +359,13 @@ class DifferentialPairDotNet(NetClassDotNet):
 
     @property
     def api_positive_net(self):
+        """Edb Api Positive net object."""
         if self.api_object:
             return self.api_object.GetPositiveNet()
 
     @property
     def api_negative_net(self):
+        """Edb Api Negative net object."""
         if self.api_object:
             return self.api_object.GetNegativeNet()
 

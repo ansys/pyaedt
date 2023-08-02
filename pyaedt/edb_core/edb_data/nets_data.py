@@ -171,6 +171,7 @@ class EDBExtendedNetData(ExtendedNetDotNet):
 
     @property
     def components(self):
+        """Dictionary of components."""
         comps = {}
         for name, obj in self.nets.items():
             comps.update(obj.components)
@@ -178,12 +179,14 @@ class EDBExtendedNetData(ExtendedNetDotNet):
 
     @property
     def rlc(self):
+        """Dictionary of rlc components."""
         return {
             name: comp for name, comp in self.components.items() if comp.type in ["Inductor", "Resistor", "Capacitor"]
         }
 
     @property
     def serial_rlc(self):
+        """Dictionary of series components."""
         comps_common = {}
         nets = self.nets
         for net in nets:
@@ -235,8 +238,12 @@ class EDBDifferentialPairData(DifferentialPairDotNet):
 
     @property
     def positive_net(self):
+        # type: ()->EDBNetsData
+        """Positive Net."""
         return EDBNetsData(self.api_positive_net, self._app)
 
     @property
     def negative_net(self):
+        # type: ()->EDBNetsData
+        """Negative Net."""
         return EDBNetsData(self.api_negative_net, self._app)
