@@ -149,7 +149,7 @@ disable the proxy server for the *localhost*.
 
 Run your PyAEDT script.
 
-If it still fails, the proxy server can be disabled:
+If it still fails, you can disable the proxy server:
 
 .. code:: console
 
