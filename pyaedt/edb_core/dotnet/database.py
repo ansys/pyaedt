@@ -295,6 +295,7 @@ class ExtendedNetDotNet(NetClassDotNet):
 
     def add_net(self, name):
         """Add a new net.
+
         Parameters
         ----------
         name : str
