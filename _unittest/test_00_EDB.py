@@ -242,6 +242,8 @@ class TestClass(BasisTest, object):
         assert diff_pair.positive_net.name == "PCIe_Gen4_RX1_P"
         assert diff_pair.negative_net.name == "PCIe_Gen4_RX1_N"
 
+        assert self.edbapp.net_classes.items
+
     def test_011_assign_rlc(self):
         assert self.edbapp.components.set_component_rlc("C1", res_value=1e-3, cap_value="10e-6", isparallel=False)
         assert self.edbapp.components.set_component_rlc("L10", res_value=1e-3, ind_value="10e-6", isparallel=True)

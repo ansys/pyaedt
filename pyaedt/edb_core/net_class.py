@@ -4,6 +4,7 @@ from typing import Union
 
 from pyaedt.edb_core.edb_data.nets_data import EDBDifferentialPairData
 from pyaedt.edb_core.edb_data.nets_data import EDBExtendedNetData
+from pyaedt.edb_core.edb_data.nets_data import EDBNetClassData
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -26,17 +27,6 @@ class EdbCommon:
         """EDB logger."""
         return self._pedb.logger
 
-
-class EdbExtendedNets(EdbCommon, object):
-    """Manages EDB methods for managing nets accessible from the ``Edb.extended_nets`` property.
-
-    Examples
-    --------
-    >>> from pyaedt import Edb
-    >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
-    >>> edb_nets = edbapp.extended_nets
-    """
-
     @pyaedt_function_handler()
     def __getitem__(self, name):
         """Get  a net from the EDB project.
@@ -51,16 +41,55 @@ class EdbExtendedNets(EdbCommon, object):
         :class:` :class:`pyaedt.edb_core.edb_data.nets_data.EDBExtendedNetsData`
 
         """
-        if name in self.extended_nets:
-            return self.extended_nets[name]
+        if name in self.items:
+            return self.items[name]
         self._pedb.logger.error("Component or definition not found.")
         return
+
+class EdbNetClasses(EdbCommon, object):
+    """Manages EDB methods for managing nets accessible from the ``Edb.net_classes`` property.
+
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
+    >>> edb_nets = edbapp.net_classes
+    """
 
     def __init__(self, p_edb):
         super().__init__(p_edb)
 
     @property
-    def extended_nets(self):
+    def items(self):
+        """Extended nets.
+
+        Returns
+        -------
+        dict[str, :class:`pyaedt.edb_core.edb_data.nets_data.EDBDifferentialPairData`]
+            Dictionary of extended nets.
+        """
+        net_classes = {}
+        for net_class in self._layout.net_classes:
+            net_classes[net_class.GetName()] = EDBNetClassData(self._pedb, net_class)
+        return net_classes
+
+
+class EdbExtendedNets(EdbCommon, object):
+    """Manages EDB methods for managing nets accessible from the ``Edb.extended_nets`` property.
+
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
+    >>> edb_nets = edbapp.extended_nets
+    """
+
+
+    def __init__(self, p_edb):
+        super().__init__(p_edb)
+
+    @property
+    def items(self):
         """Extended nets.
 
         Returns
@@ -88,7 +117,7 @@ class EdbExtendedNets(EdbCommon, object):
         -------
         :class:` :class:`pyaedt.edb_core.edb_data.nets_data.EDBExtendedNetsData`
         """
-        if name in self.extended_nets:
+        if name in self.items:
             self._pedb.logger.error("{} already exists.".format(name))
             return False
 
@@ -99,7 +128,7 @@ class EdbExtendedNets(EdbCommon, object):
         for i in net:
             api_extended_net.add_net(i)
 
-        return self.extended_nets[name]
+        return self.items[name]
 
 
 class EdbDifferentialPair(EdbCommon, object):
@@ -112,30 +141,11 @@ class EdbDifferentialPair(EdbCommon, object):
     >>> edb_nets = edbapp.differential_pairs
     """
 
-    @pyaedt_function_handler()
-    def __getitem__(self, name):
-        """Get  a net from the Edb project.
-
-        Parameters
-        ----------
-        name : str, int
-            Name or ID of the net.
-
-        Returns
-        -------
-        :class:` :class:`pyaedt.edb_core.edb_data.nets_data.EDBDifferentialPairData`
-
-        """
-        if name in self.differential_pairs:
-            return self.differential_pairs[name]
-        self._pedb.logger.error("Component or definition not found.")
-        return
-
     def __init__(self, p_edb):
         super().__init__(p_edb)
 
     @property
-    def differential_pairs(self):
+    def items(self):
         """Extended nets.
 
         Returns
@@ -165,11 +175,11 @@ class EdbDifferentialPair(EdbCommon, object):
         -------
         :class:` :class:`pyaedt.edb_core.edb_data.nets_data.EDBDifferentialPairData`
         """
-        if name in self.differential_pairs:
+        if name in self.items:
             self._pedb.logger.error("{} already exists.".format(name))
             return False
 
         diff_pair = EDBDifferentialPairData(self._pedb)
         diff_pair.api_create(name, net_p, net_n)
 
-        return self.differential_pairs[name]
+        return self.items[name]

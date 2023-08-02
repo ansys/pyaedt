@@ -37,6 +37,7 @@ from pyaedt.edb_core.hfss import EdbHfss
 from pyaedt.edb_core.ipc2581.ipc2581 import Ipc2581
 from pyaedt.edb_core.layout import EdbLayout
 from pyaedt.edb_core.materials import Materials
+from pyaedt.edb_core.net_class import EdbNetClasses
 from pyaedt.edb_core.net_class import EdbDifferentialPair
 from pyaedt.edb_core.net_class import EdbExtendedNets
 from pyaedt.edb_core.nets import EdbNets
@@ -884,8 +885,25 @@ class Edb(Database):
         return self._nets
 
     @property
+    def net_classes(self):
+        """Get all net classes.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.nets.EdbNetClasses`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> edbapp.net_classes
+        """
+
+        if self.active_db:
+           return EdbNetClasses(self)
+
+    @property
     def extended_nets(self):
-        """Core nets.
+        """Get all extended nets.
 
         Returns
         -------
@@ -903,7 +921,7 @@ class Edb(Database):
 
     @property
     def differential_pairs(self):
-        """Core nets.
+        """Get all differential pairs.
 
         Returns
         -------

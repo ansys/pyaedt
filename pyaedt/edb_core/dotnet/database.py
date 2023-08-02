@@ -235,27 +235,29 @@ class NetDotNet:
 class NetClassDotNet:
     """Net Class."""
 
-    def __init__(self, app):
+    def __init__(self, app, api_object=None):
         self.cell_net_class = app._edb.Cell.NetClass
-
+        self.api_object = api_object
         self.edb_api = app._edb
         self._app = app
-        self.api_object = None
 
     @property
     def api_nets(self):
         """Return Edb Nets object dictionary."""
         return {i.GetName(): i for i in list(self.api_object.Nets)}
 
+    def api_create(self, name):
+        """Edb Dotnet Api Database `Edb.NetClass.Create`."""
+        return ExtendedNetDotNet(self._app, self.cell_net_class.Create(self._app.active_layout, name))
+
 
 class ExtendedNetDotNet(NetClassDotNet):
     """Extended net class."""
 
     def __init__(self, app, api_object=None):
-        super().__init__(app)
+        super().__init__(app, api_object)
         self.cell_extended_net = app._edb.Cell.ExtendedNet
 
-        self.api_object = api_object
 
     @property
     def api_class(self):  # pragma: no cover
@@ -313,10 +315,8 @@ class DifferentialPairDotNet(NetClassDotNet):
     """Differential Pairs."""
 
     def __init__(self, app, api_object=None):
-        super().__init__(app)
+        super().__init__(app, api_object)
         self.cell_diff_pair = app._edb.Cell.DifferentialPair
-
-        self.api_object = api_object
 
     @property
     def api_class(self):  # pragma: no cover
