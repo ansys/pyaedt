@@ -195,5 +195,5 @@ gRPC calls on the client where the Python script is to be run.
     export GRPC_TRACE=all
 
 Now run the PyAEDT script, (making sure it connects to the same port as the gRPC server - 50051).
-Capture the output in a file *client.txt* and send all the logs
+Capture the output in a file. For example *client.txt*. Then send all the logs
 to `Ansys Support <https://www.ansys.com/it-solutions/contacting-technical-support>`_.
