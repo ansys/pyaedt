@@ -99,7 +99,7 @@ Run the following command to start AEDT as a gRPC server:
 
    path\to\AnsysEM\v231\Win64\ansysedt.exe -grpcsrv 50001
 
-*Linux:*
+**On Linux:**
 
 .. code:: console
 
