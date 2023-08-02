@@ -42,7 +42,6 @@ class EdbCommon:
         if name in self.items:
             return self.items[name]
         self._pedb.logger.error("Component or definition not found.")
-        return
 
 
 class EdbNetClasses(EdbCommon, object):
@@ -71,6 +70,35 @@ class EdbNetClasses(EdbCommon, object):
         for net_class in self._layout.net_classes:
             net_classes[net_class.GetName()] = EDBNetClassData(self._pedb, net_class)
         return net_classes
+
+    @pyaedt_function_handler
+    def create(self, name, net):
+        # type: (str, str|list)->EDBNetClassData
+        """Create a new net class.
+
+        Parameters
+        ----------
+        name : str
+            Name of the net class.
+        net : str, list
+           Name of the nets to be added into this net class.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.nets_data.EDBNetClassData`
+        """
+        if name in self.items:
+            self._pedb.logger.error("{} already exists.".format(name))
+            return False
+
+        temp = EDBNetClassData(self._pedb)
+        api_obj = temp.api_create(name)
+        if isinstance(net, str):
+            net = [net]
+        for i in net:
+            api_obj.add_net(i)
+
+        return self.items[name]
 
 
 class EdbExtendedNets(EdbCommon, object):

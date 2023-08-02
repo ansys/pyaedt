@@ -934,7 +934,6 @@ class Edb(Database):
     def core_primitives(self):  # pragma: no cover
         """Core primitives.
 
-
         .. deprecated:: 0.6.62
            Use new property :func:`modeler` instead.
 

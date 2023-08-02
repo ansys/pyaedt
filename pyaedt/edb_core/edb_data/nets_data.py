@@ -143,8 +143,6 @@ class EDBNetsData(NetDotNet):
         api_extended_net = self._api_get_extended_net
         if api_extended_net:
             return EDBExtendedNetData(self._app, api_extended_net)
-        else:
-            return api_extended_net
 
 
 class EDBNetClassData(NetClassDotNet):
@@ -169,25 +167,6 @@ class EDBNetClassData(NetClassDotNet):
     def nets(self):
         """Get nets belong to this net class."""
         return {name: self._core_nets[name] for name in self.api_nets}
-
-    @pyaedt_function_handler
-    def add_nets(self, net_names):
-        # type: (list)->bool
-        """Add nets from a list of names.
-
-        Parameters
-        ----------
-        net_names : list
-
-        Returns
-        -------
-        bool
-        """
-        """Add nets into this net class"""
-        flag = True
-        for i in net_names:
-            flag = flag and self.add_net(i)
-        return flag
 
 
 class EDBExtendedNetData(ExtendedNetDotNet):
@@ -243,24 +222,6 @@ class EDBExtendedNetData(ExtendedNetDotNet):
                 }
             )
         return comps_common
-
-    @pyaedt_function_handler
-    def add_nets(self, net_names):
-        # type: (list)->bool
-        """Add nets from a list of names.
-
-        Parameters
-        ----------
-        net_names : list
-
-        Returns
-        -------
-        bool
-        """
-        flag = True
-        for i in net_names:
-            flag = flag and self.add_net(i)
-        return flag
 
 
 class EDBDifferentialPairData(DifferentialPairDotNet):

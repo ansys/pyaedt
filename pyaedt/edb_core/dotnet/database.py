@@ -180,7 +180,7 @@ class NetDotNet:
         """Return Ansys.Ansoft.Edb object."""
         return self.net_obj
 
-    def find_by_name(self, layout, net):
+    def find_by_name(self, layout, net):  # pragma: no cover
         """Edb Dotnet Api Database `Edb.Net.FindByName`."""
         return NetDotNet(self._app, self.net.FindByName(layout, net))
 
@@ -247,38 +247,11 @@ class NetClassDotNet:
 
     def api_create(self, name):
         """Edb Dotnet Api Database `Edb.NetClass.Create`."""
-        return ExtendedNetDotNet(self._app, self.cell_net_class.Create(self._app.active_layout, name))
-
-
-class ExtendedNetDotNet(NetClassDotNet):
-    """Extended net class."""
-
-    def __init__(self, app, api_object=None):
-        super().__init__(app, api_object)
-        self.cell_extended_net = app._edb.Cell.ExtendedNet
-
-    @property
-    def api_class(self):  # pragma: no cover
-        """Return Ansys.Ansoft.Edb class object."""
-        return self.cell_extended_net
-
-    def find_by_name(self, layout, net):
-        """Edb Dotnet Api Database `Edb.ExtendedNet.FindByName`."""
-        return ExtendedNetDotNet(self._app, self.cell_extended_net.FindByName(layout, net))
-
-    def api_create(self, name):
-        """Edb Dotnet Api Database `Edb.ExtendedNet.Create`."""
-        return ExtendedNetDotNet(self._app, self.cell_extended_net.Create(self._app.active_layout, name))
-
-    def delete(self):
-        """Edb Dotnet Api Database `Edb.ExtendedNet.Delete`."""
-        if self.api_object:
-            self.api_object.Delete()
-            self.api_object = None
+        return NetClassDotNet(self._app, self.cell_net_class.Create(self._app.active_layout, name))
 
     @property
     def name(self):
-        """Edb Dotnet Api Database `net.name` and  `ExtendedNet.SetName()`."""
+        """Edb Dotnet Api Database `NetClass.name` and  `NetClass.SetName()`."""
         if self.api_object:
             return self.api_object.GetName()
 
@@ -286,12 +259,6 @@ class ExtendedNetDotNet(NetClassDotNet):
     def name(self, value):
         if self.api_object:
             self.api_object.SetName(value)
-
-    @property
-    def is_null(self):
-        """Edb Dotnet Api Database `ExtendedNet.IsNull()`."""
-        if self.api_object:
-            return self.api_object.IsNull()
 
     def add_net(self, name):
         """Add a new net.
@@ -309,6 +276,41 @@ class ExtendedNetDotNet(NetClassDotNet):
             edb_api_net = self.edb_api.Cell.Net.FindByName(self._app.active_layout, name)
             return self.api_object.AddNet(edb_api_net)
 
+    def delete(self):  # pragma: no cover
+        """Edb Dotnet Api Database `Delete`."""
+
+        if self.api_object:
+            self.api_object.Delete()
+            self.api_object = None
+            return not self.api_object
+
+    @property
+    def is_null(self):
+        """Edb Dotnet Api Database `NetClass.IsNull()`."""
+        if self.api_object:
+            return self.api_object.IsNull()
+
+
+class ExtendedNetDotNet(NetClassDotNet):
+    """Extended net class."""
+
+    def __init__(self, app, api_object=None):
+        super().__init__(app, api_object)
+        self.cell_extended_net = app._edb.Cell.ExtendedNet
+
+    @property
+    def api_class(self):  # pragma: no cover
+        """Return Ansys.Ansoft.Edb class object."""
+        return self.cell_extended_net
+
+    def find_by_name(self, layout, net):  # pragma: no cover
+        """Edb Dotnet Api Database `Edb.ExtendedNet.FindByName`."""
+        return ExtendedNetDotNet(self._app, self.cell_extended_net.FindByName(layout, net))
+
+    def api_create(self, name):
+        """Edb Dotnet Api Database `Edb.ExtendedNet.Create`."""
+        return ExtendedNetDotNet(self._app, self.cell_extended_net.Create(self._app.active_layout, name))
+
 
 class DifferentialPairDotNet(NetClassDotNet):
     """Differential Pairs."""
@@ -322,7 +324,7 @@ class DifferentialPairDotNet(NetClassDotNet):
         """Return Ansys.Ansoft.Edb class object."""
         return self.cell_diff_pair
 
-    def find_by_name(self, layout, net):
+    def find_by_name(self, layout, net):  # pragma: no cover
         """Edb Dotnet Api Database `Edb.DifferentialPair.FindByName`."""
         return DifferentialPairDotNet(self._app, self.cell_diff_pair.FindByName(layout, net))
 
@@ -334,29 +336,6 @@ class DifferentialPairDotNet(NetClassDotNet):
         edb_api_net_p = self.edb_api.Cell.Net.FindByName(self._app.active_layout, net_name_p)
         edb_api_net_n = self.edb_api.Cell.Net.FindByName(self._app.active_layout, net_name_n)
         self.api_object.SetDifferentialPair(edb_api_net_p, edb_api_net_n)
-
-    def delete(self):
-        """Edb Dotnet Api Database `Edb.DifferentialPair.Delete`."""
-        if self.api_object:
-            self.api_object.Delete()
-            self.api_object = None
-
-    @property
-    def name(self):
-        """Edb Dotnet Api Database `net.name` and  `DifferentialPair.SetName()`."""
-        if self.api_object:
-            return self.api_object.GetName()
-
-    @name.setter
-    def name(self, value):
-        if self.api_object:
-            self.api_object.SetName(value)
-
-    @property
-    def is_null(self):
-        """Edb Dotnet Api Database `DifferentialPair.IsNull()`."""
-        if self.api_object:
-            return self.api_object.IsNull()
 
     @property
     def api_positive_net(self):

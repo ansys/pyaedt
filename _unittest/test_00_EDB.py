@@ -236,13 +236,18 @@ class TestClass(BasisTest, object):
 
         assert self.edbapp.nets["AVCC_1V3"].extended_net
 
-        self.edbapp.extended_nets.create("new_ex_net", "GND")
+        assert self.edbapp.extended_nets.create("new_ex_net", "DDR4_A1")
 
         diff_pair = self.edbapp.differential_pairs.create("new_pair1", "PCIe_Gen4_RX1_P", "PCIe_Gen4_RX1_N")
         assert diff_pair.positive_net.name == "PCIe_Gen4_RX1_P"
         assert diff_pair.negative_net.name == "PCIe_Gen4_RX1_N"
 
         assert self.edbapp.net_classes.items
+        assert self.edbapp.net_classes.create("DDR4_ADD", ["DDR4_A0", "DDR4_A1"])
+        assert self.edbapp.net_classes["DDR4_ADD"].name == "DDR4_ADD"
+        assert self.edbapp.net_classes["DDR4_ADD"].nets
+        self.edbapp.net_classes["DDR4_ADD"].name = "DDR4_ADD_RENAMED"
+        assert not self.edbapp.net_classes["DDR4_ADD_RENAMED"].is_null
 
     def test_011_assign_rlc(self):
         assert self.edbapp.components.set_component_rlc("C1", res_value=1e-3, cap_value="10e-6", isparallel=False)
