@@ -44,6 +44,7 @@ class EdbCommon:
         self._pedb.logger.error("Component or definition not found.")
         return
 
+
 class EdbNetClasses(EdbCommon, object):
     """Manages EDB methods for managing nets accessible from the ``Edb.net_classes`` property.
 
@@ -81,7 +82,6 @@ class EdbExtendedNets(EdbCommon, object):
     >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
     >>> edb_nets = edbapp.extended_nets
     """
-
 
     def __init__(self, p_edb):
         super().__init__(p_edb)

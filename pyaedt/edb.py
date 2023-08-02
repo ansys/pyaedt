@@ -37,9 +37,9 @@ from pyaedt.edb_core.hfss import EdbHfss
 from pyaedt.edb_core.ipc2581.ipc2581 import Ipc2581
 from pyaedt.edb_core.layout import EdbLayout
 from pyaedt.edb_core.materials import Materials
-from pyaedt.edb_core.net_class import EdbNetClasses
 from pyaedt.edb_core.net_class import EdbDifferentialPair
 from pyaedt.edb_core.net_class import EdbExtendedNets
+from pyaedt.edb_core.net_class import EdbNetClasses
 from pyaedt.edb_core.nets import EdbNets
 from pyaedt.edb_core.padstack import EdbPadstacks
 from pyaedt.edb_core.siwave import EdbSiwave
@@ -899,7 +899,7 @@ class Edb(Database):
         """
 
         if self.active_db:
-           return EdbNetClasses(self)
+            return EdbNetClasses(self)
 
     @property
     def extended_nets(self):

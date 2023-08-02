@@ -257,7 +257,6 @@ class ExtendedNetDotNet(NetClassDotNet):
         super().__init__(app, api_object)
         self.cell_extended_net = app._edb.Cell.ExtendedNet
 
-
     @property
     def api_class(self):  # pragma: no cover
         """Return Ansys.Ansoft.Edb class object."""

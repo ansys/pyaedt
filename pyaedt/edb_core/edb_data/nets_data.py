@@ -146,6 +146,7 @@ class EDBNetsData(NetDotNet):
         else:
             return api_extended_net
 
+
 class EDBNetClassData(NetClassDotNet):
     """Manages EDB functionalities for a primitives.
     It Inherits EDB Object properties.
@@ -156,6 +157,7 @@ class EDBNetClassData(NetClassDotNet):
     >>> edb = Edb(myedb, edbversion="2021.2")
     >>> edb.net_classes
     """
+
     def __init__(self, core_app, raw_extended_net=None):
         super().__init__(core_app, raw_extended_net)
         self._app = core_app
@@ -175,6 +177,7 @@ class EDBNetClassData(NetClassDotNet):
         for i in net_names:
             flag = flag and self.add_net(i)
         return flag
+
 
 class EDBExtendedNetData(ExtendedNetDotNet):
     """Manages EDB functionalities for a primitives.
