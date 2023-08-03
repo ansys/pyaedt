@@ -395,7 +395,7 @@ class Settings(object):
 
     @property
     def enable_debug_edb_logger(self):
-        """Flag for enabling and disabling the logging for the EDB API methods."""
+        """Flag for enabling and disabling the logger for any EDB API methods."""
         return self._enable_debug_edb_logger
 
     @enable_debug_edb_logger.setter
