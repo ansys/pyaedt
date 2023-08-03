@@ -28,7 +28,7 @@ def install(package):
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', package])
 
 # Install any missing libraries
-required_packages = ['plotly', 'tqdm', 'matplotlib', 'numpy']
+required_packages = ['plotly', 'tqdm', 'matplotlib', 'numpy', 'jupyter', 'ipywidgets']
 for package in required_packages:
     if package not in installed_packages:
         install(package)
@@ -49,7 +49,7 @@ import numpy as np
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 # The ``NewThread`` Boolean variable defines whether to create a new instance
-# of AEDT or try to connect to existing instance of it if one is available.
+# of AEDT or try to connect to existing instance of AEDT if one is available.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 NewThread = False
@@ -155,7 +155,7 @@ def overlapping_tx_bands(rx_band):
 ###############################################################################
 # Iterate over all the receivers
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Iterates over each of the receivers in the project and finds any transmit
+# Iterate over each of the receivers in the project and finds any transmit
 # bands that contain overlapping channel frequencies.
 overlapping = []
 for rx_radio in rev.get_receiver_names():
@@ -175,7 +175,7 @@ for rx_radio in rev.get_receiver_names():
 ###############################################################################
 # Print a list of overlapping bands
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Prints a list of overlapping receivers and bands.
+# Print a list of overlapping receivers and bands.
 print(overlapping[0][0])
 
 ###############################################################################
@@ -225,10 +225,12 @@ def minimum_tx_channel_separation(rx_band, tx_band, emi_threshold):
     offset_by_rx_freq = {}
     for rx_frequency in rx_frequencies:
         required_offset = 0.0
-        chpair.set_receiver(rx_band[0], rx_band[1], rx_frequency)
         for tx_frequency in tx_frequencies:
-            chpair.set_interferer(tx_band[0], tx_band[1], tx_frequency)
+            chpair.set_receiver(rx_band[0], rx_band[1])
+            chpair.set_interferer(tx_band[0], tx_band[1])
             chpair_interaction = rev.run(chpair)
+            chpair.set_interferer(tx_band[0], tx_band[1], tx_frequency)
+            chpair.set_receiver(rx_band[0], rx_band[1], rx_frequency)
             chpair_result = chpair_interaction.get_worst_instance(ResultType.EMI)
             if chpair_result.has_valid_values():
                 emi = chpair_result.get_value(ResultType.EMI)
@@ -298,7 +300,7 @@ def remove_duplicates(a_list):
 
 def show_separation_table(separation_results, title='In-band Separation (MHz)'):
     """Create a scenario matrix-like table to display the maximum
-    channel separate required for each transmit/receive band combination.
+    channel separation required for each transmit/receive band combination.
     Arguments: 
         separation_results: Tuple of {Rx_Band, Tx_Band, max_channel_separation}.
         title: Title of the table.
