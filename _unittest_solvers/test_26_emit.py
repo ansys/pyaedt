@@ -2,8 +2,8 @@
 import os
 import sys
 
-# from _unittest.conftest import BasisTest
-from _unittest.conftest import config
+# from _unittest_solvers.conftest import BasisTest
+from _unittest_solvers.conftest import config
 import pytest
 
 from pyaedt import Emit
@@ -17,7 +17,7 @@ from pyaedt.modeler.circuits.PrimitivesEmit import EmitAntennaComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponents
 
-# from _unittest.conftest import is_ironpython
+# from _unittest_solvers.conftest import is_ironpython
 
 
 # try:

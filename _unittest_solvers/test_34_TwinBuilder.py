@@ -1,8 +1,8 @@
 # Setup paths for module imports
 import os
 
-# from _unittest.conftest import BasisTest
-from _unittest.conftest import local_path
+# from _unittest_solvers.conftest import BasisTest
+from _unittest_solvers.conftest import local_path
 import pytest
 
 from pyaedt import TwinBuilder
@@ -25,7 +25,7 @@ def aedtapp(add_app):
 
 @pytest.fixture(scope="class", autouse=True)
 def examples(local_scratch):
-    netlist1 = os.path.join(local_path, "example_models", test_subfolder, "netlist_small.cir")
+    netlist1 = os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, "netlist_small.cir")
     netlist_file1 = local_scratch.copyfile(netlist1)
     return netlist_file1, None
 

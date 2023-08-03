@@ -1,8 +1,8 @@
 import os
 
-# from _unittest.conftest import BasisTest
-from _unittest.conftest import desktop_version
-from _unittest.conftest import local_path
+# from _unittest_solvers.conftest import BasisTest
+from _unittest_solvers.conftest import desktop_version
+from _unittest_solvers.conftest import local_path
 import pytest
 
 from pyaedt import Q3d
@@ -27,9 +27,9 @@ def aedtapp(add_app):
 
 @pytest.fixture(scope="class", autouse=True)
 def examples(local_scratch):
-    example_project = os.path.join(local_path, "../_unittest/example_models", test_subfolder, bondwire_project_name)
+    example_project = os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, bondwire_project_name)
     test_project = local_scratch.copyfile(example_project)
-    test_matrix = local_scratch.copyfile(os.path.join(local_path, "../_unittest/example_models", test_subfolder, q2d_q3d + ".aedt"))
+    test_matrix = local_scratch.copyfile(os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, q2d_q3d + ".aedt"))
     return test_project, test_matrix
 
 
@@ -389,7 +389,7 @@ class TestClass:
 
     def test_16_export_equivalent_circuit(self, add_app):
         test_matrix2 = self.local_scratch.copyfile(
-            os.path.join(local_path, "../_unittest/example_models", test_subfolder, q2d_q3d + ".aedt"),
+            os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, q2d_q3d + ".aedt"),
             os.path.join(self.local_scratch.path, "test_14.aedt"),
         )
         # q3d = Q3d(self.test_matrix, specified_version=desktop_version)
