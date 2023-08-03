@@ -2774,16 +2774,16 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         coordinate_system : str, optional
             Coordinate system to use for the UV vector.
         origin : list, optional
-            Origin of the UV vector. The default is ``None`, in which case the bottom
-            left vertex is used.
+            Origin of the UV vector.
+            The default is ``None`, in which case the bottom left vertex is used.
         u_pos : list, optional
-            Direction of the U vector. The default is ``None``, in which case the top
-            left vertex is used.
+            Direction of the U vector.
+            The default is ``None``, in which case the top left vertex is used.
         reverse : bool, optional
             Whether the vector is reversed. The default is ``False``.
         bound_name : str, optional
-            Name of the end connection boundary. The default is ``None``, in which case the
-            default name is used.
+            Name of the end connection boundary.
+            The default is ``None``, in which case the default name is used.
 
         Returns
         -------

@@ -25,7 +25,7 @@ Error installing PyAEDT using pip
 ---------------------------------
 - **Proxy server**: If your company uses a proxy server, you may have to update proxy
   settings at the command line. For more information, see the `Using a Proxy
-  Server<https://pip.pypa.io/en/stable/user_guide/#using-a-proxy-server>`_ in the pip
+  Server <https://pip.pypa.io/en/stable/user_guide/#using-a-proxy-server>`_ in the pip
   documentation.
 - **Install permission**: Make sure that you have write access to the directory where the
    Python interpreter is
