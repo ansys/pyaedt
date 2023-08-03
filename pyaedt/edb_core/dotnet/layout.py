@@ -126,10 +126,14 @@ class LayoutDotNet:
 
     @property
     def extended_nets(self):
-        """:obj:`list` of :class:`ExtendedNet <ansys.edb.net.ExtendedNet>` : List of all the extended nets in this \
-        layout.
+        """
+        Get the list of extended nets in the layout. Read-Only.
 
-        Read-Only.
+        Returns
+        -------
+        List[:class:`ExtendedNet <ansys.edb.net.ExtendedNet>`]
+            A list of extended nets.
+
         """
         return list(self._layout.ExtendedNets)
 
