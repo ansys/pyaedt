@@ -240,24 +240,8 @@ class Design(AedtObjects):
             self.design_solutions = DesignSolution(None, design_type, self._aedt_version)
         self.design_solutions._solution_type = solution_type
         self._temp_solution_type = solution_type
-        try:
-            self.oproject = project_name
-        except Exception as e:
-            self.logger.error(e.args[0])
-            try:
-                self.release_desktop(self.desktop_class.launched_by_pyaedt, self.desktop_class.launched_by_pyaedt)
-            except:
-                self.logger.error("Failed to release AEDT")
-            raise Exception(e.args[0])
-        try:
-            self.odesign = design_name
-        except Exception as e:
-            self.logger.error(e.args[0])
-            try:
-                self.release_desktop(self.desktop_class.launched_by_pyaedt, self.desktop_class.launched_by_pyaedt)
-            except:
-                self.logger.error("Failed to release AEDT")
-            raise Exception(e.args[0])
+        self.oproject = project_name
+        self.odesign = design_name
         AedtObjects.__init__(self, is_inherithed=True)
         self.logger.info("Aedt Objects correctly read")
         if t:
