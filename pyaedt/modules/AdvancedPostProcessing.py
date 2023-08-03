@@ -408,8 +408,8 @@ class PostProcessor(Post):
         ----------
         quantity : str
             Quantity to plot (e.g. ``"Mag_E"``).
-        object_list : str
-            List of objects or faces to which apply the Field Plot.
+        object_list : str, list
+            Objects or faces to which apply the Field Plot.
         plot_type  : str, optional
             Plot type. Options are ``"Surface"``, ``"Volume"``, ``"CutPlane"``.
         setup_name : str, optional
@@ -555,13 +555,21 @@ class PostProcessor(Post):
         :class:`pyaedt.generic.plot.ModelPlotter`
             Model Object.
         """
+        if intrinsics is None:
+            intrinsics = {}
         if not export_path:
             export_path = self._app.working_directory
 
         v = 0
         fields_to_add = []
+        is_intrinsics = True
+        if variation_variable in self._app.variable_manager.independent_variables:
+            is_intrinsics = False
         for el in variation_list:
-            intrinsics[variation_variable] = el
+            if is_intrinsics:
+                intrinsics[variation_variable] = el
+            else:
+                self._app[variation_variable] = el
             if plot_type == "Surface":
                 plotf = self.create_fieldplot_surface(object_list, quantity, setup_name, intrinsics)
             elif plot_type == "Volume":

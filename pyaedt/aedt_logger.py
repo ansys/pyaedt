@@ -123,6 +123,7 @@ class AedtLogger(object):
     """
 
     def __init__(self, level=logging.DEBUG, filename=None, to_stdout=False):
+        self._std_out_handler = None
         self.level = level
         self.filename = filename or settings.logger_file_path
         settings.logger_file_path = self.filename
@@ -138,7 +139,6 @@ class AedtLogger(object):
         self._global.setLevel(level)
         self._global.addFilter(AppFilter())
 
-        self._std_out_handler = None
         if settings.formatter:
             self.formatter = settings.formatter
         else:
@@ -631,6 +631,8 @@ class AedtLogger(object):
 
     def info(self, msg, *args, **kwargs):
         """Write an info message to the global logger."""
+        if not settings.enable_logger:
+            return
         if args:
             try:
                 msg1 = msg % tuple(str(i) for i in args)
@@ -644,6 +646,8 @@ class AedtLogger(object):
     def info_timer(self, msg, start_time=None, *args, **kwargs):
         """Write an info message to the global logger with elapsed time.
         Message will have an appendix of type Elapsed time: time."""
+        if not settings.enable_logger:
+            return
         if not start_time:
             start_time = self._timer
         td = time.time() - start_time
@@ -668,6 +672,8 @@ class AedtLogger(object):
 
     def warning(self, msg, *args, **kwargs):
         """Write a warning message to the global logger."""
+        if not settings.enable_logger:
+            return
         if args:
             try:
                 msg1 = msg % tuple(str(i) for i in args)
@@ -692,6 +698,8 @@ class AedtLogger(object):
 
     def debug(self, msg, *args, **kwargs):
         """Write a debug message to the global logger."""
+        if not settings.enable_debug_logger or not settings.enable_logger:
+            return
         if args:
             try:
                 msg1 = msg % tuple(str(i) for i in args)

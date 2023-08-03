@@ -55,7 +55,12 @@ ipk.autosave_disable()
 #
 # The following image does not show the entire rows and data and only serves as a sample.
 #
-# ![CSV_Import.png](..\pyaedt\doc\source\CSV_Import.png)
+#
+# .. image:: ../../_static/CSV_Import.png
+#    :width: 400
+#    :alt: CSV Screenshot.
+#
+#
 
 filename = pyaedt.downloads.download_file('icepak','blocks-list.csv',destination=temp_folder)
 fields = []
