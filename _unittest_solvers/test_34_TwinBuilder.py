@@ -13,7 +13,7 @@ from pyaedt.generic.general_methods import is_linux
 # except ImportError:
 #     import _unittest_ironpython.conf_unittest as pytest
 
-test_subfolder = "T21"
+test_subfolder = "T34"
 
 
 @pytest.fixture(scope="class")

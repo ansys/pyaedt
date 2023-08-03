@@ -976,8 +976,8 @@ class TestClass:
             comp.name, {nets[0]: layers[1::2], nets[1]: layers[1::2]}
         )
 
-    def test_55_tangential_h_field(self):
-        m3d = Maxwell3d(solution_type="EddyCurrent")
+    def test_55_tangential_h_field(self, add_app):
+        m3d = add_app(application=Maxwell3d, solution_type="EddyCurrent")
         box = m3d.modeler.create_box([0, 0, 0], [10, 10, 10])
         assert m3d.assign_tangential_h_field(
             box.bottom_face_x,
@@ -987,8 +987,8 @@ class TestClass:
             0,
         )
 
-    def test_56_zero_tangential_h_field(self):
-        m3d = Maxwell3d(solution_type="EddyCurrent")
+    def test_56_zero_tangential_h_field(self, add_app):
+        m3d = add_app(application=Maxwell3d, solution_type="EddyCurrent")
         box = m3d.modeler.create_box([0, 0, 0], [10, 10, 10])
         assert m3d.assign_zero_tangential_h_field(
             box.top_face_z,
