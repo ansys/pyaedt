@@ -329,18 +329,6 @@ class TestClass(BasisTest, object):
         aedt_obj = AedtObjects(self.aedtapp.oproject, self.aedtapp.odesign)
         assert aedt_obj.odesign == self.aedtapp.odesign
 
-    def test_34_force_project_path_disable(self):
-        settings.force_error_on_missing_project = True
-        assert settings.force_error_on_missing_project == True
-        e = None
-        try:
-            h = Hfss("c:/dummy/test.aedt", specified_version=desktop_version)
-        except Exception as e:
-            exception_raised = True
-            assert e.args[0] == "Project doesn't exists. Check it and retry."
-        assert exception_raised
-        settings.force_error_on_missing_project = False
-
     def test_35_get_app(self):
         d = Desktop(desktop_version, new_desktop_session=False)
         assert d[[0, 0]]
@@ -397,3 +385,15 @@ class TestClass(BasisTest, object):
             file,
         )
         assert desktop.remove_script_from_menu("test_toolkit")
+
+    def test_99_force_project_path_disable(self):
+        settings.force_error_on_missing_project = True
+        assert settings.force_error_on_missing_project == True
+        e = None
+        try:
+            h = Hfss("c:/dummy/test.aedt", specified_version=desktop_version)
+        except Exception as e:
+            exception_raised = True
+            assert e.args[0] == "Project doesn't exists. Check it and retry."
+        assert exception_raised
+        settings.force_error_on_missing_project = False

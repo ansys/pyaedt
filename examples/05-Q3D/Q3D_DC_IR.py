@@ -16,7 +16,7 @@ import pyaedt
 
 ###############################################################################
 # Set up project files and path
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download needed project file and set up temporary project directory.
 project_dir = pyaedt.generate_unique_folder_name()
 aedb_project = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb', destination=project_dir)
@@ -83,7 +83,7 @@ location_r106_1.append(edb.components["R106"].upper_elevation * 1000)
 
 ###############################################################################
 # Save and close EDB
-# ~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~
 # Save and close EDB. Then, open EDT in HFSS 3D Layout to generate the 3D model.
 
 edb.save_edb()

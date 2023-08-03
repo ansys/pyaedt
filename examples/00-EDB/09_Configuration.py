@@ -124,10 +124,10 @@ edbapp.save_edb()
 # Configure Setup
 # ~~~~~~~~~~~~~~~
 # This step allows to define the project. It includes:
-#  - Definition of nets to be included into the cutout
-#  - Cutout details
-#  - Components on which to create the ports
-#  - Simulation settings
+#  - Definition of nets to be included into the cutout,
+#  - Cutout details,
+#  - Components on which to create the ports,
+#  - Simulation settings.
 
 sim_setup = edbapp.new_simulation_configuration()
 sim_setup.solver_type = sim_setup.SOLVER_TYPE.SiwaveSYZ

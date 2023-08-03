@@ -165,6 +165,7 @@ ipk.plot(show=False, export_path=os.path.join(project_folder, "Sherlock_Example.
 # Set up boundaries.
 
 # Mesh settings that is tailored for PCB
+# Max iterations is set to 20 for quick demonstration, please increase to at least 100 for better accuracy.
 
 ipk.globalMeshSettings(3, gap_min_elements='1', noOgrids=True, MLM_en=True,
                             MLM_Type='2D', edge_min_elements='2', object='Region')
@@ -174,7 +175,7 @@ setup1.props["Solution Initialization - Y Velocity"] = "1m_per_sec"
 setup1.props["Radiation Model"] = "Discrete Ordinates Model"
 setup1.props["Include Gravity"] = True
 setup1.props["Secondary Gradient"] = True
-setup1.props["Convergence Criteria - Max Iterations"] = 100
+setup1.props["Convergence Criteria - Max Iterations"] = 10
 ipk.assign_openings(ipk.modeler.get_object_faces("Region"))
 
 ###############################################################################
@@ -205,18 +206,16 @@ print(total)
 # Analyze the model
 # ~~~~~~~~~~~~~~~~~
 
-ipk.analyze_nominal()
+ipk.analyze(num_cores=4, num_tasks=4)
+ipk.save_project()
 
 ###############################################################################
 # Get solution data and plots
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-face_u10 = [i.id for i in ipk.modeler["COMP_U10"].faces]
-plot1 = ipk.post.create_fieldplot_surface(face_u10, "SurfTemperature")
-plot1.export_image(os.path.join(project_folder, "temperature_u10.jpg"))
-face_u9 = [i.id for i in ipk.modeler["COMP_U9"].faces]
-plot2 = ipk.post.create_fieldplot_surface(face_u9, "SurfPressure")
-plot2.export_image(os.path.join(project_folder, "pressure_u9.jpg"))
+plot1 = ipk.post.create_fieldplot_surface(ipk.modeler["COMP_U10"].faces, "SurfTemperature")
+ipk.post.plot_field("SurfPressure",ipk.modeler["COMP_U10"].faces,export_path=ipk.working_directory, show=False)
+
 
 ###############################################################################
 # Save project and release AEDT

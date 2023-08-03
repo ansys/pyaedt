@@ -52,6 +52,7 @@ class TestClass(BasisTest, object):
         logger.enable_log_on_file()
 
     def test_02_output_file_with_app_filter(self):
+        settings.enable_debug_logger = True
         content = None
         temp_dir = tempfile.gettempdir()
         path = os.path.join(self.local_scratch.path, "test02.txt")
@@ -73,6 +74,7 @@ class TestClass(BasisTest, object):
         design_logger.error("Error for Design")
         logger.info_timer("Info with message")
         logger.reset_timer()
+        settings.enable_debug_logger = False
 
         # Close every handlers to make sure that the
         # file handler on every logger has been released properly.
@@ -226,7 +228,7 @@ class TestClass(BasisTest, object):
                 handler.close()
                 logger._global.removeHandler(handler)
         assert stream_content[0] == "PyAEDT INFO: Info for Global\n"
-        assert stream_content[1] == "PyAEDT INFO: StdOut has been enabled\n"
+        assert stream_content[1] == "PyAEDT INFO: StdOut is enabled\n"
         assert stream_content[2] == "PyAEDT INFO: Info after re-enabling the stdout handler.\n"
 
 

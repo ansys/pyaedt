@@ -1,6 +1,6 @@
 """
 HFSS: Eigenmode filter
---------------------
+----------------------
 This example shows how you can use PyAEDT to automate the eigenmode solver in HFSS.
 Eigenmode analysis can be applied to open, radiating structures
 using an absorbing boundary condition. This type of analysis is useful for

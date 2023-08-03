@@ -2384,14 +2384,6 @@ class SimulationConfiguration(object):
             if node_to_ground in [0, 1, 2]:
                 self._dc_source_terms_to_ground[source_name] = node_to_ground
 
-    def _parse_signal_layer_properties(self, signal_properties):  # pragma: no cover
-        for lay in signal_properties:
-            lp = lay.split(":")
-            try:
-                self.signal_layers_properties.update({lp[0]: [lp[1], lp[2], lp[3], lp[4], lp[5]]})
-            except:
-                print("Missing parameter for layer {0}".format(lp[0]))
-
     def _read_cfg(self):  # pragma: no cover
         """Configuration file reader.
 

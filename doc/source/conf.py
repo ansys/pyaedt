@@ -52,14 +52,17 @@ def setup(app):
     app.connect('autodoc-skip-member', autodoc_skip_member)
 
 
-
 local_path = os.path.dirname(os.path.realpath(__file__))
 module_path = pathlib.Path(local_path)
 root_path = module_path.parent.parent
-sys.path.append(os.path.abspath(os.path.join(local_path)))
-sys.path.append(os.path.join(root_path))
+try:
+    from pyaedt import __version__
+except ImportError:
 
-from pyaedt import __version__
+    sys.path.append(os.path.abspath(os.path.join(local_path)))
+    sys.path.append(os.path.join(root_path))
+    from pyaedt import __version__
+
 
 project = "PyAEDT"
 copyright = f"(c) {datetime.datetime.now().year} ANSYS, Inc. All rights reserved"
@@ -212,7 +215,7 @@ pyvista.OFF_SCREEN = True
 # pyvista.set_plot_theme('document')
 
 # must be less than or equal to the XVFB window size
-pyvista.rcParams["window_size"] = np.array([1024, 768])
+pyvista.global_theme["window_size"] = np.array([1024, 768])
 
 # Save figures in specified directory
 pyvista.FIGURE_PATH = os.path.join(os.path.abspath("./images/"), "auto-generated/")
