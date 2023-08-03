@@ -2223,7 +2223,7 @@ class Settings(object):
 
     @property
     def enable_debug_edb_logger(self):
-        """Enable or disable Logger for any EDB API method."""
+        """Enable or disable Logger for any EDB API methods."""
         return self._enable_debug_edb_logger
 
     @property
@@ -2259,7 +2259,7 @@ class Settings(object):
 
     @property
     def enable_debug_logger(self):
-        """Return the Environment Variable Content."""
+        """Enable or disable Logger for any AEDT API methods. Additionally, enables debug logging messages."""
         return self._enable_debug_logger
 
     @enable_debug_logger.setter

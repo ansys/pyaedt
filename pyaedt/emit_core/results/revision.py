@@ -1,5 +1,6 @@
 import warnings
 
+from pyaedt.emit_core.emit_constants import EmiCategoryFilter
 from pyaedt.emit_core.emit_constants import InterfererType
 from pyaedt.emit_core.emit_constants import ResultType
 from pyaedt.emit_core.emit_constants import TxRxMode
@@ -477,7 +478,7 @@ class Revision:
                         for tx_freq in tx_freqs:
                             domain.set_interferer(tx_radio, tx_band, tx_freq)
                             instance = interaction.get_instance(domain)
-                            tx_prob = instance.get_largest_problem_type(mode_power).replace(" ", "").split(":")[1]
+                            tx_prob = instance.get_largest_problem_type(ResultType.EMI).replace(" ", "").split(":")[1]
                             if (
                                 rx_start_freq - rx_channel_bandwidth / 2
                                 <= tx_freq
@@ -496,7 +497,7 @@ class Revision:
 
                             # Save the worst case interference values
                             if instance.get_value(mode_power) > max_power and in_filters:
-                                prob = instance.get_largest_problem_type(mode_power)
+                                prob = instance.get_largest_problem_type(ResultType.EMI)
                                 max_power = instance.get_value(mode_power)
                                 largest_rx_prob = rx_prob
                                 largest_tx_prob = prob.replace(" ", "").split(":")
@@ -662,3 +663,36 @@ class Revision:
             power_matrix.append(rx_powers)
 
         return all_colors, power_matrix
+
+    def get_emi_category_filter_enabled(self, category: EmiCategoryFilter) -> bool:
+        """Get whether the EMI category filter is enabled.
+
+        Parameters
+        ----------
+        category : :class:`EmiCategoryFilter`
+            EMI category filter.
+
+        Returns
+        -------
+        bool
+            ``True`` when the EMI category filter is enabled, ``False`` otherwise.
+        """
+        if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
+            raise RuntimeError("This function is only supported in AEDT version 2024 R1 and later.")
+        engine = self.emit_project._emit_api.get_engine()
+        return engine.get_emi_category_filter_enabled(category)
+
+    def set_emi_category_filter_enabled(self, category: EmiCategoryFilter, enabled: bool):
+        """Set whether the EMI category filter is enabled.
+
+        Parameters
+        ----------
+        category : :class:`EmiCategoryFilter`
+            EMI category filter.
+        enabled : bool
+            Whether to enable the EMI category filter.
+        """
+        if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
+            raise RuntimeError("This function is only supported in AEDT version 2024 R1 and later.")
+        engine = self.emit_project._emit_api.get_engine()
+        engine.set_emi_category_filter_enabled(category, enabled)

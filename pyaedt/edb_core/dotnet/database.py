@@ -16,6 +16,8 @@ from pyaedt.misc import list_installed_ansysem
 
 
 class HierarchyDotNet:
+    """Hierarchy."""
+
     def __getattr__(self, key):
         try:
             return super().__getattribute__(key)
@@ -52,6 +54,8 @@ class HierarchyDotNet:
 
 
 class PolygonDataDotNet:
+    """Polygon Data."""
+
     def __getattr__(self, key):  # pragma: no cover
         try:
             return super().__getattribute__(key)
@@ -144,6 +148,8 @@ class PolygonDataDotNet:
 
 
 class NetDotNet:
+    """Net Objects."""
+
     def __getattr__(self, key):
         try:
             return super().__getattribute__(key)
@@ -174,7 +180,7 @@ class NetDotNet:
         """Return Ansys.Ansoft.Edb object."""
         return self.net_obj
 
-    def find_by_name(self, layout, net):
+    def find_by_name(self, layout, net):  # pragma: no cover
         """Edb Dotnet Api Database `Edb.Net.FindByName`."""
         return NetDotNet(self._app, self.net.FindByName(layout, net))
 
@@ -212,13 +218,141 @@ class NetDotNet:
         if self.net_obj:
             return self.net_obj.IsPowerGround()
 
+    @property
+    def _api_get_extended_net(self):
+        """The ExtendedNet this Net belongs to if it belongs to a ExtendedNet. If it doesn't belong to an ExtendedNet,
+        a null ExtendedNet is returned
+        """
+        return self.net_obj.GetExtendedNet()
+
     @is_power_ground.setter
     def is_power_ground(self, value):
         if self.net_obj:
             self.net_obj.SetIsPowerGround(value)
 
 
+class NetClassDotNet:
+    """Net Class."""
+
+    def __init__(self, app, api_object=None):
+        self.cell_net_class = app._edb.Cell.NetClass
+        self.api_object = api_object
+        self.edb_api = app._edb
+        self._app = app
+
+    @property
+    def api_nets(self):
+        """Return Edb Nets object dictionary."""
+        return {i.GetName(): i for i in list(self.api_object.Nets)}
+
+    def api_create(self, name):
+        """Edb Dotnet Api Database `Edb.NetClass.Create`."""
+        return NetClassDotNet(self._app, self.cell_net_class.Create(self._app.active_layout, name))
+
+    @property
+    def name(self):
+        """Edb Dotnet Api Database `NetClass.name` and  `NetClass.SetName()`."""
+        if self.api_object:
+            return self.api_object.GetName()
+
+    @name.setter
+    def name(self, value):
+        if self.api_object:
+            self.api_object.SetName(value)
+
+    def add_net(self, name):
+        """Add a new net.
+
+        Parameters
+        ----------
+        name : str
+            The name of the net to be added.
+
+        Returns
+        -------
+        object
+        """
+        if self.api_object:
+            edb_api_net = self.edb_api.Cell.Net.FindByName(self._app.active_layout, name)
+            return self.api_object.AddNet(edb_api_net)
+
+    def delete(self):  # pragma: no cover
+        """Edb Dotnet Api Database `Delete`."""
+
+        if self.api_object:
+            self.api_object.Delete()
+            self.api_object = None
+            return not self.api_object
+
+    @property
+    def is_null(self):
+        """Edb Dotnet Api Database `NetClass.IsNull()`."""
+        if self.api_object:
+            return self.api_object.IsNull()
+
+
+class ExtendedNetDotNet(NetClassDotNet):
+    """Extended net class."""
+
+    def __init__(self, app, api_object=None):
+        super().__init__(app, api_object)
+        self.cell_extended_net = app._edb.Cell.ExtendedNet
+
+    @property
+    def api_class(self):  # pragma: no cover
+        """Return Ansys.Ansoft.Edb class object."""
+        return self.cell_extended_net
+
+    def find_by_name(self, layout, net):  # pragma: no cover
+        """Edb Dotnet Api Database `Edb.ExtendedNet.FindByName`."""
+        return ExtendedNetDotNet(self._app, self.cell_extended_net.FindByName(layout, net))
+
+    def api_create(self, name):
+        """Edb Dotnet Api Database `Edb.ExtendedNet.Create`."""
+        return ExtendedNetDotNet(self._app, self.cell_extended_net.Create(self._app.active_layout, name))
+
+
+class DifferentialPairDotNet(NetClassDotNet):
+    """Differential Pairs."""
+
+    def __init__(self, app, api_object=None):
+        super().__init__(app, api_object)
+        self.cell_diff_pair = app._edb.Cell.DifferentialPair
+
+    @property
+    def api_class(self):  # pragma: no cover
+        """Return Ansys.Ansoft.Edb class object."""
+        return self.cell_diff_pair
+
+    def find_by_name(self, layout, net):  # pragma: no cover
+        """Edb Dotnet Api Database `Edb.DifferentialPair.FindByName`."""
+        return DifferentialPairDotNet(self._app, self.cell_diff_pair.FindByName(layout, net))
+
+    def api_create(self, name):
+        """Edb Dotnet Api Database `Edb.DifferentialPair.Create`."""
+        return DifferentialPairDotNet(self._app, self.cell_diff_pair.Create(self._app.active_layout, name))
+
+    def _api_set_differential_pair(self, net_name_p, net_name_n):
+        edb_api_net_p = self.edb_api.Cell.Net.FindByName(self._app.active_layout, net_name_p)
+        edb_api_net_n = self.edb_api.Cell.Net.FindByName(self._app.active_layout, net_name_n)
+        self.api_object.SetDifferentialPair(edb_api_net_p, edb_api_net_n)
+
+    @property
+    def api_positive_net(self):
+        """Edb Api Positive net object."""
+        if self.api_object:
+            return self.api_object.GetPositiveNet()
+
+    @property
+    def api_negative_net(self):
+        """Edb Api Negative net object."""
+        if self.api_object:
+            return self.api_object.GetNegativeNet()
+
+
 class CellClassDotNet:
+    """Cell Class."""
+
     def __getattr__(self, key):
         try:
             return super().__getattribute__(key)
@@ -307,6 +441,8 @@ class CellClassDotNet:
 
 
 class UtilityDotNet:
+    """Utility Edb class."""
+
     def __getattr__(self, key):
         try:
             return super().__getattribute__(key)
@@ -353,6 +489,8 @@ class UtilityDotNet:
 
 
 class GeometryDotNet:
+    """Geometry Edb Class."""
+
     def __getattr__(self, key):
         try:
             return super().__getattribute__(key)
@@ -439,6 +577,8 @@ class GeometryDotNet:
 
 
 class CellDotNet:
+    """Cell Dot net."""
+
     def __getattr__(self, key):
         try:
             return super().__getattribute__(key)
@@ -497,7 +637,9 @@ class CellDotNet:
         return GeometryDotNet(self._app)
 
 
-class EdbDotNet:
+class EdbDotNet(object):
+    """Edb Dot Net Class."""
+
     def __init__(self, edbversion, student_version=False):
         self._global_logger = pyaedt_logger
         self._logger = pyaedt_logger
@@ -513,7 +655,6 @@ class EdbDotNet:
         from pyaedt.generic.clr_module import _clr
         from pyaedt.generic.clr_module import edb_initialized
 
-        self.student_version = student_version
         if settings.enable_screen_logs:
             self.logger.enable_stdout_log()
         else:  # pragma: no cover
@@ -574,6 +715,15 @@ class EdbDotNet:
         self.simsetupdata = self.simSetup.Ansoft.SimSetupData.Data
 
     @property
+    def student_version(self):
+        """Set the student version flag."""
+        return self._student_version
+
+    @student_version.setter
+    def student_version(self, value):
+        self._student_version = value
+
+    @property
     def logger(self):
         """Logger for EDB.
 
@@ -609,7 +759,7 @@ class Database(EdbDotNet):
 
     def __init__(self, edbversion, student_version=False):
         """Initialize a new Database."""
-        EdbDotNet.__init__(self, edbversion, student_version)
+        EdbDotNet.__init__(self, edbversion=edbversion, student_version=student_version)
         self._db = None
 
     @property

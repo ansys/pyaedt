@@ -423,7 +423,7 @@ class ModelerCircuit(Modeler):
         else:
             self.logger.error("Wrong Property Value")
             return False
-        self.logger.info("Property {} Changed correctly.".format(property_name))
+        self.logger.debug("Property {} Changed correctly.".format(property_name))
         return True
 
     @pyaedt_function_handler()
