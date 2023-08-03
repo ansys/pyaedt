@@ -1853,10 +1853,12 @@ class PostProcessor(PostProcessorCommon, object):
     """
 
     def __init__(self, app):
+        app.logger.reset_timer()
         self._app = app
         self._post_osolution = self._app.osolution
         self.field_plots = self._get_fields_plot()
         PostProcessorCommon.__init__(self, app)
+        app.logger.info_timer("PostProcessor class has been initialized!")
 
     @property
     def _primitives(self):  # pragma: no cover

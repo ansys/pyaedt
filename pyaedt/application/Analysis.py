@@ -124,14 +124,11 @@ class Analysis(Design, object):
             port,
             aedt_process_id,
         )
-        self.logger.info("Design Loaded")
         self._setup = None
         if setup_name:
             self.active_setup = setup_name
         self._materials = None
-        self.logger.info("Materials Loaded")
         self._available_variations = self.AvailableVariations(self)
-
         if self.design_type != "Maxwell Circuit":
             self.setups = [self.get_setup(setup_name) for setup_name in self.setup_names]
 

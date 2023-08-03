@@ -618,6 +618,7 @@ class Desktop(object):
         self._connected_designs = 0
 
         """Initialize desktop."""
+        self.launched_by_pyaedt = False
 
         # Used in unit tests. The ``PYAEDT_NON_GRAPHICAL`` environment variable overrides
         # the ``non_graphical`` argument.
@@ -656,7 +657,18 @@ class Desktop(object):
             self._logger.enable_stdout_log()
         else:
             self._logger.disable_stdout_log()
-        self._logger.info("using existing logger.")
+        if settings.enable_file_logs:
+            self._logger.enable_log_on_file()
+        else:
+            self._logger.disable_log_on_file()
+        if settings.enable_desktop_logs and not non_graphical:
+            self._logger.enable_desktop_log()
+        else:
+            self._logger.disable_desktop_log()
+        if settings.enable_debug_logger:
+            self._logger.info("Debug logger is enabled. PyAEDT methods will be logged.")
+        else:
+            self._logger.info("Debug logger is disabled. PyAEDT methods will not be logged.")
 
         student_version_flag, version_key, version = self._assert_version(specified_version, student_version)
 
@@ -1107,7 +1119,7 @@ class Desktop(object):
         sys.path.insert(0, os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
         launch_msg = "AEDT installation Path {}.".format(base_path)
         self.logger.info(launch_msg)
-        self.logger.info("Launching AEDT with module PythonNET.")
+        self.logger.info("Launching AEDT with COM plugin using PythonNET.")
         processID = []
         if is_windows:
             processID = com_active_sessions(version, student_version, non_graphical)
@@ -1175,6 +1187,7 @@ class Desktop(object):
             self._main.COMUtil = self.COMUtil
             StandalonePyScriptWrapper = AnsoftCOMUtil.Ansoft.CoreCOMScripting.COM.StandalonePyScriptWrapper
             if non_graphical or new_session:
+                self.launched_by_pyaedt = True
                 return StandalonePyScriptWrapper.CreateObjectNew(non_graphical)
             else:
                 return StandalonePyScriptWrapper.CreateObject(version)
@@ -1183,12 +1196,6 @@ class Desktop(object):
             sys.path.insert(0, base_path)
             sys.path.insert(0, os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
             if is_linux:
-                if os.environ.get("LD_LIBRARY_PATH"):
-                    os.environ["LD_LIBRARY_PATH"] = (
-                        os.path.join(base_path, "defer") + os.pathsep + os.environ["LD_LIBRARY_PATH"]
-                    )
-                else:
-                    os.environ["LD_LIBRARY_PATH"] = os.path.join(base_path, "defer")
                 pyaedt_path = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), ".."))
                 os.environ["PATH"] = pyaedt_path + os.pathsep + os.environ["PATH"]
             os.environ["DesktopPluginPyAEDT"] = os.path.join(
@@ -1198,10 +1205,12 @@ class Desktop(object):
             self.logger.info(launch_msg)
             import pyaedt.generic.grpc_plugin as StandalonePyScriptWrapper
 
+            if new_session:
+                self.launched_by_pyaedt = new_session
             return StandalonePyScriptWrapper.CreateAedtApplication(machine, port, non_graphical, new_session)
 
     def _init_grpc(self, non_graphical, new_aedt_session, version, student_version, version_key):
-        self.logger.info("Launching AEDT with the gRPC plugin.")
+        self.logger.info("Launching AEDT using the gRPC plugin.")
         if not self.machine or self.machine in [
             "localhost",
             "127.0.0.1",
@@ -1260,6 +1269,7 @@ class Desktop(object):
         if new_aedt_session and settings.use_lsf_scheduler and is_linux:  # pragma: no cover
             out, self.machine = launch_aedt_in_lsf(non_graphical, self.port)
             if out:
+                self.launched_by_pyaedt = True
                 oApp = self._initialize(is_grpc=True, machine=self.machine, port=self.port, new_session=False)
             else:
                 self.logger.error("Failed to start LSF job on machine: %s.", self.machine)
@@ -1269,6 +1279,7 @@ class Desktop(object):
             if not is_linux:
                 installer = os.path.join(self._main.sDesktopinstallDirectory, "ansysedt.exe")
             out, self.port = launch_aedt(installer, non_graphical, self.port, student_version)
+            self.launched_by_pyaedt = True
             oApp = self._initialize(
                 is_grpc=True, non_graphical=non_graphical, machine=self.machine, port=self.port, new_session=not out
             )
