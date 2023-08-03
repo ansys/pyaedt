@@ -1,12 +1,14 @@
 import os
 import shutil
+import pytest
 
 from _unittest_solvers.conftest import config
 
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
+# try:
+#     import pytest
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest
+
 # Setup paths for module imports
 # from _unittest_solvers.conftest import BasisTest
 # from _unittest_solvers.conftest import desktop_version
