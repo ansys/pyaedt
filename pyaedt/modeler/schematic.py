@@ -33,10 +33,12 @@ class ModelerCircuit(Modeler):
     """
 
     def __init__(self, app):
+        app.logger.reset_timer()
         self._app = app
         self._schematic_units = "meter"
         Modeler.__init__(self, app)
         self.wire = Wire(self)
+        app.logger.info_timer("ModelerCircuit class has been initialized!")
 
     @property
     def o_def_manager(self):
@@ -473,6 +475,7 @@ class ModelerNexxim(ModelerCircuit):
         self._layouteditor = None
         self.layers = Layers(self, roughnessunits="um")
         self._primitives = Primitives3DLayout(app)
+        self.logger.info("ModelerNexxim class has been initialized!")
 
     @property
     def layouteditor(self):
@@ -669,6 +672,7 @@ class ModelerTwinBuilder(ModelerCircuit):
         self._app = app
         ModelerCircuit.__init__(self, app)
         self._components = TwinBuilderComponents(self)
+        self.logger.info("ModelerTwinBuilder class has been initialized!")
 
     @property
     def components(self):
@@ -704,6 +708,7 @@ class ModelerEmit(ModelerCircuit):
         self._app = app
         ModelerCircuit.__init__(self, app)
         self.components = EmitComponents(app, self)
+        self.logger.info("ModelerEmit class has been initialized!")
 
 
 class ModelerMaxwellCircuit(ModelerCircuit):
@@ -719,6 +724,7 @@ class ModelerMaxwellCircuit(ModelerCircuit):
         self._app = app
         ModelerCircuit.__init__(self, app)
         self._components = MaxwellCircuitComponents(self)
+        self.logger.info("ModelerMaxwellCircuit class has been initialized!")
 
     @property
     def schematic(self):
