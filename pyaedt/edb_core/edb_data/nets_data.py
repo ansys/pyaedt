@@ -1,3 +1,6 @@
+from pyaedt.edb_core.dotnet.database import DifferentialPairDotNet
+from pyaedt.edb_core.dotnet.database import ExtendedNetDotNet
+from pyaedt.edb_core.dotnet.database import NetClassDotNet
 from pyaedt.edb_core.dotnet.database import NetDotNet
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.primitives_data import cast
@@ -124,50 +127,130 @@ class EDBNetsData(NetDotNet):
                     current_value = width
         return current_value
 
-    @pyaedt_function_handler
-    def get_extended_net(self, resistor_below=10, inductor_below=1, capacitor_above=1, exception_list=None):
-        # type: (int | float, int | float, int |float, list) -> dict
+    @property
+    def extended_net(self):
         """Get extended net and associated components.
 
-        Parameters
-        ----------
-        resistor_below : int, float, optional
-            Threshold of resistor value. Search extended net across resistors which has value lower than the threshold.
-        inductor_below : int, float, optional
-            Threshold of inductor value. Search extended net across inductances which has value lower than the
-            threshold.
-        capacitor_above : int, float, optional
-            Threshold of capacitor value. Search extended net across capacitors which has value higher than the
-            threshold.
-        exception_list : list, optional
-            List of components which bypass threshold check.
         Returns
         -------
-        list[
-            dict[str, :class: `pyaedt.edb_core.edb_data.nets_data.EDBNetsData`],
-            dict[str, :class: `pyaedt.edb_core.edb_data.components_data.EDBComponent`],
-            ]
+        :class:` :class:`pyaedt.edb_core.edb_data.nets_data.EDBExtendedNetData`
+
         Examples
         --------
         >>> from pyaedt import Edb
         >>> app = Edb()
-        >>> app.nets["BST_V3P3_S5"].get_extended_net()
+        >>> app.nets["BST_V3P3_S5"].extended_net
         """
-        exts = self._app.nets.get_extended_nets(resistor_below, inductor_below, capacitor_above, exception_list)
-        for i in exts:
-            if self.name in i:
-                extended = i
-        output_nets = [{i: self._app.nets[i]} for i in extended]
+        api_extended_net = self._api_get_extended_net
+        if api_extended_net:
+            return EDBExtendedNetData(self._app, api_extended_net)
+
+
+class EDBNetClassData(NetClassDotNet):
+    """Manages EDB functionalities for a primitives.
+    It inherits EDB Object properties.
+
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edb = Edb(myedb, edbversion="2021.2")
+    >>> edb.net_classes
+    """
+
+    def __init__(self, core_app, raw_extended_net=None):
+        super().__init__(core_app, raw_extended_net)
+        self._app = core_app
+        self._core_components = core_app.components
+        self._core_primitive = core_app.modeler
+        self._core_nets = core_app.nets
+
+    @property
+    def nets(self):
+        """Get nets belong to this net class."""
+        return {name: self._core_nets[name] for name in self.api_nets}
+
+
+class EDBExtendedNetData(ExtendedNetDotNet):
+    """Manages EDB functionalities for a primitives.
+    It Inherits EDB Object properties.
+
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edb = Edb(myedb, edbversion="2021.2")
+    >>> edb_extended_net = edb.nets.extended_nets["GND"]
+    >>> edb_extended_net.name # Class Property
+    """
+
+    def __init__(self, core_app, raw_extended_net=None):
+        self._app = core_app
+        self._core_components = core_app.components
+        self._core_primitive = core_app.modeler
+        self._core_nets = core_app.nets
+        ExtendedNetDotNet.__init__(self, self._app, raw_extended_net)
+
+    @property
+    def nets(self):
+        """Nets dictionary."""
+        return {name: self._core_nets[name] for name in self.api_nets}
+
+    @property
+    def components(self):
+        """Dictionary of components."""
+        comps = {}
+        for _, obj in self.nets.items():
+            comps.update(obj.components)
+        return comps
+
+    @property
+    def rlc(self):
+        """Dictionary of rlc components."""
+        return {
+            name: comp for name, comp in self.components.items() if comp.type in ["Inductor", "Resistor", "Capacitor"]
+        }
+
+    @property
+    def serial_rlc(self):
+        """Dictionary of series components."""
         comps_common = {}
-        for net in extended:
+        nets = self.nets
+        for net in nets:
             comps_common.update(
                 {
                     i: v
                     for i, v in self._app._nets[net].components.items()
-                    if list(set(v.nets).intersection(extended)) != [net]
+                    if list(set(v.nets).intersection(nets)) != [net]
                 }
             )
+        return comps_common
 
-        rlc_common = {i: v for i, v in comps_common.items() if v.type in ["Resistor", "Inductor", "Capacitor"]}
 
-        return output_nets, rlc_common
+class EDBDifferentialPairData(DifferentialPairDotNet):
+    """Manages EDB functionalities for a primitive.
+    It inherits EDB object properties.
+
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edb = Edb(myedb, edbversion="2021.2")
+    >>> edb.differential_pairs.differential_pairs
+    """
+
+    def __init__(self, core_app, api_object=None):
+        self._app = core_app
+        self._core_components = core_app.components
+        self._core_primitive = core_app.modeler
+        self._core_nets = core_app.nets
+        DifferentialPairDotNet.__init__(self, self._app, api_object)
+
+    @property
+    def positive_net(self):
+        # type: ()->EDBNetsData
+        """Positive Net."""
+        return EDBNetsData(self.api_positive_net, self._app)
+
+    @property
+    def negative_net(self):
+        # type: ()->EDBNetsData
+        """Negative Net."""
+        return EDBNetsData(self.api_negative_net, self._app)
