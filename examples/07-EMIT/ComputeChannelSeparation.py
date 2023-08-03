@@ -378,7 +378,8 @@ rx2_results = [x for x in separation_results if 'Bluetooth' in x[1][0]]
 show_separation_table(rx2_results, title='Separation for Bluetooth and WiFi (MHz)')
 
 # Need this to ensure plots don't close
-#input("Press [enter] to continue.")
+if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
+    input("Press [enter] to continue.")
 
 ###############################################################################
 # Save project and close AEDT
