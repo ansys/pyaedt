@@ -70,7 +70,7 @@ jobs:
         run: |
           testenv\Scripts\Activate.ps1
           Set-Item -Path env:PYTHONMALLOC -Value "malloc"
-          pytest -n 8 --dist loadfile --durations=50 -v --cov=pyaedt --cov-report xml:coverage1.xml --junitxml=junit/test-results1.xml _unittest
+          pytest --tx 4*popen --dist loadfile --durations=50 -v --cov=pyaedt --cov-report xml:coverage1.xml --junitxml=junit/test-results1.xml _unittest
           pytest --durations=50 -v --cov=pyaedt --cov-report xml:coverage2.xml --junitxml=junit/test-results2.xml _unittest_solvers
 
       - uses: codecov/codecov-action@v3
