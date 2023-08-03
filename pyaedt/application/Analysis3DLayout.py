@@ -88,9 +88,7 @@ class FieldAnalysis3DLayout(Analysis):
             port,
             aedt_process_id,
         )
-        self.logger.info("Analysis Loaded")
         self._modeler = None
-        self.logger.info("Modeler Loaded")
         self._mesh = None
         self._post = None
 
