@@ -70,7 +70,8 @@ You can also install PyAEDT from Conda-Forge with this command:
 
     conda install -c conda-forge pyaedt
 
-PyAEDT remains compatible with IronPython and can be still used in the AEDT Framework.
+PyAEDT remains partially compatible with IronPython.
+User can still use in the AEDT Framework with Ironpython or with CPython.
 
 
 PyAnsys
@@ -164,7 +165,7 @@ Here are the main advantages that PyAEDT provides:
 - Error management
 - Log management
 - Variable management
-- Compatibility with IronPython and CPython
+- Compatibility with IronPython (limited) and CPython
 - Simplification of complex API syntax using data objects while
   maintaining PEP8 compliance.
 - Code reusability across different solvers
