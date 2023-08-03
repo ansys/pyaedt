@@ -24,7 +24,7 @@ The main component object is called directly from main application using the pro
 
 Net properties
 --------------
-The following class is the container of data management for nets.
+The following class is the container of data management for nets, extended nets and differential pairs.
 
 
 .. currentmodule:: pyaedt.edb_core.edb_data.nets_data
@@ -34,7 +34,9 @@ The following class is the container of data management for nets.
    :nosignatures:
 
    EDBNetsData
-
+   EDBNetClassData
+   EDBExtendedNetData
+   EDBDifferentialPairData
 
 .. code:: python
 
