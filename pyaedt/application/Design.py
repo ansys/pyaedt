@@ -242,23 +242,29 @@ class Design(AedtObjects):
         self._temp_solution_type = solution_type
         try:
             self.oproject = project_name
-            self.odesign = design_name
-            AedtObjects.__init__(self, is_inherithed=True)
-            self.logger.info("Aedt Objects correctly read")
-
-            if t:
-                t.join()
-            self._variable_manager = VariableManager(self)
-            self._project_datasets = []
-            self._design_datasets = []
-            # _mtime = self.project_time_stamp
-        except:
-            self.logger.error("Failed to initialize Project or design.")
+        except Exception as e:
+            self.logger.error(e.args[0])
             try:
                 self.release_desktop(self.desktop_class.launched_by_pyaedt, self.desktop_class.launched_by_pyaedt)
             except:
                 self.logger.error("Failed to release AEDT")
-            raise Exception("Failed to initialize Design")
+            raise Exception(e.args[0])
+        try:
+            self.odesign = design_name
+        except Exception as e:
+            self.logger.error(e.args[0])
+            try:
+                self.release_desktop(self.desktop_class.launched_by_pyaedt, self.desktop_class.launched_by_pyaedt)
+            except:
+                self.logger.error("Failed to release AEDT")
+            raise Exception(e.args[0])
+        AedtObjects.__init__(self, is_inherithed=True)
+        self.logger.info("Aedt Objects correctly read")
+        if t:
+            t.join()
+        self._variable_manager = VariableManager(self)
+        self._project_datasets = []
+        self._design_datasets = []
 
     @property
     def desktop_class(self):
