@@ -306,15 +306,8 @@ quantity_name = "Temperature"
 setup_name = ipkapp.existing_analysis_sweeps[0]
 intrinsic = ""
 surflist = ipkapp.modeler.get_object_faces("inner") + ipkapp.modeler.get_object_faces("outer")
-plot5 = ipkapp.post.plot_field(
-    quantity="SurfTemperature",
-    object_list=surflist,
-    plot_cad_objs=False,
-    export_path=results_folder,
-    imageformat="jpg",
-    view="isometric",
-    show=False,
-)
+plot5 = ipkapp.post.create_fieldplot_surface(surflist, "SurfTemperature")
+
 aedtapp.save_project()
 
 ################################################################################
@@ -354,7 +347,7 @@ report.add_chapter("Icepak Results")
 report.add_sub_chapter("Temperature Plot")
 report.add_text("This section contains Multiphysics temperature plot.")
 
-report.add_image(os.path.join(results_folder, plot5.name+".jpg"), "Coaxial Cable Temperatures")
+#report.add_image(os.path.join(results_folder, plot5.name+".jpg"), "Coaxial Cable Temperatures")
 report.add_toc()
 report.save_pdf(results_folder, "AEDT_Results.pdf")
 
