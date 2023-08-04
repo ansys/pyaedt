@@ -384,7 +384,7 @@ class EDBComponent(object):
 
     @property
     def is_enabled(self):
-        """Check if the current object is enabled.
+        """Flag indicating if the current object is enabled.
 
         Returns
         -------
