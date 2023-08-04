@@ -35,6 +35,12 @@ def array(add_app):
     yield app
     app.close_project(save_project=False)
 
+@pytest.fixture()
+def sbr_app(add_app):
+    app = add_app(project_name="SBR_test", solution_type="SBR+")
+    yield app
+    app.close_project(save_project=False)
+
 
 @pytest.fixture()
 def hfss_app(add_app):
@@ -64,7 +70,7 @@ class TestClass:
         self.hfss3dl_solve = hfss3dl_solve
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not supported.")
-    def test_01_sbr_link_array(self, sbr_platform, array):
+    def test_01a_sbr_link_array(self, sbr_platform, array):
         assert sbr_platform.create_sbr_linked_antenna(array, target_cs="antenna_CS", fieldtype="farfield")
         sbr_platform.analyze(num_cores=6)
         ffdata = sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere_name="3D")
@@ -90,6 +96,34 @@ class TestClass:
             export_image_path=os.path.join(self.local_scratch.path, "3d2_array.jpg"),
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d2_array.jpg"))
+
+    def test_01b_sbr_create_vrt(self, sbr_app):
+        sbr_app.rename_design("vtr")
+        sbr_app.modeler.create_sphere([10, 10, 10], 5, matname="copper")
+        vrt = sbr_app.post.create_sbr_plane_visual_ray_tracing(max_frequency="10GHz", incident_theta="40deg")
+        assert vrt
+        vrt.incident_phi = "30deg"
+        assert vrt.update()
+        assert vrt.delete()
+        vrt = sbr_app.post.create_sbr_point_visual_ray_tracing(max_frequency="10GHz")
+        assert vrt
+        vrt.custom_location = [10, 10, 0]
+        assert vrt.update()
+        assert vrt.delete()
+
+    def test_01c_sbr_create_vrt_creeping(self, sbr_app):
+        sbr_app.rename_design("vtr_creeping")
+        sbr_app.modeler.create_sphere([10, 10, 10], 5, matname="copper")
+        vrt = sbr_app.post.create_creeping_plane_visual_ray_tracing(max_frequency="10GHz")
+        assert vrt
+        vrt.incident_phi = "30deg"
+        assert vrt.update()
+        assert vrt.delete()
+        vrt = sbr_app.post.create_creeping_point_visual_ray_tracing(max_frequency="10GHz")
+        assert vrt
+        vrt.custom_location = [10, 10, 0]
+        assert vrt.update()
+        assert vrt.delete()
 
     @pytest.mark.skipif(
         desktop_version < "2022.2",
