@@ -1,12 +1,12 @@
 """
-Twin Builder: static ROM creation and simulation (2023 R1 beta)
+Twin Builder: static ROM creation and simulation (2023 R2 beta)
 ---------------------------------------------------------------
 This example shows how you can use PyAEDT to create a static ROM in Twin Builder
 and run a Twin Builder time-domain simulation.
 
 .. note::
-    This example uses functionality only available in Twin Builder 2023 R1 and later.
-    For 2023 R1, the build date must be 8/7/2022 or later. 
+    This example uses functionality only available in Twin Builder 2023 R2 and later.
+    For 2023 R2, the build date must be 8/7/2022 or later. 
 """
 
 ###############################################################################
@@ -28,14 +28,14 @@ from pyaedt import settings
 # Select version and set launch options
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Select the Twin Builder version and set launch options. The following code
-# launches Twin Builder 2023 R1 in graphical mode.
+# launches Twin Builder 2023 R2 in graphical mode.
 #
 # You can change the Boolean parameter ``non_graphical`` to ``True`` to launch
 # Twin Builder in non-graphical mode. You can also change the Boolean parameter
 # ``new_thread`` to ``False`` to launch Twin Builder in an existing AEDT session
 # if one is running.
 
-desktop_version = "2023.1"
+desktop_version = "2023.2"
 non_graphical = False
 new_thread = True
 ###############################################################################
