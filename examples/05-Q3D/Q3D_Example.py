@@ -166,5 +166,6 @@ a.plot()
 # ~~~~~~~~~~
 # After the simulation completes, you can close AEDT or release it using the
 # ``release_desktop`` method. All methods provide for saving projects before closing.
-
+pyaedt.settings.enable_debug_logger = False
+pyaedt.settings.enable_debug_methods_argument_logger = False
 q.release_desktop(close_projects=True, close_desktop=True)

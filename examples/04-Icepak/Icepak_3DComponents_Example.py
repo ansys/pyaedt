@@ -186,7 +186,7 @@ support_obj.material_name="plexiglass"
 # Create two coordinate systems to place two electronic package assemblies
 cs1 = ipk.modeler.create_coordinate_system(
     origin=[-40, -120, 0],
-    name="PCB1",
+    name="PCB1",def
     reference_cs="Global",
     x_pointing=[1, 0, 0],
     y_pointing=[0, 1, 0],
