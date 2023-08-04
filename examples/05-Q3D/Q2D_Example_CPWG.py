@@ -19,11 +19,11 @@ import pyaedt
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
-desktop_version = "2023.1"
+desktop_version = "2023.2"
 ###############################################################################
 # Launch AEDT and 2D Extractor
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Launch AEDT 2023 R1 in graphical mode and launch 2D Extractor. This example
+# Launch AEDT 2023 R2 in graphical mode and launch 2D Extractor. This example
 # uses SI units.
 
 q = pyaedt.Q2d(specified_version=desktop_version,
@@ -123,7 +123,7 @@ q.modeler.create_rectangle(
 
 sm_obj_list = []
 ids = [1,2,3]
-if desktop_version >= "2023.1":
+if desktop_version >= "2023.2":
     ids = [0,1,2]
 
 for obj_name in ["signal", "co_gnd_left", "co_gnd_right"]:

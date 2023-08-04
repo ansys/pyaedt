@@ -27,11 +27,11 @@ from pyaedt.emit_core.emit_constants import TxRxMode, ResultType
 # The Boolean parameter ``new_thread`` defines whether to create a new instance
 # of AEDT or try to connect to an existing instance of it.
 # 
-# The following code uses AEDT 2023 R1.
+# The following code uses AEDT 2023 R2.
 
 non_graphical = False
 NewThread = True
-desktop_version = "2023.1"
+desktop_version = "2023.2"
 scratch_path = pyaedt.generate_unique_folder_name()
 
 ###############################################################################
@@ -111,7 +111,7 @@ for link in aedtapp.couplings.coupling_names:
 #
 # This part of the example requires Ansys AEDT 2023 R2. 
 
-if desktop_version > "2023.1":
+if desktop_version > "2023.2":
     rev = aedtapp.results.analyze()
     rx_bands = rev.get_band_names(rad1.name, TxRxMode.RX) 
     tx_bands = rev.get_band_names(rad2.name, TxRxMode.TX) 

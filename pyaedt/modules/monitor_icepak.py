@@ -244,21 +244,19 @@ class Monitor:
         ['monitor1', 'monitor2']
 
         """
-        if isinstance(point_position[0], str):
-            if isinstance(point_position, list):
-                point_names = point_position
+        if isinstance(point_position, str) or not isinstance(point_position[0], list):
+            point_position = [point_position]
+        point_names = []
+        ppos = []
+        for p in point_position:
+            if isinstance(p, str):
+                point_names.append(p)
             else:
-                point_names = [point_position]
-            point_position = []
-        else:
-            point_names = []
-            if not isinstance(point_position[0], list):
-                point_position = [point_position]
-
+                ppos.append(p)
         if not isinstance(monitor_quantity, list):
             monitor_quantity = [monitor_quantity]
         if "Point" in self._check_quantities(monitor_quantity):
-            for p_p in point_position:
+            for p_p in ppos:
                 point_name = generate_unique_name("Point")
                 self._app.modeler.oeditor.CreatePoint(
                     [

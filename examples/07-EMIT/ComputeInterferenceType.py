@@ -40,7 +40,7 @@ header_color = 'grey'
 
 # Check for if emit version is compatible
 desktop_version = "2023.2"
-if desktop_version <= "2023.1":
+if desktop_version <= "2023.2":
     print("Warning: this example requires AEDT 2023.2 or later.")
     sys.exit()
 
