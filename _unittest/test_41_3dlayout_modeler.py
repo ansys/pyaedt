@@ -23,7 +23,6 @@ test_subfolder = "T41"
 test_project_name = "Test_RadioBoard"
 test_rigid_flex = "demo_flex"
 test_post = "test_post_processing"
-test_solve = "test_solve"
 if config["desktopVersion"] > "2022.2":
     diff_proj_name = "differential_pairs_t41_231"
 else:
@@ -39,12 +38,6 @@ def aedtapp(add_app):
 @pytest.fixture(scope="class")
 def hfss3dl(add_app):
     app = add_app(project_name=diff_proj_name, application=Hfss3dLayout, subfolder=test_subfolder)
-    return app
-
-
-@pytest.fixture(scope="class")
-def solve(add_app):
-    app = add_app(project_name=test_solve, application=Hfss3dLayout, subfolder=test_subfolder)
     return app
 
 
@@ -530,37 +523,8 @@ class TestClass:
     def test_19A_validate(self):
         assert self.aedtapp.validate_full_design()
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
-    def test_19A_analyze_setup(self):
-        self.aedtapp.save_project()
-        assert self.aedtapp.analyze_setup("RFBoardSetup", blocking=False, num_cores=6)
-        assert self.aedtapp.are_there_simulations_running
-        # assert self.aedtapp.get_monitor_data()
-        assert self.aedtapp.stop_simulations()
-
-    def test_19AB_generate_mesh(self):
-        assert self.aedtapp.mesh.generate_mesh("RFBoardSetup3")
-
-    # @pytest.mark.timeout(140)
-    def test_19B_analyze_setup(self, solve):
-        assert solve.mesh.generate_mesh("Setup1")
-        assert solve.analyze_setup("Setup1", num_cores=6)
-        solve.save_project()
-        assert os.path.exists(solve.export_profile("Setup1"))
-        assert os.path.exists(solve.export_mesh_stats("Setup1"))
-
-    @pytest.mark.skipif(is_linux, reason="To be investigated on linux.")
-    def test_19C_export_touchsthone(self, solve):
-        filename = os.path.join(self.local_scratch.path, "touchstone.s2p")
-        solution_name = "Setup1"
-        sweep_name = "Sweep1"
-        assert solve.export_touchstone(solution_name, sweep_name, filename)
-        assert os.path.exists(filename)
-        assert solve.export_touchstone(solution_name)
-        sweep_name = None
-        assert solve.export_touchstone(solution_name, sweep_name)
-
     def test_19D_export_to_hfss(self):
+        self.aedtapp.save_project()
         filename = "export_to_hfss_test"
         filename2 = "export_to_hfss_test2"
         file_fullname = os.path.join(self.local_scratch.path, filename)
@@ -575,32 +539,9 @@ class TestClass:
         setup = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
         assert setup.export_to_q3d(file_fullname)
 
-    def test_19F_export_results(self, solve):
-        files = solve.export_results()
-        assert len(files) > 0
-
-    def test_20_set_export_touchstone(self, solve):
-        assert solve.set_export_touchstone(True)
-        assert solve.set_export_touchstone(False)
-
     def test_21_variables(self):
         assert isinstance(self.aedtapp.available_variations.nominal_w_values_dict, dict)
         assert isinstance(self.aedtapp.available_variations.nominal_w_values, list)
-
-    def test_21_get_all_sparameter_list(self, solve):
-        assert solve.get_all_sparameter_list == ["S(Port1,Port1)", "S(Port1,Port2)", "S(Port2,Port2)"]
-
-    def test_22_get_all_return_loss_list(self, solve):
-        assert solve.get_all_return_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
-
-    def test_23_get_all_insertion_loss_list(self, solve):
-        assert solve.get_all_insertion_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
-
-    def test_24_get_next_xtalk_list(self, solve):
-        assert solve.get_next_xtalk_list() == ["S(Port1,Port2)"]
-
-    def test_25_get_fext_xtalk_list(self, solve):
-        assert solve.get_fext_xtalk_list() == ["S(Port1,Port2)", "S(Port2,Port1)"]
 
     def test_26_duplicate(self):
         assert self.aedtapp.modeler.duplicate("myrectangle", 2, [1, 1])
@@ -777,7 +718,9 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux, reason="Bug on linux")
     def test_91_load_and_save_diff_pair_file(self, hfss3dl):
-        diff_def_file = os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, "differential_pairs_definition.txt")
+        diff_def_file = os.path.join(
+            local_path, "../_unittest_solvers/example_models", test_subfolder, "differential_pairs_definition.txt"
+        )
         diff_file = self.local_scratch.copyfile(diff_def_file)
         assert hfss3dl.load_diff_pairs_from_file(diff_file)
 

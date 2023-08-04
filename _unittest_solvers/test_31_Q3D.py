@@ -399,9 +399,6 @@ class TestClass:
         q3d["d"] = "10mm"
         q3d.modeler.duplicate_along_line(objid="Box1", vector=[0, "d", 0])
         q3d.analyze_setup(q3d.active_setup, num_cores=6)
-        for setup in q3d.setups:
-            if setup.name == q3d.active_setup and not setup.is_solved:
-                setup.analyze(num_cores=6)
         assert q3d.export_equivalent_circuit(
             os.path.join(self.local_scratch.path, "test_export_circuit.cir"), variations=["d: 10mm"]
         )

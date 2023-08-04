@@ -1449,6 +1449,7 @@ class TestClass:
         assert edb_stats.num_inductors
         assert edb_stats.num_capacitors
         assert edb_stats.num_resistors
+        edb.close()
 
     def test_113_set_bounding_box_extent(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "test_107.aedb")
@@ -1462,6 +1463,7 @@ class TestClass:
         assert edb.hfss.configure_hfss_extents(config)
         final_extent_info = edb.active_cell.GetHFSSExtentInfo()
         assert final_extent_info.ExtentType == edb.edb_api.utility.utility.HFSSExtentInfoType.BoundingBox
+        edb.close()
 
     def test_114_create_source(self):
         source = Source()
@@ -1538,6 +1540,7 @@ class TestClass:
         assert len(list(ssi.SweepDataList)) == 1
         sweep = list(ssi.SweepDataList)[0]
         assert not sweep.EnforceCausality
+        edb.close()
 
     def test_119_add_hfss_config(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
@@ -1556,6 +1559,7 @@ class TestClass:
             .get_MeshSizefactor()
         )
         assert mesh_size_factor == 1.9
+        edb.close()
 
     def test_120_edb_create_port(self):
         edb = Edb(
@@ -2077,6 +2081,7 @@ class TestClass:
         assert mop.skin_depth == "5um"
         assert mop.surface_triangle_length == "2mm"
         assert mop.number_of_layer_elements == "3"
+        edbapp.close()
 
     def test_130_siwave_dc_simulation_setup(self):
         setup1 = self.edbapp.create_siwave_dc_setup("DC1")
@@ -2305,6 +2310,7 @@ class TestClass:
         simconfig.mesh_freq = "40.25GHz"
         edbapp.build_simulation_project(simconfig)
         assert edbapp.siwave_ac_setups[simconfig.setup_name].mesh_frequency == simconfig.mesh_freq
+        edbapp.close()
 
     def test_134_create_port_between_pin_and_layer(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
@@ -2314,6 +2320,7 @@ class TestClass:
         edbapp.siwave.create_port_between_pin_and_layer(
             component_name="U1", pins_name="A27", layer_name="16_Bottom", reference_net="GND"
         )
+        edbapp.close()
 
     def test_134_siwave_source_setter(self):
         # test needed for the setter with sources created in Siwave prior EDB import
@@ -2328,6 +2335,7 @@ class TestClass:
         assert sources[1].magnitude == 1.45
         sources[2].magnitude = 1.45
         assert sources[2].magnitude == 1.45
+        edbapp.close()
 
     def test_135_delete_pingroup(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "test_pin_group.aedb")
@@ -2337,6 +2345,7 @@ class TestClass:
         for pingroup_name, pingroup in edbapp.siwave.pin_groups.items():
             assert pingroup.delete()
         assert not edbapp.siwave.pin_groups
+        edbapp.close()
 
     def test_136_rlc_component_values_getter_setter(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
@@ -2359,6 +2368,7 @@ class TestClass:
             assert res.res_value == 12.5 and res.ind_value == 5e-9 and res.cap_value == 1e-12
             res.cap_value = 8e-12
             assert res.res_value == 12.5 and res.ind_value == 5e-9 and res.cap_value == 8e-12
+        edbapp.close()
 
     def test_137_design_options(self):
         self.edbapp.design_options.suppress_pads = False
@@ -2411,6 +2421,7 @@ class TestClass:
         pad_instance3 = edb.padstacks.place(position=["-1.65mm", "-1.665mm"], definition_name="test2")
         assert pad_instance3.start_layer == "1_Top"
         assert pad_instance3.stop_layer == "1_Top"
+        edb.close()
 
     def test_131_assign_hfss_extent_non_multiple_with_simconfig(self):
         edb = Edb()
@@ -2454,6 +2465,7 @@ class TestClass:
         assert not hfss_ext_info.AirBoxPositiveVerticalExtent.Item2
         assert hfss_ext_info.DielectricExtentSize.Item1 == 0.0005
         assert not hfss_ext_info.AirBoxPositiveVerticalExtent.Item2
+        edb.close()
 
     def test_132_assign_hfss_extent_multiple_with_simconfig(self):
         edb = Edb()
@@ -2491,6 +2503,7 @@ class TestClass:
         assert hfss_ext_info.AirBoxPositiveVerticalExtent.Item2
         assert hfss_ext_info.DielectricExtentSize.Item1 == 0.0005
         assert hfss_ext_info.AirBoxPositiveVerticalExtent.Item2
+        edb.close()
 
     def test_133_stackup_properties(self):
         edb = Edb(edbversion=desktop_version)
@@ -2501,6 +2514,7 @@ class TestClass:
         edb.stackup.add_layer(layer_name="sig3", fillMaterial="AIR", thickness="10um", base_layer="diel2")
         assert edb.stackup.thickness == 0.00043
         assert edb.stackup.num_layers == 5
+        edb.close()
 
     def test_134_hfss_extent_info(self):
         from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives as EDBPrimitives
@@ -2657,6 +2671,7 @@ class TestClass:
         assert y.voids
         y_clone = y.clone()
         assert y_clone.voids
+        edb.close()
 
     def test_142_replace_rlc_by_gap_boundaries(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "ANSYS-HSD_V1.aedb")
@@ -2669,6 +2684,7 @@ class TestClass:
             term for term in list(edbapp.active_layout.Terminals) if str(term.GetBoundaryType()) == "RlcBoundary"
         ]
         assert len(rlc_list) == 944
+        edbapp.close()
 
     def test_143_backdrill_via_with_offset(self):
         edb = Edb(edbversion="2023.2")
@@ -2693,6 +2709,7 @@ class TestClass:
         assert padstack_instance2.backdrill_bottom[0] == "signal1"
         assert padstack_instance2.backdrill_bottom[1] == "200um"
         assert padstack_instance2.backdrill_bottom[2] == "100um"
+        edb.close()
 
     def test_143_add_layer_api_with_control_file(self):
         from pyaedt.edb_core.edb_data.control_file import ControlFile

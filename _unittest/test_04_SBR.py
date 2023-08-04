@@ -1,5 +1,4 @@
 import os
-import sys
 
 import pytest
 
@@ -27,8 +26,6 @@ if desktop_version > "2022.2":
     person = "person3_231"
     vehicle = "vehicle1_231"
     bird = "bird1_231"
-    sbr_platform_name = "satellite_231"
-    array_name = "array_231"
 
 else:
     test_project_name = "Cassegrain"
@@ -36,8 +33,7 @@ else:
     person = "person3"
     vehicle = "vehicle1"
     bird = "bird1"
-    sbr_platform_name = "satellite"
-    array_name = "array"
+
 test_subfolder = "T17"
 
 
@@ -55,18 +51,6 @@ def aedtapp(add_app):
 @pytest.fixture(scope="class")
 def source(add_app, aedtapp):
     app = add_app(project_name=aedtapp.project_name, design_name="feeder", just_open=True)
-    return app
-
-
-@pytest.fixture(scope="class")
-def sbr_platform(add_app):
-    app = add_app(project_name=sbr_platform_name, subfolder=test_subfolder)
-    return app
-
-
-@pytest.fixture(scope="class")
-def array(add_app):
-    app = add_app(project_name=array_name, subfolder=test_subfolder)
     return app
 
 
@@ -233,36 +217,6 @@ class TestClass:
         )
         for part in parts_dict["parts"]:
             assert os.path.exists(parts_dict["parts"][part]["file_name"])
-
-    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not supported.")
-    # @pytest.mark.timeout(190)
-    def test_13_link_array(self, sbr_platform, array):
-        # self.array.setups[0].props["MaximumPasses"] = 1
-        assert sbr_platform.create_sbr_linked_antenna(array, target_cs="antenna_CS", fieldtype="farfield")
-        sbr_platform.analyze(num_cores=2)
-        ffdata = sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere_name="3D")
-        ffdata2 = sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere_name="3D", overwrite=False)
-
-        ffdata.plot_2d_cut(
-            primary_sweep="theta",
-            secondary_sweep_value=[75],
-            theta_scan=20,
-            qty_str="RealizedGain",
-            title="Azimuth at {}Hz".format(ffdata.frequency),
-            convert_to_db=True,
-            export_image_path=os.path.join(self.local_scratch.path, "2d1_array.jpg"),
-        )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "2d1_array.jpg"))
-
-        ffdata2.polar_plot_3d_pyvista(
-            qty_str="RealizedGain",
-            convert_to_db=True,
-            show=False,
-            position=[-0.11749961434125, -1.68, 0.20457438854331],
-            rotation=[[1, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, 1.0, 0.0]],
-            export_image_path=os.path.join(self.local_scratch.path, "3d2_array.jpg"),
-        )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "3d2_array.jpg"))
 
     def test_14_create_vrt(self):
         self.aedtapp.insert_design("vtr")

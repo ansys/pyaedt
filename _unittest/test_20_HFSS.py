@@ -1,24 +1,23 @@
 import os
 import shutil
+
+# Setup paths for module imports
+# from _unittest.conftest import BasisTest
+# from _unittest.conftest import desktop_version
+# from _unittest.conftest import is_ironpython
+from _unittest.conftest import config
+from _unittest.conftest import local_path
+from _unittest.conftest import settings
 import pytest
 
-from _unittest_solvers.conftest import config
+# Import required modules
+# from pyaedt import Hfss
+from pyaedt.generic.near_field_import import convert_nearfield_data
 
 # try:
 #     import pytest
 # except ImportError:
 #     import _unittest_ironpython.conf_unittest as pytest
-
-# Setup paths for module imports
-# from _unittest_solvers.conftest import BasisTest
-# from _unittest_solvers.conftest import desktop_version
-# from _unittest_solvers.conftest import is_ironpython
-from _unittest_solvers.conftest import local_path
-from _unittest_solvers.conftest import settings
-
-# Import required modules
-# from pyaedt import Hfss
-from pyaedt.generic.near_field_import import convert_nearfield_data
 
 test_subfolder = "T20"
 
@@ -942,7 +941,9 @@ class TestClass:
             design_name=self.aedtapp.design_list[1],
             parameters_dict=self.aedtapp.available_variations.nominal_w_values_dict,
         )
-        example_project = os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, diff_proj_name + ".aedt")
+        example_project = os.path.join(
+            local_path, "../_unittest/example_models", test_subfolder, diff_proj_name + ".aedt"
+        )
         example_project_copy = os.path.join(self.local_scratch.path, diff_proj_name + "_copy.aedt")
         shutil.copyfile(example_project, example_project_copy)
         assert self.aedtapp.setups[0].add_mesh_link(
@@ -1261,7 +1262,7 @@ class TestClass:
         assert self.aedtapp.mesh.initial_mesh_settings.props
 
     def test_47_convert_near_field(self):
-        example_project = os.path.join(local_path, "../_unittest_solvers/example_models", "nf_test")
+        example_project = os.path.join(local_path, "../_unittest/example_models", "nf_test")
         assert os.path.exists(convert_nearfield_data(example_project, output_folder=self.local_scratch.path))
 
     def test_48_traces(self):
@@ -1338,9 +1339,11 @@ class TestClass:
         self.aedtapp.insert_design("Array_simple", "Modal")
         from pyaedt.generic.DataHandlers import json_to_dict
 
-        dict_in = json_to_dict(os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, "array_simple.json"))
+        dict_in = json_to_dict(
+            os.path.join(local_path, "../_unittest/example_models", test_subfolder, "array_simple.json")
+        )
         dict_in["Circ_Patch_5GHz1"] = os.path.join(
-            local_path, "../_unittest_solvers/example_models", test_subfolder, "Circ_Patch_5GHz.a3dcomp"
+            local_path, "../_unittest/example_models", test_subfolder, "Circ_Patch_5GHz.a3dcomp"
         )
         dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
         assert self.aedtapp.add_3d_component_array_from_json(dict_in)
@@ -1353,36 +1356,6 @@ class TestClass:
         assert self.aedtapp.set_material_threshold(threshold)
         assert self.aedtapp.set_material_threshold(str(threshold))
         assert not self.aedtapp.set_material_threshold("e")
-
-    @pytest.mark.skipif(
-        config["desktopVersion"] < "2022.2",
-        reason="Not working in non-graphical in version lower than 2022.2",
-    )
-    # @pytest.mark.timeout(100)
-    def test_51c_export_results(self):
-        self.aedtapp.insert_design("Array_simple_resuts", "Modal")
-        from pyaedt.generic.DataHandlers import json_to_dict
-
-        dict_in = json_to_dict(os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, "array_simple.json"))
-        dict_in["Circ_Patch_5GHz1"] = os.path.join(
-            local_path, "../_unittest_solvers/example_models", test_subfolder, "Circ_Patch_5GHz.a3dcomp"
-        )
-        dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
-        assert self.aedtapp.add_3d_component_array_from_json(dict_in)
-        dict_in["cells"][(3, 3)]["rotation"] = 90
-        exported_files = self.aedtapp.export_results()
-        assert len(exported_files) == 0
-        setup = self.aedtapp.create_setup(setupname="test")
-        setup.props["Frequency"] = "1GHz"
-        exported_files = self.aedtapp.export_results()
-        assert len(exported_files) == 0
-        self.aedtapp.analyze_setup(name="test", num_cores=6)
-        exported_files = self.aedtapp.export_results()
-        assert len(exported_files) == 3
-        exported_files = self.aedtapp.export_results(
-            matrix_type="Y",
-        )
-        assert len(exported_files) > 0
 
     def test_52_crate_setup_hybrid_sbr(self, add_app):
         # aedtapp = Hfss(projectname="test_52", specified_version=desktop_version)
@@ -1402,8 +1375,8 @@ class TestClass:
     def test_53_import_source_excitation(self, add_app):
         # aedtapp = Hfss(solution_type="Modal", projectname="test_53", specified_version=desktop_version)
         aedtapp = add_app(solution_type="Modal", project_name="test_53")
-        freq_domain = os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, "S Parameter Table 1.csv")
-        time_domain = os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, "Sinusoidal.csv")
+        freq_domain = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "S Parameter Table 1.csv")
+        time_domain = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "Sinusoidal.csv")
 
         box1 = aedtapp.modeler.create_box([0, 0, 0], [10, 20, 20])
         aedtapp.wave_port(
@@ -1512,7 +1485,7 @@ class TestClass:
 
     def test_59_test_nastran(self):
         self.aedtapp.insert_design("Nas_teest")
-        example_project = os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, "test_cad.nas")
+        example_project = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "test_cad.nas")
 
         cads = self.aedtapp.modeler.import_nastran(example_project)
         assert len(cads) > 0

@@ -60,9 +60,13 @@ def aedtapp(add_app):
 
 @pytest.fixture(scope="class", autouse=True)
 def examples(local_scratch):
-    project_path_origin = os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, src_project_name + ".aedt")
+    project_path_origin = os.path.join(
+        local_path, "../_unittest_solvers/example_models", test_subfolder, src_project_name + ".aedt"
+    )
     project_path = local_scratch.copyfile(project_path_origin)
-    source_project_path = os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, src_project_name)
+    source_project_path = os.path.join(
+        local_path, "../_unittest_solvers/example_models", test_subfolder, src_project_name
+    )
 
     return project_path, source_project_path
 
@@ -308,65 +312,6 @@ class TestClass:
         assert rep.create()
         assert len(self.aedtapp.post.plots) == 1
 
-    # @pytest.mark.timeout(80)
-    def test_19A_analyze_and_export_summary(self):
-        self.aedtapp.insert_design("SolveTest")
-        self.aedtapp.solution_type = self.aedtapp.SOLUTIONS.Icepak.SteadyFlowOnly
-        self.aedtapp.problem_type = "TemperatureAndFlow"
-        self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], "box", "copper")
-        self.aedtapp.create_source_block("box", "1W", False)
-        setup = self.aedtapp.create_setup("SetupIPK")
-        new_props = {"Convergence Criteria - Max Iterations": 3}
-        setup.update(update_dictionary=new_props)
-        airfaces = [i.id for i in self.aedtapp.modeler["Region"].faces]
-        self.aedtapp.assign_openings(airfaces)
-        self.aedtapp["Variable1"] = "0.5"
-        assert self.aedtapp.create_output_variable("OutputVariable1", "abs(Variable1)")  # test creation
-        assert self.aedtapp.create_output_variable("OutputVariable1", "asin(Variable1)")  # test update
-        self.aedtapp.monitor.assign_point_monitor_in_object(
-            "box", monitor_quantity="Temperature", monitor_name="test_monitor"
-        )
-        self.aedtapp.monitor.assign_face_monitor(
-            self.aedtapp.modeler.get_object_from_name("box").faces[0].id,
-            monitor_quantity=["Temperature", "HeatFlowRate"],
-            monitor_name="test_monitor2",
-        )
-        self.aedtapp.analyze("SetupIPK", num_cores=6)
-        self.aedtapp.save_project()
-        self.aedtapp.export_summary(self.aedtapp.working_directory)
-        box = [i.id for i in self.aedtapp.modeler["box"].faces]
-        assert os.path.exists(
-            self.aedtapp.eval_surface_quantity_from_field_summary(box, savedir=self.aedtapp.working_directory)
-        )
-
-    def test_19B_get_output_variable(self):
-        value = self.aedtapp.get_output_variable("OutputVariable1")
-        tol = 1e-9
-        assert abs(value - 0.5235987755982988) < tol
-
-    def test_19C_get_monitor_output(self):
-        assert self.aedtapp.monitor.all_monitors["test_monitor"].value()
-        assert self.aedtapp.monitor.all_monitors["test_monitor"].value(quantity="Temperature")
-        assert self.aedtapp.monitor.all_monitors["test_monitor"].value(
-            setup_name=self.aedtapp.existing_analysis_sweeps[0]
-        )
-        assert self.aedtapp.monitor.all_monitors["test_monitor2"].value(quantity="HeatFlowRate")
-
-    def test_20_eval_tempc(self):
-        assert os.path.exists(
-            self.aedtapp.eval_volume_quantity_from_field_summary(
-                ["box"], "Temperature", savedir=self.aedtapp.working_directory
-            )
-        )
-
-    def test_21_ExportFLDFil(self):
-        object_list = "box"
-        fld_file = os.path.join(self.aedtapp.working_directory, "test_fld.fld")
-        self.aedtapp.post.export_field_file(
-            "Temp", self.aedtapp.nominal_sweep, [], filename=fld_file, obj_list=object_list
-        )
-        assert os.path.exists(fld_file)
-
     def test_22_create_source_blocks_from_list(self):
         self.aedtapp.set_active_design("Solve")
         self.aedtapp.modeler.create_box([1, 1, 1], [3, 3, 3], "box3", "copper")
@@ -563,7 +508,9 @@ class TestClass:
 
     def test_34_import_idf(self):
         self.aedtapp.insert_design("IDF")
-        assert self.aedtapp.import_idf(os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, "brd_board.emn"))
+        assert self.aedtapp.import_idf(
+            os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, "brd_board.emn")
+        )
         assert self.aedtapp.import_idf(
             os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, "brd_board.emn"),
             filter_cap=True,
