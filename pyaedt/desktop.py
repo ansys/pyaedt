@@ -624,6 +624,7 @@ class Desktop(object):
         # the ``non_graphical`` argument.
         if os.getenv("PYAEDT_NON_GRAPHICAL", None) is not None:
             non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "false").lower() in ("true", "1", "t")
+        # Used in Examples generation to force the desktop opening
         if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):
             new_desktop_session = True
         # Used in toolkit scripts. The ``PYAEDT_SCRIPT_PROCESS_ID`` environment variable overrides
