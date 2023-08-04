@@ -331,7 +331,7 @@ class TestClass:
             monitor_quantity=["Temperature", "HeatFlowRate"],
             monitor_name="test_monitor2",
         )
-        self.aedtapp.analyze("SetupIPK", 1)
+        self.aedtapp.analyze("SetupIPK", num_cores=6)
         self.aedtapp.save_project()
         self.aedtapp.export_summary(self.aedtapp.working_directory)
         box = [i.id for i in self.aedtapp.modeler["box"].faces]

@@ -1376,7 +1376,7 @@ class TestClass:
         setup.props["Frequency"] = "1GHz"
         exported_files = self.aedtapp.export_results()
         assert len(exported_files) == 0
-        self.aedtapp.analyze_setup(name="test")
+        self.aedtapp.analyze_setup(name="test", num_cores=6)
         exported_files = self.aedtapp.export_results()
         assert len(exported_files) == 3
         exported_files = self.aedtapp.export_results(

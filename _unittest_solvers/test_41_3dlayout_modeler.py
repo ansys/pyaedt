@@ -533,7 +533,7 @@ class TestClass:
     @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
     def test_19A_analyze_setup(self):
         self.aedtapp.save_project()
-        assert self.aedtapp.analyze_setup("RFBoardSetup", blocking=False)
+        assert self.aedtapp.analyze_setup("RFBoardSetup", blocking=False, num_cores=6)
         assert self.aedtapp.are_there_simulations_running
         # assert self.aedtapp.get_monitor_data()
         assert self.aedtapp.stop_simulations()
@@ -544,7 +544,7 @@ class TestClass:
     # @pytest.mark.timeout(140)
     def test_19B_analyze_setup(self, solve):
         assert solve.mesh.generate_mesh("Setup1")
-        assert solve.analyze_setup("Setup1", num_cores=2)
+        assert solve.analyze_setup("Setup1", num_cores=6)
         solve.save_project()
         assert os.path.exists(solve.export_profile("Setup1"))
         assert os.path.exists(solve.export_mesh_stats("Setup1"))
