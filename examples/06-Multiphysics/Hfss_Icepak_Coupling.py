@@ -306,17 +306,15 @@ quantity_name = "Temperature"
 setup_name = ipkapp.existing_analysis_sweeps[0]
 intrinsic = ""
 surflist = ipkapp.modeler.get_object_faces("inner") + ipkapp.modeler.get_object_faces("outer")
-plot5 = ipkapp.post.create_fieldplot_surface(surflist, "SurfTemperature")
-
-ipkapp.post.plot_field_from_fieldplot(
-    plot5.name,
-    project_path=results_folder,
-    meshplot=False,
+plot5 = ipkapp.post.plot_field(
+    quantity="SurfTemperature",
+    object_list=surflist,
+    plot_cad_objs=False,
+    export_path=results_folder,
     imageformat="jpg",
     view="isometric",
     show=False,
 )
-
 aedtapp.save_project()
 
 ################################################################################

@@ -61,7 +61,7 @@ desktop_version = "2023.2"
 # Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
 # on the specified version and in the specified graphical mode.
 
-if desktop_version <= "2023.2":
+if desktop_version <= "2023.1":
     print("Warning: this example requires AEDT 2023.2 or later.")
     sys.exit()
 

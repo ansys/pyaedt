@@ -123,7 +123,7 @@ q.modeler.create_rectangle(
 
 sm_obj_list = []
 ids = [1,2,3]
-if desktop_version >= "2023.2":
+if desktop_version >= "2023.1":
     ids = [0,1,2]
 
 for obj_name in ["signal", "co_gnd_left", "co_gnd_right"]:
