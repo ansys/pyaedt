@@ -275,7 +275,7 @@ class EDBComponent(object):
 
     @property
     def layout_instance(self):
-        """Edb layout instance object."""
+        """EDB layout instance object."""
         return self._pedb.layout_instance
 
     @property
