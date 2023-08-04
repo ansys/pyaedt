@@ -18,7 +18,7 @@ import os
 # Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
-non_graphical = False
+non_graphical = True
 
 ###############################################################################
 # Launch AEDT

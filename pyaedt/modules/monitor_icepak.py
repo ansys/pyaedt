@@ -244,7 +244,9 @@ class Monitor:
         ['monitor1', 'monitor2']
 
         """
-        if isinstance(point_position, str) or not isinstance(point_position[0], list):
+        if isinstance(point_position, str) or (
+            not isinstance(point_position[0], list) and point_position[0] not in self._app.modeler.point_names
+        ):
             point_position = [point_position]
         point_names = []
         ppos = []
