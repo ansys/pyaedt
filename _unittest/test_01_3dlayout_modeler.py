@@ -551,7 +551,7 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux, reason="To be investigated on linux.")
     def test_19C_export_touchsthone(self, solve):
-        filename = os.path.join(solve.working_directory, "touchstone.s2p")
+        filename = os.path.join(self.local_scratch.path, "touchstone.s2p")
         solution_name = "Setup1"
         sweep_name = "Sweep1"
         assert solve.export_touchstone(solution_name, sweep_name, filename)
