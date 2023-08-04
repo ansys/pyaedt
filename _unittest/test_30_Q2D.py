@@ -40,6 +40,23 @@ class TestClass(BasisTest, object):
         o = self.aedtapp.create_rectangle((0, 0), [5, 3], name="Rectangle1")
         assert isinstance(o.id, int)
 
+    def test_02b_heal_rectangle(self):
+        assert self.aedtapp.modeler.heal_objects(input_objects_list="Rectangle1")
+        assert self.aedtapp.modeler.heal_objects(input_objects_list="Rectangle1,Rectangle1_1")
+        assert self.aedtapp.modeler.heal_objects(input_objects_list="Rectangle1, Rectangle1_1 ")
+        assert not self.aedtapp.modeler.heal_objects(input_objects_list=["Rectangle1", "Rectangle1_1"])
+        assert not self.aedtapp.modeler.heal_objects(input_objects_list="Rectangle1", simplify_type=3)
+        assert self.aedtapp.modeler.heal_objects(input_objects_list="Rectangle1", max_stitch_tolerance="0.01")
+        assert self.aedtapp.modeler.heal_objects(input_objects_list="Rectangle1", max_stitch_tolerance=0.01)
+        assert self.aedtapp.modeler.heal_objects(input_objects_list="Rectangle1", geometry_simplification_tolerance=1.2)
+        assert self.aedtapp.modeler.heal_objects(
+            input_objects_list="Rectangle1", geometry_simplification_tolerance="1.2"
+        )
+        assert self.aedtapp.modeler.heal_objects(input_objects_list="Rectangle1", tighten_gaps_width=0.001)
+        assert self.aedtapp.modeler.heal_objects(input_objects_list="Rectangle1", tighten_gaps_width="0.001")
+        assert self.aedtapp.modeler.heal_objects(input_objects_list="Rectangle1", silver_face_tolerance=1.2)
+        assert self.aedtapp.modeler.heal_objects(input_objects_list="Rectangle1", silver_face_tolerance="1.2")
+
     def test_06a_create_setup(self):
         mysetup = self.aedtapp.create_setup()
         mysetup.props["SaveFields"] = True

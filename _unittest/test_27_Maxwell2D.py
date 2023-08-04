@@ -404,39 +404,41 @@ class TestClass(BasisTest, object):
 
     def test_29_heal_objects(self):
         self.aedtapp.set_active_design("design_for_test")
-        assert self.aedtapp.heal_objects(input_objects_list="Rotor_Section1")
-        assert self.aedtapp.heal_objects(input_objects_list="Rotor_Section1,Magnet1_Section1,Magnet2_Section1")
-        assert self.aedtapp.heal_objects(input_objects_list="Rotor_Section1, Magnet1_Section1, Magnet2_Section1 ")
-        assert not self.aedtapp.heal_objects(input_objects_list="")
-        assert not self.aedtapp.heal_objects(
+        assert self.aedtapp.modeler.heal_objects(input_objects_list="Rotor_Section1")
+        assert self.aedtapp.modeler.heal_objects(input_objects_list="Rotor_Section1,Magnet1_Section1,Magnet2_Section1")
+        assert self.aedtapp.modeler.heal_objects(
+            input_objects_list="Rotor_Section1, Magnet1_Section1, Magnet2_Section1 "
+        )
+        assert not self.aedtapp.modeler.heal_objects(input_objects_list="")
+        assert not self.aedtapp.modeler.heal_objects(
             input_objects_list=["Rotor_Section1", "Magnet1_Section1", "Magnet2_Section1"]
         )
-        assert not self.aedtapp.heal_objects(
+        assert not self.aedtapp.modeler.heal_objects(
             input_objects_list="Rotor_Section1,Magnet1_Section1,Magnet2_Section1", simplify_type=3
         )
-        assert self.aedtapp.heal_objects(
+        assert self.aedtapp.modeler.heal_objects(
             input_objects_list="Rotor_Section1,Magnet1_Section1,Magnet2_Section1", max_stitch_tolerance="0.01"
         )
-        assert self.aedtapp.heal_objects(
+        assert self.aedtapp.modeler.heal_objects(
             input_objects_list="Rotor_Section1,Magnet1_Section1,Magnet2_Section1", max_stitch_tolerance=0.01
         )
-        assert self.aedtapp.heal_objects(
+        assert self.aedtapp.modeler.heal_objects(
             input_objects_list="Rotor_Section1,Magnet1_Section1,Magnet2_Section1", geometry_simplification_tolerance=1.2
         )
-        assert self.aedtapp.heal_objects(
+        assert self.aedtapp.modeler.heal_objects(
             input_objects_list="Rotor_Section1,Magnet1_Section1,Magnet2_Section1",
             geometry_simplification_tolerance="1.2",
         )
-        assert self.aedtapp.heal_objects(
+        assert self.aedtapp.modeler.heal_objects(
             input_objects_list="Rotor_Section1,Magnet1_Section1,Magnet2_Section1", tighten_gaps_width=0.001
         )
-        assert self.aedtapp.heal_objects(
+        assert self.aedtapp.modeler.heal_objects(
             input_objects_list="Rotor_Section1,Magnet1_Section1,Magnet2_Section1", tighten_gaps_width="0.001"
         )
-        assert self.aedtapp.heal_objects(
+        assert self.aedtapp.modeler.heal_objects(
             input_objects_list="Rotor_Section1,Magnet1_Section1,Magnet2_Section1", silver_face_tolerance=1.2
         )
-        assert self.aedtapp.heal_objects(
+        assert self.aedtapp.modeler.heal_objects(
             input_objects_list="Rotor_Section1,Magnet1_Section1,Magnet2_Section1", silver_face_tolerance="1.2"
         )
 
