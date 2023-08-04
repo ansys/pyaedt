@@ -20,7 +20,7 @@ import pyaedt
 # Initialize Maxwell 2D, providing the version, path to the project, and the design
 # name and type.
 
-desktopVersion = '2023.1'
+desktopVersion = '2023.2'
 
 sName = 'MySetupAuto'
 sType = 'Electrostatic'

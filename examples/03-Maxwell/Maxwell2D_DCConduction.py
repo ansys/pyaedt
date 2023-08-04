@@ -17,7 +17,7 @@ import pyaedt
 # ``Maxwell2d`` class named ``m2d``.
 
 m2d = pyaedt.Maxwell2d(
-    specified_version="2023.1",
+    specified_version="2023.2",
     new_desktop_session=True,
     close_on_exit=True,
     solution_type="DCConduction",
