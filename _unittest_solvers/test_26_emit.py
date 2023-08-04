@@ -1103,11 +1103,11 @@ class TestClass:
             i += 1
 
     @pytest.mark.skipif(
-        config["desktopVersion"] < "2024.1" or is_ironpython, reason="Skipped on versions earlier than 2024.1"
+        config["desktopVersion"] < "2024.1", reason="Skipped on versions earlier than 2024.1"
     )
-    def test_result_categories(self):
+    def test_result_categories(self, add_app):
         # set up project and run
-        self.aedtapp = BasisTest.add_app(self, application=Emit)
+        self.aedtapp = add_app(self, application=Emit)
         rad1 = self.aedtapp.modeler.components.create_component("GPS Receiver")
         ant1 = self.aedtapp.modeler.components.create_component("Antenna")
         ant1.move_and_connect_to(rad1)
