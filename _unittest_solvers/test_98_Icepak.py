@@ -1,29 +1,18 @@
 # standard imports
 import os
 
-# from _unittest_solvers.conftest import desktop_version
-# from _unittest_solvers.conftest import BasisTest
 from _unittest_solvers.conftest import config
 from _unittest_solvers.conftest import local_path
 import pytest
 
-# from pyaedt import Hfss
 from pyaedt import Icepak
 from pyaedt import settings
 
-# from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NetworkObject
 
-# try:
-#     import pytest  # noqa: F401
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
-
-# Access the desktop
 test_subfolder = "T98"
 
-non_graphical_test = False
 if config["desktopVersion"] > "2022.2":
     test_project_name = "Filter_Board_Icepak_231"
     src_project_name = "USB_Connector_IPK_231"
@@ -46,10 +35,6 @@ link_data = [proj_name, design_name, solution_name, en_ForceSimulation, en_Prese
 solution_freq = "2.5GHz"
 resolution = 2
 group_name = "Group1"
-# source_project = os.path.join(local_path, "example_models", test_subfolder, src_project_name + ".aedt")
-# source_project_path = os.path.join(local_path, "example_models", test_subfolder, src_project_name)
-# source_fluent = os.path.join(local_path, "example_models", test_subfolder, coldplate + ".aedt")
-# source_power_budget = os.path.join(local_path, "example_models", test_subfolder, power_budget + ".aedtz")
 
 
 @pytest.fixture(scope="class")
@@ -61,27 +46,17 @@ def aedtapp(add_app):
 @pytest.fixture(scope="class", autouse=True)
 def examples(local_scratch):
     project_path_origin = os.path.join(
-        local_path, "../_unittest_solvers/example_models", test_subfolder, src_project_name + ".aedt"
+        local_path, "example_models", test_subfolder, src_project_name + ".aedt"
     )
     project_path = local_scratch.copyfile(project_path_origin)
     source_project_path = os.path.join(
-        local_path, "../_unittest_solvers/example_models", test_subfolder, src_project_name
+        local_path, "example_models", test_subfolder, src_project_name
     )
 
     return project_path, source_project_path
 
 
 class TestClass:
-    # def setup_class(self):
-    #     BasisTest.my_setup(self)
-    #     self.aedtapp = BasisTest.add_app(
-    #         self, project_name=test_project_name, application=Icepak, subfolder=test_subfolder
-    #     )
-    #     project_path = os.path.join(local_path, "example_models", test_subfolder, src_project_name + ".aedt")
-    #     self.local_scratch.copyfile(project_path)
-    #
-    # def teardown_class(self):
-    #     BasisTest.my_teardown(self)
 
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch, examples):
@@ -509,10 +484,10 @@ class TestClass:
     def test_34_import_idf(self):
         self.aedtapp.insert_design("IDF")
         assert self.aedtapp.import_idf(
-            os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, "brd_board.emn")
+            os.path.join(local_path, "example_models", test_subfolder, "brd_board.emn")
         )
         assert self.aedtapp.import_idf(
-            os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, "brd_board.emn"),
+            os.path.join(local_path, "example_models", test_subfolder, "brd_board.emn"),
             filter_cap=True,
             filter_ind=True,
             filter_res=True,
@@ -597,10 +572,10 @@ class TestClass:
     def test_42_import_idf(self):
         self.aedtapp.insert_design("IDF")
         assert self.aedtapp.import_idf(
-            os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, "A1_uprev Cadence172.bdf")
+            os.path.join(local_path, "example_models", test_subfolder, "A1_uprev Cadence172.bdf")
         )
         assert self.aedtapp.import_idf(
-            os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, "A1_uprev Cadence172.bdf"),
+            os.path.join(local_path, "example_models", test_subfolder, "A1_uprev Cadence172.bdf"),
             filter_cap=True,
             filter_ind=True,
             filter_res=True,
