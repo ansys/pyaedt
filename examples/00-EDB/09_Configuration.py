@@ -174,7 +174,7 @@ edbapp.close_edb()
 # Open Aedt
 # ~~~~~~~~~
 # Project folder aedb will be opened in AEDT Hfss3DLayout and loaded.
-h3d = pyaedt.Hfss3dLayout(specified_version="2023.2", projectname=target_aedb, non_graphical=non_graphical)
+h3d = pyaedt.Hfss3dLayout(specified_version="2023.2", projectname=target_aedb, non_graphical=non_graphical, new_desktop_session=True)
 
 ###############################################################################
 # Analyze
