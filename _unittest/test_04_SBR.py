@@ -219,7 +219,6 @@ class TestClass:
             assert os.path.exists(parts_dict["parts"][part]["file_name"])
 
     @pytest.mark.skipif(is_linux, reason="feature supported in Cpython")
-    # @pytest.mark.timeout(75)
     def test_16_read_hdm(self):
         self.aedtapp.insert_design("hdm")
         hdm_path = os.path.join(local_path, "example_models", test_subfolder, "freighter_rays.hdm")

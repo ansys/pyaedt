@@ -270,7 +270,6 @@ class TestClass:
         assert LNA_setup.update()
 
     @pytest.mark.skipif(is_linux, reason="To be investigated on linux.")
-    # @pytest.mark.timeout(75)
     def test_18_export_touchstone(self):
         assert self.aedtapp.analyze("Dom_LNA")
         time.sleep(30)

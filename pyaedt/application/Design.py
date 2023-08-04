@@ -144,7 +144,6 @@ class Design(AedtObjects):
         self._init_from_design(
             projectname=project_name,
             designname=design_name,
-            # solution_type=solution_type if solution_type else self.solution_type,
             solution_type=solution_type,
             specified_version=settings.aedt_version,
             non_graphical=self._desktop_class.non_graphical,
@@ -211,31 +210,6 @@ class Design(AedtObjects):
             aedt_process_id,
         )
         self._desktop_class._connected_designs += 1
-
-        # if "pyaedt_initialized" not in dir(main_module):
-        #     self._desktop_class = Desktop(
-        #         specified_version,
-        #         non_graphical,
-        #         new_desktop_session,
-        #         close_on_exit,
-        #         student_version,
-        #         machine,
-        #         port,
-        #         aedt_process_id,
-        #     )
-        #     self.release_on_exit = True
-        # else:
-        #     self._desktop_class = Desktop(
-        #         settings.aedt_version,
-        #         settings.non_graphical,
-        #         False,
-        #         close_on_exit,
-        #         student_version,
-        #         settings.machine,
-        #         settings.port,
-        #         settings.aedt_process_id,
-        #     )
-        #     self.release_on_exit = False
 
         self.student_version = self._desktop_class.student_version
         if self.student_version:

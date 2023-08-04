@@ -129,7 +129,6 @@ class TestClass:
         desktop_version < "2022.2",
         reason="Not working in non-graphical in version lower than 2022.2",
     )
-    # @pytest.mark.timeout(100)
     def test_02_hfss_export_results(self, hfss_app):
         hfss_app.insert_design("Array_simple_resuts", "Modal")
         from pyaedt.generic.DataHandlers import json_to_dict

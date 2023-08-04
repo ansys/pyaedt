@@ -344,7 +344,6 @@ class TestClass:
                 assert bound.type == "Symmetry"
                 assert not bound.props["IsOdd"]
 
-    # @pytest.mark.timeout(100)
     def test_25_export_rl_matrix(self):
         self.aedtapp.set_active_design("Sinusoidal")
         assert not self.aedtapp.export_rl_matrix("Test1", " ")

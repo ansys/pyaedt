@@ -715,7 +715,6 @@ class TestClass:
         box3 = self.aedtapp.modeler.create_box([-50, -50, -50], [1, 1, 1], matname="copper")
         assert len(self.aedtapp.get_conduction_paths()) == 2
 
-    # @pytest.mark.timeout(90)
     def test_42_harmonic_forces(self, m3dtransient):
         assert m3dtransient.enable_harmonic_force(
             ["Stator"],
