@@ -379,7 +379,7 @@ class EDBComponent(object):
 
     @property
     def is_null(self):
-        """Check if the current object exists."""
+        """Flag indicating if the current object exists."""
         return self.edbcomponent.IsNull()
 
     @property
