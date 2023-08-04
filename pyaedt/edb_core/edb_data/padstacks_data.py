@@ -1070,7 +1070,7 @@ class EDBPadstackInstance(object):
 
     @property
     def component(self):
-        """Get the component that this padstack belong to."""
+        """Get the component that this padstack belongs to."""
         api_object = self._edb_padstackinstance.GetComponent()
         from pyaedt.edb_core.edb_data.components_data import EDBComponent
 
