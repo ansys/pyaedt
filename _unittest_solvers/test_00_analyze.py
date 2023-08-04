@@ -1,5 +1,7 @@
 import os
 import sys
+import time
+
 import pytest
 
 
@@ -35,17 +37,16 @@ def array(add_app):
 
 
 @pytest.fixture()
-def aedtapp(add_app):
-    app = add_app()
+def hfss_app(add_app):
+    app = add_app(project_name="Hfss_test")
     yield app
     app.close_project(save_project=False)
-    
+
     
 @pytest.fixture(scope="class")
 def icepak_app(add_app):
-    app = add_app(application=Icepak)
-    yield app
-    app.close_project(save_project=False)
+    app = add_app(application=Icepak, design_name="SolveTest")
+    return app
 
 
 @pytest.fixture(scope="class")
@@ -54,17 +55,16 @@ def hfss3dl_solve(add_app):
     return app
 
 
-
 class TestClass:
 
     @pytest.fixture(autouse=True)
-    def init(self, local_scratch, icepak_app):
+    def init(self, local_scratch, icepak_app, hfss3dl_solve):
         self.local_scratch = local_scratch
         self.icepak_app = icepak_app
-
+        self.hfss3dl_solve = hfss3dl_solve
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not supported.")
-    def test_13_link_array(self, sbr_platform, array):
+    def test_01_sbr_link_array(self, sbr_platform, array):
         assert sbr_platform.create_sbr_linked_antenna(array, target_cs="antenna_CS", fieldtype="farfield")
         sbr_platform.analyze(num_cores=6)
         ffdata = sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere_name="3D")
@@ -96,8 +96,8 @@ class TestClass:
         reason="Not working in non-graphical in version lower than 2022.2",
     )
     # @pytest.mark.timeout(100)
-    def test_51c_export_results(self, aedtapp):
-        aedtapp.insert_design("Array_simple_resuts", "Modal")
+    def test_02_hfss_export_results(self, hfss_app):
+        hfss_app.insert_design("Array_simple_resuts", "Modal")
         from pyaedt.generic.DataHandlers import json_to_dict
 
         dict_in = json_to_dict(
@@ -106,24 +106,23 @@ class TestClass:
             local_path, "../_unittest_solvers/example_models", test_subfolder, "Circ_Patch_5GHz.a3dcomp"
         )
         dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
-        assert aedtapp.add_3d_component_array_from_json(dict_in)
+        assert hfss_app.add_3d_component_array_from_json(dict_in)
         dict_in["cells"][(3, 3)]["rotation"] = 90
-        exported_files = aedtapp.export_results()
+        exported_files = hfss_app.export_results()
         assert len(exported_files) == 0
-        setup = aedtapp.create_setup(setupname="test")
+        setup = hfss_app.create_setup(setupname="test")
         setup.props["Frequency"] = "1GHz"
-        exported_files = aedtapp.export_results()
+        exported_files = hfss_app.export_results()
         assert len(exported_files) == 0
-        aedtapp.analyze_setup(name="test", num_cores=6)
-        exported_files = aedtapp.export_results()
+        hfss_app.analyze_setup(name="test", num_cores=6)
+        exported_files = hfss_app.export_results()
         assert len(exported_files) == 3
-        exported_files = aedtapp.export_results(
+        exported_files = hfss_app.export_results(
             matrix_type="Y",
         )
         assert len(exported_files) > 0
 
-    def test_19A_analyze_and_export_summary(self):
-        self.icepak_app.insert_design("SolveTest")
+    def test_03a_icepak_analyze_and_export_summary(self):
         self.icepak_app.solution_type = self.icepak_app.SOLUTIONS.Icepak.SteadyFlowOnly
         self.icepak_app.problem_type = "TemperatureAndFlow"
         self.icepak_app.modeler.create_box([0, 0, 0], [10, 10, 10], "box", "copper")
@@ -152,12 +151,12 @@ class TestClass:
             self.icepak_app.eval_surface_quantity_from_field_summary(box, savedir=self.icepak_app.working_directory)
         )
 
-    def test_19B_get_output_variable(self):
+    def test_03b_icepak_get_output_variable(self):
         value = self.icepak_app.get_output_variable("OutputVariable1")
         tol = 1e-9
         assert abs(value - 0.5235987755982988) < tol
 
-    def test_19C_get_monitor_output(self):
+    def test_03c_icepak_get_monitor_output(self):
         assert self.icepak_app.monitor.all_monitors["test_monitor"].value()
         assert self.icepak_app.monitor.all_monitors["test_monitor"].value(quantity="Temperature")
         assert self.icepak_app.monitor.all_monitors["test_monitor"].value(
@@ -165,14 +164,14 @@ class TestClass:
         )
         assert self.icepak_app.monitor.all_monitors["test_monitor2"].value(quantity="HeatFlowRate")
 
-    def test_20_eval_tempc(self):
+    def test_03d_icepak_eval_tempc(self):
         assert os.path.exists(
             self.icepak_app.eval_volume_quantity_from_field_summary(
                 ["box"], "Temperature", savedir=self.icepak_app.working_directory
             )
         )
 
-    def test_21_ExportFLDFil(self):
+    def test_03e_icepak_ExportFLDFil(self):
         object_list = "box"
         fld_file = os.path.join(self.icepak_app.working_directory, "test_fld.fld")
         self.icepak_app.post.export_field_file(
@@ -180,53 +179,53 @@ class TestClass:
         )
         assert os.path.exists(fld_file)
 
-
+    def test_04a_3dl_generate_mesh(self):
+        assert self.hfss3dl_solve.mesh.generate_mesh("Setup1")
 
     @pytest.mark.skipif(desktop_version < "2023.2", reason="Working only from 2023 R2")
-    def test_19A_analyze_setup(self, hfss3dl_solve):
-        assert hfss3dl_solve.analyze_setup("Setup1", blocking=False, num_cores=6)
-        assert hfss3dl_solve.are_there_simulations_running
-        assert hfss3dl_solve.stop_simulations()
+    def test_04b_3dl_analyze_setup(self):
+        assert self.hfss3dl_solve.analyze_setup("Setup1", blocking=False, num_cores=6)
+        assert self.hfss3dl_solve.are_there_simulations_running
+        assert self.hfss3dl_solve.stop_simulations()
+        while self.hfss3dl_solve.are_there_simulations_running:
+            time.sleep(1)
 
-    def test_19AB_generate_mesh(self, hfss3dl_solve):
-        assert hfss3dl_solve.mesh.generate_mesh("Setup1")
-
-    def test_19B_analyze_setup(self, hfss3dl_solve):
-        assert hfss3dl_solve.analyze_setup("Setup1", num_cores=6)
-        hfss3dl_solve.save_project()
-        assert os.path.exists(hfss3dl_solve.export_profile("Setup1"))
-        assert os.path.exists(hfss3dl_solve.export_mesh_stats("Setup1"))
+    def test_04c_3dl_analyze_setup(self):
+        assert self.hfss3dl_solve.analyze_setup("Setup1", num_cores=6)
+        self.hfss3dl_solve.save_project()
+        assert os.path.exists(self.hfss3dl_solve.export_profile("Setup1"))
+        assert os.path.exists(self.hfss3dl_solve.export_mesh_stats("Setup1"))
 
     @pytest.mark.skipif(is_linux, reason="To be investigated on linux.")
-    def test_19C_export_touchsthone(self, hfss3dl_solve):
+    def test_04d_3dl_export_touchsthone(self):
         filename = os.path.join(self.local_scratch.path, "touchstone.s2p")
         solution_name = "Setup1"
         sweep_name = "Sweep1"
-        assert hfss3dl_solve.export_touchstone(solution_name, sweep_name, filename)
+        assert self.hfss3dl_solve.export_touchstone(solution_name, sweep_name, filename)
         assert os.path.exists(filename)
-        assert hfss3dl_solve.export_touchstone(solution_name)
+        assert self.hfss3dl_solve.export_touchstone(solution_name)
         sweep_name = None
-        assert hfss3dl_solve.export_touchstone(solution_name, sweep_name)
+        assert self.hfss3dl_solve.export_touchstone(solution_name, sweep_name)
 
-    def test_19F_export_results(self, hfss3dl_solve):
-        files = hfss3dl_solve.export_results()
+    def test_04e_3dl_export_results(self):
+        files = self.hfss3dl_solve.export_results()
         assert len(files) > 0
 
-    def test_20_set_export_touchstone(self, hfss3dl_solve):
-        assert hfss3dl_solve.set_export_touchstone(True)
-        assert hfss3dl_solve.set_export_touchstone(False)
+    def test_04f_3dl_set_export_touchstone(self):
+        assert self.hfss3dl_solve.set_export_touchstone(True)
+        assert self.hfss3dl_solve.set_export_touchstone(False)
 
-    def test_21_get_all_sparameter_list(self, hfss3dl_solve):
-        assert hfss3dl_solve.get_all_sparameter_list == ["S(Port1,Port1)", "S(Port1,Port2)", "S(Port2,Port2)"]
+    def test_04g_3dl_get_all_sparameter_list(self):
+        assert self.hfss3dl_solve.get_all_sparameter_list == ["S(Port1,Port1)", "S(Port1,Port2)", "S(Port2,Port2)"]
 
-    def test_22_get_all_return_loss_list(self, hfss3dl_solve):
-        assert hfss3dl_solve.get_all_return_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
+    def test_04h_3dl_get_all_return_loss_list(self):
+        assert self.hfss3dl_solve.get_all_return_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
 
-    def test_23_get_all_insertion_loss_list(self, hfss3dl_solve):
-        assert hfss3dl_solve.get_all_insertion_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
+    def test_04i_3dl_get_all_insertion_loss_list(self):
+        assert self.hfss3dl_solve.get_all_insertion_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
 
-    def test_24_get_next_xtalk_list(self, hfss3dl_solve):
-        assert hfss3dl_solve.get_next_xtalk_list() == ["S(Port1,Port2)"]
+    def test_04j_3dl_get_next_xtalk_list(self):
+        assert self.hfss3dl_solve.get_next_xtalk_list() == ["S(Port1,Port2)"]
 
-    def test_25_get_fext_xtalk_list(self, hfss3dl_solve):
-        assert hfss3dl_solve.get_fext_xtalk_list() == ["S(Port1,Port2)", "S(Port2,Port1)"]
+    def test_04k_3dl_get_fext_xtalk_list(self):
+        assert self.hfss3dl_solve.get_fext_xtalk_list() == ["S(Port1,Port2)", "S(Port2,Port1)"]
