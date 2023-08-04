@@ -1071,11 +1071,10 @@ class EDBPadstackInstance(object):
     @property
     def component(self):
         """Get component this padstack belong to."""
-        comp_name = self._edb_padstackinstance.GetComponent().GetName()
-        if comp_name in self._pedb.components.components:
-            return self._pedb.components.components[comp_name]
-        else:  # pragma: no cover
-            return ""
+        api_object = self._edb_padstackinstance.GetComponent()
+        from pyaedt.edb_core.edb_data.components_data import EDBComponent
+        return EDBComponent(self._pedb, api_object)
+
 
     @property
     def pin(self):
