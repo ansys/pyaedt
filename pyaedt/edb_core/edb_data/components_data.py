@@ -378,6 +378,11 @@ class EDBComponent(object):
         self.edbcomponent.SetName(name)
 
     @property
+    def is_null(self):
+        """Check if the current object exists."""
+        return self.edbcomponent.IsNull()
+
+    @property
     def is_enabled(self):
         """Check if the current object is enabled.
 
