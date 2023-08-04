@@ -1,22 +1,12 @@
 import os
 
-# from _unittest.conftest import is_ironpython
-# from _unittest.conftest import desktop_version
-# from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
 import pytest
 
-# from pyaedt import Hfss
 from pyaedt import Hfss3dLayout
 from pyaedt import Maxwell3d
 from pyaedt.generic.general_methods import is_linux
-
-# try:
-#     import pytest  # noqa: F401
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
-
 
 test_subfolder = "T41"
 # Input Data and version for the test
@@ -50,22 +40,6 @@ def examples(local_scratch):
 
 
 class TestClass:
-    # def setup_class(self):
-    #     BasisTest.my_setup(self)
-    #     self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, application=Hfss3dLayout)
-    #     self.hfss3dl = BasisTest.add_app(
-    #         self, project_name=diff_proj_name, application=Hfss3dLayout, subfolder=test_subfolder
-    #     )
-    #     example_project = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
-    #     self.target_path = os.path.join(self.local_scratch.path, "Package_test_41.aedb")
-    #     self.local_scratch.copyfolder(example_project, self.target_path)
-    #     self.solve = BasisTest.add_app(
-    #         self, project_name=test_solve, application=Hfss3dLayout, subfolder=test_subfolder
-    #     )
-    #
-    # def teardown_class(self):
-    #     BasisTest.my_teardown(self)
-
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch, examples):
         self.aedtapp = aedtapp
