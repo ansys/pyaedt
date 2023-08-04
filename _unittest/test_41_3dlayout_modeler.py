@@ -3,8 +3,8 @@ import os
 # from _unittest.conftest import is_ironpython
 # from _unittest.conftest import desktop_version
 # from _unittest.conftest import BasisTest
-from _unittest_solvers.conftest import config
-from _unittest_solvers.conftest import local_path
+from _unittest.conftest import config
+from _unittest.conftest import local_path
 import pytest
 
 # from pyaedt import Hfss
@@ -43,7 +43,7 @@ def hfss3dl(add_app):
 
 @pytest.fixture(scope="class", autouse=True)
 def examples(local_scratch):
-    example_project = os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, "Package.aedb")
+    example_project = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "Package.aedb")
     target_path = os.path.join(local_scratch.path, "Package_test_41.aedb")
     local_scratch.copyfolder(example_project, target_path)
     return target_path, None
@@ -332,7 +332,7 @@ class TestClass:
         assert self.aedtapp.delete_port(port_wave.name)
         assert self.aedtapp.create_edge_port("line1", 3, False)
         assert len(self.aedtapp.excitations) > 0
-        time_domain = os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, "Sinusoidal.csv")
+        time_domain = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "Sinusoidal.csv")
         assert self.aedtapp.edit_source_from_file(
             port_wave.name,
             time_domain,
@@ -617,10 +617,10 @@ class TestClass:
     def test_36_import_gerber(self):
         self.aedtapp.insert_design("gerber")
         gerber_file = self.local_scratch.copyfile(
-            os.path.join(local_path, "../_unittest_solvers/example_models", "cad", "Gerber", "gerber1.zip")
+            os.path.join(local_path, "../_unittest/example_models", "cad", "Gerber", "gerber1.zip")
         )
         control_file = self.local_scratch.copyfile(
-            os.path.join(local_path, "../_unittest_solvers/example_models", "cad", "Gerber", "gerber1.xml")
+            os.path.join(local_path, "../_unittest/example_models", "cad", "Gerber", "gerber1.xml")
         )
 
         aedb_file = os.path.join(self.local_scratch.path, "gerber_out.aedb")
@@ -629,9 +629,9 @@ class TestClass:
     @pytest.mark.skipif(is_linux, reason="Fails in linux")
     def test_37_import_gds(self):
         self.aedtapp.insert_design("gds")
-        gds_file = os.path.join(local_path, "../_unittest_solvers/example_models", "cad", "GDS", "gds1.gds")
+        gds_file = os.path.join(local_path, "../_unittest/example_models", "cad", "GDS", "gds1.gds")
         control_file = self.local_scratch.copyfile(
-            os.path.join(local_path, "../_unittest_solvers/example_models", "cad", "GDS", "gds1.tech")
+            os.path.join(local_path, "../_unittest/example_models", "cad", "GDS", "gds1.tech")
         )
         aedb_file = os.path.join(self.local_scratch.path, "gds_out.aedb")
         assert self.aedtapp.import_gds(gds_file, aedb_path=aedb_file, control_file=control_file)
@@ -639,14 +639,14 @@ class TestClass:
     @pytest.mark.skipif(is_linux, reason="Fails in linux")
     def test_38_import_dxf(self):
         self.aedtapp.insert_design("dxf")
-        dxf_file = os.path.join(local_path, "../_unittest_solvers/example_models", "cad", "DXF", "dxf1.dxf")
-        control_file = os.path.join(local_path, "../_unittest_solvers/example_models", "cad", "DXF", "dxf1.xml")
+        dxf_file = os.path.join(local_path, "../_unittest/example_models", "cad", "DXF", "dxf1.dxf")
+        control_file = os.path.join(local_path, "../_unittest/example_models", "cad", "DXF", "dxf1.xml")
         aedb_file = os.path.join(self.local_scratch.path, "dxf_out.aedb")
         assert self.aedtapp.import_gerber(dxf_file, aedb_path=aedb_file, control_file=control_file)
 
     def test_39_import_ipc(self):
         self.aedtapp.insert_design("ipc")
-        dxf_file = os.path.join(local_path, "../_unittest_solvers/example_models", "cad", "ipc", "galileo.xml")
+        dxf_file = os.path.join(local_path, "../_unittest/example_models", "cad", "ipc", "galileo.xml")
         aedb_file = os.path.join(self.local_scratch.path, "ipc_out.aedb")
         assert self.aedtapp.import_ipc2581(dxf_file, aedb_path=aedb_file, control_file="")
 
@@ -719,7 +719,7 @@ class TestClass:
     @pytest.mark.skipif(is_linux, reason="Bug on linux")
     def test_91_load_and_save_diff_pair_file(self, hfss3dl):
         diff_def_file = os.path.join(
-            local_path, "../_unittest_solvers/example_models", test_subfolder, "differential_pairs_definition.txt"
+            local_path, "../_unittest/example_models", test_subfolder, "differential_pairs_definition.txt"
         )
         diff_file = self.local_scratch.copyfile(diff_def_file)
         assert hfss3dl.load_diff_pairs_from_file(diff_file)
