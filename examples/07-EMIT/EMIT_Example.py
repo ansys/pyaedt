@@ -25,7 +25,7 @@ from pyaedt.emit_core.emit_constants import TxRxMode, ResultType
 
 non_graphical = False
 NewThread = True
-desktop_version = "2023.1"
+desktop_version = "2023.2"
 
 
 ###############################################################################

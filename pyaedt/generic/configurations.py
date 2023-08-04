@@ -1173,8 +1173,9 @@ class Configurations(object):
             dict_out["coordinatesystems"] = {}
             for cs in self._app.modeler.coordinate_systems:
                 if isinstance(cs, CoordinateSystem):
-                    dict_out["coordinatesystems"][cs.name] = cs.props
-                    dict_out["coordinatesystems"][cs.name]["Reference CS"] = cs.ref_cs
+                    if cs.props:
+                        dict_out["coordinatesystems"][cs.name] = cs.props
+                        dict_out["coordinatesystems"][cs.name]["Reference CS"] = cs.ref_cs
 
     # @pyaedt_function_handler()
     # def _export_face_coordinate_systems(self, dict_out):
