@@ -3,7 +3,6 @@ from __future__ import division  # noreorder
 
 import math
 
-# from _unittest.conftest import BasisTest
 from _unittest.conftest import desktop_version
 import pytest
 
@@ -28,13 +27,6 @@ def aedtapp(add_app):
 
 
 class TestClass:
-    # def setup_class(self):
-    #     BasisTest.my_setup(self)
-    #     self.aedtapp = BasisTest.add_app(self, "Test_09")
-    #
-    # def teardown_class(self):
-    #     BasisTest.my_teardown(self)
-
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch):
         self.aedtapp = aedtapp

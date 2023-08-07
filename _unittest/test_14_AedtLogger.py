@@ -14,17 +14,6 @@ from pyaedt import settings
 # Import required modules
 from pyaedt.aedt_logger import AedtLogger
 
-# try:
-#     import unittest.mock
-#
-#     import pytest
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest
-
-# from _unittest.conftest import BasisTest
-
-# from pyaedt.generic.general_methods import is_ironpython
-
 settings.enable_desktop_logs = True
 
 
@@ -37,16 +26,6 @@ def aedtapp(add_app):
 
 
 class TestClass:
-    # def setup_class(self):
-    #     settings.enable_local_log_file = True
-    #     BasisTest.my_setup(self)
-    #     self.aedtapp = BasisTest.add_app(self, "Test_14")
-    #
-    # def teardown_class(self):
-    #     settings.enable_local_log_file = False
-    #     BasisTest.my_teardown(self)
-    #     shutil.rmtree(os.path.join(tempfile.gettempdir(), "log_testing"), ignore_errors=True)
-
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch):
         self.aedtapp = aedtapp

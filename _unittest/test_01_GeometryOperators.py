@@ -10,14 +10,6 @@ from pyaedt.modeler.calculators import StandardWaveguide as wg
 from pyaedt.modeler.calculators import TransmissionLine as tl
 from pyaedt.modeler.geometry_operators import GeometryOperators as go
 
-# from _unittest.conftest import BasisTest
-
-
-# try:
-#     import pytest  # noqa: F401
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
-
 tol = 1e-12
 
 

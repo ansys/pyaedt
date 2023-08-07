@@ -1,8 +1,6 @@
 # Setup paths for module imports
 import os
 
-# from _unittest.conftest import BasisTest
-# from _unittest.conftest import desktop_version
 import pytest
 
 from pyaedt import Maxwell2d
@@ -18,18 +16,6 @@ def aedtapp(add_app):
 
 
 class TestClass:
-    # def setup_class(self):
-    #     project_name = "MaxwellCircuitProject"
-    #     design_name = "MaxwellCircuitDesign1"
-    #     BasisTest.my_setup(self)
-    #     self.aedtapp = BasisTest.add_app(
-    #         self, project_name=project_name, design_name=design_name, application=MaxwellCircuit
-    #     )
-    #     self.aedtapp.modeler.schematic_units = "mil"
-    #
-    # def teardown_class(self):
-    #     BasisTest.my_teardown(self)
-
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch):
         self.aedtapp = aedtapp

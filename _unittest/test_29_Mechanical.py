@@ -1,7 +1,6 @@
 import os
 import shutil
 
-# from _unittest.conftest import BasisTest  # Setup paths for module imports
 from _unittest.conftest import config  # Setup paths for module imports
 import pytest
 
@@ -27,13 +26,6 @@ def aedtapp(add_app):
 
 
 class TestClass:
-    # def setup_class(self):
-    #     BasisTest.my_setup(self)
-    #     self.aedtapp = BasisTest.add_app(self, application=Mechanical, solution_type="Thermal")
-    #
-    # def teardown_class(self):
-    #     BasisTest.my_teardown(self)
-
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch):
         self.aedtapp = aedtapp

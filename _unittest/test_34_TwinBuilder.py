@@ -1,7 +1,6 @@
 # Setup paths for module imports
 import os
 
-# from _unittest.conftest import BasisTest
 from _unittest.conftest import NONGRAPHICAL
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
@@ -48,20 +47,6 @@ def desktop():
 
 @pytest.mark.skipif(is_linux, reason="Emit API fails on linux.")
 class TestClass:
-    # def setup_class(self):
-    #     project_name = "TwinBuilderProject"
-    #     design_name = "TwinBuilderDesign1"
-    #     BasisTest.my_setup(self)
-    #     self.aedtapp = BasisTest.add_app(
-    #         self, project_name=project_name, design_name=design_name, application=TwinBuilder
-    #     )
-    #     self.aedtapp.modeler.schematic_units = "mil"
-    #     netlist1 = os.path.join(local_path, "example_models", test_subfolder, "netlist_small.cir")
-    #     self.netlist_file1 = self.local_scratch.copyfile(netlist1)
-    #
-    # def teardown_class(self):
-    #     BasisTest.my_teardown(self)
-
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch, examples):
         self.aedtapp = aedtapp

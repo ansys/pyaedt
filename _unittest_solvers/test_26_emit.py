@@ -2,7 +2,6 @@
 import os
 import sys
 
-# from _unittest_solvers.conftest import BasisTest
 from _unittest_solvers.conftest import config
 import pytest
 
@@ -36,12 +35,7 @@ def aedtapp(add_app):
 
 @pytest.mark.skipif(is_linux, reason="Emit API fails on linux.")
 class TestClass:
-    # def setup_class(self):
-    #     BasisTest.my_setup(self)
-    #     self.aedtapp = BasisTest.add_app(self, application=Emit)
-    #
-    # def teardown_class(self):
-    #     BasisTest.my_teardown(self)
+
 
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch):
