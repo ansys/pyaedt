@@ -832,7 +832,7 @@ class EdbPadstacks(object):
         add_default_layer=False,
         anti_pad_x_size="600um",
         anti_pad_y_size="600um",
-        hole_range="from_upper_to_lower_pad",
+        hole_range="upper_pad_to_lower_pad",
     ):
         """Create a padstack.
 

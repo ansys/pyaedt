@@ -503,6 +503,8 @@ class Desktop(object):
         self.launched_by_pyaedt = False
         if os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t"):
             non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+        if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):
+            new_desktop_session = True
         # used in toolkit scripts
         if os.getenv("PYAEDT_SCRIPT_PROCESS_ID", None):
             print("found process id")

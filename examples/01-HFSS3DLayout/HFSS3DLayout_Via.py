@@ -18,14 +18,14 @@ import os
 # Set non-graphical mode. 
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
-non_graphical = False
+non_graphical = True
 
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2023 R1 in graphical mode.
+# Launch AEDT 2023 R2 in graphical mode.
 
-h3d = pyaedt.Hfss3dLayout(specified_version="2023.1", new_desktop_session=True, non_graphical=non_graphical)
+h3d = pyaedt.Hfss3dLayout(specified_version="2023.2", new_desktop_session=True, non_graphical=non_graphical)
 
 ###############################################################################
 # Set up variables

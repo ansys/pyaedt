@@ -663,6 +663,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         if self._props or settings.aedt_version <= "2022.2" or self.name is None:
             return self._props
         self._get_coordinates_data()
+        return self._props
 
     @property
     def ref_cs(self):
