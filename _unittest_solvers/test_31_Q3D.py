@@ -1,6 +1,5 @@
 import os
 
-# from _unittest_solvers.conftest import BasisTest
 from _unittest_solvers.conftest import desktop_version
 from _unittest_solvers.conftest import local_path
 import pytest
@@ -34,17 +33,6 @@ def examples(local_scratch):
 
 
 class TestClass:
-    # def setup_class(self):
-    #     BasisTest.my_setup(self)
-    #     self.aedtapp = BasisTest.add_app(self, application=Q3d)
-    #     example_project = os.path.join(local_path, "example_models", test_subfolder, bondwire_project_name)
-    #     self.test_project = self.local_scratch.copyfile(example_project)
-    #     self.test_matrix = self.local_scratch.copyfile(
-    #         os.path.join(local_path, "example_models", test_subfolder, q2d_q3d + ".aedt")
-    #     )
-    #
-    # def teardown_class(self):
-    #     BasisTest.my_teardown(self)
 
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, examples, local_scratch):

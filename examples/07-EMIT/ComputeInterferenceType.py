@@ -183,9 +183,9 @@ def create_legend_table():
         width = 600
         )
     fig.show()
+if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
+    # Create a scenario view for all the interference types
+    create_scenario_view(power_matrix, all_colors, tx_radios, rx_radios)
 
-# Create a scenario view for all the interference types
-create_scenario_view(power_matrix, all_colors, tx_radios, rx_radios)
-
-# Create a legend for the interference types
-create_legend_table()
+    # Create a legend for the interference types
+    create_legend_table()

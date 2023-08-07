@@ -1,13 +1,10 @@
 # standard imports
 import os
 
-# from _unittest.conftest import desktop_version
-# from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
 import pytest
 
-# from pyaedt import Hfss
 from pyaedt import Circuit
 from pyaedt import Q2d
 from pyaedt import Q3d
@@ -72,47 +69,6 @@ def examples(local_scratch):
 
 
 class TestClass:
-    # def setup_class(self):
-    #     # BasisTest.my_setup(self)
-    #     # set a scratch directory and the environment / test data
-    #     # example_project = os.path.join(local_path, "example_models", test_subfloder, test_project_name + ".aedt")
-    #     source_project = os.path.join(local_path, "example_models", test_subfloder, src_project_name + ".aedt")
-    #     # linked_project = os.path.join(local_path, "example_models", test_subfloder, linked_project_name + ".aedt")
-    #
-    #     self.q3d = self.local_scratch.copyfile(
-    #         os.path.join(local_path, "example_models", test_subfloder, "q2d_q3d.aedt")
-    #     )
-    #     # self.test_project = self.local_scratch.copyfile(example_project)
-    #     self.test_src_project = self.local_scratch.copyfile(source_project)
-    #     # self.test_lkd_project = self.local_scratch.copyfile(linked_project)
-    #
-    #     # self.local_scratch.copyfolder(
-    #     #     os.path.join(local_path, "example_models", test_subfloder, test_project_name + ".aedb"),
-    #     #     os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
-    #     # )
-    #     # self.local_scratch.copyfolder(
-    #     #     os.path.join(local_path, "example_models", test_subfloder, linked_project_name + ".aedb"),
-    #     #     os.path.join(self.local_scratch.path, linked_project_name + ".aedb"),
-    #     # )
-    #     # with open(example_project, "rb") as fh:
-    #     #     temp = fh.read().splitlines()
-    #     #
-    #     # with open(os.path.join(self.local_scratch.path, test_project_name + ".aedt"), "wb") as outf:
-    #     #     found = False
-    #     #     for line in temp:
-    #     #         if not found:
-    #     #             if "Filter_Board.aedt" in line.decode("utf-8"):
-    #     #                 line = "\t\t\t\tfilename='{}/{}.aedt'\n".format(
-    #     #                     self.local_scratch.path.replace("\\", "/"), linked_project_name
-    #     #                 ).encode()
-    #     #                 found = True
-    #     #         outf.write(line + b"\n")
-    #     # self.aedtapp = Circuit(self.test_project, specified_version=desktop_version)
-    #     # self.aedtapps.append(self.aedtapp)
-
-    # def teardown_class(self):
-    #     BasisTest.my_teardown(self)
-
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch, examples):
         self.aedtapp = aedtapp

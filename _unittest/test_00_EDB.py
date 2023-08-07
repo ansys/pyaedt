@@ -70,24 +70,6 @@ def desktop():
 
 @pytest.mark.skipif(config["skip_edb"], reason="Skipping on IPY and optionally on CPython.")
 class TestClass:
-    # def setup_class(self):
-    #     BasisTest.my_setup(self, launch_desktop=False)
-    #     self.edbapp = BasisTest.add_edb(self, test_project_name, subfolder=test_subfolder)
-    #     example_project = os.path.join(local_path, "example_models", test_subfolder, "example_package.aedb")
-    #     self.target_path = os.path.join(self.local_scratch.path, "example_package.aedb")
-    #     self.local_scratch.copyfolder(example_project, self.target_path)
-    #     example_project2 = os.path.join(local_path, "example_models", test_subfolder, "simple.aedb")
-    #     self.target_path2 = os.path.join(self.local_scratch.path, "simple_00.aedb")
-    #     self.local_scratch.copyfolder(example_project2, self.target_path2)
-    #     example_project4 = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
-    #     self.target_path4 = os.path.join(self.local_scratch.path, "Package_00.aedb")
-    #     self.local_scratch.copyfolder(example_project4, self.target_path4)
-    #
-    # def teardown_class(self):
-    #     self.edbapp.close()
-    #     self.local_scratch.remove()
-    #     del self.edbapp
-
     @pytest.fixture(autouse=True)
     def init(self, edbapp, local_scratch, target_path, target_path2, target_path4):
         self.edbapp = edbapp

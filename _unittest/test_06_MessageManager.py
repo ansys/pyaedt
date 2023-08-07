@@ -2,7 +2,6 @@
 import logging
 import os.path
 
-# from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 import pytest
 
@@ -37,28 +36,6 @@ def aedtapp(add_app):
 
 
 class TestClass:
-    # def setup_class(self):
-    #     BasisTest.my_setup(self)
-    #     # Test the global messenger before opening the desktop
-    #     msg = AedtLogger()
-    #     msg.clear_messages()
-    #     msg.add_info_message("Test desktop level - Info")
-    #     msg.add_info_message("Test desktop level - Info", level="Design")
-    #     msg.add_info_message("Test desktop level - Info", level="Project")
-    #     msg.add_info_message("Test desktop level - Info", level="Global")
-    #     # assert len(msg.messages.global_level) == 4
-    #     # assert len(msg.messages.project_level) == 0
-    #     # assert len(msg.messages.design_level) == 0
-    #     # assert len(msg.messages.global_level) == 0
-    #     # assert len(msg.messages.project_level) == 0
-    #     # assert len(msg.messages.design_level) == 0
-    #     msg.clear_messages(level=0)
-    #     self.aedtapp = BasisTest.add_app(self)
-    #     msg.clear_messages(level=3)
-    #
-    # def teardown_class(self):
-    #     BasisTest.my_teardown(self)
-
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch):
         self.aedtapp = aedtapp

@@ -1,18 +1,10 @@
 import os
 
-# from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
 import pytest
 
 from pyaedt import Hfss3dLayout
-
-# from pyaedt import is_ironpython
-#
-# try:
-#     import pytest  # noqa: F401
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 config["NonGraphical"] = False
 test_subfolder = "T44"
@@ -30,18 +22,6 @@ def hfss3dl(add_app):
 
 
 class TestClass:
-    # def setup_class(self):
-    #     BasisTest.my_setup(self)
-    #     self.hfss3dl = BasisTest.add_app(
-    #         self, project_name=aedt_proj_name, application=Hfss3dLayout, subfolder=test_subfolder
-    #     )
-    #     """example_project = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
-    #     self.target_path = os.path.join(self.local_scratch.path, "Package_test_41.aedb")
-    #     self.local_scratch.copyfolder(example_project, self.target_path)"""
-    #
-    # def teardown_class(self):
-    #     BasisTest.my_teardown(self)
-
     @pytest.fixture(autouse=True)
     def init(self, hfss3dl, local_scratch):
         self.hfss3dl = hfss3dl

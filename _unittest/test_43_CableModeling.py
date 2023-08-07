@@ -1,18 +1,11 @@
 import os
 
-# from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
 import pytest
 
-# from pyaedt import is_ironpython
 from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.modules.CableModeling import Cable
-
-# try:
-#     import pytest  # noqa: F401
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest
 
 if config["desktopVersion"] > "2022.2":
     project_name = "cable_modeling_231"
@@ -44,24 +37,6 @@ def dict_in(local_scratch):
 
 @pytest.mark.skipif(config["desktopVersion"] > "2022.2", reason="AEDT Crashes")
 class TestClass:
-    # def setup_class(self):
-    #     BasisTest.my_setup(self)
-    #     self.aedtapp = BasisTest.add_app(
-    #         self, project_name=project_name, design_name="HFSSDesign1", subfolder=test_subfloder
-    #     )
-    #     self.dict_in = json_to_dict(
-    #         os.path.join(
-    #             local_path,
-    #             "example_models",
-    #             test_subfloder,
-    #             "cable_modeling_json_files",
-    #             "set_cable_properties.json",
-    #         )
-    #     )
-    #
-    # def teardown_class(self):
-    #     BasisTest.my_teardown(self)
-
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, dict_in, local_scratch):
         self.aedtapp = aedtapp

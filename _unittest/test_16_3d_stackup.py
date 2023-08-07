@@ -1,5 +1,4 @@
 # Setup paths for module imports
-# from _unittest.conftest import BasisTest
 
 # Import required modules
 import pytest
@@ -18,14 +17,6 @@ def st(aedtapp):
 
 
 class TestClass:
-    # def setup_class(self):
-    #     BasisTest.my_setup(self)
-    #     self.aedtapp = BasisTest.add_app(self, "Test_16")
-    #     self.st = self.aedtapp.add_stackup_3d()
-    #
-    # def teardown_class(self):
-    #     BasisTest.my_teardown(self)
-
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, st, local_scratch):
         self.aedtapp = aedtapp

@@ -7,18 +7,10 @@ try:
 except ImportError:
     osmnx = None
 
-# from _unittest.conftest import BasisTest
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 
-# from pyaedt import Hfss
-# from pyaedt import is_ironpython
 from pyaedt import is_linux
-
-# try:
-#     import pytest  # noqa: F401
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 if desktop_version > "2022.2":
     test_project_name = "Cassegrain_231"
@@ -55,25 +47,6 @@ def source(add_app, aedtapp):
 
 
 class TestClass:
-    # def setup_class(self):
-    #     BasisTest.my_setup(self)
-    #     self.aedtapp = BasisTest.add_app(
-    #         self,
-    #         project_name=test_project_name,
-    #         design_name="Cassegrain_reflectors",
-    #         solution_type="SBR+",
-    #         subfolder=test_subfolder,
-    #     )
-    #     self.source = Hfss(self.aedtapp.project_name, "feeder", specified_version=desktop_version)
-    #     self.sbr_platform = BasisTest.add_app(self, project_name=sbr_platform, subfolder=test_subfolder)
-    #     self.array = BasisTest.add_app(self, project_name=array, subfolder=test_subfolder)
-    #     if not is_ironpython and not is_linux:
-    #         # this should be changed upstream to use a HOME or TEMP folder by default...
-    #         osmnx.settings.cache_folder = os.path.join(self.local_scratch.path, "cache")
-    #
-    # def teardown_class(self):
-    #     BasisTest.my_teardown(self)
-
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch):
         self.aedtapp = aedtapp

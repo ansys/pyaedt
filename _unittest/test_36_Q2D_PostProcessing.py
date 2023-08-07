@@ -1,9 +1,6 @@
 import os
 
-# from _unittest.conftest import BasisTest
 from _unittest.conftest import config
-
-# from _unittest.conftest import local_path
 import pytest
 
 from pyaedt import Q2d
@@ -31,12 +28,6 @@ def q2d_solved_nominal_app(add_app):
 
 
 class TestClass:
-    # def setup_class(self):
-    #     BasisTest.my_setup(self)
-    #
-    # def teardown_class(self):
-    #     BasisTest.my_teardown(self)
-
     @pytest.fixture(autouse=True)
     def init(self, q2d_solved_sweep_app, q2d_solved_nominal_app, local_scratch):
         self.q2d_solved_sweep_app = q2d_solved_sweep_app

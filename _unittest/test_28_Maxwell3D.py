@@ -2,7 +2,6 @@
 import os
 import shutil
 
-# from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
@@ -66,23 +65,6 @@ def layout_comp(add_app):
 
 
 class TestClass:
-    # def setup_class(self):
-    #     BasisTest.my_setup(self)
-    #     self.aedtapp = BasisTest.add_app(self, application=Maxwell3d, solution_type="EddyCurrent")
-    #     example_project = os.path.join(local_path, "example_models", test_subfolder, core_loss_file + ".aedt")
-    #     self.file_path = self.local_scratch.copyfile(example_project)
-    #     self.m3dtransient = BasisTest.add_app(
-    #         self, application=Maxwell3d, project_name=transient, subfolder=test_subfolder
-    #     )
-    #     self.cyl_gap = BasisTest.add_app(self, application=Maxwell3d, project_name=cyl_gap, subfolder=test_subfolder)
-    #     if desktop_version > "2023.1":
-    #         self.layout_comp = BasisTest.add_app(
-    #             self, application=Maxwell3d, project_name=layout_component, subfolder=test_subfolder
-    #         )
-    #
-    # def teardown_class(self):
-    #     BasisTest.my_teardown(self)
-
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch):
         self.aedtapp = aedtapp

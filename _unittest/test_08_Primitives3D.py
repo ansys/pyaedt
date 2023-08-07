@@ -3,13 +3,10 @@ import os
 import sys
 import time
 
-# Setup paths for module imports
-# from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
 import pytest
 
-# from pyaedt import Hfss
 from pyaedt import generate_unique_name
 from pyaedt.generic.constants import AXIS
 
@@ -81,26 +78,6 @@ def examples(local_scratch):
 
 
 class TestClass:
-    # def setup_class(self):
-    #     BasisTest.my_setup(self)
-    #     self.aedtapp = BasisTest.add_app(self, project_name="test_primitives", design_name="3D_Primitives")
-    #     scdoc_file = os.path.join(local_path, "example_models", test_subfolder, scdoc)
-    #     self.local_scratch.copyfile(scdoc_file)
-    #     self.step_file = os.path.join(local_path, "example_models", test_subfolder, step)
-    #     self.component3d_file = os.path.join(self.local_scratch.path, component3d)
-    #     self.encrypted_cylinder = os.path.join(local_path, "example_models", test_subfolder, encrypted_cylinder)
-    #     test_98_project = os.path.join(local_path, "example_models", test_subfolder, assembly2 + ".aedt")
-    #     self.test_98_project = self.local_scratch.copyfile(test_98_project)
-    #     test_99_project = os.path.join(local_path, "example_models", test_subfolder, assembly + ".aedt")
-    #     self.test_99_project = self.local_scratch.copyfile(test_99_project)
-    #     self.flatten = BasisTest.add_app(self, project_name=components_flatten, subfolder=test_subfolder)
-    #     test_54b_project = os.path.join(local_path, "example_models", test_subfolder, polyline + ".aedt")
-    #     self.test_54b_project = self.local_scratch.copyfile(test_54b_project)
-    #     self.layout_component = os.path.join(local_path, "example_models", test_subfolder, layout_comp)
-    #
-    # def teardown_class(self):
-    #     BasisTest.my_teardown(self)
-
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, flatten, local_scratch, examples):
         self.aedtapp = aedtapp

@@ -1,6 +1,5 @@
 import os
 
-# from _unittest.conftest import BasisTest
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 import pytest
@@ -29,16 +28,6 @@ def examples(local_scratch):
 
 
 class TestClass:
-    # def setup_class(self):
-    #     BasisTest.my_setup(self)
-    #     self.aedtapp = BasisTest.add_app(self, application=Q2d)
-    #     self.test_matrix = self.local_scratch.copyfile(
-    #         os.path.join(local_path, "example_models", test_subfolder, "{}.aedt".format(q2d_q3d))
-    #     )
-    #
-    # def teardown_class(self):
-    #     BasisTest.my_teardown(self)
-
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, examples, local_scratch):
         self.aedtapp = aedtapp
