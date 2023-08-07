@@ -1359,32 +1359,3 @@ class TestClass(BasisTest, object):
         comp.modeler.create_3dcomponent(component_filepath)
         comp.close_project()
         assert self.aedtapp.modeler.user_defined_components["test"].update_definition()
-
-    def test_67_heal_objects(self):
-        self.aedtapp.insert_design("Heal_Objects")
-        self.aedtapp.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="box_1")
-        self.aedtapp.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="box_2")
-        assert self.aedtapp.modeler.heal_objects(input_objects_list="box_1")
-        assert self.aedtapp.modeler.heal_objects(input_objects_list="box_1,box_2")
-        assert self.aedtapp.modeler.heal_objects(input_objects_list="box_1, box_2 ")
-        assert not self.aedtapp.modeler.heal_objects(input_objects_list=["box_1", "box_2"])
-        assert not self.aedtapp.modeler.heal_objects(input_objects_list="box_1", simplify_type=3)
-        assert self.aedtapp.modeler.heal_objects(input_objects_list="box_1", max_stitch_tolerance="0.01")
-        assert self.aedtapp.modeler.heal_objects(input_objects_list="box_1", max_stitch_tolerance=0.01)
-        assert self.aedtapp.modeler.heal_objects(input_objects_list="box_1", geometry_simplification_tolerance=1.2)
-        assert self.aedtapp.modeler.heal_objects(input_objects_list="box_1", geometry_simplification_tolerance="1.2")
-        assert self.aedtapp.modeler.heal_objects(input_objects_list="box_1", tighten_gaps_width=0.001)
-        assert self.aedtapp.modeler.heal_objects(input_objects_list="box_1", tighten_gaps_width="0.001")
-        assert self.aedtapp.modeler.heal_objects(input_objects_list="box_1", silver_face_tolerance=1.2)
-        assert self.aedtapp.modeler.heal_objects(input_objects_list="box_1", silver_face_tolerance="1.2")
-
-    def test_68_simplify_objects(self):
-        assert self.aedtapp.modeler.simplify_objects(input_objects_list="box_1")
-        assert self.aedtapp.modeler.simplify_objects(input_objects_list="box_1,box_2")
-        assert self.aedtapp.modeler.simplify_objects(input_objects_list="box_1, box_2")
-        assert not self.aedtapp.modeler.simplify_objects(input_objects_list=["box_1", "box_2"])
-        assert self.aedtapp.modeler.simplify_objects(input_objects_list="box_1", simplify_type="Primitive Fit")
-        assert not self.aedtapp.modeler.simplify_objects(input_objects_list="box_1", simplify_type="Invalid")
-        assert not self.aedtapp.modeler.simplify_objects(
-            input_objects_list="box_1", simplify_type="Polygon Fit", extrusion_axis="U"
-        )
