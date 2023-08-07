@@ -5622,58 +5622,58 @@ class GeometryModeler(Modeler, object):
         auto_heal : bool, optional
             Auto heal option. Default value is ``True``.
         tolerant_stitch : bool, optional
-            Tolerant stitch for manual healing. Default value is ``True``.
+            Tolerant stitch for manual healing. The default is ``True``.
         simplify_geometry : bool, optional
-            Simplify geometry for manual healing. Default value is ``True``.
+            Simplify geometry for manual healing. The default is ``True``.
         tighten_gaps : bool, optional
-            Tighten gaps for manual healing. Default value is ``True``.
+            Tighten gaps for manual healing. The default is ``True``.
         heal_to_solid : bool, optional
-            Heal to solid for manual healing. Default value is ``False``.
+            Heal to solid for manual healing. The default is ``False``.
         stop_after_first_stitch_error : bool, optional
-            Stop after first stitch error for manual healing. Default value is ``False``.
+            Stop after first stitch error for manual healing. The default is ``False``.
         max_stitch_tolerance : float, str, optional
-            Max stitch tolerance for manual healing. Default value is ``0.001``.
+            Max stitch tolerance for manual healing. The default is ``0.001``.
         explode_and_stitch : bool, optional
-            Explode and stitch for manual healing. Default value is ``True``.
+            Explode and stitch for manual healing. The default is ``True``.
         geometry_simplification_tolerance : float, str, optional
-            Geometry simplification tolerance for manual healing in mm. Default value is ``1``.
+            Geometry simplification tolerance for manual healing in mm. The default is ``1``.
         maximum_generated_radius : float, str, optional
-            Maximum generated radius for manual healing in mm. Default value is ``1``.
+            Maximum generated radius for manual healing in mm. The default is ``1``.
         simplify_type : int, optional
-            Simplify type for manual healing. Default value is ``0`` which refers to ``Curves``.
+            Simplify type for manual healing. The default is ``0`` which refers to ``Curves``.
             Other available values are ``1`` for ``Surfaces`` and ``2`` for ``Both``.
         tighten_gaps_width : float, str, optional
-            Tighten gaps width for manual healing in mm. Default value is ``0.00001``.
+            Tighten gaps width for manual healing in mm. The default is ``0.00001``.
         remove_silver_faces : bool, optional
-            Remove silver faces for manual healing. Default value is ``True``.
+            Remove silver faces for manual healing. The default is ``True``.
         remove_small_edges : bool, optional
-            Remove small edges faces for manual healing. Default value is ``True``.
+            Remove small edges faces for manual healing. The default is ``True``.
         remove_small_faces : bool, optional
-            Remove small faces for manual healing. Default value is ``True``.
+            Remove small faces for manual healing. The default is ``True``.
         silver_face_tolerance : float, str, optional
-            Silver face tolerance for manual healing in mm. Default value is ``1``.
+            Silver face tolerance for manual healing in mm. The default is ``1``.
         small_edge_tolerance : float, str, optional
-            Silver face tolerance for manual healing in mm. Default value is ``1``.
+            Silver face tolerance for manual healing in mm. The default is ``1``.
         small_face_area_tolerance : float, str, optional
-            Silver face tolerance for manual healing in mm^2. Default value is ``1``.
+            Silver face tolerance for manual healing in mm^2. The default is ``1``.
         bounding_box_scale_factor : int, optional
-            Bounding box scaling factor for manual healing. Default value is ``0``.
+            Bounding box scaling factor for manual healing. The default is ``0``.
         remove_holes : bool, optional
-            Remove holes for manual healing. Default value is ``True``.
+            Remove holes for manual healing. The default is ``True``.
         remove_chamfers : bool, optional
-            Remove chamfers for manual healing. Default value is ``True``.
+            Remove chamfers for manual healing. The default is``True``.
         remove_blends : bool, optional
-            Remove blends for manual healing. Default value is ``True``.
+            Remove blends for manual healing. The default is ``True``.
         hole_radius_tolerance : float, str, optional
-            Hole radius tolerance for manual healing in mm. Default value is ``1``.
+            Hole radius tolerance for manual healing in mm. The default is ``1``.
         chamfer_width_tolerance : float, str, optional
-            Chamfer width tolerance for manual healing in mm. Default value is ``1``.
+            Chamfer width tolerance for manual healing in mm. The default is ``1``.
         blend_radius_tolerance : float, str, optional
-            Blend radius tolerance for manual healing in mm. Default value is ``1``.
+            Blend radius tolerance for manual healing in mm. The default is ``1``.
         allowable_surface_area_change : float, str, optional
-            Allowable surface area for manual healing in mm. Default value is ``1``.
+            Allowable surface area for manual healing in mm. The default is ``1``.
         allowable_volume_change : float, str, optional
-            Allowable volume change for manual healing in mm. Default value is ``1``.
+            Allowable volume change for manual healing in mm. The default is ``1``.
 
         Returns
         -------
@@ -5801,23 +5801,23 @@ class GeometryModeler(Modeler, object):
             Extrusion axis. Default value is ``Auto``.
             Available values are ``Auto`` ``X``, ``Y`` or ``Z``.
         clean_up : bool, optional
-            Clean up. Default value is ``True``.
+            Clean up. The default is ``True``.
         allow_splitting : bool, optional
-            Allow splitting. Default value is ``True``.
+            Allow splitting. The default is ``True``.
         separate_bodies : bool, optional
-            Separate bodies. Default value is ``True``.
+            Separate bodies. The default is ``True``.
         clone_body : bool, optional
-            Clone body. Default value is ``True``.
+            Clone body. The default is ``True``.
         generate_primitive_history : bool, optional
             Generate primitive history.
             This option will purge the history for selected objects.
-            Default value is ``False``.
+            The default is ``False``.
         interior_points_on_arc : float, optional
-            Number points on curve. Default value is ``5``.
+            Number points on curve. The default is ``5``.
         length_threshold_percentage : float, optional
-            Number points on curve. Default value is ``25``.
+            Number points on curve. The default is ``25``.
         create_group_for_new_objects : bool, optional
-            Create group for new objects. Default value is ``False``.
+            Create group for new objects. The default is ``False``.
 
         Returns
         -------
