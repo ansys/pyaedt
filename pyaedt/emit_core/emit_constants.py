@@ -14,7 +14,9 @@ class MutableEnum:
             getattr(cls, attr) for attr in dir(cls) if not callable(getattr(cls, attr)) and not attr.startswith("__")
         ]
         if members[0] is None:
-            raise Exception(f"Enum is uninitialized. Create a pyaedt.Emit() object before using {cls.__name__}.")
+            raise Exception(
+                "Enum is uninitialized. Create a pyaedt.Emit() object before using {}.".format(cls.__name__)
+            )
         return members
 
 
@@ -85,4 +87,4 @@ class EmiCategoryFilter(MutableEnum):
 if __name__ == "__main__":
     print("Members of EmiCategoryFilter:")
     for m in EmiCategoryFilter.members():
-        print(f"    {m}")
+        print("    {}".format(m))

@@ -1,16 +1,19 @@
 # Setup paths for module imports
-from _unittest.conftest import BasisTest
+# from _unittest.conftest import BasisTest
+
 from _unittest.conftest import config
+import pytest
 
 from pyaedt.application.Variables import decompose_variable_value
-from pyaedt.generic.general_methods import is_ironpython
+
+# from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.modeler.cad.Modeler import FaceCoordinateSystem
 from pyaedt.modeler.cad.Primitives import PolylineSegment
 
-try:
-    import pytest  # noqa: F401
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
+# try:
+#     import pytest  # noqa: F401
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 test_subfolder = "T02"
 if config["desktopVersion"] > "2022.2":
@@ -18,19 +21,30 @@ if config["desktopVersion"] > "2022.2":
 else:
     test_project_name = "Coax_HFSS_t02"
 
-if is_ironpython:
-    tol = 5e-4
-else:
-    tol = 1e-12
+# if is_ironpython:
+#     tol = 5e-4
+# else:
+tol = 1e-12
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, subfolder=test_subfolder)
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(project_name=test_project_name, subfolder=test_subfolder)
+    return app
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+
+class TestClass:
+    # def setup_class(self):
+    #     BasisTest.my_setup(self)
+    #     self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, subfolder=test_subfolder)
+    #
+    # def teardown_class(self):
+    #     BasisTest.my_teardown(self)
+
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, local_scratch):
+        self.aedtapp = aedtapp
+        self.local_scratch = local_scratch
 
     def restore_model(self):
         for name in self.aedtapp.modeler.get_matched_object_name("outer*"):
@@ -670,10 +684,9 @@ class TestClass(BasisTest, object):
         objects_in_bounding_box = self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
         assert len(objects_in_bounding_box) == 0
 
-        if not is_ironpython:
-            with pytest.raises(ValueError):
-                bounding_box = [100, 200, 100, -100, -300]
-                self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
+        with pytest.raises(ValueError):
+            bounding_box = [100, 200, 100, -100, -300]
+            self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
 
     def test_53_wrap_sheet(self):
         rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [2.5, 0, 10], [5, 15], "wrap")
@@ -857,7 +870,6 @@ class TestClass(BasisTest, object):
             ],
         )
 
-    @pytest.mark.skipif(is_ironpython, reason="pytest.raises not available")
     def test_59b_region_property_failing(self):
         self.aedtapp.modeler.create_air_region()
         assert not self.aedtapp.modeler.change_region_coordinate_system(region_cs="NoCS")
