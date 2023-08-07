@@ -158,7 +158,7 @@ class EdbExtendedNets(EdbCommon, object):
         return self.items[name]
 
 
-class EdbDifferentialPair(EdbCommon, object):
+class EdbDifferentialPairs(EdbCommon, object):
     """Manages EDB methods for managing nets accessible from the ``Edb.differential_pairs`` property.
 
     Examples

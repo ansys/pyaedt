@@ -37,7 +37,7 @@ from pyaedt.edb_core.hfss import EdbHfss
 from pyaedt.edb_core.ipc2581.ipc2581 import Ipc2581
 from pyaedt.edb_core.layout import EdbLayout
 from pyaedt.edb_core.materials import Materials
-from pyaedt.edb_core.net_class import EdbDifferentialPair
+from pyaedt.edb_core.net_class import EdbDifferentialPairs
 from pyaedt.edb_core.net_class import EdbExtendedNets
 from pyaedt.edb_core.net_class import EdbNetClasses
 from pyaedt.edb_core.nets import EdbNets
@@ -926,7 +926,7 @@ class Edb(Database):
         >>> edbapp.differential_pairs
         """
         if self.active_db:
-            return EdbDifferentialPair(self)
+            return EdbDifferentialPairs(self)
 
     @property
     def core_primitives(self):  # pragma: no cover
