@@ -4,7 +4,6 @@ import filecmp
 import os
 import sys
 
-# from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
 import pytest
@@ -92,22 +91,6 @@ def project_sub_key(add_app):
 
 
 class TestClass:
-    # def setup_class(self):
-    #     BasisTest.my_setup(self)
-    #     self.coax = BasisTest.add_app(self, test_project_name, subfolder=test_subfolder)
-    #     self.cs = BasisTest.add_app(self, cs, subfolder=test_subfolder)
-    #     self.cs1 = BasisTest.add_app(self, cs1, subfolder=test_subfolder)
-    #     self.cs2 = BasisTest.add_app(self, cs2, subfolder=test_subfolder)
-    #     self.cs3 = BasisTest.add_app(self, cs3, subfolder=test_subfolder)
-    #     self.multiple_cs_project = self.test_project
-    #     self.mat1 = BasisTest.add_app(self, "Add_material")
-    #     hfss_file = os.path.join(local_path, "example_models", test_subfolder, test_project_name + ".aedt")
-    #     self.project_dict = load_entire_aedt_file(hfss_file)
-    #     self.project_sub_key = load_keyword_in_aedt_file(hfss_file, "AnsoftProject")
-    #
-    # def teardown_class(self):
-    #     BasisTest.my_teardown(self)
-
     @pytest.fixture(autouse=True)
     def init(self, project_dict, project_sub_key, test_project_file, local_scratch):
         self.project_dict = project_dict

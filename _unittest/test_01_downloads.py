@@ -8,15 +8,6 @@ from pyaedt import downloads
 from pyaedt import is_linux
 from pyaedt.generic.general_methods import generate_unique_name
 
-# from _unittest.conftest import BasisTest
-# from _unittest.conftest import is_ironpython
-
-
-# try:
-#     import pytest
-# except ImportError:  # pragma: no cover
-#     import _unittest_ironpython.conf_unittest as pytest
-
 
 @pytest.fixture(scope="module", autouse=True)
 def desktop():

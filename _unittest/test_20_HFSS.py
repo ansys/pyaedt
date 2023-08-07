@@ -1,18 +1,16 @@
 import os
 import shutil
 
-# Setup paths for module imports
-# from _unittest.conftest import BasisTest
-# from _unittest.conftest import desktop_version
-# from _unittest.conftest import is_ironpython
 from _unittest.conftest import config
 from _unittest.conftest import local_path
 from _unittest.conftest import settings
 import pytest
 
 # Import required modules
-# from pyaedt import Hfss
 from pyaedt.generic.near_field_import import convert_nearfield_data
+
+# Setup paths for module imports
+
 
 # try:
 #     import pytest
@@ -40,14 +38,6 @@ def fall_back_name(aedtapp):
 
 
 class TestClass:
-    # def setup_class(self):
-    #     BasisTest.my_setup(self)
-    #     self.aedtapp = BasisTest.add_app(self, "Test_20", "test_20")
-    #     self.fall_back_name = self.aedtapp.design_name
-    #
-    # def teardown_class(self):
-    #     BasisTest.my_teardown(self)
-
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, fall_back_name, local_scratch):
         self.aedtapp = aedtapp
@@ -1378,7 +1368,7 @@ class TestClass:
         assert bound.props["Type"] == "IE"
         bound.props["Type"] = "PO"
         assert bound.props["Type"] == "PO"
-        self.aedtapp.close_project(name=aedtapp.project_name, save_project=False)
+        aedtapp.close_project(save_project=False)
 
     def test_53_import_source_excitation(self, add_app):
         # aedtapp = Hfss(solution_type="Modal", projectname="test_53", specified_version=desktop_version)
@@ -1401,7 +1391,7 @@ class TestClass:
             x_scale=1e-6,
             y_scale=1e-3,
         )
-        self.aedtapp.close_project(name=aedtapp.project_name, save_project=False)
+        aedtapp.close_project(save_project=False)
 
     def test_54_assign_symmetry(self, add_app):
         # aedtapp = Hfss(projectname="test_54", specified_version=desktop_version)
@@ -1422,7 +1412,7 @@ class TestClass:
         assert not aedtapp.assign_symmetry(ids[0])
         assert not aedtapp.assign_symmetry("test")
         assert aedtapp.set_impedance_multiplier(2)
-        self.aedtapp.close_project(name=aedtapp.project_name, save_project=False)
+        aedtapp.close_project(save_project=False)
 
     def test_55_create_near_field_sphere(self):
         air = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", matname="vacuum")

@@ -5,8 +5,6 @@ import pytest
 
 from pyaedt.misc.aedtlib_personalib_install import write_tab_config
 
-# from _unittest.conftest import BasisTest
-
 
 @pytest.fixture(scope="module", autouse=True)
 def desktop():
@@ -14,12 +12,6 @@ def desktop():
 
 
 class TestClass:
-    # def setup_class(self):
-    #     BasisTest.my_setup(self, launch_desktop=False)
-    #
-    # def teardown_class(self):
-    #     self.local_scratch.remove()
-
     @pytest.fixture(autouse=True)
     def init(self, local_scratch):
         self.local_scratch = local_scratch

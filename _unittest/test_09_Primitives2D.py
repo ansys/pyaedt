@@ -1,17 +1,9 @@
 #!/ekm/software/anaconda3/bin/python
 # Import required modules
-# from _unittest.conftest import BasisTest
 import pytest
 
 from pyaedt import Maxwell2d
 from pyaedt.modeler.cad.polylines import Polyline
-
-# Setup paths for module imports
-
-# try:
-#     import pytest  # noqa: F401
-# except ImportError:
-#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 
 @pytest.fixture(scope="class")
@@ -21,15 +13,6 @@ def aedtapp(add_app):
 
 
 class TestClass:
-    # def setup_class(self):
-    #     BasisTest.my_setup(self)
-    #     self.aedtapp = BasisTest.add_app(
-    #         self, design_name="2D_Primitives_2", solution_type="TransientXY", application=Maxwell2d
-    #     )
-    #
-    # def teardown_class(self):
-    #     BasisTest.my_teardown(self)
-
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch):
         self.aedtapp = aedtapp

@@ -2,11 +2,9 @@
 import os
 import time
 
-# from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 import pytest
 
-# from pyaedt import Hfss
 from pyaedt import Hfss3dLayout
 from pyaedt import Icepak
 from pyaedt import Q2d
@@ -82,24 +80,6 @@ def hfss3dl_b(add_app):
 
 
 class TestClass:
-    # def setup_class(self):
-    #     # set a scratch directory and the environment / test data
-    #     BasisTest.my_setup(self)
-    #     self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, subfolder=test_subfolder)
-    #     self.q3dtest = BasisTest.add_app(self, project_name=q3d_file, application=Q3d, subfolder=test_subfolder)
-    #     self.q2dtest = Q2d(projectname=q3d_file, specified_version=config["desktopVersion"])
-    #     self.icepak_a = BasisTest.add_app(self, project_name=ipk_name + "_a", application=Icepak)
-    #     self.icepak_b = BasisTest.add_app(self, project_name=ipk_name + "_b", application=Icepak)
-    #     self.hfss3dl_a = BasisTest.add_app(
-    #         self, project_name=diff_proj_name, application=Hfss3dLayout, subfolder=test_subfolder
-    #     )
-    #     self.hfss3dl_b = BasisTest.add_app(
-    #         self, project_name=hfss3dl_existing_setup_proj_name, application=Hfss3dLayout, subfolder=test_subfolder
-    #     )
-    #
-    # def teardown_class(self):
-    #     BasisTest.my_teardown(self)
-
     def test_01_hfss_export(self, aedtapp, add_app):
         aedtapp.mesh.assign_length_mesh("sub")
         conf_file = aedtapp.configurations.export_config()

@@ -1,7 +1,6 @@
 import random
 import time
 
-# from _unittest.conftest import BasisTest
 import numpy as np
 import pytest
 
@@ -16,12 +15,6 @@ def desktop():
 
 
 class TestClass:
-    # def setup_class(self):
-    #     BasisTest.my_setup(self)
-    #
-    # def teardown_class(self):
-    #     BasisTest.my_teardown(self)
-
     def test_01_ga_launch(self):
         def f(X):
             return np.sum(X)

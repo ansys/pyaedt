@@ -1,8 +1,5 @@
 import os
 
-# Setup paths for module imports
-# from _unittest.conftest import BasisTest
-# from _unittest.conftest import desktop_version
 from _unittest.conftest import config
 from _unittest.conftest import local_path
 import pytest
@@ -11,6 +8,9 @@ import pytest
 # Import required modules
 from pyaedt import Hfss3dLayout
 from pyaedt import is_linux
+
+# Setup paths for module imports
+
 
 # try:
 #     import pytest
@@ -49,35 +49,6 @@ def examples(local_scratch, aedtapp):
 
 
 class TestClass:
-    # def setup_class(self):
-    #     # BasisTest.my_setup(self)
-    #     # self.aedtapp = BasisTest.add_app(
-    #     #     self, project_name=original_project_name, application=Hfss3dLayout, subfolder=test_subfolder
-    #     # )
-    #     # self.design_name = self.aedtapp.design_name
-    #     # self.tmp = self.aedtapp.modeler.geometries
-    #
-    #     example_project = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
-    #     src_file = os.path.join(local_path, "example_models", test_subfolder, "Package.aedt")
-    #     dest_file = os.path.join(self.local_scratch.path, "Package_test_40.aedt")
-    #     self.target_path = os.path.join(self.local_scratch.path, "Package_test_40.aedb")
-    #     self.local_scratch.copyfolder(example_project, self.target_path)
-    #     self.package_file = self.local_scratch.copyfile(src_file, dest_file)
-    #
-    #     self.flipchip = BasisTest.add_app(
-    #         self,
-    #         project_name=self.package_file,
-    #         design_name="FlipChip_TopBot",
-    #         application=Hfss3dLayout,
-    #         subfolder=test_subfolder,
-    #     )
-    #     self.dcir_example_project = BasisTest.add_app(
-    #         self, project_name="ANSYS-HSD_V1_dcir", application=Hfss3dLayout, subfolder=test_subfolder
-    #     )
-    #
-    # def teardown_class(self):
-    #     BasisTest.my_teardown(self)
-
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, flipchip, dcir_example_project, local_scratch, examples):
         self.aedtapp = aedtapp

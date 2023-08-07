@@ -24,6 +24,7 @@ import shutil
 import string
 import sys
 import tempfile
+import time
 
 import pytest
 
@@ -135,8 +136,8 @@ def desktop():
     d.odesktop.SetDesktopConfiguration("All")
     d.odesktop.SetSchematicEnvironment(0)
     yield d
-
     d.release_desktop(True, True)
+    time.sleep(1)
 
 
 @pytest.fixture(scope="module")
