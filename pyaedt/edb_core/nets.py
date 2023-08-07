@@ -223,8 +223,15 @@ class EdbNets(object):
         return self._comps_by_nets_dict
 
     @pyaedt_function_handler()
-    def generate_extended_nets(self, resistor_below=10, inductor_below=1, capacitor_above=1, exception_list=None,
-                               include_signal=True, include_power=True):
+    def generate_extended_nets(
+        self,
+        resistor_below=10,
+        inductor_below=1,
+        capacitor_above=1,
+        exception_list=None,
+        include_signal=True,
+        include_power=True,
+    ):
         # type: (int | float, int | float, int |float, list, bool, bool) -> list
         """Get extended net and associated components.
 
