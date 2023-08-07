@@ -1,54 +1,90 @@
 import os
 
-from _unittest.conftest import config
-
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
-
 # Setup paths for module imports
-from _unittest.conftest import BasisTest
-from _unittest.conftest import desktop_version
+# from _unittest.conftest import BasisTest
+# from _unittest.conftest import desktop_version
+from _unittest.conftest import config
 from _unittest.conftest import local_path
+import pytest
 
+# from pyaedt import is_ironpython
 # Import required modules
 from pyaedt import Hfss3dLayout
-from pyaedt import is_ironpython
 from pyaedt import is_linux
+
+# try:
+#     import pytest
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest
 
 test_subfolder = "T40"
 
 original_project_name = "ANSYS-HSD_V1"
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(
-            self, project_name=original_project_name, application=Hfss3dLayout, subfolder=test_subfolder
-        )
-        self.design_name = self.aedtapp.design_name
-        self.tmp = self.aedtapp.modeler.geometries
-        example_project = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
-        src_file = os.path.join(local_path, "example_models", test_subfolder, "Package.aedt")
-        dest_file = os.path.join(self.local_scratch.path, "Package_test_40.aedt")
-        self.target_path = os.path.join(self.local_scratch.path, "Package_test_40.aedb")
-        self.local_scratch.copyfolder(example_project, self.target_path)
-        self.package_file = self.local_scratch.copyfile(src_file, dest_file)
-        self.flipchip = BasisTest.add_app(
-            self,
-            project_name=self.package_file,
-            design_name="FlipChip_TopBot",
-            application=Hfss3dLayout,
-            subfolder=test_subfolder,
-        )
-        self.dcir_example_project = BasisTest.add_app(
-            self, project_name="ANSYS-HSD_V1_dcir", application=Hfss3dLayout, subfolder=test_subfolder
-        )
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(project_name=original_project_name, application=Hfss3dLayout, subfolder=test_subfolder)
+    return app
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+
+@pytest.fixture(scope="class")
+def flipchip(add_app):
+    app = add_app(
+        project_name="Package", design_name="FlipChip_TopBot", application=Hfss3dLayout, subfolder=test_subfolder
+    )
+    return app
+
+
+@pytest.fixture(scope="class")
+def dcir_example_project(add_app):
+    app = add_app(project_name="ANSYS-HSD_V1_dcir", application=Hfss3dLayout, subfolder=test_subfolder)
+    return app
+
+
+@pytest.fixture(scope="class", autouse=True)
+def examples(local_scratch, aedtapp):
+    design_name = aedtapp.design_name
+    return design_name, None
+
+
+class TestClass:
+    # def setup_class(self):
+    #     # BasisTest.my_setup(self)
+    #     # self.aedtapp = BasisTest.add_app(
+    #     #     self, project_name=original_project_name, application=Hfss3dLayout, subfolder=test_subfolder
+    #     # )
+    #     # self.design_name = self.aedtapp.design_name
+    #     # self.tmp = self.aedtapp.modeler.geometries
+    #
+    #     example_project = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
+    #     src_file = os.path.join(local_path, "example_models", test_subfolder, "Package.aedt")
+    #     dest_file = os.path.join(self.local_scratch.path, "Package_test_40.aedt")
+    #     self.target_path = os.path.join(self.local_scratch.path, "Package_test_40.aedb")
+    #     self.local_scratch.copyfolder(example_project, self.target_path)
+    #     self.package_file = self.local_scratch.copyfile(src_file, dest_file)
+    #
+    #     self.flipchip = BasisTest.add_app(
+    #         self,
+    #         project_name=self.package_file,
+    #         design_name="FlipChip_TopBot",
+    #         application=Hfss3dLayout,
+    #         subfolder=test_subfolder,
+    #     )
+    #     self.dcir_example_project = BasisTest.add_app(
+    #         self, project_name="ANSYS-HSD_V1_dcir", application=Hfss3dLayout, subfolder=test_subfolder
+    #     )
+    #
+    # def teardown_class(self):
+    #     BasisTest.my_teardown(self)
+
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, flipchip, dcir_example_project, local_scratch, examples):
+        self.aedtapp = aedtapp
+        self.flipchip = flipchip
+        self.dcir_example_project = dcir_example_project
+        self.local_scratch = local_scratch
+        self.design_name = examples[0]
 
     def test_01_get_components(self):
         comp = self.aedtapp.modeler.components
@@ -226,10 +262,10 @@ class TestClass(BasisTest, object):
         no_nets = self.aedtapp.modeler.no_nets
         assert len(nets) == len(power_nets) + len(signal_nets) + len(no_nets)
 
-    @pytest.mark.skipif(is_ironpython, reason="Not running in non-graphical mode")
-    def test_08_merge(self):
+    def test_08_merge(self, add_app):
         tol = 1e-12
-        brd = Hfss3dLayout(self.flipchip.project_name, "Dummy_Board", specified_version=desktop_version)
+        # brd = Hfss3dLayout(self.flipchip.project_name, "Dummy_Board", specified_version=desktop_version)
+        brd = add_app(application=Hfss3dLayout, project_name=self.flipchip.project_name, design_name="Dummy_Board")
         comp = brd.modeler.merge_design(self.flipchip, rotation=90)
         assert comp.location[0] == 0.0
         assert comp.rotation_axis == "Z"
@@ -260,7 +296,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.layers.change_stackup_type("Laminate")
         assert not self.aedtapp.modeler.layers.change_stackup_type("lami")
 
-    @pytest.mark.skipif(is_ironpython or config["NonGraphical"], reason="Not running in non-graphical mode")
+    @pytest.mark.skipif(config["NonGraphical"], reason="Not running in non-graphical mode")
     def test_11_export_picture(self):
         assert os.path.exists(self.aedtapp.post.export_model_picture(orientation="top"))
 
@@ -339,7 +375,7 @@ class TestClass(BasisTest, object):
         assert "var_test" in self.aedtapp.variable_manager.design_variable_names
         assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
 
-    @pytest.mark.skipif(is_ironpython or is_linux, reason="Not Supported.")
+    @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
     def test_19_dcir(self):
         import pandas as pd
 

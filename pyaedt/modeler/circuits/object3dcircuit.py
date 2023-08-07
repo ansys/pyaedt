@@ -6,7 +6,8 @@ import math
 
 # from pyaedt import property
 from pyaedt import pyaedt_function_handler
-from pyaedt import settings
+
+# from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import _arg2dict
@@ -611,7 +612,7 @@ class CircuitComponent(object):
     @angle.setter
     def angle(self, angle=None):
         """Set the part angle."""
-        if not settings.use_grpc_api:
+        if not self._circuit_components._app.desktop_class.is_grpc_api:
             if not angle:
                 angle = str(self._angle) + "°"
             else:

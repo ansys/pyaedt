@@ -4,9 +4,10 @@ import filecmp
 import os
 import sys
 
-from _unittest.conftest import BasisTest
+# from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+import pytest
 
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
@@ -14,17 +15,17 @@ from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 test_subfolder = "T13"
 if config["desktopVersion"] > "2022.2":
     test_project_name = "Coax_HFSS_t13_231"
-    cs = "Coordinate_System_231"
-    cs1 = "Coordinate_System1_231"
-    cs2 = "Coordinate_System2_231"
-    cs3 = "Coordinate_System3_231"
+    cs_name = "Coordinate_System_231"
+    cs1_name = "Coordinate_System1_231"
+    cs2_name = "Coordinate_System2_231"
+    cs3_name = "Coordinate_System3_231"
     image_f = "Coax_HFSS_v231.jpg"
 else:
     test_project_name = "Coax_HFSS_t13"
-    cs = "Coordinate_System"
-    cs1 = "Coordinate_System1"
-    cs2 = "Coordinate_System2"
-    cs3 = "Coordinate_System3"
+    cs_name = "Coordinate_System"
+    cs1_name = "Coordinate_System1"
+    cs2_name = "Coordinate_System2"
+    cs3_name = "Coordinate_System3"
     image_f = "Coax_HFSS.jpg"
 
 
@@ -42,22 +43,77 @@ def _write_jpg(design_info, scratch):
     return filename
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.coax = BasisTest.add_app(self, test_project_name, subfolder=test_subfolder)
-        self.cs = BasisTest.add_app(self, cs, subfolder=test_subfolder)
-        self.cs1 = BasisTest.add_app(self, cs1, subfolder=test_subfolder)
-        self.cs2 = BasisTest.add_app(self, cs2, subfolder=test_subfolder)
-        self.cs3 = BasisTest.add_app(self, cs3, subfolder=test_subfolder)
-        self.multiple_cs_project = self.test_project
-        self.mat1 = BasisTest.add_app(self, "Add_material")
-        hfss_file = os.path.join(local_path, "example_models", test_subfolder, test_project_name + ".aedt")
-        self.project_dict = load_entire_aedt_file(hfss_file)
-        self.project_sub_key = load_keyword_in_aedt_file(hfss_file, "AnsoftProject")
+@pytest.fixture(scope="class")
+def coax(add_app):
+    app = add_app(project_name=test_project_name, subfolder=test_subfolder)
+    return app
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+
+@pytest.fixture(scope="class")
+def cs(add_app):
+    app = add_app(project_name=cs_name, subfolder=test_subfolder)
+    return app
+
+
+@pytest.fixture(scope="class")
+def cs1(add_app):
+    app = add_app(project_name=cs1_name, subfolder=test_subfolder)
+    return app
+
+
+@pytest.fixture(scope="class")
+def cs2(add_app):
+    app = add_app(project_name=cs2_name, subfolder=test_subfolder)
+    return app
+
+
+@pytest.fixture(scope="class")
+def cs3(add_app):
+    app = add_app(project_name=cs3_name, subfolder=test_subfolder)
+    return app
+
+
+@pytest.fixture(scope="class")
+def mat1(add_app):
+    app = add_app(project_name="Add_material")
+    return app
+
+
+@pytest.fixture(scope="class")
+def project_dict(add_app):
+    hfss_file = os.path.join(local_path, "example_models", test_subfolder, test_project_name + ".aedt")
+    return load_entire_aedt_file(hfss_file)
+
+
+@pytest.fixture(scope="class")
+def project_sub_key(add_app):
+    hfss_file = os.path.join(local_path, "example_models", test_subfolder, test_project_name + ".aedt")
+    return load_keyword_in_aedt_file(hfss_file, "AnsoftProject")
+
+
+class TestClass:
+    # def setup_class(self):
+    #     BasisTest.my_setup(self)
+    #     self.coax = BasisTest.add_app(self, test_project_name, subfolder=test_subfolder)
+    #     self.cs = BasisTest.add_app(self, cs, subfolder=test_subfolder)
+    #     self.cs1 = BasisTest.add_app(self, cs1, subfolder=test_subfolder)
+    #     self.cs2 = BasisTest.add_app(self, cs2, subfolder=test_subfolder)
+    #     self.cs3 = BasisTest.add_app(self, cs3, subfolder=test_subfolder)
+    #     self.multiple_cs_project = self.test_project
+    #     self.mat1 = BasisTest.add_app(self, "Add_material")
+    #     hfss_file = os.path.join(local_path, "example_models", test_subfolder, test_project_name + ".aedt")
+    #     self.project_dict = load_entire_aedt_file(hfss_file)
+    #     self.project_sub_key = load_keyword_in_aedt_file(hfss_file, "AnsoftProject")
+    #
+    # def teardown_class(self):
+    #     BasisTest.my_teardown(self)
+
+    @pytest.fixture(autouse=True)
+    def init(self, project_dict, project_sub_key, test_project_file, local_scratch):
+        self.project_dict = project_dict
+        self.project_sub_key = project_sub_key
+        self.multiple_cs_project = test_project_file(cs3_name, subfolder=test_subfolder)
+        self.local_scratch = local_scratch
 
     def test_01_check_top_level_keys(self):
         assert "AnsoftProject" in list(self.project_dict.keys())
@@ -94,15 +150,14 @@ class TestClass(BasisTest, object):
         # implicitly this will test to make sure no exception is thrown by load_entire_aedt_file
         assert load_entire_aedt_file(self.multiple_cs_project)
 
-    def test_06_check_coordinate_system_retrival(self):
-        cs = self.cs.modeler.coordinate_systems
-        assert cs
-        cs = self.cs1.modeler.coordinate_systems
-        assert cs
-        cs = self.cs2.modeler.coordinate_systems
-        assert cs
-        cs = self.cs3.modeler.coordinate_systems
-        assert cs
+    @pytest.mark.parametrize(
+        "cs_app",
+        ["cs", "cs1", "cs2", "cs3"],
+    )
+    def test_06_check_coordinate_system_retrival(self, cs_app, request):
+        cs_fixt = request.getfixturevalue(cs_app)
+        coordinate_systems = cs_fixt.modeler.coordinate_systems
+        assert coordinate_systems
 
     def test_07_load_material_file(self):
         mat_file = os.path.join(local_path, "example_models", test_subfolder, "material_sample.amat")
@@ -123,10 +178,10 @@ class TestClass(BasisTest, object):
         assert dd["mat_example_2"]["mass_density"] == "7140"
         assert dd["mat_example_2"]["specific_heat"] == "389"
 
-    def test_08_add_material_from_amat(self):
+    def test_08_add_material_from_amat(self, mat1):
         mat_file = os.path.join(local_path, "example_models", test_subfolder, "material_sample.amat")
         dd = load_entire_aedt_file(mat_file)
-        newmat = self.mat1.materials.add_material("foe_mat", props=dd["mat_example_1"])
+        newmat = mat1.materials.add_material("foe_mat", props=dd["mat_example_1"])
         assert newmat.conductivity.value == "1100000"
         assert newmat.thermal_conductivity.value == "13.8"
         assert newmat.mass_density.value == "8055"

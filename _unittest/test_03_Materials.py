@@ -1,31 +1,44 @@
 # standard imports
 import os
 
-from _unittest.conftest import BasisTest
-from _unittest.conftest import desktop_version
+# from _unittest.conftest import BasisTest
+# from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
+import pytest
 
 from pyaedt import Icepak
 from pyaedt import Maxwell3d
-from pyaedt import is_ironpython
+
+# from pyaedt import is_ironpython
 from pyaedt.modules.Material import MatProperties
 from pyaedt.modules.Material import SurfMatProperties
 
-try:
-    import pytest  # noqa: F401
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
+# try:
+#     import pytest  # noqa: F401
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 test_subfolder = "T03"
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, project_name="Test03")
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(project_name="Test03")
+    return app
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+
+class TestClass:
+    # def setup_class(self):
+    #     BasisTest.my_setup(self)
+    #     self.aedtapp = BasisTest.add_app(self, project_name="Test03")
+    #
+    # def teardown_class(self):
+    #     BasisTest.my_teardown(self)
+
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, local_scratch):
+        self.aedtapp = aedtapp
+        self.local_scratch = local_scratch
 
     def test_01_vaacum(self):
         assert "vacuum" in list(self.aedtapp.materials.material_keys.keys())
@@ -159,8 +172,9 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.materials.remove_material("copper3")
         assert not self.aedtapp.materials.remove_material("copper4")
 
-    def test_06_surface_material(self):
-        ipk = Icepak(specified_version=desktop_version)
+    def test_06_surface_material(self, add_app):
+        # ipk = Icepak(specified_version=desktop_version)
+        ipk = add_app(application=Icepak)
         mat2 = ipk.materials.add_surface_material("Steel")
         mat2.emissivity.value = SurfMatProperties.get_defaultvalue(aedtname="surface_emissivity")
         mat2.surface_diffuse_absorptance.value = SurfMatProperties.get_defaultvalue(
@@ -190,7 +204,6 @@ class TestClass(BasisTest, object):
         assert "al-extruded1" in self.aedtapp.materials.material_keys.keys()
         assert self.aedtapp.materials["al-extruded1"].thermal_conductivity.thermalmodifier
 
-    @pytest.mark.skipif(is_ironpython, reason="Requires Pandas Support")
     def test_08B_import_materials_from_excel(self):
         mats = self.aedtapp.materials.import_materials_from_excel(
             os.path.join(local_path, "example_models", test_subfolder, "mats.xlsx")
@@ -204,8 +217,9 @@ class TestClass(BasisTest, object):
         )
         assert len(mats) == 2
 
-    def test_09_non_linear_materials(self):
-        app = Maxwell3d(specified_version=desktop_version)
+    def test_09_non_linear_materials(self, add_app):
+        # app = Maxwell3d(specified_version=desktop_version)
+        app = add_app(application=Maxwell3d)
         mat1 = app.materials.add_material("myMat")
         assert mat1.permeability.set_non_linear([[0, 0], [1, 12], [10, 30]])
         assert mat1.permittivity.set_non_linear([[0, 0], [2, 12], [10, 30]])

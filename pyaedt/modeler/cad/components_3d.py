@@ -117,6 +117,7 @@ class UserDefinedComponent(object):
         self._is_updated = False
         self._all_props = None
         defined_components = self._primitives.oeditor.Get3DComponentDefinitionNames()
+        defined_components = defined_components if defined_components else []
         for component in defined_components:
             if self._m_name in self._primitives.oeditor.Get3DComponentInstanceNames(component):
                 self.definition_name = component

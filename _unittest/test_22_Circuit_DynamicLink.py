@@ -1,22 +1,23 @@
 # standard imports
 import os
 
-from _unittest.conftest import BasisTest
+# from _unittest.conftest import desktop_version
+# from _unittest.conftest import BasisTest
 from _unittest.conftest import config
-from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
+import pytest
 
+# from pyaedt import Hfss
 from pyaedt import Circuit
-from pyaedt import Hfss
 from pyaedt import Q2d
 from pyaedt import Q3d
 from pyaedt import is_ironpython
 from pyaedt.generic.general_methods import is_linux
 
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
+# try:
+#     import pytest
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest
 
 test_subfloder = "T22"
 # Access the desktop
@@ -30,47 +31,94 @@ else:
     linked_project_name = "Filter_Board"
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        # set a scratch directory and the environment / test data
-        example_project = os.path.join(local_path, "example_models", test_subfloder, test_project_name + ".aedt")
-        source_project = os.path.join(local_path, "example_models", test_subfloder, src_project_name + ".aedt")
-        linked_project = os.path.join(local_path, "example_models", test_subfloder, linked_project_name + ".aedt")
+@pytest.fixture(scope="class")
+def aedtapp(add_app, local_scratch):
+    example_project = os.path.join(local_path, "example_models", test_subfloder, test_project_name + ".aedt")
+    test_project = local_scratch.copyfile(example_project)
+    local_scratch.copyfolder(
+        os.path.join(local_path, "example_models", test_subfloder, test_project_name + ".aedb"),
+        os.path.join(local_scratch.path, test_project_name + ".aedb"),
+    )
 
-        self.q3d = self.local_scratch.copyfile(
-            os.path.join(local_path, "example_models", test_subfloder, "q2d_q3d.aedt")
-        )
-        self.test_project = self.local_scratch.copyfile(example_project)
-        self.test_src_project = self.local_scratch.copyfile(source_project)
-        self.test_lkd_project = self.local_scratch.copyfile(linked_project)
+    linked_project = os.path.join(local_path, "example_models", test_subfloder, linked_project_name + ".aedt")
+    test_lkd_project = local_scratch.copyfile(linked_project)
+    local_scratch.copyfolder(
+        os.path.join(local_path, "example_models", test_subfloder, linked_project_name + ".aedb"),
+        os.path.join(local_scratch.path, linked_project_name + ".aedb"),
+    )
 
-        self.local_scratch.copyfolder(
-            os.path.join(local_path, "example_models", test_subfloder, test_project_name + ".aedb"),
-            os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
-        )
-        self.local_scratch.copyfolder(
-            os.path.join(local_path, "example_models", test_subfloder, linked_project_name + ".aedb"),
-            os.path.join(self.local_scratch.path, linked_project_name + ".aedb"),
-        )
-        with open(example_project, "rb") as fh:
-            temp = fh.read().splitlines()
+    with open(example_project, "rb") as fh:
+        temp = fh.read().splitlines()
 
-        with open(os.path.join(self.local_scratch.path, test_project_name + ".aedt"), "wb") as outf:
-            found = False
-            for line in temp:
-                if not found:
-                    if "Filter_Board.aedt" in line.decode("utf-8"):
-                        line = "\t\t\t\tfilename='{}/{}.aedt'\n".format(
-                            self.local_scratch.path.replace("\\", "/"), linked_project_name
-                        ).encode()
-                        found = True
-                outf.write(line + b"\n")
-        self.aedtapp = Circuit(self.test_project, specified_version=desktop_version)
-        self.aedtapps.append(self.aedtapp)
+    with open(test_project, "wb") as outf:
+        found = False
+        for line in temp:
+            if not found:
+                if "Filter_Board.aedt" in line.decode("utf-8"):
+                    line = "\t\t\t\tfilename='{}'\n".format(test_lkd_project.replace("\\", "/")).encode()
+                    found = True
+            outf.write(line + b"\n")
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+    app = add_app(application=Circuit, project_name=test_project, just_open=True)
+    return app
+
+
+@pytest.fixture(scope="class", autouse=True)
+def examples(local_scratch):
+    source_project = os.path.join(local_path, "example_models", test_subfloder, src_project_name + ".aedt")
+    src_project_file = local_scratch.copyfile(source_project)
+    q3d = local_scratch.copyfile(os.path.join(local_path, "example_models", test_subfloder, "q2d_q3d.aedt"))
+    return src_project_file, q3d
+
+
+class TestClass:
+    # def setup_class(self):
+    #     # BasisTest.my_setup(self)
+    #     # set a scratch directory and the environment / test data
+    #     # example_project = os.path.join(local_path, "example_models", test_subfloder, test_project_name + ".aedt")
+    #     source_project = os.path.join(local_path, "example_models", test_subfloder, src_project_name + ".aedt")
+    #     # linked_project = os.path.join(local_path, "example_models", test_subfloder, linked_project_name + ".aedt")
+    #
+    #     self.q3d = self.local_scratch.copyfile(
+    #         os.path.join(local_path, "example_models", test_subfloder, "q2d_q3d.aedt")
+    #     )
+    #     # self.test_project = self.local_scratch.copyfile(example_project)
+    #     self.test_src_project = self.local_scratch.copyfile(source_project)
+    #     # self.test_lkd_project = self.local_scratch.copyfile(linked_project)
+    #
+    #     # self.local_scratch.copyfolder(
+    #     #     os.path.join(local_path, "example_models", test_subfloder, test_project_name + ".aedb"),
+    #     #     os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
+    #     # )
+    #     # self.local_scratch.copyfolder(
+    #     #     os.path.join(local_path, "example_models", test_subfloder, linked_project_name + ".aedb"),
+    #     #     os.path.join(self.local_scratch.path, linked_project_name + ".aedb"),
+    #     # )
+    #     # with open(example_project, "rb") as fh:
+    #     #     temp = fh.read().splitlines()
+    #     #
+    #     # with open(os.path.join(self.local_scratch.path, test_project_name + ".aedt"), "wb") as outf:
+    #     #     found = False
+    #     #     for line in temp:
+    #     #         if not found:
+    #     #             if "Filter_Board.aedt" in line.decode("utf-8"):
+    #     #                 line = "\t\t\t\tfilename='{}/{}.aedt'\n".format(
+    #     #                     self.local_scratch.path.replace("\\", "/"), linked_project_name
+    #     #                 ).encode()
+    #     #                 found = True
+    #     #         outf.write(line + b"\n")
+    #     # self.aedtapp = Circuit(self.test_project, specified_version=desktop_version)
+    #     # self.aedtapps.append(self.aedtapp)
+
+    # def teardown_class(self):
+    #     BasisTest.my_teardown(self)
+
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, local_scratch, examples):
+        self.aedtapp = aedtapp
+        self.local_scratch = local_scratch
+        self.src_project_file = examples[0]
+        self.q3d = examples[1]
 
     def test_01_save(self):
         assert os.path.exists(self.aedtapp.project_path)
@@ -85,13 +133,14 @@ class TestClass(BasisTest, object):
         assert hfss3Dlayout_comp
 
     @pytest.mark.skipif(is_ironpython or is_linux, reason="Skipped because Desktop is crashing")
-    def test_03_add_subcircuits_hfss_link(self):
-        source_project_path = os.path.join(self.local_scratch.path, src_project_name + ".aedt")
-        pin_names = self.aedtapp.get_source_pin_names(src_design_name, src_project_name, source_project_path, 2)
+    def test_03_add_subcircuits_hfss_link(self, add_app):
+        # source_project_path = os.path.join(self.local_scratch.path, src_project_name + ".aedt")
+        pin_names = self.aedtapp.get_source_pin_names(src_design_name, src_project_name, self.src_project_file, 2)
 
         assert len(pin_names) == 4
         assert "usb_P_pcb" in pin_names
-        hfss = Hfss(designname="uUSB", projectname=source_project_path, specified_version=desktop_version)
+        # hfss = Hfss(designname="uUSB", projectname=self.src_project_file, specified_version=desktop_version)
+        hfss = add_app(project_name=self.src_project_file, design_name="uUSB", just_open=True)
         hfss_comp = self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(hfss, comp_name="uUSB")
         assert hfss_comp.id == 87
         assert hfss_comp.composed_name == "CompInst@uUSB;87;3"
@@ -210,10 +259,10 @@ class TestClass(BasisTest, object):
         assert LNA_setup.update()
 
     @pytest.mark.skipif(is_ironpython or is_linux, reason="Skipped because Desktop is crashing")
-    def test_10_q2d_link(self):
+    def test_10_q2d_link(self, add_app):
         self.aedtapp.insert_design("test_link")
-        q2d = Q2d(self.q3d, specified_version=desktop_version)
-        proj_name = q2d.project_name
+        # q2d = Q2d(self.q3d, specified_version=desktop_version)
+        q2d = add_app(application=Q2d, project_name=self.q3d, just_open=True)
         c1 = self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q2d, extrusion_length=25)
         assert c1
         assert len(c1.pins) == 6
@@ -221,8 +270,8 @@ class TestClass(BasisTest, object):
         assert c1.parameters["r1"] == "0.3mm"
 
     @pytest.mark.skipif(is_ironpython or is_linux, reason="Skipped because Desktop is crashing")
-    def test_10_q3d_link(self):
-        q3d = Q3d(self.q3d, specified_version=desktop_version)
+    def test_10_q3d_link(self, add_app):
+        q3d = add_app(application=Q3d, project_name=self.q3d, just_open=True)
 
         q3d_comp = self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
             q3d, solution_name="Setup1 : LastAdaptive"
@@ -231,15 +280,16 @@ class TestClass(BasisTest, object):
         assert len(q3d_comp.pins) == 4
 
     @pytest.mark.skipif(is_ironpython or is_linux, reason="Skipped because Desktop is crashing")
-    def test_10_hfss_link(self):
-        hfss = Hfss(self.q3d, specified_version=desktop_version)
+    def test_10_hfss_link(self, add_app):
+        hfss = add_app(project_name=self.q3d, just_open=True)
 
         hfss_comp = self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(hfss, solution_name="Setup1 : Sweep")
         assert hfss_comp
         assert len(hfss_comp.pins) == 2
-        hfss = Hfss(self.q3d, specified_version=desktop_version)
+        # hfss = Hfss(proj_path, specified_version=desktop_version)
+        hfss2 = add_app(project_name=self.q3d, just_open=True)
         assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
-            hfss, solution_name="Setup2 : Sweep", tline_port="1"
+            hfss2, solution_name="Setup2 : Sweep", tline_port="1"
         )
 
     @pytest.mark.skipif(is_ironpython or is_linux, reason="Skipped because Desktop is crashing")

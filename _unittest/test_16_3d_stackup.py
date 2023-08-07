@@ -1,17 +1,36 @@
 # Setup paths for module imports
-from _unittest.conftest import BasisTest
+# from _unittest.conftest import BasisTest
 
 # Import required modules
+import pytest
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, "Test_16")
-        self.st = self.aedtapp.add_stackup_3d()
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(project_name="Test_16")
+    return app
 
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+
+@pytest.fixture(scope="class")
+def st(aedtapp):
+    stckp3d = aedtapp.add_stackup_3d()
+    return stckp3d
+
+
+class TestClass:
+    # def setup_class(self):
+    #     BasisTest.my_setup(self)
+    #     self.aedtapp = BasisTest.add_app(self, "Test_16")
+    #     self.st = self.aedtapp.add_stackup_3d()
+    #
+    # def teardown_class(self):
+    #     BasisTest.my_teardown(self)
+
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, st, local_scratch):
+        self.aedtapp = aedtapp
+        self.st = st
+        self.local_scratch = local_scratch
 
     def test_01_create_stackup(self):
         self.st.dielectic_x_postion = "10mm"

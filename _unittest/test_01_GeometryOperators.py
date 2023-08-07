@@ -1,6 +1,6 @@
 import math
 
-from _unittest.conftest import BasisTest
+import pytest
 
 from pyaedt.generic.constants import AXIS
 from pyaedt.generic.constants import PLANE
@@ -10,10 +10,13 @@ from pyaedt.modeler.calculators import StandardWaveguide as wg
 from pyaedt.modeler.calculators import TransmissionLine as tl
 from pyaedt.modeler.geometry_operators import GeometryOperators as go
 
-try:
-    import pytest  # noqa: F401
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
+# from _unittest.conftest import BasisTest
+
+
+# try:
+#     import pytest  # noqa: F401
+# except ImportError:
+#     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 tol = 1e-12
 
@@ -27,12 +30,17 @@ def is_vector_equal(v, r):
     return n < 1e-12
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        pass
+@pytest.fixture(scope="module", autouse=True)
+def desktop():
+    return
 
-    def teardown_class(self):
-        pass
+
+class TestClass:
+    # def setup_class(self):
+    #     pass
+    #
+    # def teardown_class(self):
+    #     pass
 
     def test_List2list(self):
         from pyaedt.generic.clr_module import Double

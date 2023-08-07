@@ -33,10 +33,13 @@ from pyaedt.application.design_solutions import Maxwell2DDesignSolution
 from pyaedt.application.design_solutions import RmXprtDesignSolution
 from pyaedt.application.design_solutions import model_names
 from pyaedt.application.design_solutions import solutions_defaults
-from pyaedt.desktop import Desktop
+
+# from pyaedt.desktop import Desktop
+from pyaedt.desktop import _init_desktop_from_design
 from pyaedt.desktop import exception_to_desktop
 from pyaedt.desktop import get_version_env_variable
-from pyaedt.desktop import release_desktop
+
+# from pyaedt.desktop import release_desktop
 from pyaedt.generic.DataHandlers import variation_string_to_dict
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.generic.constants import AEDT_UNITS
@@ -119,7 +122,9 @@ class Design(AedtObjects):
     def __exit__(self, ex_type, ex_value, ex_traceback):
         if ex_type:
             exception_to_desktop(ex_value, ex_traceback)
-        if self.release_on_exit:
+        if self._desktop_class._connected_designs > 1:
+            self._desktop_class._connected_designs -= 1
+        elif self._desktop_class._initialized_from_design:
             self.release_desktop(self.close_on_exit, self.close_on_exit)
 
     def __enter__(self):
@@ -135,18 +140,18 @@ class Design(AedtObjects):
         return True
 
     def _init_design(self, project_name, design_name, solution_type=None):
-        self.__init__(
+        # calls the method from the application class
+        self._init_from_design(
             projectname=project_name,
             designname=design_name,
-            # solution_type=solution_type if solution_type else self.solution_type,
             solution_type=solution_type,
             specified_version=settings.aedt_version,
-            non_graphical=settings.non_graphical,
+            non_graphical=self._desktop_class.non_graphical,
             new_desktop_session=False,
             close_on_exit=self.close_on_exit,
             student_version=self.student_version,
-            machine=settings.machine,
-            port=settings.port,
+            machine=self._desktop_class.machine,
+            port=self._desktop_class.port,
         )
 
     def __init__(
@@ -194,32 +199,19 @@ class Design(AedtObjects):
         self._global_logger = pyaedt_logger
         self._logger = pyaedt_logger
         self._desktop_class = None
-        if "pyaedt_initialized" not in dir(main_module):
-            self._desktop_class = Desktop(
-                specified_version,
-                non_graphical,
-                new_desktop_session,
-                close_on_exit,
-                student_version,
-                machine,
-                port,
-                aedt_process_id,
-            )
-            self.release_on_exit = True
-        else:
-            self._desktop_class = Desktop(
-                settings.aedt_version,
-                settings.non_graphical,
-                False,
-                close_on_exit,
-                student_version,
-                settings.machine,
-                settings.port,
-                settings.aedt_process_id,
-            )
-            self.release_on_exit = False
+        self._desktop_class = _init_desktop_from_design(
+            specified_version,
+            non_graphical,
+            new_desktop_session,
+            close_on_exit,
+            student_version,
+            machine,
+            port,
+            aedt_process_id,
+        )
+        self._desktop_class._connected_designs += 1
 
-        self.student_version = main_module.student_version
+        self.student_version = self._desktop_class.student_version
         if self.student_version:
             settings.disable_bounding_box_sat = True
         self._mttime = None
@@ -450,6 +442,7 @@ class Design(AedtObjects):
         del self._variable_manager[key]
 
     def _init_variables(self):
+        self.__aedt_version = ""
         self._modeler = None
         self._post = None
         self._materials = None
@@ -544,16 +537,11 @@ class Design(AedtObjects):
 
         >>> oDesktop.GetVersion()
         """
-        version = self.odesktop.GetVersion()
-        return get_version_env_variable(version)
+        return get_version_env_variable(self.desktop_class.aedt_version_id)
 
     @property
     def _aedt_version(self):
-        if self.odesktop:
-            v = self.odesktop.GetVersion()
-            if v:
-                return v[0:6]
-        return ""
+        return self.desktop_class.aedt_version_id
 
     @property
     def design_name(self):
@@ -804,7 +792,7 @@ class Design(AedtObjects):
 
         >>> oDesktop.GetPersonalLibDirectory
         """
-        return self.odesktop.GetPersonalLibDirectory()
+        return self.desktop_class.personallib
 
     @property
     def userlib(self):
@@ -820,7 +808,7 @@ class Design(AedtObjects):
 
         >>> oDesktop.GetUserLibDirectory
         """
-        return self.odesktop.GetUserLibDirectory()
+        return self.desktop_class.userlib
 
     @property
     def syslib(self):
@@ -836,7 +824,7 @@ class Design(AedtObjects):
 
         >>> oDesktop.GetLibraryDirectory
         """
-        return self.odesktop.GetLibraryDirectory()
+        return self.desktop_class.syslib
 
     @property
     def src_dir(self):
@@ -1134,7 +1122,12 @@ class Design(AedtObjects):
             elif settings.force_error_on_missing_project and ".aedt" in proj_name:
                 raise Exception("Project doesn't exists. Check it and retry.")
             else:
+                project_list = self.odesktop.GetProjectList()
                 self._oproject = self.odesktop.NewProject()
+                if not self._oproject:
+                    new_project_list = [i for i in self.odesktop.GetProjectList() if i not in project_list]
+                    if new_project_list:
+                        self._oproject = self.odesktop.SetActiveProject(new_project_list[0])
                 if proj_name.endswith(".aedt"):
                     self._oproject.Rename(proj_name, True)
                 elif not proj_name.endswith(".aedtz"):
@@ -1142,7 +1135,12 @@ class Design(AedtObjects):
                 self._add_handler()
                 self.logger.info("Project %s has been created.", self._oproject.GetName())
         if not self._oproject:
+            project_list = self.odesktop.GetProjectList()
             self._oproject = self.odesktop.NewProject()
+            if not self._oproject:
+                new_project_list = [i for i in self.odesktop.GetProjectList() if i not in project_list]
+                if new_project_list:
+                    self._oproject = self.odesktop.SetActiveProject(new_project_list[0])
             self._add_handler()
             self.logger.info("Project %s has been created.", self._oproject.GetName())
 
@@ -2300,7 +2298,7 @@ class Design(AedtObjects):
             ``True`` when successful, ``False`` when failed.
 
         """
-        release_desktop()
+        self.release_desktop()
         return True
 
     @pyaedt_function_handler()
@@ -2355,7 +2353,6 @@ class Design(AedtObjects):
 
         """
         self.desktop_class.release_desktop(close_projects, close_desktop)
-        release_desktop(close_projects, close_desktop)
         props = [a for a in dir(self) if not a.startswith("__")]
         for a in props:
             self.__dict__.pop(a, None)
