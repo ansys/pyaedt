@@ -297,6 +297,7 @@ class TestClass:
 
     def test_020_components(self):
         assert "R1" in list(self.edbapp.components.components.keys())
+        assert not self.edbapp.components.components["R1"].is_null
         assert self.edbapp.components.components["R1"].res_value
         assert self.edbapp.components.components["R1"].placement_layer
         assert isinstance(self.edbapp.components.components["R1"].lower_elevation, float)
