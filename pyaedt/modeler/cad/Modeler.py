@@ -2773,7 +2773,7 @@ class GeometryModeler(Modeler, object):
             return ",".join([str(i) for i in objnames])
 
     @pyaedt_function_handler()
-    def split(self, objects, plane, sides="Both", tool=None, split_crossing_objs=False, delete_invalid_objs=True):
+    def split(self, objects, plane=None, sides="Both", tool=None, split_crossing_objs=False, delete_invalid_objs=True):
         """Split a list of objects.
 
         Parameters
@@ -2781,9 +2781,11 @@ class GeometryModeler(Modeler, object):
         objects : str, int, or list
             One or more objects to split. A list can contain
             both strings (object names) and integers (object IDs).
-        plane : str
+        plane : str, optional
             Coordinate plane of the cut or the Application.PLANE object.
             Choices for the coordinate plane are ``"XY"``, ``"YZ"``, and ``"ZX"``.
+            If neither plane nor tool parameters are provided, the plane tool option is used.
+            The default value is ``"XY"``.
         sides : str
             Which side to keep. Options are ``"Both"``, ``"PositiveOnly"``,
             and ``"NegativeOnly"``. The default is ``"Both"``, in which case
@@ -2809,7 +2811,7 @@ class GeometryModeler(Modeler, object):
         >>> oEditor.Split
         """
         if self._is3d:
-            selections = self.convert_to_selections(objects)
+            objects = self.convert_to_selections(objects)
             all_objs = [i for i in self.object_names]
             if not plane and not tool or plane and tool:
                 self.logger.info("One method to split the objects has to be defined.")
@@ -2817,12 +2819,12 @@ class GeometryModeler(Modeler, object):
                 tool_type = "PlaneTool"
                 tool_entity_id = -1
                 planes = GeometryOperators.cs_plane_to_plane_str(plane)
-                selections = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
+                selections = ["NAME:Selections", "Selections:=", objects, "NewPartsModelFlag:=", "Model"]
             elif plane and not tool:
                 tool_type = "PlaneTool"
                 tool_entity_id = -1
                 planes = GeometryOperators.cs_plane_to_plane_str(plane)
-                selections = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
+                selections = ["NAME:Selections", "Selections:=", objects, "NewPartsModelFlag:=", "Model"]
             elif tool and not plane:
                 if isinstance(tool, str):
                     face = self.convert_to_selections(tool, False)
@@ -2839,14 +2841,14 @@ class GeometryModeler(Modeler, object):
                 selections = [
                     "NAME:Selections",
                     "Selections:=",
-                    selections,
+                    objects,
                     "NewPartsModelFlag:=",
                     "Model",
                     "ToolPart:=",
                     face_obj.name,
                 ]
         else:
-            selections = self.convert_to_selections(objects)
+            objects = self.convert_to_selections(objects)
             all_objs = [i for i in self.object_names]
             if not plane and not tool or plane and tool:
                 self.logger.info("One method to split the objects has to be defined.")
@@ -2854,12 +2856,12 @@ class GeometryModeler(Modeler, object):
                 tool_type = "PlaneTool"
                 tool_entity_id = -1
                 planes = GeometryOperators.cs_plane_to_plane_str(plane)
-                selections = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
+                selections = ["NAME:Selections", "Selections:=", objects, "NewPartsModelFlag:=", "Model"]
             elif plane and not tool:
                 tool_type = "PlaneTool"
                 tool_entity_id = -1
                 planes = GeometryOperators.cs_plane_to_plane_str(plane)
-                selections = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
+                selections = ["NAME:Selections", "Selections:=", objects, "NewPartsModelFlag:=", "Model"]
             elif tool and not plane:
                 if isinstance(tool, str):
                     edge = self.convert_to_selections(tool, False)
@@ -2876,7 +2878,7 @@ class GeometryModeler(Modeler, object):
                 selections = [
                     "NAME:Selections",
                     "Selections:=",
-                    selections,
+                    objects,
                     "NewPartsModelFlag:=",
                     "Model",
                     "ToolPart:=",
@@ -2901,7 +2903,7 @@ class GeometryModeler(Modeler, object):
             ],
         )
         self.refresh_all_ids()
-        return [selections] + [i for i in self.object_names if i not in all_objs]
+        return [objects] + [i for i in self.object_names if i not in all_objs]
 
     @pyaedt_function_handler()  # TODO: Deprecate this and add duplicate as an option in the mirror method.
     def duplicate_and_mirror(

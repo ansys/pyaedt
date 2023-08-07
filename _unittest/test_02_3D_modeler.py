@@ -85,6 +85,11 @@ class TestClass:
         split2 = box2.split(1)
         assert isinstance(split2, list)
         assert box2.name in split2[0]
+        box3 = self.aedtapp.modeler.create_box([10, 10, 10], [20, 20, 20], "box_to_split3")
+        rect1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [30, 15, 30], [20, 30], name="rect1")
+        face_split = self.aedtapp.modeler.split(objects=box3, sides="Both", tool=rect1.faces[0].id)
+        assert isinstance(face_split, list)
+        assert isinstance(face_split[0], str)
 
     def test_06_duplicate_and_mirror(self):
         self.restore_model()
