@@ -223,8 +223,9 @@ class EdbNets(object):
         return self._comps_by_nets_dict
 
     @pyaedt_function_handler()
-    def generate_extended_nets(self, resistor_below=10, inductor_below=1, capacitor_above=1, exception_list=None):
-        # type: (int | float, int | float, int |float, list) -> list
+    def generate_extended_nets(self, resistor_below=10, inductor_below=1, capacitor_above=1, exception_list=None,
+                               include_signal=True, include_power=True):
+        # type: (int | float, int | float, int |float, list, bool, bool) -> list
         """Get extended net and associated components.
 
         Parameters
@@ -239,6 +240,10 @@ class EdbNets(object):
             threshold.
         exception_list : list, optional
             List of components which bypass threshold check. The default is ``None``.
+        include_signal : str, optional
+            Whether to generate extended signal nets. The default is ``True``.
+        include_power : str, optional
+            Whether to generate extended power nets. The default is ``True``.
         Returns
         -------
         list
@@ -300,7 +305,17 @@ class EdbNets(object):
                 for i in new_ext:
                     if not i.lower().startswith("unnamed"):
                         break
-                self._pedb.extended_nets.create(i, new_ext)
+
+                flag = False
+                for i in new_ext:
+                    flag = flag or self._pedb.nets[i].is_power_ground
+
+                if include_power and flag:
+                    self._pedb.extended_nets.create(i, new_ext)
+
+                if include_signal and not flag:
+                    self._pedb.extended_nets.create(i, new_ext)
+
         return _extended_nets
 
     @staticmethod

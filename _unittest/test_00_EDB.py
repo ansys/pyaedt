@@ -227,12 +227,13 @@ class TestClass(BasisTest, object):
         assert self.edbapp.nets.find_or_create_net(start_with="g", end_with="d")
         assert self.edbapp.nets.find_or_create_net(end_with="d")
         assert self.edbapp.nets.find_or_create_net(contain="usb")
-        assert self.edbapp.nets.generate_extended_nets()
-        assert self.edbapp.extended_nets["NetD3_2"]
-        assert self.edbapp.extended_nets["NetD3_2"].nets
-        assert self.edbapp.extended_nets["NetD3_2"].components
-        assert self.edbapp.extended_nets["NetD3_2"].rlc
-        assert self.edbapp.extended_nets["NetD3_2"].serial_rlc
+        assert self.edbapp.nets.generate_extended_nets(include_signal=False, include_power=True, capacitor_above=1)
+        assert self.edbapp.nets.generate_extended_nets(include_signal=True, include_power=False, capacitor_above=1e-9)
+        assert self.edbapp.extended_nets["AVCC_1V3"]
+        assert self.edbapp.extended_nets["AVCC_1V3"].nets
+        assert self.edbapp.extended_nets["AVCC_1V3"].components
+        assert self.edbapp.extended_nets["AVCC_1V3"].rlc
+        assert self.edbapp.extended_nets["AVCC_1V3"].serial_rlc
 
         assert self.edbapp.nets["AVCC_1V3"].extended_net
 
