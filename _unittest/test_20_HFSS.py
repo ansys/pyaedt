@@ -655,6 +655,14 @@ class TestClass(BasisTest, object):
         assert pe.name in self.aedtapp.modeler.get_boundaries_name()
         ph = self.aedtapp.assign_perfecth_to_sheets(rect.name)
         assert ph.name in self.aedtapp.modeler.get_boundaries_name()
+        solution_type = self.aedtapp.solution_type
+
+        self.aedtapp.solution_type = "Eigen Mode"
+        perfect_h_eigen = self.aedtapp.assign_perfecth_to_sheets(rect.name)
+        assert perfect_h_eigen.name in self.aedtapp.modeler.get_boundaries_name()
+        perfect_e_eigen = self.aedtapp.assign_perfecte_to_sheets(rect.name)
+        assert perfect_e_eigen.name in self.aedtapp.modeler.get_boundaries_name()
+        self.aedtapp.solution_type = "solution_type"
 
     def test_16_create_impedance_on_sheets(self):
         rect = self.aedtapp.modeler.create_rectangle(
