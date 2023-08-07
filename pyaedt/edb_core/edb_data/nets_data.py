@@ -69,9 +69,11 @@ class EDBNetsData(NetDotNet):
         dict[str, :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`]
         """
         comps = {}
-        for el, val in self._core_components.components.items():
-            if self.name in val.nets:
-                comps[el] = val
+        for p in self.padstack_instances:
+            comp = p.component
+            if comp:
+                if not comp.refdes in comps:
+                    comps[comp.refdes] = comp
         return comps
 
     @pyaedt_function_handler()
