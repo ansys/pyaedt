@@ -1377,3 +1377,14 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.heal_objects(input_objects_list="box_1", tighten_gaps_width="0.001")
         assert self.aedtapp.modeler.heal_objects(input_objects_list="box_1", silver_face_tolerance=1.2)
         assert self.aedtapp.modeler.heal_objects(input_objects_list="box_1", silver_face_tolerance="1.2")
+
+    def test_68_simplify_objects(self):
+        assert self.aedtapp.modeler.simplify_objects(input_objects_list="box_1")
+        assert self.aedtapp.modeler.simplify_objects(input_objects_list="box_1,box_2")
+        assert self.aedtapp.modeler.simplify_objects(input_objects_list="box_1, box_2")
+        assert not self.aedtapp.modeler.simplify_objects(input_objects_list=["box_1", "box_2"])
+        assert self.aedtapp.modeler.simplify_objects(input_objects_list="box_1", simplify_type="Primitive Fit")
+        assert not self.aedtapp.modeler.simplify_objects(input_objects_list="box_1", simplify_type="Invalid")
+        assert not self.aedtapp.modeler.simplify_objects(
+            input_objects_list="box_1", simplify_type="Polygon Fit", extrusion_axis="U"
+        )

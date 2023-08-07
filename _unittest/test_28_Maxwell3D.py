@@ -805,15 +805,17 @@ class TestClass(BasisTest, object):
         )
 
     def test_48_simplify_objects(self):
-        assert self.aedtapp.simplify_objects(input_objects_list="impedance_box")
-        assert self.aedtapp.simplify_objects(input_objects_list="impedance_box,impedance_box_copper,Inner_Box")
-        assert self.aedtapp.simplify_objects(input_objects_list="impedance_box, impedance_box_copper, Inner_Box ")
-        assert not self.aedtapp.simplify_objects(
+        assert self.aedtapp.modeler.simplify_objects(input_objects_list="impedance_box")
+        assert self.aedtapp.modeler.simplify_objects(input_objects_list="impedance_box,impedance_box_copper,Inner_Box")
+        assert self.aedtapp.modeler.simplify_objects(
+            input_objects_list="impedance_box, impedance_box_copper, Inner_Box "
+        )
+        assert not self.aedtapp.modeler.simplify_objects(
             input_objects_list=["impedance_box", "impedance_box_copper", "Inner_Box"]
         )
-        assert self.aedtapp.simplify_objects(input_objects_list="impedance_box", simplify_type="Primitive Fit")
-        assert not self.aedtapp.simplify_objects(input_objects_list="impedance_box", simplify_type="Invalid")
-        assert not self.aedtapp.simplify_objects(
+        assert self.aedtapp.modeler.simplify_objects(input_objects_list="impedance_box", simplify_type="Primitive Fit")
+        assert not self.aedtapp.modeler.simplify_objects(input_objects_list="impedance_box", simplify_type="Invalid")
+        assert not self.aedtapp.modeler.simplify_objects(
             input_objects_list="impedance_box", simplify_type="Polygon Fit", extrusion_axis="U"
         )
 

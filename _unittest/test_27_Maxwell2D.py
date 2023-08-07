@@ -443,7 +443,7 @@ class TestClass(BasisTest, object):
         )
 
     def test_30_simplify_objects(self):
-        assert not self.aedtapp.simplify_objects(input_objects_list="Rotor_Section1")
+        assert not self.aedtapp.modeler.simplify_objects(input_objects_list="Rotor_Section1")
 
     def test_31_cylindrical_gap(self):
         assert not self.aedtapp.mesh.assign_cylindrical_gap("Band")

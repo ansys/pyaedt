@@ -57,6 +57,9 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.heal_objects(input_objects_list="Rectangle1", silver_face_tolerance=1.2)
         assert self.aedtapp.modeler.heal_objects(input_objects_list="Rectangle1", silver_face_tolerance="1.2")
 
+    def test_02c_simplify_objects(self):
+        assert not self.aedtapp.modeler.simplify_objects(input_objects_list="Rectangle1")
+
     def test_06a_create_setup(self):
         mysetup = self.aedtapp.create_setup()
         mysetup.props["SaveFields"] = True
