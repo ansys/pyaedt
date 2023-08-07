@@ -39,7 +39,7 @@ non_graphical = False
 temp_folder = pyaedt.generate_unique_folder_name()
 
 ipk = pyaedt.Icepak(projectname=os.path.join(temp_folder, "Icepak_ECAD_Import.aedt"),
-                    specified_version="2023.1",
+                    specified_version="2023.2",
                     new_desktop_session=True,
                     non_graphical=non_graphical
                     )
@@ -50,13 +50,18 @@ ipk.autosave_disable()                                                    # Save
 # Import the IDF files
 # ~~~~~~~~~~~~~~~~~~~~
 # Sample *.bdf and *.ldf files are presented here.
+#
+#
 # .. image:: ../../_static/bdf.png
-# :width: 400
-# :alt: BDF image
+#    :width: 400
+#    :alt: BDF image.
+#
+#
 # .. image:: ../../_static/ldf.png
-# :width: 400
-# :alt: LDF image
-
+#    :width: 400
+#    :alt: LDF image.
+#
+#
 # Imports the idf files with several filtering options incluing caps, resistors, inductors, power, size, ...
 # There are also options for the PCB creation (number o flayers, copper percentages, layer sizes). 
 # In this examples, the default values are used for the PCB.

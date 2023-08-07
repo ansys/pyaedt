@@ -1823,7 +1823,7 @@ class Settings(object):
         self._desktop_launch_timeout = 90
         self._aedt_process_id = None
         self._is_student = False
-        self._number_of_grpc_api_retries = 3
+        self._number_of_grpc_api_retries = 6
 
     @property
     def number_of_grpc_api_retries(self):
@@ -2223,7 +2223,7 @@ class Settings(object):
 
     @property
     def enable_debug_edb_logger(self):
-        """Enable or disable Logger for any EDB API method."""
+        """Enable or disable Logger for any EDB API methods."""
         return self._enable_debug_edb_logger
 
     @property
@@ -2259,7 +2259,7 @@ class Settings(object):
 
     @property
     def enable_debug_logger(self):
-        """Return the Environment Variable Content."""
+        """Enable or disable Logger for any AEDT API methods. Additionally, enables debug logging messages."""
         return self._enable_debug_logger
 
     @enable_debug_logger.setter

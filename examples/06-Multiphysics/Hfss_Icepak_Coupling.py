@@ -25,7 +25,7 @@ from pyaedt.generic.pdf import AnsysReport
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
-desktopVersion = "2023.1"
+desktopVersion = "2023.2"
 
 ###############################################################################
 # Open project
@@ -308,15 +308,6 @@ intrinsic = ""
 surflist = ipkapp.modeler.get_object_faces("inner") + ipkapp.modeler.get_object_faces("outer")
 plot5 = ipkapp.post.create_fieldplot_surface(surflist, "SurfTemperature")
 
-ipkapp.post.plot_field_from_fieldplot(
-    plot5.name,
-    project_path=results_folder,
-    meshplot=False,
-    imageformat="jpg",
-    view="isometric",
-    show=False,
-)
-
 aedtapp.save_project()
 
 ################################################################################
@@ -356,7 +347,7 @@ report.add_chapter("Icepak Results")
 report.add_sub_chapter("Temperature Plot")
 report.add_text("This section contains Multiphysics temperature plot.")
 
-report.add_image(os.path.join(results_folder, plot5.name+".jpg"), "Coaxial Cable Temperatures")
+#report.add_image(os.path.join(results_folder, plot5.name+".jpg"), "Coaxial Cable Temperatures")
 report.add_toc()
 report.save_pdf(results_folder, "AEDT_Results.pdf")
 

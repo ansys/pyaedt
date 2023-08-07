@@ -21,7 +21,7 @@ local_path = pyaedt.downloads.download_aedb(dst_dir)
 #####################################################################################
 # Load example board into EDB
 
-edbversion = "2023.1"
+edbversion = "2023.2"
 appedb = pyaedt.Edb(local_path, edbversion=edbversion)
 
 #####################################################################################

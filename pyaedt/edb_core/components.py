@@ -193,7 +193,7 @@ class Components(object):
         Returns
         -------
         dict of :class:`pyaedt.edb_core.edb_data.components_data.EDBComponentDef`"""
-        return {l.GetName(): EDBComponentDef(self, l) for l in list(self._pedb.component_defs)}
+        return {l.GetName(): EDBComponentDef(self._pedb, l) for l in list(self._pedb.component_defs)}
 
     @property
     def nport_comp_definition(self):
@@ -291,7 +291,7 @@ class Components(object):
         """Refresh the component dictionary."""
         # self._logger.info("Refreshing the Components dictionary.")
         self._cmp = {
-            l.GetName(): EDBComponent(self, l)
+            l.GetName(): EDBComponent(self._pedb, l)
             for l in self._layout.groups
             if l.ToString() == "Ansys.Ansoft.Edb.Cell.Hierarchy.Component"
         }
@@ -874,11 +874,11 @@ class Components(object):
             pad_params = self._padstack.get_pad_parameters(pin=cmp_pins[0], layername=pin_layers[0], pad_type=0)
             if not pad_params[0] == 7:
                 sball_diam = min([self._pedb.edb_value(val).ToDouble() for val in pad_params[1]])
-                solder_ball_height = sball_diam / 2
+                solder_ball_height = 2 * sball_diam / 3
             else:
                 bbox = pad_params[1]
                 sball_diam = min([abs(bbox[2] - bbox[0]), abs(bbox[3] - bbox[1])]) * 0.8
-                solder_ball_height = sball_diam / 2
+                solder_ball_height = 2 * sball_diam / 3
             self.set_solder_ball(component, solder_ball_height, sball_diam)
             for pin in cmp_pins:
                 self._padstack.create_coax_port(padstackinstance=pin, name=port_name)
@@ -896,9 +896,7 @@ class Components(object):
                 self._logger.info("No reference pin found on component {}.".format(component.GetName()))
             if do_pingroup:
                 if len(ref_pins) == 1:
-                    self.create_terminal = self._create_terminal(ref_pins[0])
-                    self.terminal = self.create_terminal
-                    ref_pin_group_term = self.terminal
+                    ref_pin_group_term = self._create_terminal(ref_pins[0])
                 else:
                     ref_pin_group = self.create_pingroup_from_pins(ref_pins)
                     if not ref_pin_group:
@@ -1230,7 +1228,10 @@ class Components(object):
         -------
         Edb pin group terminal.
         """
-        term_name = "{}_T".format(pingroup.GetName())
+        pin = list(pingroup.GetPins())[0]
+        term_name = "{}.{}.{}".format(
+            pin.GetComponent().GetName(), pin.GetComponent().GetName(), pin.GetNet().GetName()
+        )
         for t in list(self._pedb.active_layout.Terminals):
             if t.GetName() == term_name:
                 return t
@@ -1434,7 +1435,7 @@ class Components(object):
             ):
                 return False  # pragma no cover
         new_cmp.SetTransform(hosting_component_location)
-        new_edb_comp = EDBComponent(self, new_cmp)
+        new_edb_comp = EDBComponent(self._pedb, new_cmp)
         self._cmp[new_cmp.GetName()] = new_edb_comp
         return new_edb_comp
 
@@ -1822,14 +1823,13 @@ class Components(object):
             cmp = self.instances[edb_cmp.GetName()]
         if edb_cmp:
             cmp_type = edb_cmp.GetComponentType()
-            if bool(not sball_diam + sball_height):
+            if not sball_diam:
                 pin1 = list(cmp.pins.values())[0].pin
                 pin_layers = pin1.GetPadstackDef().GetData().GetLayerNames()
                 pad_params = self._padstack.get_pad_parameters(pin=pin1, layername=pin_layers[0], pad_type=0)
                 _sb_diam = min([self._get_edb_value(val).ToDouble() for val in pad_params[1]])
                 sball_diam = _sb_diam
-                sball_height = sball_diam
-
+            sball_height = round(self._edb.utility.Value(sball_diam).ToDouble(), 9) / 2
             if not sball_mid_diam:
                 sball_mid_diam = sball_diam
 

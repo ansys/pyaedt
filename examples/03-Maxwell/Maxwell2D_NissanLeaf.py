@@ -21,7 +21,7 @@ import pyaedt
 # Initialize Maxwell 2D, providing the version, path to the project, and the design
 # name and type.
 
-desktopVersion = "2023.1"
+desktopVersion = "2023.2"
 
 sName = "MySetupAuto"
 sType = "TransientXY"
@@ -701,11 +701,11 @@ for k, v in post_params.items():
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # Create a multiplot report.
 
-for k, v in post_params_multiplot.items():
-    M2D.post.create_report(expressions=list(k), setup_sweep_name="", domain="Sweep", variations=None,
-                           primary_sweep_variable="Time", secondary_sweep_variable=None,
-                           report_category=None, plot_type="Rectangular Plot", context=None, subdesign_id=None,
-                           polyline_points=1001, plotname=v)
+# for k, v in post_params_multiplot.items():
+#     M2D.post.create_report(expressions=list(k), setup_sweep_name="", domain="Sweep", variations=None,
+#                            primary_sweep_variable="Time", secondary_sweep_variable=None,
+#                            report_category=None, plot_type="Rectangular Plot", context=None, subdesign_id=None,
+#                            polyline_points=1001, plotname=v)
 
 ##########################################################
 # Create flux lines plot on region
@@ -725,7 +725,7 @@ M2D.post.create_fieldplot_surface(objlist=faces_reg, quantityName='Flux_Lines', 
 # Analyze and save the project.
 
 M2D.save_project()
-M2D.analyze_setup(sName)
+M2D.analyze_setup(sName, use_auto_settings=False)
 
 ###############################################
 # Close AEDT

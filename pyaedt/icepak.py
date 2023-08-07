@@ -2575,7 +2575,16 @@ class Icepak(FieldAnalysis3D):
         return mats
 
     @pyaedt_function_handler()
-    def generate_fluent_mesh(self, object_lists=None):
+    def generate_fluent_mesh(
+        self,
+        object_lists=None,
+        meshtype="tetrahedral",
+        min_size=None,
+        max_size=None,
+        inflation_layer_number=3,
+        inflation_growth_rate=1.2,
+        mesh_growth_rate=1.2,
+    ):
         """Generate a Fluent mesh for a list of selected objects and assign the mesh automatically to the objects.
 
         Parameters
@@ -2583,6 +2592,18 @@ class Icepak(FieldAnalysis3D):
         object_lists : list, optional
             List of objects to compute the Fluent mesh on. The default is ``None``, in which case
             all fluids objects are used to compute the mesh.
+        meshtype : str, optional
+            Mesh type. Options are ``"tethraedral"`` or ``"hexcore"``.
+        min_size : float, optional
+            Minimum mesh size. Default is smallest edge of objects/20.
+        max_size : float, optional
+            Maximum mesh size. Default is smallest edge of objects/5.
+        inflation_layer_number : int, optional
+            Inflation layer number. Default is ``3``.
+        inflation_growth_rate : float, optional
+            Inflation layer size. Default is ``1.2``.
+        mesh_growth_rate : float, optional
+            Growth rate. Default is ``1.2``.
 
         Returns
         -------
@@ -2592,11 +2613,30 @@ class Icepak(FieldAnalysis3D):
         ansys_install_dir = os.environ.get("ANSYS{}_DIR".format(version), "")
         if not ansys_install_dir:
             ansys_install_dir = os.environ.get("AWP_ROOT{}".format(version), "")
-        assert ansys_install_dir, "Fluent {} has to be installed on to generate mesh.".format(version)
-        assert os.getenv("ANSYS{}_DIR".format(version))
+        assert ansys_install_dir, "Fluent {} has to be installed to generate mesh. Please set ANSYS{}_DIR".format(
+            version, version
+        )
+        if not os.getenv("ANSYS{}_DIR".format(version)):
+            os.environ["ANSYS{}_DIR".format(version)] = ansys_install_dir
         if not object_lists:
             object_lists = self.get_liquid_objects()
             assert object_lists, "No Fluids objects found."
+        if not min_size or not max_size:
+            dims = []
+            # try:
+            #     dim = self.modeler["Region"].shortest_edge()[0].length
+            # except (AttributeError, KeyError, IndexError):
+            for obj in object_lists:
+                bb = self.modeler[obj].bounding_box
+                dd = [abs(bb[3] - bb[0]), abs(bb[4] - bb[1]), abs(bb[5] - bb[2])]
+                dims.append(min(dd))
+            dim = min(dims)
+            if not max_size:
+                max_size = dim / 5
+            if not min_size:
+                min_size = dim / 20
+            else:
+                min_size = min(min_size, max_size / 4)
         object_lists = self.modeler.convert_to_selections(object_lists, True)
         file_name = self.project_name
         sab_file_pointer = os.path.join(self.working_directory, file_name + ".sab")
@@ -2627,6 +2667,17 @@ class Icepak(FieldAnalysis3D):
         fluent_script.write("(%py-exec \"workflow.TaskObject['Import Geometry'].Execute()\")\n")
         fluent_script.write("(%py-exec \"workflow.TaskObject['Add Local Sizing'].AddChildToTask()\")\n")
         fluent_script.write("(%py-exec \"workflow.TaskObject['Add Local Sizing'].Execute()\")\n")
+        fluent_script.write("(%py-exec \"meshtype = '{}'\")\n".format(meshtype))
+        fluent_script.write('(%py-exec "gr = {}")\n'.format(mesh_growth_rate))
+        fluent_script.write('(%py-exec "maxsize = {}")\n'.format(max_size))
+        fluent_script.write('(%py-exec "minsize = {}")\n'.format(min_size))
+        fluent_script.write('(%py-exec "nlayers = {}")\n'.format(inflation_layer_number))
+        fluent_script.write('(%py-exec "pgr = {}")\n'.format(inflation_growth_rate))
+        mesh_settings = "(%py-exec \"workflow.TaskObject['Generate the Surface Mesh'].Arguments.setState"
+        mesh_settings += "({r'CFDSurfaceMeshControls': {r'CellsPerGap': 3,r'CurvatureNormalAngle': 18,"
+        mesh_settings += "r'MaxSize': maxsize,r'MinSize': minsize,r'GrowthRate': gr},})\")\n"
+
+        fluent_script.write(mesh_settings)
         fluent_script.write("(%py-exec \"workflow.TaskObject['Generate the Surface Mesh'].Execute()\")\n")
         cmd = "(%py-exec \"workflow.TaskObject['Describe Geometry'].UpdateChildTasks(SetupTypeChanged=False)\")\n"
         fluent_script.write(cmd)
@@ -2646,15 +2697,17 @@ class Icepak(FieldAnalysis3D):
         fluent_script.write("(%py-exec \"workflow.TaskObject['Update Boundaries'].Execute()\")\n")
         fluent_script.write("(%py-exec \"workflow.TaskObject['Update Regions'].Execute()\")\n")
         fluent_script.write("(%py-exec \"workflow.TaskObject['Add Boundary Layers'].AddChildToTask()\")\n")
+
         fluent_script.write("(%py-exec \"workflow.TaskObject['Add Boundary Layers'].InsertCompoundChildTask()\")\n")
         cmd = "(%py-exec \"workflow.TaskObject['smooth-transition_1']."
-        cmd += "Arguments.setState({r'BLControlName': r'smooth-transition_1',})\")\n"
+        cmd += "Arguments.setState({r'BLControlName': r'smooth-transition_1',"
+        cmd += "r'NumberOfLayers':nlayers, r'Rate':pgr})\")\n"
         fluent_script.write(cmd)
         fluent_script.write("(%py-exec \"workflow.TaskObject['Add Boundary Layers'].Arguments.setState({})\")\n")
         fluent_script.write("(%py-exec \"workflow.TaskObject['smooth-transition_1'].Execute()\")\n")
         # r'VolumeFill': r'hexcore' / r'tetrahedral'
         cmd = "(%py-exec \"workflow.TaskObject['Generate the Volume Mesh'].Arguments.setState({r'VolumeFill': "
-        cmd += "r'hexcore', r'VolumeMeshPreferences': {r'MergeBodyLabels': r'yes',},})\")\n"
+        cmd += "meshtype, r'VolumeMeshPreferences': {r'MergeBodyLabels': r'yes',},})\")\n"
         fluent_script.write(cmd)
         fluent_script.write("(%py-exec \"workflow.TaskObject['Generate the Volume Mesh'].Execute()\")\n")
         fluent_script.write("/file/hdf no\n")
@@ -2662,23 +2715,24 @@ class Icepak(FieldAnalysis3D):
         fluent_script.write("/file/stop-transcript\n")
         fluent_script.write("/exit,\n")
         fluent_script.close()
-
+        cmd = os.path.join(self.desktop_install_dir, "fluent", "ntbin", "win64", "fluent.exe")
+        if is_linux:  # pragma: no cover
+            cmd = os.path.join(ansys_install_dir, "fluent", "bin", "fluent")
         # Fluent command line parameters: -meshing -i <journal> -hidden -tm<x> (# processors for meshing) -wait
         fl_ucommand = [
-            os.path.join(self.desktop_install_dir, "fluent", "ntbin", "win64", "fluent.exe"),
+            cmd,
             "3d",
             "-meshing",
             "-hidden",
-            "-i" + '"' + fl_uscript_file_pointer + '"',
+            "-i",
         ]
-        self.logger.info("Fluent is starting in BG.")
+        self.logger.info("Fluent is starting in Background with command line")
+        if is_linux:
+            fl_ucommand = ["bash"] + fl_ucommand + [fl_uscript_file_pointer]
+        else:
+            fl_ucommand = ["bash"] + fl_ucommand + ['"' + fl_uscript_file_pointer + '"']
+        self.logger.info(" ".join(fl_ucommand))
         subprocess.call(fl_ucommand)
-        if os.path.exists(mesh_file_pointer + ".trn"):
-            os.remove(mesh_file_pointer + ".trn")
-        if os.path.exists(fl_uscript_file_pointer):
-            os.remove(fl_uscript_file_pointer)
-        if os.path.exists(sab_file_pointer):
-            os.remove(sab_file_pointer)
         if os.path.exists(mesh_file_pointer):
             self.logger.info("'" + mesh_file_pointer + "' has been created.")
             return self.mesh.assign_mesh_from_file(object_lists, mesh_file_pointer)

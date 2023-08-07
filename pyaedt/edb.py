@@ -14,11 +14,7 @@ import warnings
 
 from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
-from pyaedt.edb_core import Components
-from pyaedt.edb_core import EdbHfss
-from pyaedt.edb_core import EdbLayout
-from pyaedt.edb_core import EdbNets
-from pyaedt.edb_core import EdbSiwave
+from pyaedt.edb_core.components import Components
 from pyaedt.edb_core.dotnet.database import Database
 from pyaedt.edb_core.dotnet.layout import LayoutDotNet
 from pyaedt.edb_core.edb_data.control_file import ControlFile
@@ -37,9 +33,16 @@ from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.edb_data.variables import Variable
 import pyaedt.edb_core.general
 from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.edb_core.hfss import EdbHfss
 from pyaedt.edb_core.ipc2581.ipc2581 import Ipc2581
+from pyaedt.edb_core.layout import EdbLayout
 from pyaedt.edb_core.materials import Materials
+from pyaedt.edb_core.net_class import EdbDifferentialPair
+from pyaedt.edb_core.net_class import EdbExtendedNets
+from pyaedt.edb_core.net_class import EdbNetClasses
+from pyaedt.edb_core.nets import EdbNets
 from pyaedt.edb_core.padstack import EdbPadstacks
+from pyaedt.edb_core.siwave import EdbSiwave
 from pyaedt.edb_core.stackup import Stackup
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import SolverType
@@ -139,8 +142,7 @@ class Edb(Database):
         technology_file=None,
     ):
         self._clean_variables()
-
-        Database.__init__(self, edbversion, student_version)
+        Database.__init__(self, edbversion=edbversion, student_version=student_version)
         self.standalone = True
         self.oproject = oproject
         self._main = sys.modules["__main__"]
@@ -191,14 +193,14 @@ class Edb(Database):
             self.create_edb()
             if settings.enable_local_log_file and self.log_name:
                 self._logger = self._global_logger.add_file_logger(self.log_name, "Edb")
-            self.logger.info("EDB %s was created correctly.", self.edbpath)
+            self.logger.info("EDB %s created correctly.", self.edbpath)
         elif ".aedb" in edbpath:
             self.edbpath = edbpath
             if settings.enable_local_log_file and self.log_name:
                 self._logger = self._global_logger.add_file_logger(self.log_name, "Edb")
             self.open_edb()
         if self.active_cell:
-            self.logger.info("EDB was initialized.")
+            self.logger.info("EDB initialized.")
         else:
             self.logger.info("Failed to initialize DLLs.")
 
@@ -280,8 +282,6 @@ class Edb(Database):
         self._core_primitives = EdbLayout(self)
         self._stackup2 = self._stackup
         self._materials = Materials(self)
-
-        self.logger.info("Objects Initialized")
 
     @property
     def cell_names(self):
@@ -879,9 +879,58 @@ class Edb(Database):
         return self._nets
 
     @property
+    def net_classes(self):
+        """Get all net classes.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.nets.EdbNetClasses`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> edbapp.net_classes
+        """
+
+        if self.active_db:
+            return EdbNetClasses(self)
+
+    @property
+    def extended_nets(self):
+        """Get all extended nets.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.nets.EdbExtendedNets`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> edbapp.extended_nets
+        """
+
+        if self.active_db:
+            return EdbExtendedNets(self)
+
+    @property
+    def differential_pairs(self):
+        """Get all differential pairs.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.nets.EdbDifferentialPairs`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> edbapp.differential_pairs
+        """
+        if self.active_db:
+            return EdbDifferentialPair(self)
+
+    @property
     def core_primitives(self):  # pragma: no cover
         """Core primitives.
-
 
         .. deprecated:: 0.6.62
            Use new property :func:`modeler` instead.
@@ -2872,7 +2921,20 @@ class Edb(Database):
                         if len(simulation_setup.etching_factor_instances) > idx:
                             self.stackup[layer].etch_factor = float(simulation_setup.etching_factor_instances[idx])
 
+            if not simulation_setup.signal_nets and simulation_setup.components:
+                nets_to_include = []
+                pnets = list(self.nets.power_nets.keys())[:]
+                for el in simulation_setup.components:
+                    nets_to_include.append([i for i in self.components[el].nets if i not in pnets])
+                simulation_setup.signal_nets = [
+                    i
+                    for i in list(set.intersection(*map(set, nets_to_include)))
+                    if i not in simulation_setup.power_nets and i != ""
+                ]
             self.nets.classify_nets(simulation_setup.power_nets, simulation_setup.signal_nets)
+            if not simulation_setup.power_nets or not simulation_setup.signal_nets:
+                self.logger.info("Disabling cutout as no signals or power nets have been defined.")
+                simulation_setup.do_cutout_subdesign = False
             if simulation_setup.do_cutout_subdesign:
                 self.logger.info("Cutting out using method: {0}".format(simulation_setup.cutout_subdesign_type))
                 if simulation_setup.use_default_cutout:
@@ -2920,19 +2982,26 @@ class Edb(Database):
             if simulation_setup.solver_type == SolverType.Hfss3dLayout:
                 if simulation_setup.generate_excitations:
                     self.logger.info("Creating HFSS ports for signal nets.")
+                    source_type = SourceType.CoaxPort
+                    if not simulation_setup.generate_solder_balls:
+                        source_type = SourceType.CircPort
                     for cmp in simulation_setup.components:
                         self.components.create_port_on_component(
                             cmp,
                             net_list=simulation_setup.signal_nets,
                             do_pingroup=False,
                             reference_net=simulation_setup.power_nets,
-                            port_type=SourceType.CoaxPort,
+                            port_type=source_type,
                         )
-                    if not self.hfss.set_coax_port_attributes(simulation_setup):  # pragma: no cover
+                    if simulation_setup.generate_solder_balls and not self.hfss.set_coax_port_attributes(
+                        simulation_setup
+                    ):  # pragma: no cover
                         self.logger.error("Failed to configure coaxial port attributes.")
                     self.logger.info("Number of ports: {}".format(self.hfss.get_ports_number()))
                     self.logger.info("Configure HFSS extents.")
-                    if simulation_setup.trim_reference_size:  # pragma: no cover
+                    if (
+                        simulation_setup.generate_solder_balls and simulation_setup.trim_reference_size
+                    ):  # pragma: no cover
                         self.logger.info(
                             "Trimming the reference plane for coaxial ports: {0}".format(
                                 bool(simulation_setup.trim_reference_size)

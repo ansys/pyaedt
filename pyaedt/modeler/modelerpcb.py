@@ -185,16 +185,24 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         warn(mess, DeprecationWarning)
         return self._primitives
 
-    @property
-    def obounding_box(self):
-        """Bounding box.
+    @pyaedt_function_handler
+    def obounding_box(self, object_name):
+        """Bounding box of a specified object.
+
+        Returns
+        -------
+        list
+            List of [LLx, LLy, URx, URy] coordinates.
 
         References
         ----------
 
-        >>> oEditor.GetModelBoundingBox
+        >>> oEditor.GetBBox
         """
-        return self.oeditor.GetModelBoundingBox()
+        bb = self.oeditor.GetBBox(object_name)
+        pll = bb.BBoxLL()
+        pur = bb.BBoxUR()
+        return [pll.GetX(), pll.GetY(), pur.GetX(), pur.GetY()]
 
     @pyaedt_function_handler()
     def _arg_with_dim(self, value, units=None):

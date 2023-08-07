@@ -31,7 +31,7 @@ class SimulationConfigurationBatch(object):
         self._cutout_subdesign_type = CutoutSubdesignType.Conformal  # Conformal
         self._cutout_subdesign_expansion = 0.001
         self._cutout_subdesign_round_corner = True
-        self._use_default_cutout = True
+        self._use_default_cutout = False
         self._generate_excitations = True
         self._add_frequency_sweep = True
         self._include_only_selected_nets = False
@@ -261,7 +261,8 @@ class SimulationConfigurationBatch(object):
 
     @property
     def use_default_cutout(self):  # pragma: no cover
-        """Whether the default EDB cutout or a new PyAEDT cutout is used.
+        """Whether to use the default EDB cutout. The default is ``False``, in which case
+        a new PyAEDT cutout is used.
 
         Returns
         -------
@@ -2382,14 +2383,6 @@ class SimulationConfiguration(object):
         if source_name:
             if node_to_ground in [0, 1, 2]:
                 self._dc_source_terms_to_ground[source_name] = node_to_ground
-
-    def _parse_signal_layer_properties(self, signal_properties):  # pragma: no cover
-        for lay in signal_properties:
-            lp = lay.split(":")
-            try:
-                self.signal_layers_properties.update({lp[0]: [lp[1], lp[2], lp[3], lp[4], lp[5]]})
-            except:
-                print("Missing parameter for layer {0}".format(lp[0]))
 
     def _read_cfg(self):  # pragma: no cover
         """Configuration file reader.
