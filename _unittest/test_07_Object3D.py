@@ -1,29 +1,28 @@
 # standard imports
 import math
 
-from _unittest.conftest import BasisTest
+import pytest
 
+# from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import _to_boolean
 from pyaedt.generic.general_methods import _uname
-from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import isclose
 from pyaedt.generic.general_methods import time_fn
 from pyaedt.modeler.cad.elements3d import EdgePrimitive
 from pyaedt.modeler.cad.elements3d import FacePrimitive
 
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
+
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(project_name="Test07")
+    return app
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, project_name="Test07")
-
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+class TestClass:
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, local_scratch):
+        self.aedtapp = aedtapp
+        self.local_scratch = local_scratch
 
     def create_example_coil(self, name=None):
         if not name:
@@ -477,9 +476,8 @@ class TestClass(BasisTest, object):
                 for face in face_object:
                     assert (face.area - 105) < 0
 
-        if not is_ironpython:
-            with pytest.raises(ValueError):
-                self.aedtapp.modeler.object_list[0].faces_by_area(100, "<<")
+        with pytest.raises(ValueError):
+            self.aedtapp.modeler.object_list[0].faces_by_area(100, "<<")
 
     def test_25_edges_by_length(self):
         edges_equal = []
@@ -527,9 +525,8 @@ class TestClass(BasisTest, object):
                 for edge in edge_object:
                     assert (edge.length - 15) < 0
 
-        if not is_ironpython:
-            with pytest.raises(ValueError):
-                self.aedtapp.modeler.object_list[0].edges_by_length(10, "<<")
+        with pytest.raises(ValueError):
+            self.aedtapp.modeler.object_list[0].edges_by_length(10, "<<")
 
     def test_26_unclassified_object(self):
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
@@ -626,7 +623,6 @@ class TestClass(BasisTest, object):
                     subtract_child[child].props["Height"] = "24meter"
                     assert subtract_child[child].props["Height"] == "24meter"
 
-    @pytest.mark.skipif(is_ironpython, reason="requires pyvista")
     def test_29_test_nets(self):
         self.aedtapp.insert_design("nets")
         self.aedtapp.modeler.create_box([0, 0, 0], [5, 10, 10], matname="copper")

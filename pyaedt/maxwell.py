@@ -2253,6 +2253,9 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         )
         Maxwell.__init__(self)
 
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
+
     @pyaedt_function_handler()
     def assign_insulating(self, geometry_selection, insulation_name=None):
         """Create an insulating boundary condition.
@@ -2997,6 +3000,9 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
             aedt_process_id,
         )
         Maxwell.__init__(self)
+
+    def _init_from_design(self, *args, **kwargs):
+        self.__init__(*args, **kwargs)
 
     @property
     def xy_plane(self):

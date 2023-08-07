@@ -1,32 +1,28 @@
 # standard imports
+import filecmp
 import math
 import os
 import sys
 
-from _unittest.conftest import BasisTest
+import pytest
 
-from pyaedt.generic.general_methods import is_ironpython
+# from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import isclose
 from pyaedt.maxwell import Maxwell2d
 
-# Setup paths for module imports
 
-try:
-    import filecmp
-
-    import pytest  # noqa: F401
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
+@pytest.fixture(scope="class")
+def aedtapp(add_app):
+    app = add_app(design_name="2D_Primitives", application=Maxwell2d)
+    return app
 
 
-class TestClass(BasisTest, object):
-    def setup_class(self):
-        BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, design_name="2D_Primitives", application=Maxwell2d)
-
-    def teardown_class(self):
-        BasisTest.my_teardown(self)
+class TestClass:
+    @pytest.fixture(autouse=True)
+    def init(self, aedtapp, local_scratch):
+        self.aedtapp = aedtapp
+        self.local_scratch = local_scratch
 
     def test_01_model_units(self):
         model_units = self.aedtapp.modeler.model_units
@@ -173,13 +169,12 @@ class TestClass(BasisTest, object):
         objects_z_6 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
         assert type(objects_z_4) is list
         assert type(objects_z_6) is list
-        if not is_ironpython:
-            with pytest.raises(ValueError):
-                bounding_box = [3, 4, 5]
-                self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
-            with pytest.raises(ValueError):
-                bounding_box_5_elements = [1, 2, 3, 4, 5]
-                self.aedtapp.modeler.objects_in_bounding_box(bounding_box_5_elements)
+        with pytest.raises(ValueError):
+            bounding_box = [3, 4, 5]
+            self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
+        with pytest.raises(ValueError):
+            bounding_box_5_elements = [1, 2, 3, 4, 5]
+            self.aedtapp.modeler.objects_in_bounding_box(bounding_box_5_elements)
 
     def test_13_set_variable(self):
         self.aedtapp.variable_manager.set_variable("var_test", expression="123")

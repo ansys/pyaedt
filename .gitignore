@@ -373,6 +373,8 @@ dist/
 /coverage.xml
 /_unittest/coverage.xml
 /_unittest/local_config.json
+/_unittest_solvers/coverage.xml
+/_unittest_solvers/local_config.json
 test-results.xml
 test-output.xml
 
