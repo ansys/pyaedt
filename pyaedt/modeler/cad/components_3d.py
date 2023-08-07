@@ -849,6 +849,7 @@ class UserDefinedComponent(object):
                 new_filepath,
             ]
         )
+        self._primitives._app.modeler.refresh_all_ids()
         return True
 
     @pyaedt_function_handler()
